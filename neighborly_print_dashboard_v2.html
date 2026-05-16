@@ -1,0 +1,317 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans)}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}
+.wrap{padding:1rem 0}
+.urgent-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.urgent-title{font-size:16px;font-weight:500;color:var(--color-text-primary);display:flex;align-items:center;gap:8px}
+.urgent-list{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1.75rem}
+.urgent-card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1rem;cursor:pointer;transition:background 0.1s}
+.urgent-card:hover{background:var(--color-background-secondary)}
+.urgent-card.overdue{border-left:3px solid #E24B4A;border-radius:0 var(--border-radius-lg) var(--border-radius-lg) 0}
+.urgent-card.at-risk{border-left:3px solid #BA7517;border-radius:0 var(--border-radius-lg) var(--border-radius-lg) 0}
+.urgent-card.on-track{border-left:3px solid #1D9E75;border-radius:0 var(--border-radius-lg) var(--border-radius-lg) 0}
+.urgent-card.done{border-left:3px solid #639922;border-radius:0 var(--border-radius-lg) var(--border-radius-lg) 0}
+.uc-name{font-size:13px;font-weight:500;color:var(--color-text-primary);margin-bottom:4px;line-height:1.35}
+.uc-meta{font-size:11px;color:var(--color-text-secondary);margin-bottom:6px}
+.uc-date{font-size:12px;font-weight:500}
+.uc-date.overdue{color:#A32D2D}
+.uc-date.at-risk{color:#633806}
+.uc-date.on-track{color:#085041}
+.uc-date.done{color:#27500A}
+.status-pill{display:inline-block;font-size:11px;font-weight:500;padding:2px 8px;border-radius:20px}
+.status-on-track{background:#E1F5EE;color:#085041}
+.status-at-risk{background:#FAEEDA;color:#633806}
+.status-overdue{background:#FCEBEB;color:#A32D2D}
+.status-done{background:#EAF3DE;color:#27500A}
+.section{margin-bottom:1.75rem}
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.section-title{font-size:16px;font-weight:500;color:var(--color-text-primary);display:flex;align-items:center;gap:8px}
+.section-badge{font-size:11px;font-weight:500;padding:2px 8px;border-radius:20px}
+.add-item-btn{background:none;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);padding:5px 12px;font-size:12px;cursor:pointer;color:var(--color-text-secondary);display:flex;align-items:center;gap:5px}
+.add-item-btn:hover{background:var(--color-background-secondary)}
+.table-wrap{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);overflow:hidden}
+.print-table{width:100%;border-collapse:collapse;table-layout:fixed}
+.print-table th{font-size:11px;font-weight:500;color:var(--color-text-secondary);text-align:left;padding:6px 10px;border-bottom:0.5px solid var(--color-border-tertiary)}
+.print-table td{font-size:13px;color:var(--color-text-primary);padding:9px 10px;border-bottom:0.5px solid var(--color-border-tertiary);vertical-align:middle}
+.print-table tr:last-child td{border-bottom:none}
+.print-table tr:hover td{background:var(--color-background-secondary)}
+.cb-cell{text-align:center}
+.cb-cell input[type=checkbox]{width:15px;height:15px;cursor:pointer;accent-color:#534AB7}
+.file-cell{text-align:center}
+.file-label{display:inline-flex;align-items:center;gap:4px;font-size:11px;cursor:pointer;color:var(--color-text-secondary);border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);padding:3px 8px}
+.file-label:hover{background:var(--color-background-secondary);color:var(--color-text-primary)}
+.file-label.has-file{color:#085041;border-color:#1D9E75;background:#E1F5EE}
+.file-input{display:none}
+.delivery-date{font-size:12px;color:var(--color-text-secondary)}
+.empty-row td{color:var(--color-text-tertiary);font-size:13px;font-style:italic;text-align:center;padding:18px}
+.form-overlay{background:rgba(0,0,0,0.28);display:flex;align-items:flex-start;justify-content:center;padding:1.5rem 0;margin-top:1rem}
+.form-card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1.25rem;width:100%;max-width:500px}
+.form-card h3{font-size:15px;font-weight:500;margin-bottom:1rem;color:var(--color-text-primary)}
+.form-row{margin-bottom:10px}
+.form-row label{display:block;font-size:12px;color:var(--color-text-secondary);margin-bottom:3px}
+.form-row input[type=text],.form-row input[type=date],.form-row select{width:100%;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);padding:7px 10px;font-size:13px;color:var(--color-text-primary);background:var(--color-background-primary);font-family:var(--font-sans)}
+.file-drop{border:1px dashed var(--color-border-secondary);border-radius:var(--border-radius-md);padding:1rem;text-align:center;cursor:pointer;transition:background 0.1s}
+.file-drop:hover{background:var(--color-background-secondary)}
+.file-drop.has-file{border-color:#1D9E75;background:#E1F5EE}
+.file-drop-text{font-size:13px;color:var(--color-text-secondary)}
+.file-drop-text.has-file{color:#085041}
+.form-btns{display:flex;gap:8px;justify-content:flex-end;margin-top:1rem}
+.btn-cancel{background:none;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);padding:6px 14px;font-size:13px;cursor:pointer;color:var(--color-text-primary)}
+.btn-save{background:#534AB7;border:none;border-radius:var(--border-radius-md);padding:6px 14px;font-size:13px;cursor:pointer;color:#fff;font-weight:500}
+.btn-del-sm{background:none;border:0.5px solid #E24B4A;border-radius:var(--border-radius-md);padding:6px 14px;font-size:13px;cursor:pointer;color:#E24B4A}
+</style>
+
+<div class="wrap">
+<h2 class="sr-only">Neighborly print production dashboard</h2>
+
+<div class="urgent-header">
+  <div class="urgent-title"><i class="ti ti-clock" style="font-size:17px" aria-hidden="true"></i> Upcoming deadlines</div>
+</div>
+<div class="urgent-list" id="urgentList"></div>
+
+<div id="sectionsWrap"></div>
+
+<div id="formWrap" style="display:none">
+  <div class="form-overlay">
+    <div class="form-card">
+      <h3 id="formTitle">Add print item</h3>
+      <div class="form-row"><label>Item name</label><input type="text" id="fName" placeholder="e.g. Summer sale poster"></div>
+      <div class="form-row"><label>Category</label>
+        <select id="fCat">
+          <option value="posters">Posters</option>
+          <option value="postcards">Postcards</option>
+          <option value="stickers">Stickers</option>
+          <option value="popup">Pop-up materials</option>
+        </select>
+      </div>
+      <div class="form-row"><label>Finish-by date (artwork deadline)</label><input type="date" id="fFinish"></div>
+      <div class="form-row"><label>Sent to print date (leave blank if not yet sent)</label><input type="date" id="fPrint"></div>
+      <div class="form-row">
+        <label>Artwork file</label>
+        <div class="file-drop" id="fDropZone" onclick="document.getElementById('fFileInput').click()">
+          <input type="file" id="fFileInput" class="file-input" accept=".pdf,.ai,.eps,.png,.jpg,.zip" onchange="handleFilePick(this)">
+          <i class="ti ti-upload" style="font-size:20px;color:var(--color-text-tertiary);display:block;margin-bottom:6px" aria-hidden="true"></i>
+          <div class="file-drop-text" id="fFileText">Click to upload or drag & drop<br><span style="font-size:11px">PDF, AI, EPS, PNG, JPG, ZIP</span></div>
+        </div>
+      </div>
+      <div class="form-btns">
+        <button class="btn-del-sm" id="fDelBtn" onclick="deleteItem()" style="display:none"><i class="ti ti-trash" aria-hidden="true"></i> Delete</button>
+        <button class="btn-cancel" onclick="closeForm()">Cancel</button>
+        <button class="btn-save" onclick="saveItem()">Save item</button>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+const CATS=[
+  {key:'posters',label:'Posters',icon:'ti-layout-board',color:'#534AB7',bg:'#EEEDFE',text:'#3C3489'},
+  {key:'postcards',label:'Postcards',icon:'ti-mail',color:'#1D9E75',bg:'#E1F5EE',text:'#085041'},
+  {key:'stickers',label:'Stickers',icon:'ti-tag',color:'#D4537E',bg:'#FBEAF0',text:'#72243E'},
+  {key:'popup',label:'Pop-up materials',icon:'ti-layout-2',color:'#BA7517',bg:'#FAEEDA',text:'#633806'}
+];
+
+function uid(){return Math.random().toString(36).slice(2,9)}
+function addDays(ds,n){const d=new Date(ds+'T00:00:00');d.setDate(d.getDate()+n);return d.toISOString().split('T')[0]}
+function fmtDate(ds){if(!ds)return'—';const d=new Date(ds+'T00:00:00');return d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}
+function todayStr(){return new Date().toISOString().split('T')[0]}
+function daysUntil(ds){const t=new Date(todayStr()+'T00:00:00'),d=new Date(ds+'T00:00:00');return Math.round((d-t)/(1000*60*60*24))}
+function catLabel(k){return CATS.find(c=>c.key===k)?.label||k}
+
+function getStatus(item){
+  if(item.approved&&item.sentToPrint)return'done';
+  if(!item.finishBy)return'on-track';
+  const diff=daysUntil(item.finishBy);
+  if(diff<0)return'overdue';
+  if(diff<=3)return'at-risk';
+  return'on-track';
+}
+function statusLabel(s){return{done:'Done','on-track':'On track','at-risk':'At risk',overdue:'Overdue'}[s]}
+function statusClass(s){return{done:'status-done','on-track':'status-on-track','at-risk':'status-at-risk',overdue:'status-overdue'}[s]}
+
+let formFileName='';
+let editId=null;
+
+let items=[
+  {id:uid(),name:'Mother\'s Day window cling',cat:'posters',finishBy:'2025-05-06',approved:false,sentToPrint:false,printDate:'',fileName:''},
+  {id:uid(),name:'Step-and-repeat backdrop',cat:'popup',finishBy:'2025-05-14',approved:true,sentToPrint:false,printDate:'',fileName:'backdrop_v2.pdf'},
+  {id:uid(),name:'Summer sale — 18×24 poster',cat:'posters',finishBy:'2025-05-12',approved:true,sentToPrint:true,printDate:'2025-05-09',fileName:'summer_sale_poster.pdf'},
+  {id:uid(),name:'Summer promo postcard',cat:'postcards',finishBy:'2025-05-18',approved:true,sentToPrint:false,printDate:'',fileName:''},
+  {id:uid(),name:'Logo sticker sheet',cat:'stickers',finishBy:'2025-05-08',approved:true,sentToPrint:true,printDate:'2025-05-07',fileName:'logo_stickers.ai'},
+  {id:uid(),name:'Neighborhood mailer — Q2',cat:'postcards',finishBy:'2025-05-22',approved:false,sentToPrint:false,printDate:'',fileName:''},
+  {id:uid(),name:'Event table banner',cat:'popup',finishBy:'2025-05-20',approved:false,sentToPrint:false,printDate:'',fileName:''},
+];
+
+function handleFilePick(input){
+  const file=input.files[0];
+  if(!file)return;
+  formFileName=file.name;
+  document.getElementById('fFileText').innerHTML=`<i class="ti ti-file" style="font-size:14px;vertical-align:-2px" aria-hidden="true"></i> ${file.name}`;
+  document.getElementById('fFileText').className='file-drop-text has-file';
+  document.getElementById('fDropZone').className='file-drop has-file';
+}
+
+function toggleApproved(id){
+  items=items.map(i=>i.id===id?{...i,approved:!i.approved}:i);
+  render();
+}
+function toggleSent(id){
+  const item=items.find(i=>i.id===id);if(!item)return;
+  if(!item.sentToPrint&&!item.approved){
+    document.getElementById('cb-sent-'+id).checked=false;
+    alert('Please approve the item before marking as sent to print.');return;
+  }
+  const newSent=!item.sentToPrint;
+  items=items.map(i=>i.id===id?{...i,sentToPrint:newSent,printDate:newSent?todayStr():''}:i);
+  render();
+}
+function triggerFileForItem(id){
+  const inp=document.getElementById('file-input-'+id);
+  if(inp)inp.click();
+}
+function handleRowFile(input,id){
+  const file=input.files[0];if(!file)return;
+  items=items.map(i=>i.id===id?{...i,fileName:file.name}:i);
+  render();
+}
+
+function openForm(catKey){
+  editId=null;formFileName='';
+  document.getElementById('formTitle').textContent='Add print item';
+  document.getElementById('fName').value='';
+  document.getElementById('fCat').value=catKey||'posters';
+  document.getElementById('fFinish').value='';
+  document.getElementById('fPrint').value='';
+  document.getElementById('fFileInput').value='';
+  document.getElementById('fFileText').innerHTML='Click to upload or drag & drop<br><span style="font-size:11px">PDF, AI, EPS, PNG, JPG, ZIP</span>';
+  document.getElementById('fFileText').className='file-drop-text';
+  document.getElementById('fDropZone').className='file-drop';
+  document.getElementById('fDelBtn').style.display='none';
+  document.getElementById('formWrap').style.display='block';
+  document.getElementById('formWrap').scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+function openEdit(id){
+  const item=items.find(i=>i.id===id);if(!item)return;
+  editId=id;formFileName=item.fileName||'';
+  document.getElementById('formTitle').textContent='Edit print item';
+  document.getElementById('fName').value=item.name;
+  document.getElementById('fCat').value=item.cat;
+  document.getElementById('fFinish').value=item.finishBy||'';
+  document.getElementById('fPrint').value=item.printDate||'';
+  document.getElementById('fFileInput').value='';
+  if(item.fileName){
+    document.getElementById('fFileText').innerHTML=`<i class="ti ti-file" style="font-size:14px;vertical-align:-2px"></i> ${item.fileName}`;
+    document.getElementById('fFileText').className='file-drop-text has-file';
+    document.getElementById('fDropZone').className='file-drop has-file';
+  } else {
+    document.getElementById('fFileText').innerHTML='Click to upload or drag & drop<br><span style="font-size:11px">PDF, AI, EPS, PNG, JPG, ZIP</span>';
+    document.getElementById('fFileText').className='file-drop-text';
+    document.getElementById('fDropZone').className='file-drop';
+  }
+  document.getElementById('fDelBtn').style.display='block';
+  document.getElementById('formWrap').style.display='block';
+  document.getElementById('formWrap').scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+function closeForm(){document.getElementById('formWrap').style.display='none';editId=null}
+function deleteItem(){if(!editId)return;items=items.filter(i=>i.id!==editId);closeForm();render()}
+function saveItem(){
+  const name=document.getElementById('fName').value.trim();
+  const finishBy=document.getElementById('fFinish').value;
+  if(!name||!finishBy){alert('Please fill in item name and finish-by date.');return;}
+  const printDate=document.getElementById('fPrint').value;
+  const existing=editId?items.find(i=>i.id===editId):{};
+  const item={
+    id:editId||uid(),name,
+    cat:document.getElementById('fCat').value,
+    finishBy,
+    approved:existing.approved||false,
+    sentToPrint:!!printDate,
+    printDate:printDate||'',
+    fileName:formFileName||existing.fileName||''
+  };
+  if(editId){items=items.map(i=>i.id===editId?item:i)}else{items.push(item)}
+  closeForm();render();
+}
+
+function renderUrgent(){
+  const incomplete=items.filter(i=>!i.sentToPrint&&i.finishBy).sort((a,b)=>new Date(a.finishBy)-new Date(b.finishBy)).slice(0,3);
+  if(incomplete.length===0){
+    document.getElementById('urgentList').innerHTML=`<div style="grid-column:1/-1;font-size:13px;color:var(--color-text-tertiary);font-style:italic;padding:0.5rem 0">All items sent to print.</div>`;
+    return;
+  }
+  document.getElementById('urgentList').innerHTML=incomplete.map(item=>{
+    const s=getStatus(item);
+    const diff=daysUntil(item.finishBy);
+    const diffLabel=diff<0?`${Math.abs(diff)}d overdue`:diff===0?'Due today':`${diff}d left`;
+    return `<div class="urgent-card ${s}" onclick="openEdit('${item.id}')">
+      <div class="uc-name">${item.name}</div>
+      <div class="uc-meta">${catLabel(item.cat)}</div>
+      <div class="uc-date ${s}">${fmtDate(item.finishBy)} · ${diffLabel}</div>
+      <div style="margin-top:6px"><span class="status-pill ${statusClass(s)}">${statusLabel(s)}</span></div>
+    </div>`;
+  }).join('');
+}
+
+function render(){
+  renderUrgent();
+  document.getElementById('sectionsWrap').innerHTML=CATS.map(cat=>{
+    const catItems=items.filter(i=>i.cat===cat.key).sort((a,b)=>{
+      if(!a.finishBy)return 1;if(!b.finishBy)return -1;
+      return new Date(a.finishBy)-new Date(b.finishBy);
+    });
+    const rows=catItems.length===0
+      ?`<tr class="empty-row"><td colspan="8">No items yet — add one above</td></tr>`
+      :catItems.map(item=>{
+        const s=getStatus(item);
+        const delivery=item.printDate?addDays(item.printDate,10):'';
+        const fileCell=item.fileName
+          ?`<span class="file-label has-file" onclick="triggerFileForItem('${item.id}')"><i class="ti ti-file" style="font-size:12px" aria-hidden="true"></i>${item.fileName}</span>`
+          :`<span class="file-label" onclick="triggerFileForItem('${item.id}')"><i class="ti ti-upload" style="font-size:12px" aria-hidden="true"></i>Upload</span>`;
+        return `<tr>
+          <td style="font-weight:500;cursor:pointer" onclick="openEdit('${item.id}')">${item.name}</td>
+          <td>${item.finishBy?fmtDate(item.finishBy):'—'}</td>
+          <td class="cb-cell"><input type="checkbox" id="cb-appr-${item.id}" ${item.approved?'checked':''} onchange="toggleApproved('${item.id}')" style="width:15px;height:15px;accent-color:#534AB7;cursor:pointer"></td>
+          <td class="file-cell">
+            <input type="file" id="file-input-${item.id}" class="file-input" accept=".pdf,.ai,.eps,.png,.jpg,.zip" onchange="handleRowFile(this,'${item.id}')">
+            ${fileCell}
+          </td>
+          <td class="cb-cell"><input type="checkbox" id="cb-sent-${item.id}" ${item.sentToPrint?'checked':''} onchange="toggleSent('${item.id}')" style="width:15px;height:15px;accent-color:#534AB7;cursor:pointer"></td>
+          <td>${item.printDate?fmtDate(item.printDate):'—'}</td>
+          <td class="delivery-date">${delivery?fmtDate(delivery):'—'}</td>
+          <td><span class="status-pill ${statusClass(s)}">${statusLabel(s)}</span></td>
+        </tr>`;
+      }).join('');
+
+    return `<div class="section">
+      <div class="section-header">
+        <div class="section-title">
+          <i class="ti ${cat.icon}" style="font-size:17px;color:${cat.color}" aria-hidden="true"></i>
+          ${cat.label}
+          <span class="section-badge" style="background:${cat.bg};color:${cat.text}">${catItems.length} item${catItems.length!==1?'s':''}</span>
+        </div>
+        <button class="add-item-btn" onclick="openForm('${cat.key}')"><i class="ti ti-plus" style="font-size:13px" aria-hidden="true"></i> Add</button>
+      </div>
+      <div class="table-wrap">
+        <table class="print-table">
+          <thead><tr>
+            <th style="width:26%">Item</th>
+            <th style="width:12%">Finish by</th>
+            <th style="width:9%;text-align:center">Approved</th>
+            <th style="width:13%;text-align:center">File</th>
+            <th style="width:10%;text-align:center">Sent to print</th>
+            <th style="width:11%">Print date</th>
+            <th style="width:11%">Est. delivery</th>
+            <th style="width:8%">Status</th>
+          </tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+render();
+</script>
