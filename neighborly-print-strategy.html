@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Print Strategy — Neighborly</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&family=DM+Mono:wght@400;500&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --dark:#1f2328;--surface:#fff;--surface2:#F0EEE9;--bg:#F7F6F3;
+  --border:rgba(0,0,0,0.08);--border-strong:rgba(0,0,0,0.13);
+  --text:#1A1916;--text2:#6B6960;--text3:#9E9C96;
+  --yellow:#eace49;--yl:#fdf7d8;--yd:#7a6b00;
+  --green:#7bbd91;--gl:#e4f5ea;--gd:#2a5c38;
+  --orange:#e87142;--ol:#fdeee7;--od:#8a3518;
+  --blue:#6280bd;--bl:#eaeef8;--bd:#2d4480;
+  --tan:#dbc6a2;--tl:#f7f0e4;--td:#5a4520;
+  --lav:#cbc9d6;--ll:#f0eff5;--ld:#4a4760;
+}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+
+nav{background:var(--surface);border-bottom:.5px solid var(--border-strong);padding:0 1.5rem;display:flex;align-items:center;justify-content:space-between;height:50px;position:sticky;top:0;z-index:50}
+.nav-brand{font-size:14px;font-weight:600;color:var(--text);display:flex;align-items:center;gap:8px;text-decoration:none}
+.nav-dot{width:7px;height:7px;background:var(--yellow);border-radius:50%}
+.nav-links{display:flex;gap:8px}
+.nav-back{font-size:12px;color:var(--text2);text-decoration:none;display:flex;align-items:center;gap:5px;padding:5px 12px;border:.5px solid var(--border-strong);border-radius:8px;transition:background .15s;white-space:nowrap}
+.nav-back:hover{background:var(--surface2)}
+.nav-back.accent{color:var(--yd);border-color:rgba(234,206,73,.5);background:var(--yl)}
+
+.page{max-width:960px;margin:0 auto;padding:2.5rem 1.5rem 4rem}
+
+.eyebrow{font-size:10.5px;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:var(--td);margin-bottom:8px}
+h1{font-size:26px;font-weight:600;letter-spacing:-.03em;color:var(--dark);margin-bottom:6px}
+.sub{font-size:13.5px;color:var(--text2);line-height:1.65;max-width:620px;margin-bottom:2.5rem}
+
+/* STATS */
+.stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:2.5rem}
+.stat{background:var(--surface);border:.5px solid var(--border);border-radius:12px;padding:1rem 1.1rem}
+.stat-num{font-size:30px;font-weight:600;letter-spacing:-.04em;font-family:'DM Mono',monospace;line-height:1;margin-bottom:4px}
+.stat-label{font-size:11px;font-weight:500;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;line-height:1.4}
+.stat-note{font-size:10.5px;color:var(--text3);margin-top:3px}
+
+/* SECTION LABEL */
+.section{margin-bottom:2.5rem}
+.sec-label{font-size:10.5px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--text3);margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.sec-label::after{content:'';flex:1;height:.5px;background:var(--border-strong)}
+
+/* PROGRAMME CARDS */
+.prog-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.prog-card{background:var(--surface);border:.5px solid var(--border);border-radius:14px;overflow:hidden}
+.prog-header{padding:1rem 1.15rem .85rem;border-bottom:.5px solid var(--border)}
+.prog-type{display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;padding:3px 10px;border-radius:20px;margin-bottom:8px}
+.prog-name{font-size:15.5px;font-weight:600;color:var(--dark);letter-spacing:-.01em;margin-bottom:4px}
+.prog-desc{font-size:12.5px;color:var(--text2);line-height:1.55}
+.prog-body{padding:.9rem 1.15rem}
+.item-row{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;padding:7px 0;border-bottom:.5px solid var(--border)}
+.item-row:last-child{border-bottom:none}
+.item-name{font-size:12.5px;color:var(--dark);line-height:1.4;flex:1}
+.item-sub{font-size:11px;color:var(--text3);margin-top:2px;line-height:1.4}
+.qty{font-size:11px;font-weight:600;font-family:'DM Mono',monospace;padding:2px 9px;border-radius:20px;white-space:nowrap;flex-shrink:0}
+
+/* POP-UP WIDE CARD */
+.pop-card{background:var(--surface);border:.5px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:12px}
+.pop-header{padding:1rem 1.15rem;border-bottom:.5px solid var(--border);display:flex;align-items:flex-start;justify-content:space-between;gap:1rem}
+.pop-stat{background:var(--surface2);border-radius:10px;padding:.75rem 1rem;text-align:center;min-width:110px;flex-shrink:0}
+.pop-stat-num{font-size:24px;font-weight:600;font-family:'DM Mono',monospace;color:var(--od);letter-spacing:-.03em}
+.pop-stat-sub{font-size:10px;color:var(--text3);margin-top:2px;line-height:1.4}
+.pop-body{display:grid;grid-template-columns:repeat(3,1fr)}
+.pop-col{padding:.85rem 1.15rem;border-right:.5px solid var(--border)}
+.pop-col:last-child{border-right:none}
+.pop-col-title{font-size:12.5px;font-weight:600;color:var(--dark);margin-bottom:4px}
+.pop-col-sub{font-size:11.5px;color:var(--text2);line-height:1.5}
+
+/* DETAIL EXPAND CARDS */
+.detail-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px}
+.detail-card{background:var(--surface);border:.5px solid var(--border);border-radius:12px;padding:1rem 1.1rem}
+.detail-card-title{font-size:12px;font-weight:600;color:var(--dark);margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.detail-icon{width:20px;height:20px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0}
+.detail-card ul{list-style:none;display:flex;flex-direction:column;gap:5px}
+.detail-card li{font-size:12px;color:var(--text2);line-height:1.5;padding-left:12px;position:relative}
+.detail-card li::before{content:'·';position:absolute;left:0;color:var(--text3);font-weight:700}
+
+/* BRIEF TIMELINE STRIP */
+.brief-strip{background:var(--surface);border:.5px solid var(--border);border-radius:12px;padding:1rem 1.25rem;margin-bottom:12px}
+.brief-strip-title{font-size:12px;font-weight:600;color:var(--dark);margin-bottom:10px}
+.brief-track{display:flex;align-items:center;gap:0;position:relative}
+.brief-step{flex:1;text-align:center;position:relative}
+.brief-step::before{content:'';position:absolute;top:14px;left:-50%;right:50%;height:1px;background:var(--border-strong);z-index:0}
+.brief-step:first-child::before{display:none}
+.brief-dot{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;font-family:'DM Mono',monospace;margin:0 auto 6px;position:relative;z-index:1}
+.brief-label{font-size:10px;color:var(--text2);line-height:1.4}
+.brief-label strong{display:block;color:var(--dark);font-weight:600;font-size:11px;margin-bottom:1px}
+
+/* QUARTER GRID */
+.quarter-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.q-col{background:var(--surface);border:.5px solid var(--border);border-radius:12px;overflow:hidden}
+.q-head{padding:.65rem .9rem;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;border-bottom:.5px solid var(--border)}
+.q-body{padding:.75rem .9rem;display:flex;flex-direction:column;gap:7px}
+.q-item{font-size:11.5px;color:var(--dark);display:flex;align-items:flex-start;gap:6px;line-height:1.4}
+.q-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:4px}
+.q-sub{font-size:10.5px;color:var(--text3);margin-top:1px}
+
+/* TOTALS */
+.totals-wrap{background:var(--surface);border:.5px solid var(--border);border-radius:14px;overflow:hidden}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);text-align:left;padding:8px 14px;border-bottom:.5px solid var(--border-strong)}
+th:not(:first-child){text-align:center}
+td{padding:11px 14px;border-bottom:.5px solid var(--border);color:var(--dark);vertical-align:top;line-height:1.4}
+td:not(:first-child){text-align:center;font-family:'DM Mono',monospace;font-size:12.5px}
+.cat-row td{background:var(--surface2);font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);padding:5px 14px;font-family:'DM Sans',sans-serif}
+.total-row td{background:var(--dark);color:var(--yellow);font-weight:600;font-size:13px;border-bottom:none}
+tr:last-child td{border-bottom:none}
+td small{display:block;font-size:10.5px;color:var(--text3);font-family:'DM Sans',sans-serif;margin-top:2px}
+
+/* NOTES */
+.notes-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.note-card{background:var(--surface);border:.5px solid var(--border);border-radius:12px;padding:1.1rem 1.15rem}
+.note-card h4{font-size:12.5px;font-weight:600;color:var(--dark);margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.note-icon{width:22px;height:22px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0}
+.note-card ul{list-style:none;display:flex;flex-direction:column;gap:6px}
+.note-card li{font-size:12.5px;color:var(--text2);line-height:1.5;padding-left:14px;position:relative}
+.note-card li::before{content:'·';position:absolute;left:0;color:var(--text3);font-weight:700}
+
+/* CATERING ANSWER BANNER */
+.answer-banner{background:var(--dark);border-radius:12px;padding:1.1rem 1.25rem;margin-bottom:12px;display:flex;align-items:flex-start;gap:1rem}
+.answer-banner-icon{width:32px;height:32px;background:var(--yellow);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:16px}
+.answer-banner-text{flex:1}
+.answer-banner-title{font-size:13px;font-weight:600;color:var(--yellow);margin-bottom:4px}
+.answer-banner-body{font-size:12.5px;color:rgba(255,255,255,0.7);line-height:1.55}
+
+/* TIMELINE SECTION */
+.timeline-wrap{background:var(--surface);border:.5px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:2.5rem}
+.timeline-header{padding:1rem 1.25rem .75rem;border-bottom:.5px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.timeline-header h3{font-size:15px;font-weight:600;color:var(--dark);margin-bottom:2px}
+.timeline-header p{font-size:12px;color:var(--text3)}
+.sync-btn{display:flex;align-items:center;gap:6px;font-size:11.5px;font-weight:500;color:var(--text2);background:var(--surface2);border:.5px solid var(--border-strong);border-radius:8px;padding:5px 12px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:background .15s}
+.sync-btn:hover{background:var(--yl);color:var(--yd)}
+.sync-dot{width:6px;height:6px;border-radius:50%;background:var(--green);flex-shrink:0}
+.sync-dot.stale{background:var(--tan)}
+.tl-legend{display:flex;gap:14px;padding:.65rem 1.25rem;border-bottom:.5px solid var(--border);flex-wrap:wrap}
+.tl-legend-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text2)}
+.tl-legend-swatch{width:10px;height:10px;border-radius:2px;flex-shrink:0}
+.tl-body{padding:1rem 1.25rem 1.25rem;overflow-x:auto}
+.tl-row{display:flex;align-items:center;gap:10px;margin-bottom:5px;min-height:28px}
+.tl-label{font-size:11.5px;color:var(--dark);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:170px;flex-shrink:0}
+.tl-label small{display:block;font-size:10px;color:var(--text3);margin-top:1px}
+.tl-track{flex:1;position:relative;height:22px;min-width:400px}
+.tl-bar{position:absolute;height:18px;top:2px;border-radius:4px;padding:0 6px;font-size:10px;font-weight:500;white-space:nowrap;overflow:hidden;cursor:pointer;transition:opacity .15s;display:flex;align-items:center}
+.tl-bar:hover{opacity:.8}
+.tl-dot{position:absolute;width:8px;height:8px;border-radius:50%;top:7px;transform:translateX(-50%);border:1.5px solid white}
+.tl-today-line{position:absolute;top:-4px;bottom:-4px;width:1.5px;background:var(--orange);pointer-events:none;z-index:2}
+.tl-today-line::before{content:'today';position:absolute;top:-14px;left:50%;transform:translateX(-50%);font-size:8px;font-weight:600;color:var(--orange);text-transform:uppercase;letter-spacing:.04em;white-space:nowrap}
+.tl-month-row{display:flex;margin-bottom:6px;margin-left:180px}
+.tl-month-tick{font-size:9.5px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:.04em;position:absolute}
+.tl-section-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);margin:10px 0 5px}
+.status-row{display:flex;align-items:center;gap:16px;padding:.75rem 1.25rem;background:var(--surface2);border-top:.5px solid var(--border);flex-wrap:wrap}
+.status-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text2)}
+.status-num{font-family:'DM Mono',monospace;font-size:12px;font-weight:500;color:var(--dark)}
+.tl-tooltip{position:fixed;background:var(--dark);color:#fff;font-size:11.5px;padding:8px 12px;border-radius:8px;pointer-events:none;z-index:999;opacity:0;transition:opacity .15s;max-width:220px;line-height:1.5}
+.tl-tooltip.show{opacity:1}
+
+/* ANIMATE IN ON SCROLL */
+.will-anim{opacity:0;transform:translateY(20px);transition:opacity .55s ease,transform .55s ease}
+.will-anim.in{opacity:1;transform:translateY(0)}
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-brand" href="index.html"><div class="nav-dot"></div>Neighborly</a>
+  <div class="nav-links">
+    <a class="nav-back accent" href="neighborly-print.html">&#8592; Print tracker</a>
+    <a class="nav-back" href="index.html">Portal home</a>
+  </div>
+</nav>
+
+<div class="page">
+
+  <div class="eyebrow">Print Collateral Strategy</div>
+  <h1>Annual Postcard &amp; Poster Programme</h1>
+  <p class="sub">A streamlined, fully fleshed-out print system for two Neighborly locations — covering the always-in-bag card, catering outreach, and pop-up events. Built around a quarterly cadence with predictable briefing windows and zero guesswork on quantities.</p>
+
+  <!-- STATS -->
+  <div class="stat-row will-anim">
+    <div class="stat"><div class="stat-num" style="color:var(--yd)" data-count="10">10</div><div class="stat-label">Postcard designs / year</div><div class="stat-note">Baseline · excl. pop-ups</div></div>
+    <div class="stat"><div class="stat-num" style="color:var(--gd)" data-count="6">6</div><div class="stat-label">Poster designs / year</div><div class="stat-note">Always mirrors postcards</div></div>
+    <div class="stat"><div class="stat-num" style="color:var(--bd)" data-count="2">2</div><div class="stat-label">Locations</div><div class="stat-note">Separate print runs each</div></div>
+    <div class="stat"><div class="stat-num" style="color:var(--od)" data-count="24">24</div><div class="stat-label">Planned print runs</div><div class="stat-note">Before any pop-ups added</div></div>
+  </div>
+
+  <!-- CORE PROGRAMMES -->
+  <div class="section">
+    <div class="sec-label">Core programmes</div>
+
+    <div class="prog-grid will-anim">
+
+      <!-- GENERIC -->
+      <div class="prog-card">
+        <div class="prog-header">
+          <div class="prog-type" style="background:var(--yl);color:var(--yd)">&#9632; Quarterly &middot; Always in bag</div>
+          <div class="prog-name">Neighborly Generic</div>
+          <div class="prog-desc">The always-in-bag card. Seasonal messaging one side, a rotating special or brand story the other. One new design per quarter — four total — keeps regulars seeing something fresh without constant creative overhead.</div>
+        </div>
+        <div class="prog-body">
+          <div class="item-row">
+            <div class="item-name">Postcard — Q1 design<div class="item-sub">Jan–Mar &nbsp;·&nbsp; winter/spring messaging &nbsp;·&nbsp; both locations</div></div>
+            <span class="qty" style="background:var(--yl);color:var(--yd)">1 design</span>
+          </div>
+          <div class="item-row">
+            <div class="item-name">Postcard — Q2 design<div class="item-sub">Apr–Jun &nbsp;·&nbsp; spring/early summer &nbsp;·&nbsp; both locations</div></div>
+            <span class="qty" style="background:var(--yl);color:var(--yd)">1 design</span>
+          </div>
+          <div class="item-row">
+            <div class="item-name">Postcard — Q3 design <span style="font-size:10px;background:var(--gl);color:var(--gd);padding:1px 6px;border-radius:10px;margin-left:4px">Summer variant</span><div class="item-sub">Jul–Sep &nbsp;·&nbsp; peak season messaging &nbsp;·&nbsp; both locations</div></div>
+            <span class="qty" style="background:var(--yl);color:var(--yd)">1 design</span>
+          </div>
+          <div class="item-row">
+            <div class="item-name">Postcard — Q4 design <span style="font-size:10px;background:var(--bl);color:var(--bd);padding:1px 6px;border-radius:10px;margin-left:4px">Holiday variant</span><div class="item-sub">Oct–Dec &nbsp;·&nbsp; holiday season &nbsp;·&nbsp; both locations</div></div>
+            <span class="qty" style="background:var(--yl);color:var(--yd)">1 design</span>
+          </div>
+          <div class="item-row">
+            <div class="item-name">Poster — matches active quarterly card<div class="item-sub">Swaps in-location each quarter alongside the postcard refresh &nbsp;·&nbsp; 1 per location = 2 print runs per Q</div></div>
+            <span class="qty" style="background:var(--yl);color:var(--yd)">4 designs</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- CATERING -->
+      <div class="prog-card">
+        <div class="prog-header">
+          <div class="prog-type" style="background:var(--gl);color:var(--gd)">&#9632; Biannual &middot; Catering outreach</div>
+          <div class="prog-name">Catering Programme</div>
+          <div class="prog-desc">Two distinct catering postcard designs per year — H1 and H2 — handed out at catering inquiries and included in catering order deliveries. Semi-evergreen enough to last a full half-year without feeling stale.</div>
+        </div>
+        <div class="prog-body">
+          <div class="item-row">
+            <div class="item-name">Catering postcard — Design A &nbsp;<span style="font-size:10px;background:var(--yl);color:var(--yd);padding:1px 6px;border-radius:10px">H1</span><div class="item-sub">Jan–Jun &nbsp;·&nbsp; separate print run per location &nbsp;·&nbsp; handed at inquiry + in catering delivery bag</div></div>
+            <span class="qty" style="background:var(--gl);color:var(--gd)">1 design</span>
+          </div>
+          <div class="item-row">
+            <div class="item-name">Catering postcard — Design B &nbsp;<span style="font-size:10px;background:var(--ol);color:var(--od);padding:1px 6px;border-radius:10px">H2</span><div class="item-sub">Jul–Dec &nbsp;·&nbsp; refreshed messaging + imagery &nbsp;·&nbsp; same distribution as H1</div></div>
+            <span class="qty" style="background:var(--gl);color:var(--gd)">1 design</span>
+          </div>
+          <div class="item-row">
+            <div class="item-name">Catering poster — active design<div class="item-sub">In-location only (not in-bag) &nbsp;·&nbsp; swaps alongside postcard at H1/H2 &nbsp;·&nbsp; 1 per location = 2 runs per swap</div></div>
+            <span class="qty" style="background:var(--gl);color:var(--gd)">2 designs</span>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+    <!-- POP-UP STANDARD -->
+    <div class="pop-card will-anim">
+      <div class="pop-header">
+        <div style="flex:1">
+          <div class="prog-type" style="background:var(--ol);color:var(--od)">&#9632; As-needed &middot; Per event &middot; Per location</div>
+          <div class="prog-name">Special Messaging &amp; Pop-Up Standard</div>
+          <div class="prog-desc">One postcard + one poster per location, per pop-up or special campaign. A fixed, repeatable brief — keeps production predictable and budgetable even when events aren't planned far out. No exceptions to the 1+1 rule.</div>
+        </div>
+        <div class="pop-stat">
+          <div class="pop-stat-num">1+1</div>
+          <div class="pop-stat-sub">postcard + poster<br>per location<br>per event</div>
+        </div>
+      </div>
+      <div class="pop-body">
+        <div class="pop-col">
+          <div class="pop-col-title">Postcard</div>
+          <div class="pop-col-sub">Event-specific messaging one side. Permanent Neighborly branding, contact, and ordering info on the other so it's still useful after the event ends.</div>
+        </div>
+        <div class="pop-col">
+          <div class="pop-col-title">Poster</div>
+          <div class="pop-col-sub">Matches the postcard design. Replaces the active quarterly poster for the event duration, then reverts. Both pieces come from one brief.</div>
+        </div>
+        <div class="pop-col">
+          <div class="pop-col-title">Per-location rule</div>
+          <div class="pop-col-sub">Each location gets its own print run. Copy can differ per location if the event is single-site. Minimum 3-week lead from brief to in-location need date.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BRIEFING TIMELINE -->
+  <div class="section will-anim">
+    <div class="sec-label">Briefing lead times</div>
+    <div class="brief-strip">
+      <div class="brief-strip-title">How every piece moves from idea to in-location</div>
+      <div class="brief-track">
+        <div class="brief-step">
+          <div class="brief-dot" style="background:var(--yl);color:var(--yd)">1</div>
+          <div class="brief-label"><strong>Brief issued</strong>6–8 weeks before quarter start (generic + catering)<br>3 weeks before event (pop-ups)</div>
+        </div>
+        <div class="brief-step">
+          <div class="brief-dot" style="background:var(--lav);color:var(--ld)">2</div>
+          <div class="brief-label"><strong>Design &amp; revisions</strong>Creative develops artwork<br>Revisions approved in tracker</div>
+        </div>
+        <div class="brief-step">
+          <div class="brief-dot" style="background:var(--green);color:var(--gd)">3</div>
+          <div class="brief-label"><strong>Artwork approved</strong>Check box in print tracker<br>File uploaded &amp; confirmed</div>
+        </div>
+        <div class="brief-step">
+          <div class="brief-dot" style="background:var(--blue);color:var(--bd)">4</div>
+          <div class="brief-label"><strong>Send to print</strong>10 days before in-location need date<br>Both locations quantities confirmed</div>
+        </div>
+        <div class="brief-step">
+          <div class="brief-dot" style="background:var(--dark);color:var(--yellow)">5</div>
+          <div class="brief-label"><strong>Delivery &amp; in-location</strong>Est. 10-day turnaround<br>Swap bags + posters on arrival</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- QUARTERLY CALENDAR -->
+  <div class="section">
+    <div class="sec-label">Annual cadence at a glance</div>
+    <div class="quarter-grid will-anim">
+      <div class="q-col">
+        <div class="q-head" style="background:var(--yl);color:var(--yd)">Q1 &nbsp;·&nbsp; Jan – Mar</div>
+        <div class="q-body">
+          <div class="q-item"><div class="q-dot" style="background:var(--yellow)"></div><div><div>Generic postcard — Q1</div><div class="q-sub">New winter/spring design &nbsp;·&nbsp; both locations</div></div></div>
+          <div class="q-item"><div class="q-dot" style="background:var(--yellow)"></div><div><div>Poster update</div><div class="q-sub">Matches Q1 card &nbsp;·&nbsp; swap in-location</div></div></div>
+          <div class="q-item"><div class="q-dot" style="background:var(--green)"></div><div><div>Catering Design A</div><div class="q-sub">H1 card + poster &nbsp;·&nbsp; both locations</div></div></div>
+          <div class="q-item"><div class="q-dot" style="background:var(--text3)"></div><div><div style="color:var(--text3);font-size:11px">Brief Q1 items by: Nov 15</div></div></div>
+        </div>
+      </div>
+      <div class="q-col">
+        <div class="q-head" style="background:var(--gl);color:var(--gd)">Q2 &nbsp;·&nbsp; Apr – Jun</div>
+        <div class="q-body">
+          <div class="q-item"><div class="q-dot" style="background:var(--yellow)"></div><div><div>Generic postcard — Q2</div><div class="q-sub">Spring/early summer design</div></div></div>
+          <div class="q-item"><div class="q-dot" style="background:var(--yellow)"></div><div><div>Poster update</div><div class="q-sub">Matches Q2 card</div></div></div>
+          <div class="q-item"><div class="q-dot" style="background:var(--orange)"></div><div><div>Pop-ups as needed</div><div class="q-sub">1 card + 1 poster &nbsp;·&nbsp; per location</div></div></div>
+          <div class="q-item"><div class="q-dot" style="background:var(--text3)"></div><div><div style="color:var(--text3);font-size:11px">Brief Q2 items by: Feb 15</div></div></div>
+        </div>
+      </div>
+      <div class="q-col">
+        <div class="q-head" style="background:var(--ol);color:var(--od)">Q3 &nbsp;·&nbsp; Jul – Sep</div>
+        <div class="q-body">
+          <div class="q-item"><div class="q-dot" style="background:var(--yellow)"></div><div><div>Generic postcard — Q3</div><div class="q-sub">Summer variant &nbsp;·&nbsp; peak season</div></div></div>
+          <div class="q-item"><div class="q-dot" style="background:var(--yellow)"></div><div><div>Poster update</div><div class="q-sub">Matches Q3 card</div></div></div>
+          <div class="q-item"><div class="q-dot" style="background:var(--green)"></div><div><div>Catering Design B</div><div class="q-sub">H2 refresh &nbsp;·&nbsp; card + poster</div></div></div>
+          <div class="q-item"><div class="q-dot" style="background:var(--text3)"></div><div><div style="color:var(--text3);font-size:11px">Brief Q3 items by: May 15</div></div></div>
+        </div>
+      </div>
+      <div class="q-col">
+        <div class="q-head" style="background:var(--bl);color:var(--bd)">Q4 &nbsp;·&nbsp; Oct – Dec</div>
+        <div class="q-body">
+          <div class="q-item"><div class="q-dot" style="background:var(--yellow)"></div><div><div>Generic postcard — Q4</div><div class="q-sub">Holiday variant &nbsp;·&nbsp; gifting season</div></div></div>
+          <div class="q-item"><div class="q-dot" style="background:var(--yellow)"></div><div><div>Poster update</div><div class="q-sub">Matches Q4 card</div></div></div>
+          <div class="q-item"><div class="q-dot" style="background:var(--orange)"></div><div><div>Holiday pop-ups</div><div class="q-sub">BFCM, gifting, NYE &nbsp;·&nbsp; per event</div></div></div>
+          <div class="q-item"><div class="q-dot" style="background:var(--text3)"></div><div><div style="color:var(--text3);font-size:11px">Brief Q4 items by: Aug 15</div></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LIVE TIMELINE -->
+  <div class="section">
+    <div class="sec-label">Live print timeline — 2026</div>
+    <div class="timeline-wrap will-anim">
+      <div class="timeline-header">
+        <div>
+          <h3>Items in production</h3>
+          <p>Pulled from the print tracker &nbsp;·&nbsp; bars show briefing window &#8594; artwork deadline &#8594; est. delivery</p>
+        </div>
+        <button class="sync-btn" id="syncBtn" onclick="syncNow()">
+          <div class="sync-dot" id="syncDot"></div>
+          <span id="syncLabel">Loading&#8230;</span>
+        </button>
+      </div>
+      <div class="tl-legend">
+        <div class="tl-legend-item"><div class="tl-legend-swatch" style="background:#fdf7d8;border:.5px solid #eace49"></div>Posters</div>
+        <div class="tl-legend-item"><div class="tl-legend-swatch" style="background:#e4f5ea;border:.5px solid #7bbd91"></div>Postcards</div>
+        <div class="tl-legend-item"><div class="tl-legend-swatch" style="background:#fdeee7;border:.5px solid #e87142"></div>Stickers</div>
+        <div class="tl-legend-item"><div class="tl-legend-swatch" style="background:#eaeef8;border:.5px solid #6280bd"></div>Pop-up</div>
+        <div class="tl-legend-item" style="margin-left:auto"><div class="tl-legend-swatch" style="background:#eace49;border-radius:50%;width:8px;height:8px"></div>Artwork due</div>
+        <div class="tl-legend-item"><div class="tl-legend-swatch" style="background:#6280bd;border-radius:50%;width:8px;height:8px"></div>Sent to print</div>
+        <div class="tl-legend-item"><div class="tl-legend-swatch" style="background:#7bbd91;border-radius:50%;width:8px;height:8px"></div>Est. delivery</div>
+        <div class="tl-legend-item"><div style="width:2px;height:12px;background:#e87142;border-radius:1px"></div>Today</div>
+      </div>
+      <div class="tl-body" id="tlBody"></div>
+      <div class="status-row" id="tlStatusRow"></div>
+    </div>
+  </div>
+
+  <!-- DETAIL CARDS -->
+  <div class="section">
+    <div class="sec-label">Programme detail</div>
+    <div class="detail-grid will-anim">
+      <div class="detail-card">
+        <div class="detail-card-title"><span class="detail-icon" style="background:var(--yl);color:var(--yd)">G</span>Generic card — what goes on it</div>
+        <ul>
+          <li>Side A: Seasonal message + one clear CTA</li>
+          <li>Side B: Rotating special, new item, or brand moment</li>
+          <li>Same design both locations, separate print runs</li>
+          <li>Qty: ~10–12 weeks of takeout bag volume per location</li>
+        </ul>
+      </div>
+      <div class="detail-card">
+        <div class="detail-card-title"><span class="detail-icon" style="background:var(--gl);color:var(--gd)">C</span>Catering card — what goes on it</div>
+        <ul>
+          <li>Side A: Catering pitch — groups, corporate, events, custom menus</li>
+          <li>Side B: Contact, ordering link, socials, minimums</li>
+          <li>Semi-evergreen copy — no hard expiry dates</li>
+          <li>Qty: 8–10 weeks of inquiry + delivery volume per location</li>
+        </ul>
+      </div>
+      <div class="detail-card">
+        <div class="detail-card-title"><span class="detail-icon" style="background:var(--ol);color:var(--od)">P</span>Pop-up card — what goes on it</div>
+        <ul>
+          <li>Side A: Event date, name, what to expect, RSVP link</li>
+          <li>Side B: Permanent brand block — address, hours, socials, order link</li>
+          <li>Can be location-specific if event is single-site</li>
+          <li>Qty: 1–2 weeks of in-bag distribution around event</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOTALS -->
+  <div class="section">
+    <div class="sec-label">Annual design &amp; run count</div>
+    <div class="totals-wrap will-anim">
+      <table>
+        <thead><tr>
+          <th>Programme</th><th>Postcard designs</th><th>Poster designs</th><th>Print runs (&#215;2 locations)</th><th>Cadence</th>
+        </tr></thead>
+        <tbody>
+          <tr class="cat-row"><td colspan="5">Core — always in rotation</td></tr>
+          <tr>
+            <td>Neighborly Generic<small>4 quarterly + 2 seasonal variants baked in</small></td>
+            <td>4<span style="font-size:10px;color:var(--text3);font-family:'DM Sans',sans-serif"> (+2 variants)</span></td>
+            <td>4</td><td>8 cards &nbsp;·&nbsp; 8 posters</td>
+            <td style="font-family:'DM Sans',sans-serif;font-size:12px">Quarterly</td>
+          </tr>
+          <tr>
+            <td>Catering Programme<small>H1 + H2 designs &nbsp;·&nbsp; not in takeout bag</small></td>
+            <td>2</td><td>2</td><td>4 cards &nbsp;·&nbsp; 4 posters</td>
+            <td style="font-family:'DM Sans',sans-serif;font-size:12px">Biannual</td>
+          </tr>
+          <tr class="cat-row"><td colspan="5">Variable — event-driven</td></tr>
+          <tr>
+            <td>Special Messaging / Pop-ups<small>1 postcard + 1 poster per event, per location</small></td>
+            <td>Per event</td><td>Per event</td><td>&#215;2 per event</td>
+            <td style="font-family:'DM Sans',sans-serif;font-size:12px">As-needed</td>
+          </tr>
+          <tr class="total-row">
+            <td>Annual baseline</td><td>10 designs</td><td>6 designs</td><td>24 planned runs</td>
+            <td style="font-family:'DM Sans',sans-serif">+ pop-ups</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- NOTES -->
+  <div class="section">
+    <div class="sec-label">Production notes</div>
+    <div class="notes-grid will-anim">
+      <div class="note-card">
+        <h4><span class="note-icon" style="background:var(--yl);color:var(--yd)">&#10003;</span>Keeping it streamlined</h4>
+        <ul>
+          <li>Generic card quarterly = always something fresh in bag, never stale, no guesswork</li>
+          <li>Poster always mirrors the active postcard — one brief, two pieces, every time</li>
+          <li>Catering cards are semi-evergreen — two designs carry the full year</li>
+          <li>Catering cards go with catering only — not competing in the takeout bag</li>
+          <li>Pop-up standard (1+1 per location) makes event print predictable and budgetable</li>
+          <li>Both locations run separately so quantities and copy tweaks can differ</li>
+        </ul>
+      </div>
+      <div class="note-card">
+        <h4><span class="note-icon" style="background:var(--gl);color:var(--gd)">&#8594;</span>Briefing &amp; lead times</h4>
+        <ul>
+          <li>Brief generic + catering items 6–8 weeks before the quarter start date</li>
+          <li>Q1 brief: November 15 &nbsp;·&nbsp; Q2: February 15 &nbsp;·&nbsp; Q3: May 15 &nbsp;·&nbsp; Q4: August 15</li>
+          <li>Pop-up cards briefed minimum 3 weeks before in-location need date</li>
+          <li>Send-to-print deadline = 10 days before any in-bag or in-location need date</li>
+          <li>Both locations confirm quantities before each print run is placed</li>
+          <li>Artwork approval required in the print tracker before send-to-print is checked</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="tl-tooltip" id="tlTooltip"></div>
+
+<script>
+// ── INTERSECTION OBSERVER (safe — elements visible by default, animate in on scroll) ──
+var io = new IntersectionObserver(function(entries) {
+  entries.forEach(function(e) {
+    if (e.isIntersecting) {
+      var el = e.target;
+      var delay = el.dataset.delay || 0;
+      setTimeout(function() { el.classList.add('in'); }, +delay);
+      io.unobserve(el);
+    }
+  });
+}, { threshold: 0.08 });
+
+document.querySelectorAll('.will-anim').forEach(function(el, i) {
+  el.dataset.delay = (i % 4) * 80;
+  io.observe(el);
+});
+
+// Count-up for stat numbers
+var countIO = new IntersectionObserver(function(entries) {
+  entries.forEach(function(e) {
+    if (!e.isIntersecting) return;
+    var el = e.target;
+    var target = parseInt(el.dataset.count);
+    if (!target) return;
+    var start = performance.now();
+    var dur = 900;
+    (function tick(now) {
+      var p = Math.min((now - start) / dur, 1);
+      var ease = 1 - Math.pow(1 - p, 3);
+      el.textContent = Math.round(target * ease);
+      if (p < 1) requestAnimationFrame(tick);
+    })(start);
+    countIO.unobserve(el);
+  });
+}, { threshold: 0.5 });
+document.querySelectorAll('[data-count]').forEach(function(el) { countIO.observe(el); });
+
+// ── TIMELINE ──────────────────────────────────────────────────────────────────
+var YEAR = 2026;
+var MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+var CAT_COLORS = {
+  posters:   { bg:'#fdf7d8', border:'#eace49', text:'#7a6b00' },
+  postcards: { bg:'#e4f5ea', border:'#7bbd91', text:'#2a5c38' },
+  stickers:  { bg:'#fdeee7', border:'#e87142', text:'#8a3518' },
+  popup:     { bg:'#eaeef8', border:'#6280bd', text:'#2d4480' }
+};
+var CAT_LABELS = { posters:'Posters', postcards:'Postcards', stickers:'Stickers', popup:'Pop-up materials' };
+
+function dayOfYear(ds) {
+  if (!ds) return null;
+  var d = new Date(ds + 'T00:00:00');
+  return Math.floor((d - new Date(d.getFullYear(), 0, 0)) / 86400000);
+}
+function daysInYear(yr) { return yr % 4 === 0 ? 366 : 365; }
+function pct(doy, yr) { return ((doy - 1) / daysInYear(yr)) * 100; }
+function todayStr() { return new Date().toISOString().split('T')[0]; }
+function fmtDate(ds) { if (!ds) return '—'; return new Date(ds+'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'}); }
+function addDays(ds, n) { if(!ds)return null; var d=new Date(ds+'T00:00:00'); d.setDate(d.getDate()+n); return d.toISOString().split('T')[0]; }
+
+function loadItems() {
+  try {
+    var raw = localStorage.getItem('neighborly_print_items');
+    if (raw) { var p = JSON.parse(raw); if (p && p.length) return { items: p, live: true }; }
+  } catch(e) {}
+  return { items: [
+    { id:'d1', name:'Q3 Generic postcard',         cat:'postcards', finishBy:'2026-06-15', approved:false, sent:false,  printDate:'', fileName:'' },
+    { id:'d2', name:'Q3 In-location poster',        cat:'posters',   finishBy:'2026-06-15', approved:false, sent:false,  printDate:'', fileName:'' },
+    { id:'d3', name:'Catering Design B H2',         cat:'postcards', finishBy:'2026-06-20', approved:false, sent:false,  printDate:'', fileName:'' },
+    { id:'d4', name:'Summer sale poster',           cat:'posters',   finishBy:'2026-05-28', approved:true,  sent:true,   printDate:'2026-05-20', fileName:'summer_poster.pdf' },
+    { id:'d5', name:'Summer promo postcard',        cat:'postcards', finishBy:'2026-05-25', approved:true,  sent:false,  printDate:'', fileName:'' },
+    { id:'d6', name:'Logo sticker sheet',           cat:'stickers',  finishBy:'2026-05-20', approved:true,  sent:true,   printDate:'2026-05-16', fileName:'logo_stickers.ai' },
+    { id:'d7', name:'Event step-and-repeat',        cat:'popup',     finishBy:'2026-06-01', approved:true,  sent:false,  printDate:'', fileName:'backdrop_v2.pdf' },
+    { id:'d8', name:'Q4 Holiday postcard',          cat:'postcards', finishBy:'2026-09-20', approved:false, sent:false,  printDate:'', fileName:'' },
+    { id:'d9', name:'Q4 Holiday poster',            cat:'posters',   finishBy:'2026-09-20', approved:false, sent:false,  printDate:'', fileName:'' },
+    { id:'da', name:'Neighborhood mailer Q3',       cat:'postcards', finishBy:'2026-07-15', approved:false, sent:false,  printDate:'', fileName:'' },
+  ], live: false };
+}
+
+var tooltip = document.getElementById('tlTooltip');
+function showTip(e, content) { tooltip.innerHTML = content; tooltip.classList.add('show'); moveTip(e); }
+function moveTip(e) { tooltip.style.left = Math.min(e.clientX+12, window.innerWidth-230)+'px'; tooltip.style.top = Math.max(e.clientY-40, 8)+'px'; }
+function hideTip() { tooltip.classList.remove('show'); }
+
+function renderTimeline() {
+  var result = loadItems();
+  var items = result.items;
+  var live = result.live;
+  var yr = YEAR;
+  var todayDOY = dayOfYear(todayStr());
+  var todayPctVal = pct(todayDOY, yr);
+
+  // Sync indicator
+  document.getElementById('syncDot').className = 'sync-dot' + (live ? '' : ' stale');
+  document.getElementById('syncLabel').textContent = live ? 'Live from print tracker' : 'Sample data — open print tracker to sync';
+
+  // Status row
+  var done = items.filter(function(i){return i.approved&&i.sent;}).length;
+  var appr = items.filter(function(i){return i.approved&&!i.sent;}).length;
+  var pend = items.filter(function(i){return !i.approved;}).length;
+  var next = items.filter(function(i){return !i.sent&&i.finishBy;}).sort(function(a,b){return new Date(a.finishBy)-new Date(b.finishBy);})[0];
+  document.getElementById('tlStatusRow').innerHTML =
+    '<div class="status-item"><span class="status-num">'+done+'</span> sent to print</div>'+
+    '<div class="status-item"><span class="status-num">'+appr+'</span> approved · awaiting send</div>'+
+    '<div class="status-item"><span class="status-num">'+pend+'</span> pending approval</div>'+
+    '<div class="status-item"><span class="status-num">'+items.length+'</span> total items</div>'+
+    (next?'<div class="status-item" style="margin-left:auto;color:#8a3518">Next due: <strong style="color:#e87142;margin-left:4px">'+next.name.substring(0,25)+(next.name.length>25?'…':'')+'</strong> &nbsp;'+fmtDate(next.finishBy)+'</div>':'');
+
+  // Build month header positions
+  var monthPcts = MONTHS.map(function(m,i){ return pct(dayOfYear(yr+'-'+(i<9?'0':'')+(i+1)+'-01'), yr); });
+
+  var cats = ['posters','postcards','stickers','popup'];
+  var html = '<div style="position:relative;min-width:600px">';
+
+  // Month labels row
+  html += '<div style="display:flex;height:18px;margin-bottom:6px;margin-left:180px;position:relative">';
+  monthPcts.forEach(function(p,i){
+    html += '<div style="position:absolute;left:'+p+'%;transform:translateX(-50%);font-size:9.5px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:.04em">'+MONTHS[i]+'</div>';
+  });
+  html += '</div>';
+
+  cats.forEach(function(cat) {
+    var catItems = items.filter(function(i){ return i.cat===cat && i.finishBy; });
+    if (!catItems.length) return;
+    var c = CAT_COLORS[cat];
+
+    html += '<div class="tl-section-label">'+CAT_LABELS[cat]+'</div>';
+
+    catItems.forEach(function(item) {
+      var finishDOY = dayOfYear(item.finishBy);
+      var printDOY  = item.printDate ? dayOfYear(item.printDate) : null;
+      var delivDOY  = item.printDate ? dayOfYear(addDays(item.printDate, 10)) : null;
+      var briefDOY  = Math.max(1, finishDOY - 21);
+      var endDOY    = delivDOY || finishDOY;
+      var startP    = pct(briefDOY, yr);
+      var endP      = Math.min(pct(endDOY, yr), 99.5);
+      var widthP    = Math.max(endP - startP, 0.5);
+
+      var status = item.approved && item.sent ? 'done' : item.approved ? 'approved' : 'pending';
+      var statusColor = status==='done' ? '#7bbd91' : status==='approved' ? '#eace49' : '#dbc6a2';
+
+      var tipHtml = '<strong>'+item.name+'</strong><br>'+
+        'Finish by: '+fmtDate(item.finishBy)+'<br>'+
+        (item.printDate ? 'Sent to print: '+fmtDate(item.printDate)+'<br>' : '')+
+        (delivDOY ? 'Est. delivery: '+fmtDate(addDays(item.printDate,10))+'<br>' : '')+
+        'Status: '+status.charAt(0).toUpperCase()+status.slice(1)+
+        (item.fileName ? '<br>&#128206; '+item.fileName : '');
+
+      html += '<div class="tl-row">'+
+        '<div class="tl-label">'+item.name+'<small>'+CAT_LABELS[item.cat]+'</small></div>'+
+        '<div class="tl-track">'+
+          // today line
+          '<div class="tl-today-line" style="left:'+todayPctVal+'%"></div>'+
+          // month grid lines
+          monthPcts.map(function(mp){ return '<div style="position:absolute;left:'+mp+'%;top:0;bottom:0;width:.5px;background:rgba(0,0,0,0.04);pointer-events:none"></div>'; }).join('')+
+          // main bar
+          '<div class="tl-bar" style="left:'+startP+'%;width:'+widthP+'%;background:'+c.bg+';border:.5px solid '+c.border+';color:'+c.text+'"'+
+          ' onmouseenter="showTip(event,\''+tipHtml.replace(/'/g,'&#39;').replace(/\n/g,'')+'\')"'+
+          ' onmousemove="moveTip(event)" onmouseleave="hideTip()">'+
+          item.name+
+          '</div>'+
+          // finish by dot
+          (finishDOY ? '<div class="tl-dot" style="left:'+pct(finishDOY,yr)+'%;background:'+statusColor+'" title="Finish by '+fmtDate(item.finishBy)+'"></div>' : '')+
+          // print date dot
+          (printDOY  ? '<div class="tl-dot" style="left:'+pct(printDOY,yr)+'%;background:#6280bd" title="Sent '+fmtDate(item.printDate)+'"></div>' : '')+
+          // delivery dot
+          (delivDOY  ? '<div class="tl-dot" style="left:'+pct(delivDOY,yr)+'%;background:#7bbd91;border-color:var(--bg)" title="Est. delivery '+fmtDate(addDays(item.printDate,10))+'"></div>' : '')+
+        '</div>'+
+      '</div>';
+    });
+  });
+
+  html += '</div>';
+  document.getElementById('tlBody').innerHTML = html;
+}
+
+function syncNow() {
+  var btn = document.getElementById('syncBtn');
+  btn.textContent = '&#8635; Syncing&#8230;';
+  setTimeout(function() {
+    renderTimeline();
+    btn.innerHTML = '<div class="sync-dot" id="syncDot"></div> <span id="syncLabel"></span>';
+    var r = loadItems();
+    document.getElementById('syncDot').className = 'sync-dot'+(r.live?'':' stale');
+    document.getElementById('syncLabel').textContent = r.live ? 'Live from print tracker' : 'Sample data';
+  }, 400);
+}
+
+renderTimeline();
+</script>
+</body>
+</html>
