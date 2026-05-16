@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Neighborly — Performance Dashboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
+
+  :root {
+    --bg: #F7F6F3;
+    --surface: #FFFFFF;
+    --surface2: #F0EEE9;
+    --border: rgba(0,0,0,0.08);
+    --border-strong: rgba(0,0,0,0.14);
+    --text: #1A1916;
+    --text-2: #6B6960;
+    --text-3: #9E9C96;
+    --brand-yellow: #eace49;
+    --brand-yellow-light: #fdf7d8;
+    --brand-green: #7bbd91;
+    --brand-green-light: #e4f5ea;
+    --brand-orange: #e87142;
+    --brand-orange-light: #fdeee7;
+    --brand-tan: #dbc6a2;
+    --brand-tan-light: #f7f0e4;
+    --brand-blue: #6280bd;
+    --brand-blue-light: #eaeef8;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: 14px; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+  /* NAV */
+  nav { background: var(--surface); border-bottom: 0.5px solid var(--border-strong); padding: 0 2rem; display: flex; align-items: center; justify-content: space-between; height: 52px; position: sticky; top: 0; z-index: 100; }
+  .nav-brand { font-size: 15px; font-weight: 600; letter-spacing: -0.02em; color: var(--text); display: flex; align-items: center; gap: 8px; }
+  .nav-brand-dot { width: 8px; height: 8px; background: #eace49; border-radius: 50%; }
+  .nav-tabs { display: flex; gap: 0; }
+  .nav-tab { padding: 0 16px; height: 52px; display: flex; align-items: center; font-size: 13px; font-weight: 500; color: var(--text-2); cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.15s; text-decoration: none; }
+  .nav-tab:hover { color: var(--text); }
+  .nav-tab.active { color: var(--brand-yellow); border-bottom-color: var(--brand-yellow); }
+  .nav-right { display: flex; align-items: center; gap: 10px; }
+  .upload-btn { display: flex; align-items: center; gap: 6px; padding: 6px 14px; border: 0.5px solid var(--border-strong); border-radius: 8px; background: var(--surface); font-size: 12px; font-weight: 500; color: var(--text-2); cursor: pointer; transition: all 0.15s; font-family: 'DM Sans', sans-serif; }
+  .upload-btn:hover { background: var(--surface2); color: var(--text); }
+  .upload-btn svg { width: 14px; height: 14px; }
+  #csvInput { display: none; }
+
+  /* PAGES */
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* DASHBOARD PAGE */
+  .dashboard { padding: 2rem; max-width: 1200px; margin: 0 auto; }
+  .dash-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 1.75rem; flex-wrap: wrap; gap: 1rem; }
+  .dash-title { font-size: 22px; font-weight: 600; letter-spacing: -0.03em; color: var(--text); }
+  .dash-sub { font-size: 13px; color: var(--text-2); margin-top: 3px; }
+  .week-badge { display: inline-flex; align-items: center; gap: 6px; background: #1f2328; color: #eace49; font-size: 12px; font-weight: 500; padding: 4px 12px; border-radius: 20px; margin-top: 6px; }
+
+  .view-toggle { display: flex; background: var(--surface2); border-radius: 8px; padding: 3px; gap: 2px; }
+  .vt-btn { padding: 6px 14px; border-radius: 6px; font-size: 12px; font-weight: 500; cursor: pointer; border: none; background: transparent; color: var(--text-2); font-family: 'DM Sans', sans-serif; transition: all 0.15s; }
+  .vt-btn.active { background: var(--surface); color: var(--text); box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+
+  /* KPI CARDS */
+  .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 1.5rem; }
+  .kpi-card { background: var(--surface); border: 0.5px solid var(--border); border-radius: 12px; padding: 1.1rem 1.25rem; }
+  .kpi-label { font-size: 11px; font-weight: 500; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; }
+  .kpi-value { font-size: 26px; font-weight: 600; letter-spacing: -0.04em; color: var(--text); font-family: 'DM Mono', monospace; line-height: 1; }
+  .kpi-change { display: flex; align-items: center; gap: 5px; margin-top: 8px; font-size: 12px; font-weight: 500; }
+  .kpi-change .chg { padding: 2px 7px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+  .chg.pos { background: var(--brand-green-light); color: #085041; }
+  .chg.neg { background: var(--brand-orange-light); color: #A32D2D; }
+  .chg.neu { background: var(--surface2); color: var(--text-2); }
+  .kpi-change-label { color: var(--text-3); font-size: 11px; }
+
+  /* SECTION */
+  .section-title { font-size: 13px; font-weight: 600; color: var(--text-2); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 1rem; display: flex; align-items: center; gap: 8px; }
+  .section-title::after { content: ''; flex: 1; height: 0.5px; background: var(--border-strong); }
+
+  /* CHART CARDS */
+  .chart-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 1.5rem; }
+  .chart-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 1.5rem; }
+  .chart-card { background: var(--surface); border: 0.5px solid var(--border); border-radius: 12px; padding: 1.25rem; }
+  .chart-card.wide { grid-column: 1 / -1; }
+  .chart-card-title { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+  .chart-card-sub { font-size: 11px; color: var(--text-3); margin-bottom: 1rem; }
+  .chart-wrap { position: relative; }
+
+  /* METRICS TABLE */
+  .metrics-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .metrics-table th { font-size: 11px; font-weight: 500; color: var(--text-3); text-align: left; padding: 6px 12px; border-bottom: 0.5px solid var(--border-strong); }
+  .metrics-table th:not(:first-child) { text-align: right; }
+  .metrics-table td { padding: 9px 12px; border-bottom: 0.5px solid var(--border); color: var(--text); }
+  .metrics-table td:not(:first-child) { text-align: right; font-family: 'DM Mono', monospace; font-size: 12px; }
+  .metrics-table tr:last-child td { border-bottom: none; }
+  .metrics-table tr:hover td { background: var(--surface2); }
+  .metrics-table .cat-row td { font-weight: 600; color: var(--text-2); font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; background: var(--surface2); padding: 5px 12px; }
+  .pct-pos { color: var(--brand-green); font-weight: 500; }
+  .pct-neg { color: var(--brand-orange); font-weight: 500; }
+  .pct-neu { color: var(--text-3); }
+
+  /* REVENUE MIX */
+  .mix-bar-wrap { margin-bottom: 6px; }
+  .mix-bar-label { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-2); margin-bottom: 4px; }
+  .mix-bar-track { height: 6px; background: var(--surface2); border-radius: 3px; overflow: hidden; }
+  .mix-bar-fill { height: 100%; border-radius: 3px; transition: width 0.4s ease; }
+
+  /* DATA PAGE */
+  .data-page { padding: 2rem; max-width: 900px; margin: 0 auto; }
+  .data-header { margin-bottom: 1.5rem; }
+  .data-header h1 { font-size: 22px; font-weight: 600; letter-spacing: -0.03em; }
+  .data-header p { font-size: 13px; color: var(--text-2); margin-top: 4px; }
+  .upload-zone { border: 1.5px dashed var(--border-strong); border-radius: 12px; padding: 3rem; text-align: center; cursor: pointer; transition: all 0.15s; margin-bottom: 1.5rem; }
+  .upload-zone:hover, .upload-zone.drag { border-color: var(--brand-yellow); background: var(--brand-yellow-light); }
+  .upload-zone svg { width: 32px; height: 32px; color: var(--text-3); margin-bottom: 12px; }
+  .upload-zone h3 { font-size: 15px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+  .upload-zone p { font-size: 13px; color: var(--text-2); }
+  .upload-zone .file-hint { font-size: 11px; color: var(--text-3); margin-top: 8px; }
+  .data-preview { background: var(--surface); border: 0.5px solid var(--border); border-radius: 12px; overflow: hidden; }
+  .data-preview-header { padding: 12px 16px; border-bottom: 0.5px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+  .data-preview-header span { font-size: 13px; font-weight: 500; color: var(--text); }
+  .data-preview-header small { font-size: 11px; color: var(--text-3); }
+  .data-raw { padding: 1rem; font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text-2); overflow-x: auto; white-space: pre; line-height: 1.6; max-height: 400px; overflow-y: auto; }
+  .instructions { background: var(--surface); border: 0.5px solid var(--border); border-radius: 12px; padding: 1.25rem; margin-bottom: 1.5rem; }
+  .instructions h3 { font-size: 14px; font-weight: 600; margin-bottom: 10px; color: var(--text); }
+  .instructions ol { padding-left: 1.25rem; }
+  .instructions li { font-size: 13px; color: var(--text-2); margin-bottom: 6px; line-height: 1.5; }
+  .instructions li strong { color: var(--text); font-weight: 600; }
+  .format-tag { display: inline-block; background: var(--surface2); color: var(--text-2); font-family: 'DM Mono', monospace; font-size: 11px; padding: 2px 6px; border-radius: 4px; }
+
+  /* EMPTY STATE */
+  .empty-state { text-align: center; padding: 4rem 2rem; color: var(--text-3); }
+  .empty-state svg { width: 40px; height: 40px; margin: 0 auto 12px; display: block; }
+  .empty-state p { font-size: 13px; }
+
+  /* STATUS BAR */
+  .status-bar { background: var(--brand-yellow); color: #fff; padding: 8px 2rem; font-size: 12px; display: none; justify-content: center; align-items: center; gap: 8px; }
+  .status-bar.show { display: flex; }
+
+  @media (max-width: 768px) {
+    .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+    .chart-grid-2, .chart-grid-3 { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="status-bar" id="statusBar">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+  <span id="statusMsg">Data loaded successfully</span>
+</div>
+
+<nav>
+  <div class="nav-brand">
+    <div class="nav-brand-dot"></div>
+    Neighborly
+  </div>
+  <div class="nav-tabs">
+    <a class="nav-tab active" onclick="showPage('dashboard')">Dashboard</a>
+    <a class="nav-tab" onclick="showPage('data')">Data</a>
+    <a class="nav-tab" onclick="showPage('alltime')">All time</a>
+  </div>
+  <div class="nav-right">
+    <label class="upload-btn" for="csvInput">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+      Upload CSV
+    </label>
+    <input type="file" id="csvInput" accept=".csv" onchange="loadCSV(this)">
+  </div>
+</nav>
+
+<!-- DASHBOARD PAGE -->
+<div class="page active" id="page-dashboard">
+  <div class="dashboard">
+    <div class="dash-header">
+      <div>
+        <div class="dash-title">Performance Dashboard</div>
+        <div class="dash-sub">Neighborly marketing & revenue overview</div>
+        <div class="week-badge" id="weekBadge">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          Week of May 6, 2026
+        </div>
+      </div>
+      <div class="view-toggle">
+        <button class="vt-btn active" onclick="setView('weekly', this)">This week</button>
+        <button class="vt-btn" onclick="setView('trailing', this)">vs T4W avg</button>
+        <button class="vt-btn" onclick="setView('lastweek', this)">vs Last week</button>
+      </div>
+    </div>
+
+    <!-- TOP KPI CARDS -->
+    <div class="kpi-grid" id="kpiGrid"></div>
+
+    <!-- REVENUE BY CHANNEL -->
+    <div class="section-title">Revenue by channel</div>
+    <div class="chart-grid-2" style="margin-bottom:1.5rem">
+      <div class="chart-card">
+        <div class="chart-card-title">Revenue center breakdown</div>
+        <div class="chart-card-sub" id="revChartSub">Current week — $331,703 total</div>
+        <div class="chart-wrap" style="height:220px"><canvas id="revChart"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-card-title">Channel mix %</div>
+        <div class="chart-card-sub">Share of total revenue by channel</div>
+        <div id="mixBars" style="margin-top:0.5rem"></div>
+      </div>
+    </div>
+
+    <!-- PAID DIGITAL -->
+    <div class="section-title">Paid digital performance</div>
+    <div class="chart-grid-3" style="margin-bottom:1.5rem">
+      <div class="chart-card">
+        <div class="chart-card-title">Net revenue</div>
+        <div class="chart-card-sub">Meta vs Google</div>
+        <div class="chart-wrap" style="height:160px"><canvas id="paidRevChart"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-card-title">ROAS</div>
+        <div class="chart-card-sub">Return on ad spend</div>
+        <div class="chart-wrap" style="height:160px"><canvas id="roasChart"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-card-title">Customer acquisition</div>
+        <div class="chart-card-sub">New customers by platform</div>
+        <div class="chart-wrap" style="height:160px"><canvas id="cacChart"></canvas></div>
+      </div>
+    </div>
+
+    <!-- 3PD -->
+    <div class="section-title">3PD & sponsored listings</div>
+    <div class="chart-grid-2" style="margin-bottom:1.5rem">
+      <div class="chart-card">
+        <div class="chart-card-title">Sponsored listing ROAS</div>
+        <div class="chart-card-sub">T4W avg · Last week · Current week</div>
+        <div class="chart-wrap" style="height:160px"><canvas id="sponsoredRoasChart"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-card-title">Promo performance</div>
+        <div class="chart-card-sub">Net revenue vs spend</div>
+        <div class="chart-wrap" style="height:160px"><canvas id="promoChart"></canvas></div>
+      </div>
+    </div>
+
+    <!-- FULL METRICS TABLE -->
+    <div class="section-title">All metrics</div>
+    <div class="chart-card" style="padding:0;overflow:hidden;margin-bottom:2rem">
+      <table class="metrics-table" id="metricsTable"></table>
+    </div>
+
+  </div>
+</div>
+
+<!-- DATA PAGE -->
+<div class="page" id="page-data">
+  <div class="data-page">
+    <div class="data-header">
+      <h1>Data</h1>
+      <p>Upload your weekly KPI export to refresh the dashboard. The file is processed locally — nothing is sent to a server.</p>
+    </div>
+
+    <div class="instructions">
+      <h3>How to update the dashboard</h3>
+      <ol>
+        <li>Export your weekly KPI tracker from Google Sheets or Excel as a <span class="format-tag">.csv</span> file</li>
+        <li>Keep the same column structure: <strong>Metric, T4W Average, Last Week, Current Week, % Change T4W, % Change PW</strong></li>
+        <li>Upload using the button above in the nav bar, or drag & drop below</li>
+        <li>The dashboard updates instantly — no page refresh needed</li>
+      </ol>
+    </div>
+
+    <div class="upload-zone" id="dropZone" onclick="document.getElementById('csvInput').click()" ondragover="dragOver(event)" ondragleave="dragLeave(event)" ondrop="dropFile(event)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+      <h3>Drop your CSV here</h3>
+      <p>or click to browse files</p>
+      <div class="file-hint">Accepts .csv exports from your weekly KPI tracker</div>
+    </div>
+
+    <div class="data-preview" id="dataPreview" style="display:none">
+      <div class="data-preview-header">
+        <span id="previewFileName">weekly_kpi.csv</span>
+        <small id="previewMeta"></small>
+      </div>
+      <div class="data-raw" id="dataRaw"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── DATA ─────────────────────────────────────────────────────────────────────
+let DATA = {
+  currentWeek: 'May 6, 2026',
+  lastWeek: 'Apr 29, 2026',
+  revenue: {
+    total:    { t4w: 273528, lw: 306920, cw: 331703, pctT4W: 21, pctPW: 8 },
+    dineIn:   { t4w: 111537, lw: 132159, cw: 131962, pctT4W: 18, pctPW: 0 },
+    webPickup:{ t4w: 61872,  lw: 73165,  cw: 78713,  pctT4W: 27, pctPW: 8 },
+    instore:  { t4w: 34685,  lw: 32168,  cw: 34322,  pctT4W: -1, pctPW: 7 },
+    delivery: { t4w: 16678,  lw: 22368,  cw: 23436,  pctT4W: 41, pctPW: 5 },
+    catering: { t4w: 4041,   lw: 0,      cw: 18808,  pctT4W: 365,pctPW: 0 },
+    tpd:      { t4w: 38454,  lw: 40228,  cw: 36796,  pctT4W: -4, pctPW: -9 },
+    marketplace:{ t4w: 6261, lw: 6833,   cw: 7666,   pctT4W: 22, pctPW: 12 }
+  },
+  revMix: {
+    dineIn:    { t4w: 40.78, lw: 43.1, cw: 39.8 },
+    webPickup: { t4w: 22.62, lw: 23.8, cw: 23.7 },
+    instore:   { t4w: 12.68, lw: 10.5, cw: 10.3 },
+    delivery:  { t4w: 6.10,  lw: 7.3,  cw: 7.1  },
+    catering:  { t4w: 1.5,   lw: 0.0,  cw: 5.7  },
+    tpd:       { t4w: 14.06, lw: 13.1, cw: 11.1 },
+    marketplace:{ t4w: 2.29, lw: 2.2,  cw: 2.3  }
+  },
+  meta: {
+    netRev:    { t4w: 8832,  lw: 11438, cw: 11010, pctT4W: 25,  pctPW: -4  },
+    spend:     { t4w: 1080,  lw: 1364,  cw: 1376,  pctT4W: 27,  pctPW: 1   },
+    customers: { t4w: 244,   lw: 209,   cw: 360,   pctT4W: 48,  pctPW: 72  },
+    cac:       { t4w: 4.41,  lw: 6.53,  cw: 3.82,  pctT4W: -13, pctPW: -41 },
+    roas:      { t4w: 10.05, lw: 9.39,  cw: 9.00,  pctT4W: -10, pctPW: -4  }
+  },
+  google: {
+    netRev:    { t4w: 19662, lw: 22788, cw: 23523, pctT4W: 20, pctPW: 3  },
+    spend:     { t4w: 686,   lw: 725,   cw: 790,   pctT4W: 15, pctPW: 9  },
+    customers: { t4w: 548,   lw: 662,   cw: 625,   pctT4W: 14, pctPW: -6 },
+    cac:       { t4w: 1.00,  lw: 1.09,  cw: 1.26,  pctT4W: -3, pctPW: 16 },
+    roas:      { t4w: 29.48, lw: 32.44, cw: 30.76, pctT4W: 4,  pctPW: -5 }
+  },
+  sponsored: {
+    netRev:    { t4w: 10028, lw: 10592, cw: 8674,  pctT4W: -14, pctPW: -18 },
+    spend:     { t4w: 1028,  lw: 1056,  cw: 931,   pctT4W: -9,  pctPW: -12 },
+    roas:      { t4w: 10.44, lw: 10.03, cw: 9.32,  pctT4W: -11, pctPW: -7  }
+  },
+  promo: {
+    netRev:    { t4w: 14903, lw: 15281, cw: 12734, pctT4W: -15, pctPW: -17 },
+    spend:     { t4w: 1087,  lw: 1197,  cw: 1061,  pctT4W: -2,  pctPW: -11 },
+    roas:      { t4w: 13.82, lw: 12.76, cw: 12.00, pctT4W: -13, pctPW: -6  }
+  },
+  blendedROAS: { t4w: 13.8, lw: 13.8, cw: 13.5, pctT4W: -2, pctPW: -3 },
+  contribution: {
+    sponsored: { t4w: 4, lw: 3, cw: 3 },
+    promo:     { t4w: 5, lw: 5, cw: 4 },
+    meta:      { t4w: 3, lw: 4, cw: 3 },
+    google:    { t4w: 7, lw: 7, cw: 7 },
+    total:     { t4w: 20, lw: 20, cw: 17 }
+  }
+};
+
+let currentView = 'weekly';
+let charts = {};
+
+// ── HELPERS ──────────────────────────────────────────────────────────────────
+function fmt$(n){ if(n==null||isNaN(n))return'—'; return'$'+Math.round(n).toLocaleString(); }
+function fmtN(n){ if(n==null||isNaN(n))return'—'; return n.toLocaleString(); }
+function fmtR(n){ if(n==null||isNaN(n))return'—'; return(+n).toFixed(2)+'x'; }
+function fmtPct(n){ if(n==null||isNaN(n))return'—'; return(n>0?'+':'')+n+'%'; }
+function chgClass(n){ if(n>0)return'pos'; if(n<0)return'neg'; return'neu'; }
+function pctClass(n){ if(n>0)return'pct-pos'; if(n<0)return'pct-neg'; return'pct-neu'; }
+
+function getVal(metric, field) {
+  const d = metric;
+  if (!d) return 0;
+  if (currentView === 'weekly')   return d.cw  ?? d.t4w ?? 0;
+  if (currentView === 'trailing') return d.t4w ?? 0;
+  if (currentView === 'lastweek') return d.lw  ?? 0;
+  return d.cw ?? 0;
+}
+function getChange(metric) {
+  if (!metric) return null;
+  if (currentView === 'trailing')  return metric.pctT4W ?? null;
+  if (currentView === 'lastweek')  return metric.pctPW  ?? null;
+  return metric.pctPW ?? null;
+}
+function changeLabel() {
+  if (currentView === 'trailing')  return 'vs T4W avg';
+  if (currentView === 'lastweek')  return 'vs last week';
+  return 'vs last week';
+}
+
+// ── PAGE NAV ─────────────────────────────────────────────────────────────────
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  event.target.classList.add('active');
+  if (id === 'alltime') {
+    setTimeout(renderAllTime, 50);
+  }
+}
+
+function setView(v, btn) {
+  currentView = v;
+  document.querySelectorAll('.vt-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderDashboard();
+}
+
+// ── KPI CARDS ────────────────────────────────────────────────────────────────
+function renderKPIs() {
+  const kpis = [
+    { label: 'Total revenue',    val: fmt$(DATA.revenue.total.cw),    metric: DATA.revenue.total },
+    { label: 'Blended ROAS',     val: fmtR(DATA.blendedROAS.cw),      metric: DATA.blendedROAS },
+    { label: 'Meta ROAS',        val: fmtR(DATA.meta.roas.cw),        metric: DATA.meta.roas },
+    { label: 'Google ROAS',      val: fmtR(DATA.google.roas.cw),      metric: DATA.google.roas }
+  ];
+  const cl = changeLabel();
+  document.getElementById('kpiGrid').innerHTML = kpis.map(k => {
+    const chg = getChange(k.metric);
+    const cls = chg != null ? chgClass(chg) : 'neu';
+    return `<div class="kpi-card">
+      <div class="kpi-label">${k.label}</div>
+      <div class="kpi-value">${k.val}</div>
+      <div class="kpi-change">
+        <span class="chg ${cls}">${chg != null ? fmtPct(chg) : '—'}</span>
+        <span class="kpi-change-label">${cl}</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── REVENUE CHART ────────────────────────────────────────────────────────────
+function renderRevenueChart() {
+  const rev = DATA.revenue;
+  const labels = ['Dine in','Web Pickup','In-store','Delivery','Catering','3PD','Marketplace'];
+  const vals = [rev.dineIn.cw, rev.webPickup.cw, rev.instore.cw, rev.delivery.cw, rev.catering.cw, rev.tpd.cw, rev.marketplace.cw];
+  const colors = ['#eace49','#7bbd91','#cbc9d6','#6280bd','#dbc6a2','#888780','#e87142'];
+
+  document.getElementById('revChartSub').textContent = `Current week — ${fmt$(rev.total.cw)} total`;
+
+  if (charts.rev) charts.rev.destroy();
+  charts.rev = new Chart(document.getElementById('revChart'), {
+    type: 'bar',
+    data: { labels, datasets: [{ data: vals, backgroundColor: colors, borderRadius: 6, borderSkipped: false }] },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { grid: { display: false }, ticks: { font: { family: 'DM Sans', size: 11 }, color: '#9E9C96' } },
+        y: { grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { font: { family: 'DM Mono', size: 10 }, color: '#9E9C96', callback: v => '$'+Math.round(v/1000)+'k' } }
+      }
+    }
+  });
+}
+
+// ── MIX BARS ─────────────────────────────────────────────────────────────────
+function renderMixBars() {
+  const mix = DATA.revMix;
+  const items = [
+    { label: 'Dine in',     val: mix.dineIn.cw,    color: '#eace49' },
+    { label: 'Web pickup',  val: mix.webPickup.cw,  color: '#7bbd91' },
+    { label: 'In-store',    val: mix.instore.cw,    color: '#cbc9d6' },
+    { label: 'Delivery',    val: mix.delivery.cw,   color: '#6280bd' },
+    { label: 'Catering',    val: mix.catering.cw,   color: '#dbc6a2' },
+    { label: '3PD',         val: mix.tpd.cw,        color: '#888780' },
+    { label: 'Marketplace', val: mix.marketplace.cw,color: '#e87142' }
+  ];
+  document.getElementById('mixBars').innerHTML = items.map(i => `
+    <div class="mix-bar-wrap">
+      <div class="mix-bar-label"><span>${i.label}</span><span style="font-family:'DM Mono',monospace;font-size:12px">${(+i.val).toFixed(1)}%</span></div>
+      <div class="mix-bar-track"><div class="mix-bar-fill" style="width:${i.val}%;background:${i.color}"></div></div>
+    </div>`).join('');
+}
+
+// ── PAID DIGITAL CHARTS ───────────────────────────────────────────────────────
+function renderPaidCharts() {
+  const labels = ['T4W avg', 'Last week', 'This week'];
+
+  if (charts.paidRev) charts.paidRev.destroy();
+  charts.paidRev = new Chart(document.getElementById('paidRevChart'), {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        { label: 'Meta',   data: [DATA.meta.netRev.t4w,   DATA.meta.netRev.lw,   DATA.meta.netRev.cw],   backgroundColor: '#fdf7d8', borderColor: '#eace49', borderWidth: 1.5, borderRadius: 4 },
+        { label: 'Google', data: [DATA.google.netRev.t4w, DATA.google.netRev.lw, DATA.google.netRev.cw], backgroundColor: '#e4f5ea', borderColor: '#7bbd91', borderWidth: 1.5, borderRadius: 4 }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { position: 'bottom', labels: { font: { family: 'DM Sans', size: 11 }, boxWidth: 10, padding: 10 } } },
+      scales: {
+        x: { grid: { display: false }, ticks: { font: { family: 'DM Sans', size: 10 }, color: '#9E9C96' } },
+        y: { grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { font: { family: 'DM Mono', size: 10 }, color: '#9E9C96', callback: v => '$'+Math.round(v/1000)+'k' } }
+      }
+    }
+  });
+
+  if (charts.roas) charts.roas.destroy();
+  charts.roas = new Chart(document.getElementById('roasChart'), {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        { label: 'Meta',   data: [DATA.meta.roas.t4w,   DATA.meta.roas.lw,   DATA.meta.roas.cw],   backgroundColor: '#fdf7d8', borderColor: '#eace49', borderWidth: 1.5, borderRadius: 4 },
+        { label: 'Google', data: [DATA.google.roas.t4w, DATA.google.roas.lw, DATA.google.roas.cw], backgroundColor: '#e4f5ea', borderColor: '#7bbd91', borderWidth: 1.5, borderRadius: 4 }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { position: 'bottom', labels: { font: { family: 'DM Sans', size: 11 }, boxWidth: 10, padding: 10 } } },
+      scales: {
+        x: { grid: { display: false }, ticks: { font: { family: 'DM Sans', size: 10 }, color: '#9E9C96' } },
+        y: { grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { font: { family: 'DM Mono', size: 10 }, color: '#9E9C96', callback: v => v.toFixed(1)+'x' } }
+      }
+    }
+  });
+
+  if (charts.cac) charts.cac.destroy();
+  charts.cac = new Chart(document.getElementById('cacChart'), {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        { label: 'Meta',   data: [DATA.meta.customers.t4w,   DATA.meta.customers.lw,   DATA.meta.customers.cw],   backgroundColor: '#fdf7d8', borderColor: '#eace49', borderWidth: 1.5, borderRadius: 4 },
+        { label: 'Google', data: [DATA.google.customers.t4w, DATA.google.customers.lw, DATA.google.customers.cw], backgroundColor: '#e4f5ea', borderColor: '#7bbd91', borderWidth: 1.5, borderRadius: 4 }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { position: 'bottom', labels: { font: { family: 'DM Sans', size: 11 }, boxWidth: 10, padding: 10 } } },
+      scales: {
+        x: { grid: { display: false }, ticks: { font: { family: 'DM Sans', size: 10 }, color: '#9E9C96' } },
+        y: { grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { font: { family: 'DM Mono', size: 10 }, color: '#9E9C96' } }
+      }
+    }
+  });
+}
+
+// ── 3PD CHARTS ───────────────────────────────────────────────────────────────
+function render3PDCharts() {
+  const labels = ['T4W avg', 'Last week', 'This week'];
+
+  if (charts.sponsoredRoas) charts.sponsoredRoas.destroy();
+  charts.sponsoredRoas = new Chart(document.getElementById('sponsoredRoasChart'), {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        { label: 'Sponsored', data: [DATA.sponsored.roas.t4w, DATA.sponsored.roas.lw, DATA.sponsored.roas.cw], backgroundColor: '#f7f0e4', borderColor: '#dbc6a2', borderWidth: 1.5, borderRadius: 4 },
+        { label: 'Promo',     data: [DATA.promo.roas.t4w,     DATA.promo.roas.lw,     DATA.promo.roas.cw],     backgroundColor: '#f0eff5', borderColor: '#cbc9d6', borderWidth: 1.5, borderRadius: 4 }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { position: 'bottom', labels: { font: { family: 'DM Sans', size: 11 }, boxWidth: 10, padding: 10 } } },
+      scales: {
+        x: { grid: { display: false }, ticks: { font: { family: 'DM Sans', size: 10 }, color: '#9E9C96' } },
+        y: { grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { font: { family: 'DM Mono', size: 10 }, color: '#9E9C96', callback: v => v.toFixed(1)+'x' } }
+      }
+    }
+  });
+
+  if (charts.promo) charts.promo.destroy();
+  charts.promo = new Chart(document.getElementById('promoChart'), {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        { label: 'Net Rev',  data: [DATA.promo.netRev.t4w, DATA.promo.netRev.lw, DATA.promo.netRev.cw], backgroundColor: '#f0eff5', borderColor: '#cbc9d6', borderWidth: 1.5, borderRadius: 4 },
+        { label: 'Spend',    data: [DATA.promo.spend.t4w,  DATA.promo.spend.lw,  DATA.promo.spend.cw],  backgroundColor: '#F1EFE8', borderColor: '#888780', borderWidth: 1.5, borderRadius: 4 }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { position: 'bottom', labels: { font: { family: 'DM Sans', size: 11 }, boxWidth: 10, padding: 10 } } },
+      scales: {
+        x: { grid: { display: false }, ticks: { font: { family: 'DM Sans', size: 10 }, color: '#9E9C96' } },
+        y: { grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { font: { family: 'DM Mono', size: 10 }, color: '#9E9C96', callback: v => '$'+Math.round(v/1000)+'k' } }
+      }
+    }
+  });
+}
+
+// ── METRICS TABLE ─────────────────────────────────────────────────────────────
+function renderMetricsTable() {
+  const rows = [
+    { cat: '3PD Sponsored Listings' },
+    { label: 'Net Revenue',       t4w: fmt$(DATA.sponsored.netRev.t4w), lw: fmt$(DATA.sponsored.netRev.lw), cw: fmt$(DATA.sponsored.netRev.cw), pT4W: DATA.sponsored.netRev.pctT4W, pPW: DATA.sponsored.netRev.pctPW },
+    { label: 'Spend',             t4w: fmt$(DATA.sponsored.spend.t4w),  lw: fmt$(DATA.sponsored.spend.lw),  cw: fmt$(DATA.sponsored.spend.cw),  pT4W: DATA.sponsored.spend.pctT4W,  pPW: DATA.sponsored.spend.pctPW  },
+    { label: 'ROAS',              t4w: fmtR(DATA.sponsored.roas.t4w),   lw: fmtR(DATA.sponsored.roas.lw),   cw: fmtR(DATA.sponsored.roas.cw),   pT4W: DATA.sponsored.roas.pctT4W,   pPW: DATA.sponsored.roas.pctPW   },
+    { cat: 'Promo' },
+    { label: 'Net Revenue',       t4w: fmt$(DATA.promo.netRev.t4w), lw: fmt$(DATA.promo.netRev.lw), cw: fmt$(DATA.promo.netRev.cw), pT4W: DATA.promo.netRev.pctT4W, pPW: DATA.promo.netRev.pctPW },
+    { label: 'Spend',             t4w: fmt$(DATA.promo.spend.t4w),  lw: fmt$(DATA.promo.spend.lw),  cw: fmt$(DATA.promo.spend.cw),  pT4W: DATA.promo.spend.pctT4W,  pPW: DATA.promo.spend.pctPW  },
+    { label: 'ROAS',              t4w: fmtR(DATA.promo.roas.t4w),   lw: fmtR(DATA.promo.roas.lw),   cw: fmtR(DATA.promo.roas.cw),   pT4W: DATA.promo.roas.pctT4W,   pPW: DATA.promo.roas.pctPW   },
+    { cat: 'Meta' },
+    { label: 'Net Revenue',       t4w: fmt$(DATA.meta.netRev.t4w),    lw: fmt$(DATA.meta.netRev.lw),    cw: fmt$(DATA.meta.netRev.cw),    pT4W: DATA.meta.netRev.pctT4W,    pPW: DATA.meta.netRev.pctPW    },
+    { label: 'Ad Spend',          t4w: fmt$(DATA.meta.spend.t4w),     lw: fmt$(DATA.meta.spend.lw),     cw: fmt$(DATA.meta.spend.cw),     pT4W: DATA.meta.spend.pctT4W,     pPW: DATA.meta.spend.pctPW     },
+    { label: 'Customers Acq.',    t4w: fmtN(DATA.meta.customers.t4w), lw: fmtN(DATA.meta.customers.lw), cw: fmtN(DATA.meta.customers.cw), pT4W: DATA.meta.customers.pctT4W, pPW: DATA.meta.customers.pctPW },
+    { label: 'CAC',               t4w: fmt$(DATA.meta.cac.t4w),       lw: fmt$(DATA.meta.cac.lw),       cw: fmt$(DATA.meta.cac.cw),       pT4W: DATA.meta.cac.pctT4W,       pPW: DATA.meta.cac.pctPW       },
+    { label: 'ROAS',              t4w: fmtR(DATA.meta.roas.t4w),      lw: fmtR(DATA.meta.roas.lw),      cw: fmtR(DATA.meta.roas.cw),      pT4W: DATA.meta.roas.pctT4W,      pPW: DATA.meta.roas.pctPW      },
+    { cat: 'Google' },
+    { label: 'Net Revenue',       t4w: fmt$(DATA.google.netRev.t4w),    lw: fmt$(DATA.google.netRev.lw),    cw: fmt$(DATA.google.netRev.cw),    pT4W: DATA.google.netRev.pctT4W,    pPW: DATA.google.netRev.pctPW    },
+    { label: 'Ad Spend',          t4w: fmt$(DATA.google.spend.t4w),     lw: fmt$(DATA.google.spend.lw),     cw: fmt$(DATA.google.spend.cw),     pT4W: DATA.google.spend.pctT4W,     pPW: DATA.google.spend.pctPW     },
+    { label: 'Customers Acq.',    t4w: fmtN(DATA.google.customers.t4w), lw: fmtN(DATA.google.customers.lw), cw: fmtN(DATA.google.customers.cw), pT4W: DATA.google.customers.pctT4W, pPW: DATA.google.customers.pctPW },
+    { label: 'CAC',               t4w: fmt$(DATA.google.cac.t4w),       lw: fmt$(DATA.google.cac.lw),       cw: fmt$(DATA.google.cac.cw),       pT4W: DATA.google.cac.pctT4W,       pPW: DATA.google.cac.pctPW       },
+    { label: 'ROAS',              t4w: fmtR(DATA.google.roas.t4w),      lw: fmtR(DATA.google.roas.lw),      cw: fmtR(DATA.google.roas.cw),      pT4W: DATA.google.roas.pctT4W,      pPW: DATA.google.roas.pctPW      },
+    { cat: 'Revenue by Channel' },
+    { label: 'Total Revenue',     t4w: fmt$(DATA.revenue.total.t4w),     lw: fmt$(DATA.revenue.total.lw),     cw: fmt$(DATA.revenue.total.cw),     pT4W: DATA.revenue.total.pctT4W,     pPW: DATA.revenue.total.pctPW     },
+    { label: 'Dine In',           t4w: fmt$(DATA.revenue.dineIn.t4w),    lw: fmt$(DATA.revenue.dineIn.lw),    cw: fmt$(DATA.revenue.dineIn.cw),    pT4W: DATA.revenue.dineIn.pctT4W,    pPW: DATA.revenue.dineIn.pctPW    },
+    { label: 'Web Pickup',        t4w: fmt$(DATA.revenue.webPickup.t4w), lw: fmt$(DATA.revenue.webPickup.lw), cw: fmt$(DATA.revenue.webPickup.cw), pT4W: DATA.revenue.webPickup.pctT4W, pPW: DATA.revenue.webPickup.pctPW },
+    { label: 'In-store Takeout',  t4w: fmt$(DATA.revenue.instore.t4w),   lw: fmt$(DATA.revenue.instore.lw),   cw: fmt$(DATA.revenue.instore.cw),   pT4W: DATA.revenue.instore.pctT4W,   pPW: DATA.revenue.instore.pctPW   },
+    { label: 'Delivery',          t4w: fmt$(DATA.revenue.delivery.t4w),  lw: fmt$(DATA.revenue.delivery.lw),  cw: fmt$(DATA.revenue.delivery.cw),  pT4W: DATA.revenue.delivery.pctT4W,  pPW: DATA.revenue.delivery.pctPW  },
+    { label: 'Catering',          t4w: fmt$(DATA.revenue.catering.t4w),  lw: fmt$(DATA.revenue.catering.lw),  cw: fmt$(DATA.revenue.catering.cw),  pT4W: DATA.revenue.catering.pctT4W,  pPW: DATA.revenue.catering.pctPW  },
+    { label: '3PD',               t4w: fmt$(DATA.revenue.tpd.t4w),       lw: fmt$(DATA.revenue.tpd.lw),       cw: fmt$(DATA.revenue.tpd.cw),       pT4W: DATA.revenue.tpd.pctT4W,       pPW: DATA.revenue.tpd.pctPW       },
+    { label: 'Marketplace',       t4w: fmt$(DATA.revenue.marketplace.t4w),lw: fmt$(DATA.revenue.marketplace.lw),cw: fmt$(DATA.revenue.marketplace.cw),pT4W: DATA.revenue.marketplace.pctT4W,pPW: DATA.revenue.marketplace.pctPW }
+  ];
+
+  const cl = changeLabel();
+  let html = `<thead><tr>
+    <th>Metric</th>
+    <th>T4W avg</th>
+    <th>Last week</th>
+    <th>This week</th>
+    <th>vs T4W</th>
+    <th>${cl}</th>
+  </tr></thead><tbody>`;
+
+  rows.forEach(r => {
+    if (r.cat) {
+      html += `<tr class="cat-row"><td colspan="6">${r.cat}</td></tr>`;
+    } else {
+      const p4 = r.pT4W != null ? `<span class="${pctClass(r.pT4W)}">${fmtPct(r.pT4W)}</span>` : '—';
+      const ppw = r.pPW != null ? `<span class="${pctClass(r.pPW)}">${fmtPct(r.pPW)}</span>` : '—';
+      html += `<tr><td>${r.label}</td><td>${r.t4w}</td><td>${r.lw}</td><td style="font-weight:500">${r.cw}</td><td>${p4}</td><td>${ppw}</td></tr>`;
+    }
+  });
+  html += '</tbody>';
+  document.getElementById('metricsTable').innerHTML = html;
+}
+
+// ── FULL RENDER ───────────────────────────────────────────────────────────────
+function renderDashboard() {
+  renderKPIs();
+  renderRevenueChart();
+  renderMixBars();
+  renderPaidCharts();
+  render3PDCharts();
+  renderMetricsTable();
+}
+
+// ── CSV UPLOAD ────────────────────────────────────────────────────────────────
+function loadCSV(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const text = e.target.result;
+    parseAndLoad(text, file.name);
+  };
+  reader.readAsText(file);
+}
+
+function parseAndLoad(text, filename) {
+  const lines = text.split('\n').map(l => l.split(',').map(c => c.trim().replace(/^"|"$/g,'').replace(/^\$\s*/,'').replace(/,/g,'')));
+
+  function findRow(keyword) {
+    return lines.find(l => l.some(c => c.toLowerCase().includes(keyword.toLowerCase())));
+  }
+  function parseNum(s) {
+    if (!s || s === '' || s === '#DIV/0!') return null;
+    const n = parseFloat(s.replace(/[%$,\s]/g,''));
+    return isNaN(n) ? null : n;
+  }
+  function extractRow(keyword) {
+    const row = findRow(keyword);
+    if (!row) return null;
+    const vals = row.filter(c => c !== '').slice(-6);
+    return {
+      t4w: parseNum(vals[0]), lw: parseNum(vals[1]), cw: parseNum(vals[2]),
+      pctT4W: parseNum(vals[4]), pctPW: parseNum(vals[5])
+    };
+  }
+
+  const weekRow = lines.find(l => l.some(c => /\d+\/\d+\/\d+/.test(c) && l.indexOf(c) > 3));
+  if (weekRow) {
+    const dates = weekRow.filter(c => /\d+\/\d+\/\d+/.test(c));
+    if (dates[1]) DATA.currentWeek = dates[1];
+    if (dates[0]) DATA.lastWeek = dates[0];
+    document.getElementById('weekBadge').innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Week of ${DATA.currentWeek}`;
+  }
+
+  const map = [
+    ['Sponsored Listing Net Revenue', 'sponsored', 'netRev'],
+    ['Sponsored Listing Spend',       'sponsored', 'spend'],
+    ['Sponsored Listing ROAS',        'sponsored', 'roas'],
+    ['Promo Net Revenue',             'promo',     'netRev'],
+    ['Promo Spend',                   'promo',     'spend'],
+    ['Promo ROAS',                    'promo',     'roas'],
+    ['Net Revenue - Meta',            'meta',      'netRev'],
+    ['Ad Spend - Meta',               'meta',      'spend'],
+    ['Customers Acq. - Meta',         'meta',      'customers'],
+    ['CAC - Meta',                    'meta',      'cac'],
+    ['ROAS - Meta',                   'meta',      'roas'],
+    ['Net Revenue - Google',          'google',    'netRev'],
+    ['Ad Spend - Google',             'google',    'spend'],
+    ['Customers Acq. - Google',       'google',    'customers'],
+    ['CAC - Google',                  'google',    'cac'],
+    ['ROAS - Google',                 'google',    'roas'],
+    ['Blended ROAS',                  'blendedROAS',null],
+    ['Total Revenue',                 'revenue',   'total'],
+    ['Dine in',                       'revenue',   'dineIn'],
+    ['Web Pickup',                    'revenue',   'webPickup'],
+    ['In-store Takeout',              'revenue',   'instore'],
+    ['Delivery',                      'revenue',   'delivery'],
+    ['Catering',                      'revenue',   'catering'],
+    ['3PD',                           'revenue',   'tpd'],
+    ['Marketplace',                   'revenue',   'marketplace'],
+  ];
+
+  map.forEach(([kw, section, field]) => {
+    const parsed = extractRow(kw);
+    if (!parsed) return;
+    if (field === null) { Object.assign(DATA[section], parsed); }
+    else if (DATA[section] && DATA[section][field] !== undefined) { Object.assign(DATA[section][field], parsed); }
+  });
+
+  document.getElementById('previewFileName').textContent = filename;
+  document.getElementById('previewMeta').textContent = lines.length + ' rows parsed';
+  document.getElementById('dataRaw').textContent = text.split('\n').slice(0,30).join('\n');
+  document.getElementById('dataPreview').style.display = 'block';
+
+  showStatus('Data loaded — dashboard updated');
+  renderDashboard();
+}
+
+function showStatus(msg) {
+  const bar = document.getElementById('statusBar');
+  document.getElementById('statusMsg').textContent = msg;
+  bar.classList.add('show');
+  setTimeout(() => bar.classList.remove('show'), 3500);
+}
+
+// ── DRAG & DROP ───────────────────────────────────────────────────────────────
+function dragOver(e) { e.preventDefault(); document.getElementById('dropZone').classList.add('drag'); }
+function dragLeave()  { document.getElementById('dropZone').classList.remove('drag'); }
+function dropFile(e)  {
+  e.preventDefault();
+  dragLeave();
+  const file = e.dataTransfer.files[0];
+  if (!file || !file.name.endsWith('.csv')) { alert('Please drop a .csv file.'); return; }
+  const reader = new FileReader();
+  reader.onload = ev => parseAndLoad(ev.target.result, file.name);
+  reader.readAsText(file);
+}
+
+renderDashboard();
+</script>
+
+<!-- ALL TIME PAGE -->
+<div class="page" id="page-alltime">
+  <div class="dashboard">
+    <div class="dash-header">
+      <div>
+        <div class="dash-title">All-time performance</div>
+        <div class="dash-sub">Weekly revenue from Jan 2025 — present &middot; 67 weeks of data</div>
+      </div>
+      <div class="view-toggle">
+        <button class="vt-btn active" onclick="setATView('total',this)">Total revenue</button>
+        <button class="vt-btn" onclick="setATView('channels',this)">By channel</button>
+        <button class="vt-btn" onclick="setATView('digital',this)">Paid digital</button>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:1.5rem" id="atKpiGrid"></div>
+
+    <div class="chart-card" style="margin-bottom:1.5rem">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:8px">
+        <div>
+          <div class="chart-card-title" id="atChartTitle">Weekly total revenue</div>
+          <div class="chart-card-sub" id="atChartSub">Jan 2025 – May 2026 &middot; all Neighborly locations</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:14px;font-size:11px;color:var(--text-3)">
+          <span style="display:inline-flex;align-items:center;gap:5px"><span style="width:14px;height:10px;background:#fdf7d8;border:1.5px solid #eace49;border-radius:2px;display:inline-block"></span>Pre-Brentwood</span>
+          <span style="display:inline-flex;align-items:center;gap:5px"><span style="width:14px;height:10px;background:#1f2328;border-radius:2px;display:inline-block"></span>Post-opening</span>
+          <span style="display:inline-flex;align-items:center;gap:5px;background:#fdf7d8;color:#7a6b00;padding:3px 8px;border-radius:20px;font-weight:500">&#9733; Brentwood opening Apr 8, 2026</span>
+        </div>
+      </div>
+      <div style="position:relative;height:320px"><canvas id="atMainChart"></canvas></div>
+    </div>
+
+    <div class="chart-grid-2" style="margin-bottom:1.5rem">
+      <div class="chart-card">
+        <div class="chart-card-title">6-week rolling average</div>
+        <div class="chart-card-sub">Smoothed revenue trend over time</div>
+        <div style="position:relative;height:180px"><canvas id="atRollingChart"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-card-title">Channel mix over time</div>
+        <div class="chart-card-sub">% share by revenue center (sampled)</div>
+        <div style="position:relative;height:180px"><canvas id="atMixChart"></canvas></div>
+      </div>
+    </div>
+
+    <div class="section-title">Brentwood opening impact</div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:2rem">
+      <div class="chart-card" style="text-align:center">
+        <div class="kpi-label">Pre-Brentwood avg / week</div>
+        <div class="kpi-value" style="font-size:22px" id="atPreAvg">—</div>
+        <div style="font-size:11px;color:var(--text-3);margin-top:4px">Jan 2025 – Apr 1, 2026</div>
+      </div>
+      <div class="chart-card" style="text-align:center;border-left:3px solid #eace49;border-radius:0 12px 12px 0">
+        <div class="kpi-label">Post-Brentwood avg / week</div>
+        <div class="kpi-value" style="font-size:22px" id="atPostAvg">—</div>
+        <div style="font-size:11px;color:var(--text-3);margin-top:4px">Apr 8, 2026 – present</div>
+      </div>
+      <div class="chart-card" style="text-align:center">
+        <div class="kpi-label">Revenue lift from opening</div>
+        <div class="kpi-value" style="font-size:22px;color:#2a7a4b" id="atLift">—</div>
+        <div style="font-size:11px;color:var(--text-3);margin-top:4px">avg uplift vs pre-opening</div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+const HIST_TOTAL = [{"d": "1/27/2025", "v": 77615}, {"d": "2/3/2025", "v": 79358}, {"d": "2/10/2025", "v": 81589}, {"d": "2/17/2025", "v": 95513}, {"d": "2/24/2025", "v": 99312}, {"d": "3/3/2025", "v": 93108}, {"d": "3/10/2025", "v": 101464}, {"d": "3/17/2025", "v": 109236}, {"d": "3/24/2025", "v": 104488}, {"d": "3/31/2025", "v": 105809}, {"d": "4/7/2025", "v": 104764}, {"d": "4/14/2025", "v": 99471}, {"d": "4/21/2025", "v": 102055}, {"d": "4/28/2025", "v": 105420}, {"d": "5/5/2025", "v": 112433}, {"d": "5/12/2025", "v": 104405}, {"d": "5/19/2025", "v": 123204}, {"d": "5/26/2025", "v": 133457}, {"d": "6/2/2025", "v": 136453}, {"d": "6/9/2025", "v": 128980}, {"d": "6/16/2025", "v": 131787}, {"d": "6/23/2025", "v": 130713}, {"d": "6/30/2025", "v": 114538}, {"d": "7/7/2025", "v": 127434}, {"d": "7/14/2025", "v": 134142}, {"d": "7/21/2025", "v": 134565}, {"d": "7/28/2025", "v": 146965}, {"d": "8/4/2025", "v": 143881}, {"d": "8/11/2025", "v": 149362}, {"d": "8/18/2025", "v": 142628}, {"d": "8/25/2025", "v": 136500}, {"d": "9/1/2025", "v": 132792}, {"d": "9/8/2025", "v": 140417}, {"d": "9/15/2025", "v": 131452}, {"d": "9/22/2025", "v": 136658}, {"d": "9/29/2025", "v": 144188}, {"d": "10/6/2025", "v": 143371}, {"d": "10/13/2025", "v": 139956}, {"d": "10/20/2025", "v": 143131}, {"d": "10/27/2025", "v": 154351}, {"d": "11/3/2025", "v": 149546}, {"d": "11/10/2025", "v": 124790}, {"d": "11/17/2025", "v": 122585}, {"d": "11/24/2025", "v": 121857}, {"d": "12/1/2025", "v": 146396}, {"d": "12/8/2025", "v": 157299}, {"d": "12/15/2025", "v": 161588}, {"d": "12/22/2025", "v": 122964}, {"d": "12/29/2025", "v": 176549}, {"d": "1/7/2026", "v": 156490}, {"d": "1/14/2026", "v": 162862}, {"d": "1/21/2026", "v": 159125}, {"d": "1/28/2026", "v": 174557}, {"d": "2/4/2026", "v": 161947}, {"d": "2/11/2026", "v": 152457}, {"d": "2/18/2026", "v": 165233}, {"d": "2/25/2026", "v": 174710}, {"d": "3/4/2026", "v": 167526}, {"d": "3/11/2026", "v": 173844}, {"d": "3/18/2026", "v": 173306}, {"d": "3/25/2026", "v": 143262}, {"d": "4/1/2026", "v": 164500}, {"d": "4/8/2026", "v": 212190}, {"d": "4/15/2026", "v": 339781}, {"d": "4/22/2026", "v": 348116}, {"d": "4/29/2026", "v": 351739}, {"d": "5/6/2026", "v": 374910}];
+const HIST_CHANNELS = {"dineIn": [{"d": "1/27/2025", "v": 27386}, {"d": "2/3/2025", "v": 23404}, {"d": "2/10/2025", "v": 23218}, {"d": "2/17/2025", "v": 31415}, {"d": "2/24/2025", "v": 30360}, {"d": "3/3/2025", "v": 26946}, {"d": "3/10/2025", "v": 25174}, {"d": "3/17/2025", "v": 36337}, {"d": "3/24/2025", "v": 27958}, {"d": "3/31/2025", "v": 32943}, {"d": "4/7/2025", "v": 35418}, {"d": "4/14/2025", "v": 29441}, {"d": "4/21/2025", "v": 27786}, {"d": "4/28/2025", "v": 29261}, {"d": "5/5/2025", "v": 31171}, {"d": "5/12/2025", "v": 33218}, {"d": "5/19/2025", "v": 40150}, {"d": "5/26/2025", "v": 40757}, {"d": "6/2/2025", "v": 38641}, {"d": "6/9/2025", "v": 39174}, {"d": "6/16/2025", "v": 42540}, {"d": "6/23/2025", "v": 40594}, {"d": "6/30/2025", "v": 37735}, {"d": "7/7/2025", "v": 41893}, {"d": "7/14/2025", "v": 42670}, {"d": "7/21/2025", "v": 42696}, {"d": "7/28/2025", "v": 45370}, {"d": "8/4/2025", "v": 43343}, {"d": "8/11/2025", "v": 43940}, {"d": "8/18/2025", "v": 40831}, {"d": "8/25/2025", "v": 41125}, {"d": "9/1/2025", "v": 38252}, {"d": "9/8/2025", "v": 41420}, {"d": "9/15/2025", "v": 39604}, {"d": "9/22/2025", "v": 42352}, {"d": "9/29/2025", "v": 42049}, {"d": "10/6/2025", "v": 40318}, {"d": "10/13/2025", "v": 35806}, {"d": "10/20/2025", "v": 37223}, {"d": "10/27/2025", "v": 36043}, {"d": "11/3/2025", "v": 39734}, {"d": "11/10/2025", "v": 25447}, {"d": "11/17/2025", "v": 28730}, {"d": "11/24/2025", "v": 38937}, {"d": "12/1/2025", "v": 38245}, {"d": "12/8/2025", "v": 39990}, {"d": "12/15/2025", "v": 40121}, {"d": "12/22/2025", "v": 29573}, {"d": "12/29/2025", "v": 39333}, {"d": "1/7/2026", "v": 36948}, {"d": "1/14/2026", "v": 45266}, {"d": "1/21/2026", "v": 38298}, {"d": "1/28/2026", "v": 41208}, {"d": "2/4/2026", "v": 36843}, {"d": "2/11/2026", "v": 34915}, {"d": "2/18/2026", "v": 37248}, {"d": "2/25/2026", "v": 43677}, {"d": "3/4/2026", "v": 45219}, {"d": "3/11/2026", "v": 43246}, {"d": "3/18/2026", "v": 45659}, {"d": "3/25/2026", "v": 14678}, {"d": "4/1/2026", "v": 42198}, {"d": "4/8/2026", "v": 55947}, {"d": "4/15/2026", "v": 125229}, {"d": "4/22/2026", "v": 132813}, {"d": "4/29/2026", "v": 132159}, {"d": "5/6/2026", "v": 131962}], "webPickup": [{"d": "1/27/2025", "v": 15176}, {"d": "2/3/2025", "v": 16312}, {"d": "2/10/2025", "v": 15368}, {"d": "2/17/2025", "v": 16374}, {"d": "2/24/2025", "v": 17205}, {"d": "3/3/2025", "v": 15358}, {"d": "3/10/2025", "v": 17336}, {"d": "3/17/2025", "v": 16492}, {"d": "3/24/2025", "v": 17475}, {"d": "3/31/2025", "v": 18245}, {"d": "4/7/2025", "v": 18077}, {"d": "4/14/2025", "v": 16166}, {"d": "4/21/2025", "v": 17086}, {"d": "4/28/2025", "v": 16227}, {"d": "5/5/2025", "v": 20604}, {"d": "5/12/2025", "v": 18571}, {"d": "5/19/2025", "v": 20989}, {"d": "5/26/2025", "v": 21903}, {"d": "6/2/2025", "v": 23395}, {"d": "6/9/2025", "v": 21505}, {"d": "6/16/2025", "v": 21822}, {"d": "6/23/2025", "v": 20377}, {"d": "6/30/2025", "v": 19454}, {"d": "7/7/2025", "v": 21098}, {"d": "7/14/2025", "v": 22072}, {"d": "7/21/2025", "v": 21195}, {"d": "7/28/2025", "v": 21920}, {"d": "8/4/2025", "v": 21334}, {"d": "8/11/2025", "v": 22059}, {"d": "8/18/2025", "v": 23337}, {"d": "8/25/2025", "v": 22335}, {"d": "9/1/2025", "v": 21283}, {"d": "9/8/2025", "v": 24233}, {"d": "9/15/2025", "v": 20504}, {"d": "9/22/2025", "v": 21349}, {"d": "9/29/2025", "v": 24023}, {"d": "10/6/2025", "v": 23349}, {"d": "10/13/2025", "v": 22572}, {"d": "10/20/2025", "v": 24568}, {"d": "10/27/2025", "v": 27403}, {"d": "11/3/2025", "v": 25322}, {"d": "11/10/2025", "v": 24197}, {"d": "11/17/2025", "v": 22558}, {"d": "11/24/2025", "v": 22242}, {"d": "12/1/2025", "v": 27056}, {"d": "12/8/2025", "v": 28386}, {"d": "12/15/2025", "v": 30145}, {"d": "12/22/2025", "v": 22408}, {"d": "12/29/2025", "v": 31703}, {"d": "1/7/2026", "v": 28566}, {"d": "1/14/2026", "v": 27322}, {"d": "1/21/2026", "v": 29892}, {"d": "1/28/2026", "v": 31789}, {"d": "2/4/2026", "v": 29280}, {"d": "2/11/2026", "v": 29449}, {"d": "2/18/2026", "v": 31923}, {"d": "2/25/2026", "v": 32604}, {"d": "3/4/2026", "v": 33794}, {"d": "3/11/2026", "v": 31201}, {"d": "3/18/2026", "v": 31201}, {"d": "3/25/2026", "v": 32355}, {"d": "4/1/2026", "v": 30421}, {"d": "4/8/2026", "v": 45712}, {"d": "4/15/2026", "v": 59854}, {"d": "4/22/2026", "v": 68757}, {"d": "4/29/2026", "v": 73165}, {"d": "5/6/2026", "v": 78713}], "instore": [{"d": "1/27/2025", "v": 14664}, {"d": "2/3/2025", "v": 12353}, {"d": "2/10/2025", "v": 12495}, {"d": "2/17/2025", "v": 13225}, {"d": "2/24/2025", "v": 12419}, {"d": "3/3/2025", "v": 13577}, {"d": "3/10/2025", "v": 17870}, {"d": "3/17/2025", "v": 14676}, {"d": "3/24/2025", "v": 16787}, {"d": "3/31/2025", "v": 12788}, {"d": "4/7/2025", "v": 12533}, {"d": "4/14/2025", "v": 12050}, {"d": "4/21/2025", "v": 14705}, {"d": "4/28/2025", "v": 14043}, {"d": "5/5/2025", "v": 12128}, {"d": "5/12/2025", "v": 13237}, {"d": "5/19/2025", "v": 13880}, {"d": "5/26/2025", "v": 14257}, {"d": "6/2/2025", "v": 14854}, {"d": "6/9/2025", "v": 14573}, {"d": "6/16/2025", "v": 13847}, {"d": "6/23/2025", "v": 14377}, {"d": "6/30/2025", "v": 12089}, {"d": "7/7/2025", "v": 12950}, {"d": "7/14/2025", "v": 15015}, {"d": "7/21/2025", "v": 14989}, {"d": "7/28/2025", "v": 17232}, {"d": "8/4/2025", "v": 16875}, {"d": "8/11/2025", "v": 15608}, {"d": "8/18/2025", "v": 14453}, {"d": "8/25/2025", "v": 13484}, {"d": "9/1/2025", "v": 12010}, {"d": "9/8/2025", "v": 14379}, {"d": "9/15/2025", "v": 13075}, {"d": "9/22/2025", "v": 13049}, {"d": "9/29/2025", "v": 12258}, {"d": "10/6/2025", "v": 12741}, {"d": "10/13/2025", "v": 12979}, {"d": "10/20/2025", "v": 14440}, {"d": "10/27/2025", "v": 13794}, {"d": "11/3/2025", "v": 14422}, {"d": "11/10/2025", "v": 12448}, {"d": "11/17/2025", "v": 13178}, {"d": "11/24/2025", "v": 10764}, {"d": "12/1/2025", "v": 14171}, {"d": "12/8/2025", "v": 15798}, {"d": "12/15/2025", "v": 14573}, {"d": "12/22/2025", "v": 13909}, {"d": "12/29/2025", "v": 17259}, {"d": "1/7/2026", "v": 15353}, {"d": "1/14/2026", "v": 14297}, {"d": "1/21/2026", "v": 14362}, {"d": "1/28/2026", "v": 15917}, {"d": "2/4/2026", "v": 14910}, {"d": "2/11/2026", "v": 13962}, {"d": "2/18/2026", "v": 17799}, {"d": "2/25/2026", "v": 16567}, {"d": "3/4/2026", "v": 16077}, {"d": "3/11/2026", "v": 16829}, {"d": "3/18/2026", "v": 16033}, {"d": "3/25/2026", "v": 15174}, {"d": "4/1/2026", "v": 14346}, {"d": "4/8/2026", "v": 25968}, {"d": "4/15/2026", "v": 44895}, {"d": "4/22/2026", "v": 35707}, {"d": "4/29/2026", "v": 32168}, {"d": "5/6/2026", "v": 34322}], "delivery": [{"d": "1/27/2025", "v": 3216}, {"d": "2/3/2025", "v": 2929}, {"d": "2/10/2025", "v": 3248}, {"d": "2/17/2025", "v": 3178}, {"d": "2/24/2025", "v": 3620}, {"d": "3/3/2025", "v": 3596}, {"d": "3/10/2025", "v": 2310}, {"d": "3/17/2025", "v": 3823}, {"d": "3/24/2025", "v": 3704}, {"d": "3/31/2025", "v": 3370}, {"d": "4/7/2025", "v": 3463}, {"d": "4/14/2025", "v": 3244}, {"d": "4/21/2025", "v": 4278}, {"d": "4/28/2025", "v": 4247}, {"d": "5/5/2025", "v": 4710}, {"d": "5/12/2025", "v": 3964}, {"d": "5/19/2025", "v": 4017}, {"d": "5/26/2025", "v": 5062}, {"d": "6/2/2025", "v": 6533}, {"d": "6/9/2025", "v": 4384}, {"d": "6/16/2025", "v": 4641}, {"d": "6/23/2025", "v": 5301}, {"d": "6/30/2025", "v": 3857}, {"d": "7/7/2025", "v": 3633}, {"d": "7/14/2025", "v": 3933}, {"d": "7/21/2025", "v": 3983}, {"d": "7/28/2025", "v": 6098}, {"d": "8/4/2025", "v": 5194}, {"d": "8/11/2025", "v": 5644}, {"d": "8/18/2025", "v": 4336}, {"d": "8/25/2025", "v": 4793}, {"d": "9/1/2025", "v": 4925}, {"d": "9/8/2025", "v": 4829}, {"d": "9/15/2025", "v": 5865}, {"d": "9/22/2025", "v": 5244}, {"d": "9/29/2025", "v": 5283}, {"d": "10/6/2025", "v": 6384}, {"d": "10/13/2025", "v": 6841}, {"d": "10/20/2025", "v": 5158}, {"d": "10/27/2025", "v": 6767}, {"d": "11/3/2025", "v": 6044}, {"d": "11/10/2025", "v": 4614}, {"d": "11/17/2025", "v": 5283}, {"d": "11/24/2025", "v": 4317}, {"d": "12/1/2025", "v": 6070}, {"d": "12/8/2025", "v": 5709}, {"d": "12/15/2025", "v": 5944}, {"d": "12/22/2025", "v": 4814}, {"d": "12/29/2025", "v": 7751}, {"d": "1/7/2026", "v": 7577}, {"d": "1/14/2026", "v": 7042}, {"d": "1/21/2026", "v": 7638}, {"d": "1/28/2026", "v": 7689}, {"d": "2/4/2026", "v": 6750}, {"d": "2/11/2026", "v": 6920}, {"d": "2/18/2026", "v": 7485}, {"d": "2/25/2026", "v": 7290}, {"d": "3/4/2026", "v": 6064}, {"d": "3/11/2026", "v": 8995}, {"d": "3/18/2026", "v": 6096}, {"d": "3/25/2026", "v": 6010}, {"d": "4/1/2026", "v": 5692}, {"d": "4/8/2026", "v": 8356}, {"d": "4/15/2026", "v": 15097}, {"d": "4/22/2026", "v": 20891}, {"d": "4/29/2026", "v": 22368}, {"d": "5/6/2026", "v": 23436}], "catering": [{"d": "7/28/2025", "v": 2827}, {"d": "8/4/2025", "v": 1227}, {"d": "8/11/2025", "v": 939}, {"d": "8/18/2025", "v": 3592}, {"d": "8/25/2025", "v": 3190}, {"d": "9/1/2025", "v": 4433}, {"d": "9/8/2025", "v": 4054}, {"d": "9/15/2025", "v": 3751}, {"d": "9/22/2025", "v": 2463}, {"d": "9/29/2025", "v": 8108}, {"d": "10/6/2025", "v": 6216}, {"d": "10/13/2025", "v": 3385}, {"d": "10/20/2025", "v": 8741}, {"d": "10/27/2025", "v": 7649}, {"d": "11/3/2025", "v": 7663}, {"d": "11/10/2025", "v": 3670}, {"d": "11/17/2025", "v": 3404}, {"d": "11/24/2025", "v": 757}, {"d": "12/1/2025", "v": 6338}, {"d": "12/8/2025", "v": 5675}, {"d": "12/15/2025", "v": 6373}, {"d": "12/22/2025", "v": 960}, {"d": "12/29/2025", "v": 4687}, {"d": "1/7/2026", "v": 3558}, {"d": "1/14/2026", "v": 5477}, {"d": "1/21/2026", "v": 3693}, {"d": "1/28/2026", "v": 8756}, {"d": "2/4/2026", "v": 9852}, {"d": "2/11/2026", "v": 4149}, {"d": "2/18/2026", "v": 4245}, {"d": "2/25/2026", "v": 7164}, {"d": "3/4/2026", "v": 5071}, {"d": "3/11/2026", "v": 3988}, {"d": "3/18/2026", "v": 7790}, {"d": "3/25/2026", "v": 8637}, {"d": "4/1/2026", "v": 6167}, {"d": "4/8/2026", "v": 4101}, {"d": "4/15/2026", "v": 12062}, {"d": "5/6/2026", "v": 18808}], "tpd": [{"d": "1/27/2025", "v": 8035}, {"d": "2/3/2025", "v": 10264}, {"d": "2/10/2025", "v": 12387}, {"d": "2/17/2025", "v": 14529}, {"d": "2/24/2025", "v": 18394}, {"d": "3/3/2025", "v": 16438}, {"d": "3/10/2025", "v": 17959}, {"d": "3/17/2025", "v": 19002}, {"d": "3/24/2025", "v": 20408}, {"d": "3/31/2025", "v": 19248}, {"d": "4/7/2025", "v": 20572}, {"d": "4/14/2025", "v": 18436}, {"d": "4/21/2025", "v": 18926}, {"d": "4/28/2025", "v": 22160}, {"d": "5/5/2025", "v": 22275}, {"d": "5/12/2025", "v": 17971}, {"d": "5/19/2025", "v": 21847}, {"d": "5/26/2025", "v": 27165}, {"d": "6/2/2025", "v": 27330}, {"d": "6/9/2025", "v": 26775}, {"d": "6/16/2025", "v": 25992}, {"d": "6/23/2025", "v": 26640}, {"d": "6/30/2025", "v": 21179}, {"d": "7/7/2025", "v": 26817}, {"d": "7/14/2025", "v": 26160}, {"d": "7/21/2025", "v": 27645}, {"d": "7/28/2025", "v": 28779}, {"d": "8/4/2025", "v": 29726}, {"d": "8/11/2025", "v": 31123}, {"d": "8/18/2025", "v": 29926}, {"d": "8/25/2025", "v": 27390}, {"d": "9/1/2025", "v": 29321}, {"d": "9/8/2025", "v": 27561}, {"d": "9/15/2025", "v": 28290}, {"d": "9/22/2025", "v": 29489}, {"d": "9/29/2025", "v": 29146}, {"d": "10/6/2025", "v": 29326}, {"d": "10/13/2025", "v": 32560}, {"d": "10/20/2025", "v": 28544}, {"d": "10/27/2025", "v": 33222}, {"d": "11/3/2025", "v": 30524}, {"d": "11/10/2025", "v": 29325}, {"d": "11/17/2025", "v": 26794}, {"d": "11/24/2025", "v": 25098}, {"d": "12/1/2025", "v": 33032}, {"d": "12/8/2025", "v": 31212}, {"d": "12/15/2025", "v": 35437}, {"d": "12/22/2025", "v": 24598}, {"d": "12/29/2025", "v": 38739}, {"d": "1/7/2026", "v": 33529}, {"d": "1/14/2026", "v": 34288}, {"d": "1/21/2026", "v": 37068}, {"d": "1/28/2026", "v": 38261}, {"d": "2/4/2026", "v": 37556}, {"d": "2/11/2026", "v": 33738}, {"d": "2/18/2026", "v": 36245}, {"d": "2/25/2026", "v": 39008}, {"d": "3/4/2026", "v": 35289}, {"d": "3/11/2026", "v": 38085}, {"d": "3/18/2026", "v": 38953}, {"d": "3/25/2026", "v": 35302}, {"d": "4/1/2026", "v": 32977}, {"d": "4/8/2026", "v": 36333}, {"d": "4/15/2026", "v": 38042}, {"d": "4/22/2026", "v": 39214}, {"d": "4/29/2026", "v": 40228}, {"d": "5/6/2026", "v": 36796}], "marketplace": [{"d": "1/27/2025", "v": 4727}, {"d": "2/3/2025", "v": 3837}, {"d": "2/10/2025", "v": 4745}, {"d": "2/17/2025", "v": 4170}, {"d": "2/24/2025", "v": 4330}, {"d": "3/3/2025", "v": 4715}, {"d": "3/10/2025", "v": 5060}, {"d": "3/17/2025", "v": 6841}, {"d": "3/24/2025", "v": 4912}, {"d": "3/31/2025", "v": 5212}, {"d": "4/14/2025", "v": 6281}, {"d": "4/21/2025", "v": 4615}, {"d": "4/28/2025", "v": 5174}, {"d": "5/5/2025", "v": 6493}, {"d": "5/12/2025", "v": 5746}, {"d": "5/19/2025", "v": 6907}, {"d": "5/26/2025", "v": 6347}, {"d": "6/2/2025", "v": 5077}, {"d": "6/9/2025", "v": 6379}, {"d": "6/16/2025", "v": 5051}, {"d": "6/23/2025", "v": 5020}, {"d": "6/30/2025", "v": 5471}, {"d": "7/7/2025", "v": 5609}, {"d": "7/14/2025", "v": 3873}, {"d": "7/21/2025", "v": 4752}, {"d": "7/28/2025", "v": 3523}, {"d": "8/4/2025", "v": 3514}, {"d": "8/11/2025", "v": 4790}, {"d": "8/18/2025", "v": 4754}, {"d": "8/25/2025", "v": 5824}, {"d": "9/1/2025", "v": 5025}, {"d": "9/8/2025", "v": 5055}, {"d": "9/15/2025", "v": 4351}, {"d": "9/22/2025", "v": 4693}, {"d": "9/29/2025", "v": 3859}, {"d": "10/6/2025", "v": 4893}, {"d": "10/13/2025", "v": 4606}, {"d": "10/20/2025", "v": 5120}, {"d": "10/27/2025", "v": 4728}, {"d": "11/3/2025", "v": 4055}, {"d": "11/10/2025", "v": 4085}, {"d": "11/17/2025", "v": 3465}, {"d": "11/24/2025", "v": 3950}, {"d": "12/1/2025", "v": 3684}, {"d": "12/8/2025", "v": 4177}, {"d": "12/15/2025", "v": 4974}, {"d": "12/22/2025", "v": 8403}, {"d": "12/29/2025", "v": 7765}, {"d": "1/7/2026", "v": 4907}, {"d": "1/14/2026", "v": 5948}, {"d": "1/21/2026", "v": 4741}, {"d": "1/28/2026", "v": 5276}, {"d": "2/4/2026", "v": 4674}, {"d": "2/11/2026", "v": 5392}, {"d": "2/18/2026", "v": 4688}, {"d": "2/25/2026", "v": 4458}, {"d": "3/4/2026", "v": 4764}, {"d": "3/11/2026", "v": 5092}, {"d": "3/18/2026", "v": 3916}, {"d": "3/25/2026", "v": 4215}, {"d": "4/1/2026", "v": 3659}, {"d": "4/8/2026", "v": 5095}, {"d": "4/15/2026", "v": 7316}, {"d": "4/22/2026", "v": 5799}, {"d": "4/29/2026", "v": 6833}, {"d": "5/6/2026", "v": 7666}], "sponsoredNet": [{"d": "1/27/2025", "v": 1784}, {"d": "2/3/2025", "v": 4990}, {"d": "2/10/2025", "v": 4883}, {"d": "2/17/2025", "v": 4324}, {"d": "2/24/2025", "v": 5104}, {"d": "3/3/2025", "v": 3755}, {"d": "3/10/2025", "v": 5444}, {"d": "3/17/2025", "v": 4571}, {"d": "3/24/2025", "v": 5316}, {"d": "3/31/2025", "v": 4998}, {"d": "4/7/2025", "v": 5513}, {"d": "4/14/2025", "v": 4999}, {"d": "4/21/2025", "v": 6009}, {"d": "4/28/2025", "v": 6465}, {"d": "5/5/2025", "v": 6125}, {"d": "5/12/2025", "v": 3497}, {"d": "5/19/2025", "v": 5593}, {"d": "5/26/2025", "v": 7146}, {"d": "6/2/2025", "v": 7948}, {"d": "6/9/2025", "v": 6478}, {"d": "6/16/2025", "v": 7610}, {"d": "6/23/2025", "v": 7794}, {"d": "6/30/2025", "v": 6806}, {"d": "7/7/2025", "v": 7162}, {"d": "7/14/2025", "v": 10003}, {"d": "7/21/2025", "v": 9456}, {"d": "7/28/2025", "v": 10868}, {"d": "8/4/2025", "v": 11946}, {"d": "8/11/2025", "v": 12920}, {"d": "8/18/2025", "v": 11085}, {"d": "8/25/2025", "v": 10054}, {"d": "9/1/2025", "v": 8560}, {"d": "9/8/2025", "v": 7469}, {"d": "9/15/2025", "v": 7949}, {"d": "9/22/2025", "v": 7927}, {"d": "9/29/2025", "v": 8431}, {"d": "10/6/2025", "v": 8629}, {"d": "10/13/2025", "v": 9689}, {"d": "10/20/2025", "v": 9163}, {"d": "10/27/2025", "v": 11597}, {"d": "11/3/2025", "v": 8619}, {"d": "11/10/2025", "v": 8178}, {"d": "11/17/2025", "v": 7811}, {"d": "11/24/2025", "v": 7210}, {"d": "12/1/2025", "v": 8274}, {"d": "12/8/2025", "v": 13583}, {"d": "12/15/2025", "v": 9529}, {"d": "12/22/2025", "v": 8433}, {"d": "12/29/2025", "v": 13663}, {"d": "1/7/2026", "v": 10877}, {"d": "1/14/2026", "v": 10379}, {"d": "1/21/2026", "v": 9744}, {"d": "1/28/2026", "v": 10827}, {"d": "2/4/2026", "v": 8288}, {"d": "2/11/2026", "v": 9756}, {"d": "2/18/2026", "v": 10947}, {"d": "2/25/2026", "v": 10434}, {"d": "3/4/2026", "v": 8603}, {"d": "3/11/2026", "v": 11965}, {"d": "3/18/2026", "v": 10885}, {"d": "3/25/2026", "v": 13972}, {"d": "4/1/2026", "v": 13313}, {"d": "4/8/2026", "v": 12302}, {"d": "4/15/2026", "v": 9864}, {"d": "4/22/2026", "v": 10982}, {"d": "4/29/2026", "v": 10592}, {"d": "5/6/2026", "v": 8674}], "metaRev": [{"d": "2/10/2025", "v": 1243}, {"d": "2/17/2025", "v": 3280}, {"d": "2/24/2025", "v": 2860}, {"d": "3/3/2025", "v": 4249}, {"d": "3/10/2025", "v": 4180}, {"d": "3/17/2025", "v": 2645}, {"d": "3/24/2025", "v": 2480}, {"d": "3/31/2025", "v": 4186}, {"d": "4/7/2025", "v": 5109}, {"d": "4/14/2025", "v": 4051}, {"d": "4/21/2025", "v": 4091}, {"d": "4/28/2025", "v": 3627}, {"d": "5/5/2025", "v": 4518}, {"d": "5/12/2025", "v": 3641}, {"d": "5/19/2025", "v": 5710}, {"d": "5/26/2025", "v": 5255}, {"d": "6/2/2025", "v": 6161}, {"d": "6/9/2025", "v": 4781}, {"d": "6/16/2025", "v": 5617}, {"d": "6/23/2025", "v": 5963}, {"d": "6/30/2025", "v": 4785}, {"d": "7/7/2025", "v": 3127}, {"d": "7/14/2025", "v": 4298}, {"d": "7/21/2025", "v": 4283}, {"d": "7/28/2025", "v": 5140}, {"d": "8/4/2025", "v": 4580}, {"d": "8/11/2025", "v": 5920}, {"d": "8/18/2025", "v": 5372}, {"d": "8/25/2025", "v": 4354}, {"d": "9/1/2025", "v": 4596}, {"d": "9/8/2025", "v": 6633}, {"d": "9/15/2025", "v": 3903}, {"d": "9/22/2025", "v": 4408}, {"d": "9/29/2025", "v": 4970}, {"d": "10/6/2025", "v": 5194}, {"d": "10/13/2025", "v": 5161}, {"d": "10/20/2025", "v": 4474}, {"d": "10/27/2025", "v": 5909}, {"d": "11/3/2025", "v": 5260}, {"d": "11/10/2025", "v": 4933}, {"d": "11/17/2025", "v": 4726}, {"d": "11/24/2025", "v": 3963}, {"d": "12/1/2025", "v": 3112}, {"d": "12/8/2025", "v": 4440}, {"d": "12/15/2025", "v": 4522}, {"d": "12/22/2025", "v": 2649}, {"d": "12/29/2025", "v": 5487}, {"d": "1/7/2026", "v": 5196}, {"d": "1/14/2026", "v": 4361}, {"d": "1/21/2026", "v": 4526}, {"d": "1/28/2026", "v": 4540}, {"d": "2/4/2026", "v": 3877}, {"d": "2/11/2026", "v": 4919}, {"d": "2/18/2026", "v": 4223}, {"d": "2/25/2026", "v": 3657}, {"d": "3/4/2026", "v": 2860}, {"d": "3/11/2026", "v": 4120}, {"d": "3/18/2026", "v": 1749}, {"d": "3/25/2026", "v": 3487}, {"d": "4/1/2026", "v": 5521}, {"d": "4/8/2026", "v": 5581}, {"d": "4/15/2026", "v": 8513}, {"d": "4/22/2026", "v": 9797}, {"d": "4/29/2026", "v": 11438}, {"d": "5/6/2026", "v": 11010}], "googleRev": [{"d": "1/27/2025", "v": 2627}, {"d": "2/3/2025", "v": 5269}, {"d": "2/10/2025", "v": 4002}, {"d": "2/17/2025", "v": 5018}, {"d": "2/24/2025", "v": 5020}, {"d": "3/3/2025", "v": 4474}, {"d": "3/10/2025", "v": 6131}, {"d": "3/17/2025", "v": 4849}, {"d": "3/24/2025", "v": 5448}, {"d": "3/31/2025", "v": 4819}, {"d": "4/7/2025", "v": 4079}, {"d": "4/14/2025", "v": 4803}, {"d": "4/21/2025", "v": 4559}, {"d": "4/28/2025", "v": 4216}, {"d": "5/5/2025", "v": 4409}, {"d": "5/12/2025", "v": 4560}, {"d": "5/19/2025", "v": 4111}, {"d": "5/26/2025", "v": 5565}, {"d": "6/2/2025", "v": 6514}, {"d": "6/9/2025", "v": 4931}, {"d": "6/16/2025", "v": 4667}, {"d": "6/23/2025", "v": 4647}, {"d": "6/30/2025", "v": 3162}, {"d": "7/7/2025", "v": 5145}, {"d": "7/14/2025", "v": 6118}, {"d": "7/21/2025", "v": 5566}, {"d": "7/28/2025", "v": 5208}, {"d": "8/4/2025", "v": 6142}, {"d": "8/11/2025", "v": 6419}, {"d": "8/18/2025", "v": 4942}, {"d": "8/25/2025", "v": 3951}, {"d": "9/1/2025", "v": 4387}, {"d": "9/8/2025", "v": 4784}, {"d": "9/15/2025", "v": 4160}, {"d": "9/22/2025", "v": 5684}, {"d": "9/29/2025", "v": 6061}, {"d": "10/6/2025", "v": 6321}, {"d": "10/13/2025", "v": 6357}, {"d": "10/20/2025", "v": 5700}, {"d": "10/27/2025", "v": 7239}, {"d": "11/3/2025", "v": 7903}, {"d": "11/10/2025", "v": 7893}, {"d": "11/17/2025", "v": 6636}, {"d": "11/24/2025", "v": 4619}, {"d": "12/1/2025", "v": 6414}, {"d": "12/8/2025", "v": 8329}, {"d": "12/15/2025", "v": 9970}, {"d": "12/22/2025", "v": 7217}, {"d": "12/29/2025", "v": 10162}, {"d": "1/7/2026", "v": 9979}, {"d": "1/14/2026", "v": 8482}, {"d": "1/21/2026", "v": 9163}, {"d": "1/28/2026", "v": 10294}, {"d": "2/4/2026", "v": 9917}, {"d": "2/11/2026", "v": 9257}, {"d": "2/18/2026", "v": 10430}, {"d": "2/25/2026", "v": 9851}, {"d": "3/4/2026", "v": 9785}, {"d": "3/11/2026", "v": 10323}, {"d": "3/18/2026", "v": 11024}, {"d": "3/25/2026", "v": 9432}, {"d": "4/1/2026", "v": 10206}, {"d": "4/8/2026", "v": 12795}, {"d": "4/15/2026", "v": 18909}, {"d": "4/22/2026", "v": 24156}, {"d": "4/29/2026", "v": 22788}, {"d": "5/6/2026", "v": 23523}]};
+const BRENTWOOD_IDX = 62;
+
+let atView = 'total';
+let atCharts = {};
+
+function setATView(v, btn) {
+  atView = v;
+  document.querySelectorAll('#page-alltime .vt-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderAllTime();
+}
+
+function renderATKPIs() {
+  const total = HIST_TOTAL;
+  const pre = total.slice(0, BRENTWOOD_IDX);
+  const post = total.slice(BRENTWOOD_IDX);
+  const preAvg = Math.round(pre.reduce((s,x)=>s+x.v,0)/pre.length);
+  const postAvg = Math.round(post.reduce((s,x)=>s+x.v,0)/post.length);
+  const lift = Math.round(((postAvg-preAvg)/preAvg)*100);
+  const peak = Math.max(...total.map(x=>x.v));
+  const growth = Math.round(((total[total.length-1].v - total[0].v)/total[0].v)*100);
+  document.getElementById('atPreAvg').textContent = '$'+preAvg.toLocaleString();
+  document.getElementById('atPostAvg').textContent = '$'+postAvg.toLocaleString();
+  document.getElementById('atLift').textContent = '+'+lift+'%';
+  document.getElementById('atKpiGrid').innerHTML = [
+    {label:'Peak week',     val:'$'+peak.toLocaleString()},
+    {label:'Weeks tracked', val:total.length+''},
+    {label:'Overall growth',val:'+'+growth+'%'},
+    {label:'Latest week',   val:'$'+total[total.length-1].v.toLocaleString()}
+  ].map(k=>`<div class="kpi-card"><div class="kpi-label">${k.label}</div><div class="kpi-value" style="font-size:20px">${k.val}</div></div>`).join('');
+}
+
+function renderATMain() {
+  document.getElementById('atChartTitle').textContent =
+    atView==='total'    ? 'Weekly total revenue' :
+    atView==='channels' ? 'Revenue by channel — stacked weekly' :
+                          'Paid digital net revenue over time';
+  document.getElementById('atChartSub').textContent =
+    atView==='total'    ? 'Jan 2025 – May 2026 · all Neighborly locations' :
+    atView==='channels' ? 'All channels · Brentwood opening Apr 8, 2026' :
+                          'Meta vs Google weekly net revenue trend';
+
+  const allDates = HIST_TOTAL.map(x=>x.d);
+  if (atCharts.main) atCharts.main.destroy();
+
+  if (atView === 'total') {
+    const vals = HIST_TOTAL.map(x=>x.v);
+    atCharts.main = new Chart(document.getElementById('atMainChart'), {
+      type:'bar',
+      data:{labels:allDates, datasets:[
+        {label:'Pre-Brentwood', data:vals.map((v,i)=>i<BRENTWOOD_IDX?v:null), backgroundColor:'#fdf7d8', borderColor:'#eace49', borderWidth:1.5, borderRadius:3, barPercentage:0.85},
+        {label:'Post-Brentwood',data:vals.map((v,i)=>i>=BRENTWOOD_IDX?v:null),backgroundColor:'#1f2328',borderColor:'#1f2328',borderWidth:1,borderRadius:3,barPercentage:0.85}
+      ]},
+      options:{responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{display:false}},
+        scales:{
+          x:{grid:{display:false},ticks:{font:{family:'DM Sans',size:9},color:'#9E9C96',maxTicksLimit:14,maxRotation:45}},
+          y:{grid:{color:'rgba(0,0,0,0.04)'},ticks:{font:{family:'DM Mono',size:10},color:'#9E9C96',callback:v=>'$'+Math.round(v/1000)+'k'}}
+        }
+      }
+    });
+  } else if (atView === 'channels') {
+    const keys=['dineIn','webPickup','instore','delivery','tpd','marketplace'];
+    const lbls=['Dine in','Web pickup','In-store','Delivery','3PD','Marketplace'];
+    const cols=['#eace49','#7bbd91','#cbc9d6','#6280bd','#dbc6a2','#e87142'];
+    const datasets = keys.map((k,i)=>{
+      const lk={};(HIST_CHANNELS[k]||[]).forEach(p=>{lk[p.d]=p.v;});
+      return {label:lbls[i],data:allDates.map(d=>lk[d]||null),backgroundColor:cols[i],borderColor:cols[i],borderWidth:0.5,borderRadius:2,stack:'s',barPercentage:0.85};
+    });
+    atCharts.main = new Chart(document.getElementById('atMainChart'), {
+      type:'bar',data:{labels:allDates,datasets},
+      options:{responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{position:'bottom',labels:{font:{family:'DM Sans',size:11},boxWidth:10,padding:10}}},
+        scales:{
+          x:{stacked:true,grid:{display:false},ticks:{font:{family:'DM Sans',size:9},color:'#9E9C96',maxTicksLimit:14,maxRotation:45}},
+          y:{stacked:true,grid:{color:'rgba(0,0,0,0.04)'},ticks:{font:{family:'DM Mono',size:10},color:'#9E9C96',callback:v=>'$'+Math.round(v/1000)+'k'}}
+        }
+      }
+    });
+  } else {
+    const mkM={},mkG={};
+    (HIST_CHANNELS.metaRev||[]).forEach(p=>{mkM[p.d]=p.v;});
+    (HIST_CHANNELS.googleRev||[]).forEach(p=>{mkG[p.d]=p.v;});
+    atCharts.main = new Chart(document.getElementById('atMainChart'), {
+      type:'line',
+      data:{labels:allDates,datasets:[
+        {label:'Meta',  data:allDates.map(d=>mkM[d]||null),borderColor:'#eace49',backgroundColor:'rgba(234,206,73,0.08)',fill:true,tension:0.3,pointRadius:2,borderWidth:2},
+        {label:'Google',data:allDates.map(d=>mkG[d]||null),borderColor:'#1f2328',backgroundColor:'rgba(31,35,40,0.05)',fill:true,tension:0.3,pointRadius:2,borderWidth:2}
+      ]},
+      options:{responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{position:'bottom',labels:{font:{family:'DM Sans',size:11},boxWidth:10,padding:10}}},
+        scales:{
+          x:{grid:{display:false},ticks:{font:{family:'DM Sans',size:9},color:'#9E9C96',maxTicksLimit:14,maxRotation:45}},
+          y:{grid:{color:'rgba(0,0,0,0.04)'},ticks:{font:{family:'DM Mono',size:10},color:'#9E9C96',callback:v=>'$'+Math.round(v/1000)+'k'}}
+        }
+      }
+    });
+  }
+}
+
+function renderATRolling() {
+  const total=HIST_TOTAL, w=6;
+  const rolling=total.map((_,i)=>{
+    if(i<w-1)return null;
+    const sl=total.slice(i-w+1,i+1);
+    return Math.round(sl.reduce((s,x)=>s+x.v,0)/sl.length);
+  });
+  if(atCharts.rolling)atCharts.rolling.destroy();
+  atCharts.rolling=new Chart(document.getElementById('atRollingChart'),{
+    type:'line',
+    data:{labels:total.map(x=>x.d),datasets:[{label:'6-week avg',data:rolling,borderColor:'#eace49',backgroundColor:'rgba(234,206,73,0.1)',fill:true,tension:0.4,pointRadius:0,borderWidth:2}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+      scales:{
+        x:{grid:{display:false},ticks:{font:{family:'DM Sans',size:9},color:'#9E9C96',maxTicksLimit:8,maxRotation:30}},
+        y:{grid:{color:'rgba(0,0,0,0.04)'},ticks:{font:{family:'DM Mono',size:9},color:'#9E9C96',callback:v=>'$'+Math.round(v/1000)+'k'}}
+      }
+    }
+  });
+}
+
+function renderATMix() {
+  const keys=['dineIn','webPickup','instore','delivery','tpd'];
+  const lbls=['Dine in','Web','In-store','Delivery','3PD'];
+  const cols=['#eace49','#7bbd91','#cbc9d6','#6280bd','#dbc6a2'];
+  const allDates=HIST_TOTAL.map(x=>x.d);
+  const sample=allDates.filter((_,i)=>i%4===0);
+  const totLk={};HIST_TOTAL.forEach(p=>{totLk[p.d]=p.v;});
+  const datasets=keys.map((k,i)=>{
+    const lk={};(HIST_CHANNELS[k]||[]).forEach(p=>{lk[p.d]=p.v;});
+    return {label:lbls[i],data:sample.map(d=>totLk[d]?Math.round((lk[d]||0)/totLk[d]*100):null),backgroundColor:cols[i],stack:'m'};
+  });
+  if(atCharts.mix)atCharts.mix.destroy();
+  atCharts.mix=new Chart(document.getElementById('atMixChart'),{
+    type:'bar',data:{labels:sample,datasets},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{position:'bottom',labels:{font:{family:'DM Sans',size:10},boxWidth:8,padding:8}}},
+      scales:{
+        x:{stacked:true,grid:{display:false},ticks:{font:{family:'DM Sans',size:9},color:'#9E9C96',maxTicksLimit:8,maxRotation:30}},
+        y:{stacked:true,max:100,grid:{color:'rgba(0,0,0,0.04)'},ticks:{font:{family:'DM Mono',size:9},color:'#9E9C96',callback:v=>v+'%'}}
+      }
+    }
+  });
+}
+
+function renderAllTime() {
+  renderATKPIs();
+  renderATMain();
+  setTimeout(renderATRolling, 30);
+  setTimeout(renderATMix, 60);
+}
+</script>
+
+</body>
+</html>
