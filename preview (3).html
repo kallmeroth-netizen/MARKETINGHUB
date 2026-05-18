@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Marketing Calendar — Neighborly</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { font-family: 'DM Sans', sans-serif; overscroll-behavior: none; }
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&display=swap');
+
+  /* Mobile: sidebar slides up as sheet */
+  @media (max-width: 767px) {
+    .mobile-sidebar-sheet {
+      position: fixed !important;
+      inset: auto 0 0 0 !important;
+      width: 100% !important;
+      max-height: 80vh !important;
+      border-radius: 16px 16px 0 0 !important;
+      box-shadow: 0 -8px 32px rgba(0,0,0,0.18) !important;
+      z-index: 200;
+      overflow-y: auto;
+    }
+    .mobile-sidebar-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.3);
+      z-index: 199;
+    }
+  }
+</style>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useCallback, useRef, useEffect } = React;
+
+// ── MOBILE HOOK ───────────────────────────────────────────────────────────────
+function useIsMobile() {
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  useEffect(() => {
+    const handler = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handler);
+    return () => window.removeEventListener('resize', handler);
+  }, []);
+  return isMobile;
+}
+
+// ── BRAND COLORS ──────────────────────────────────────────────────────────────
+const C = {
+  yellow: "#eace49", yl: "#fdf7d8", yd: "#7a6b00",
+  green:  "#7bbd91", gl: "#e4f5ea", gd: "#2a5c38",
+  orange: "#e87142", ol: "#fdeee7", od: "#8a3518",
+  blue:   "#6280bd", bl: "#eaeef8", bd: "#2d4480",
+  tan:    "#dbc6a2", tl: "#f7f0e4", td: "#5a4520",
+  lav:    "#cbc9d6", ll: "#f0eff5", ld: "#4a4760",
+  dark:   "#1f2328", bg: "#F7F6F3", surface: "#fff", surface2: "#F0EEE9",
+  border: "rgba(0,0,0,0.08)", borderStrong: "rgba(0,0,0,0.14)",
+  text:   "#1A1916", text2: "#6B6960", text3: "#9E9C96",
+};
+
+// ── CATEGORIES ────────────────────────────────────────────────────────────────
+const CATS = {
+  campaign:  { label:"Email / SMS", color:C.blue,   bg:C.bl, text:C.bd,  icon:"M11 5.5a5.5 5.5 0 01-7.78 5.01L1 12l1.49-2.22A5.5 5.5 0 1111 5.5z" },
+  social:    { label:"Social",     color:C.lav,    bg:C.ll, text:C.ld,  icon:"M9 2H3a1 1 0 00-1 1v6a1 1 0 001 1h1v2l3-2h2a1 1 0 001-1V3a1 1 0 00-1-1z" },
+  keydate:   { label:"Key date",   color:C.yellow, bg:C.yl, text:C.yd,  icon:"M10 2H2a1 1 0 00-1 1v8a1 1 0 001 1h8a1 1 0 001-1V3a1 1 0 00-1-1zm-6 0V1m4 1V1M1 5h10" },
+  ops:       { label:"Ops",        color:"#888780", bg:"#F1EFE8", text:"#444441", icon:"M6 1a5 5 0 100 10A5 5 0 006 1zm0 3v2l1.5 1.5" },
+  event:     { label:"Event",      color:C.orange, bg:C.ol, text:C.od,  icon:"M6 1C3.8 1 2 2.8 2 5c0 3 4 7 4 7s4-4 4-7c0-2.2-1.8-4-4-4zm0 5.5a1.5 1.5 0 110-3 1.5 1.5 0 010 3z" },
+  bizupdate: { label:"Biz update", color:C.blue,   bg:C.bl, text:C.bd,  icon:"M1 9l3-3 2 2 4-5" },
+  launch:    { label:"Launch",     color:C.green,  bg:C.gl,      text:C.gd, icon:"M6 1l1.5 3.5L11 5.5 8.5 8l.5 3.5L6 10 2 11.5 2.5 8 0 5.5l3.5-1L6 1z" },
+};
+
+const DEPTS = ["Marketing","Operations","Creative","Sales","Leadership"];
+
+const PEOPLE = [
+  {name:"Justin",   initials:"JL", color:C.yellow},
+  {name:"Kirsten",  initials:"KA", color:C.green},
+  {name:"Jonathan", initials:"JB", color:C.orange},
+  {name:"Lauren",   initials:"LG", color:C.blue},
+  {name:"Jennie",   initials:"JD", color:C.tan},
+  {name:"Ashley",   initials:"AT", color:C.lav},
+];
+
+const DEFAULT_THEMES = {
+  0:  {theme:"New Year, New Push",         desc:"Kick off Q1 with energy — introduce new offerings and reset brand positioning.", tag:"January",   color:C.blue,   goals:["Launch Q1 campaign brief","Finalize key dates for spring","Set team content cadence"]},
+  1:  {theme:"Love Your Community",        desc:"Lean into Valentine's Day — warm campaigns highlighting relationships and loyalty.", tag:"February",  color:C.orange, goals:["Publish 2 Valentine's campaigns","Grow email list by 5%","Brief spring activation plan"]},
+  2:  {theme:"Spring Forward",             desc:"Seasonal refresh across all channels. New product spotlights and activation prep.", tag:"March",     color:C.green,  goals:["Spring creative assets delivered","Confirm Q2 launch dates","Launch affiliate partner outreach"]},
+  3:  {theme:"Growth Season",              desc:"Double down on paid and organic reach. Earth Day tie-ins and Q2 pipeline building.", tag:"April",    color:C.green,  goals:["Earth Day activation live","Increase social posting to 5x/week","Q2 biz update to leadership"]},
+  4:  {theme:"Effortless Gatherings",      desc:"Last-minute hosting and meal ideas for end of school madness meets celebratory moments.", tag:"May",   color:C.tan,    goals:["Mother's Day campaign executed","Memorial Day promo live by May 20","Graduation & end-of-school content live"]},
+  5:  {theme:"Easy Summer Eats",           desc:"Summer break meals, kid-friendly favorites, pool day dinners, picnic-style takeout, easy lunches, and low-effort meals for busy days.", tag:"June",  color:C.orange, goals:["Summer content series launched","Kid-friendly campaign live","Pool day / picnic messaging out"]},
+  6:  {theme:"Bring People Together",      desc:"Fourth of July, backyard dinners, beach and pool days, casual hosting, and meals that bring people together.", tag:"July",   color:C.yellow, goals:["July 4th campaign executed","Backyard / casual hosting content live","Mid-year biz update published"]},
+  7:  {theme:"Back to the Table",          desc:"Back-to-school prep, lunchbox-hero ideas, weeknight dinner shortcuts, and meal planning as the busy season begins.", tag:"August", color:C.blue,  goals:["Back-to-school campaign live","Weeknight dinner series launched","Fall menu / offerings confirmed"]},
+  8:  {theme:"Dinner, Solved.",            desc:"Settling into routine, family dinners, fall sports, office lunches, easy catering, and \"what's for dinner?\" answered.", tag:"September", color:C.lav, goals:["Routine / family dinner content live","Office lunch & catering push live","Q3 biz update to team"]},
+  9:  {theme:"Warm Nights, Easy Meals",    desc:"Cozy comfort food, Halloween week survival, fall gatherings, football Sundays, soup and salad moments, and meals that make busy nights feel warmer.", tag:"October", color:C.tan, goals:["Halloween content & promo live","Football Sunday campaign live","Q4 key dates on calendar"]},
+  10: {theme:"Hosting Season, Handled.",   desc:"Thanksgiving entertaining, Friendsgiving, office gatherings, hosting shortcuts, Marketplace add-ons, and easy ways to make a table feel full.", tag:"November", color:C.orange, goals:["Thanksgiving hosting campaign live","Friendsgiving & office gathering content live","BFCM promo executed"]},
+  11: {theme:"Holiday Hustle, Made Easier.",desc:"Giftable Marketplace finds, holiday hosting, school break meals, office lunches, last-minute dinners, cozy nights in, and let us handle the food.", tag:"December", color:C.green, goals:["Holiday gifting & Marketplace campaign live","School break & cozy nights content live","January planning brief shared with team"]},
+};
+
+// ── STORAGE ───────────────────────────────────────────────────────────────────
+const NS = "nbly_cal2_";
+const rd = (k) => { try { const v = localStorage.getItem(NS+k); return v ? JSON.parse(v) : null; } catch(e) { return null; } };
+const wr = (k, v) => { try { localStorage.setItem(NS+k, JSON.stringify(v)); } catch(e) {} };
+
+// ── HELPERS ───────────────────────────────────────────────────────────────────
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,6);
+const todayStr = () => new Date().toISOString().split("T")[0];
+const fmtDate = (ds) => {
+  if (!ds) return "—";
+  return new Date(ds+"T00:00:00").toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"});
+};
+const addDays = (ds, n) => {
+  const d = new Date(ds+"T00:00:00"); d.setDate(d.getDate()+n);
+  return d.toISOString().split("T")[0];
+};
+const mkKey = (date) => date.getFullYear()+"-"+date.getMonth();
+
+const NOTION_EVENTS = [
+  {id:uid(),name:'Marketplace Meals with Shabby',start:'2026-04-25',end:'2026-04-25',cat:'social',sub:'Social Media',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'Local Influencer Push',start:'2026-04-21',end:'2026-04-30',cat:'social',sub:'Influencer, Brentwood, Los Angeles, CA, United States',notes:'3 Influencer/Day Goal',hold:false,depts:[],people:["KA"],actions:[]},
+  {id:uid(),name:'New Ads Go Live',start:'2026-04-30',end:'2026-04-30',cat:'bizupdate',sub:'Paid Ads',notes:'',hold:false,depts:[],people:["KA"],actions:[]},
+  {id:uid(),name:'Hat Drop - Have a Nice Day',start:'2026-04-26',end:'2026-04-26',cat:'launch',sub:'Social Media',notes:'',hold:false,depts:[],people:["KA"],actions:[]},
+  {id:uid(),name:'PPC UNBOXING',start:'2026-05-14',end:'2026-05-14',cat:'social',sub:'',notes:'',hold:false,depts:[],people:["LG"],actions:[]},
+  {id:uid(),name:'Getting Outside, Takeout Meals We Love.',start:'2026-05-03',end:'2026-05-03',cat:'social',sub:'Social Media',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'Mothers Day',start:'2026-05-10',end:'2026-05-10',cat:'keydate',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'Flower Popup | WLV & BW',start:'2026-05-09',end:'2026-05-09',cat:'event',sub:'',notes:'WLV & Brentwood',hold:false,depts:[],people:["KA", "JL"],actions:[]},
+  {id:uid(),name:'Bring Mom Flowers - Pop-Up Announcement',start:'2026-05-06',end:'2026-05-06',cat:'social',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'Teacher Appreciation Season - Give with Neighborly',start:'2026-05-04',end:'2026-05-04',cat:'social',sub:'',notes:'Easy Gifting',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'Mi Casa Su Casa - Hat Embroidery Pop-Up',start:'2026-06-27',end:'2026-06-27',cat:'event',sub:'',notes:'',hold:false,depts:[],people:["KA"],actions:[]},
+  {id:uid(),name:'Memorial Day',start:'2026-05-25',end:'2026-05-25',cat:'keydate',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'National Wine Day',start:'2026-05-30',end:'2026-05-30',cat:'keydate',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'Annual St. Johns Race',start:'2026-05-24',end:'2026-05-24',cat:'keydate',sub:'',notes:'Track runs past Neighborly - Free Juice for attendees?',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'Sunset Tennis Club Salad Drop',start:'2026-07-18',end:'2026-07-18',cat:'event',sub:'Salad Drop',notes:'',hold:false,depts:[],people:["KA"],actions:[]},
+  {id:uid(),name:'Grad Season Begins - Cater with Neighborly',start:'2026-05-23',end:'2026-05-23',cat:'campaign',sub:'Email, SMS, Social Media',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'Merch Highlight Post',start:'2026-05-01',end:'2026-05-01',cat:'social',sub:'Social Media',notes:'Featuring Have a Nice Day Hat',hold:false,depts:[],people:["KA"],actions:[]},
+  {id:uid(),name:'EATER Mixtape Collab Post',start:'2026-05-18',end:'2026-05-18',cat:'social',sub:'Social Media, Girls Dinner Mix and Match',notes:'Girls Dinner Mix and Match',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'New Ads Go Live',start:'2026-05-11',end:'2026-05-11',cat:'bizupdate',sub:'Paid Ads',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'Met Gala',start:'2026-05-04',end:'2026-05-04',cat:'keydate',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'Snacks and Treats for Watch Party Hosting',start:'2026-05-03',end:'2026-05-03',cat:'social',sub:'Social Media',notes:'Story Content',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'Coffee Launch',start:'2026-07-30',end:'2026-07-30',cat:'launch',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'Shoot with Shabby (Food Focus)',start:'2026-04-29',end:'2026-04-29',cat:'social',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'Catering Made Easy',start:'2026-05-08',end:'2026-05-08',cat:'social',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'Brentwood 1 Month Thank You',start:'2026-05-13',end:'2026-05-13',cat:'social',sub:'',notes:'',hold:false,depts:[],people:["LG"],actions:[]},
+  {id:uid(),name:'Mom Appreciation Post',start:'2026-05-10',end:'2026-05-10',cat:'social',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'New Ads Go Live',start:'2026-05-25',end:'2026-05-25',cat:'bizupdate',sub:'Paid Ads',notes:'',hold:false,depts:[],people:["KA"],actions:[]},
+  {id:uid(),name:'Wine Highlight',start:'2026-05-30',end:'2026-05-30',cat:'social',sub:'',notes:'Stories',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'Cinco De Mayo',start:'2026-05-05',end:'2026-05-05',cat:'keydate',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'Salad Drop @ Sunshine Pre-School',start:'2026-05-01',end:'2026-05-01',cat:'launch',sub:'Salad Drop',notes:'',hold:false,depts:[],people:["KA"],actions:[]},
+  {id:uid(),name:'Summer Merch Drop',start:'2026-07-05',end:'2026-07-05',cat:'bizupdate',sub:'',notes:'',hold:false,depts:[],people:["KA"],actions:[]},
+  {id:uid(),name:'Marketplace - Launch New Marketplace Items',start:'2026-07-15',end:'2026-07-15',cat:'launch',sub:'',notes:'(Hot Case)',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'Studio City Turnover',start:'2026-08-12',end:'2026-08-12',cat:'bizupdate',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'Studio City Open Now Post',start:'2026-09-16',end:'2026-09-16',cat:'launch',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'Gaby’s Cookies Launch',start:'2026-08-16',end:'2026-08-16',cat:'launch',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'Smoothie & Breakfast Menu Go Live',start:'2026-08-13',end:'2026-08-13',cat:'launch',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'FALL NMRO',start:'2026-10-22',end:'2026-10-22',cat:'bizupdate',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'Summer Merch Drop Highlight',start:'2026-07-05',end:'2026-07-05',cat:'launch',sub:'Email, Social Media, Highlight Local Businesses',notes:'Highlight Local Businesses',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'Collins Brothers Goes Live in BW',start:'2026-06-24',end:'2026-06-24',cat:'launch',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'Collins Brothers Tease #1',start:'2026-06-19',end:'2026-06-19',cat:'social',sub:'Email, Social Media, Highlight Local Businesses',notes:'Highlight Local Businesses',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'Collins Brothers Tease #2',start:'2026-06-22',end:'2026-06-22',cat:'social',sub:'Email, Social Media, Highlight Local Businesses',notes:'Highlight Local Businesses',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'Mango Saturdae Goes Live?',start:'2026-07-01',end:'2026-07-01',cat:'launch',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'Fathers Day',start:'2026-06-21',end:'2026-06-21',cat:'keydate',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'Juneteenth',start:'2026-06-25',end:'2026-06-25',cat:'keydate',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'Summer Solestice',start:'2026-05-27',end:'2026-05-27',cat:'keydate',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'Tease New Mango Saturdae',start:'2026-06-28',end:'2026-06-28',cat:'social',sub:'Email, Social Media, Highlight Local Businesses',notes:'Highlight Local Businesses',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'Cocktails Coming Soon',start:'2026-07-22',end:'2026-07-22',cat:'social',sub:'Email, Social Media, Highlight Local Businesses',notes:'Highlight Local Businesses',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'Neighborly Nights - Cocktail Menu Teaser Event',start:'2026-07-23',end:'2026-07-23',cat:'event',sub:'Email, Social Media, Highlight Local Businesses',notes:'Highlight Local Businesses',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'HOT GIRL PICKLES POPUP',start:'2026-08-09',end:'2026-08-09',cat:'event',sub:'',notes:'',hold:false,depts:[],people:["KA"],actions:[]},
+  {id:uid(),name:'Collins Brothers Announcement - Collabed Post',start:'2026-06-24',end:'2026-06-24',cat:'social',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'New at Neighborly - Collins Brothers',start:'2026-06-24',end:'2026-06-24',cat:'campaign',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'Brendon x Collins Taste Test',start:'2026-06-27',end:'2026-06-27',cat:'social',sub:'Social Media, Review based post',notes:'Neighborly on the go, people wearing the merch… — Review based post',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'Bring a Brendon - Collins Brothers Event',start:'2026-06-26',end:'2026-06-26',cat:'event',sub:'Influencer',notes:'',hold:false,depts:[],people:["KA"],actions:[]},
+  {id:uid(),name:'Summer Solstice',start:'2026-06-25',end:'2026-06-25',cat:'keydate',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'Cocktail Menu Launched',start:'2026-07-25',end:'2026-07-25',cat:'launch',sub:'Email, Social Media, Highlight Local Businesses',notes:'Highlight Local Businesses',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'Independence Day',start:'2026-07-04',end:'2026-07-04',cat:'keydate',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'Movie Nights at the Country Mart Begin',start:'2026-07-31',end:'2026-07-31',cat:'keydate',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'LA & Ventura District - Back to School Begins',start:'2026-08-10',end:'2026-08-10',cat:'keydate',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'Back to School Meals Made Easy',start:'2026-08-11',end:'2026-08-11',cat:'campaign',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'Labor Day Weekend',start:'2026-09-05',end:'2026-09-05',cat:'keydate',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'Labor Day Weekend',start:'2026-09-06',end:'2026-09-06',cat:'keydate',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'Labor Day',start:'2026-09-07',end:'2026-09-07',cat:'keydate',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'Coming Soon… Neighborly Coffee',start:'2026-07-26',end:'2026-07-26',cat:'social',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'Coming Soon… Neighborly Coffee',start:'2026-07-28',end:'2026-07-28',cat:'campaign',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'Neighborly Coffee Now Available',start:'2026-07-30',end:'2026-07-30',cat:'launch',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'Gaby’s Cookies - Collabed Post',start:'2026-08-16',end:'2026-08-16',cat:'social',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'Studio City Countdown Begins',start:'2026-09-09',end:'2026-09-09',cat:'social',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'Storefront Tease',start:'2026-08-27',end:'2026-08-27',cat:'social',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'SC Wrap Goes Up',start:'2026-08-27',end:'2026-08-27',cat:'bizupdate',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'Friends and Family Released',start:'2026-08-19',end:'2026-08-19',cat:'bizupdate',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'Coming Soon… Neighborly Smoothies & Breakfast (Close Up Highlight)',start:'2026-08-10',end:'2026-08-10',cat:'social',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'All VIP F&F Closes',start:'2026-08-31',end:'2026-08-31',cat:'bizupdate',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'Coming Soon to SC Tease - Highlighting Landmarks',start:'2026-08-30',end:'2026-08-30',cat:'social',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'Invites Sent for Pre-Opening Events',start:'2026-08-26',end:'2026-08-26',cat:'bizupdate',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'Invites Sent for Mock Service Events',start:'2026-09-01',end:'2026-09-01',cat:'bizupdate',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'All Guest Lists Finalized for Pre-Opening Events',start:'2026-09-08',end:'2026-09-08',cat:'bizupdate',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'POTENTIAL MOCK DAY 1',start:'2026-09-11',end:'2026-09-11',cat:'ops',sub:'',notes:'',hold:true,depts:[],people:[],actions:[]},
+  {id:uid(),name:'POTENTIAL MOCK DAY 2',start:'2026-09-12',end:'2026-09-12',cat:'ops',sub:'',notes:'',hold:true,depts:[],people:[],actions:[]},
+  {id:uid(),name:'Hot Girl Pickle Campaign Begins',start:'2026-07-20',end:'2026-07-20',cat:'social',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'Now Open SMS',start:'2026-09-16',end:'2026-09-16',cat:'launch',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'Meta Lead Gen Ends',start:'2026-09-15',end:'2026-09-15',cat:'bizupdate',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'SC Lead Gen Begins',start:'2026-08-28',end:'2026-08-28',cat:'bizupdate',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'Be the First in Line - Smoothie & Breakfast SMS',start:'2026-08-10',end:'2026-08-10',cat:'campaign',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'Founding Member Opening Day Giveaway',start:'2026-09-16',end:'2026-09-16',cat:'bizupdate',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'HOLD for PRE OPENING EVENT',start:'2026-09-08',end:'2026-09-08',cat:'event',sub:'',notes:'',hold:true,depts:[],people:[],actions:[]},
+  {id:uid(),name:'HOLD for PRE OPENING EVENT',start:'2026-09-09',end:'2026-09-09',cat:'event',sub:'',notes:'',hold:true,depts:[],people:[],actions:[]},
+  {id:uid(),name:'Coming Tomorrow. One Day Only -HOT GIRL PICKLES Pop-Up',start:'2026-08-08',end:'2026-08-08',cat:'social',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'Try Neighborly Hot Bar with Me Influencer Post',start:'2026-07-09',end:'2026-07-09',cat:'social',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'Fathers Day Gifting with Neighborly',start:'2026-06-16',end:'2026-06-16',cat:'social',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'Best Places to Watch the Fireworks?',start:'2026-07-03',end:'2026-07-03',cat:'social',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'Collabed Post - Trying the New Flavor Saturdae',start:'2026-07-18',end:'2026-07-18',cat:'social',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'AYSO Soccer Begins',start:'2026-08-20',end:'2026-08-20',cat:'keydate',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'Grilling Tips with Armen for Labor Day Weekend',start:'2026-09-03',end:'2026-09-03',cat:'social',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'Coffee Cup Collab/Event',start:'2026-08-05',end:'2026-08-05',cat:'event',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'Caesar Salad x Diet Coke',start:'2026-05-16',end:'2026-05-16',cat:'social',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'Saturdae Highlight',start:'2026-05-17',end:'2026-05-17',cat:'social',sub:'',notes:'',hold:false,depts:[],people:["LG"],actions:[]},
+  {id:uid(),name:'TableScape Lunch',start:'2026-05-20',end:'2026-05-20',cat:'social',sub:'',notes:'',hold:false,depts:[],people:["LG"],actions:[]},
+  {id:uid(),name:'Memorial Day',start:'2026-05-21',end:'2026-05-21',cat:'social',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'Memorial Day Post',start:'2026-05-25',end:'2026-05-25',cat:'social',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'PPC Meatball Spotlight',start:'2026-05-26',end:'2026-05-26',cat:'social',sub:'',notes:'',hold:false,depts:[],people:["LG"],actions:[]},
+  {id:uid(),name:'Marketplace Trend',start:'2026-05-27',end:'2026-05-27',cat:'social',sub:'',notes:'',hold:false,depts:[],people:["LG"],actions:[]},
+  {id:uid(),name:'Mini Kabob Spotlight',start:'2026-05-29',end:'2026-05-29',cat:'social',sub:'',notes:'',hold:false,depts:[],people:["LG"],actions:[]},
+  {id:uid(),name:'Collins Brothers Lead Gen Begins',start:'2026-06-15',end:'2026-06-15',cat:'bizupdate',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'Gaby’s Cookies Ads',start:'2026-08-16',end:'2026-08-16',cat:'bizupdate',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'Breakfast and Smoothie Ads Go Live',start:'2026-08-13',end:'2026-08-13',cat:'bizupdate',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'School Is Out for Summer',start:'2026-06-10',end:'2026-06-10',cat:'keydate',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'Lead Gen Due for Matt',start:'2026-08-24',end:'2026-08-24',cat:'bizupdate',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'POTENTIAL MOCK DAY 3',start:'2026-09-13',end:'2026-09-13',cat:'ops',sub:'',notes:'',hold:true,depts:[],people:[],actions:[]},
+  {id:uid(),name:'HOLD for PRE OPENING EVENT',start:'2026-09-10',end:'2026-09-10',cat:'event',sub:'',notes:'',hold:true,depts:[],people:[],actions:[]},
+  {id:uid(),name:'Staff Mocks',start:'2026-09-10',end:'2026-09-10',cat:'ops',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'Key Local Influencer Lunch',start:'2026-09-14',end:'2026-09-14',cat:'event',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'Last Minute Friends and Family IYKYK',start:'2026-09-07',end:'2026-09-07',cat:'social',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'VIP EVENT',start:'2026-09-07',end:'2026-09-07',cat:'event',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'Coming Soon to SC Tease #2',start:'2026-09-02',end:'2026-09-02',cat:'social',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'Collins Brothers Postcard & Poster Sent to Print',start:'2026-06-01',end:'2026-06-01',cat:'ops',sub:'',notes:'',hold:false,depts:[],people:["KA", "JL"],actions:[]},
+  {id:uid(),name:'Collins Brothers Press Release Approval',start:'2026-06-01',end:'2026-06-01',cat:'bizupdate',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'Collins Brothers Earned Media Outreach Begins',start:'2026-06-01',end:'2026-06-01',cat:'bizupdate',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'Collins Brothers Lead Gen Due',start:'2026-06-12',end:'2026-06-12',cat:'bizupdate',sub:'',notes:'',hold:false,depts:[],people:["KA"],actions:[]},
+  {id:uid(),name:'Collins Brothers Influencer Seeding Begins',start:'2026-06-08',end:'2026-06-08',cat:'social',sub:'',notes:'',hold:false,depts:[],people:["KA"],actions:[]},
+  {id:uid(),name:'Coming Soon… Collins Brothers Email',start:'2026-06-15',end:'2026-06-15',cat:'campaign',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'Coming Soon… Collins Brothers SMS',start:'2026-06-18',end:'2026-06-18',cat:'campaign',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'Collins Brothers Sampling for Fathers Day?',start:'2026-06-21',end:'2026-06-21',cat:'event',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'PR Packages for HGP Sent',start:'2026-07-20',end:'2026-07-20',cat:'campaign',sub:'',notes:'',hold:false,depts:[],people:["KA"],actions:[]},
+  {id:uid(),name:'Pre-Opening Invite Designs Finalized',start:'2026-08-21',end:'2026-08-21',cat:'ops',sub:'',notes:'',hold:false,depts:[],people:["KA", "JL"],actions:[]},
+  {id:uid(),name:'Coming Soon & Now Open Poster Sent Off SC',start:'2026-08-21',end:'2026-08-21',cat:'ops',sub:'',notes:'',hold:false,depts:[],people:["KA"],actions:[]},
+  {id:uid(),name:'Gaby’s Cookies Postcards Sent Off',start:'2026-07-27',end:'2026-07-27',cat:'ops',sub:'',notes:'',hold:false,depts:[],people:["KA"],actions:[]},
+  {id:uid(),name:'SC Influencer Lists & Pre Opening Plan Finalized',start:'2026-08-14',end:'2026-08-14',cat:'social',sub:'',notes:'',hold:false,depts:[],people:["KA"],actions:[]},
+  {id:uid(),name:'HGP Print Items Sent Off',start:'2026-07-06',end:'2026-07-06',cat:'ops',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'Smoothie and Breakfast Postcards Sent Off',start:'2026-07-24',end:'2026-07-24',cat:'ops',sub:'',notes:'',hold:false,depts:[],people:["KA", "JL"],actions:[]},
+  {id:uid(),name:'Coffee Print Items Sent Off',start:'2026-07-13',end:'2026-07-13',cat:'ops',sub:'',notes:'',hold:false,depts:[],people:["KA", "JL"],actions:[]},
+  {id:uid(),name:'New in the Marketplace Postcards & Poster Sent to Print',start:'2026-06-04',end:'2026-06-04',cat:'ops',sub:'',notes:'',hold:false,depts:[],people:["KA", "JL"],actions:[]},
+  {id:uid(),name:'Emmy Awards',start:'2026-09-21',end:'2026-09-21',cat:'keydate',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'SC - Food Drop',start:'2026-09-25',end:'2026-09-25',cat:'bizupdate',sub:'',notes:'',hold:false,depts:[],people:["KA"],actions:[]},
+  {id:uid(),name:'SC - Food Drop',start:'2026-09-19',end:'2026-09-19',cat:'bizupdate',sub:'',notes:'',hold:false,depts:[],people:["KA"],actions:[]},
+  {id:uid(),name:'Halloween',start:'2026-10-31',end:'2026-10-31',cat:'keydate',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'WLV - Nights of the Jack Halloween Experience',start:'2026-10-10',end:'2026-10-12',cat:'keydate',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'WLV - Nights of the Jack Halloween Experience',start:'2026-10-11',end:'2026-10-12',cat:'keydate',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'WLV - Nights of the Jack Halloween Experience',start:'2026-10-12',end:'2026-10-12',cat:'keydate',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'Daylight Savings Ends',start:'2026-11-01',end:'2026-11-01',cat:'keydate',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'Caruso Tree Lighting',start:'2026-11-21',end:'2026-11-21',cat:'event',sub:'',notes:'',hold:false,depts:[],people:["KA"],actions:[]},
+  {id:uid(),name:'Announce Neighborly Holiday Card Drawing Contest',start:'2026-11-10',end:'2026-11-10',cat:'bizupdate',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'Better-for-you Halloween Candy Ideas',start:'2026-10-23',end:'2026-10-23',cat:'social',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'Pizza Pre-Orders for Halloween',start:'2026-10-27',end:'2026-10-27',cat:'social',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'Thanksgiving',start:'2026-11-26',end:'2026-11-26',cat:'keydate',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'Neighbor Thank You Post',start:'2026-11-26',end:'2026-11-26',cat:'social',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'Black Friday',start:'2026-11-27',end:'2026-11-27',cat:'keydate',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'Weekend Meals in Minutes (No More Dishes This Week)',start:'2026-11-27',end:'2026-11-27',cat:'social',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'Neighborly Holiday Cards Sent Out',start:'2026-11-30',end:'2026-11-30',cat:'ops',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'Reminder to Submit Holiday Card Entries',start:'2026-11-16',end:'2026-11-16',cat:'campaign',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'Holiday Card Entries Close',start:'2026-11-25',end:'2026-11-25',cat:'social',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'Send Off Holiday Postcard to Print',start:'2026-11-25',end:'2026-11-25',cat:'ops',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'New Years Eve',start:'2026-12-31',end:'2026-12-31',cat:'keydate',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'New Years Day',start:'2027-01-01',end:'2027-01-01',cat:'keydate',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'Christmas Eve',start:'2026-12-24',end:'2026-12-24',cat:'keydate',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'Christmas Day',start:'2026-12-25',end:'2026-12-25',cat:'keydate',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'Veterans Day',start:'2026-11-11',end:'2026-11-11',cat:'keydate',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'In-The-Know Christmas Secret Menu Item (Peppermint…)',start:'2026-11-28',end:'2026-11-28',cat:'bizupdate',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'Kwanzaa Begins',start:'2026-12-26',end:'2026-12-26',cat:'keydate',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'Hanukkah Begins',start:'2026-12-04',end:'2026-12-04',cat:'keydate',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'Hanukkah Ends',start:'2026-12-12',end:'2026-12-12',cat:'keydate',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'SC - Food Drop',start:'2026-09-28',end:'2026-09-28',cat:'bizupdate',sub:'',notes:'',hold:false,depts:[],people:["KA"],actions:[]},
+  {id:uid(),name:'SC - Food Drop',start:'2026-09-27',end:'2026-09-27',cat:'bizupdate',sub:'',notes:'',hold:false,depts:[],people:["KA"],actions:[]},
+  {id:uid(),name:'SC - Food Drop',start:'2026-09-26',end:'2026-09-26',cat:'bizupdate',sub:'',notes:'',hold:false,depts:[],people:["KA"],actions:[]},
+  {id:uid(),name:'SC Generic Postcard and Catering Sent to Print',start:'2026-08-17',end:'2026-08-17',cat:'ops',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'Mock Events Leave Your Feedback Postcards Sent to Print',start:'2026-08-17',end:'2026-08-17',cat:'ops',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'SC Marketplace in Place',start:'2026-09-04',end:'2026-09-04',cat:'ops',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'New Juice Bottles Go Live',start:'2026-05-31',end:'2026-05-31',cat:'launch',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'Begin Shooting HGP Footage',start:'2026-07-07',end:'2026-07-07',cat:'social',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'HGP Marketing Plan Finalized',start:'2026-06-22',end:'2026-06-22',cat:'bizupdate',sub:'',notes:'',hold:false,depts:[],people:["KA"],actions:[]},
+  {id:uid(),name:'Local Influencer Push',start:'2026-09-18',end:'2026-09-28',cat:'social',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'Collins Brothers Social Shoot',start:'2026-06-05',end:'2026-06-05',cat:'ops',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'New Marketplace Items LIVE - Part 2',start:'2026-09-02',end:'2026-09-02',cat:'bizupdate',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'Collins Brothers Final Tasting',start:'2026-06-03',end:'2026-06-03',cat:'ops',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:uid(),name:'Collins Brothers Social Content for Launch',start:'2026-06-05',end:'2026-06-05',cat:'ops',sub:'',notes:'',hold:false,depts:[],people:["KA", "JL", "LG"],actions:[]},
+  {id:uid(),name:'Marketplace Part 2 Launch',start:'2026-08-02',end:'2026-08-02',cat:'launch',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
+];
+
+// Auto-tag rules applied to Notion events
+const SAMPLE_EVENTS = NOTION_EVENTS.map(ev => {
+  const people = [...(ev.people||[])];
+  // Lauren (LG) on all social
+  if (ev.cat === 'social' && !people.includes('LG')) people.push('LG');
+  // Kirsten + Justin on all ops (print/collateral)
+  if (ev.cat === 'ops') {
+    if (!people.includes('KA')) people.push('KA');
+    if (!people.includes('JL')) people.push('JL');
+  }
+  return {...ev, people};
+});
+
+// ── MODAL COMPONENT ───────────────────────────────────────────────────────────
+function Modal({ open, onClose, children, width=560 }) {
+  useEffect(() => {
+    if (!open) return;
+    const handler = (e) => { if (e.key === "Escape") onClose(); };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [open, onClose]);
+
+  if (!open) return null;
+  return (
+    <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.32)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:300,padding:16}} onClick={(e)=>{if(e.target===e.currentTarget)onClose();}}>
+      <div style={{background:C.surface,borderRadius:12,border:`0.5px solid ${C.border}`,padding:"1.75rem",width,maxWidth:"95vw",maxHeight:"90vh",overflowY:"auto"}}>
+        {children}
+      </div>
+    </div>
+  );
+}
+
+
+// ── CAT ICON SVG ──────────────────────────────────────────────────────────────
+function CatIcon({ path, color, size=10 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 12 12" fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d={path}/>
+    </svg>
+  );
+}
+
+// ── SIDEBAR COMPONENT ─────────────────────────────────────────────────────────
+function Sidebar({ event, mode, onClose, onEdit, onDelete, onUpdateActions }) {
+  const [actionText, setActionText] = useState("");
+  const inputRef = useRef(null);
+  if (!event) return null;
+  const cat = CATS[event.cat] || CATS.campaign;
+
+  const addAction = () => {
+    if (!actionText.trim()) return;
+    const newActions = [...(event.actions||[]), {text: actionText.trim(), done: false}];
+    onUpdateActions(event.id, newActions);
+    setActionText("");
+    setTimeout(()=>inputRef.current?.focus(), 50);
+  };
+
+  const toggleAction = (idx) => {
+    const newActions = (event.actions||[]).map((a,i)=> i===idx ? {...a,done:!a.done} : a);
+    onUpdateActions(event.id, newActions);
+  };
+
+  const dateStr = event.start===event.end ? fmtDate(event.start) : fmtDate(event.start)+" – "+fmtDate(event.end);
+  const doneCount = (event.actions||[]).filter(a=>a.done).length;
+
+  return (
+    <div style={{width:340,flexShrink:0,background:C.surface,borderLeft:`0.5px solid ${C.borderStrong}`,display:"flex",flexDirection:"column",overflowY:"auto",height:"100%"}}>
+      {/* Header */}
+      <div style={{padding:"1.1rem 1.1rem .8rem",borderBottom:`0.5px solid ${C.border}`}}>
+        <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",gap:8,marginBottom:8}}>
+          <span style={{display:"inline-flex",alignItems:"center",gap:5,fontSize:10,fontWeight:600,letterSpacing:".06em",textTransform:"uppercase",padding:"3px 9px",borderRadius:20,background:cat.bg,color:cat.text}}>
+            <CatIcon path={cat.icon} color={cat.text} size={10}/> {cat.label}
+            {event.hold && <span style={{marginLeft:4,background:C.tl,color:C.td,padding:"1px 6px",borderRadius:20}}>HOLD</span>}
+          </span>
+          <button onClick={onClose} style={{background:"none",border:"none",cursor:"pointer",color:C.text3,fontSize:18,lineHeight:1,padding:4,borderRadius:6,flexShrink:0}}>&#215;</button>
+        </div>
+        <div style={{fontSize:18,fontWeight:600,letterSpacing:"-.02em",color:C.text,lineHeight:1.25,marginBottom:6}}>{event.name}</div>
+        <div style={{fontSize:12,color:C.text3,display:"flex",flexDirection:"column",gap:3}}>
+          <span style={{display:"flex",alignItems:"center",gap:5}}>
+            <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="2" width="10" height="9" rx="1"/><path d="M1 5h10M4 1v2M8 1v2"/></svg>
+            {dateStr}
+          </span>
+          {event.sub && <span style={{display:"flex",alignItems:"center",gap:5}}>
+            <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M1 6l4-4 6 6M3 8l1-1"/></svg>
+            {event.sub}
+          </span>}
+        </div>
+      </div>
+
+      {/* Body */}
+      <div style={{padding:"1rem 1.1rem",display:"flex",flexDirection:"column",gap:16,flex:1}}>
+
+        {/* Notes */}
+        <div>
+          <div style={{fontSize:10,fontWeight:600,textTransform:"uppercase",letterSpacing:".08em",color:C.text3,marginBottom:7}}>Notes</div>
+          <div style={{fontSize:13,color:event.notes?C.text2:C.text3,fontStyle:event.notes?"normal":"italic",background:C.surface2,borderRadius:8,padding:"9px 11px",lineHeight:1.6}}>
+            {event.notes || "No notes added yet"}
+          </div>
+        </div>
+
+        {/* People */}
+        {(event.people||[]).length > 0 && (
+          <div>
+            <div style={{fontSize:10,fontWeight:600,textTransform:"uppercase",letterSpacing:".08em",color:C.text3,marginBottom:7}}>Team</div>
+            <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
+              {(event.people||[]).map(init => {
+                const p = PEOPLE.find(x=>x.initials===init);
+                return (
+                  <div key={init} style={{display:"inline-flex",alignItems:"center",gap:5,padding:"4px 10px",borderRadius:20,background:C.surface2,fontSize:11.5,fontWeight:500,color:C.text2}}>
+                    <div style={{width:18,height:18,borderRadius:"50%",background:p?.color||C.tan,display:"flex",alignItems:"center",justifyContent:"center",fontSize:9,fontWeight:700,color:"#fff",flexShrink:0}}>{init}</div>
+                    {p?.name||init}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* Departments */}
+        {(event.depts||[]).length > 0 && (
+          <div>
+            <div style={{fontSize:10,fontWeight:600,textTransform:"uppercase",letterSpacing:".08em",color:C.text3,marginBottom:7}}>Department</div>
+            <div style={{display:"flex",gap:5,flexWrap:"wrap"}}>
+              {(event.depts||[]).map(d=>(
+                <span key={d} style={{display:"inline-flex",padding:"3px 9px",borderRadius:20,fontSize:11,fontWeight:500,background:C.surface2,color:C.text2}}>{d}</span>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Action Items */}
+        <div>
+          <div style={{fontSize:10,fontWeight:600,textTransform:"uppercase",letterSpacing:".08em",color:C.text3,marginBottom:7,display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+            <span>Action items {(event.actions||[]).length>0 && <span style={{color:C.text3,fontWeight:400,fontSize:10,textTransform:"none",letterSpacing:0}}>({doneCount}/{(event.actions||[]).length})</span>}</span>
+          </div>
+          <div style={{display:"flex",flexDirection:"column",gap:5}}>
+            {(event.actions||[]).length === 0 && <div style={{fontSize:12,color:C.text3,fontStyle:"italic",padding:"6px 0"}}>No action items yet</div>}
+            {(event.actions||[]).map((a,i)=>(
+              <div key={i} onClick={()=>toggleAction(i)} style={{display:"flex",alignItems:"flex-start",gap:8,padding:"8px 10px",background:C.surface2,borderRadius:8,cursor:"pointer",transition:"background .1s"}}
+                onMouseEnter={e=>e.currentTarget.style.background="#e8e6e1"}
+                onMouseLeave={e=>e.currentTarget.style.background=C.surface2}>
+                <input type="checkbox" checked={a.done} onChange={()=>{}} onClick={e=>{e.stopPropagation();toggleAction(i);}} style={{width:14,height:14,accentColor:C.orange,flexShrink:0,marginTop:2,cursor:"pointer"}}/>
+                <span style={{fontSize:12.5,color:a.done?C.text3:C.text,textDecoration:a.done?"line-through":"none",lineHeight:1.4,flex:1}}>{a.text}</span>
+              </div>
+            ))}
+          </div>
+          <div style={{display:"flex",gap:6,marginTop:8}}>
+            <input ref={inputRef} value={actionText} onChange={e=>setActionText(e.target.value)} onKeyDown={e=>{if(e.key==="Enter")addAction();}} placeholder="Add action item…"
+              style={{flex:1,border:`0.5px solid ${C.borderStrong}`,borderRadius:8,padding:"6px 10px",fontSize:12.5,color:C.text,background:C.surface,outline:"none",fontFamily:"inherit"}}
+              onFocus={e=>e.target.style.borderColor=C.orange} onBlur={e=>e.target.style.borderColor=C.borderStrong}/>
+            <button onClick={addAction} style={{background:C.orange,border:"none",borderRadius:8,padding:"6px 12px",cursor:"pointer",color:"#fff",fontSize:12,fontWeight:500,fontFamily:"inherit",whiteSpace:"nowrap"}}>Add</button>
+          </div>
+        </div>
+      </div>
+
+      {/* Footer — edit mode only */}
+      {mode === "edit" && (
+        <div style={{padding:"1rem 1.1rem",borderTop:`0.5px solid ${C.border}`,display:"flex",gap:8,flexShrink:0}}>
+          <button onClick={()=>onEdit(event.id)} style={{flex:1,background:C.dark,border:"none",borderRadius:8,padding:"9px 16px",fontSize:13,cursor:"pointer",color:C.yellow,fontWeight:500,display:"flex",alignItems:"center",justifyContent:"center",gap:6,fontFamily:"inherit"}}>
+            Edit event
+          </button>
+          <button onClick={()=>{if(confirm("Delete this event?"))onDelete(event.id);}} style={{background:"none",border:`0.5px solid ${C.borderStrong}`,borderRadius:8,padding:"9px 12px",fontSize:13,cursor:"pointer",color:C.text3,fontFamily:"inherit"}}
+            onMouseEnter={e=>{e.target.style.borderColor=C.orange;e.target.style.color=C.orange;}}
+            onMouseLeave={e=>{e.target.style.borderColor=C.borderStrong;e.target.style.color=C.text3;}}>
+            <svg width="14" height="14" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M2 3h8M5 3V2h2v1M10 3l-.5 7a1 1 0 01-1 .9H3.5a1 1 0 01-1-.9L2 3"/></svg>
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── EVENT FORM ────────────────────────────────────────────────────────────────
+function EventForm({ open, onClose, onSave, onDelete, editEvent }) {
+  const [name, setName]     = useState("");
+  const [start, setStart]   = useState("");
+  const [end, setEnd]       = useState("");
+  const [cat, setCat]       = useState("campaign");
+  const [sub, setSub]       = useState("");
+  const [notes, setNotes]   = useState("");
+  const [hold, setHold]     = useState(false);
+  const [depts, setDepts]   = useState([]);
+  const [people, setPeople] = useState([]);
+
+  useEffect(()=>{
+    if (!open) return;
+    if (editEvent) {
+      setName(editEvent.name||""); setStart(editEvent.start||""); setEnd(editEvent.end||"");
+      setCat(editEvent.cat||"campaign"); setSub(editEvent.sub||""); setNotes(editEvent.notes||"");
+      setHold(!!editEvent.hold); setDepts([...(editEvent.depts||[])]); setPeople([...(editEvent.people||[])]);
+    } else {
+      setName(""); setCat("campaign"); setSub(""); setNotes(""); setHold(false); setDepts([]); setPeople([]);
+    }
+  }, [open, editEvent]);
+
+  const togDept = (d) => setDepts(prev => prev.includes(d) ? prev.filter(x=>x!==d) : [...prev,d]);
+  const togPerson = (p) => setPeople(prev => prev.includes(p) ? prev.filter(x=>x!==p) : [...prev,p]);
+
+  const handleSave = () => {
+    if (!name.trim()||!start) { alert("Please add a name and start date."); return; }
+    onSave({ id: editEvent?.id||uid(), name:name.trim(), start, end:end||start, cat, sub, notes, hold, depts, people, actions:editEvent?.actions||[] });
+    onClose();
+  };
+
+  const FLabel = ({children}) => <div style={{fontSize:11.5,color:C.text2,marginBottom:3}}>{children}</div>;
+  const FInput = ({...props}) => (
+    <input {...props} style={{width:"100%",border:`0.5px solid ${C.borderStrong}`,borderRadius:8,padding:"8px 10px",fontSize:13,color:C.text,background:C.surface,outline:"none",fontFamily:"inherit",...props.style}}
+      onFocus={e=>e.target.style.borderColor=C.orange} onBlur={e=>e.target.style.borderColor=C.borderStrong}/>
+  );
+
+  return (
+    <Modal open={open} onClose={onClose} width={580}>
+      <h2 style={{fontSize:15,fontWeight:500,marginBottom:"1.25rem",color:C.text}}>{editEvent?"Edit event":"Add event"}</h2>
+      <div style={{marginBottom:14}}><FLabel>Event name</FLabel><FInput value={name} onChange={e=>setName(e.target.value)} placeholder="e.g. Summer campaign launch" autoFocus/></div>
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,marginBottom:14}}>
+        <div><FLabel>Start date</FLabel><FInput type="date" value={start} onChange={e=>setStart(e.target.value)}/></div>
+        <div><FLabel>End date</FLabel><FInput type="date" value={end} onChange={e=>setEnd(e.target.value)}/></div>
+      </div>
+      <div style={{marginBottom:14}}>
+        <FLabel>Category</FLabel>
+        <select value={cat} onChange={e=>setCat(e.target.value)} style={{width:"100%",border:`0.5px solid ${C.borderStrong}`,borderRadius:8,padding:"8px 10px",fontSize:13,color:C.text,background:C.surface,fontFamily:"inherit",outline:"none"}}>
+          {Object.entries(CATS).map(([k,v])=><option key={k} value={k}>{v.label}</option>)}
+        </select>
+      </div>
+      <div style={{marginBottom:14}}><FLabel>Subcategory / detail</FLabel><FInput value={sub} onChange={e=>setSub(e.target.value)} placeholder="e.g. Instagram, Email, Q3 Promo"/></div>
+      <div style={{marginBottom:14}}>
+        <FLabel>Notes</FLabel>
+        <textarea value={notes} onChange={e=>setNotes(e.target.value)} placeholder="Context, links, deliverables…"
+          style={{width:"100%",border:`0.5px solid ${C.borderStrong}`,borderRadius:8,padding:"8px 10px",fontSize:13,color:C.text,background:C.surface,outline:"none",fontFamily:"inherit",resize:"vertical",minHeight:80}}
+          onFocus={e=>e.target.style.borderColor=C.orange} onBlur={e=>e.target.style.borderColor=C.borderStrong}/>
+      </div>
+      <label style={{display:"flex",alignItems:"center",gap:8,marginBottom:14,cursor:"pointer"}}>
+        <input type="checkbox" checked={hold} onChange={e=>setHold(e.target.checked)} style={{width:14,height:14,accentColor:C.orange}}/>
+        <span style={{fontSize:13,color:C.text2}}>Mark as HOLD (tentative)</span>
+      </label>
+      <div style={{marginBottom:14}}>
+        <FLabel>Department</FLabel>
+        <div style={{display:"flex",gap:6,flexWrap:"wrap",marginTop:4}}>
+          {DEPTS.map(d=>(
+            <span key={d} onClick={()=>togDept(d)} style={{border:`0.5px solid ${depts.includes(d)?C.dark:C.borderStrong}`,borderRadius:20,padding:"3px 10px",fontSize:11.5,cursor:"pointer",color:depts.includes(d)?"#fff":C.text2,background:depts.includes(d)?C.dark:C.surface,transition:"all .15s"}}>
+              {d}
+            </span>
+          ))}
+        </div>
+      </div>
+      <div style={{marginBottom:14}}>
+        <FLabel>Tag people</FLabel>
+        <div style={{display:"flex",gap:6,flexWrap:"wrap",marginTop:4}}>
+          {PEOPLE.map(p=>(
+            <span key={p.initials} onClick={()=>togPerson(p.initials)} style={{border:`0.5px solid ${people.includes(p.initials)?p.color:C.borderStrong}`,borderRadius:20,padding:"3px 10px",fontSize:11.5,cursor:"pointer",color:people.includes(p.initials)?"#fff":C.text2,background:people.includes(p.initials)?p.color:C.surface,transition:"all .15s"}}>
+              {p.name}
+            </span>
+          ))}
+        </div>
+      </div>
+      <div style={{display:"flex",gap:8,justifyContent:"flex-end",marginTop:"1.25rem",flexWrap:"wrap"}}>
+        {editEvent && <button onClick={()=>onDelete(editEvent.id)} style={{background:"none",border:`0.5px solid ${C.borderStrong}`,borderRadius:8,padding:"6px 14px",fontSize:13,cursor:"pointer",color:C.text3,fontFamily:"inherit"}} onMouseEnter={e=>{e.target.style.borderColor=C.orange;e.target.style.color=C.orange;}} onMouseLeave={e=>{e.target.style.borderColor=C.borderStrong;e.target.style.color=C.text3;}}>Delete</button>}
+        <button onClick={onClose} style={{background:"none",border:`0.5px solid ${C.borderStrong}`,borderRadius:8,padding:"6px 16px",fontSize:13,cursor:"pointer",color:C.text,fontFamily:"inherit"}}>Cancel</button>
+        <button onClick={handleSave} style={{background:C.orange,border:"none",borderRadius:8,padding:"6px 16px",fontSize:13,cursor:"pointer",color:"#fff",fontWeight:500,fontFamily:"inherit"}}>Save event</button>
+      </div>
+    </Modal>
+  );
+}
+
+// ── THEME EDIT FORM ───────────────────────────────────────────────────────────
+function ThemeForm({ open, onClose, monthIndex, themes, onSave }) {
+  const t = themes[monthIndex] || DEFAULT_THEMES[monthIndex] || {};
+  const [tag,   setTag]   = useState(t.tag||"");
+  const [theme, setTheme] = useState(t.theme||"");
+  const [desc,  setDesc]  = useState(t.desc||"");
+  const [goals, setGoals] = useState([...(t.goals||["","",""])]);
+
+  useEffect(()=>{
+    if (!open) return;
+    const t2 = themes[monthIndex] || DEFAULT_THEMES[monthIndex] || {};
+    setTag(t2.tag||""); setTheme(t2.theme||""); setDesc(t2.desc||""); setGoals([...(t2.goals||["","",""])]);
+  }, [open, monthIndex, themes]);
+
+  const FInput = ({value,onChange,placeholder,multiline}) => multiline
+    ? <textarea value={value} onChange={onChange} placeholder={placeholder} style={{width:"100%",border:`0.5px solid ${C.borderStrong}`,borderRadius:8,padding:"7px 10px",fontSize:13,color:C.text,background:C.surface,outline:"none",fontFamily:"inherit",resize:"vertical",minHeight:60}} onFocus={e=>e.target.style.borderColor=C.orange} onBlur={e=>e.target.style.borderColor=C.borderStrong}/>
+    : <input value={value} onChange={onChange} placeholder={placeholder} style={{width:"100%",border:`0.5px solid ${C.borderStrong}`,borderRadius:8,padding:"7px 10px",fontSize:13,color:C.text,background:C.surface,outline:"none",fontFamily:"inherit"}} onFocus={e=>e.target.style.borderColor=C.orange} onBlur={e=>e.target.style.borderColor=C.borderStrong}/>;
+
+  return (
+    <Modal open={open} onClose={onClose} width={500}>
+      <h2 style={{fontSize:15,fontWeight:500,marginBottom:"1.1rem",color:C.text}}>Edit {t.tag||"month"} theme</h2>
+      <div style={{marginBottom:12}}><div style={{fontSize:11.5,color:C.text2,marginBottom:3}}>Month heading</div><FInput value={tag} onChange={e=>setTag(e.target.value)}/></div>
+      <div style={{marginBottom:12}}><div style={{fontSize:11.5,color:C.text2,marginBottom:3}}>Theme name</div><FInput value={theme} onChange={e=>setTheme(e.target.value)}/></div>
+      <div style={{marginBottom:12}}><div style={{fontSize:11.5,color:C.text2,marginBottom:3}}>Description</div><FInput value={desc} onChange={e=>setDesc(e.target.value)} multiline placeholder="Monthly theme description…"/></div>
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8,marginBottom:16}}>
+        {[0,1,2].map(i=>(
+          <div key={i}><div style={{fontSize:11.5,color:C.text2,marginBottom:3}}>Goal {i+1}</div><FInput value={goals[i]||""} onChange={e=>setGoals(g=>{const ng=[...g];ng[i]=e.target.value;return ng;})}/></div>
+        ))}
+      </div>
+      <div style={{display:"flex",gap:8,justifyContent:"flex-end"}}>
+        <button onClick={onClose} style={{background:"none",border:`0.5px solid ${C.borderStrong}`,borderRadius:8,padding:"6px 16px",fontSize:13,cursor:"pointer",color:C.text,fontFamily:"inherit"}}>Cancel</button>
+        <button onClick={()=>{ onSave(monthIndex,{tag,theme,desc,goals}); onClose(); }} style={{background:C.orange,border:"none",borderRadius:8,padding:"6px 16px",fontSize:13,cursor:"pointer",color:"#fff",fontWeight:500,fontFamily:"inherit"}}>Save theme</button>
+      </div>
+    </Modal>
+  );
+}
+
+// ── MAIN APP ──────────────────────────────────────────────────────────────────
+function NeighborlyCalendar() {
+  const isMobile = useIsMobile();
+  const [events,    setEvents]    = useState(() => rd("events")  || SAMPLE_EVENTS);
+  const [goals,     setGoals]     = useState(() => rd("goals")   || {});
+  const [themes,    setThemes]    = useState(() => rd("themes")  || JSON.parse(JSON.stringify(DEFAULT_THEMES)));
+  const [curDate,   setCurDate]   = useState(() => new Date());
+  const [mode,      setMode]      = useState("edit");
+  const [filter,    setFilter]    = useState("all");
+  const [sidebarId, setSidebarId] = useState(null);
+  const [formOpen,  setFormOpen]  = useState(false);
+  const [editEvt,   setEditEvt]   = useState(null);
+  const [formDate,  setFormDate]  = useState("");
+  const [themeOpen, setThemeOpen] = useState(false);
+  const [dragId,    setDragId]    = useState(null);
+  const [dropCell,  setDropCell]  = useState(null);
+
+  const today = new Date(); today.setHours(0,0,0,0);
+  const yr = curDate.getFullYear(), mo = curDate.getMonth();
+  const mKey = mkKey(curDate);
+
+  // persist
+  const saveEvents = useCallback((evts) => { setEvents(evts); wr("events",evts); }, []);
+  const saveGoals  = useCallback((g)    => { setGoals(g);  wr("goals",g);  }, []);
+  const saveThemes = useCallback((t)    => { setThemes(t); wr("themes",t); }, []);
+
+  const theme = themes[mo] || DEFAULT_THEMES[mo] || {};
+  const monthGoals = goals[mKey] || [false,false,false];
+
+  const toggleGoal = (i) => {
+    const ng = [...monthGoals]; ng[i] = !ng[i];
+    const newGoals = {...goals, [mKey]: ng};
+    saveGoals(newGoals);
+  };
+
+  // Navigation
+  const changeMonth = (d) => { const nd = new Date(curDate); nd.setMonth(nd.getMonth()+d); setCurDate(nd); setSidebarId(null); };
+  const goToday = () => { setCurDate(new Date()); setSidebarId(null); };
+
+  // Calendar cells
+  const first=new Date(yr,mo,1).getDay(), dim=new Date(yr,mo+1,0).getDate(), dip=new Date(yr,mo,0).getDate();
+  const cells=[];
+  for(let i=first-1;i>=0;i--) cells.push({d:dip-i,o:true,mo:mo-1,yr:mo===0?yr-1:yr});
+  for(let i=1;i<=dim;i++) cells.push({d:i,o:false,mo:mo,yr:yr});
+  for(let i=1;i<=42-cells.length;i++) cells.push({d:i,o:true,mo:mo+1,yr:mo===11?yr+1:yr});
+
+  const filtered = events.filter(e => filter==="all" || e.cat===filter);
+  const dsOf = (c) => c.yr+"-"+String(c.mo+1).padStart(2,"0")+"-"+String(c.d).padStart(2,"0");
+
+  // Drag & drop
+  const handleDragStart = (e, id) => { setDragId(id); e.dataTransfer.setData("text/plain", id); e.dataTransfer.effectAllowed="move"; };
+  const handleDragEnd = () => { setDragId(null); setDropCell(null); };
+  const handleDragOver = (e, ds) => { e.preventDefault(); setDropCell(ds); };
+  const handleDrop = (e, ds) => {
+    e.preventDefault(); setDropCell(null);
+    const id = e.dataTransfer.getData("text/plain") || dragId;
+    if (!id) return;
+    const ev = events.find(x=>x.id===id);
+    if (!ev) return;
+    const dur = Math.round((new Date(ev.end+"T00:00:00")-new Date(ev.start+"T00:00:00"))/86400000);
+    const newEnd = addDays(ds, dur);
+    saveEvents(events.map(x=>x.id===id ? {...x,start:ds,end:newEnd} : x));
+    if (sidebarId===id) setSidebarId(id); // refresh sidebar
+  };
+
+  // Event actions
+  const openAdd = (ds="") => { if(mode==="present")return; setEditEvt(null); setFormDate(ds); setFormOpen(true); };
+  const openEdit = (id) => { if(mode==="present")return; setEditEvt(events.find(e=>e.id===id)||null); setFormOpen(true); };
+  const handleSave = (ev) => { saveEvents(events.find(e=>e.id===ev.id) ? events.map(e=>e.id===ev.id?ev:e) : [...events,ev]); setSidebarId(ev.id); };
+  const handleDelete = (id) => { saveEvents(events.filter(e=>e.id!==id)); setSidebarId(null); setFormOpen(false); };
+  const handleUpdateActions = (id, actions) => { saveEvents(events.map(e=>e.id===id?{...e,actions}:e)); };
+
+  const sidebarEvent = events.find(e=>e.id===sidebarId) || null;
+
+  return (
+    <div style={{fontFamily:"'DM Sans',sans-serif",background:C.bg,minHeight:"100vh",color:C.text,display:"flex",flexDirection:"column"}}>
+      {/* Present mode banner */}
+      {mode==="present" && (
+        <div style={{background:C.dark,color:"rgba(255,255,255,.6)",fontSize:11.5,padding:"7px 1.25rem",textAlign:"center",letterSpacing:".04em",flexShrink:0}}>
+          <strong style={{color:C.yellow}}>Presentation view</strong> &nbsp;·&nbsp; Read-only &nbsp;·&nbsp; Click any event to see details
+        </div>
+      )}
+
+      {/* NAV */}
+      <nav style={{background:C.surface,borderBottom:`0.5px solid ${C.borderStrong}`,padding:"0 1.25rem",display:"flex",alignItems:"center",justifyContent:"space-between",height:50,position:"sticky",top:0,zIndex:100,flexShrink:0}}>
+        <a href="index.html" style={{display:"flex",alignItems:"center",textDecoration:"none",height:50}}>
+          <img src="data:image/png;base64,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" alt="Neighborly" style={{height:22,width:"auto",display:"block"}}/>
+        </a>
+        <div style={{display:"flex",alignItems:"center",gap:8}}>
+          {/* Mode toggle */}
+          <div style={{display:"flex",background:C.surface2,borderRadius:8,padding:3,gap:2}}>
+            {[["edit","Edit"],["present","Present"]].map(([m,label])=>(
+              <button key={m} onClick={()=>setMode(m)} style={{padding:isMobile?"5px 10px":"5px 14px",borderRadius:6,fontSize:isMobile?11:12,fontWeight:500,cursor:"pointer",border:"none",background:mode===m?(m==="present"?C.dark:C.surface):"transparent",color:mode===m?(m==="present"?C.yellow:C.text):C.text2,boxShadow:mode===m&&m!=="present"?"0 1px 3px rgba(0,0,0,.09)":"none",transition:"all .15s",fontFamily:"inherit"}}>
+                {label}
+              </button>
+            ))}
+          </div>
+          {!isMobile && <a href="index.html" style={{fontSize:12,color:C.text2,textDecoration:"none",display:"flex",alignItems:"center",gap:5,padding:"5px 12px",border:`0.5px solid ${C.borderStrong}`,borderRadius:8}}>
+            ← Portal
+          </a>}
+        </div>
+      </nav>
+
+      {/* APP SHELL */}
+      <div style={{display:"flex",flex:1,overflow:"hidden",height:"calc(100vh - 50px)"}}>
+        {/* MAIN */}
+        <div style={{flex:1,overflowY:"auto",minWidth:0}}>
+          <div style={{padding:isMobile?"0.75rem 0.75rem 5rem":"1.25rem 1.5rem 3rem"}}>
+
+            {/* THEME BANNER */}
+            <div onClick={()=>mode==="edit"&&setThemeOpen(true)}
+              style={{border:`0.5px solid ${C.border}`,borderLeftWidth:3,borderLeftColor:theme.color||C.blue,padding:"1.25rem 1.5rem",marginBottom:"1rem",background:C.surface2,borderRadius:"0 12px 12px 0",cursor:mode==="edit"?"pointer":"default",transition:"background .15s"}}
+              onMouseEnter={e=>{if(mode==="edit")e.currentTarget.style.background=C.surface;}}
+              onMouseLeave={e=>e.currentTarget.style.background=C.surface2}>
+              <div style={{display:"grid",gridTemplateColumns:isMobile?"1fr":"minmax(0,1fr) minmax(260px,360px)",gap:"1.5rem",alignItems:"flex-start"}}>
+                <div>
+                  <div style={{fontSize:22,fontWeight:600,letterSpacing:"-.03em",color:theme.color||C.blue,marginBottom:5}}>{theme.tag||"Month"}</div>
+                  <div style={{fontSize:16,fontWeight:500,color:C.text,marginBottom:3}}>{theme.theme}</div>
+                  {!isMobile && <div style={{fontSize:13,color:C.text2,lineHeight:1.5}}>{theme.desc}</div>}
+                  {mode==="edit" && <div style={{fontSize:11,color:C.text3,marginTop:6,display:"flex",alignItems:"center",gap:4}}>Click to edit theme &amp; goals</div>}
+                </div>
+                <div>
+                  <div style={{fontSize:10,fontWeight:500,color:C.text3,textTransform:"uppercase",letterSpacing:".05em",marginBottom:8}}>Monthly goals</div>
+                  {(!isMobile || true) && (theme.goals||[]).map((g,i)=>(
+                    <label key={i} onClick={e=>e.stopPropagation()} style={{display:"flex",alignItems:"center",gap:8,marginBottom:7,cursor:"pointer"}}>
+                      <input type="checkbox" checked={monthGoals[i]||false} onChange={()=>toggleGoal(i)} style={{width:14,height:14,accentColor:C.orange,flexShrink:0}}/>
+                      <span style={{fontSize:12.5,color:C.text,lineHeight:1.4,textDecoration:monthGoals[i]?"line-through":"none",opacity:monthGoals[i]?.6:1}}>{g}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* TOP BAR */}
+            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:isMobile?".5rem":".85rem",gap:8,flexWrap:"wrap"}}>
+              <div style={{display:"flex",alignItems:"center",gap:isMobile?5:8}}>
+                <button onClick={()=>changeMonth(-1)} style={{background:"none",border:`0.5px solid ${C.borderStrong}`,borderRadius:8,padding:isMobile?"4px 8px":"5px 10px",cursor:"pointer",color:C.text,display:"flex",alignItems:"center",fontFamily:"inherit"}}>‹</button>
+                <span style={{fontSize:isMobile?14:17,fontWeight:500,color:C.text,minWidth:isMobile?110:150,textAlign:"center"}}>{curDate.toLocaleDateString("en-US",{month:"long",year:"numeric"})}</span>
+                <button onClick={()=>changeMonth(1)} style={{background:"none",border:`0.5px solid ${C.borderStrong}`,borderRadius:8,padding:isMobile?"4px 8px":"5px 10px",cursor:"pointer",color:C.text,display:"flex",alignItems:"center",fontFamily:"inherit"}}>›</button>
+                <button onClick={goToday} style={{background:"none",border:`0.5px solid ${C.borderStrong}`,borderRadius:8,padding:isMobile?"4px 8px":"5px 12px",cursor:"pointer",color:C.text,fontSize:isMobile?11:12,fontFamily:"inherit"}}>Today</button>
+              </div>
+              {mode==="edit" && !isMobile && (
+                <button onClick={()=>openAdd()} style={{background:C.orange,border:"none",borderRadius:8,padding:"7px 14px",cursor:"pointer",color:"#fff",fontSize:13,fontWeight:500,display:"flex",alignItems:"center",gap:6,fontFamily:"inherit"}}>
+                  + Add event
+                </button>
+              )}
+              {mode==="edit" && isMobile && (
+                <button onClick={()=>openAdd()} style={{position:"fixed",bottom:24,right:20,zIndex:150,width:52,height:52,borderRadius:"50%",background:C.orange,border:"none",cursor:"pointer",color:"#fff",fontSize:24,fontWeight:300,display:"flex",alignItems:"center",justifyContent:"center",boxShadow:"0 4px 16px rgba(232,113,66,.45)",fontFamily:"inherit"}}>
+                  +
+                </button>
+              )}
+            </div>
+
+            {/* FILTERS */}
+            <div style={{display:"flex",gap:6,flexWrap:isMobile?"nowrap":"wrap",marginBottom:".85rem",overflowX:isMobile?"auto":"visible",paddingBottom:isMobile?4:0,WebkitOverflowScrolling:"touch"}}>
+              {[{key:"all",label:"All",color:C.dark}, ...Object.entries(CATS).map(([k,v])=>({key:k,label:v.label,color:v.color}))].map(f=>(
+                <span key={f.key} onClick={()=>setFilter(f.key)} style={{border:`0.5px solid ${filter===f.key?"transparent":C.borderStrong}`,borderRadius:20,padding:"4px 12px",fontSize:11.5,cursor:"pointer",flexShrink:0,color:filter===f.key?"#fff":C.text2,background:filter===f.key?f.color:C.surface,transition:"all .15s"}}>
+                  {f.label}
+                </span>
+              ))}
+            </div>
+
+            {/* GRID HEADER */}
+            <div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)",gap:1,marginBottom:1,fontSize:isMobile?9:11}}>
+              {["Sun","Mon","Tue","Wed","Thu","Fri","Sat"].map(d=>(
+                <div key={d} style={{textAlign:"center",fontSize:isMobile?9:11.5,color:C.text3,padding:isMobile?"4px 0":"7px 0",fontWeight:500}}>{isMobile?d[0]:d}</div>
+              ))}
+            </div>
+
+            {/* CALENDAR GRID */}
+            <div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)",gap:1,background:C.border,border:`0.5px solid ${C.border}`,borderRadius:12,overflow:"hidden"}}>
+              {cells.map((c,ci)=>{
+                const ds = dsOf(c);
+                const cd = new Date(c.yr,c.mo,c.d); cd.setHours(0,0,0,0);
+                const isTod = cd.getTime()===today.getTime();
+                const cellEvs = filtered.filter(e=>e.start<=ds&&e.end>=ds);
+                const show = cellEvs.slice(0,3), more = cellEvs.length-3;
+                const isDropTarget = dropCell===ds && mode==="edit";
+
+                return (
+                  <div key={ci}
+                    onDragOver={mode==="edit"?e=>{e.preventDefault();handleDragOver(e,ds);}:undefined}
+                    onDragLeave={mode==="edit"?()=>setDropCell(null):undefined}
+                    onDrop={mode==="edit"?e=>handleDrop(e,ds):undefined}
+                    onClick={mode==="edit"?()=>openAdd(ds):undefined}
+                    style={{background:isDropTarget?"#fdf7d8":C.surface,minHeight:isMobile?70:130,padding:isMobile?"4px 3px":"7px 6px",overflow:"hidden",position:"relative",cursor:mode==="edit"?"pointer":"default",transition:"background .1s",outline:isDropTarget?`2px dashed ${C.yellow}`:"none"}}>
+                    <div style={{fontSize:isMobile?9:11.5,fontWeight:500,width:isMobile?16:22,height:isMobile?16:22,display:"flex",alignItems:"center",justifyContent:"center",marginBottom:isMobile?2:4,borderRadius:"50%",background:isTod?C.orange:"transparent",color:isTod?"#fff":c.o?C.text3:C.text,flexShrink:0}}>
+                      {c.d}
+                    </div>
+                    {show.map(ev=>{
+                      const cat = CATS[ev.cat]||CATS.campaign;
+                      const isSelected = ev.id===sidebarId;
+                      const isDragging = ev.id===dragId;
+                      return (
+                        <div key={ev.id}
+                          draggable={mode==="edit"}
+                          onDragStart={mode==="edit"?e=>{e.stopPropagation();handleDragStart(e,ev.id);}:undefined}
+                          onDragEnd={handleDragEnd}
+                          onClick={e=>{e.stopPropagation(); setSidebarId(sidebarId===ev.id?null:ev.id);}}
+                          style={{borderRadius:isMobile?4:7,padding:isMobile?"3px 3px":"5px 7px",fontSize:11.5,fontWeight:500,marginBottom:isMobile?2:3,cursor:"pointer",display:"grid",gridTemplateColumns:isMobile?"8px minmax(0,1fr)":(mode==="edit"?"12px 16px minmax(0,1fr)":"16px minmax(0,1fr)"),alignItems:"start",gap:5,background:ev.hold?"transparent":cat.bg,color:ev.hold?C.text2:cat.text,border:ev.hold?`1.5px dashed ${C.tan}`:isSelected?`2px solid ${C.orange}`:`0.5px solid rgba(0,0,0,0.06)`,fontStyle:ev.hold?"italic":"normal",boxShadow:isSelected?"0 0 0 1px "+C.orange:"0 1px 2px rgba(0,0,0,.03)",opacity:isDragging?.4:1,transition:"opacity .15s,box-shadow .15s"}}>
+                          {mode==="edit" && !isMobile && <span style={{cursor:"grab",color:C.text3,fontSize:10,display:"flex",alignItems:"center",paddingTop:2}}>⠿</span>}
+                          <div style={{width:isMobile?6:16,height:isMobile?6:16,borderRadius:"50%",background:ev.hold?"transparent":cat.color,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,marginTop:isMobile?4:0}}>
+                              {!ev.hold && !isMobile && <CatIcon path={cat.icon} color="#fff" size={9}/>}
+                            </div>
+                          <div style={{display:isMobile?"none":"block"}}>
+                            <div style={{fontSize:11.5,fontWeight:600,lineHeight:1.2,overflow:"hidden",display:"-webkit-box",WebkitLineClamp:2,WebkitBoxOrient:"vertical",textOverflow:"ellipsis"}}>{ev.name}</div>
+                            {ev.sub && <div style={{fontSize:10,opacity:.7,marginTop:1,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{ev.sub}</div>}
+                          </div>
+                        </div>
+                      );
+                    })}
+                    {more>0 && <div style={{fontSize:isMobile?8:10,color:C.text3,padding:"1px 2px"}}>+{more}</div>}
+                  </div>
+                );
+              })}
+            </div>
+
+          </div>
+        </div>
+
+        {/* SIDEBAR */}
+        {isMobile ? (
+          sidebarEvent && (
+            <>
+              <div className="mobile-sidebar-overlay" onClick={()=>setSidebarId(null)}/>
+              <div className="mobile-sidebar-sheet">
+                <div style={{width:"100%",height:4,background:C.border,borderRadius:2,margin:"10px auto",width:40}}/>
+                <Sidebar event={sidebarEvent} mode={mode} onClose={()=>setSidebarId(null)} onEdit={id=>{openEdit(id);}} onDelete={id=>{handleDelete(id);setSidebarId(null);}} onUpdateActions={handleUpdateActions}/>
+              </div>
+            </>
+          )
+        ) : (
+          <div style={{width:sidebarEvent?340:0,flexShrink:0,overflow:"hidden",transition:"width .28s cubic-bezier(0.4,0,0.2,1)",display:"flex",flexDirection:"column"}}>
+            {sidebarEvent && (
+              <Sidebar event={sidebarEvent} mode={mode} onClose={()=>setSidebarId(null)} onEdit={id=>{openEdit(id);}} onDelete={id=>{handleDelete(id);setSidebarId(null);}} onUpdateActions={handleUpdateActions}/>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* MODALS */}
+      <EventForm open={formOpen} onClose={()=>{setFormOpen(false);setEditEvt(null);}} onSave={handleSave} onDelete={handleDelete} editEvent={editEvt} initialDate={formDate}/>
+      <ThemeForm open={themeOpen} onClose={()=>setThemeOpen(false)} monthIndex={mo} themes={themes} onSave={(idx,data)=>{ const nt={...themes,[idx]:{...themes[idx],...data}}; saveThemes(nt); }}/>
+    </div>
+  );
+}
+
+
+ReactDOM.createRoot(document.getElementById("root")).render(
+  React.createElement(NeighborlyCalendar)
+);
+</script>
+</body>
+</html>
