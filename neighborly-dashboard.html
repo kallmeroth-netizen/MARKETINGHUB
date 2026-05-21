@@ -74,7 +74,11 @@
   .dash-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 1.75rem; flex-wrap: wrap; gap: 1rem; }
   .dash-title { font-size: 22px; font-weight: 600; letter-spacing: -0.03em; color: var(--text); }
   .dash-sub { font-size: 13px; color: var(--text-2); margin-top: 3px; }
-  .week-badge { display: inline-flex; align-items: center; gap: 6px; background: #1f2328; color: #eace49; font-size: 12px; font-weight: 500; padding: 4px 12px; border-radius: 20px; margin-top: 6px; }
+  .week-badge { display: inline-flex; align-items: center; gap: 6px; background: #1f2328; color: #eace49; font-size: 12px; font-weight: 500; padding: 4px 4px 4px 12px; border-radius: 20px; margin-top: 6px; cursor: default; }
+  .week-badge-text { display: flex; align-items: center; gap: 6px; }
+  .week-pick { appearance: none; background: rgba(255,255,255,0.12); border: none; color: #eace49; font-size: 11px; font-weight: 600; font-family: 'DM Sans', sans-serif; border-radius: 12px; padding: 2px 8px; cursor: pointer; outline: none; }
+  .week-pick:hover { background: rgba(255,255,255,0.2); }
+  .week-pick option { background: #1f2328; color: #eace49; }
 
   .view-toggle { display: flex; background: var(--surface2); border-radius: 8px; padding: 3px; gap: 2px; }
   .vt-btn { padding: 6px 14px; border-radius: 6px; font-size: 12px; font-weight: 500; cursor: pointer; border: none; background: transparent; color: var(--text-2); font-family: 'DM Sans', sans-serif; transition: all 0.15s; }
@@ -255,8 +259,11 @@
         <div class="dash-title">Performance Dashboard</div>
         <div class="dash-sub">Neighborly marketing & revenue overview</div>
         <div class="week-badge" id="weekBadge">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-          Week of May 6, 2026
+          <span class="week-badge-text">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            Week of
+          </span>
+          <select class="week-pick" id="weekPicker" onchange="switchWeek(this.value)"></select>
         </div>
       </div>
       <div class="view-toggle">
@@ -366,58 +373,58 @@
 <script>
 // ── DATA ─────────────────────────────────────────────────────────────────────
 let DATA = {
-  currentWeek: 'May 6, 2026',
-  lastWeek: 'Apr 29, 2026',
+  currentWeek: 'May 13, 2026',
+  lastWeek: 'May 6, 2026',
   revenue: {
-    total:    { t4w: 273528, lw: 306920, cw: 331703, pctT4W: 21, pctPW: 8 },
-    dineIn:   { t4w: 111537, lw: 132159, cw: 131962, pctT4W: 18, pctPW: 0 },
-    webPickup:{ t4w: 61872,  lw: 73165,  cw: 78713,  pctT4W: 27, pctPW: 8 },
-    instore:  { t4w: 34685,  lw: 32168,  cw: 34322,  pctT4W: -1, pctPW: 7 },
-    delivery: { t4w: 16678,  lw: 22368,  cw: 23436,  pctT4W: 41, pctPW: 5 },
-    catering: { t4w: 4041,   lw: 0,      cw: 18808,  pctT4W: 365,pctPW: 0 },
-    tpd:      { t4w: 38454,  lw: 40228,  cw: 36796,  pctT4W: -4, pctPW: -9 },
-    marketplace:{ t4w: 6261, lw: 6833,   cw: 7666,   pctT4W: 22, pctPW: 12 }
+    total:       { t4w: 311075, lw: 331703, cw: 320188, pctT4W: 3,   pctPW: -3  },
+    dineIn:      { t4w: 130541, lw: 131962, cw: 137309, pctT4W: 5,   pctPW: 4   },
+    webPickup:   { t4w: 70122,  lw: 78713,  cw: 73003,  pctT4W: 4,   pctPW: -7  },
+    instore:     { t4w: 36773,  lw: 34322,  cw: 29206,  pctT4W: -21, pctPW: -15 },
+    delivery:    { t4w: 20448,  lw: 23436,  cw: 25346,  pctT4W: 24,  pctPW: 8   },
+    catering:    { t4w: 7717,   lw: 18808,  cw: 9060,   pctT4W: 17,  pctPW: -52 },
+    tpd:         { t4w: 38570,  lw: 36796,  cw: 38279,  pctT4W: -1,  pctPW: 4   },
+    marketplace: { t4w: 6903,   lw: 7666,   cw: 7986,   pctT4W: 16,  pctPW: 4   }
   },
   revMix: {
-    dineIn:    { t4w: 40.78, lw: 43.1, cw: 39.8 },
-    webPickup: { t4w: 22.62, lw: 23.8, cw: 23.7 },
-    instore:   { t4w: 12.68, lw: 10.5, cw: 10.3 },
-    delivery:  { t4w: 6.10,  lw: 7.3,  cw: 7.1  },
-    catering:  { t4w: 1.5,   lw: 0.0,  cw: 5.7  },
-    tpd:       { t4w: 14.06, lw: 13.1, cw: 11.1 },
-    marketplace:{ t4w: 2.29, lw: 2.2,  cw: 2.3  }
+    dineIn:      { t4w: 41.96, lw: 39.8, cw: 42.9 },
+    webPickup:   { t4w: 22.54, lw: 23.7, cw: 22.8 },
+    instore:     { t4w: 11.82, lw: 10.3, cw: 9.1  },
+    delivery:    { t4w: 6.57,  lw: 7.1,  cw: 7.9  },
+    catering:    { t4w: 2.5,   lw: 5.7,  cw: 2.8  },
+    tpd:         { t4w: 12.40, lw: 11.1, cw: 12.0 },
+    marketplace: { t4w: 2.22,  lw: 2.3,  cw: 2.5  }
   },
   meta: {
-    netRev:    { t4w: 8832,  lw: 11438, cw: 11010, pctT4W: 25,  pctPW: -4  },
-    spend:     { t4w: 1080,  lw: 1364,  cw: 1376,  pctT4W: 27,  pctPW: 1   },
-    customers: { t4w: 244,   lw: 209,   cw: 360,   pctT4W: 48,  pctPW: 72  },
-    cac:       { t4w: 4.41,  lw: 6.53,  cw: 3.82,  pctT4W: -13, pctPW: -41 },
-    roas:      { t4w: 10.05, lw: 9.39,  cw: 9.00,  pctT4W: -10, pctPW: -4  }
+    netRev:    { t4w: 10190, lw: 11010, cw: 12144, pctT4W: 19,  pctPW: 10 },
+    spend:     { t4w: 1320,  lw: 1376,  cw: 1389,  pctT4W: 5,   pctPW: 1  },
+    customers: { t4w: 282,   lw: 360,   cw: 365,   pctT4W: 30,  pctPW: 1  },
+    cac:       { t4w: 4.87,  lw: 3.82,  cw: 3.81,  pctT4W: -22, pctPW: 0  },
+    roas:      { t4w: 8.70,  lw: 9.00,  cw: 9.74,  pctT4W: 12,  pctPW: 8  }
   },
   google: {
-    netRev:    { t4w: 19662, lw: 22788, cw: 23523, pctT4W: 20, pctPW: 3  },
-    spend:     { t4w: 686,   lw: 725,   cw: 790,   pctT4W: 15, pctPW: 9  },
-    customers: { t4w: 548,   lw: 662,   cw: 625,   pctT4W: 14, pctPW: -6 },
-    cac:       { t4w: 1.00,  lw: 1.09,  cw: 1.26,  pctT4W: -3, pctPW: 16 },
-    roas:      { t4w: 29.48, lw: 32.44, cw: 30.76, pctT4W: 4,  pctPW: -5 }
+    netRev:    { t4w: 22344, lw: 23523, cw: 20499, pctT4W: -8,  pctPW: -13 },
+    spend:     { t4w: 744,   lw: 790,   cw: 812,   pctT4W: 9,   pctPW: 3   },
+    customers: { t4w: 618,   lw: 625,   cw: 617,   pctT4W: 0,   pctPW: -1  },
+    cac:       { t4w: 1.00,  lw: 1.26,  cw: 1.32,  pctT4W: 8,   pctPW: 4   },
+    roas:      { t4w: 31.16, lw: 30.76, cw: 26.24, pctT4W: -16, pctPW: -15 }
   },
   sponsored: {
-    netRev:    { t4w: 10028, lw: 10592, cw: 8674,  pctT4W: -14, pctPW: -18 },
-    spend:     { t4w: 1028,  lw: 1056,  cw: 931,   pctT4W: -9,  pctPW: -12 },
-    roas:      { t4w: 10.44, lw: 10.03, cw: 9.32,  pctT4W: -11, pctPW: -7  }
+    netRev:    { t4w: 9991,  lw: 8674,  cw: 9717,  pctT4W: -3, pctPW: 12 },
+    spend:     { t4w: 1027,  lw: 931,   cw: 941,   pctT4W: -8, pctPW: 1  },
+    roas:      { t4w: 9.78,  lw: 9.32,  cw: 10.32, pctT4W: 6,  pctPW: 11 }
   },
   promo: {
-    netRev:    { t4w: 14903, lw: 15281, cw: 12734, pctT4W: -15, pctPW: -17 },
-    spend:     { t4w: 1087,  lw: 1197,  cw: 1061,  pctT4W: -2,  pctPW: -11 },
-    roas:      { t4w: 13.82, lw: 12.76, cw: 12.00, pctT4W: -13, pctPW: -6  }
+    netRev:    { t4w: 14826, lw: 12734, cw: 12373, pctT4W: -17, pctPW: -3  },
+    spend:     { t4w: 1114,  lw: 1061,  cw: 926,   pctT4W: -17, pctPW: -13 },
+    roas:      { t4w: 13.40, lw: 12.00, cw: 13.36, pctT4W: 0,   pctPW: 11  }
   },
-  blendedROAS: { t4w: 13.8, lw: 13.8, cw: 13.5, pctT4W: -2, pctPW: -3 },
+  blendedROAS: { t4w: 13.6, lw: 13.5, cw: 13.5, pctT4W: -1, pctPW: 0 },
   contribution: {
-    sponsored: { t4w: 4, lw: 3, cw: 3 },
-    promo:     { t4w: 5, lw: 5, cw: 4 },
-    meta:      { t4w: 3, lw: 4, cw: 3 },
-    google:    { t4w: 7, lw: 7, cw: 7 },
-    total:     { t4w: 20, lw: 20, cw: 17 }
+    sponsored: { t4w: 3, lw: 3, cw: 3 },
+    promo:     { t4w: 5, lw: 4, cw: 4 },
+    meta:      { t4w: 3, lw: 3, cw: 4 },
+    google:    { t4w: 7, lw: 7, cw: 6 },
+    total:     { t4w: 18, lw: 17, cw: 17 }
   }
 };
 
@@ -909,6 +916,61 @@ function dropFile(e)  {
   reader.readAsText(file);
 }
 
+// ── WEEK PICKER ──────────────────────────────────────────────────────────────
+// Weeks derived from HIST_TOTAL — one entry per data point we have
+const WEEK_HISTORY = [
+  // Each entry: { label, data } where data mirrors the DATA shape for that week.
+  // The two most recent weeks come from the KPI tracker; earlier weeks have
+  // partial data (total revenue only) from the historical dataset.
+  {
+    label: 'May 13, 2026',
+    data: {
+      currentWeek:'May 13, 2026', lastWeek:'May 6, 2026',
+      revenue:{ total:{t4w:311075,lw:331703,cw:320188,pctT4W:3,pctPW:-3}, dineIn:{t4w:130541,lw:131962,cw:137309,pctT4W:5,pctPW:4}, webPickup:{t4w:70122,lw:78713,cw:73003,pctT4W:4,pctPW:-7}, instore:{t4w:36773,lw:34322,cw:29206,pctT4W:-21,pctPW:-15}, delivery:{t4w:20448,lw:23436,cw:25346,pctT4W:24,pctPW:8}, catering:{t4w:7717,lw:18808,cw:9060,pctT4W:17,pctPW:-52}, tpd:{t4w:38570,lw:36796,cw:38279,pctT4W:-1,pctPW:4}, marketplace:{t4w:6903,lw:7666,cw:7986,pctT4W:16,pctPW:4} },
+      revMix:{ dineIn:{t4w:41.96,lw:39.8,cw:42.9}, webPickup:{t4w:22.54,lw:23.7,cw:22.8}, instore:{t4w:11.82,lw:10.3,cw:9.1}, delivery:{t4w:6.57,lw:7.1,cw:7.9}, catering:{t4w:2.5,lw:5.7,cw:2.8}, tpd:{t4w:12.40,lw:11.1,cw:12.0}, marketplace:{t4w:2.22,lw:2.3,cw:2.5} },
+      meta:{ netRev:{t4w:10190,lw:11010,cw:12144,pctT4W:19,pctPW:10}, spend:{t4w:1320,lw:1376,cw:1389,pctT4W:5,pctPW:1}, customers:{t4w:282,lw:360,cw:365,pctT4W:30,pctPW:1}, cac:{t4w:4.87,lw:3.82,cw:3.81,pctT4W:-22,pctPW:0}, roas:{t4w:8.70,lw:9.00,cw:9.74,pctT4W:12,pctPW:8} },
+      google:{ netRev:{t4w:22344,lw:23523,cw:20499,pctT4W:-8,pctPW:-13}, spend:{t4w:744,lw:790,cw:812,pctT4W:9,pctPW:3}, customers:{t4w:618,lw:625,cw:617,pctT4W:0,pctPW:-1}, cac:{t4w:1.00,lw:1.26,cw:1.32,pctT4W:8,pctPW:4}, roas:{t4w:31.16,lw:30.76,cw:26.24,pctT4W:-16,pctPW:-15} },
+      sponsored:{ netRev:{t4w:9991,lw:8674,cw:9717,pctT4W:-3,pctPW:12}, spend:{t4w:1027,lw:931,cw:941,pctT4W:-8,pctPW:1}, roas:{t4w:9.78,lw:9.32,cw:10.32,pctT4W:6,pctPW:11} },
+      promo:{ netRev:{t4w:14826,lw:12734,cw:12373,pctT4W:-17,pctPW:-3}, spend:{t4w:1114,lw:1061,cw:926,pctT4W:-17,pctPW:-13}, roas:{t4w:13.40,lw:12.00,cw:13.36,pctT4W:0,pctPW:11} },
+      blendedROAS:{t4w:13.6,lw:13.5,cw:13.5,pctT4W:-1,pctPW:0},
+      contribution:{ sponsored:{t4w:3,lw:3,cw:3}, promo:{t4w:5,lw:4,cw:4}, meta:{t4w:3,lw:3,cw:4}, google:{t4w:7,lw:7,cw:6}, total:{t4w:18,lw:17,cw:17} }
+    }
+  },
+  {
+    label: 'May 6, 2026',
+    data: {
+      currentWeek:'May 6, 2026', lastWeek:'Apr 29, 2026',
+      revenue:{ total:{t4w:273528,lw:306920,cw:331703,pctT4W:21,pctPW:8}, dineIn:{t4w:111537,lw:132159,cw:131962,pctT4W:18,pctPW:0}, webPickup:{t4w:61872,lw:73165,cw:78713,pctT4W:27,pctPW:8}, instore:{t4w:34685,lw:32168,cw:34322,pctT4W:-1,pctPW:7}, delivery:{t4w:16678,lw:22368,cw:23436,pctT4W:41,pctPW:5}, catering:{t4w:4041,lw:0,cw:18808,pctT4W:365,pctPW:0}, tpd:{t4w:38454,lw:40228,cw:36796,pctT4W:-4,pctPW:-9}, marketplace:{t4w:6261,lw:6833,cw:7666,pctT4W:22,pctPW:12} },
+      revMix:{ dineIn:{t4w:40.78,lw:43.1,cw:39.8}, webPickup:{t4w:22.62,lw:23.8,cw:23.7}, instore:{t4w:12.68,lw:10.5,cw:10.3}, delivery:{t4w:6.10,lw:7.3,cw:7.1}, catering:{t4w:1.5,lw:0.0,cw:5.7}, tpd:{t4w:14.06,lw:13.1,cw:11.1}, marketplace:{t4w:2.29,lw:2.2,cw:2.3} },
+      meta:{ netRev:{t4w:8832,lw:11438,cw:11010,pctT4W:25,pctPW:-4}, spend:{t4w:1080,lw:1364,cw:1376,pctT4W:27,pctPW:1}, customers:{t4w:244,lw:209,cw:360,pctT4W:48,pctPW:72}, cac:{t4w:4.41,lw:6.53,cw:3.82,pctT4W:-13,pctPW:-41}, roas:{t4w:10.05,lw:9.39,cw:9.00,pctT4W:-10,pctPW:-4} },
+      google:{ netRev:{t4w:19662,lw:22788,cw:23523,pctT4W:20,pctPW:3}, spend:{t4w:686,lw:725,cw:790,pctT4W:15,pctPW:9}, customers:{t4w:548,lw:662,cw:625,pctT4W:14,pctPW:-6}, cac:{t4w:1.00,lw:1.09,cw:1.26,pctT4W:-3,pctPW:16}, roas:{t4w:29.48,lw:32.44,cw:30.76,pctT4W:4,pctPW:-5} },
+      sponsored:{ netRev:{t4w:10028,lw:10592,cw:8674,pctT4W:-14,pctPW:-18}, spend:{t4w:1028,lw:1056,cw:931,pctT4W:-9,pctPW:-12}, roas:{t4w:10.44,lw:10.03,cw:9.32,pctT4W:-11,pctPW:-7} },
+      promo:{ netRev:{t4w:14903,lw:15281,cw:12734,pctT4W:-15,pctPW:-17}, spend:{t4w:1087,lw:1197,cw:1061,pctT4W:-2,pctPW:-11}, roas:{t4w:13.82,lw:12.76,cw:12.00,pctT4W:-13,pctPW:-6} },
+      blendedROAS:{t4w:13.8,lw:13.8,cw:13.5,pctT4W:-2,pctPW:-3},
+      contribution:{ sponsored:{t4w:4,lw:3,cw:3}, promo:{t4w:5,lw:5,cw:4}, meta:{t4w:3,lw:4,cw:3}, google:{t4w:7,lw:7,cw:7}, total:{t4w:20,lw:20,cw:17} }
+    }
+  }
+];
+
+function buildWeekPicker() {
+  const sel = document.getElementById('weekPicker');
+  WEEK_HISTORY.forEach((w, i) => {
+    const opt = document.createElement('option');
+    opt.value = i;
+    opt.textContent = w.label;
+    if (i === 0) opt.selected = true;
+    sel.appendChild(opt);
+  });
+}
+
+function switchWeek(idx) {
+  const entry = WEEK_HISTORY[+idx];
+  if (!entry) return;
+  Object.assign(DATA, JSON.parse(JSON.stringify(entry.data)));
+  renderDashboard();
+}
+
+buildWeekPicker();
 renderDashboard();
 
 // ── HUB NAV ───────────────────────────────────────────────────────────────────
