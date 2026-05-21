@@ -1,0 +1,603 @@
+/*
+ * ═══════════════════════════════════════════════════════════════════════
+ *  NEIGHBORLY DASHBOARD DESIGN SYSTEM
+ *  Single source of truth for all internal dashboards.
+ *  Import this file or copy the :root block into every new dashboard.
+ * ═══════════════════════════════════════════════════════════════════════
+ */
+
+/* ── FONTS ─────────────────────────────────────────────────────────────
+   Import in every HTML file:
+   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700;800;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+   Usage:
+   - UI text, labels, buttons → DM Sans (default body font)
+   - Numbers, metrics, KPI values, monospace data → DM Mono
+*/
+
+/* ── COLOR TOKENS ──────────────────────────────────────────────────────
+   Naming convention:
+   --color        base (medium) tone
+   --color-light  (suffix: l)  washed background tint
+   --color-dark   (suffix: d)  accessible dark text / icon on that tint
+*/
+:root {
+  /* Backgrounds & surfaces */
+  --bg:           #F7F6F3;   /* page background, warm off-white */
+  --surface:      #FFFFFF;   /* card / nav / drawer background */
+  --surface2:     #F0EEE9;   /* subtle secondary surface, hover states, toggle tracks */
+
+  /* Borders */
+  --border:       rgba(0,0,0,0.08);   /* default card / table borders */
+  --border-strong:rgba(0,0,0,0.14);   /* nav underline, input outlines, drawer */
+
+  /* Text */
+  --text:         #1A1916;   /* primary: headings, values, active labels */
+  --text2:        #6B6960;   /* secondary: descriptions, sub-labels */
+  --text3:        #9E9C96;   /* tertiary: placeholders, dim timestamps, eyebrow labels */
+
+  /* Brand yellow — primary accent, active nav underline, stars, highlights */
+  --yellow:       #eace49;
+  --yl:           #fdf7d8;   /* light tint */
+  --yd:           #7a6b00;   /* dark text on --yl */
+
+  /* Brand green — positive sentiment, wins, NPS promoters */
+  --green:        #7bbd91;
+  --gl:           #e4f5ea;
+  --gd:           #2a5c38;
+
+  /* Brand orange — CTA, upload zone hover, nav active tab (performance dash) */
+  --orange:       #e87142;
+  --ol:           #fdeee7;
+  --od:           #8a3518;
+
+  /* Brand blue — operational issues, ops category pills */
+  --blue:         #6280bd;
+  --bl:           #eaeef8;
+  --bd:           #2d4480;
+
+  /* Brand tan — neutral / stable trend, secondary data */
+  --tan:          #dbc6a2;
+  --tl:           #f7f0e4;
+  --td:           #5a4520;
+
+  /* Brand lavender — reserved / misc tags */
+  --lav:          #cbc9d6;
+  --ll:           #f0eff5;
+  --ld:           #4a4760;
+
+  /* Red — complaints, negative sentiment, detractors, alerts */
+  --red:          #d96b5f;
+  --rl:           #fdeceb;
+  --rd:           #8a2318;
+
+  /* Dark — drawer close icon, checkmark backgrounds */
+  --dark:         #1f2328;
+}
+
+/* ── RESET & BASE ──────────────────────────────────────────────────────*/
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+button, input, select, textarea { font-family: inherit; }
+
+/* ── NAV ───────────────────────────────────────────────────────────────
+   Sticky top bar. Logo left, tabs center-left, controls right.
+   Height: 50px. Logo img height: 22px.
+*/
+nav {
+  background: var(--surface);
+  border-bottom: .5px solid var(--border-strong);
+  padding: 0 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 50px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  gap: 12px;
+}
+.nav-brand {
+  display: flex;
+  align-items: center;
+  height: 50px;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+.nav-logo {
+  height: 22px;
+  width: auto;
+  display: block;
+}
+/* Logo src (always use raw GitHub URL, not blob URL):
+   https://raw.githubusercontent.com/kallmeroth-netizen/MARKETINGHUB/a5d8cf8a019ba9e6f3d9bc3afb115dca7d42549a/NeighborlyLogo.png */
+
+/* ── NAV TABS ──────────────────────────────────────────────────────────
+   Active underline: --orange (guest dash) or --yellow (performance dash).
+   Consistent: use --orange for guest-facing pages, --yellow for data/analytics.
+*/
+.nav-tabs { display: flex; overflow-x: auto; scrollbar-width: none; }
+.nav-tabs::-webkit-scrollbar { display: none; }
+.nav-tab {
+  padding: 0 18px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text3);
+  border: none;
+  background: none;
+  border-bottom: 2px solid transparent;
+  transition: all .15s;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.nav-tab:hover { color: var(--text); }
+.nav-tab.active { color: var(--text); border-bottom-color: var(--orange); }
+
+/* ── HUB NAV (marketing hub overlay) ──────────────────────────────────
+   Triggered by clicking the Neighborly logo.
+   6 cards: Performance · Marketing Calendar · Print Production ·
+            Brand Assets · Instagram · Guest Intelligence
+   Mark the current section .active on its .hub-card.
+*/
+.hub-nav {
+  position: fixed;
+  top: 60px;
+  left: 1.5rem;
+  right: 1.5rem;
+  background: var(--surface);
+  border: .5px solid var(--border-strong);
+  border-radius: 16px;
+  z-index: 160;
+  padding: 1.5rem 2rem 1.75rem;
+  transform: translateY(-12px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .18s ease, transform .18s ease;
+  box-shadow: 0 12px 40px rgba(0,0,0,.12);
+}
+.hub-nav.open { opacity: 1; pointer-events: all; transform: translateY(0); }
+.hub-nav-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  margin-bottom: 1rem;
+}
+.hub-nav-grid { display: grid; grid-template-columns: repeat(6,1fr); gap: 8px; }
+.hub-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 14px;
+  border-radius: 10px;
+  border: .5px solid var(--border);
+  background: var(--surface);
+  cursor: pointer;
+  transition: background .12s, border-color .12s;
+  text-decoration: none;
+}
+.hub-card:hover { background: var(--surface2); border-color: var(--border-strong); }
+.hub-card.active { background: var(--yl); border-color: #e3c030; }
+.hub-card-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 2px;
+}
+.hub-card-title { font-size: 12px; font-weight: 600; color: var(--text); line-height: 1.2; }
+.hub-card-sub   { font-size: 11px; color: var(--text3); line-height: 1.3; }
+
+/* ── LOCATION + DATE TOGGLES ───────────────────────────────────────────
+   Pill-style segmented control in nav-right.
+   Same pattern for both; only class names differ (.lt-btn / .dt-btn / .vt-btn).
+*/
+.loc-toggle,
+.date-toggle,
+.view-toggle {
+  display: flex;
+  background: var(--surface2);
+  border-radius: 8px;
+  padding: 3px;
+  gap: 2px;
+  flex-shrink: 0;
+}
+.lt-btn, .dt-btn, .vt-btn {
+  padding: 5px 11px;
+  border-radius: 6px;
+  font-size: 11.5px;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  color: var(--text2);
+  font-family: 'DM Sans', sans-serif;
+  transition: all .15s;
+  white-space: nowrap;
+}
+.lt-btn.active,
+.dt-btn.active,
+.vt-btn.active {
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: 0 1px 3px rgba(0,0,0,.08);
+}
+
+/* ── PAGE LAYOUT ───────────────────────────────────────────────────────*/
+.content { max-width: 900px; margin: 0 auto; padding: 1.75rem 1.5rem; }
+.page { display: none; }
+.page.active { display: block; }
+
+/* ── SECTION LABEL (eyebrow header above a group) ─────────────────────
+   ALL CAPS, small, muted, with a full-width rule extending to the right.
+   Use above a logical grouping of cards (e.g. "Guest intelligence snapshot").
+   IMPORTANT — this is the primary section header pattern.
+*/
+.sec-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--text3);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.sec-label::after {
+  content: '';
+  flex: 1;
+  height: .5px;
+  background: var(--border-strong);
+}
+
+/* ── CARD ──────────────────────────────────────────────────────────────
+   Primary content container. 12px radius, .5px warm border.
+*/
+.full-card {
+  background: var(--surface);
+  border: .5px solid var(--border);
+  border-radius: 12px;
+  padding: 1.1rem 1.25rem;
+  margin-bottom: 14px;
+  overflow: hidden;
+}
+
+/* Card header — bold 14px, used inside .full-card */
+.card-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 14px;
+}
+.card-sub {
+  font-size: 12px;
+  color: var(--text3);
+  margin-top: -10px;
+  margin-bottom: 14px;
+}
+
+/* Chart-style card (slightly more padding) */
+.chart-card {
+  background: var(--surface);
+  border: .5px solid var(--border);
+  border-radius: 12px;
+  padding: 1.25rem;
+}
+.chart-card-title { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+.chart-card-sub   { font-size: 11px; color: var(--text3); margin-bottom: 1rem; }
+
+/* ── KPI CARDS ─────────────────────────────────────────────────────────
+   Metric value in DM Mono. Label uppercase small caps above, sub text below.
+*/
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px,1fr));
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.kpi-card {
+  background: var(--surface);
+  border: .5px solid var(--border);
+  border-radius: 12px;
+  padding: 1rem 1.15rem;
+}
+.kpi-label {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  margin-bottom: 4px;
+}
+.kpi-value {
+  font-size: 22px;
+  font-weight: 600;
+  font-family: 'DM Mono', monospace;
+  color: var(--text);
+  line-height: 1.1;
+  margin-bottom: 4px;
+}
+.kpi-sub { font-size: 11px; color: var(--text3); line-height: 1.4; }
+
+/* Change badge (positive / negative / neutral) */
+.chg {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 20px;
+  margin-top: 4px;
+}
+.chg.pos { background: var(--gl); color: var(--gd); }
+.chg.neg { background: var(--rl); color: var(--rd); }
+.chg.neu { background: var(--surface2); color: var(--text2); }
+
+/* ── SECTION TITLE (table / data group header) ─────────────────────────
+   Used above tables and grouped data blocks.
+   ALL CAPS, 13px semibold text2, with trailing rule.
+*/
+.section-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text2);
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.section-title::after { content: ''; flex: 1; height: .5px; background: var(--border-strong); }
+
+/* ── THEME ROW (complaint / win / trend list item) ─────────────────────*/
+.theme-row {
+  display: flex;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: .5px solid var(--border);
+  cursor: pointer;
+  transition: background .1s;
+  border-radius: 8px;
+  gap: 12px;
+}
+.theme-row:last-child { border-bottom: none; }
+.theme-row:hover { background: var(--surface2); margin: 0 -8px; padding: 10px 8px; }
+.theme-icon { width: 34px; height: 34px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+.theme-info { flex: 1; min-width: 0; }
+.theme-name { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 2px; }
+.theme-desc { font-size: 11.5px; color: var(--text3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.theme-pct  { font-size: 13px; font-weight: 600; font-family: 'DM Mono', monospace; flex-shrink: 0; }
+.theme-bar-wrap { width: 80px; height: 5px; background: var(--surface2); border-radius: 3px; flex-shrink: 0; }
+.theme-bar  { height: 5px; border-radius: 3px; }
+
+/* ── PILLS & CHIPS ─────────────────────────────────────────────────────
+   Pills: inline category / status tags (non-interactive)
+   Chips: filter buttons (interactive, can be .active)
+*/
+.pill {
+  display: inline-flex;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 20px;
+  letter-spacing: .02em;
+}
+.pill-neg     { background: var(--rl); color: var(--rd); }
+.pill-pos     { background: var(--gl); color: var(--gd); }
+.pill-ops     { background: var(--bl); color: var(--bd); }
+.pill-neutral { background: var(--surface2); color: var(--text2); }
+.pill-yellow  { background: var(--yl); color: var(--yd); }
+
+.chip-row { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
+.chip {
+  border: .5px solid var(--border-strong);
+  border-radius: 20px;
+  padding: 4px 12px;
+  font-size: 11.5px;
+  color: var(--text2);
+  background: var(--surface);
+  cursor: pointer;
+  transition: all .15s;
+  white-space: nowrap;
+}
+.chip:hover { background: var(--surface2); }
+.chip.active { color: #fff; border-color: transparent; }
+
+/* ── SENTIMENT / STARS ─────────────────────────────────────────────────*/
+.stars { color: var(--yellow); font-size: 16px; letter-spacing: 2px; }
+.sentiment-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.sentiment-label { font-size: 12px; color: var(--text2); width: 50px; flex-shrink: 0; }
+.sentiment-track { flex: 1; height: 8px; background: var(--surface2); border-radius: 4px; overflow: hidden; }
+.sentiment-fill  { height: 8px; border-radius: 4px; }
+.sentiment-val   { font-size: 11px; font-family: 'DM Mono', monospace; color: var(--text3); width: 36px; text-align: right; flex-shrink: 0; }
+
+/* ── SPARKLINES ────────────────────────────────────────────────────────*/
+.sparkline { display: flex; align-items: flex-end; gap: 2px; height: 22px; }
+.spark-bar { width: 6px; border-radius: 1px; flex-shrink: 0; }
+
+/* ── DRAWER (slide-in detail panel) ───────────────────────────────────*/
+.drawer {
+  position: fixed;
+  top: 0; right: -540px;
+  width: 520px; max-width: 95vw;
+  height: 100vh;
+  background: var(--surface);
+  border-left: .5px solid var(--border-strong);
+  z-index: 201;
+  transition: right .25s cubic-bezier(.4,0,.2,1);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.drawer.open { right: 0; }
+.drawer-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.18); z-index: 200; display: none; }
+.drawer-overlay.open { display: block; }
+.drawer-head { padding: 1.25rem 1.5rem; border-bottom: .5px solid var(--border); flex-shrink: 0; }
+.drawer-back {
+  font-size: 12px; color: var(--text3); cursor: pointer;
+  display: flex; align-items: center; gap: 5px;
+  margin-bottom: 12px; border: none; background: none; padding: 0;
+  transition: color .15s;
+}
+.drawer-back:hover { color: var(--text); }
+.drawer-body { flex: 1; overflow-y: auto; padding: 1.25rem 1.5rem; }
+
+/* Quote cards inside drawer */
+.quote-card {
+  background: var(--surface2);
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin-bottom: 10px;
+  font-size: 13px;
+  color: var(--text2);
+  line-height: 1.6;
+  border-left: 3px solid transparent;
+}
+.quote-card.neg { border-left-color: var(--red); }
+.quote-card.pos { border-left-color: var(--green); }
+
+/* ── LIVE REVIEW CARDS ─────────────────────────────────────────────────*/
+.review-card {
+  background: var(--surface2);
+  border-radius: 10px;
+  padding: 11px 13px;
+  margin-bottom: 8px;
+  border-left: 3px solid transparent;
+}
+.review-card.pos { border-left-color: var(--green); }
+.review-card.neu { border-left-color: var(--yellow); }
+.review-card.neg { border-left-color: var(--red); }
+.platform-badge {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  padding: 2px 6px;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+.plat-google { background: #e8f0fe; color: #1a73e8; }
+.plat-yelp   { background: #fdecea; color: #c1311b; }
+.review-stars    { font-size: 11px; color: var(--yellow); letter-spacing: 1px; }
+.review-name     { font-size: 11.5px; font-weight: 600; color: var(--text); }
+.review-loc-badge{ font-size: 10px; padding: 2px 6px; border-radius: 4px; background: var(--surface); border: .5px solid var(--border); color: var(--text2); }
+.review-date     { font-size: 10.5px; color: var(--text3); margin-left: auto; }
+.review-text     { font-size: 12.5px; color: var(--text2); line-height: 1.55; }
+
+/* ── SYNC STATUS ───────────────────────────────────────────────────────*/
+.sync-status { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--text3); }
+.sync-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); flex-shrink: 0; transition: background .3s; }
+.sync-dot.syncing { background: var(--yellow); animation: pulse .9s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+.sync-btn {
+  font-size: 11px; color: var(--text3);
+  background: var(--surface2); border: .5px solid var(--border-strong);
+  border-radius: 6px; padding: 4px 10px; cursor: pointer; font-family: inherit;
+  transition: background .15s;
+}
+.sync-btn:hover { background: var(--border); }
+
+/* ── TABLES ────────────────────────────────────────────────────────────*/
+.metrics-table { width: 100%; border-collapse: collapse; }
+.metrics-table th {
+  font-size: 11px; font-weight: 500; color: var(--text3);
+  text-align: left; padding: 6px 12px;
+  border-bottom: .5px solid var(--border-strong);
+}
+.metrics-table td { padding: 9px 12px; border-bottom: .5px solid var(--border); color: var(--text); }
+.metrics-table td:not(:first-child) { text-align: right; font-family: 'DM Mono', monospace; font-size: 12px; }
+.metrics-table tr:hover td { background: var(--surface2); }
+.metrics-table .cat-row td {
+  font-weight: 600; color: var(--text2); font-size: 11px;
+  text-transform: uppercase; letter-spacing: .05em;
+  background: var(--surface2); padding: 5px 12px;
+}
+
+/* ── UPLOAD / DROP ZONE ────────────────────────────────────────────────*/
+.drop-zone {
+  border: 1.5px dashed var(--border-strong);
+  border-radius: 12px; padding: 2.5rem;
+  text-align: center; cursor: pointer;
+  transition: all .2s; color: var(--text3); margin-bottom: 14px;
+}
+.drop-zone:hover, .drop-zone.drag { border-color: var(--orange); background: var(--ol); color: var(--od); }
+
+/* ── SEARCH ────────────────────────────────────────────────────────────*/
+.search-wrap { position: relative; margin-bottom: 12px; }
+.search-wrap input {
+  width: 100%; padding: 9px 12px 9px 34px;
+  border: .5px solid var(--border-strong); border-radius: 10px;
+  font-size: 13px; color: var(--text); background: var(--surface); outline: none;
+  transition: border-color .15s;
+}
+.search-wrap input:focus { border-color: var(--orange); }
+.search-wrap svg { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); width: 15px; height: 15px; stroke: var(--text3); }
+
+/* ── TOAST ─────────────────────────────────────────────────────────────*/
+.toast {
+  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(60px);
+  background: var(--dark); color: #fff; font-size: 13px; font-weight: 500;
+  padding: 10px 20px; border-radius: 10px; z-index: 999;
+  transition: transform .25s, opacity .25s; opacity: 0; pointer-events: none;
+}
+.toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+/* ── UTILITY ───────────────────────────────────────────────────────────*/
+.split { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+.pct-pos { color: var(--green); font-weight: 500; }
+.pct-neg { color: var(--orange); font-weight: 500; }
+.pct-neu { color: var(--text3); }
+
+/*
+ * ═══════════════════════════════════════════════════════════════════════
+ *  HEADER HIERARCHY — use in this order for every dashboard
+ * ═══════════════════════════════════════════════════════════════════════
+ *
+ *  1. NAV BRAND (logo, 22px tall)
+ *     → Neighborly logo image, always links to hub nav
+ *
+ *  2. .sec-label  (section eyebrow)
+ *     10px · ALL CAPS · font-weight:600 · letter-spacing:.14em · --text3
+ *     with full-width trailing rule (::after)
+ *     → "Guest intelligence snapshot", "Performance overview"
+ *
+ *  3. .card-title  (card header)
+ *     14px · font-weight:600 · --text
+ *     → "Sentiment breakdown", "Top themes", "Operational issues"
+ *     Optional right-aligned sub: use flex + justify-content:space-between
+ *     Sub text: 10px · font-weight:500 · --text3
+ *
+ *  4. .section-title  (group header inside a card or above a table)
+ *     13px · ALL CAPS · font-weight:600 · --text2 · letter-spacing:.06em
+ *     with full-width trailing rule (::after)
+ *     → "Complaints", "Wins", "Weekly breakdown"
+ *
+ *  5. .kpi-label  (metric label)
+ *     11px · ALL CAPS · font-weight:500 · --text3 · letter-spacing:.05em
+ *     → "Total revenue", "Avg guest rating"
+ *
+ *  6. .kpi-value  (metric value)
+ *     22–26px · font-weight:600 · DM Mono · --text
+ *
+ *  7. .theme-name / .review-name  (list item primary label)
+ *     13px · font-weight:600 · --text
+ *
+ *  8. .theme-desc / .review-text  (list item secondary text)
+ *     11.5–12.5px · --text3 or --text2
+ *
+ * ═══════════════════════════════════════════════════════════════════════
+ */
