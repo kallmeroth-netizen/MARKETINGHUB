@@ -46,7 +46,7 @@
   .hub-nav.open { opacity: 1; pointer-events: all; transform: translateY(0); }
 
   .hub-nav-label { font-size: 10px; font-weight: 600; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 1rem; }
-  .hub-nav-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; }
+  .hub-nav-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; }
 
   .hub-card { display: flex; flex-direction: column; gap: 6px; padding: 14px; border-radius: 10px; border: 0.5px solid var(--border); background: var(--surface); cursor: pointer; transition: background 0.12s, border-color 0.12s; text-decoration: none; position: relative; }
   .hub-card:hover { background: var(--surface2); border-color: var(--border-strong); }
@@ -164,6 +164,16 @@
     .kpi-grid { grid-template-columns: repeat(2, 1fr); }
     .chart-grid-2, .chart-grid-3 { grid-template-columns: 1fr; }
   }
+
+  /* DAILY PAGE */
+  .daily-col-status { font-size: 11px; color: var(--text-3); }
+  .daily-col-status.loaded { color: #2a7a4b; font-weight: 500; }
+  .daily-paste-zone { border: 1.5px dashed var(--border-strong); border-radius: 8px; padding: 10px 14px; margin-top: 0.75rem; transition: all 0.15s; }
+  .daily-paste-zone.loaded { border-style: solid; border-color: var(--brand-green); background: var(--brand-green-light); }
+  .daily-paste-hint { font-size: 10px; font-weight: 500; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 5px; }
+  .daily-paste-zone textarea { width: 100%; height: 52px; font-family: 'DM Mono', monospace; font-size: 10px; border: none; background: transparent; resize: none; outline: none; color: var(--text-2); line-height: 1.5; }
+  .daily-paste-zone.loaded textarea { height: 20px; }
+  .daily-empty-kpi { display: flex; align-items: center; justify-content: center; min-height: 80px; color: var(--text-3); font-size: 13px; }
 </style>
 </head>
 <body>
@@ -180,6 +190,7 @@
   <div class="nav-tabs">
     <a class="nav-tab active" onclick="showPage('dashboard', this)">Dashboard</a>
     <a class="nav-tab" onclick="showPage('data', this)">Data</a>
+    <a class="nav-tab" id="dailyNavTab" onclick="showPage('daily', this)">Daily</a>
     <a class="nav-tab" onclick="showPage('alltime', this)">All time</a>
   </div>
   <div class="nav-right">
@@ -222,12 +233,12 @@
       <div class="hub-card-sub">Deadlines & delivery</div>
     </a>
 
-    <div class="hub-card" style="opacity:.45;cursor:default">
-      <div class="hub-card-icon" style="background:#f7f0e4">
-        <svg viewBox="0 0 24 24" fill="none" stroke="#8a6830" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+    <div class="hub-card" onclick="closeHubNav(); showPage('daily', document.getElementById('dailyNavTab'))">
+      <div class="hub-card-icon" style="background:#fdf7d8">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#b89a00" stroke-width="2"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
       </div>
-      <div class="hub-card-title">Brand Assets</div>
-      <div class="hub-card-sub">Logos, fonts & templates</div>
+      <div class="hub-card-title">Daily Sales</div>
+      <div class="hub-card-sub">Toast daily summary</div>
     </div>
 
     <a class="hub-card" href="neighborly-social.html">
@@ -245,6 +256,13 @@
       </div>
       <div class="hub-card-title">Guest Intelligence</div>
       <div class="hub-card-sub">Feedback & experience trends</div>
+    </a>
+    <a class="hub-card" href="neighborly-reservations.html">
+      <div class="hub-card-icon" style="background:#e4f5ea">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#2a5c38" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><polyline points="9 16 11 18 15 14"/></svg>
+      </div>
+      <div class="hub-card-title">Reservations</div>
+      <div class="hub-card-sub">Book · Manage · Admin</div>
     </a>
 
   </div>
@@ -473,6 +491,9 @@ function showPage(id, tab) {
 
   if (id === 'alltime' && typeof renderAllTime === 'function') {
     setTimeout(renderAllTime, 50);
+  }
+  if (id === 'daily' && typeof renderDailyDashboard === 'function') {
+    setTimeout(renderDailyDashboard, 50);
   }
 }
 
@@ -1017,6 +1038,115 @@ function closeHubNav() {
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeHubNav(); });
 </script>
 
+<!-- DAILY PAGE -->
+<div class="page" id="page-daily">
+  <div class="dashboard">
+    <div class="dash-header">
+      <div>
+        <div class="dash-title">Daily Sales</div>
+        <div class="dash-sub" id="dailyDateSub">No data loaded — paste your Toast emails in the Update Data section below</div>
+      </div>
+      <div class="view-toggle">
+        <button class="vt-btn active" onclick="setDailyLoc('wlv',this)">Westlake Village</button>
+        <button class="vt-btn" onclick="setDailyLoc('bw',this)">Brentwood</button>
+      </div>
+    </div>
+
+    <!-- KPI CARDS -->
+    <div class="kpi-grid" id="dailyKpiGrid">
+      <div class="kpi-card"><div class="daily-empty-kpi">No data loaded</div></div>
+      <div class="kpi-card"><div class="daily-empty-kpi"></div></div>
+      <div class="kpi-card"><div class="daily-empty-kpi"></div></div>
+      <div class="kpi-card"><div class="daily-empty-kpi"></div></div>
+    </div>
+
+    <!-- SALES -->
+    <div class="section-title">Sales</div>
+    <div class="chart-grid-2" style="margin-bottom:1.5rem">
+      <div class="chart-card">
+        <div class="chart-card-title">Net sales</div>
+        <div class="chart-card-sub">Today vs same day last week vs 4-week avg</div>
+        <div class="chart-wrap" style="height:200px"><canvas id="dailySalesChart"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-card-title">Gross sales & discounts</div>
+        <div class="chart-card-sub">Today vs same day last week vs 4-week avg</div>
+        <div class="chart-wrap" style="height:200px"><canvas id="dailyGrossChart"></canvas></div>
+      </div>
+    </div>
+
+    <!-- GUESTS -->
+    <div class="section-title">Guests & orders</div>
+    <div class="chart-grid-3" style="margin-bottom:1.5rem">
+      <div class="chart-card">
+        <div class="chart-card-title">Guests / covers</div>
+        <div class="chart-card-sub">Today vs SDLW vs 4wk avg</div>
+        <div class="chart-wrap" style="height:180px"><canvas id="dailyGuestsChart"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-card-title">Orders</div>
+        <div class="chart-card-sub">Today vs SDLW vs 4wk avg</div>
+        <div class="chart-wrap" style="height:180px"><canvas id="dailyOrdersChart"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-card-title">Avg check</div>
+        <div class="chart-card-sub">Today vs SDLW vs 4wk avg</div>
+        <div class="chart-wrap" style="height:180px"><canvas id="dailyCheckChart"></canvas></div>
+      </div>
+    </div>
+
+    <!-- LABOR -->
+    <div class="section-title">Hourly labor</div>
+    <div class="chart-grid-2" style="margin-bottom:1.5rem">
+      <div class="chart-card">
+        <div class="chart-card-title">Labor cost</div>
+        <div class="chart-card-sub">Today vs SDLW vs 4wk avg</div>
+        <div class="chart-wrap" style="height:180px"><canvas id="dailyLaborCostChart"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-card-title">Labor % of net sales</div>
+        <div class="chart-card-sub">Today vs SDLW vs 4wk avg</div>
+        <div class="chart-wrap" style="height:180px"><canvas id="dailyLaborPctChart"></canvas></div>
+      </div>
+    </div>
+
+    <!-- METRICS TABLE -->
+    <div class="section-title">All metrics</div>
+    <div class="chart-card" style="padding:0;overflow:hidden;margin-bottom:1.5rem">
+      <table class="metrics-table" id="dailyMetricsTable">
+        <tbody><tr><td colspan="6" style="padding:1.5rem;text-align:center;color:var(--text-3)">No data loaded</td></tr></tbody>
+      </table>
+    </div>
+
+    <!-- PASTE ZONES -->
+    <div class="section-title">Update data</div>
+    <div class="chart-grid-2" style="margin-bottom:2rem">
+      <div class="chart-card">
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <div class="chart-card-title">Westlake Village</div>
+          <span class="daily-col-status" id="wlvStatus">No data</span>
+        </div>
+        <div class="chart-card-sub">Open the .eml in a text editor → Select All → Copy → Paste</div>
+        <div class="daily-paste-zone" id="wlvPasteZone">
+          <div class="daily-paste-hint">Paste raw Toast email content (.eml or HTML)</div>
+          <textarea id="wlvTextarea" placeholder="Paste Toast daily email here…" oninput="queueDailyParse('wlv', this.value)"></textarea>
+        </div>
+      </div>
+      <div class="chart-card">
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <div class="chart-card-title">Brentwood</div>
+          <span class="daily-col-status" id="bwStatus">No data</span>
+        </div>
+        <div class="chart-card-sub">Open the .eml in a text editor → Select All → Copy → Paste</div>
+        <div class="daily-paste-zone" id="bwPasteZone">
+          <div class="daily-paste-hint">Paste raw Toast email content (.eml or HTML)</div>
+          <textarea id="bwTextarea" placeholder="Paste Toast daily email here…" oninput="queueDailyParse('bw', this.value)"></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- ALL TIME PAGE -->
 <div class="page" id="page-alltime">
   <div class="dashboard">
@@ -1232,5 +1362,281 @@ function renderAllTime() {
 }
 </script>
 
+<script>
+// ── DAILY PAGE ────────────────────────────────────────────────────────────────
+const DAILY = { wlv: null, bw: null };
+const _dailyTimers = {};
+const _dailyCharts = {};
+let dailyLoc = 'wlv';
+
+function dailyNum(str) {
+  if (!str) return null;
+  const n = parseFloat(str.replace(/[$,%\s]/g, '').replace(/,/g, ''));
+  return isNaN(n) ? null : n;
+}
+
+function setDailyLoc(loc, btn) {
+  dailyLoc = loc;
+  document.querySelectorAll('#page-daily .vt-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  renderDailyDashboard();
+}
+
+function renderDailyDashboard() {
+  const data = DAILY[dailyLoc];
+  const locName = dailyLoc === 'wlv' ? 'Westlake Village' : 'Brentwood';
+  const sub = document.getElementById('dailyDateSub');
+  if (sub) sub.textContent = data ? `${data.date || ''}  ·  ${locName}` : 'No data loaded — paste Toast email below';
+  renderDailyKPIs(data);
+  renderDailyCharts(data);
+  renderDailyTable(data);
+  ['wlv', 'bw'].forEach(l => {
+    const d = DAILY[l];
+    const st = document.getElementById(l + 'Status');
+    const pz = document.getElementById(l + 'PasteZone');
+    if (st) { st.textContent = d ? (d.date || 'Loaded') : 'No data'; st.className = 'daily-col-status' + (d ? ' loaded' : ''); }
+    if (pz) pz.classList.toggle('loaded', !!d);
+  });
+}
+
+function renderDailyKPIs(data) {
+  const grid = document.getElementById('dailyKpiGrid');
+  if (!grid) return;
+  if (!data) {
+    grid.innerHTML = '<div class="kpi-card"><div class="daily-empty-kpi">No data loaded</div></div><div class="kpi-card"></div><div class="kpi-card"></div><div class="kpi-card"></div>';
+    return;
+  }
+  const m = data.metrics;
+  const kpis = [
+    { label: 'Net sales',       key: 'Net sales' },
+    { label: 'Guests / covers', key: 'Guests / covers' },
+    { label: 'Avg check',       key: 'Avg check' },
+    { label: 'Labor % of net',  key: 'Hourly labor cost % of net' }
+  ];
+  grid.innerHTML = kpis.map(k => {
+    const e = m[k.key];
+    if (!e) return `<div class="kpi-card"><div class="kpi-label">${k.label}</div><div class="kpi-value" style="font-size:22px">—</div></div>`;
+    const cls = e.sdlwGood ? 'pos' : 'neg';
+    return `<div class="kpi-card">
+      <div class="kpi-label">${k.label}</div>
+      <div class="kpi-value" style="font-size:22px">${e.value}</div>
+      ${e.sdlwPct ? `<div class="kpi-change"><span class="chg ${cls}">${e.sdlwPct}</span><span class="kpi-change-label">vs same day last week</span></div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+function _mkDailyBar(label, val, color, border) {
+  return { label, data: [val], backgroundColor: color, borderColor: border, borderWidth: 1, borderRadius: 4, barPercentage: 0.65 };
+}
+
+function _dailyBarChart(id, datasets, yFmt) {
+  if (_dailyCharts[id]) { try { _dailyCharts[id].destroy(); } catch(e){} }
+  const canvas = document.getElementById(id);
+  if (!canvas) return;
+  _dailyCharts[id] = new Chart(canvas, {
+    type: 'bar',
+    data: { labels: [''], datasets },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: true, position: 'bottom', labels: { font: { family: 'DM Sans', size: 10 }, boxWidth: 8, padding: 8 } } },
+      scales: {
+        x: { grid: { display: false }, ticks: { display: false } },
+        y: { grid: { color: 'rgba(0,0,0,0.04)' }, ticks: { font: { family: 'DM Mono', size: 10 }, color: '#9E9C96', callback: yFmt } }
+      }
+    }
+  });
+}
+
+function renderDailyCharts(data) {
+  const ids = ['dailySalesChart','dailyGrossChart','dailyGuestsChart','dailyOrdersChart','dailyCheckChart','dailyLaborCostChart','dailyLaborPctChart'];
+  if (!data) {
+    ids.forEach(id => { if (_dailyCharts[id]) { try { _dailyCharts[id].destroy(); } catch(e){} delete _dailyCharts[id]; } });
+    return;
+  }
+  const m = data.metrics;
+
+  function vals(key) {
+    const e = m[key]; if (!e) return null;
+    return [dailyNum(e.value), dailyNum(e.sdlwVal), dailyNum(e.avgVal)];
+  }
+  function trio(v) {
+    return [
+      _mkDailyBar('Today',   v[0], '#1f2328', '#1f2328'),
+      _mkDailyBar('SDLW',    v[1], '#eace49', '#d4a800'),
+      _mkDailyBar('4wk avg', v[2], '#7bbd91', '#4a9a6a')
+    ];
+  }
+  const fmtK   = v => v == null ? '' : '$' + (v >= 1000 ? Math.round(v/1000) + 'k' : Math.round(v));
+  const fmtInt = v => v == null ? '' : Math.round(v).toLocaleString();
+  const fmtDol = v => v == null ? '' : '$' + v.toFixed(2);
+  const fmtPct = v => v == null ? '' : v.toFixed(1) + '%';
+
+  // Net sales
+  const s = vals('Net sales');
+  if (s) _dailyBarChart('dailySalesChart', trio(s), fmtK);
+
+  // Gross + discounts side-by-side
+  const g = vals('Gross sales'), d = vals('Discounts');
+  if (g) {
+    const ds = [
+      _mkDailyBar('Gross – Today', g[0], '#1f2328', '#1f2328'),
+      _mkDailyBar('Gross – SDLW',  g[1], '#eace49', '#d4a800'),
+      _mkDailyBar('Gross – 4wk',   g[2], '#7bbd91', '#4a9a6a'),
+    ];
+    if (d) ds.push(_mkDailyBar('Discounts', d[0], '#e87142', '#c05020'));
+    _dailyBarChart('dailyGrossChart', ds, fmtK);
+  }
+
+  // Guests
+  const gu = vals('Guests / covers');
+  if (gu) _dailyBarChart('dailyGuestsChart', trio(gu), fmtInt);
+
+  // Orders
+  const or = vals('Orders');
+  if (or) _dailyBarChart('dailyOrdersChart', trio(or), fmtInt);
+
+  // Avg check
+  const ch = vals('Avg check');
+  if (ch) _dailyBarChart('dailyCheckChart', trio(ch), fmtDol);
+
+  // Labor cost
+  const lc = vals('Hourly labor cost');
+  if (lc) _dailyBarChart('dailyLaborCostChart', trio(lc), fmtK);
+
+  // Labor %
+  const lp = vals('Hourly labor cost % of net');
+  if (lp) _dailyBarChart('dailyLaborPctChart', trio(lp), fmtPct);
+}
+
+function renderDailyTable(data) {
+  const tbl = document.getElementById('dailyMetricsTable');
+  if (!tbl) return;
+  if (!data || !Object.keys(data.metrics).length) {
+    tbl.innerHTML = '<tbody><tr><td colspan="6" style="padding:1.5rem;text-align:center;color:var(--text-3)">' + (data ? 'No metrics found' : 'No data loaded') + '</td></tr></tbody>';
+    return;
+  }
+  const m = data.metrics;
+  tbl.innerHTML = `<thead><tr>
+    <th>Metric</th><th>Today</th><th>SDLW</th><th>vs SDLW</th><th>4wk avg</th><th>vs 4wk</th>
+  </tr></thead><tbody>` + Object.keys(m).map(key => {
+    const e = m[key];
+    const sc = e.sdlwGood ? 'pos' : 'neg';
+    const ac = e.avgGood  ? 'pos' : 'neg';
+    return `<tr>
+      <td style="font-weight:500">${key}</td>
+      <td>${e.value}</td>
+      <td style="color:var(--text-3)">${e.sdlwVal}</td>
+      <td><span class="chg ${sc}" style="font-size:10px">${e.sdlwPct || '—'}</span></td>
+      <td style="color:var(--text-3)">${e.avgVal}</td>
+      <td><span class="chg ${ac}" style="font-size:10px">${e.avgPct || '—'}</span></td>
+    </tr>`;
+  }).join('') + '</tbody>';
+}
+
+function _decodeQP(str) {
+  return str
+    .replace(/=\r?\n/g, '')
+    .replace(/=([0-9A-Fa-f]{2})/g, (_, h) => String.fromCharCode(parseInt(h, 16)));
+}
+
+function parseToastEml(raw) {
+  if (!raw || raw.trim().length < 200) return null;
+  let html = raw;
+
+  if (raw.includes('=3D') || raw.includes('Content-Transfer-Encoding')) {
+    const s = raw.indexOf('<!DOCTYPE html>');
+    if (s === -1) return null;
+    html = raw.substring(s);
+    const b = html.match(/\n------=_Part_/);
+    if (b) html = html.substring(0, b.index);
+    html = _decodeQP(html);
+  } else {
+    const s = raw.indexOf('<!DOCTYPE html>');
+    if (s !== -1) html = raw.substring(s);
+  }
+
+  const doc = new DOMParser().parseFromString(html, 'text/html');
+
+  let location = '';
+  doc.querySelectorAll('td[align="right"]').forEach(td => {
+    const span = td.querySelector('span');
+    if (span && span.textContent.includes('Neighborly') && !location)
+      location = span.textContent.trim().replace(/^Neighborly\s*-\s*/, '');
+  });
+
+  let date = '';
+  doc.querySelectorAll('h2').forEach(h2 => {
+    const t = h2.textContent.trim();
+    if (!date && /^(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday),/.test(t)) date = t;
+  });
+
+  const metrics = {};
+  doc.querySelectorAll('th.templateColumnContainer').forEach(card => {
+    const sty = card.getAttribute('style') || '';
+    if (!sty.includes('background-color: #fff')) return;
+    const cardLine = card.querySelector('.cardLine');
+    if (!cardLine) return;
+
+    let label = '';
+    card.querySelectorAll('p.blackText').forEach(p => {
+      if (!label && (p.getAttribute('style') || '').includes('16px 12px')) label = p.textContent.trim();
+    });
+    if (!label) return;
+
+    let value = '';
+    card.querySelectorAll('p').forEach(p => {
+      if (!value && (p.getAttribute('style') || '').includes('font-weight: bold')) value = p.textContent.trim();
+    });
+
+    let sdlwPct = '', sdlwVal = '', sdlwGood = true;
+    let avgPct  = '', avgVal  = '', avgGood  = true;
+    cardLine.querySelectorAll('tr').forEach(row => {
+      const topic = row.querySelector('.cardTopic');
+      if (!topic) return;
+      const tds = row.querySelectorAll('td');
+      if (tds.length < 3) return;
+      const span = tds[1].querySelector('span');
+      const pct  = span ? span.textContent.trim() : '';
+      const good = span ? (span.getAttribute('style') || '').includes('#00b53d') : true;
+      const ref  = tds[2].textContent.trim();
+      if (topic.textContent.includes('SDLW'))       { sdlwPct = pct; sdlwVal = ref; sdlwGood = good; }
+      else if (topic.textContent.includes('4 Week')) { avgPct  = pct; avgVal  = ref; avgGood  = good; }
+    });
+
+    metrics[label] = { value, sdlwPct, sdlwVal, sdlwGood, avgPct, avgVal, avgGood };
+  });
+
+  if (!Object.keys(metrics).length) return null;
+  return { location, date, metrics };
+}
+
+function queueDailyParse(loc, text) {
+  clearTimeout(_dailyTimers[loc]);
+  _dailyTimers[loc] = setTimeout(() => {
+    if (text.trim().length < 200) {
+      DAILY[loc] = null;
+      renderDailyDashboard();
+      return;
+    }
+    const parsed = parseToastEml(text);
+    if (!parsed) {
+      const st = document.getElementById(loc + 'Status');
+      if (st) st.textContent = 'Could not parse — paste full .eml content';
+      return;
+    }
+    DAILY[loc] = parsed;
+    try { localStorage.setItem('ndaily_' + loc, JSON.stringify(parsed)); } catch (e) {}
+    renderDailyDashboard();
+  }, 350);
+}
+
+// Restore persisted data on load
+['wlv', 'bw'].forEach(loc => {
+  try {
+    const s = localStorage.getItem('ndaily_' + loc);
+    if (s) DAILY[loc] = JSON.parse(s);
+  } catch (e) {}
+});
+</script>
 </body>
 </html>
