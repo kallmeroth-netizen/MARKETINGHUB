@@ -8,6 +8,8 @@
 <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
 <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script src="https://apis.google.com/js/api.js" async defer onload="gapiLoaded()"></script>
+<script src="https://accounts.google.com/gsi/client" async defer onload="gisLoaded()"></script>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -36,6 +38,7 @@ body{font-family:'DM Sans',sans-serif;overscroll-behavior:none;height:100%;backg
 /* ── TOAST ───────────────────────────────────────────────────────────── */
 .nb-toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(60px);background:#1f2328;color:#fff;font-size:13px;font-weight:500;padding:10px 20px;border-radius:10px;z-index:999;transition:transform .25s,opacity .25s;opacity:0;pointer-events:none;white-space:nowrap;font-family:'DM Sans',sans-serif}
 .nb-toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+@keyframes spin{to{transform:rotate(360deg)}}
 
 /* ── SCROLLBAR ───────────────────────────────────────────────────────── */
 ::-webkit-scrollbar{width:5px;height:5px}
@@ -231,6 +234,115 @@ function showToast(msg, dur=2800) {
   t.classList.add('show');
   clearTimeout(t._timer);
   t._timer = setTimeout(() => t.classList.remove('show'), dur);
+}
+
+// ── GOOGLE CALENDAR INTEGRATION ───────────────────────────────────────────────
+// Setup (one-time): console.cloud.google.com → New Project → Enable "Google Calendar API"
+//   → Credentials → OAuth 2.0 Client ID (Web app) → add https://beneighborly.team
+const GCAL_CLIENT_ID = 'YOUR_CLIENT_ID.apps.googleusercontent.com';
+const GCAL_SCOPE = 'https://www.googleapis.com/auth/calendar';
+let _tokenClient, _gapiReady = false, _gisReady = false;
+
+function gapiLoaded() {
+  gapi.load('client', async () => {
+    await gapi.client.init({
+      discoveryDocs: ['https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest'],
+    });
+    _gapiReady = true;
+  });
+}
+function gisLoaded() {
+  _tokenClient = google.accounts.oauth2.initTokenClient({
+    client_id: GCAL_CLIENT_ID,
+    scope: GCAL_SCOPE,
+    callback: '',
+  });
+  _gisReady = true;
+}
+
+function gcalEventUrl(ev, cats) {
+  const catObj = cats[ev.cat];
+  const catLabel = catObj ? catObj.label : (ev.cat || '');
+  const title = (catLabel ? '[' + catLabel + '] ' : '') + ev.name + (ev.hold ? ' [HOLD]' : '');
+  const descParts = [
+    catLabel ? 'Category: ' + catLabel : '',
+    ev.sub   ? 'Channel: '  + ev.sub   : '',
+    ev.notes ? 'Notes: '    + ev.notes  : '',
+  ].filter(Boolean);
+  const ds = ev.start.replace(/-/g, '');
+  const endD = new Date(ev.end + 'T00:00:00');
+  endD.setDate(endD.getDate() + 1);
+  const de = endD.toISOString().split('T')[0].replace(/-/g, '');
+  const p = new URLSearchParams({ action:'TEMPLATE', text:title, dates:ds+'/'+de, details:descParts.join('\n') });
+  return 'https://calendar.google.com/calendar/render?' + p.toString();
+}
+
+async function _gcalFindOrCreate() {
+  const res = await gapi.client.calendar.calendarList.list();
+  const found = (res.result.items || []).find(c => c.summary === 'Neighborly Marketing');
+  if (found) return found.id;
+  const r = await gapi.client.calendar.calendars.insert({
+    resource: { summary: 'Neighborly Marketing', timeZone: 'America/Los_Angeles' },
+  });
+  return r.result.id;
+}
+
+async function _gcalDoSync(events, cats, onProgress) {
+  const calId = await _gcalFindOrCreate();
+  const existing = {};
+  let pageToken;
+  do {
+    const r = await gapi.client.calendar.events.list({
+      calendarId: calId,
+      privateExtendedProperty: ['neighborlyApp=true'],
+      maxResults: 250, pageToken,
+    });
+    (r.result.items || []).forEach(e => {
+      const nid = e.extendedProperties?.private?.neighborlyId;
+      if (nid) existing[nid] = e.id;
+    });
+    pageToken = r.result.nextPageToken;
+  } while (pageToken);
+
+  let done = 0;
+  for (const ev of events) {
+    const catObj = cats[ev.cat];
+    const catLabel = catObj ? catObj.label : (ev.cat || '');
+    const descParts = [
+      catLabel ? 'Category: ' + catLabel : '',
+      ev.sub   ? 'Channel: '  + ev.sub   : '',
+      ev.notes ? 'Notes: '    + ev.notes  : '',
+      ev.hold  ? 'Status: HOLD'           : '',
+    ].filter(Boolean);
+    const endD = new Date(ev.end + 'T00:00:00');
+    endD.setDate(endD.getDate() + 1);
+    const resource = {
+      summary: (catLabel ? '[' + catLabel + '] ' : '') + ev.name + (ev.hold ? ' [HOLD]' : ''),
+      description: descParts.join('\n'),
+      start: { date: ev.start },
+      end: { date: endD.toISOString().split('T')[0] },
+      transparency: 'transparent',
+      extendedProperties: { private: { neighborlyId: ev.id, neighborlyApp: 'true' } },
+    };
+    if (existing[ev.id]) {
+      await gapi.client.calendar.events.update({ calendarId: calId, eventId: existing[ev.id], resource });
+    } else {
+      await gapi.client.calendar.events.insert({ calendarId: calId, resource });
+    }
+    onProgress(++done, events.length);
+  }
+}
+
+function gcalSync(events, cats, onProgress, onDone, onError) {
+  if (!_gapiReady || !_gisReady) { onError('Google API not ready — please try again.'); return; }
+  _tokenClient.callback = async resp => {
+    if (resp.error) { onError(resp.error_description || resp.error); return; }
+    try { await _gcalDoSync(events, cats, onProgress); onDone(); }
+    catch (e) { onError(e.result?.error?.message || e.message || 'Sync failed'); }
+  };
+  gapi.client.getToken() === null
+    ? _tokenClient.requestAccessToken({ prompt: 'consent' })
+    : _tokenClient.requestAccessToken({ prompt: '' });
 }
 
 </script>
@@ -513,6 +625,23 @@ function Sidebar({event, mode, onClose, onEdit, onDelete, onUpdateActions}) {
         </div>
       </div>
 
+      {/* Add to Google Calendar */}
+      <div style={{padding:'0 1.1rem .85rem',flexShrink:0}}>
+        <a href={gcalEventUrl(event, CATS)} target="_blank" rel="noopener noreferrer"
+          style={{display:'flex',alignItems:'center',justifyContent:'center',gap:7,width:'100%',padding:'8px 12px',borderRadius:8,border:`0.5px solid ${C.borderStrong}`,background:C.surface,cursor:'pointer',fontSize:12,fontWeight:500,color:C.text2,fontFamily:'inherit',textDecoration:'none',boxSizing:'border-box',transition:'background .12s'}}
+          onMouseEnter={e=>e.currentTarget.style.background=C.surface2}
+          onMouseLeave={e=>e.currentTarget.style.background=C.surface}>
+          <svg width="13" height="13" viewBox="0 0 18 18" fill="none">
+            <rect x="1" y="2" width="16" height="15" rx="2" fill="#fff" stroke="#dadce0" strokeWidth="1.5"/>
+            <path d="M1 7h16" stroke="#dadce0" strokeWidth="1.5"/>
+            <rect x="1" y="7" width="16" height="10" fill="#4285f4" opacity=".08"/>
+            <path d="M5 2V0M13 2V0" stroke="#5f6368" strokeWidth="1.4" strokeLinecap="round"/>
+            <rect x="1" y="2" width="16" height="5" fill="#1a73e8" rx="2"/>
+          </svg>
+          Add this event to Google Calendar
+        </a>
+      </div>
+
       {/* Footer */}
       {mode === 'edit' && (
         <div style={{padding:'1rem 1.1rem',borderTop:`0.5px solid ${C.border}`,display:'flex',gap:8,flexShrink:0}}>
@@ -700,6 +829,9 @@ function NeighborlyCalendar() {
   const [dragId,    setDragId]    = useState(null);
   const [dropCell,  setDropCell]  = useState(null);
   const [hubOpen,   setHubOpen]   = useState(false);
+  const [gcalStatus,   setGcalStatus]   = useState('idle'); // idle|syncing|done|error
+  const [gcalProgress, setGcalProgress] = useState(0);
+  const [gcalTotal,    setGcalTotal]    = useState(0);
 
   const today = new Date(); today.setHours(0,0,0,0);
   const yr = curDate.getFullYear(), mo = curDate.getMonth();
@@ -826,6 +958,44 @@ function NeighborlyCalendar() {
 
         {/* Right controls */}
         <div style={{display:'flex',alignItems:'center',gap:8,flexShrink:0}}>
+
+          {/* Sync to Google Calendar */}
+          {!isMobile && (
+            <button
+              onClick={() => {
+                if (gcalStatus === 'syncing') return;
+                setGcalStatus('syncing');
+                setGcalProgress(0);
+                setGcalTotal(events.length);
+                gcalSync(
+                  events, CATS,
+                  (done, total) => { setGcalProgress(done); setGcalTotal(total); },
+                  () => setGcalStatus('done'),
+                  err => { setGcalStatus('error'); showToast('⚠️ ' + err, 5000); setTimeout(() => setGcalStatus('idle'), 6000); }
+                );
+              }}
+              title="Sync all events to Google Calendar"
+              style={{display:'flex',alignItems:'center',gap:6,padding:'5px 11px',borderRadius:8,border:`0.5px solid ${gcalStatus==='done'?'#34a853':gcalStatus==='error'?C.orange:C.borderStrong}`,background:gcalStatus==='done'?'#e8f5e9':gcalStatus==='syncing'?C.surface2:C.surface,cursor:gcalStatus==='syncing'?'default':'pointer',fontSize:12,fontWeight:500,color:gcalStatus==='done'?'#2a5c38':gcalStatus==='error'?C.orange:C.text2,fontFamily:'inherit',transition:'all .15s',whiteSpace:'nowrap'}}>
+              {gcalStatus === 'syncing' ? (<>
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" style={{animation:'spin 1s linear infinite'}}>
+                  <path d="M6 1a5 5 0 11-3.5 1.5"/>
+                </svg>
+                {gcalProgress}/{gcalTotal}
+              </>) : gcalStatus === 'done' ? (<>
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#34a853" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 6l3 3 5-5"/></svg>
+                Synced to Google
+              </>) : (<>
+                <svg width="13" height="13" viewBox="0 0 18 18" fill="none">
+                  <rect x="1" y="2" width="16" height="15" rx="2" fill="#fff" stroke="#dadce0" strokeWidth="1.5"/>
+                  <path d="M1 7h16" stroke="#dadce0" strokeWidth="1.5"/>
+                  <rect x="1" y="7" width="16" height="10" fill="#4285f4" opacity=".08"/>
+                  <path d="M5 2V0M13 2V0" stroke="#5f6368" strokeWidth="1.4" strokeLinecap="round"/>
+                  <rect x="1" y="2" width="16" height="5" fill="#1a73e8" rx="2"/>
+                </svg>
+                {gcalStatus === 'error' ? 'Retry sync' : 'Google Calendar'}
+              </>)}
+            </button>
+          )}
 
           {/* Mode toggle */}
           <div style={{display:'flex',background:C.surface2,borderRadius:8,padding:3,gap:2}}>
