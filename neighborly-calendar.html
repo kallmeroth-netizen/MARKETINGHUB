@@ -260,22 +260,6 @@ function gisLoaded() {
   _gisReady = true;
 }
 
-function gcalEventUrl(ev, cats) {
-  const catObj = cats[ev.cat];
-  const catLabel = catObj ? catObj.label : (ev.cat || '');
-  const title = (catLabel ? '[' + catLabel + '] ' : '') + ev.name + (ev.hold ? ' [HOLD]' : '');
-  const descParts = [
-    catLabel ? 'Category: ' + catLabel : '',
-    ev.sub   ? 'Channel: '  + ev.sub   : '',
-    ev.notes ? 'Notes: '    + ev.notes  : '',
-  ].filter(Boolean);
-  const ds = ev.start.replace(/-/g, '');
-  const endD = new Date(ev.end + 'T00:00:00');
-  endD.setDate(endD.getDate() + 1);
-  const de = endD.toISOString().split('T')[0].replace(/-/g, '');
-  const p = new URLSearchParams({ action:'TEMPLATE', text:title, dates:ds+'/'+de, details:descParts.join('\n') });
-  return 'https://calendar.google.com/calendar/render?' + p.toString();
-}
 
 async function _gcalFindOrCreate() {
   const res = await gapi.client.calendar.calendarList.list();
@@ -623,23 +607,6 @@ function Sidebar({event, mode, onClose, onEdit, onDelete, onUpdateActions}) {
             <button onClick={addAction} style={{background:C.orange,border:'none',borderRadius:8,padding:'7px 13px',cursor:'pointer',color:'#fff',fontSize:12,fontWeight:500,fontFamily:'inherit'}}>Add</button>
           </div>
         </div>
-      </div>
-
-      {/* Add to Google Calendar */}
-      <div style={{padding:'0 1.1rem .85rem',flexShrink:0}}>
-        <a href={gcalEventUrl(event, CATS)} target="_blank" rel="noopener noreferrer"
-          style={{display:'flex',alignItems:'center',justifyContent:'center',gap:7,width:'100%',padding:'8px 12px',borderRadius:8,border:`0.5px solid ${C.borderStrong}`,background:C.surface,cursor:'pointer',fontSize:12,fontWeight:500,color:C.text2,fontFamily:'inherit',textDecoration:'none',boxSizing:'border-box',transition:'background .12s'}}
-          onMouseEnter={e=>e.currentTarget.style.background=C.surface2}
-          onMouseLeave={e=>e.currentTarget.style.background=C.surface}>
-          <svg width="13" height="13" viewBox="0 0 18 18" fill="none">
-            <rect x="1" y="2" width="16" height="15" rx="2" fill="#fff" stroke="#dadce0" strokeWidth="1.5"/>
-            <path d="M1 7h16" stroke="#dadce0" strokeWidth="1.5"/>
-            <rect x="1" y="7" width="16" height="10" fill="#4285f4" opacity=".08"/>
-            <path d="M5 2V0M13 2V0" stroke="#5f6368" strokeWidth="1.4" strokeLinecap="round"/>
-            <rect x="1" y="2" width="16" height="5" fill="#1a73e8" rx="2"/>
-          </svg>
-          Add this event to Google Calendar
-        </a>
       </div>
 
       {/* Footer */}
