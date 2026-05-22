@@ -29,7 +29,7 @@ nav{height:50px;background:var(--surface);border-bottom:.5px solid var(--border-
 .hub-nav{position:fixed;top:60px;left:1.5rem;right:1.5rem;background:var(--surface);border:.5px solid var(--border-strong);border-radius:16px;z-index:160;padding:1.5rem 2rem 1.75rem;transform:translateY(-12px);opacity:0;pointer-events:none;transition:opacity .18s,transform .18s;box-shadow:0 12px 40px rgba(0,0,0,.12)}
 .hub-nav.open{opacity:1;pointer-events:all;transform:translateY(0)}
 .hub-nav-label{font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:1rem}
-.hub-nav-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}
+.hub-nav-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
 .hub-card{display:flex;flex-direction:column;gap:6px;padding:14px;border-radius:10px;border:.5px solid var(--border);background:var(--surface);cursor:pointer;transition:background .12s,border-color .12s;text-decoration:none;color:inherit}
 .hub-card:hover{background:var(--surface2);border-color:var(--border-strong)}
 .hub-card.active{background:var(--bl);border-color:var(--blue)}
@@ -153,12 +153,14 @@ tbody tr:hover td{background:var(--surface2)}
 @media(max-width:960px){
   .kpi-grid{grid-template-columns:repeat(2,1fr)}
   .grid-2,.grid-3{grid-template-columns:1fr}
-  .hub-nav-grid{grid-template-columns:repeat(3,1fr)!important}
   .drawer{width:100%;right:-100%}
   .page{padding:1rem}
   nav{padding:0 1rem}
   .hero{flex-direction:column;gap:.5rem}
   .launch-split{grid-template-columns:1fr auto 1fr}
+}
+@media(max-width:767px){
+  .hub-nav-grid{grid-template-columns:repeat(3,1fr)!important}
 }
 @media(max-width:480px){
   .kpi-grid{grid-template-columns:1fr 1fr}
@@ -182,10 +184,6 @@ tbody tr:hover td{background:var(--surface2)}
     <a class="hub-card" href="neighborly-calendar.html">
       <div class="hub-card-icon" style="background:var(--gl)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--gd)" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
       <div class="hub-card-title">Marketing Calendar</div><div class="hub-card-sub">Campaigns · Content</div>
-    </a>
-    <a class="hub-card" href="neighborly-print.html">
-      <div class="hub-card-icon" style="background:var(--ol)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--od)" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
-      <div class="hub-card-title">Print Production</div><div class="hub-card-sub">Deadlines · Delivery</div>
     </a>
     <div class="hub-card" style="opacity:.45;cursor:default">
       <div class="hub-card-icon" style="background:var(--tl)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--td)" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg></div>

@@ -18,7 +18,7 @@ body{font-family:'DM Sans',sans-serif;overscroll-behavior:none;height:100%;backg
 .hub-nav{position:fixed;top:50px;left:1.25rem;right:1.25rem;background:#fff;border:.5px solid rgba(0,0,0,.14);border-radius:16px;z-index:160;padding:1.25rem 1.5rem 1.5rem;transform:translateY(-10px);opacity:0;pointer-events:none;transition:opacity .18s ease,transform .18s ease;box-shadow:0 12px 40px rgba(0,0,0,.12)}
 .hub-nav.open{opacity:1;pointer-events:all;transform:translateY(0)}
 .hub-nav-label{font-size:10px;font-weight:600;color:#9E9C96;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.85rem}
-.hub-nav-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}
+.hub-nav-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
 .hub-card{display:flex;flex-direction:column;gap:5px;padding:12px;border-radius:10px;border:.5px solid rgba(0,0,0,.08);background:#fff;cursor:pointer;transition:background .12s,border-color .12s;text-decoration:none}
 .hub-card:hover{background:#F0EEE9;border-color:rgba(0,0,0,.14)}
 .hub-card.active{background:#fdf7d8;border-color:#e3c030}
@@ -870,7 +870,6 @@ function NeighborlyCalendar() {
             {title:'Brand Assets',       sub:'Logos · Guidelines',        icon:'M6 1l1 3h3l-2.5 2 1 3L6 7.5 3.5 9l1-3L2 4h3z', bg:'#f0eff5',ic:'#4a4760', href:'#', disabled:true},
             {title:'Instagram',          sub:'Coming soon',               icon:'M9 2H3a1 1 0 00-1 1v6a1 1 0 001 1h6a1 1 0 001-1V3a1 1 0 00-1-1zM6 7a2 2 0 110-4 2 2 0 010 4z', bg:'#fdeceb',ic:'#8a2318', href:'neighborly-social.html', disabled:true},
             {title:'Guest Intelligence', sub:'Reviews · Feedback',        icon:'M9 2H3a1 1 0 00-1 1v5l2 2h5a1 1 0 001-1V3a1 1 0 00-1-1z', bg:'#e4f5ea',ic:'#2a5c38', href:'neighborly-guests.html'},
-            {title:'Reservations',       sub:'Book · Manage · Admin',     icon:'M1 2h10v10H1zM1 5h10M4 1v4M8 1v4M3.5 8.5l1.5 1.5 3.5-3',   bg:'#e4f5ea',ic:'#2a5c38', href:'neighborly-reservations.html'},
           ].map(card => (
             <a key={card.title} href={card.href}
               className={`hub-card${card.active?' active':''}`}
