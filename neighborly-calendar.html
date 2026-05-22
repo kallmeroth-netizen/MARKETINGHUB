@@ -233,80 +233,6 @@ function showToast(msg, dur=2800) {
   t._timer = setTimeout(() => t.classList.remove('show'), dur);
 }
 
-// ── ICS / iCAL HELPERS ────────────────────────────────────────────────────────
-function escICS(s) {
-  return String(s||'').replace(/\\/g,'\\\\').replace(/;/g,'\\;').replace(/,/g,'\\,').replace(/\n/g,'\\n');
-}
-function foldICS(line) {
-  // RFC 5545: fold lines longer than 75 octets
-  const enc = new TextEncoder();
-  if (enc.encode(line).length <= 75) return line;
-  const result = [];
-  let buf = '', limit = 75;
-  for (const ch of line) {
-    const chLen = enc.encode(ch).length;
-    if (enc.encode(buf).length + chLen > limit) {
-      result.push(buf);
-      buf = ' '; // continuation line prefix
-      limit = 74;
-    }
-    buf += ch;
-  }
-  if (buf) result.push(buf);
-  return result.join('\r\n');
-}
-function generateICS(evts, cats) {
-  const raw = [
-    'BEGIN:VCALENDAR',
-    'VERSION:2.0',
-    'PRODID:-//Neighborly//Marketing Calendar//EN',
-    'CALSCALE:GREGORIAN',
-    'METHOD:PUBLISH',
-    'X-WR-CALNAME:Neighborly Marketing Calendar',
-    'X-WR-CALDESC:Marketing events for Neighborly',
-    'X-WR-TIMEZONE:America/Los_Angeles',
-    'REFRESH-INTERVAL;VALUE=DURATION:PT12H',
-    'X-PUBLISHED-TTL:PT12H',
-  ];
-  const stamp = new Date().toISOString().replace(/[-:.]/g,'').slice(0,15)+'Z';
-  evts.forEach(ev => {
-    const dtstart = ev.start.replace(/-/g,'');
-    const endD = new Date(ev.end+'T00:00:00');
-    endD.setDate(endD.getDate()+1); // iCal all-day DTEND is exclusive
-    const dtend = endD.toISOString().split('T')[0].replace(/-/g,'');
-    const catObj = cats && cats[ev.cat];
-    const catLabel = catObj ? catObj.label : (ev.cat||'');
-    const descParts = [
-      catLabel ? 'Category: '+catLabel : '',
-      ev.sub   ? 'Channel: '+ev.sub   : '',
-      ev.notes ? 'Notes: '+ev.notes   : '',
-      ev.hold  ? 'Status: HOLD'       : '',
-    ].filter(Boolean);
-    raw.push('BEGIN:VEVENT');
-    raw.push('UID:'+ev.id+'@neighborlyeats.com');
-    raw.push('DTSTART;VALUE=DATE:'+dtstart);
-    raw.push('DTEND;VALUE=DATE:'+dtend);
-    raw.push('DTSTAMP:'+stamp);
-    const prefix = catLabel ? '['+catLabel+'] ' : '';
-    raw.push('SUMMARY:'+escICS(prefix+(ev.name||'')+(ev.hold?' [HOLD]':'')));
-    if(descParts.length) raw.push('DESCRIPTION:'+escICS(descParts.join('\n')));
-    if(catLabel) raw.push('CATEGORIES:'+escICS(catLabel));
-    raw.push('TRANSP:TRANSPARENT');
-    raw.push('STATUS:CONFIRMED');
-    raw.push('END:VEVENT');
-  });
-  raw.push('END:VCALENDAR');
-  return raw.map(foldICS).join('\r\n');
-}
-function downloadICS(evts, cats) {
-  const content = generateICS(evts, cats);
-  const blob = new Blob([content], {type:'text/calendar;charset=utf-8'});
-  const url  = URL.createObjectURL(blob);
-  const a    = document.createElement('a');
-  a.href = url; a.download = 'neighborly-marketing-calendar.ics';
-  document.body.appendChild(a); a.click(); document.body.removeChild(a);
-  setTimeout(() => URL.revokeObjectURL(url), 2000);
-}
 </script>
 
 <!-- ── REACT APP ────────────────────────────────────────────────────────── -->
@@ -774,7 +700,6 @@ function NeighborlyCalendar() {
   const [dragId,    setDragId]    = useState(null);
   const [dropCell,  setDropCell]  = useState(null);
   const [hubOpen,   setHubOpen]   = useState(false);
-  const [subOpen,   setSubOpen]   = useState(false);
 
   const today = new Date(); today.setHours(0,0,0,0);
   const yr = curDate.getFullYear(), mo = curDate.getMonth();
@@ -846,15 +771,6 @@ function NeighborlyCalendar() {
     return () => document.removeEventListener('click', h);
   }, [hubOpen]);
 
-  // Close subscribe popover on outside click
-  useEffect(() => {
-    if (!subOpen) return;
-    const h = e => {
-      if (!e.target.closest('.sub-popover') && !e.target.closest('.sub-btn')) setSubOpen(false);
-    };
-    document.addEventListener('click', h);
-    return () => document.removeEventListener('click', h);
-  }, [subOpen]);
 
   // ── RENDER ─────────────────────────────────────────────────────────────────
   return (
@@ -910,42 +826,6 @@ function NeighborlyCalendar() {
 
         {/* Right controls */}
         <div style={{display:'flex',alignItems:'center',gap:8,flexShrink:0}}>
-
-          {/* Subscribe to Calendar button */}
-          <div style={{position:'relative'}}>
-            <button className="sub-btn"
-              onClick={e=>{e.stopPropagation();setSubOpen(o=>!o);setHubOpen(false);}}
-              title="Add to Calendar"
-              style={{display:'flex',alignItems:'center',gap:5,padding:'5px 11px',borderRadius:8,border:`0.5px solid ${C.borderStrong}`,background:subOpen?C.surface2:C.surface,cursor:'pointer',fontSize:12,fontWeight:500,color:C.text2,fontFamily:'inherit',transition:'all .15s',whiteSpace:'nowrap'}}
-              onMouseEnter={e=>e.currentTarget.style.background=C.surface2}
-              onMouseLeave={e=>e.currentTarget.style.background=subOpen?C.surface2:C.surface}>
-              <svg width="13" height="13" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="1" y="2" width="10" height="9" rx="1"/><path d="M1 5h10M4 1v2M8 1v2M6 7.5v2M5 8.5h2"/>
-              </svg>
-              {!isMobile && 'Add to Calendar'}
-            </button>
-
-            {/* Subscribe popover */}
-            {subOpen && (
-              <div className="sub-popover" onClick={e=>e.stopPropagation()}
-                style={{position:'absolute',right:0,top:'calc(100% + 8px)',background:C.surface,border:`0.5px solid ${C.borderStrong}`,borderRadius:12,padding:'1.1rem',width:272,boxShadow:'0 8px 30px rgba(0,0,0,.14)',zIndex:300}}>
-                <div style={{fontSize:13,fontWeight:600,color:C.text,marginBottom:3}}>Add to your calendar</div>
-                <div style={{fontSize:11.5,color:C.text2,lineHeight:1.55,marginBottom:12}}>
-                  Subscribe to sync all {events.length} events as all-day entries. When this calendar is updated and re-published, your calendar refreshes automatically.
-                </div>
-
-                {/* Download .ics */}
-                <button onClick={() => { downloadICS(events, CATS); setSubOpen(false); showToast('📅 Calendar downloaded'); }}
-                  style={{display:'flex',alignItems:'center',gap:9,width:'100%',padding:'9px 12px',borderRadius:8,border:`0.5px solid ${C.border}`,background:C.surface2,cursor:'pointer',fontSize:12.5,fontWeight:500,color:C.text2,fontFamily:'inherit',marginBottom:12,textAlign:'left',boxSizing:'border-box'}}>
-                  <svg width="15" height="15" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
-                    <path d="M7 1v8M4 7l3 3 3-3M1 12h12"/>
-                  </svg>
-                  Download .ics (one-time import)
-                </button>
-
-              </div>
-            )}
-          </div>
 
           {/* Mode toggle */}
           <div style={{display:'flex',background:C.surface2,borderRadius:8,padding:3,gap:2}}>
