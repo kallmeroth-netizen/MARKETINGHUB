@@ -53,8 +53,30 @@ nav{background:var(--surface);border-bottom:.5px solid var(--border-strong);padd
 .dt-btn{padding:5px 10px;border-radius:6px;font-size:11.5px;font-weight:500;cursor:pointer;border:none;background:transparent;color:var(--text2);font-family:'DM Sans',sans-serif;transition:all .15s;white-space:nowrap}
 .dt-btn.active{background:var(--surface);color:var(--text);box-shadow:0 1px 3px rgba(0,0,0,.08)}
 
+/* MOBILE NAV IMPROVEMENTS */
+@media(max-width:1024px){
+  nav{flex-wrap:wrap;height:auto;padding:0.75rem 1rem;gap:10px}
+  .nav-tabs{flex:1;min-width:0;order:3;width:100%}
+  .nav-right{flex:1;min-width:0;order:4;width:100%;gap:4px;flex-wrap:wrap}
+  .loc-toggle,.date-toggle{flex:1;min-width:120px}
+}
+@media(max-width:767px){
+  nav{padding:0.75rem 1rem}
+  .nav-tabs{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .nav-tab{padding:0 12px;font-size:12px}
+  .nav-right{flex-direction:column;gap:8px;width:100%}
+  .loc-toggle,.date-toggle{width:100%;justify-content:space-between}
+  .lt-btn,.dt-btn{flex:1;padding:5px 8px;font-size:10px}
+}
+@media(max-width:480px){
+  nav{padding:0.5rem 0.75rem}
+  .nav-brand{height:45px}
+  .nav-tab{padding:0 10px;font-size:11px}
+  .lt-btn,.dt-btn{padding:4px 6px;font-size:9.5px}
+}
+
 /* LIVE REVIEWS */
-.sync-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.sync-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px}
 .sync-status{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text3)}
 .sync-dot{width:6px;height:6px;border-radius:50%;background:var(--green);flex-shrink:0;transition:background .3s}
 .sync-dot.syncing{background:var(--yellow);animation:pulse .9s infinite}
@@ -75,6 +97,25 @@ nav{background:var(--surface);border-bottom:.5px solid var(--border-strong);padd
 .review-date{font-size:10.5px;color:var(--text3);margin-left:auto}
 .review-text{font-size:12.5px;color:var(--text2);line-height:1.55}
 .reviews-empty{padding:2rem;text-align:center;color:var(--text3);font-size:13px}
+@media(max-width:767px){
+  .sync-bar{flex-direction:column;align-items:flex-start}
+  .sync-status{font-size:10px}
+  .sync-btn{font-size:10px;padding:4px 8px}
+  .review-card{padding:10px 12px;margin-bottom:7px}
+  .review-meta{gap:6px;font-size:10px}
+  .platform-badge{font-size:9px;padding:1px 5px}
+  .review-stars{font-size:10px;letter-spacing:0.5px}
+  .review-name{font-size:11px}
+  .review-loc-badge{font-size:9px}
+  .review-date{font-size:9px}
+  .review-text{font-size:11.5px}
+}
+@media(max-width:480px){
+  .review-card{padding:8px 10px}
+  .review-meta{gap:4px;font-size:9px}
+  .review-text{font-size:11px}
+  .reviews-empty{padding:1.5rem;font-size:12px}
+}
 .nav-tabs{display:flex;overflow-x:auto;scrollbar-width:none}
 .nav-tabs::-webkit-scrollbar{display:none}
 .nav-tab{padding:0 18px;height:50px;display:flex;align-items:center;font-size:13px;font-weight:500;color:var(--text3);border:none;background:none;border-bottom:2px solid transparent;transition:all .15s;white-space:nowrap;cursor:pointer}
@@ -87,6 +128,8 @@ nav{background:var(--surface);border-bottom:.5px solid var(--border-strong);padd
 /* PAGES */
 .page{display:none;padding:1.5rem;max-width:1200px;margin:0 auto}
 .page.active{display:block}
+@media(max-width:767px){.page{padding:1rem}}
+@media(max-width:480px){.page{padding:0.75rem}}
 
 /* SECTION */
 .sec-label{font-size:10px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--text3);margin-bottom:12px;display:flex;align-items:center;gap:8px}
@@ -94,23 +137,32 @@ nav{background:var(--surface);border-bottom:.5px solid var(--border-strong);padd
 
 /* KPI GRID */
 .kpi-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:1.5rem}
-@media(max-width:900px){.kpi-grid{grid-template-columns:repeat(3,1fr)}}
-@media(max-width:767px){.hub-nav-grid{grid-template-columns:repeat(3,1fr)!important};nav{padding:0 1rem}}
-@media(max-width:580px){.kpi-grid{grid-template-columns:repeat(2,1fr)}}
 .kpi-card{background:var(--surface);border:.5px solid var(--border);border-radius:12px;padding:1rem 1.15rem}
 .kpi-label{font-size:11px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px}
 .kpi-value{font-size:22px;font-weight:600;font-family:'DM Mono',monospace;color:var(--text);line-height:1.1;margin-bottom:4px}
 .kpi-sub{font-size:11px;color:var(--text3);line-height:1.4}
+@media(max-width:1200px){.kpi-grid{grid-template-columns:repeat(4,1fr)}}
+@media(max-width:900px){.kpi-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:767px){.hub-nav-grid{grid-template-columns:repeat(3,1fr)!important};.kpi-grid{grid-template-columns:repeat(2,1fr)};.page{padding:1rem}}
+@media(max-width:580px){.kpi-grid{grid-template-columns:1fr};.kpi-card{padding:0.8rem}}
+@media(max-width:480px){.kpi-label{font-size:10px};.kpi-value{font-size:18px};.kpi-sub{font-size:10px}}
 
 /* SPLIT GRID */
 .split{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
-@media(max-width:700px){.split{grid-template-columns:1fr}}
 .full-card{background:var(--surface);border:.5px solid var(--border);border-radius:12px;padding:1.1rem 1.25rem;margin-bottom:14px;overflow:hidden}
+@media(max-width:900px){.split{grid-template-columns:1fr}}
+@media(max-width:767px){
+  .split{gap:10px}
+  .full-card{padding:1rem;margin-bottom:10px}
+}
+@media(max-width:480px){
+  .full-card{padding:0.8rem;border-radius:10px}
+}
 .card-title{font-size:14px;font-weight:600;color:var(--text);margin-bottom:14px}
 .card-sub{font-size:12px;color:var(--text3);margin-top:-10px;margin-bottom:14px}
 
 /* THEME ROWS */
-.theme-row{display:flex;align-items:center;padding:10px 0;border-bottom:.5px solid var(--border);cursor:pointer;transition:background .1s;border-radius:8px;gap:12px}
+.theme-row{display:flex;align-items:center;padding:10px 0;border-bottom:.5px solid var(--border);cursor:pointer;transition:background .1s;border-radius:8px;gap:12px;flex-wrap:wrap}
 .theme-row:last-child{border-bottom:none}
 .theme-row:hover{background:var(--surface2);margin:0 -8px;padding:10px 8px}
 .theme-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
@@ -120,6 +172,19 @@ nav{background:var(--surface);border-bottom:.5px solid var(--border-strong);padd
 .theme-pct{font-size:13px;font-weight:600;font-family:'DM Mono',monospace;flex-shrink:0}
 .theme-bar-wrap{width:80px;height:5px;background:var(--surface2);border-radius:3px;flex-shrink:0}
 .theme-bar{height:5px;border-radius:3px}
+@media(max-width:767px){
+  .theme-row{gap:10px}
+  .theme-icon{width:28px;height:28px;font-size:12px}
+  .theme-name{font-size:12px}
+  .theme-desc{font-size:10.5px}
+  .theme-pct{font-size:12px}
+  .theme-bar-wrap{width:60px;height:4px}
+  .theme-bar{height:4px}
+}
+@media(max-width:480px){
+  .theme-row{gap:8px;padding:8px 0}
+  .theme-bar-wrap{display:none}
+}
 
 /* PILL / BADGE */
 .pill{display:inline-flex;font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;letter-spacing:.02em}
@@ -134,6 +199,17 @@ nav{background:var(--surface);border-bottom:.5px solid var(--border-strong);padd
 .sentiment-track{flex:1;height:8px;background:var(--surface2);border-radius:4px;overflow:hidden}
 .sentiment-fill{height:8px;border-radius:4px}
 .sentiment-val{font-size:11px;font-family:'DM Mono',monospace;color:var(--text3);width:36px;text-align:right;flex-shrink:0}
+@media(max-width:767px){
+  .sentiment-row{gap:8px;margin-bottom:8px}
+  .sentiment-label{font-size:11px;width:100px}
+  .sentiment-val{font-size:10px;width:32px}
+  .sentiment-track{height:6px}
+  .sentiment-fill{height:6px}
+}
+@media(max-width:480px){
+  .sentiment-label{font-size:10px;width:80px}
+  .sentiment-val{font-size:9px;width:28px}
+}
 
 /* STAR RATING */
 .stars{color:var(--yellow);font-size:16px;letter-spacing:2px}
@@ -144,6 +220,14 @@ nav{background:var(--surface);border-bottom:.5px solid var(--border-strong);padd
 .search-wrap input{width:100%;padding:9px 12px 9px 34px;border:.5px solid var(--border-strong);border-radius:10px;font-size:13px;color:var(--text);background:var(--surface);outline:none;transition:border-color .15s}
 .search-wrap input:focus{border-color:var(--orange)}
 .search-wrap svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);width:15px;height:15px;stroke:var(--text3)}
+@media(max-width:767px){
+  .search-wrap input{font-size:12px;padding:8px 10px 8px 32px}
+  .search-wrap svg{width:14px;height:14px}
+}
+@media(max-width:480px){
+  .search-wrap{margin-bottom:10px}
+  .search-wrap input{font-size:11px;padding:7px 8px 7px 30px}
+}
 
 /* FILTER CHIPS */
 .chip-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
@@ -152,6 +236,13 @@ nav{background:var(--surface);border-bottom:.5px solid var(--border-strong);padd
 .chip.active{color:#fff;border-color:transparent}
 #complaintCatFilter .chip.active{background:var(--red)}
 #locFilter .chip.active{background:var(--dark)}
+@media(max-width:767px){
+  .chip-row{gap:5px;margin-bottom:10px}
+  .chip{padding:3px 10px;font-size:10.5px}
+}
+@media(max-width:480px){
+  .chip{padding:3px 9px;font-size:10px}
+}
 
 /* DRAWER */
 .drawer-overlay{position:fixed;inset:0;background:rgba(0,0,0,0);pointer-events:none;z-index:200;transition:background .25s}
@@ -165,6 +256,12 @@ nav{background:var(--surface);border-bottom:.5px solid var(--border-strong);padd
 .quote-card{background:var(--surface2);border-radius:10px;padding:12px 14px;margin-bottom:10px;font-size:13px;color:var(--text2);line-height:1.6;border-left:3px solid transparent}
 .quote-card.neg{border-left-color:var(--red)}
 .quote-card.pos{border-left-color:var(--green)}
+@media(max-width:767px){
+  .drawer{width:100%;right:-100%}
+  .drawer-head{padding:1rem}
+  .drawer-body{padding:1rem}
+  .quote-card{padding:10px 12px;margin-bottom:8px;font-size:12px}
+}
 
 /* DATA UPLOAD */
 .drop-zone{border:1.5px dashed var(--border-strong);border-radius:12px;padding:2.5rem;text-align:center;cursor:pointer;transition:all .2s;color:var(--text3);margin-bottom:14px}
@@ -173,6 +270,17 @@ nav{background:var(--surface);border-bottom:.5px solid var(--border-strong);padd
 .drop-zone p{font-size:12px}
 .manual-form{background:var(--surface);border:.5px solid var(--border);border-radius:12px;padding:1.25rem}
 .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+@media(max-width:767px){
+  .drop-zone{padding:1.5rem}
+  .drop-zone h3{font-size:13px}
+  .drop-zone p{font-size:11px}
+  .manual-form{padding:1rem}
+  .form-grid{grid-template-columns:1fr;gap:8px}
+}
+@media(max-width:480px){
+  .drop-zone{padding:1rem}
+  .drop-zone h3{font-size:12px;margin-bottom:3px}
+}
 .field label{display:block;font-size:11.5px;color:var(--text2);margin-bottom:3px}
 .field input,.field select,.field textarea{width:100%;border:.5px solid var(--border-strong);border-radius:8px;padding:8px 10px;font-size:13px;color:var(--text);background:var(--surface);outline:none;transition:border-color .15s}
 .field input:focus,.field select:focus,.field textarea:focus{border-color:var(--orange)}
@@ -192,6 +300,19 @@ nav{background:var(--surface);border-bottom:.5px solid var(--border-strong);padd
 .trend-table tbody tr{cursor:pointer}
 .sparkline{display:flex;align-items:flex-end;gap:2px;height:24px}
 .spark-bar{width:6px;border-radius:2px 2px 0 0;background:var(--border-strong)}
+@media(max-width:767px){
+  .trend-table{font-size:11px}
+  .trend-table th{font-size:9px;padding:5px 8px}
+  .trend-table td{padding:8px}
+  .sparkline{height:20px}
+  .spark-bar{width:4px}
+}
+@media(max-width:480px){
+  .trend-table{font-size:10px}
+  .trend-table th{font-size:8px;padding:4px 6px}
+  .trend-table td{padding:6px}
+  .sparkline{height:16px}
+}
 
 /* VELOCITY BADGE */
 .vel{display:inline-flex;align-items:center;gap:3px;font-size:10.5px;font-weight:600;padding:2px 7px;border-radius:20px}
@@ -230,6 +351,8 @@ nav{background:var(--surface);border-bottom:.5px solid var(--border-strong);padd
   </div>
   <div class="nav-tabs">
     <button class="nav-tab active" onclick="showPage('overview',this)">Overview</button>
+    <button class="nav-tab" onclick="showPage('google',this)">Google</button>
+    <button class="nav-tab" onclick="showPage('yelp',this)">Yelp</button>
     <button class="nav-tab" onclick="showPage('complaints',this)">Complaints</button>
     <button class="nav-tab" onclick="showPage('wins',this)">Wins</button>
     <button class="nav-tab" onclick="showPage('trends',this)">Trends</button>
@@ -289,10 +412,25 @@ nav{background:var(--surface);border-bottom:.5px solid var(--border-strong);padd
   <div class="kpi-grid" id="ov-kpis"></div>
   <div class="split">
     <div class="full-card" style="margin-bottom:0" id="ov-sentiment"></div>
-    <div class="full-card" style="margin-bottom:0" id="ov-themes"></div>
+    <div class="full-card" style="margin-bottom:0" id="ov-google-yelp"></div>
   </div>
-  <div class="full-card" id="ov-ops"></div>
   <div class="full-card" id="ov-live"></div>
+</div>
+
+<!-- ═══ GOOGLE ════════════════════════════════════════════════════════════════ -->
+<div class="page" id="page-google">
+  <div class="sec-label">Google Reviews themes</div>
+  <div class="full-card">
+    <div id="googleList"></div>
+  </div>
+</div>
+
+<!-- ═══ YELP ══════════════════════════════════════════════════════════════════ -->
+<div class="page" id="page-yelp">
+  <div class="sec-label">Yelp Reviews themes</div>
+  <div class="full-card">
+    <div id="yelpList"></div>
+  </div>
 </div>
 
 <!-- ═══ COMPLAINTS ════════════════════════════════════════════════════════════ -->
@@ -502,6 +640,8 @@ function setLocationFilter(loc, btn){
   document.querySelectorAll('.lt-btn').forEach(function(b){b.classList.remove('active');});
   if(btn) btn.classList.add('active');
   renderOverview();
+  renderGoogle();
+  renderYelp();
   renderComplaints();
   renderWins();
   renderTrends();
@@ -514,6 +654,8 @@ function showPage(id, btn){
   document.getElementById('page-'+id).classList.add('active');
   if(btn) btn.classList.add('active');
   if(id==='overview')    renderOverview();
+  if(id==='google')      renderGoogle();
+  if(id==='yelp')        renderYelp();
   if(id==='complaints')  renderComplaints();
   if(id==='wins')        renderWins();
   if(id==='trends')      renderTrends();
@@ -679,33 +821,28 @@ function renderOverview(){
       +'</div>';
   }).join('') || '<div style="font-size:12px;color:var(--text3);padding:8px 0">No wins for this location.</div>';
 
-  document.getElementById('ov-themes').innerHTML =
-    '<div class="card-title" style="display:flex;align-items:baseline;justify-content:space-between">'
-      +'Top themes'
-      +'<span style="font-size:10px;font-weight:500;color:var(--text3);letter-spacing:.03em">this wk &nbsp;·&nbsp; vs last wk</span>'
-    +'</div>'
-    +'<div style="margin-bottom:16px">'
-      +'<div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--rd);margin-bottom:8px">Complaints</div>'
-      +complaintRows
-    +'</div>'
-    +'<div>'
-      +'<div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--gd);margin-bottom:8px">Wins</div>'
-      +winRows
+  // Google and Yelp summaries
+  var googleReviews = LIVE_REVIEWS.filter(function(r){ return r.platform==='google' && locMatch(r) && dateMatchReview(r); });
+  var yelpReviews = LIVE_REVIEWS.filter(function(r){ return r.platform==='yelp' && locMatch(r) && dateMatchReview(r); });
+
+  var googleRating = googleReviews.length ? Math.round(googleReviews.reduce(function(s,r){return s+r.rating;},0)/googleReviews.length*10)/10 : '—';
+  var yelpRating = yelpReviews.length ? Math.round(yelpReviews.reduce(function(s,r){return s+r.rating;},0)/yelpReviews.length*10)/10 : '—';
+
+  document.getElementById('ov-google-yelp').innerHTML =
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;min-height:200px">'
+      +'<div onclick="showPage(\'google\',document.querySelector(\'[onclick*=\\\"google\\\"]\'))" style="cursor:pointer;padding:1rem;border:.5px solid var(--border);border-radius:12px;background:linear-gradient(135deg,#e8f0fe 0%,#f0f4ff 100%);display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;transition:all .15s">'
+        +'<div style="font-size:28px;margin-bottom:8px">📍</div>'
+        +'<div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:6px">Google Reviews</div>'
+        +'<div style="font-size:24px;font-weight:600;font-family:\'DM Mono\',monospace;color:#1a73e8;margin-bottom:4px">'+googleRating+'</div>'
+        +'<div style="font-size:10.5px;color:var(--text3)">'+googleReviews.length+' reviews</div>'
+      +'</div>'
+      +'<div onclick="showPage(\'yelp\',document.querySelector(\'[onclick*=\\\"yelp\\\"]\'))" style="cursor:pointer;padding:1rem;border:.5px solid var(--border);border-radius:12px;background:linear-gradient(135deg,#fff0ee 0%,#ffe8e6 100%);display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;transition:all .15s">'
+        +'<div style="font-size:28px;margin-bottom:8px">⭐</div>'
+        +'<div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:6px">Yelp</div>'
+        +'<div style="font-size:24px;font-weight:600;font-family:\'DM Mono\',monospace;color:#d32323;margin-bottom:4px">'+yelpRating+'</div>'
+        +'<div style="font-size:10.5px;color:var(--text3)">'+yelpReviews.length+' reviews</div>'
+      +'</div>'
     +'</div>';
-
-  // Ops issues
-  var opsRows = visOps.map(function(c){
-    var ep=effectivePct(c.id,c.pct);
-    return '<div class="theme-row" onclick="openDrawer(\''+c.id+'\')">'
-      +'<div class="theme-icon" style="background:var(--bl)">'+c.icon+'</div>'
-      +'<div class="theme-info"><div class="theme-name">'+c.name+'</div><div class="theme-desc">'+c.desc+'</div></div>'
-      +'<div class="theme-bar-wrap"><div class="theme-bar" style="width:'+Math.round(ep/20*100)+'%;background:var(--blue)"></div></div>'
-      +'<div class="theme-pct" style="color:var(--bd)">'+ep+'%</div>'
-      +'</div>';
-  }).join('') || '<div style="font-size:12px;color:var(--text3);padding:8px 0">No operational issues for this location.</div>';
-
-  document.getElementById('ov-ops').innerHTML =
-    '<div class="card-title">Operational issues</div>'+opsRows;
 
   renderLiveFeed();
 }
@@ -770,6 +907,84 @@ function renderWins(){
     +'</div>';
   }).join('');
   document.getElementById('winsList').innerHTML=html||'<div style="padding:2rem;text-align:center;color:var(--text3);font-size:13px">No wins match your filters.</div>';
+}
+
+// ── GOOGLE ────────────────────────────────────────────────────────────────────
+function renderGoogle(){
+  var reviews = LIVE_REVIEWS.filter(function(r){ return r.platform==='google' && locMatch(r) && dateMatchReview(r); });
+  var avgRating = reviews.length ? Math.round(reviews.reduce(function(s,r){return s+r.rating;},0)/reviews.length*10)/10 : 0;
+  var positiveCount = reviews.filter(function(r){return r.rating>=4;}).length;
+  var negativeCount = reviews.filter(function(r){return r.rating<=2;}).length;
+
+  var html = '<div class="card-title">Google Reviews (' + reviews.length + ' total)</div>';
+  html += '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px">';
+  html += '<div style="background:var(--gl);border-radius:10px;padding:1rem;text-align:center">';
+  html += '<div style="font-size:24px;font-weight:600;font-family:\'DM Mono\',monospace;color:var(--gd)">'+avgRating+'</div>';
+  html += '<div style="font-size:11px;color:var(--gd);margin-top:4px">Average rating</div></div>';
+  html += '<div style="background:var(--gl);border-radius:10px;padding:1rem;text-align:center">';
+  html += '<div style="font-size:20px;font-weight:600;color:var(--green)">'+positiveCount+'</div>';
+  html += '<div style="font-size:11px;color:var(--text3);margin-top:4px">Positive (4-5★)</div></div>';
+  html += '<div style="background:var(--rl);border-radius:10px;padding:1rem;text-align:center">';
+  html += '<div style="font-size:20px;font-weight:600;color:var(--red)">'+negativeCount+'</div>';
+  html += '<div style="font-size:11px;color:var(--text3);margin-top:4px">Negative (1-2★)</div></div>';
+  html += '</div>';
+
+  reviews.forEach(function(r){
+    var stars = '★'.repeat(r.rating) + '☆'.repeat(5-r.rating);
+    var sentiment = r.rating>=4?'pos':r.rating===3?'neu':'neg';
+    var dLabel = r.daysAgo===0?'Today':r.daysAgo===1?'Yesterday':r.daysAgo+'d ago';
+    var locBadge = r.loc==='brentwood'?'Brentwood':'Westlake Village';
+    html += '<div class="review-card '+sentiment+'" style="margin-bottom:10px">';
+    html += '<div class="review-meta">';
+    html += '<span class="review-stars">'+stars+'</span>';
+    html += '<span class="review-name">'+r.name+'</span>';
+    html += '<span class="review-loc-badge">'+locBadge+'</span>';
+    html += '<span class="review-date" style="margin-left:auto">'+dLabel+'</span>';
+    html += '</div>';
+    html += '<div class="review-text">'+r.text+'</div>';
+    html += '</div>';
+  });
+
+  document.getElementById('googleList').innerHTML = html || '<div style="padding:2rem;text-align:center;color:var(--text3)">No Google reviews match your filters.</div>';
+}
+
+// ── YELP ───────────────────────────────────────────────────────────────────────
+function renderYelp(){
+  var reviews = LIVE_REVIEWS.filter(function(r){ return r.platform==='yelp' && locMatch(r) && dateMatchReview(r); });
+  var avgRating = reviews.length ? Math.round(reviews.reduce(function(s,r){return s+r.rating;},0)/reviews.length*10)/10 : 0;
+  var positiveCount = reviews.filter(function(r){return r.rating>=4;}).length;
+  var negativeCount = reviews.filter(function(r){return r.rating<=2;}).length;
+
+  var html = '<div class="card-title">Yelp (' + reviews.length + ' total)</div>';
+  html += '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px">';
+  html += '<div style="background:var(--gl);border-radius:10px;padding:1rem;text-align:center">';
+  html += '<div style="font-size:24px;font-weight:600;font-family:\'DM Mono\',monospace;color:var(--gd)">'+avgRating+'</div>';
+  html += '<div style="font-size:11px;color:var(--gd);margin-top:4px">Average rating</div></div>';
+  html += '<div style="background:var(--gl);border-radius:10px;padding:1rem;text-align:center">';
+  html += '<div style="font-size:20px;font-weight:600;color:var(--green)">'+positiveCount+'</div>';
+  html += '<div style="font-size:11px;color:var(--text3);margin-top:4px">Positive (4-5★)</div></div>';
+  html += '<div style="background:var(--rl);border-radius:10px;padding:1rem;text-align:center">';
+  html += '<div style="font-size:20px;font-weight:600;color:var(--red)">'+negativeCount+'</div>';
+  html += '<div style="font-size:11px;color:var(--text3);margin-top:4px">Negative (1-2★)</div></div>';
+  html += '</div>';
+
+  reviews.forEach(function(r){
+    var stars = '★'.repeat(r.rating) + '☆'.repeat(5-r.rating);
+    var sentiment = r.rating>=4?'pos':r.rating===3?'neu':'neg';
+    var dLabel = r.daysAgo===0?'Today':r.daysAgo===1?'Yesterday':r.daysAgo+'d ago';
+    var locBadge = r.loc==='brentwood'?'Brentwood':'Westlake Village';
+    html += '<div class="review-card '+sentiment+'" style="margin-bottom:10px">';
+    html += '<div class="review-meta">';
+    html += '<span class="review-stars">'+stars+'</span>';
+    html += '<span class="review-name">'+r.name+'</span>';
+    html += '<span class="review-loc-badge">'+locBadge+'</span>';
+    html += '<span class="review-date" style="margin-left:auto">'+dLabel+'</span>';
+    html += '</div>';
+    html += '<div class="review-text">'+r.text+'</div>';
+    html += '</div>';
+  });
+
+  document.getElementById('yelpList').innerHTML = html || '<div style="padding:2rem;text-align:center;color:var(--text3)">No Yelp reviews match your filters.</div>';
 }
 
 // ── TRENDS ────────────────────────────────────────────────────────────────────
@@ -866,6 +1081,8 @@ function setDateFilter(range, btn){
   document.querySelectorAll('.dt-btn').forEach(function(b){b.classList.remove('active');});
   if(btn) btn.classList.add('active');
   renderOverview();
+  renderGoogle();
+  renderYelp();
   renderComplaints();
   renderWins();
   renderTrends();
