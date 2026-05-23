@@ -1,5 +1,5 @@
 {
-  "generated": "2026-05-23T18:46:40.037Z",
+  "generated": "2026-05-23T19:09:28.748Z",
   "date": "Friday 05/22/26",
   "wlv": {
     "today": {
@@ -16,7 +16,7 @@
       "offPremisePct": 0,
       "channels": {
         "dineIn": 8017.76,
-        "marketplace": 679.59,
+        "marketplace": 0,
         "kioskTakeOut": 0,
         "webDelivery": 0,
         "webTakeOut": 0,
@@ -28,10 +28,10 @@
         "whatsGabyCooking": 10421.31,
         "miniKabob": 0,
         "socialMonk": 0,
-        "mixtape": 10.4,
+        "mixtape": 0,
         "palermoPizzaClub": 2343.66,
         "neighborlyCookies": 0,
-        "marketplace": 0,
+        "marketplace": 679.59,
         "catering": 0,
         "beverages": 0,
         "wine": 0,
@@ -71,7 +71,7 @@
         "label": "P5"
       },
       "qtd": {
-        "netSales": 71433.49,
+        "netSales": 26,
         "label": "Q2"
       },
       "ytd": {
@@ -111,7 +111,7 @@
       "offPremisePct": 0,
       "channels": {
         "dineIn": 679.59,
-        "marketplace": 175,
+        "marketplace": 0,
         "kioskTakeOut": 0,
         "webDelivery": 0,
         "webTakeOut": 0,
@@ -123,10 +123,10 @@
         "whatsGabyCooking": 3631.6,
         "miniKabob": 0,
         "socialMonk": 0,
-        "mixtape": 1.38,
+        "mixtape": 0,
         "palermoPizzaClub": 437.02,
         "neighborlyCookies": 0,
-        "marketplace": 0,
+        "marketplace": 175,
         "catering": 0,
         "beverages": 0,
         "wine": 0,
@@ -166,7 +166,7 @@
         "label": "P5"
       },
       "qtd": {
-        "netSales": 386037.88,
+        "netSales": 71433.49,
         "label": "Q2"
       },
       "ytd": {
@@ -206,7 +206,7 @@
       "offPremisePct": 0,
       "channels": {
         "dineIn": 3250.49,
-        "marketplace": 744.15,
+        "marketplace": 0,
         "kioskTakeOut": 0,
         "webDelivery": 0,
         "webTakeOut": 0,
@@ -218,10 +218,10 @@
         "whatsGabyCooking": 3594.2,
         "miniKabob": 0,
         "socialMonk": 0,
-        "mixtape": 2.7,
+        "mixtape": 0,
         "palermoPizzaClub": 9194.27,
         "neighborlyCookies": 0,
-        "marketplace": 0,
+        "marketplace": 744.15,
         "catering": 0,
         "beverages": 0,
         "wine": 0,
@@ -261,7 +261,7 @@
         "label": "P5"
       },
       "qtd": {
-        "netSales": 990470.8,
+        "netSales": 386037.88,
         "label": "Q2"
       },
       "ytd": {
