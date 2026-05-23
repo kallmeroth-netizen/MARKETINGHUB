@@ -70,7 +70,30 @@
   .icon-btn svg { width: 15px; height: 15px; }
   #csvInput { display: none; }
   .daily-last-updated { font-size: 11px; color: var(--text-3); }
+<header>
+  <a id="logoLink" href="dashboard.html">
+    <img src="logo.png" alt="Logo">
+  </a>
+  <nav id="mainNav">
+    <a href="page1.html">Page 1</a>
+    <a href="page2.html">Page 2</a>
+    <a href="page3.html">Page 3</a>
+  </nav>
+</header>
 
+<script>
+const role = sessionStorage.getItem('role');
+
+if (role === 'guest') {
+  // Hide the nav entirely
+  document.getElementById('mainNav').style.display = 'none';
+
+  // Disable the logo click (prevent navigation away)
+  const logo = document.getElementById('logoLink');
+  logo.addEventListener('click', (e) => e.preventDefault());
+  logo.style.cursor = 'default';
+}
+</script>
   /* PAGES */
   .page { display: none; }
   .page.active { display: block; }
