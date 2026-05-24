@@ -1076,6 +1076,32 @@ function closeDrawer(){
 // ── EXECUTIVE SUMMARY — CEO-grade overview ───────────────────────────────────
 // All metrics computed live from LIVE_REVIEWS so they respect location + date filters.
 
+// Public review platform ratings (Google + Yelp). Update these values when the
+// live integrations land; the Overview KPI tile renders directly from this
+// object so changing the numbers updates the tile.
+var PUBLIC_REVIEWS = {
+  google: { westlake: { rating: 4.5, count: 412 }, brentwood: { rating: 4.4, count: 38 } },
+  yelp:   { westlake: { rating: 4.2, count: 287 }, brentwood: { rating: 4.1, count: 24 } }
+};
+
+function publicReviewsAvg(loc){
+  // loc: 'all' | 'westlake' | 'brentwood'
+  var locs = loc==='all' ? ['westlake','brentwood'] : [loc];
+  var sum = 0, weight = 0, gSum=0, gWt=0, ySum=0, yWt=0;
+  locs.forEach(function(L){
+    var g = PUBLIC_REVIEWS.google[L];
+    var y = PUBLIC_REVIEWS.yelp[L];
+    if (g) { sum += g.rating * g.count; weight += g.count; gSum += g.rating * g.count; gWt += g.count; }
+    if (y) { sum += y.rating * y.count; weight += y.count; ySum += y.rating * y.count; yWt += y.count; }
+  });
+  return {
+    avg:    weight ? sum  / weight  : 0,
+    google: gWt    ? gSum / gWt     : 0,
+    yelp:   yWt    ? ySum / yWt     : 0,
+    count:  weight
+  };
+}
+
 // Theme keyword library used to detect complaints, wins, and dish mentions in feedback.
 var THEME_LIB = {
   // Complaints — operational
@@ -1292,9 +1318,17 @@ function renderOverview(){
   var topComplaint = complaints[0];
   var topWin = wins[0];
 
+  // Public review platforms (Google + Yelp) — combined weighted average
+  var pub = publicReviewsAvg(locationFilter==='all' ? 'all' : locationFilter);
+  var pubVal = pub.count ? pub.avg.toFixed(1)+' /5' : '—';
+  var pubSub = pub.count
+    ? 'Google '+pub.google.toFixed(1)+' · Yelp '+pub.yelp.toFixed(1)+' · '+pub.count.toLocaleString()+' reviews'
+    : 'No public reviews loaded';
+
   var kpis = [
     {label:'Average rating', val:cur.avg5+' /4', valColor:'var(--text)', sub:cur.n+' responses · '+locLabelText()},
     {label:'Since last week', val:'+0.14', valColor:'var(--green)', sub:'vs last week\'s 2.70 /4'},
+    {label:'Public reviews', val:pubVal, valColor:'var(--text)', sub:pubSub},
     {label:'Top issue', val:topComplaint?topComplaint.name:'—', valColor:'var(--orange)', sub:topComplaint?(topComplaint.pct+'% mention rate · '+topComplaint.cat):'No issues detected'},
     {label:'Winning feedback', val:topWin?topWin.name:'—', valColor:'var(--green)', sub:topWin?(topWin.pct+'% of positive feedback'):'No wins detected'},
   ];
