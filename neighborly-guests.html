@@ -100,8 +100,11 @@ nav{background:var(--surface);border-bottom:.5px solid var(--border-strong);padd
 #calApplyBtn:hover{filter:brightness(1.08);background:var(--brand-orange);color:#fff}
 
 /* LOCATION SUB-BAR — justify right */
-.loc-bar{background:var(--surface);border-bottom:.5px solid var(--border-strong);padding:8px 1.5rem;display:flex;align-items:center;gap:12px;position:sticky;top:50px;z-index:99;justify-content:flex-end}
-.loc-bar-label{font-size:10.5px;font-weight:600;letter-spacing:.08em;color:var(--text3);text-transform:uppercase;flex-shrink:0}
+/* PAGE HEADER — matches the dashboard's .dash-header pattern */
+.guest-header{max-width:1200px;margin:0 auto;padding:1.75rem 1.5rem 0;display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;flex-wrap:wrap}
+.guest-header-text{display:flex;flex-direction:column;gap:3px;min-width:0}
+.guest-title{font-size:22px;font-weight:600;letter-spacing:-0.03em;color:var(--text);line-height:1.15}
+.guest-sub{font-size:13px;color:var(--text2)}
 
 /* LIVE REVIEWS */
 .sync-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
@@ -132,6 +135,12 @@ nav{background:var(--surface);border-bottom:.5px solid var(--border-strong);padd
 .nav-tab:hover{color:var(--text)}
 .nav-tab.active{color:var(--brand-yellow);border-bottom-color:var(--brand-yellow)}
 .nav-right{margin-left:auto;display:flex;align-items:center;gap:8px;flex-shrink:0}
+@media (min-width:768px){
+  /* Center the nav-tabs by giving brand + right sides equal flex weight */
+  nav>.nav-brand{flex:1 1 0;min-width:0}
+  nav>.nav-tabs{flex:0 0 auto;justify-content:center;overflow:visible}
+  nav>.nav-right{flex:1 1 0;margin-left:0;justify-content:flex-end;flex-shrink:1}
+}
 .nav-back{font-size:12px;color:var(--text2);text-decoration:none;padding:5px 12px;border:.5px solid var(--border-strong);border-radius:8px;transition:background .15s;white-space:nowrap}
 .nav-back:hover{background:var(--surface2)}
 
@@ -358,10 +367,12 @@ nav{background:var(--surface);border-bottom:.5px solid var(--border-strong);padd
   .date-pill{font-size:11.5px;padding:6px 10px 6px 12px;gap:6px;flex:0 0 auto}
   .date-pill-badge{font-size:10.5px;padding:2px 8px}
 
-  /* Location sub-bar: right-justified, sits below the taller mobile nav */
-  .loc-bar{padding:8px 12px;gap:8px;top:auto;position:relative;justify-content:flex-end;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch}
-  .loc-bar-label{font-size:10px;letter-spacing:.08em}
-  .loc-toggle{flex:0 0 auto}
+  /* Page header on mobile: stack title above location toggle */
+  .guest-header{padding:1.1rem 12px 0;gap:.65rem;flex-direction:column;align-items:stretch}
+  .guest-title{font-size:18px}
+  .guest-sub{font-size:12px}
+  .loc-toggle{align-self:stretch;overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .lt-btn{flex:0 0 auto}
 
   /* Calendar popover: full-width on mobile, anchored under nav */
   .cal-pop{position:fixed;top:auto;bottom:auto;left:50%;right:auto;transform:translate(-50%,-6px);width:calc(100vw - 24px);max-width:320px;top:148px}
@@ -449,7 +460,7 @@ nav{background:var(--surface);border-bottom:.5px solid var(--border-strong);padd
   .page{padding:1.25rem;max-width:100%}
   .hub-nav-grid{grid-template-columns:repeat(2,1fr)}
   .kpi-grid{grid-template-columns:repeat(2,1fr)}
-  .loc-bar{padding:8px 1rem}
+  .guest-header{padding:1rem 1rem 0}
 }
 
 @media (max-width: 420px){
@@ -466,7 +477,7 @@ nav{background:var(--surface);border-bottom:.5px solid var(--border-strong);padd
   .theme-info{flex-basis:calc(100% - 39px)}
   .theme-bar-wrap{margin-left:37px!important;width:calc(100% - 50px)!important}
   .cal-pop{width:calc(100vw - 16px)}
-  .loc-bar{padding:6px 8px}
+  .guest-header{padding:.85rem 8px 0}
   .lt-btn{padding:4px 7px;font-size:10.5px}
   .kpi-grid,#trends-kpis{grid-template-columns:repeat(2,1fr)!important}
 
@@ -552,9 +563,12 @@ nav{background:var(--surface);border-bottom:.5px solid var(--border-strong);padd
   </div>
 </div>
 
-<!-- LOCATION SUB-BAR -->
-<div class="loc-bar">
-  <div class="loc-bar-label">Location</div>
+<!-- PAGE HEADER — title + location toggle (matches dashboard's dash-header pattern) -->
+<div class="guest-header">
+  <div class="guest-header-text">
+    <div class="guest-title">Guest Feedback Trends</div>
+    <div class="guest-sub">Ovation survey responses across all locations</div>
+  </div>
   <div class="loc-toggle" id="locToggle">
     <button type="button" class="lt-btn active" data-location="all" onclick="setLocationFilter('all',this,event)">All locations</button>
     <button type="button" class="lt-btn" data-location="westlake" onclick="setLocationFilter('westlake',this,event)">Westlake Village</button>
