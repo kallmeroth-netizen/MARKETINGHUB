@@ -1455,6 +1455,22 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeHubNav(
       </table></div>
     </div>
 
+    <!-- DISCOUNTS & COMPS — per location -->
+    <div class="section-title reveal">Discounts &amp; comps — by location</div>
+    <div class="chart-card reveal" style="padding:0;overflow:hidden;margin-bottom:1.5rem">
+      <div class="table-scroll"><table class="metrics-table" id="dailyDiscountsTable">
+        <tbody><tr><td colspan="7" style="padding:1.5rem;text-align:center;color:var(--text-3)">No data loaded</td></tr></tbody>
+      </table></div>
+    </div>
+
+    <!-- LABOR — per location -->
+    <div class="section-title reveal">Labor — by location</div>
+    <div class="chart-card reveal" style="padding:0;overflow:hidden;margin-bottom:1.5rem">
+      <div class="table-scroll"><table class="metrics-table" id="dailyLaborTable">
+        <tbody><tr><td colspan="10" style="padding:1.5rem;text-align:center;color:var(--text-3)">No data loaded</td></tr></tbody>
+      </table></div>
+    </div>
+
   </div>
 </div>
 
@@ -2084,6 +2100,8 @@ function renderDailyDashboard() {
   renderDailyChannels(data);
   renderDailyPmix(data);
   renderDailyTable(data);
+  renderDailyDiscountsTable();
+  renderDailyLaborTable();
   // Re-trigger reveal observation in case Daily page was already visible
   if (typeof _observeReveals === 'function') {
     requestAnimationFrame(_observeReveals);
@@ -2408,59 +2426,38 @@ function renderDailyTable(data) {
     hasDelta: sv != null
   });
 
+  const N = t.netSales || 0;
+  const pctNetFromDollar = v => (N > 0 && v != null) ? _fmtMix(v / N * 100) : '—';
+
   const sections = [
     { cat: 'Revenue', rows: [
-      rowMoney('Net sales',   t.netSales,   s.netSales),
-      rowInt  ('Check count', t.checkCount, s.checkCount),
-      rowDol  ('Avg check',   t.avgCheck,   s.avgCheck)
+      { ...rowMoney('Net sales',   t.netSales,   s.netSales),   pct: '100.0%' },
+      { ...rowInt  ('Check count', t.checkCount, s.checkCount), pct: '—' },
+      { ...rowDol  ('Avg check',   t.avgCheck,   s.avgCheck),   pct: '—' }
     ]},
     { cat: 'Daypart mix', rows: [
-      rowPct('Lunch sales mix',  t.lunchPct,  s.lunchPct),
-      rowPct('Dinner sales mix', t.dinnerPct, s.dinnerPct)
+      { ...rowPct('Lunch sales mix',  t.lunchPct,  s.lunchPct),  pct: _fmtMix(t.lunchPct  || 0) },
+      { ...rowPct('Dinner sales mix', t.dinnerPct, s.dinnerPct), pct: _fmtMix(t.dinnerPct || 0) }
     ]},
     { cat: 'On / Off premise', rows: [
-      rowMoney('On premise sales',  t.onPremise,  null),
-      rowMoney('Off premise sales', t.offPremise, null),
-      rowPct  ('On premise %',  t.onPremisePct,  s.onPremisePct),
-      rowPct  ('Off premise %', t.offPremisePct, s.offPremisePct)
+      { ...rowMoney('On premise sales',  t.onPremise,  null), pct: pctNetFromDollar(t.onPremise)  },
+      { ...rowMoney('Off premise sales', t.offPremise, null), pct: pctNetFromDollar(t.offPremise) },
+      { ...rowPct  ('On premise %',  t.onPremisePct,  s.onPremisePct),  pct: _fmtMix(t.onPremisePct  || 0) },
+      { ...rowPct  ('Off premise %', t.offPremisePct, s.offPremisePct), pct: _fmtMix(t.offPremisePct || 0) }
     ]},
     { cat: 'Concept mix (vs 6-wk)', rows: [
-      rowPct("What's Gaby Cooking",  (t.netSales ? (t.pmix?.whatsGabyCooking||0)/t.netSales*100 : 0), s.whatsGabyCookingPct),
-      rowPct('Mini Kabob',           (t.netSales ? (t.pmix?.miniKabob||0)/t.netSales*100         : 0), s.miniKabobPct),
-      rowPct('Palermo Pizza Club',   (t.netSales ? (t.pmix?.palermoPizzaClub||0)/t.netSales*100  : 0), s.palermoPizzaClubPct),
-      rowPct('Mixtape',              (t.netSales ? (t.pmix?.mixtape||0)/t.netSales*100           : 0), s.mixtapePct),
-      rowPct('Beverage attachment',  (t.netSales ? ((t.pmix?.beverages||0)+(t.pmix?.wine||0)+(t.pmix?.beer||0))/t.netSales*100 : 0), s.beverageAttachmentPct)
-    ]},
-    { cat: 'Discounts & comps', rows: [
-      rowMoney('Comp catering',       t.discounts?.compCatering,    null, true),
-      rowMoney('Comp food',           t.discounts?.compFood,        null, true),
-      rowMoney('Comp promo',          t.discounts?.compPromo,       null, true),
-      rowMoney('Comp marketing',      t.discounts?.compMarketing,   null, true),
-      rowMoney('Comp manager',        t.discounts?.compManager,     null, true),
-      rowMoney('Comp miscellaneous',  t.discounts?.compMisc,        null, true)
-    ]},
-    { cat: 'Labor', rows: [
-      rowDol  ('SPLH',           l.splh,          null),
-      { lbl:'BOH hours',  tv:(l.bohHours||0).toFixed(1),      sv:'—', delta:'—', good:true, hasDelta:false },
-      rowMoney('BOH cost',       l.bohCost,       null, true),
-      { lbl:'FOH hours',  tv:(l.fohHours||0).toFixed(1),      sv:'—', delta:'—', good:true, hasDelta:false },
-      rowMoney('FOH cost',       l.fohCost,       null, true),
-      { lbl:'Training hours', tv:(l.trainingHours||0).toFixed(1), sv:'—', delta:'—', good:true, hasDelta:false },
-      rowMoney('Training cost',  l.trainingCost,  null, true),
-      { lbl:'Total labor hours', tv:(l.totalHours||0).toFixed(1), sv:'—', delta:'—', good:true, hasDelta:false },
-      rowMoney('Total labor cost', l.totalCost,   null, true),
-      rowPct  ('Labor % of net', l.laborPct,      null, true)
+      { ...rowPct("What's Gaby Cooking",  (N ? (t.pmix?.whatsGabyCooking||0)/N*100 : 0), s.whatsGabyCookingPct),  pct: pctNetFromDollar(t.pmix?.whatsGabyCooking)  },
+      { ...rowPct('Mini Kabob',           (N ? (t.pmix?.miniKabob||0)/N*100         : 0), s.miniKabobPct),         pct: pctNetFromDollar(t.pmix?.miniKabob)         },
+      { ...rowPct('Palermo Pizza Club',   (N ? (t.pmix?.palermoPizzaClub||0)/N*100  : 0), s.palermoPizzaClubPct),  pct: pctNetFromDollar(t.pmix?.palermoPizzaClub)  },
+      { ...rowPct('Mixtape',              (N ? (t.pmix?.mixtape||0)/N*100           : 0), s.mixtapePct),           pct: pctNetFromDollar(t.pmix?.mixtape)           },
+      { ...rowPct('Beverage attachment',  (N ? ((t.pmix?.beverages||0)+(t.pmix?.wine||0)+(t.pmix?.beer||0))/N*100 : 0), s.beverageAttachmentPct), pct: pctNetFromDollar((t.pmix?.beverages||0)+(t.pmix?.wine||0)+(t.pmix?.beer||0)) }
     ]}
   ];
 
-  let html = `<thead><tr><th>Metric</th><th>Today</th><th>6-week avg</th><th>vs 6-wk</th><th></th></tr></thead><tbody>`;
-  const COLLAPSED_DAILY = ['Discounts & comps', 'Labor'];
+  let html = `<thead><tr><th>Metric</th><th>Today</th><th>6-week avg</th><th>vs 6-wk</th><th>% of net</th></tr></thead><tbody>`;
   sections.forEach((sec, idx) => {
     const catKey = `daily-${idx}`;
-    const startOpen = !COLLAPSED_DAILY.includes(sec.cat);
-    const rowClass = startOpen ? 'cat-row open' : 'cat-row';
-    const childStyle = startOpen ? '' : ' style="display:none"';
-    html += `<tr class="${rowClass}" data-cat="${catKey}" onclick="toggleCatRow('${catKey}', this)">
+    html += `<tr class="cat-row open" data-cat="${catKey}" onclick="toggleCatRow('${catKey}', this)">
       <td colspan="5">
         <svg class="cat-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"/></svg>${sec.cat}
       </td>
@@ -2469,14 +2466,120 @@ function renderDailyTable(data) {
       const deltaCell = r.hasDelta
         ? `<span class="chg ${r.good?'pos':'neg'}" style="font-size:10px">${r.delta}</span>`
         : '<span style="color:var(--text-3);font-size:11px">—</span>';
-      html += `<tr class="cat-child" data-cat="${catKey}"${childStyle}>
+      html += `<tr class="cat-child" data-cat="${catKey}">
         <td style="font-weight:500">${r.lbl}</td>
         <td>${r.tv}</td>
         <td style="color:var(--text-3)">${r.sv}</td>
         <td>${deltaCell}</td>
-        <td></td>
+        <td style="color:var(--text-3)">${r.pct}</td>
       </tr>`;
     });
+  });
+  html += '</tbody>';
+  tbl.innerHTML = html;
+}
+
+// ── Daily Discounts & Comps — per-location table ─────────────────────────────
+function renderDailyDiscountsTable() {
+  const tbl = document.getElementById('dailyDiscountsTable');
+  if (!tbl) return;
+  const wlv = DAILY.wlv?.today, bw = DAILY.bw?.today, tot = DAILY.total?.today;
+  if (!wlv && !bw) { tbl.innerHTML = '<tbody><tr><td colspan="7" style="padding:1.5rem;text-align:center;color:var(--text-3)">No data — click Refresh</td></tr></tbody>'; return; }
+  const cats = [
+    ['Comp catering',      'compCatering'],
+    ['Comp food',          'compFood'],
+    ['Comp promo',         'compPromo'],
+    ['Comp marketing',     'compMarketing'],
+    ['Comp manager',       'compManager'],
+    ['Comp miscellaneous', 'compMisc']
+  ];
+  const cell = (loc, key) => {
+    const v = loc?.discounts?.[key];
+    const n = loc?.netSales || 0;
+    if (v == null) return ['—', '—'];
+    return [_fmtDollar(v), n > 0 ? _fmtMix(v / n * 100) : '—'];
+  };
+  let html = `<thead>
+    <tr>
+      <th rowspan="2" style="vertical-align:bottom">Category</th>
+      <th colspan="2" style="text-align:center;border-bottom:0.5px solid var(--border)">Westlake Village</th>
+      <th colspan="2" style="text-align:center;border-bottom:0.5px solid var(--border)">Brentwood</th>
+      <th colspan="2" style="text-align:center;border-bottom:0.5px solid var(--border)">Total</th>
+    </tr>
+    <tr>
+      <th>Sales</th><th>% of net</th>
+      <th>Sales</th><th>% of net</th>
+      <th>Sales</th><th>% of net</th>
+    </tr>
+  </thead><tbody>`;
+  cats.forEach(([lbl, key]) => {
+    const [w$, wP] = cell(wlv, key);
+    const [b$, bP] = cell(bw,  key);
+    const [t$, tP] = cell(tot, key);
+    html += `<tr>
+      <td style="font-weight:500">${lbl}</td>
+      <td>${w$}</td><td style="color:var(--text-3)">${wP}</td>
+      <td>${b$}</td><td style="color:var(--text-3)">${bP}</td>
+      <td>${t$}</td><td style="color:var(--text-3)">${tP}</td>
+    </tr>`;
+  });
+  html += '</tbody>';
+  tbl.innerHTML = html;
+}
+
+// ── Daily Labor — per-location table ──────────────────────────────────────────
+function renderDailyLaborTable() {
+  const tbl = document.getElementById('dailyLaborTable');
+  if (!tbl) return;
+  const wlv = DAILY.wlv?.today, bw = DAILY.bw?.today, tot = DAILY.total?.today;
+  if (!wlv && !bw) { tbl.innerHTML = '<tbody><tr><td colspan="10" style="padding:1.5rem;text-align:center;color:var(--text-3)">No data — click Refresh</td></tr></tbody>'; return; }
+  const rows = [
+    { lbl: 'SPLH',         hrs: null,           cost: l => l?.splh,           pct: null, costFmt: v => '$' + (+(v||0)).toFixed(2) },
+    { lbl: 'Total BOH',    hrs: l => l?.bohHours,      cost: l => l?.bohCost,      pct: 'derived' },
+    { lbl: 'Total FOH',    hrs: l => l?.fohHours,      cost: l => l?.fohCost,      pct: 'derived' },
+    { lbl: 'Training',     hrs: l => l?.trainingHours, cost: l => l?.trainingCost, pct: 'derived' },
+    { lbl: 'Total labor',  hrs: l => l?.totalHours,    cost: l => l?.totalCost,    pct: l => l?.laborPct, isTotal: true }
+  ];
+  const cell = (loc, row) => {
+    const l = loc?.labor;
+    const n = loc?.netSales || 0;
+    const h = row.hrs ? row.hrs(l) : null;
+    const c = row.cost ? row.cost(l) : null;
+    let p;
+    if (row.pct === 'derived') p = (n > 0 && c != null) ? c / n * 100 : null;
+    else if (typeof row.pct === 'function') p = row.pct(l);
+    else p = null;
+    const costFmt = row.costFmt || _fmtDollar;
+    return [
+      h != null ? (+h).toFixed(1) : '—',
+      c != null ? costFmt(c) : '—',
+      p != null ? _fmtMix(p) : '—'
+    ];
+  };
+  let html = `<thead>
+    <tr>
+      <th rowspan="2" style="vertical-align:bottom">Metric</th>
+      <th colspan="3" style="text-align:center;border-bottom:0.5px solid var(--border)">Westlake Village</th>
+      <th colspan="3" style="text-align:center;border-bottom:0.5px solid var(--border)">Brentwood</th>
+      <th colspan="3" style="text-align:center;border-bottom:0.5px solid var(--border)">Total</th>
+    </tr>
+    <tr>
+      <th>Hours</th><th>Cost</th><th>% of net</th>
+      <th>Hours</th><th>Cost</th><th>% of net</th>
+      <th>Hours</th><th>Cost</th><th>% of net</th>
+    </tr>
+  </thead><tbody>`;
+  rows.forEach(r => {
+    const [wH, wC, wP] = cell(wlv, r);
+    const [bH, bC, bP] = cell(bw,  r);
+    const [tH, tC, tP] = cell(tot, r);
+    const wt = r.isTotal ? 'font-weight:600' : 'font-weight:500';
+    html += `<tr>
+      <td style="${wt}">${r.lbl}</td>
+      <td>${wH}</td><td>${wC}</td><td style="color:var(--text-3)">${wP}</td>
+      <td>${bH}</td><td>${bC}</td><td style="color:var(--text-3)">${bP}</td>
+      <td>${tH}</td><td>${tC}</td><td style="color:var(--text-3)">${tP}</td>
+    </tr>`;
   });
   html += '</tbody>';
   tbl.innerHTML = html;
