@@ -1114,9 +1114,81 @@ function getFilteredPool(){
   return LIVE_REVIEWS.filter(function(r){ return locMatch(r) && dateMatchReview(r); });
 }
 
+// ── Sentiment-aware keyword matching ──────────────────────────────────────────
+// Avoid the classic "wasn't delicious" → win, "no wait" → complaint mistakes by
+// splitting reviews into clauses (on . ! ? ; and contrast words like but /
+// however) and checking for negators in the few tokens immediately before each
+// keyword hit. Strict word boundaries so "wait" doesn't match "waiter".
+var NEGATORS = {
+  'not':1,'no':1,'never':1,'none':1,'nothing':1,'nobody':1,'nowhere':1,
+  'neither':1,'nor':1,'without':1,'lack':1,'lacked':1,'lacking':1,'lacks':1,
+  'barely':1,'hardly':1,'scarcely':1,'rarely':1,'seldom':1,
+  'far':1, // catches "far from delicious"
+  "wasn't":1,"weren't":1,"isn't":1,"aren't":1,"don't":1,"doesn't":1,
+  "didn't":1,"won't":1,"wouldn't":1,"can't":1,"cannot":1,"couldn't":1,
+  "shouldn't":1,"hadn't":1,"hasn't":1,"haven't":1,"ain't":1
+};
+var CONTRAST_WORDS = ['but','however','although','though','yet','except','nonetheless','nevertheless'];
+
+function _splitClauses(text){
+  var sentences = String(text||'').split(/[.!?;\n]+/);
+  var out = [];
+  sentences.forEach(function(s){
+    var trimmed = s.trim();
+    if (!trimmed) return;
+    var splitIdx = -1;
+    for (var i = 0; i < CONTRAST_WORDS.length; i++) {
+      var re = new RegExp('\\b' + CONTRAST_WORDS[i] + '\\b', 'i');
+      var m = re.exec(trimmed);
+      if (m && (splitIdx === -1 || m.index < splitIdx)) splitIdx = m.index;
+    }
+    if (splitIdx === -1) {
+      out.push(trimmed);
+    } else {
+      var left  = trimmed.substring(0, splitIdx).trim();
+      var right = trimmed.substring(splitIdx).trim();
+      if (left)  out.push(left);
+      if (right) out.push(right);
+    }
+  });
+  return out;
+}
+
+function _hasNegationBefore(clauseLower, kwIdx){
+  var slice = clauseLower.substring(0, kwIdx);
+  var tokens = slice.split(/[^a-z']+/).filter(function(t){return t.length>0;});
+  var n = tokens.length;
+  for (var i = Math.max(0, n - 5); i < n; i++) {
+    var tok = tokens[i];
+    if (NEGATORS[tok]) return true;
+    // catch any contracted "n't" form we may have missed
+    if (tok.length >= 4 && tok.substr(-3) === "n't") return true;
+  }
+  return false;
+}
+
 function textMatches(text, kws){
-  var t = text.toLowerCase();
-  for(var i=0;i<kws.length;i++){ if(t.indexOf(kws[i].toLowerCase())>-1) return true; }
+  if (!text) return false;
+  var clauses = _splitClauses(text);
+  for (var c = 0; c < clauses.length; c++) {
+    var cLow = clauses[c].toLowerCase();
+    for (var k = 0; k < kws.length; k++) {
+      var kw = kws[k].toLowerCase();
+      var idx = 0;
+      while (true) {
+        var found = cLow.indexOf(kw, idx);
+        if (found === -1) break;
+        var prevCh = found > 0 ? cLow.charAt(found - 1) : ' ';
+        var nextCh = found + kw.length < cLow.length ? cLow.charAt(found + kw.length) : ' ';
+        var prevOk = !/[a-z0-9']/.test(prevCh);
+        var nextOk = !/[a-z0-9']/.test(nextCh);
+        if (prevOk && nextOk && !_hasNegationBefore(cLow, found)) {
+          return true;
+        }
+        idx = found + kw.length;
+      }
+    }
+  }
   return false;
 }
 
