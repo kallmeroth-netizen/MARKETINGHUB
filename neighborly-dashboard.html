@@ -2454,9 +2454,13 @@ function renderDailyTable(data) {
   ];
 
   let html = `<thead><tr><th>Metric</th><th>Today</th><th>6-week avg</th><th>vs 6-wk</th><th></th></tr></thead><tbody>`;
+  const COLLAPSED_DAILY = ['Discounts & comps', 'Labor'];
   sections.forEach((sec, idx) => {
     const catKey = `daily-${idx}`;
-    html += `<tr class="cat-row open" data-cat="${catKey}" onclick="toggleCatRow('${catKey}', this)">
+    const startOpen = !COLLAPSED_DAILY.includes(sec.cat);
+    const rowClass = startOpen ? 'cat-row open' : 'cat-row';
+    const childStyle = startOpen ? '' : ' style="display:none"';
+    html += `<tr class="${rowClass}" data-cat="${catKey}" onclick="toggleCatRow('${catKey}', this)">
       <td colspan="5">
         <svg class="cat-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"/></svg>${sec.cat}
       </td>
@@ -2465,7 +2469,7 @@ function renderDailyTable(data) {
       const deltaCell = r.hasDelta
         ? `<span class="chg ${r.good?'pos':'neg'}" style="font-size:10px">${r.delta}</span>`
         : '<span style="color:var(--text-3);font-size:11px">—</span>';
-      html += `<tr class="cat-child" data-cat="${catKey}">
+      html += `<tr class="cat-child" data-cat="${catKey}"${childStyle}>
         <td style="font-weight:500">${r.lbl}</td>
         <td>${r.tv}</td>
         <td style="color:var(--text-3)">${r.sv}</td>
