@@ -474,24 +474,30 @@
   <div class="data-page">
     <div class="data-header">
       <h1>Data</h1>
-      <p>Upload your weekly KPI export to refresh the dashboard. The file is processed locally — nothing is sent to a server.</p>
+      <p>All data is automated from Toast, Uber Eats, and DoorDash. As a backup, drop your file here.</p>
     </div>
 
     <div class="instructions">
-      <h3>How to update the dashboard</h3>
+      <h3>Formulas key</h3>
       <ol>
-        <li>Export your weekly KPI tracker from Google Sheets or Excel as a <span class="format-tag">.csv</span> file</li>
-        <li>Keep the same column structure: <strong>Metric, T4W Average, Last Week, Current Week, % Change T4W, % Change PW</strong></li>
-        <li>Upload using the button above in the nav bar, or drag & drop below</li>
-        <li>The dashboard updates instantly — no page refresh needed</li>
+        <li><strong>SPLH</strong> (Sales per Labor Hour) = Net sales ÷ Total labor hours</li>
+        <li><strong>Labor % of net</strong> = Total labor cost ÷ Net sales × 100</li>
+        <li><strong>% of net</strong> (any row) = Row value ÷ Net sales × 100</li>
+        <li><strong>CAC</strong> (Customer Acquisition Cost) = Ad spend ÷ Customers acquired</li>
+        <li><strong>ROAS</strong> (Return on Ad Spend) = Net revenue from ads ÷ Ad spend</li>
+        <li><strong>vs T4W</strong> / <strong>vs 6-wk</strong> = % change from the trailing 4-week / 6-week average</li>
+        <li><strong>Concept mix %</strong> = Concept sales ÷ Net sales × 100</li>
+        <li><strong>Beverage attachment</strong> = (Beverages + wine + beer) ÷ Net sales × 100</li>
+        <li><strong>On / Off premise %</strong> = On (or off) premise sales ÷ Net sales × 100</li>
+        <li><strong>WTD / PTD / QTD / YTD</strong> = Week / Period / Quarter / Year to date — running totals</li>
       </ol>
     </div>
 
     <div class="upload-zone" id="dropZone" onclick="document.getElementById('csvInput').click()" ondragover="dragOver(event)" ondragleave="dragLeave(event)" ondrop="dropFile(event)">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
-      <h3>Drop your CSV here</h3>
-      <p>or click to browse files</p>
-      <div class="file-hint">Accepts .csv exports from your weekly KPI tracker</div>
+      <h3>Drop your file here</h3>
+      <p>or click to browse — backup only, automation is the source of truth</p>
+      <div class="file-hint">Accepts .csv exports from Toast / Uber Eats / DoorDash</div>
     </div>
 
     <div class="data-preview" id="dataPreview" style="display:none">
