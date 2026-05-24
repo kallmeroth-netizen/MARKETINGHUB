@@ -1463,7 +1463,7 @@ function renderMenuHealth(){
     var status = r.neg>=45?'critical':r.neg>=35?'warning':r.pos>=40?'strong':'neutral';
     var statusColor = status==='critical'?'var(--rd)':status==='warning'?'var(--od)':status==='strong'?'var(--gd)':'var(--text3)';
     var statusBg    = status==='critical'?'var(--rl)':status==='warning'?'var(--ol)':status==='strong'?'var(--gl)':'var(--surface2)';
-    var statusText  = status==='critical'?'CRITICAL':status==='warning'?'AT RISK':status==='strong'?'STRONG':'NEUTRAL';
+    var statusText  = status==='critical'?'NEEDS ATTN':status==='warning'?'AT RISK':status==='strong'?'STRONG':'NEUTRAL';
     return '<div style="display:grid;grid-template-columns:1fr 90px 100px 130px 140px;gap:14px;align-items:center;padding:12px 0;border-bottom:1px solid var(--border);cursor:pointer" onclick="openMenuDrawer(\''+r.id+'\')">'
       +'<div>'
         +'<div style="font-size:13px;font-weight:600;color:var(--text)">'+r.label+'</div>'
