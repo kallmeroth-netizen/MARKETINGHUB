@@ -1795,6 +1795,7 @@ function _onDailyPageEnter() {
 const DAILY_API_URL = './daily-data.json';
 
 const DAILY = { wlv: null, bw: null, total: null };
+const DAILY_PREV = { wlv: null, bw: null, total: null, date: null };
 let DAILY_META = { date: '', generated: '' };
 const _dailyCharts = {};
 let dailyLoc = 'wlv';
@@ -1903,8 +1904,12 @@ async function fetchDailyData() {
       const d = new Date(DAILY_META.generated);
       ts.textContent = 'Updated ' + d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
     }
-    // Also refresh the archive index for the calendar picker
-    fetchDailyIndex();
+    // Also refresh the archive index for the calendar picker, then
+    // pull yesterday's archive so the table can show vs-yesterday deltas.
+    fetchDailyIndex().then(() => {
+      const cur = _dateKeyFromLabel(DAILY_META.date) || DAILY_INDEX?.latest;
+      if (cur) _loadDailyPrev(cur);
+    });
   } catch (e) {
     if (ts) ts.textContent = 'Could not load data';
   } finally {
@@ -1912,6 +1917,15 @@ async function fetchDailyData() {
     if (btn) { btn.textContent = 'Refresh'; btn.disabled = false; }
     renderDailyDashboard();
   }
+}
+
+// Parse "Friday 05/22/26" → "2026-05-22"
+function _dateKeyFromLabel(label) {
+  if (!label) return null;
+  const m = label.match(/(\d{1,2})\/(\d{1,2})\/(\d{2,4})/);
+  if (!m) return null;
+  const yr = m[3].length === 2 ? '20' + m[3] : m[3];
+  return `${yr}-${m[1].padStart(2,'0')}-${m[2].padStart(2,'0')}`;
 }
 
 function _applyDailyJson(json) {
@@ -1954,6 +1968,33 @@ async function fetchDailyIndex() {
     // No archive yet — fine, calendar will show empty
     DAILY_INDEX = { dates: [], count: 0 };
   }
+}
+
+// Load the archive file immediately before currentDateKey (YYYY-MM-DD) so the
+// metrics table can compute "vs yesterday". Re-renders when done.
+async function _loadDailyPrev(currentDateKey) {
+  DAILY_PREV.wlv = DAILY_PREV.bw = DAILY_PREV.total = null;
+  DAILY_PREV.date = null;
+  if (!DAILY_INDEX) await fetchDailyIndex();
+  const allDates = (DAILY_INDEX?.dates || []).map(d => d.date).sort();
+  let prevDate = null;
+  for (const d of allDates) {
+    if (d < currentDateKey) prevDate = d;
+  }
+  if (!prevDate) { if (typeof renderDailyTable === 'function') renderDailyTable(DAILY[dailyLoc]); return; }
+  try {
+    const res = await fetch(`${DAILY_ARCHIVE_PATH}/${prevDate}.json`, { cache: 'no-store' });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const json = await res.json();
+    DAILY_PREV.wlv   = json.wlv   || null;
+    DAILY_PREV.bw    = json.bw    || null;
+    DAILY_PREV.total = json.total || _computeTotal(DAILY_PREV.wlv, DAILY_PREV.bw);
+    DAILY_PREV.date  = prevDate;
+  } catch (e) {
+    DAILY_PREV.wlv = DAILY_PREV.bw = DAILY_PREV.total = null;
+    DAILY_PREV.date = null;
+  }
+  renderDailyTable(DAILY[dailyLoc]);
 }
 
 function toggleDailyCalendar(e) {
@@ -2069,6 +2110,7 @@ async function pickDailyDate(dateKey) {
     _applyDailyJson(json);
     renderDailyDashboard();
     renderDailyCalendar();
+    _loadDailyPrev(dateKey);
   } catch (e) {
     const foot = document.getElementById('dailyCalFoot');
     if (foot) foot.innerHTML = `<span style="color:var(--brand-orange)">Couldn't load ${dateKey}</span>`;
@@ -2407,60 +2449,67 @@ function renderDailyTable(data) {
   const tbl = document.getElementById('dailyMetricsTable');
   if (!tbl) return;
   if (!data) { tbl.innerHTML = '<tbody><tr><td colspan="5" style="padding:1.5rem;text-align:center;color:var(--text-3)">No data — click Refresh</td></tr></tbody>'; return; }
-  const t = data.today, s = data.sixWeekAvg || {}, l = t.labor || {};
-  // Row factory: ($) money, (i) integer, (p) percent value, (pts) basis-pts comparison
-  const rowMoney = (lbl, tv, sv, goodWhenLower) => ({
-    lbl, tv: _fmtDollar(tv||0), sv: sv != null ? _fmtDollar(sv) : '—',
-    delta: sv != null ? _fmtPct(_pct(tv, sv)) : '—',
-    good: sv != null && (goodWhenLower ? tv <= sv : tv >= sv),
-    hasDelta: sv != null
-  });
-  const rowInt = (lbl, tv, sv) => ({
-    lbl, tv: _fmtInt(tv||0), sv: sv != null ? _fmtInt(sv) : '—',
-    delta: sv != null ? _fmtPct(_pct(tv, sv)) : '—',
-    good: sv != null && tv >= sv, hasDelta: sv != null
-  });
-  const rowDol = (lbl, tv, sv) => ({
-    lbl, tv: '$' + (+(tv||0)).toFixed(2), sv: sv != null ? '$' + (+sv).toFixed(2) : '—',
-    delta: sv != null ? _fmtPct(_pct(tv, sv)) : '—',
-    good: sv != null && tv >= sv, hasDelta: sv != null
-  });
-  const rowPct = (lbl, tv, sv, goodWhenLower) => ({
-    lbl, tv: _fmtMix(tv||0), sv: sv != null ? _fmtMix(sv) : '—',
-    delta: sv != null ? _fmtPts(_ptsDelta(tv, sv)) : '—',
-    good: sv != null && (goodWhenLower ? tv <= sv : tv >= sv),
-    hasDelta: sv != null
-  });
+  const t = data.today, s = data.sixWeekAvg || {};
+  const N  = t.netSales || 0;
+  const sN = s.netSales || 0;
+  const y  = DAILY_PREV[dailyLoc]?.today;   // yesterday's data for the current location toggle
 
-  const N = t.netSales || 0;
-  const pctNetFromDollar = v => (N > 0 && v != null) ? _fmtMix(v / N * 100) : '—';
+  const $  = v => _fmtDollar(v || 0);
+  const $$ = v => '$' + (+(v||0)).toFixed(2);
+  const I  = v => _fmtInt(v || 0);
+  const Pf = v => v != null ? _fmtMix(v) : '—';
+  const sixDol = pct => sN > 0 ? $(sN * (pct || 0) / 100) : '—';
+  const vsY = (tv, yv) => {
+    if (yv == null || yv === 0 || tv == null) return null;
+    return (tv - yv) / yv * 100;
+  };
+  const vsYCell = p => {
+    if (p == null) return '<span style="color:var(--text-3);font-size:11px">—</span>';
+    return `<span class="chg ${p >= 0 ? 'pos' : 'neg'}" style="font-size:10px">${_fmtPct(p)}</span>`;
+  };
+  const CH_LBL = {
+    dineIn:'Dine In', marketplace:'Marketplace', kioskTakeOut:'Kiosk Take Out',
+    webDelivery:'Web Delivery', webTakeOut:'Web Take Out', curbside:'Curbside Pick Up',
+    thirdParty:'3rd Party Delivery', catering:'Catering'
+  };
+  const CH_6WK = { marketplace: s.marketplacePct, catering: s.cateringPct };
+  const ch = t.channels || {};
+  const channelRows = Object.keys(CH_LBL)
+    .filter(k => (ch[k] || 0) > 0)
+    .map(k => ({
+      lbl: CH_LBL[k],
+      today: $(ch[k]),
+      sixWeek: CH_6WK[k] != null ? sixDol(CH_6WK[k]) : '—',
+      pctNet: Pf(N ? (ch[k]||0)/N*100 : null),
+      vsY: vsY(ch[k], y?.channels?.[k])
+    }));
 
   const sections = [
     { cat: 'Revenue', rows: [
-      { ...rowMoney('Net sales',   t.netSales,   s.netSales),   pct: '100.0%' },
-      { ...rowInt  ('Check count', t.checkCount, s.checkCount), pct: '—' },
-      { ...rowDol  ('Avg check',   t.avgCheck,   s.avgCheck),   pct: '—' }
+      { lbl: 'Net sales',   today: $(t.netSales),   sixWeek: $(s.netSales),   pctNet: '100.0%', vsY: vsY(t.netSales,   y?.netSales) },
+      { lbl: 'Check count', today: I(t.checkCount), sixWeek: I(s.checkCount), pctNet: '—',      vsY: vsY(t.checkCount, y?.checkCount) },
+      { lbl: 'Avg check',   today: $$(t.avgCheck),  sixWeek: $$(s.avgCheck),  pctNet: '—',      vsY: vsY(t.avgCheck,   y?.avgCheck) }
     ]},
     { cat: 'Daypart mix', rows: [
-      { ...rowPct('Lunch sales mix',  t.lunchPct,  s.lunchPct),  pct: _fmtMix(t.lunchPct  || 0) },
-      { ...rowPct('Dinner sales mix', t.dinnerPct, s.dinnerPct), pct: _fmtMix(t.dinnerPct || 0) }
+      { lbl: 'Lunch sales',  today: $(t.lunchSales),  sixWeek: sixDol(s.lunchPct),  pctNet: Pf(t.lunchPct),  vsY: vsY(t.lunchSales,  y?.lunchSales) },
+      { lbl: 'Dinner sales', today: $(t.dinnerSales), sixWeek: sixDol(s.dinnerPct), pctNet: Pf(t.dinnerPct), vsY: vsY(t.dinnerSales, y?.dinnerSales) }
     ]},
     { cat: 'On / Off premise', rows: [
-      { ...rowMoney('On premise sales',  t.onPremise,  null), pct: pctNetFromDollar(t.onPremise)  },
-      { ...rowMoney('Off premise sales', t.offPremise, null), pct: pctNetFromDollar(t.offPremise) },
-      { ...rowPct  ('On premise %',  t.onPremisePct,  s.onPremisePct),  pct: _fmtMix(t.onPremisePct  || 0) },
-      { ...rowPct  ('Off premise %', t.offPremisePct, s.offPremisePct), pct: _fmtMix(t.offPremisePct || 0) }
+      { lbl: 'On premise sales',  today: $(t.onPremise),  sixWeek: sixDol(s.onPremisePct),  pctNet: Pf(t.onPremisePct),  vsY: vsY(t.onPremise,  y?.onPremise) },
+      { lbl: 'Off premise sales', today: $(t.offPremise), sixWeek: sixDol(s.offPremisePct), pctNet: Pf(t.offPremisePct), vsY: vsY(t.offPremise, y?.offPremise) }
     ]},
-    { cat: 'Concept mix (vs 6-wk)', rows: [
-      { ...rowPct("What's Gaby Cooking",  (N ? (t.pmix?.whatsGabyCooking||0)/N*100 : 0), s.whatsGabyCookingPct),  pct: pctNetFromDollar(t.pmix?.whatsGabyCooking)  },
-      { ...rowPct('Mini Kabob',           (N ? (t.pmix?.miniKabob||0)/N*100         : 0), s.miniKabobPct),         pct: pctNetFromDollar(t.pmix?.miniKabob)         },
-      { ...rowPct('Palermo Pizza Club',   (N ? (t.pmix?.palermoPizzaClub||0)/N*100  : 0), s.palermoPizzaClubPct),  pct: pctNetFromDollar(t.pmix?.palermoPizzaClub)  },
-      { ...rowPct('Mixtape',              (N ? (t.pmix?.mixtape||0)/N*100           : 0), s.mixtapePct),           pct: pctNetFromDollar(t.pmix?.mixtape)           },
-      { ...rowPct('Beverage attachment',  (N ? ((t.pmix?.beverages||0)+(t.pmix?.wine||0)+(t.pmix?.beer||0))/N*100 : 0), s.beverageAttachmentPct), pct: pctNetFromDollar((t.pmix?.beverages||0)+(t.pmix?.wine||0)+(t.pmix?.beer||0)) }
+    { cat: 'Channels — full breakdown', rows: channelRows },
+    { cat: 'Concept mix', rows: [
+      { lbl: "What's Gaby Cooking",  today: $(t.pmix?.whatsGabyCooking),  sixWeek: sixDol(s.whatsGabyCookingPct), pctNet: Pf(N ? (t.pmix?.whatsGabyCooking||0)/N*100 : null), vsY: vsY(t.pmix?.whatsGabyCooking,  y?.pmix?.whatsGabyCooking) },
+      { lbl: 'Mini Kabob',           today: $(t.pmix?.miniKabob),         sixWeek: sixDol(s.miniKabobPct),        pctNet: Pf(N ? (t.pmix?.miniKabob||0)/N*100         : null), vsY: vsY(t.pmix?.miniKabob,         y?.pmix?.miniKabob) },
+      { lbl: 'Palermo Pizza Club',   today: $(t.pmix?.palermoPizzaClub),  sixWeek: sixDol(s.palermoPizzaClubPct), pctNet: Pf(N ? (t.pmix?.palermoPizzaClub||0)/N*100  : null), vsY: vsY(t.pmix?.palermoPizzaClub,  y?.pmix?.palermoPizzaClub) },
+      { lbl: 'Mixtape',              today: $(t.pmix?.mixtape),           sixWeek: sixDol(s.mixtapePct),          pctNet: Pf(N ? (t.pmix?.mixtape||0)/N*100           : null), vsY: vsY(t.pmix?.mixtape,           y?.pmix?.mixtape) },
+      { lbl: 'Marketplace',          today: $(t.pmix?.marketplace),       sixWeek: sixDol(s.marketplacePct),      pctNet: Pf(N ? (t.pmix?.marketplace||0)/N*100       : null), vsY: vsY(t.pmix?.marketplace,       y?.pmix?.marketplace) },
+      { lbl: 'Catering',             today: $(t.pmix?.catering),          sixWeek: sixDol(s.cateringPct),         pctNet: Pf(N ? (t.pmix?.catering||0)/N*100          : null), vsY: vsY(t.pmix?.catering,          y?.pmix?.catering) }
     ]}
   ];
 
-  let html = `<thead><tr><th>Metric</th><th>Today</th><th>6-week avg</th><th>vs 6-wk</th><th>% of net</th></tr></thead><tbody>`;
+  let html = `<thead><tr><th>Metric</th><th>Today</th><th>6-week avg</th><th>% of net</th><th>vs yesterday</th></tr></thead><tbody>`;
   sections.forEach((sec, idx) => {
     const catKey = `daily-${idx}`;
     html += `<tr class="cat-row open" data-cat="${catKey}" onclick="toggleCatRow('${catKey}', this)">
@@ -2469,15 +2518,12 @@ function renderDailyTable(data) {
       </td>
     </tr>`;
     sec.rows.forEach(r => {
-      const deltaCell = r.hasDelta
-        ? `<span class="chg ${r.good?'pos':'neg'}" style="font-size:10px">${r.delta}</span>`
-        : '<span style="color:var(--text-3);font-size:11px">—</span>';
       html += `<tr class="cat-child" data-cat="${catKey}">
         <td style="font-weight:500">${r.lbl}</td>
-        <td>${r.tv}</td>
-        <td style="color:var(--text-3)">${r.sv}</td>
-        <td>${deltaCell}</td>
-        <td style="color:var(--text-3)">${r.pct}</td>
+        <td>${r.today}</td>
+        <td style="color:var(--text-3)">${r.sixWeek}</td>
+        <td style="color:var(--text-3)">${r.pctNet}</td>
+        <td>${vsYCell(r.vsY)}</td>
       </tr>`;
     });
   });
