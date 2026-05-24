@@ -287,8 +287,8 @@
     <img src="https://raw.githubusercontent.com/kallmeroth-netizen/MARKETINGHUB/a5d8cf8a019ba9e6f3d9bc3afb115dca7d42549a/NeighborlyLogo.png" alt="Neighborly" class="nav-logo" onclick="toggleHubNav(event)">
   </div>
   <div class="nav-tabs">
-    <a class="nav-tab active" onclick="showPage('dashboard', this)">Dashboard</a>
-    <a class="nav-tab" id="dailyNavTab" onclick="showPage('daily', this)">Daily</a>
+    <a class="nav-tab active" onclick="showPage('dashboard', this)">Weekly Performance</a>
+    <a class="nav-tab" id="dailyNavTab" onclick="showPage('daily', this)">Daily Sales</a>
     <a class="nav-tab" onclick="showPage('alltime', this)">All time</a>
   </div>
   <div class="nav-right">
@@ -387,7 +387,7 @@
   <div class="dashboard">
     <div class="dash-header">
       <div>
-        <div class="dash-title">Performance Dashboard</div>
+        <div class="dash-title">Weekly Performance</div>
         <div class="dash-sub">Neighborly marketing & revenue overview</div>
         <div class="week-badge" id="weekBadge" onclick="toggleWeekCalendar(event)">
           <span class="week-badge-text">
@@ -446,7 +446,7 @@
     </div>
 
     <!-- 3PD -->
-    <div class="section-title">3PD & sponsored listings</div>
+    <div class="section-title">3PD sponsored listings</div>
     <div class="chart-grid-2" style="margin-bottom:1.5rem">
       <div class="chart-card">
         <div class="chart-card-title">Sponsored listing ROAS</div>
@@ -802,7 +802,7 @@ function render3PDCharts() {
 // ── METRICS TABLE ─────────────────────────────────────────────────────────────
 function renderMetricsTable() {
   const rows = [
-    { cat: '3PD Sponsored Listings' },
+    { cat: '3PD sponsored listings' },
     { label: 'Net Revenue',       t4w: fmt$(DATA.sponsored.netRev.t4w), lw: fmt$(DATA.sponsored.netRev.lw), cw: fmt$(DATA.sponsored.netRev.cw), pT4W: DATA.sponsored.netRev.pctT4W, pPW: DATA.sponsored.netRev.pctPW },
     { label: 'Spend',             t4w: fmt$(DATA.sponsored.spend.t4w),  lw: fmt$(DATA.sponsored.spend.lw),  cw: fmt$(DATA.sponsored.spend.cw),  pT4W: DATA.sponsored.spend.pctT4W,  pPW: DATA.sponsored.spend.pctPW  },
     { label: 'ROAS',              t4w: fmtR(DATA.sponsored.roas.t4w),   lw: fmtR(DATA.sponsored.roas.lw),   cw: fmtR(DATA.sponsored.roas.cw),   pT4W: DATA.sponsored.roas.pctT4W,   pPW: DATA.sponsored.roas.pctPW   },
@@ -849,7 +849,7 @@ function renderMetricsTable() {
     if (r.cat) {
       catIdx++;
       currentKey = `main-${catIdx}`;
-      html += `<tr class="cat-row" data-cat="${currentKey}" onclick="toggleCatRow('${currentKey}', this)">
+      html += `<tr class="cat-row open" data-cat="${currentKey}" onclick="toggleCatRow('${currentKey}', this)">
         <td colspan="6">
           <svg class="cat-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"/></svg>${r.cat}
         </td>
@@ -857,8 +857,8 @@ function renderMetricsTable() {
     } else {
       const p4 = r.pT4W != null ? `<span class="${pctClass(r.pT4W)}">${fmtPct(r.pT4W)}</span>` : '—';
       const ppw = r.pPW != null ? `<span class="${pctClass(r.pPW)}">${fmtPct(r.pPW)}</span>` : '—';
-      const hideAttr = currentKey ? ` class="cat-child" data-cat="${currentKey}" style="display:none"` : '';
-      html += `<tr${hideAttr}><td>${r.label}</td><td>${r.t4w}</td><td>${r.lw}</td><td style="font-weight:500">${r.cw}</td><td>${p4}</td><td>${ppw}</td></tr>`;
+      const childAttr = currentKey ? ` class="cat-child" data-cat="${currentKey}"` : '';
+      html += `<tr${childAttr}><td>${r.label}</td><td>${r.t4w}</td><td>${r.lw}</td><td style="font-weight:500">${r.cw}</td><td>${p4}</td><td>${ppw}</td></tr>`;
     }
   });
   html += '</tbody>';
@@ -2456,7 +2456,7 @@ function renderDailyTable(data) {
   let html = `<thead><tr><th>Metric</th><th>Today</th><th>6-week avg</th><th>vs 6-wk</th><th></th></tr></thead><tbody>`;
   sections.forEach((sec, idx) => {
     const catKey = `daily-${idx}`;
-    html += `<tr class="cat-row" data-cat="${catKey}" onclick="toggleCatRow('${catKey}', this)">
+    html += `<tr class="cat-row open" data-cat="${catKey}" onclick="toggleCatRow('${catKey}', this)">
       <td colspan="5">
         <svg class="cat-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"/></svg>${sec.cat}
       </td>
@@ -2465,7 +2465,7 @@ function renderDailyTable(data) {
       const deltaCell = r.hasDelta
         ? `<span class="chg ${r.good?'pos':'neg'}" style="font-size:10px">${r.delta}</span>`
         : '<span style="color:var(--text-3);font-size:11px">—</span>';
-      html += `<tr class="cat-child" data-cat="${catKey}" style="display:none">
+      html += `<tr class="cat-child" data-cat="${catKey}">
         <td style="font-weight:500">${r.lbl}</td>
         <td>${r.tv}</td>
         <td style="color:var(--text-3)">${r.sv}</td>
