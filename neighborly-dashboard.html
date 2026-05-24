@@ -146,6 +146,10 @@
   .metrics-table tr:last-child td { border-bottom: none; }
   .metrics-table tr:hover td { background: var(--surface2); }
   .metrics-table .cat-row td { font-weight: 600; color: var(--text-2); font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; background: var(--surface2); padding: 5px 12px; }
+  .metrics-table .cat-row { cursor: pointer; user-select: none; }
+  .metrics-table .cat-row:hover td { background: var(--border); }
+  .cat-chevron { display: inline-block; width: 10px; height: 10px; margin-right: 8px; vertical-align: -1px; transition: transform 0.15s ease; color: var(--text-3); }
+  .metrics-table .cat-row.open .cat-chevron { transform: rotate(90deg); }
   .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; max-width: 100%; }
   .table-scroll::-webkit-scrollbar { height: 6px; }
   .table-scroll::-webkit-scrollbar-track { background: var(--surface2); border-radius: 3px; }
@@ -839,13 +843,22 @@ function renderMetricsTable() {
     <th>${cl}</th>
   </tr></thead><tbody>`;
 
+  let catIdx = -1;
+  let currentKey = '';
   rows.forEach(r => {
     if (r.cat) {
-      html += `<tr class="cat-row"><td colspan="6">${r.cat}</td></tr>`;
+      catIdx++;
+      currentKey = `main-${catIdx}`;
+      html += `<tr class="cat-row" data-cat="${currentKey}" onclick="toggleCatRow('${currentKey}', this)">
+        <td colspan="6">
+          <svg class="cat-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"/></svg>${r.cat}
+        </td>
+      </tr>`;
     } else {
       const p4 = r.pT4W != null ? `<span class="${pctClass(r.pT4W)}">${fmtPct(r.pT4W)}</span>` : '—';
       const ppw = r.pPW != null ? `<span class="${pctClass(r.pPW)}">${fmtPct(r.pPW)}</span>` : '—';
-      html += `<tr><td>${r.label}</td><td>${r.t4w}</td><td>${r.lw}</td><td style="font-weight:500">${r.cw}</td><td>${p4}</td><td>${ppw}</td></tr>`;
+      const hideAttr = currentKey ? ` class="cat-child" data-cat="${currentKey}" style="display:none"` : '';
+      html += `<tr${hideAttr}><td>${r.label}</td><td>${r.t4w}</td><td>${r.lw}</td><td style="font-weight:500">${r.cw}</td><td>${p4}</td><td>${ppw}</td></tr>`;
     }
   });
   html += '</tbody>';
@@ -2441,13 +2454,18 @@ function renderDailyTable(data) {
   ];
 
   let html = `<thead><tr><th>Metric</th><th>Today</th><th>6-week avg</th><th>vs 6-wk</th><th></th></tr></thead><tbody>`;
-  sections.forEach(sec => {
-    html += `<tr class="cat-row"><td colspan="5">${sec.cat}</td></tr>`;
+  sections.forEach((sec, idx) => {
+    const catKey = `daily-${idx}`;
+    html += `<tr class="cat-row" data-cat="${catKey}" onclick="toggleCatRow('${catKey}', this)">
+      <td colspan="5">
+        <svg class="cat-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"/></svg>${sec.cat}
+      </td>
+    </tr>`;
     sec.rows.forEach(r => {
       const deltaCell = r.hasDelta
         ? `<span class="chg ${r.good?'pos':'neg'}" style="font-size:10px">${r.delta}</span>`
         : '<span style="color:var(--text-3);font-size:11px">—</span>';
-      html += `<tr>
+      html += `<tr class="cat-child" data-cat="${catKey}" style="display:none">
         <td style="font-weight:500">${r.lbl}</td>
         <td>${r.tv}</td>
         <td style="color:var(--text-3)">${r.sv}</td>
@@ -2458,6 +2476,13 @@ function renderDailyTable(data) {
   });
   html += '</tbody>';
   tbl.innerHTML = html;
+}
+
+function toggleCatRow(key, el) {
+  const isOpen = el.classList.toggle('open');
+  el.closest('table').querySelectorAll(`tr.cat-child[data-cat="${key}"]`).forEach(r => {
+    r.style.display = isOpen ? '' : 'none';
+  });
 }
 </script>
 </body>
