@@ -37,6 +37,8 @@ nav{background:var(--surface);border-bottom:.5px solid var(--border-strong);padd
 .hub-nav{position:fixed;top:62px;left:1.5rem;right:1.5rem;background:var(--surface);border:.5px solid var(--border-strong);border-radius:16px;z-index:160;padding:1.5rem 2rem 1.75rem;transform:translateY(-12px);opacity:0;pointer-events:none;transition:opacity .18s ease,transform .18s ease;box-shadow:0 12px 40px rgba(0,0,0,.12)}
 .hub-nav.open{opacity:1;pointer-events:all;transform:translateY(0)}
 .hub-nav-label{font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:1rem}
+.hub-back-home{font-size:11px;font-weight:500;color:var(--text2);text-decoration:none;padding:4px 10px;border:.5px solid var(--border-strong);border-radius:7px;background:var(--surface2);letter-spacing:0;text-transform:none;transition:background .15s,color .15s;white-space:nowrap}
+.hub-back-home:hover{background:var(--surface);color:var(--text)}
 .hub-nav-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
 .hub-card{display:flex;flex-direction:column;gap:6px;padding:14px;border-radius:10px;border:.5px solid var(--border);background:var(--surface);cursor:pointer;transition:background .12s,border-color .12s;position:relative;text-decoration:none;color:inherit}
 .hub-card:hover{background:var(--surface2);border-color:var(--border-strong)}
@@ -344,7 +346,7 @@ nav{background:var(--surface);border-bottom:.5px solid var(--border-strong);padd
   /* One-row mobile nav: brand | centered tabs (scrollable) | gear */
   nav{height:50px;min-height:50px;padding:0 12px;display:grid;grid-template-columns:auto 1fr auto;align-items:center;column-gap:10px;overflow:visible}
   .nav-brand{height:36px;display:flex;align-items:center;justify-self:start;flex-shrink:0}
-  .nav-logo{height:18px;width:auto;max-width:115px;cursor:pointer;object-fit:contain}
+  .nav-logo{height:18px;width:auto;cursor:pointer}
   .settings-btn{width:32px;height:32px;justify-self:end;flex-shrink:0}
   .settings-btn svg{width:15px;height:15px}
   .nav-tabs{min-width:0;max-width:100%;overflow-x:auto;display:flex;justify-content:center;-webkit-overflow-scrolling:touch;scroll-snap-type:x proximity;align-items:center;height:50px}
@@ -452,7 +454,7 @@ nav{background:var(--surface);border-bottom:.5px solid var(--border-strong);padd
 }
 
 @media (max-width: 420px){
-  .nav-logo{height:16px;max-width:80px}
+  .nav-logo{height:16px}
   .nav-tab{padding:0 9px;font-size:11.5px}
   .dt-btn,.lt-btn{font-size:10.5px;padding:5px 8px}
   .dp-btn{font-size:10.5px;padding:5px 9px}
@@ -561,7 +563,10 @@ nav{background:var(--surface);border-bottom:.5px solid var(--border-strong);padd
 <!-- HUB NAVIGATION -->
 <div class="hub-overlay" id="hubOverlay" onclick="closeHubNav()"></div>
 <div class="hub-nav" id="hubNav">
-  <div class="hub-nav-label">Neighborly Marketing Hub</div>
+  <div class="hub-nav-label" style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+    <span>Neighborly Marketing Hub</span>
+    <a href="index.html" class="hub-back-home">← Home</a>
+  </div>
   <div class="hub-nav-grid">
 
     <!-- 1. Performance dashboard (main KPI dashboard) -->
@@ -592,7 +597,19 @@ nav{background:var(--surface);border-bottom:.5px solid var(--border-strong);padd
       <div class="hub-card-sub">Campaigns &amp; scheduling</div>
     </a>
 
-    <!-- 3. Social Metrics (coming soon — disabled) -->
+    <!-- 3. Brand Assets -->
+    <a class="hub-card" href="neighborly-assets.html">
+      <div class="hub-card-icon" style="background:#f7f0e4">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#9c7a3c" stroke-width="2">
+          <circle cx="12" cy="12" r="3"/>
+          <path d="M19.07 4.93a10 10 0 010 14.14M4.93 4.93a10 10 0 000 14.14M12 2v2M12 20v2M2 12h2M20 12h2"/>
+        </svg>
+      </div>
+      <div class="hub-card-title">Brand Assets</div>
+      <div class="hub-card-sub">Logos, fonts &amp; templates</div>
+    </a>
+
+    <!-- 4. Social Metrics (coming soon — disabled) -->
     <a class="hub-card" href="neighborly-social.html"
        style="opacity:0.38;pointer-events:none;cursor:default">
       <div class="hub-card-icon" style="background:#eaeef8">
