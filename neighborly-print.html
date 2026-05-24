@@ -121,6 +121,8 @@ nav{background:var(--surface);border-bottom:.5px solid var(--border-strong);padd
 .hub-nav{position:fixed;top:60px;left:1.5rem;right:1.5rem;background:var(--surface);border:.5px solid var(--border-strong);border-radius:16px;z-index:160;padding:1.5rem 2rem 1.75rem;transform:translateY(-12px);opacity:0;pointer-events:none;transition:opacity .18s ease,transform .18s ease;box-shadow:0 12px 40px rgba(0,0,0,.12)}
 .hub-nav.open{opacity:1;pointer-events:all;transform:translateY(0)}
 .hub-nav-label{font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:1rem}
+.hub-back-home{font-size:11px;font-weight:500;color:var(--text2);text-decoration:none;padding:4px 10px;border:.5px solid var(--border-strong);border-radius:7px;background:var(--surface2);letter-spacing:0;text-transform:none;transition:background .15s,color .15s;white-space:nowrap}
+.hub-back-home:hover{background:var(--surface);color:var(--text)}
 .hub-nav-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}
 .hub-card{display:flex;flex-direction:column;gap:6px;padding:14px;border-radius:10px;border:.5px solid var(--border);background:var(--surface);cursor:pointer;transition:background .12s,border-color .12s;position:relative;text-decoration:none;color:inherit}
 .hub-card:hover{background:var(--surface2);border-color:var(--border-strong)}
@@ -135,7 +137,10 @@ nav{background:var(--surface);border-bottom:.5px solid var(--border-strong);padd
 <body>
 <div class="hub-overlay" id="hubOverlay" onclick="closeHubNav()"></div>
 <div class="hub-nav" id="hubNav">
-  <div class="hub-nav-label">Neighborly Marketing Hub</div>
+  <div class="hub-nav-label" style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+    <span>Neighborly Marketing Hub</span>
+    <a href="index.html" class="hub-back-home">← Home</a>
+  </div>
   <div class="hub-nav-grid">
     <a class="hub-card" href="neighborly-dashboard.html">
       <div class="hub-card-icon" style="background:var(--yl)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--yd)" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></div>
@@ -153,10 +158,10 @@ nav{background:var(--surface);border-bottom:.5px solid var(--border-strong);padd
       <div class="hub-card-icon" style="background:var(--tl)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--td)" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg></div>
       <div class="hub-card-title">Brand Assets</div><div class="hub-card-sub">Logos · Guidelines</div>
     </div>
-    <a class="hub-card" href="neighborly-social.html">
+    <div class="hub-card" style="opacity:.45;cursor:default">
       <div class="hub-card-icon" style="background:var(--bl)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--bd)" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg></div>
-      <div class="hub-card-title">Instagram</div><div class="hub-card-sub">Growth · Analytics</div>
-    </a>
+      <div class="hub-card-title">Social Metrics</div><div class="hub-card-sub">Coming soon</div>
+    </div>
     <a class="hub-card" href="neighborly-guests.html">
       <div class="hub-card-icon" style="background:var(--ll)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--ld)" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></div>
       <div class="hub-card-title">Guest Intelligence</div><div class="hub-card-sub">Reviews · Feedback</div>

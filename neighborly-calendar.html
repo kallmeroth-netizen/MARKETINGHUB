@@ -20,6 +20,8 @@ body{font-family:'DM Sans',sans-serif;overscroll-behavior:none;height:100%;backg
 .hub-nav{position:fixed;top:50px;left:1.25rem;right:1.25rem;background:#fff;border:.5px solid rgba(0,0,0,.14);border-radius:16px;z-index:160;padding:1.25rem 1.5rem 1.5rem;transform:translateY(-10px);opacity:0;pointer-events:none;transition:opacity .18s ease,transform .18s ease;box-shadow:0 12px 40px rgba(0,0,0,.12)}
 .hub-nav.open{opacity:1;pointer-events:all;transform:translateY(0)}
 .hub-nav-label{font-size:10px;font-weight:600;color:#9E9C96;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.85rem}
+.hub-back-home{font-size:11px;font-weight:500;color:#6B6960;text-decoration:none;padding:4px 10px;border:.5px solid rgba(0,0,0,.14);border-radius:7px;background:#F0EEE9;letter-spacing:0;text-transform:none;transition:background .15s,color .15s;white-space:nowrap}
+.hub-back-home:hover{background:#FFFFFF;color:#1A1916}
 .hub-nav-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
 .hub-card{display:flex;flex-direction:column;gap:5px;padding:12px;border-radius:10px;border:.5px solid rgba(0,0,0,.08);background:#fff;cursor:pointer;transition:background .12s,border-color .12s;text-decoration:none}
 .hub-card:hover{background:#F0EEE9;border-color:rgba(0,0,0,.14)}
@@ -877,11 +879,15 @@ function NeighborlyCalendar() {
 
       {/* HUB NAV OVERLAY */}
       <div className={`hub-nav${hubOpen?' open':''}`} onClick={e=>e.stopPropagation()}>
-        <div className="hub-nav-label">Neighborly Marketing Hub</div>
+        <div className="hub-nav-label" style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:12}}>
+          <span>Neighborly Marketing Hub</span>
+          <a href="https://beneighborly.team/" className="hub-back-home">← Home</a>
+        </div>
         <div className="hub-nav-grid">
           {[
             {title:'Sales & Performance', sub:'Sales & KPI tracker',     iconType:'grid',     bg:'#fdf7d8',ic:'#b89a00', href:'https://beneighborly.team/neighborly-dashboard.html'},
             {title:'Marketing Calendar', sub:'Campaigns & scheduling',   iconType:'calendar', bg:'#e4f5ea',ic:'#2a7a4b', href:'https://beneighborly.team/neighborly-calendar.html', active:true},
+            {title:'Brand Assets',       sub:'Logos, fonts & templates', iconType:'assets',   bg:'#f7f0e4',ic:'#9c7a3c', href:'https://beneighborly.team/neighborly-assets.html'},
             {title:'Social Metrics',     sub:'Coming soon',              iconType:'pulse',    bg:'#eaeef8',ic:'#3a59a0', href:'https://beneighborly.team/neighborly-social.html', disabled:true},
             {title:'Guest Intelligence', sub:'Feedback & experience trends', iconType:'chat', bg:'#f0eff5',ic:'#5a4a7a', href:'https://beneighborly.team/neighborly-guests.html'},
           ].map(card => (
@@ -909,6 +915,10 @@ function NeighborlyCalendar() {
                   {card.iconType==='chat' && (
                     <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
                   )}
+                  {card.iconType==='assets' && (<>
+                    <circle cx="12" cy="12" r="3"/>
+                    <path d="M19.07 4.93a10 10 0 010 14.14M4.93 4.93a10 10 0 000 14.14M12 2v2M12 20v2M2 12h2M20 12h2"/>
+                  </>)}
                 </svg>
               </div>
               <div className="hub-card-title">{card.title}</div>
