@@ -1,39 +1,21 @@
 {
   "dates": [
     {
-      "date": "2026-05-17",
-      "dateLabel": "Sunday 05/17/26",
+      "date": "2026-05-23",
+      "dateLabel": "Saturday 05/23/26",
       "netSales": {
-        "wlv": 22054.06,
-        "bw": 27201.47,
-        "total": 49255.53
+        "wlv": 24482.9,
+        "bw": 24957.31,
+        "total": 49440.21
       }
     },
     {
-      "date": "2026-05-18",
-      "dateLabel": "Monday 05/18/26",
+      "date": "2026-05-22",
+      "dateLabel": "Friday 05/22/26",
       "netSales": {
-        "wlv": 18353.63,
-        "bw": 21043.58,
-        "total": 39397.21
-      }
-    },
-    {
-      "date": "2026-05-19",
-      "dateLabel": "Tuesday 05/19/26",
-      "netSales": {
-        "wlv": 19399.29,
-        "bw": 20141.05,
-        "total": 39540.34
-      }
-    },
-    {
-      "date": "2026-05-20",
-      "dateLabel": "Wednesday 05/20/26",
-      "netSales": {
-        "wlv": 22885.02,
-        "bw": 28681.8,
-        "total": 51566.82
+        "wlv": 25508.3,
+        "bw": 25506.09,
+        "total": 51014.39
       }
     },
     {
@@ -46,15 +28,42 @@
       }
     },
     {
-      "date": "2026-05-22",
-      "dateLabel": "Friday 05/22/26",
+      "date": "2026-05-20",
+      "dateLabel": "Wednesday 05/20/26",
       "netSales": {
-        "wlv": 25508.3,
-        "bw": 25506.09,
-        "total": 51014.39
+        "wlv": 22885.02,
+        "bw": 28681.8,
+        "total": 51566.82
+      }
+    },
+    {
+      "date": "2026-05-19",
+      "dateLabel": "Tuesday 05/19/26",
+      "netSales": {
+        "wlv": 19399.29,
+        "bw": 20141.05,
+        "total": 39540.34
+      }
+    },
+    {
+      "date": "2026-05-18",
+      "dateLabel": "Monday 05/18/26",
+      "netSales": {
+        "wlv": 18353.63,
+        "bw": 21043.58,
+        "total": 39397.21
+      }
+    },
+    {
+      "date": "2026-05-17",
+      "dateLabel": "Sunday 05/17/26",
+      "netSales": {
+        "wlv": 22054.06,
+        "bw": 27201.47,
+        "total": 49255.53
       }
     }
   ],
-  "latest": "2026-05-22",
-  "count": 6
+  "latest": "2026-05-23",
+  "count": 7
 }
