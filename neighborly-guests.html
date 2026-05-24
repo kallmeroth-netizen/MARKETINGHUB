@@ -348,17 +348,16 @@ nav{background:var(--surface);border-bottom:.5px solid var(--border-strong);padd
   html,body{width:100%;max-width:100%;overflow-x:hidden;-webkit-text-size-adjust:100%}
   body{padding-bottom:env(safe-area-inset-bottom)}
 
-  /* Two-row mobile nav:
-     Row 1: [brand] [tabs (scrollable)] [gear]
-     Row 2: [date presets + pill (scrollable)] spans full width */
-  /* 3-row nav: [brand | gear] / [tabs] / [filters] */
-  nav{height:auto;min-height:50px;padding:8px 12px;display:grid;grid-template-columns:1fr auto;grid-template-areas:"brand gear" "tabs tabs" "filters filters";align-items:center;column-gap:10px;row-gap:8px;overflow:visible}
-  .nav-brand{grid-area:brand;height:30px;display:flex;align-items:center;justify-self:start}
-  .nav-logo{height:18px;max-width:110px;cursor:pointer}
-  .settings-btn{grid-area:gear;width:34px;height:34px;justify-self:end}
+  /* Two-row mobile nav matching the calendar page pattern:
+     Row 1: [brand] [tabs scrollable, centered] [gear]
+     Row 2: [date presets + date pill, full-width scrollable] */
+  nav{height:auto;min-height:50px;padding:8px 12px;display:grid;grid-template-columns:auto 1fr auto;grid-template-areas:"brand tabs gear" "filters filters filters";align-items:center;column-gap:10px;row-gap:8px;overflow:visible}
+  .nav-brand{grid-area:brand;height:36px;display:flex;align-items:center;justify-self:start;flex-shrink:0}
+  .nav-logo{height:17px;max-width:108px;cursor:pointer}
+  .settings-btn{grid-area:gear;width:32px;height:32px;justify-self:end;flex-shrink:0}
   .settings-btn svg{width:15px;height:15px}
-  .nav-tabs{grid-area:tabs;width:100%;min-width:0;overflow-x:auto;display:flex;justify-content:flex-start;-webkit-overflow-scrolling:touch;scroll-snap-type:x proximity;align-items:center;border-top:.5px solid var(--border);padding-top:4px;margin:0 -12px;padding-left:12px;padding-right:12px}
-  .nav-tab{height:34px;padding:0 14px;font-size:12.5px;flex:0 0 auto;scroll-snap-align:start;border-bottom-width:2px}
+  .nav-tabs{grid-area:tabs;min-width:0;max-width:100%;overflow-x:auto;display:flex;justify-content:center;-webkit-overflow-scrolling:touch;scroll-snap-type:x proximity;align-items:center}
+  .nav-tab{height:36px;padding:0 11px;font-size:12.5px;flex:0 0 auto;scroll-snap-align:start;border-bottom-width:2px}
   .nav-right{grid-area:filters;width:100%;display:flex;gap:6px;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:2px;justify-content:flex-start;align-items:center;border-top:.5px solid var(--border);padding-top:8px;margin:0 -12px;padding-left:12px;padding-right:12px}
 
   .date-preset-group{flex:0 0 auto;padding:2px}
@@ -1463,7 +1462,7 @@ function renderMenuHealth(){
     var status = r.neg>=45?'critical':r.neg>=35?'warning':r.pos>=40?'strong':'neutral';
     var statusColor = status==='critical'?'var(--rd)':status==='warning'?'var(--od)':status==='strong'?'var(--gd)':'var(--text3)';
     var statusBg    = status==='critical'?'var(--rl)':status==='warning'?'var(--ol)':status==='strong'?'var(--gl)':'var(--surface2)';
-    var statusText  = status==='critical'?'NEEDS ATTN':status==='warning'?'AT RISK':status==='strong'?'STRONG':'NEUTRAL';
+    var statusText  = status==='critical'?'NEEDS ATTN':status==='warning'?'WATCH':status==='strong'?'STRONG':'STAPLE';
     return '<div style="display:grid;grid-template-columns:1fr 90px 100px 130px 140px;gap:14px;align-items:center;padding:12px 0;border-bottom:1px solid var(--border);cursor:pointer" onclick="openMenuDrawer(\''+r.id+'\')">'
       +'<div>'
         +'<div style="font-size:13px;font-weight:600;color:var(--text)">'+r.label+'</div>'
