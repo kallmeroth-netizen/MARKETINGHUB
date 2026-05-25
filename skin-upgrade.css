@@ -44,12 +44,14 @@ nav.top {
   min-height: 60px !important;
   display: flex !important;
   align-items: center !important;
-  /* Reserve 56px on the left for the absolutely-positioned back button. */
-  padding: 0 16px 0 60px !important;
-  background: rgba(250, 247, 240, 0.88) !important;
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border-bottom: 1px solid rgba(31, 35, 40, 0.06) !important;
+  /* Lighter band + content centered to a standard 1240px width on wide screens.
+     min 60px left to keep room for the absolute back button. */
+  padding-left: max(60px, calc(50% - 600px)) !important;
+  padding-right: max(16px, calc(50% - 600px)) !important;
+  background: rgba(253, 251, 246, 0.74) !important;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(31, 35, 40, 0.05) !important;
   gap: 14px !important;
 }
 
@@ -114,11 +116,13 @@ nav.top {
   gap: 4px !important;
   height: auto !important;
   overflow: visible !important;
+  /* Push tabs to the right side of the nav — settings/date follow */
   margin-left: auto !important;
-  margin-right: auto !important;
+  margin-right: 8px !important;
   flex: 0 0 auto !important;
   display: flex !important;
 }
+.nav-right { margin-left: 0 !important; }
 .nav-tab {
   height: auto !important;
   padding: 8px 16px !important;
@@ -139,9 +143,9 @@ nav.top {
 }
 .nav-tab:hover { color: #1f2328 !important; }
 
-/* Right cluster (settings, date, refresh, etc.) anchored right */
+/* Right cluster (settings, date, refresh, etc.) sits after the tabs */
 .nav-right {
-  margin-left: auto !important;
+  margin-left: 0 !important;
   display: flex !important;
   align-items: center !important;
   gap: 8px;
@@ -417,4 +421,62 @@ nav.top {
   font-style: normal !important;
   text-transform: none !important;
   background: none !important;
+}
+
+/* =================== BRAND PAGE polish ===================
+   - All six overview cards match the "Who We Are" Mission/Promise/Feeling
+     treatment: same white-ish background, no feature card.
+   - Floating decorative blobs hidden so the bg matches the rest of the system.
+   - Photography section title spacing fixed.
+   - Colors section tightened so it takes less vertical room. */
+.blob,
+.blob-1, .blob-2, .blob-3, .blob-4 { display: none !important; }
+
+.quick-cell {
+  background: #ffffff !important;
+  color: var(--ink) !important;
+  border: 1px solid rgba(31,35,40,0.06) !important;
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease !important;
+}
+.quick-cell:hover {
+  background: #fffdf7 !important;
+  border-color: rgba(31,35,40,0.14) !important;
+  transform: translateY(-1px);
+}
+.quick-cell.feature {
+  background: #ffffff !important;
+  color: var(--ink) !important;
+}
+.quick-cell.feature .quick-name { color: var(--ink) !important; }
+.quick-cell.feature .quick-arrow { color: rgba(31,35,40,0.42) !important; }
+.quick-cell.feature .quick-num { color: rgba(31,35,40,0.42) !important; }
+.quick-cell.feature .quick-dot { background: var(--orange) !important; }
+.quick-cell.feature:hover {
+  background: #fffdf7 !important;
+}
+
+/* Section heading metrics (PHOTOGRAPHY, OVERVIEW, etc.) */
+.row-title {
+  font-family: 'TAYAmaya', 'DM Sans', sans-serif !important;
+  letter-spacing: 0.01em !important;
+  line-height: 1 !important;
+  font-weight: 400 !important;
+}
+
+/* Colors / palette: tighter vertical rhythm */
+.palette { gap: 20px !important; }
+.palette-group { gap: 8px !important; }
+.palette-group .palette-head { margin-bottom: 6px !important; }
+.swatch-row { gap: 12px !important; }
+
+/* =================== VOICE LINE ===================
+   Drop the em-dash, swap "good" + "never" to upright Tuppence. */
+.voice-line { text-wrap: balance; }
+.voice-line .accent {
+  color: inherit !important;
+  font-family: inherit !important;
+  font-weight: inherit !important;
+  font-style: normal !important;
+  background: none !important;
+  text-transform: none !important;
 }

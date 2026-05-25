@@ -3,9 +3,7 @@
    page's text logo with the brand wordmark image. Idempotent: safe to
    re-run after React re-renders. */
 (function () {
-  const LOGO_SRC =
-    'https://raw.githubusercontent.com/kallmeroth-netizen/MARKETINGHUB/' +
-    'a5d8cf8a019ba9e6f3d9bc3afb115dca7d42549a/NeighborlyLogo.png';
+  const LOGO_SRC = 'NeighborlyLogo.png';
 
   function makeBack() {
     const a = document.createElement('a');
