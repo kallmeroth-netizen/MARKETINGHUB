@@ -48,6 +48,14 @@
   .hub-nav-label { font-size: 10px; font-weight: 600; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 1rem; }
   .hub-back-home { font-size: 11px; font-weight: 500; color: var(--text-2); text-decoration: none; padding: 4px 10px; border: 0.5px solid var(--border-strong); border-radius: 7px; background: var(--surface2); letter-spacing: 0; text-transform: none; transition: background 0.15s, color 0.15s; white-space: nowrap; }
   .hub-back-home:hover { background: var(--surface); color: var(--text); }
+
+  /* Quick-nav: small icon buttons in the nav, one per hub destination */
+  .quick-nav { display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
+  .qn-btn { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; border: 0.5px solid var(--border-strong); border-radius: 7px; background: var(--surface); color: var(--text-2); cursor: pointer; transition: all 0.15s; text-decoration: none; padding: 0; }
+  .qn-btn:hover { background: var(--surface2); color: var(--text); border-color: var(--text-2); }
+  .qn-btn.active { background: var(--brand-yellow-light, #fdf7d8); color: var(--text); border-color: #e3c030; pointer-events: none; }
+  .qn-btn.disabled { opacity: 0.4; pointer-events: none; cursor: default; }
+  .qn-btn svg { width: 14px; height: 14px; }
   .hub-nav-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
   @media (max-width: 768px) { .hub-nav-grid { grid-template-columns: repeat(2, 1fr); } }
 
@@ -295,6 +303,13 @@
   </div>
   <div class="nav-right">
     <span class="daily-last-updated" id="dailyLastUpdated"></span>
+    <div class="quick-nav" aria-label="Hub navigation">
+      <a href="neighborly-dashboard.html" class="qn-btn active" title="Sales & Performance" aria-label="Sales & Performance"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></a>
+      <a href="neighborly-calendar.html" class="qn-btn" title="Marketing Calendar" aria-label="Marketing Calendar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></a>
+      <a href="neighborly-assets.html" class="qn-btn" title="Brand Assets" aria-label="Brand Assets"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 010 14.14M4.93 4.93a10 10 0 000 14.14M12 2v2M12 20v2M2 12h2M20 12h2"/></svg></a>
+      <a class="qn-btn disabled" title="Social Metrics (coming soon)" aria-label="Social Metrics (coming soon)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l3-9 4 18 3-9h4"/></svg></a>
+      <a href="neighborly-guests.html" class="qn-btn" title="Guest Intelligence" aria-label="Guest Intelligence"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></a>
+    </div>
     <button class="upload-btn" id="refreshBtn" onclick="fetchDailyData()">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
       Refresh
@@ -1370,6 +1385,9 @@ if (IS_GUEST) {
     logo.removeAttribute('onclick');
     logo.style.cursor = 'default';
   }
+  // Hide the team-hub quick-nav icons for guests
+  const qn = document.querySelector('.quick-nav');
+  if (qn) qn.style.display = 'none';
 }
 
 function toggleHubNav(e) {

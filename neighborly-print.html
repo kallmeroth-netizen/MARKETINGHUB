@@ -123,6 +123,15 @@ nav{background:var(--surface);border-bottom:.5px solid var(--border-strong);padd
 .hub-nav-label{font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:1rem}
 .hub-back-home{font-size:11px;font-weight:500;color:var(--text2);text-decoration:none;padding:4px 10px;border:.5px solid var(--border-strong);border-radius:7px;background:var(--surface2);letter-spacing:0;text-transform:none;transition:background .15s,color .15s;white-space:nowrap}
 .hub-back-home:hover{background:var(--surface);color:var(--text)}
+
+/* Quick-nav: small icon buttons in the nav, one per hub destination */
+.quick-nav{display:flex;align-items:center;gap:4px;flex-shrink:0}
+.qn-btn{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border:.5px solid var(--border-strong);border-radius:7px;background:var(--surface);color:var(--text2);cursor:pointer;transition:all .15s;text-decoration:none;padding:0}
+.qn-btn:hover{background:var(--surface2);color:var(--text);border-color:var(--text2)}
+.qn-btn.active{background:#fdf7d8;color:var(--text);border-color:#e3c030;pointer-events:none}
+.qn-btn.disabled{opacity:.4;pointer-events:none;cursor:default}
+.qn-btn svg{width:14px;height:14px}
+@media(max-width:420px){.qn-btn{width:24px;height:24px}.qn-btn svg{width:12px;height:12px}.quick-nav{gap:3px}}
 .hub-nav-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}
 .hub-card{display:flex;flex-direction:column;gap:6px;padding:14px;border-radius:10px;border:.5px solid var(--border);background:var(--surface);cursor:pointer;transition:background .12s,border-color .12s;position:relative;text-decoration:none;color:inherit}
 .hub-card:hover{background:var(--surface2);border-color:var(--border-strong)}
@@ -172,6 +181,13 @@ nav{background:var(--surface);border-bottom:.5px solid var(--border-strong);padd
 <nav>
   <div class="nav-brand" onclick="toggleHubNav(event)" style="cursor:pointer">
     <img src="https://raw.githubusercontent.com/kallmeroth-netizen/MARKETINGHUB/a5d8cf8a019ba9e6f3d9bc3afb115dca7d42549a/NeighborlyLogo.png" alt="Neighborly" style="height:20px;width:auto;display:block">
+  </div>
+  <div class="quick-nav" aria-label="Hub navigation">
+    <a href="neighborly-dashboard.html" class="qn-btn" title="Sales & Performance" aria-label="Sales & Performance"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></a>
+    <a href="neighborly-calendar.html" class="qn-btn" title="Marketing Calendar" aria-label="Marketing Calendar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></a>
+    <a href="neighborly-assets.html" class="qn-btn" title="Brand Assets" aria-label="Brand Assets"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 010 14.14M4.93 4.93a10 10 0 000 14.14M12 2v2M12 20v2M2 12h2M20 12h2"/></svg></a>
+    <a class="qn-btn disabled" title="Social Metrics (coming soon)" aria-label="Social Metrics (coming soon)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l3-9 4 18 3-9h4"/></svg></a>
+    <a href="neighborly-guests.html" class="qn-btn" title="Guest Intelligence" aria-label="Guest Intelligence"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></a>
   </div>
 </nav>
 
