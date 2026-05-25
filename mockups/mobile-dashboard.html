@@ -193,11 +193,12 @@
     border: 1.5px solid rgba(31,35,40,0.10);
     border-radius: 16px;
     padding: 16px 18px;
-    /* icon + text grouped and centered horizontally within the tile */
+    /* consistent justification: icon anchored left, text left-aligned next to it */
     flex-direction: row !important;
     align-items: center;
-    justify-content: center;
-    gap: 14px;
+    justify-content: flex-start;
+    gap: 16px;
+    text-align: left;
     text-decoration: none; color: var(--dark);
     display: flex; flex-direction: column; justify-content: space-between;
     min-height: 0;
