@@ -98,7 +98,7 @@
   }
   .pass-logo img {
     width: 132px; height: auto; display: block;
-    filter: brightness(0) invert(1) drop-shadow(0 1px 8px rgba(31,35,40,0.18));
+    filter: brightness(0) drop-shadow(0 1px 4px rgba(31,35,40,0.10));
     opacity: 0; animation: rise 0.6s ease 0.1s forwards;
   }
 
@@ -127,8 +127,11 @@
   }
 
   .sub-pass {
-    font-family: 'DM Sans', sans-serif;
-    font-size: 13px; font-weight: 400; letter-spacing: 0.06em;
+    font-family: 'Jost', 'futura-pt', 'Futura', sans-serif;
+    font-weight: 600;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.28em;
     color: var(--ink); opacity: 0; text-align: center;
     transition: opacity 0.5s ease;
   }
@@ -204,12 +207,14 @@
   .err.show { opacity: 1; }
 
   .portal-foot {
-    position: fixed; bottom: 26px; left: 50%; transform: translateX(-50%);
-    font-family: 'futura-pt', 'Jost', 'Futura', sans-serif;
+    position: fixed; bottom: 26px; left: 0; right: 0; width: 100%;
+    text-align: center;
+    font-family: 'Jost', 'futura-pt', 'Futura', sans-serif;
     font-weight: 600;
     font-size: 11px; letter-spacing: 0.34em; text-transform: uppercase;
     color: var(--ink); opacity: 0; z-index: 2;
     animation: rise 0.6s ease 2.05s forwards;
+    pointer-events: none;
   }
   .portal-foot.shown { opacity: 0.5; }
 
@@ -468,9 +473,24 @@
     .hub-pop { left: 16px; right: 16px; width: auto; }
   }
   @media (max-width: 520px) {
-    .tile-grid .tile { flex: 0 0 100%; }
+    .tile-grid { gap: 10px; }
+    .tile-grid .tile { flex: 0 0 100%; min-height: 96px !important; padding: 12px 14px !important; border-radius: 14px !important; }
+    .tile .tile-ico { width: 28px !important; height: 28px !important; border-radius: 8px !important; }
+    .tile .tile-ico svg { width: 15px !important; height: 15px !important; }
+    .tile .tile-label { font-size: 12px !important; letter-spacing: 0.16em !important; }
+    .tile .tile-sub { font-size: 11px !important; }
+    .tile-body { margin-top: 8px !important; }
+    .tile .live { top: 12px !important; right: 12px !important; font-size: 8.5px !important; }
+    main { padding-top: clamp(56px, 8vh, 96px) !important; }
+    .hero-divider { margin: 36px auto 36px !important; }
   }
   .track-center { display: inline-block; margin-right: -0.34em; }
+
+
+  /* Prevent any vertical jump when state flips from passcode -> hub */
+  body[data-state="hub"] .pass-shell { display: none !important; }
+  body[data-state="hub"] main { padding-top: clamp(96px, 14vh, 160px); }
+  html { scroll-behavior: auto; }
 </style>
 </head>
 <body data-state="passcode" data-side="team">
