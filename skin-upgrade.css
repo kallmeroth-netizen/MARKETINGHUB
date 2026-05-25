@@ -215,15 +215,37 @@ nav.top {
 .hub-card-title { font-size: 13px !important; }
 .hub-card-sub   { font-size: 12px !important; }
 
+/* =================== UNIFIED CONTENT WIDTH ===================
+   Outermost page wrappers all use the same max-width + horizontal
+   padding so the LEFT EDGES align across pages. Headers nested
+   inside one of these wrappers get their own padding reset to 0
+   so the values don't compound. */
+.page, .dashboard, .data-page, .frame,
+.guest-header, .skin-cal-header, .hero {
+  max-width: 1240px !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  padding-left: clamp(20px, 4vw, 40px) !important;
+  padding-right: clamp(20px, 4vw, 40px) !important;
+  box-sizing: border-box !important;
+}
+/* Nested header: parent already pads, reset so we don't double-indent */
+.dashboard .dash-header,
+.page .dash-header,
+.frame .hero {
+  max-width: none !important;
+  margin: 0 !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
 /* =================== PAGE HEADERS ===================
-   Stack title above controls, left-justified, consistent padding.
-   This is the "fixed left, doesn't move when filters change" rule. */
+   Left-justified, stacked, consistent padding. */
 .guest-header,
 .dash-header {
-  max-width: none !important;
   width: 100% !important;
-  margin: 0 !important;
-  padding: clamp(48px, 7vh, 88px) clamp(20px, 4vw, 56px) 28px !important;
+  padding-top: clamp(48px, 7vh, 88px) !important;
+  padding-bottom: 28px !important;
   display: flex !important;
   flex-direction: column !important;
   align-items: flex-start !important;
@@ -273,33 +295,38 @@ nav.top {
 }
 
 /* =================== MARKETING CALENDAR HEADER ===================
-   Injected by skin-upgrade.js because calendar.html renders via React. */
+   Injected by skin-upgrade.js because calendar.html renders via React.
+   Width is taken from the unified rule above. */
 .skin-cal-header {
-  max-width: none;
-  margin: 0;
-  padding: clamp(48px, 7vh, 88px) clamp(20px, 4vw, 56px) 28px;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  text-align: left;
-  gap: 6px;
+  padding-top: clamp(48px, 7vh, 88px) !important;
+  padding-bottom: 28px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  text-align: left !important;
+  gap: 6px !important;
 }
 .skin-cal-title { margin: 0 !important; }
 
 /* =================== ASSETS PAGE specifics ===================
-   Bring the brand-hub hero into the same family without changing
-   its content sections. */
+   Body bg matches the rest. Hero uses the same family treatment.
+   The orange accent on "Brand Guidelines" is removed so the title
+   reads as a single TAYAmaya line in pure black. */
 .hero {
-  padding-left: clamp(20px, 4vw, 56px) !important;
-  padding-right: clamp(20px, 4vw, 56px) !important;
+  padding-top: clamp(48px, 7vh, 88px) !important;
+  padding-bottom: 28px !important;
   text-align: left !important;
 }
 .hero-title {
   margin-bottom: 12px !important;
 }
 .hero-title .accent {
-  color: #e87142;
-  font-family: inherit;
+  color: #000 !important;
+  font-family: inherit !important;
+  font-weight: inherit !important;
+  font-style: normal !important;
+  text-transform: none !important;
+  background: none !important;
 }
 .hero-sub {
   font-family: 'DM Sans', sans-serif !important;
@@ -311,6 +338,10 @@ nav.top {
   letter-spacing: 0 !important;
   text-align: left;
 }
+/* Assets uses its own --cream token (#f2f2f2) which is slightly cooler
+   than the rest. Override at the variable level so any element pulling
+   from it (cards, etc.) inherits the warm bg. */
+.assets-skinned { background: #F7F6F3 !important; }
 
 /* Stabilize header pills so toggling filter state doesn't resize them */
 .dp-btn, .lt-btn, .tr-btn {
@@ -322,9 +353,7 @@ nav.top {
   justify-content: flex-start !important;
 }
 
-/* =================== MOBILE ===================
-   On narrow screens, hide center tabs (hub dropdown still provides nav)
-   and tighten the chrome so logo + back + settings still fit. */
+/* =================== MOBILE =================== */
 @media (max-width: 768px) {
   nav, nav.top {
     padding: 0 12px 0 54px !important;
@@ -334,11 +363,58 @@ nav.top {
   .skin-back { left: 10px !important; width: 32px !important; height: 32px !important; }
   .nav-tabs, .nav-links { display: none !important; }
   .guest-header, .dash-header, .skin-cal-header, .hero {
-    padding-left: 18px !important;
-    padding-right: 18px !important;
     padding-top: 40px !important;
   }
   .guest-title, .dash-title, .skin-cal-title, .hero-title {
     font-size: clamp(24px, 6vw, 32px) !important;
   }
+}
+
+/* =================== BUTTONS (unified across pages) ===================
+   Assets uses .btn / .btn.primary; guests/dashboard use .btn-primary.
+   Both render as the same Futura PT pill so buttons feel cohesive. */
+.btn,
+.btn-primary {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  padding: 10px 18px !important;
+  border-radius: 999px !important;
+  font-family: 'Jost', 'futura-pt', 'Futura', sans-serif !important;
+  font-weight: 600 !important;
+  font-size: 12px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.18em !important;
+  text-decoration: none !important;
+  cursor: pointer !important;
+  border: none !important;
+  white-space: nowrap;
+  transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease !important;
+}
+.btn { background: #cbc9d6 !important; color: #1f2328 !important; }
+.btn:hover { background: #b9b7c8 !important; transform: translateY(-1px) !important; }
+.btn.primary,
+.btn-primary {
+  background: #e87142 !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 12px rgba(232,113,66,0.18);
+}
+.btn.primary:hover,
+.btn-primary:hover {
+  background: #d96538 !important;
+  box-shadow: 0 10px 24px rgba(232,113,66,0.28) !important;
+  transform: translateY(-1px) !important;
+  filter: none !important;
+}
+
+/* =================== VOICE LINE ACCENT ===================
+   "good neighbor" was orange on a dark voice panel — make it white so
+   it inherits the surrounding text and reads as one phrase. */
+.voice-line .accent {
+  color: #ffffff !important;
+  font-family: inherit !important;
+  font-weight: inherit !important;
+  font-style: normal !important;
+  text-transform: none !important;
+  background: none !important;
 }
