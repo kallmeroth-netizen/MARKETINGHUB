@@ -142,8 +142,8 @@
   .head {
     position: relative; z-index: 2;
     display: flex; flex-direction: column; align-items: center;
-    margin-top: 64px;
-    margin-bottom: 28px;
+    margin-top: 88px;
+    margin-bottom: 56px;
     text-align: center;
   }
   .hub-title {
@@ -161,7 +161,7 @@
     animation: blink 1s steps(1) infinite;
   }
   .hub-sub {
-    margin-top: 7px;
+    margin-top: 3px;
     font-family: 'DM Sans', sans-serif;
     font-size: 14.5px; font-weight: 500;
     color: var(--dark); opacity: 0.55;
@@ -190,10 +190,11 @@
     backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
     border: 1.5px solid rgba(31,35,40,0.10);
     border-radius: 16px;
-    padding: 14px 16px;
-    /* horizontal: icon on the left, title + sub vertically centered next to it */
+    padding: 16px 18px;
+    /* icon + text grouped and centered horizontally within the tile */
     flex-direction: row !important;
     align-items: center;
+    justify-content: center;
     gap: 14px;
     text-decoration: none; color: var(--dark);
     display: flex; flex-direction: column; justify-content: space-between;
@@ -209,15 +210,16 @@
   }
 
   .tile-ico {
-    width: 32px; height: 32px; border-radius: 10px;
+    width: 44px; height: 44px; border-radius: 12px;
     display: flex; align-items: center; justify-content: center;
     background: rgba(31,35,40,0.06);
     color: var(--dark);
+    flex-shrink: 0;
     transition: background 0.2s, color 0.2s;
   }
-  .tile-ico svg { width: 17px; height: 17px; }
+  .tile-ico svg { width: 22px; height: 22px; }
 
-  .tile-body { display: flex; flex-direction: column; gap: 2px; flex: 1; }
+  .tile-body { display: flex; flex-direction: column; gap: 1px; }
   .tile-label {
     font-family: 'TAYAmaya', 'DM Sans', sans-serif;
     font-size: 18px; font-weight: 400; letter-spacing: -0.005em;
@@ -234,7 +236,7 @@
 
   /* Decorative corner pulse — live indicator */
   .tile .pulse {
-    position: absolute; top: 50%; right: 16px; transform: translateY(-50%);
+    position: absolute; top: 14px; right: 14px;
     width: 6px; height: 6px; border-radius: 50%;
     background: var(--green);
     box-shadow: 0 0 0 4px rgba(123,189,145,0.18);
