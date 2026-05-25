@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Mockup — Unified Passcode</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&family=DM+Mono:wght@400&display=swap');
+
+  @font-face {
+    font-family: 'TAYAmaya';
+    src: url('./fonts/TAYAmaya.otf') format('opentype');
+    font-display: swap;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --dark:#1f2328; --yellow:#eace49; --green:#7bbd91;
+    --lav:#cbc9d6; --cream:#f2f2f2; --off:#e5e3d6; --orange:#e87142;
+
+    /* themeable */
+    --bg: var(--cream);
+    --ink: var(--dark);
+    --accent: var(--orange);
+    --capsule-bg: rgba(255,255,255,0.92);
+    --capsule-border: rgba(31,35,40,0.15);
+    --capsule-border-focus: var(--dark);
+    --hint-ink: #8a8780;
+  }
+
+  body.theme-orange {
+    --bg: #e87142;
+    --ink: #fff8f1;
+    --accent: #fff8f1;
+    --capsule-bg: rgba(255,255,255,0.16);
+    --capsule-border: rgba(255,255,255,0.32);
+    --capsule-border-focus: #fff8f1;
+    --hint-ink: rgba(255,248,241,0.7);
+  }
+
+  html, body {
+    height: 100%; width: 100%;
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    overflow: hidden;
+    transition: background 0.6s ease, color 0.6s ease;
+  }
+  body { position: fixed; inset: 0; }
+
+  /* grain + blobs */
+  body::before {
+    content: ''; position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+    opacity: 0.5; pointer-events: none; z-index: 0;
+  }
+  .bg-blob {
+    position: fixed; border-radius: 50%; filter: blur(90px);
+    opacity: 0.18; pointer-events: none; z-index: 0;
+    transition: opacity 0.6s ease, background 0.6s ease, transform 0.8s ease;
+  }
+  .blob-1 { width: 560px; height: 560px; background: var(--yellow); top: -180px; right: -120px; }
+  .blob-2 { width: 400px; height: 400px; background: var(--green); bottom: -100px; left: -80px; }
+  .blob-3 { width: 260px; height: 260px; background: var(--lav); bottom: 22%; right: 6%; }
+  body.theme-orange .bg-blob { opacity: 0.10; }
+  body.theme-orange .blob-1 { background: #fff8f1; }
+  body.theme-orange .blob-2 { background: #ffd9bf; }
+  body.theme-orange .blob-3 { background: #ffefe2; }
+
+  /* layout */
+  .stage {
+    position: fixed; inset: 0; z-index: 1;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 2rem;
+  }
+
+  .logo-wrap {
+    position: absolute; top: 38px; left: 50%; transform: translateX(-50%);
+  }
+  .logo-wrap img {
+    width: 132px; height: auto; display: block;
+    opacity: 0; animation: rise 0.6s ease 0.1s forwards;
+    transition: filter 0.6s ease;
+  }
+  body.theme-orange .logo-wrap img { filter: brightness(0) invert(1); }
+
+  .portal-tag {
+    position: absolute; top: calc(38px + 132px + 22px); left: 50%; transform: translateX(-50%);
+    font-size: 10.5px; font-weight: 400; letter-spacing: 0.32em; text-transform: uppercase;
+    color: var(--ink); opacity: 0; animation: rise 0.6s ease 0.35s forwards;
+  }
+
+  /* The hero greeting block */
+  .hero {
+    display: flex; flex-direction: column; align-items: center;
+    gap: 28px;
+    width: min(440px, 100%);
+  }
+
+  .greeting {
+    font-family: 'TAYAmaya', 'DM Sans', sans-serif;
+    font-size: clamp(56px, 9vw, 92px);
+    line-height: 1;
+    letter-spacing: -0.01em;
+    color: var(--ink);
+    text-align: center;
+    min-height: 1em;
+    display: inline-flex;
+    align-items: baseline;
+    opacity: 0;
+    animation: rise 0.6s ease 0.55s forwards;
+    transition: color 0.6s ease;
+  }
+  .greeting .cursor {
+    display: inline-block; width: 3px; height: 0.78em;
+    background: var(--ink); margin-left: 6px;
+    transform: translateY(0.08em);
+    animation: blink 1s steps(1) infinite;
+    transition: background 0.6s ease, opacity 0.4s ease;
+  }
+  .greeting.done .cursor { animation: blink 1.1s steps(1) infinite; }
+
+  .sub {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px; font-weight: 400; letter-spacing: 0.06em;
+    color: var(--ink); opacity: 0;
+    text-align: center;
+    transition: opacity 0.5s ease, color 0.6s ease, transform 0.5s ease;
+  }
+  .sub.shown { opacity: 0.7; }
+
+  /* Divider hairline */
+  .divider {
+    width: 0; height: 0.5px; background: var(--ink); opacity: 0;
+    animation: expandLine 0.9s ease 1.6s forwards;
+  }
+
+  /* Passcode capsule */
+  .capsule-wrap {
+    width: min(360px, 100%);
+    opacity: 0; transform: translateY(10px);
+    animation: rise 0.55s ease 1.5s forwards;
+  }
+  .capsule {
+    display: flex; align-items: center;
+    background: var(--capsule-bg);
+    backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+    border: 1.5px solid var(--capsule-border);
+    border-radius: 100px;
+    padding: 0 16px; height: 56px; gap: 12px;
+    transition: border-color 0.25s ease, box-shadow 0.25s ease, background 0.6s ease, transform 0.35s ease;
+  }
+  .capsule:focus-within {
+    border-color: var(--capsule-border-focus);
+    box-shadow: 0 0 0 4px rgba(0,0,0,0.05);
+  }
+  body.theme-orange .capsule:focus-within {
+    box-shadow: 0 0 0 4px rgba(255,255,255,0.18);
+  }
+  .capsule.error {
+    border-color: var(--accent);
+    animation: shake 0.36s ease;
+  }
+  .capsule.accept {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 5px rgba(232,113,66,0.18);
+  }
+
+  .lock-ico { display: flex; align-items: center; opacity: 0.6; flex-shrink: 0; }
+  .pw-input {
+    flex: 1; border: none; background: transparent; outline: none;
+    font-family: 'DM Mono', monospace;
+    font-size: 15px; letter-spacing: 0.18em; color: var(--ink);
+    width: 100%;
+  }
+  .pw-input::placeholder {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px; letter-spacing: 0.02em;
+    color: var(--hint-ink);
+  }
+  .toggle-vis {
+    background: none; border: none; cursor: pointer; padding: 6px;
+    color: var(--ink); opacity: 0.55;
+    display: flex; align-items: center;
+    transition: opacity 0.15s ease;
+  }
+  .toggle-vis:hover { opacity: 1; }
+  .submit {
+    background: var(--ink); color: var(--bg);
+    border: none; border-radius: 100px;
+    height: 40px; padding: 0 16px;
+    font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500;
+    letter-spacing: 0.04em;
+    cursor: pointer; display: inline-flex; align-items: center; gap: 6px;
+    transition: transform 0.15s ease, background 0.6s ease, color 0.6s ease;
+  }
+  .submit:hover { transform: scale(1.03); }
+
+  .hint {
+    margin-top: 14px;
+    font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--hint-ink); text-align: center;
+    opacity: 0; animation: rise 0.5s ease 2.05s forwards;
+  }
+  .hint .dot {
+    display: inline-block; width: 4px; height: 4px; border-radius: 50%;
+    background: var(--hint-ink); margin: 0 8px; vertical-align: 3px;
+  }
+
+  .err {
+    margin-top: 10px; height: 14px;
+    font-size: 11.5px; color: var(--accent); text-align: center;
+    opacity: 0; transition: opacity 0.2s ease;
+  }
+  .err.show { opacity: 1; }
+
+  /* Theme toggle pill */
+  .theme-toggle {
+    position: fixed; top: 18px; right: 18px; z-index: 10;
+    display: flex; gap: 6px; padding: 5px;
+    background: rgba(255,255,255,0.6);
+    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(31,35,40,0.1);
+    border-radius: 100px;
+    font-family: 'DM Sans', sans-serif; font-size: 11px;
+    letter-spacing: 0.08em; text-transform: uppercase;
+  }
+  body.theme-orange .theme-toggle {
+    background: rgba(255,255,255,0.16);
+    border-color: rgba(255,255,255,0.3);
+  }
+  .theme-toggle button {
+    background: none; border: none; cursor: pointer;
+    padding: 6px 12px; border-radius: 100px;
+    color: var(--ink); opacity: 0.6;
+    font: inherit; letter-spacing: inherit; text-transform: inherit;
+    transition: background 0.25s ease, opacity 0.25s ease, color 0.25s ease;
+  }
+  .theme-toggle button.active {
+    background: var(--ink); color: var(--bg); opacity: 1;
+  }
+
+  /* Route reveal — full-screen sweep when password accepted */
+  .sweep {
+    position: fixed; inset: 0; z-index: 5;
+    background: var(--accent);
+    transform: translateY(100%);
+    pointer-events: none;
+    transition: transform 0.7s cubic-bezier(0.7, 0, 0.2, 1);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .sweep.up { transform: translateY(0); }
+  .sweep-text {
+    font-family: 'TAYAmaya', 'DM Sans', sans-serif;
+    font-size: clamp(40px, 7vw, 64px);
+    color: #fff8f1;
+    opacity: 0; transition: opacity 0.4s ease 0.35s;
+  }
+  .sweep.up .sweep-text { opacity: 1; }
+
+  /* keyframes */
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes blink { 0%,49% { opacity:1; } 50%,100% { opacity:0; } }
+  @keyframes expandLine {
+    from { width: 0; opacity: 0; }
+    to   { width: min(280px, 80%); opacity: 0.14; }
+  }
+  @keyframes shake {
+    0%,100% { transform: translateX(0); }
+    25% { transform: translateX(-6px); }
+    75% { transform: translateX(6px); }
+  }
+</style>
+</head>
+<body>
+
+<div class="bg-blob blob-1"></div>
+<div class="bg-blob blob-2"></div>
+<div class="bg-blob blob-3"></div>
+
+<div class="theme-toggle" role="tablist" aria-label="Theme">
+  <button id="btnCream" class="active" type="button">Cream</button>
+  <button id="btnOrange" type="button">Orange</button>
+</div>
+
+<div class="stage">
+  <div class="logo-wrap">
+    <img src="../NeighborlyLogo.png" alt="Neighborly">
+  </div>
+  <div class="portal-tag">The Neighborly Portal</div>
+
+  <div class="hero">
+    <div class="greeting" id="greet"><span id="greetText"></span><span class="cursor"></span></div>
+    <div class="sub" id="sub">Sign in to continue.</div>
+    <div class="divider"></div>
+
+    <div class="capsule-wrap">
+      <div class="capsule" id="capsule">
+        <span class="lock-ico" aria-hidden="true">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        </span>
+        <input id="pw" class="pw-input" type="password" placeholder="Enter passcode" autocomplete="off" autocapitalize="off" spellcheck="false">
+        <button class="toggle-vis" id="toggleVis" type="button" aria-label="Show passcode">
+          <svg id="eyeIco" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>
+        </button>
+        <button class="submit" id="go" type="button">Enter →</button>
+      </div>
+      <div class="err" id="err">That passcode doesn't open either door.</div>
+      <div class="hint">One door<span class="dot"></span>Two sides<span class="dot"></span>We'll know which is yours</div>
+    </div>
+  </div>
+</div>
+
+<!-- full-screen sweep on success -->
+<div class="sweep" id="sweep">
+  <div class="sweep-text" id="sweepText"></div>
+</div>
+
+<script>
+  const TEAM_PW  = 'neighborly';
+  const GUEST_PW = 'neighborsonly';
+
+  /* Typewriter greeting */
+  const greetEl = document.getElementById('greetText');
+  const subEl   = document.getElementById('sub');
+  const baseText = 'Welcome.';
+
+  function typeText(target, text, speed = 90, done) {
+    target.textContent = '';
+    let i = 0;
+    (function step() {
+      if (i < text.length) {
+        target.textContent += text[i++];
+        setTimeout(step, speed);
+      } else if (done) {
+        done();
+      }
+    })();
+  }
+
+  function retypeGreeting(text, then) {
+    // fade-erase, then retype
+    greetEl.parentElement.classList.remove('done');
+    const cur = greetEl.textContent;
+    let i = cur.length;
+    (function erase() {
+      if (i > 0) {
+        greetEl.textContent = cur.slice(0, --i);
+        setTimeout(erase, 28);
+      } else {
+        typeText(greetEl, text, 75, then);
+      }
+    })();
+  }
+
+  // initial type
+  setTimeout(() => {
+    typeText(greetEl, baseText, 110, () => {
+      greetEl.parentElement.classList.add('done');
+      setTimeout(() => subEl.classList.add('shown'), 220);
+    });
+  }, 900);
+
+  /* Passcode logic */
+  const pw = document.getElementById('pw');
+  const cap = document.getElementById('capsule');
+  const err = document.getElementById('err');
+  const sweep = document.getElementById('sweep');
+  const sweepText = document.getElementById('sweepText');
+
+  function clearError() {
+    cap.classList.remove('error');
+    err.classList.remove('show');
+  }
+  pw.addEventListener('input', clearError);
+
+  function submit() {
+    const v = pw.value.trim().toLowerCase();
+    if (!v) return;
+    if (v === TEAM_PW)  return accept('team');
+    if (v === GUEST_PW) return accept('guest');
+    cap.classList.add('error');
+    err.classList.add('show');
+    pw.select();
+  }
+
+  function accept(side) {
+    cap.classList.add('accept');
+    const phrase = side === 'team'
+      ? 'Welcome back, team.'
+      : 'Welcome home, neighbor.';
+    retypeGreeting(phrase, () => {
+      setTimeout(() => {
+        sweepText.textContent = side === 'team' ? 'Team Hub' : 'Guest Hub';
+        sweep.classList.add('up');
+        // in real impl, route here after sweep finishes
+        setTimeout(() => {
+          // reset for demo loop
+          sweep.classList.remove('up');
+          cap.classList.remove('accept');
+          pw.value = '';
+          retypeGreeting(baseText);
+        }, 2200);
+      }, 350);
+    });
+  }
+
+  document.getElementById('go').addEventListener('click', submit);
+  pw.addEventListener('keydown', (e) => { if (e.key === 'Enter') submit(); });
+
+  /* Show/hide passcode */
+  document.getElementById('toggleVis').addEventListener('click', () => {
+    pw.type = pw.type === 'password' ? 'text' : 'password';
+  });
+
+  /* Theme toggle */
+  const cream = document.getElementById('btnCream');
+  const orange = document.getElementById('btnOrange');
+  cream.addEventListener('click', () => {
+    document.body.classList.remove('theme-orange');
+    cream.classList.add('active'); orange.classList.remove('active');
+  });
+  orange.addEventListener('click', () => {
+    document.body.classList.add('theme-orange');
+    orange.classList.add('active'); cream.classList.remove('active');
+  });
+</script>
+</body>
+</html>
