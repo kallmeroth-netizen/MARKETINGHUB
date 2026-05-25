@@ -42,8 +42,9 @@
 
   /* Side toggle */
   .side-toggle {
+    display: none;
     position: fixed; top: 18px; left: 50%; transform: translateX(-50%);
-    display: flex; gap: 4px; padding: 5px; z-index: 30;
+    gap: 4px; padding: 5px; z-index: 30;
     background: rgba(255,255,255,0.08);
     border: 1px solid rgba(255,255,255,0.14);
     backdrop-filter: blur(12px);
@@ -89,7 +90,7 @@
   .screen {
     position: absolute; inset: 0;
     display: flex; flex-direction: column;
-    padding: 64px 22px 28px;
+    padding: 88px 24px 32px;
     overflow: hidden;
   }
   .screen::before {
@@ -113,7 +114,7 @@
   .head {
     position: relative; z-index: 2;
     display: flex; flex-direction: column; align-items: center;
-    margin-bottom: 18px;
+    margin-bottom: 36px;
   }
   .head img {
     width: 130px; height: auto; display: block;
@@ -154,8 +155,8 @@
     background: rgba(255,255,255,0.82);
     backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
     border: 1.5px solid rgba(31,35,40,0.10);
-    border-radius: 18px;
-    padding: 12px 12px 11px;
+    border-radius: 16px;
+    padding: 11px 12px 11px;
     text-decoration: none; color: var(--dark);
     display: flex; flex-direction: column; justify-content: space-between;
     min-height: 0;
@@ -170,26 +171,26 @@
   }
 
   .tile-ico {
-    width: 38px; height: 38px; border-radius: 11px;
+    width: 32px; height: 32px; border-radius: 10px;
     display: flex; align-items: center; justify-content: center;
     background: rgba(31,35,40,0.06);
     color: var(--dark);
     transition: background 0.2s, color 0.2s;
   }
-  .tile-ico svg { width: 20px; height: 20px; }
+  .tile-ico svg { width: 17px; height: 17px; }
 
   .tile-body { display: flex; flex-direction: column; gap: 1px; margin-top: 12px; }
   .tile-label {
     font-family: 'TAYAmaya', 'DM Sans', sans-serif;
-    font-size: 19px; font-weight: 400; letter-spacing: -0.01em;
+    font-size: 16px; font-weight: 400; letter-spacing: -0.005em;
     line-height: 1.05;
     color: var(--dark);
   }
   .tile-sub {
     font-family: 'DM Sans', sans-serif;
-    font-size: 11px; font-weight: 500;
-    color: var(--dark); opacity: 0.62;
-    margin-top: 4px;
+    font-size: 10.5px; font-weight: 500;
+    color: var(--dark); opacity: 0.6;
+    margin-top: 3px;
     letter-spacing: 0.02em;
   }
 
@@ -211,10 +212,9 @@
   .t-perf:hover  { background: var(--yellow); border-color: var(--yellow); }
   .t-perf:hover .tile-ico { background: rgba(31,35,40,0.12); }
 
-  .t-cal    { border-color: rgba(31,35,40,0.30); }
-  .t-cal:hover  { background: var(--dark); border-color: var(--dark); color: #fff8f1; }
-  .t-cal:hover .tile-sub { color: #fff8f1; opacity: 0.7; }
-  .t-cal:hover .tile-ico { background: rgba(255,255,255,0.16); color: #fff8f1; }
+  .t-cal    { border-color: rgba(123,189,145,0.55); }
+  .t-cal:hover  { background: var(--green); border-color: var(--green); }
+  .t-cal:hover .tile-ico { background: rgba(31,35,40,0.12); }
 
   .t-print  { border-color: rgba(123,189,145,0.55); }
   .t-print:hover { background: var(--green); border-color: var(--green); }
@@ -288,7 +288,7 @@
     <div class="screen">
       <div class="head">
         <img src="./NeighborlyLogo.png" alt="Neighborly">
-        <div class="hub-title" id="hubTitle">Team Hub</div>
+        <div class="hub-title" id="hubTitle">Marketing Hub</div>
         <div class="hub-meta" id="hubMeta">Live · Sat 05/24</div>
       </div>
 
@@ -299,8 +299,8 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l5-5 4 4 8-8"/><path d="M14 8h6v6"/></svg>
           </span>
           <span class="tile-body">
-            <span class="tile-label">Performance</span>
-            <span class="tile-sub">Sales · KPIs</span>
+            <span class="tile-label">Sales &amp; Performance</span>
+            <span class="tile-sub">Sales &amp; KPI tracker</span>
           </span>
         </a>
 
@@ -309,8 +309,8 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 11h18"/></svg>
           </span>
           <span class="tile-body">
-            <span class="tile-label">Calendar</span>
-            <span class="tile-sub">Events · Holds</span>
+            <span class="tile-label">Marketing Calendar</span>
+            <span class="tile-sub">Campaigns &amp; scheduling</span>
           </span>
         </a>
 
@@ -320,7 +320,7 @@
           </span>
           <span class="tile-body">
             <span class="tile-label">Brand Assets</span>
-            <span class="tile-sub">Logo · Colors · Fonts</span>
+            <span class="tile-sub">Logos, fonts &amp; templates</span>
           </span>
         </a>
 
@@ -329,8 +329,8 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="12" r="3"/><circle cx="18" cy="6" r="3"/><circle cx="18" cy="18" r="3"/><path d="M8.5 10.5l7-3.5M8.5 13.5l7 3.5"/></svg>
           </span>
           <span class="tile-body">
-            <span class="tile-label">Social Media</span>
-            <span class="tile-sub">Posts · Schedule</span>
+            <span class="tile-label">Social Metrics</span>
+            <span class="tile-sub">Coming soon</span>
           </span>
         </a>
 
@@ -339,8 +339,8 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="4"/><path d="M2 21a7 7 0 0 1 14 0"/><path d="M16 3.5a4 4 0 0 1 0 8M22 21a7 7 0 0 0-5-6.7"/></svg>
           </span>
           <span class="tile-body">
-            <span class="tile-label">Guests</span>
-            <span class="tile-sub">Reviews · Reach</span>
+            <span class="tile-label">Guest Intelligence</span>
+            <span class="tile-sub">Feedback &amp; experience trends</span>
           </span>
         </a>
       </div>
@@ -361,7 +361,7 @@
 
   function setSide(side) {
     phone.dataset.side = side;
-    title.textContent = side === 'team' ? 'Team Hub' : 'Guest Hub';
+    title.textContent = 'Marketing Hub';
     // role-gated tile visibility
     grid.querySelectorAll('.tile').forEach(t => {
       const roles = (t.dataset.roles || '').split(',');
@@ -379,6 +379,11 @@
     guest.classList.add('active'); team.classList.remove('active');
     setSide('guest');
   });
+
+  // URL preview: ?side=guest forces guest view since toggle is hidden in product
+  const _qs = new URLSearchParams(location.search);
+  const _initSide = _qs.get('side') === 'guest' ? 'guest' : 'team';
+  setSide(_initSide);
 </script>
 </body>
 </html>
