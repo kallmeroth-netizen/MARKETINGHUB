@@ -1,7 +1,8 @@
 /* =========================================================
-   skin-upgrade.css
-   Visual polish for existing pages. Style-only — no
-   structural, functional, or chart-color changes.
+   skin-upgrade.css  (v3)
+   Locks nav layout so nothing shifts when content changes,
+   forces left-justified headers, unifies body bg, and brings
+   the assets page into the same visual family. Style-only.
    ========================================================= */
 
 @import url('https://fonts.googleapis.com/css2?family=Jost:wght@500;600;700&display=swap');
@@ -19,36 +20,104 @@
 
 .amp {
   font-family: 'Tuppence', serif;
-  font-weight: 500;
-  font-style: normal;
-  margin: 0 0.04em;
-  font-size: 1.05em;
+  font-weight: 500; font-style: normal;
+  margin: 0 0.04em; font-size: 1.05em;
   vertical-align: baseline;
 }
 .track-center { display: inline-block; margin-right: -0.34em; }
 
-/* =================== NAV ===================
-   Warm-tinted glass — matches the cream body bg (#F7F6F3) rather
-   than the cool grey-white the previous override produced. */
-nav {
-  background: rgba(250, 247, 240, 0.86) !important;
+/* =================== BODY BG (uniform) =================== */
+body {
+  background: #F7F6F3 !important;
+  color: #1f2328;
+}
+
+/* =================== NAV (locked layout) ===================
+   All nav children are positioned so the row never reflows when
+   content changes (filter pills, date ranges, etc.). */
+nav,
+nav.top {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 100 !important;
+  height: 60px !important;
+  min-height: 60px !important;
+  display: flex !important;
+  align-items: center !important;
+  /* Reserve 56px on the left for the absolutely-positioned back button. */
+  padding: 0 16px 0 60px !important;
+  background: rgba(250, 247, 240, 0.88) !important;
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
   border-bottom: 1px solid rgba(31, 35, 40, 0.06) !important;
+  gap: 14px !important;
+}
+
+/* Logo / brand mark: lock to the left, never flex-grow */
+.nav-brand,
+.nav-logo-wrap {
+  flex: 0 0 auto !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  height: 100% !important;
+  display: flex !important;
+  align-items: center !important;
 }
 .nav-logo {
   height: 24px !important;
+  width: auto !important;
+  display: block !important;
+  cursor: pointer;
 }
 
-/* Pill tabs */
+/* Assets page text-logo wrapper — JS replaces its content with an image,
+   but make sure the link doesn't add weird text styling */
+.nav-mark {
+  flex: 0 0 auto !important;
+  padding: 0 !important;
+  font-size: 0 !important; /* hides any leftover text node */
+  line-height: 0 !important;
+  text-decoration: none !important;
+}
+.nav-mark img { display: block; height: 24px; width: auto; }
+
+/* Back button — absolute so it never shifts the row */
+.skin-back {
+  position: absolute !important;
+  left: 14px !important;
+  top: 50% !important;
+  transform: translateY(-50%);
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 34px !important;
+  height: 34px !important;
+  border-radius: 10px !important;
+  background: rgba(255, 255, 255, 0.65) !important;
+  border: 1px solid rgba(31, 35, 40, 0.10) !important;
+  color: #1f2328 !important;
+  text-decoration: none !important;
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease !important;
+}
+.skin-back:hover {
+  background: #ffffff !important;
+  border-color: rgba(31, 35, 40, 0.18) !important;
+  transform: translateY(-50%) translateX(-2px) !important;
+}
+.skin-back svg { width: 14px !important; height: 14px !important; }
+
+/* Nav tabs: pill row, anchored center via flex grow on a spacer */
 .nav-tabs {
-  background: rgba(31, 35, 40, 0.04);
+  background: rgba(31, 35, 40, 0.04) !important;
   padding: 4px !important;
   border-radius: 100px !important;
   gap: 4px !important;
-  align-self: center;
   height: auto !important;
   overflow: visible !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  flex: 0 0 auto !important;
+  display: flex !important;
 }
 .nav-tab {
   height: auto !important;
@@ -57,56 +126,70 @@ nav {
   border-radius: 100px !important;
   font-size: 12.5px !important;
   font-weight: 500 !important;
+  color: #7a7770 !important;
+  background: transparent !important;
+  white-space: nowrap;
   transition: background 0.2s ease, color 0.2s ease !important;
 }
 .nav-tab.active {
-  background: #fffdf7 !important;     /* warm white, not cool */
+  background: #fffdf7 !important;
   color: #1f2328 !important;
   border-bottom-color: transparent !important;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
 }
 .nav-tab:hover { color: #1f2328 !important; }
 
+/* Right cluster (settings, date, refresh, etc.) anchored right */
+.nav-right {
+  margin-left: auto !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px;
+  flex: 0 0 auto !important;
+}
 .settings-btn {
   border-color: rgba(31, 35, 40, 0.10) !important;
   border-radius: 10px !important;
+  width: 34px !important;
+  height: 34px !important;
 }
 
-/* =================== BACK BUTTON ===================
-   Injected by skin-upgrade.js at the start of each nav. */
-.skin-back {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 34px; height: 34px;
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.65);
-  border: 1px solid rgba(31, 35, 40, 0.10);
-  color: #1f2328;
-  text-decoration: none;
-  flex-shrink: 0;
-  transition: background 0.2s ease, transform 0.2s ease, border-color 0.2s ease;
+/* Assets-page nav-links — keep functional anchors but match the pill aesthetic */
+.nav-inner {
+  display: flex !important;
+  align-items: center !important;
+  width: 100% !important;
+  gap: 12px !important;
+  padding: 0 !important;
 }
-.skin-back:hover {
-  background: #ffffff;
-  border-color: rgba(31, 35, 40, 0.18);
-  transform: translateX(-2px);
+.nav-links {
+  margin-left: auto !important;
+  display: flex !important;
+  gap: 2px !important;
+  align-items: center !important;
+  background: rgba(31, 35, 40, 0.04) !important;
+  padding: 4px !important;
+  border-radius: 100px !important;
 }
-.skin-back svg { width: 14px; height: 14px; }
+.nav-links a {
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  padding: 6px 12px !important;
+  border-radius: 100px !important;
+  color: #7a7770 !important;
+  text-decoration: none !important;
+  transition: background 0.2s ease, color 0.2s ease !important;
+}
+.nav-links a:hover { color: #1f2328 !important; background: rgba(255,255,255,0.7) !important; }
 
-/* Spacing rules for the injected back button: a touch of right margin
-   so it doesn't crowd the logo. Inside the asset page's .nav-inner. */
-nav > .skin-back { margin-right: 12px; }
-.nav-inner .skin-back { margin-right: 14px; }
-
-/* =================== HUB DROPDOWN ===================
-   Softer shell, breathable cards. Slightly warm tint. */
+/* =================== HUB DROPDOWN =================== */
 .hub-nav {
   border-radius: 20px !important;
   padding: 18px 18px 20px !important;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.14) !important;
   border: 1px solid rgba(31, 35, 40, 0.06) !important;
-  background: #fffdf7 !important;     /* warm white */
+  background: #fffdf7 !important;
+  top: 70px !important;
 }
 .hub-nav-label {
   font-family: 'Jost', 'futura-pt', 'Futura', sans-serif !important;
@@ -133,44 +216,129 @@ nav > .skin-back { margin-right: 12px; }
 .hub-card-sub   { font-size: 12px !important; }
 
 /* =================== PAGE HEADERS ===================
-   More breathing room above and below. */
+   Stack title above controls, left-justified, consistent padding.
+   This is the "fixed left, doesn't move when filters change" rule. */
 .guest-header,
 .dash-header {
-  padding-top: clamp(48px, 7vh, 88px) !important;
-  padding-bottom: 28px !important;
+  max-width: none !important;
+  width: 100% !important;
+  margin: 0 !important;
+  padding: clamp(48px, 7vh, 88px) clamp(20px, 4vw, 56px) 28px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  justify-content: flex-start !important;
+  text-align: left !important;
+  flex-wrap: nowrap !important;
+  gap: 16px !important;
+}
+.guest-header-left,
+.dash-header-left {
+  width: 100%;
+  align-items: flex-start !important;
+}
+.guest-header-controls,
+.dash-header-controls,
+.loc-toggle,
+.date-preset-group {
+  margin-top: 4px !important;
 }
 
 .guest-title,
 .dash-title,
-.skin-cal-title {
+.skin-cal-title,
+.hero-title {
   font-family: 'TAYAmaya', 'DM Sans', sans-serif !important;
   font-weight: 400 !important;
-  font-size: clamp(28px, 3.2vw, 42px) !important;
+  font-size: clamp(28px, 3.4vw, 44px) !important;
   letter-spacing: -0.005em !important;
-  line-height: 1.08 !important;
+  line-height: 1.05 !important;
   color: #000 !important;
+  text-align: left !important;
+  margin: 0 !important;
+  width: auto;
 }
 .guest-sub,
 .dash-sub,
-.skin-cal-eyebrow {
+.skin-cal-eyebrow,
+.hero-eyebrow {
   font-family: 'Jost', 'futura-pt', 'Futura', sans-serif !important;
   font-weight: 600 !important;
   font-size: 11px !important;
   text-transform: uppercase !important;
   letter-spacing: 0.28em !important;
   color: #7a7770 !important;
+  text-align: left !important;
+  margin: 0 0 6px 0 !important;
 }
 
 /* =================== MARKETING CALENDAR HEADER ===================
-   Injected by skin-upgrade.js since calendar.html renders its UI
-   through React and has no static header element to style. */
+   Injected by skin-upgrade.js because calendar.html renders via React. */
 .skin-cal-header {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: clamp(48px, 7vh, 88px) 1.5rem 28px;
+  max-width: none;
+  margin: 0;
+  padding: clamp(48px, 7vh, 88px) clamp(20px, 4vw, 56px) 28px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  align-items: flex-start;
+  text-align: left;
+  gap: 6px;
 }
-.skin-cal-eyebrow { line-height: 1; }
-.skin-cal-title   { margin: 0; }
+.skin-cal-title { margin: 0 !important; }
+
+/* =================== ASSETS PAGE specifics ===================
+   Bring the brand-hub hero into the same family without changing
+   its content sections. */
+.hero {
+  padding-left: clamp(20px, 4vw, 56px) !important;
+  padding-right: clamp(20px, 4vw, 56px) !important;
+  text-align: left !important;
+}
+.hero-title {
+  margin-bottom: 12px !important;
+}
+.hero-title .accent {
+  color: #e87142;
+  font-family: inherit;
+}
+.hero-sub {
+  font-family: 'DM Sans', sans-serif !important;
+  font-size: 14px !important;
+  font-weight: 400 !important;
+  color: #555 !important;
+  max-width: 720px;
+  text-transform: none !important;
+  letter-spacing: 0 !important;
+  text-align: left;
+}
+
+/* Stabilize header pills so toggling filter state doesn't resize them */
+.dp-btn, .lt-btn, .tr-btn {
+  min-width: 64px !important;
+  text-align: center !important;
+}
+.date-pill {
+  min-width: 150px !important;
+  justify-content: flex-start !important;
+}
+
+/* =================== MOBILE ===================
+   On narrow screens, hide center tabs (hub dropdown still provides nav)
+   and tighten the chrome so logo + back + settings still fit. */
+@media (max-width: 768px) {
+  nav, nav.top {
+    padding: 0 12px 0 54px !important;
+    height: 56px !important;
+    min-height: 56px !important;
+  }
+  .skin-back { left: 10px !important; width: 32px !important; height: 32px !important; }
+  .nav-tabs, .nav-links { display: none !important; }
+  .guest-header, .dash-header, .skin-cal-header, .hero {
+    padding-left: 18px !important;
+    padding-right: 18px !important;
+    padding-top: 40px !important;
+  }
+  .guest-title, .dash-title, .skin-cal-title, .hero-title {
+    font-size: clamp(24px, 6vw, 32px) !important;
+  }
+}
