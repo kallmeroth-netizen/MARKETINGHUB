@@ -788,6 +788,8 @@
     paintDate();
     // Swap states (hub becomes visible) and lift the sweep curtain
     body.dataset.state = 'hub';
+    // Land at the top of the hub instead of wherever the passcode page scrolled to
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
     passShell.classList.add('fading');
     requestAnimationFrame(() => {
       sweep.classList.add('lift');
