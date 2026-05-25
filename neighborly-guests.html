@@ -3,6 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#F7F6F3">
 <title>Guest Feedback — Neighborly</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700;800;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -26,7 +30,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 button,input,select,textarea{font-family:inherit}
 
 /* NAV */
-nav{background:var(--surface);border-bottom:.5px solid var(--border-strong);padding:0 1.5rem;display:flex;align-items:center;height:50px;position:sticky;top:0;z-index:100;gap:12px}
+nav{background:rgba(255,255,255,.82);-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);border-bottom:.5px solid var(--border-strong);padding:0 1.5rem;display:flex;align-items:center;height:50px;position:sticky;top:0;z-index:100;gap:12px}
+@supports not (backdrop-filter:blur(20px)){nav{background:var(--surface)}}
 .nav-right{margin-left:auto;display:flex;align-items:center;gap:10px}
 .nav-brand{display:flex;align-items:center;position:relative;height:50px;flex-shrink:0}
 .nav-logo{height:22px;width:auto;display:block;cursor:pointer}
@@ -348,8 +353,11 @@ nav{background:var(--surface);border-bottom:.5px solid var(--border-strong);padd
 /* ── MOBILE RESPONSIVENESS OVERRIDES ─────────────────────────────────────────
    Desktop remains unchanged. These rules only activate on tablet/mobile widths. */
 @media (max-width: 767px){
-  html,body{width:100%;max-width:100%;overflow-x:hidden;-webkit-text-size-adjust:100%}
-  body{padding-bottom:env(safe-area-inset-bottom)}
+  html,body{width:100%;max-width:100vw;overflow-x:hidden;-webkit-text-size-adjust:100%}
+  body{padding-bottom:env(safe-area-inset-bottom);overscroll-behavior:none;-webkit-tap-highlight-color:transparent}
+  button,a,[role="button"],[onclick]{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+  input,textarea,select{font-size:16px!important} /* prevent iOS auto-zoom on focus */
+  nav{padding-left:max(12px,env(safe-area-inset-left));padding-right:max(12px,env(safe-area-inset-right))}
 
   /* One-row mobile nav: brand | centered tabs (scrollable) | right group (quick-nav + gear) */
   nav{height:50px;min-height:50px;padding:0 12px;display:grid;grid-template-columns:auto 1fr auto;align-items:center;column-gap:10px;overflow:visible}

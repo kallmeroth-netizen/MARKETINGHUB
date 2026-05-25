@@ -2,7 +2,11 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#F7F6F3">
 <title>Neighborly — Performance Dashboard</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
@@ -30,11 +34,13 @@
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  html { font-size: 14px; }
-  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+  html { font-size: 14px; -webkit-text-size-adjust: 100%; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; overscroll-behavior: none; -webkit-tap-highlight-color: transparent; }
+  button, a, [role="button"], [onclick] { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
 
   /* NAV */
-  nav { background: var(--surface); border-bottom: 0.5px solid var(--border-strong); padding: 0 2rem; display: flex; align-items: center; justify-content: space-between; height: 52px; position: sticky; top: 0; z-index: 100; }
+  nav { background: rgba(255, 255, 255, 0.82); -webkit-backdrop-filter: saturate(180%) blur(20px); backdrop-filter: saturate(180%) blur(20px); border-bottom: 0.5px solid var(--border-strong); padding: 0 2rem; display: flex; align-items: center; justify-content: space-between; height: 52px; position: sticky; top: 0; z-index: 100; }
+  @supports not (backdrop-filter: blur(20px)) { nav { background: var(--surface); } }
   .nav-brand { display: flex; align-items: center; position: relative; }
   .nav-logo { height: 22px; width: auto; display: block; cursor: pointer; }
 
@@ -172,21 +178,39 @@
     .metrics-table .cat-row td:first-child { background: var(--surface2); }
     .metrics-table tr:hover td:first-child { background: var(--surface2); }
 
-    /* NAV — compact on mobile */
-    html, body { overflow-x: hidden; }
-    nav { padding: 0 0.75rem; gap: 4px; }
-    .nav-tab { padding: 0 10px; font-size: 12px; }
-    .nav-right { gap: 6px; }
+    /* NAV — compact on mobile, locked to viewport */
+    html, body { overflow-x: hidden; max-width: 100vw; }
+    body { padding-bottom: env(safe-area-inset-bottom); }
+    input, textarea, select { font-size: 16px !important; } /* prevent iOS auto-zoom on focus */
+    nav { padding: 0 max(10px, env(safe-area-inset-right)) 0 max(10px, env(safe-area-inset-left)); height: 50px; display: grid; grid-template-columns: auto 1fr auto; column-gap: 8px; justify-content: initial; gap: 0; }
+    .nav-brand { justify-self: start; flex-shrink: 0; }
+    .nav-tabs { min-width: 0; max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; display: flex; justify-content: flex-start; align-items: center; height: 50px; scrollbar-width: none; }
+    .nav-tabs::-webkit-scrollbar { display: none; }
+    .nav-tab { padding: 0 11px; font-size: 12.5px; flex: 0 0 auto; height: 50px; }
+    .nav-right { gap: 6px; justify-self: end; flex-shrink: 0; }
     .nav-logo { height: 18px; }
     .daily-last-updated { display: none; }
-    .upload-btn { padding: 6px 8px; font-size: 0; gap: 0; }
+    .upload-btn { padding: 0; font-size: 0; gap: 0; width: 30px; height: 30px; display: inline-flex; align-items: center; justify-content: center; }
     .upload-btn svg { width: 14px; height: 14px; }
     .icon-btn { width: 30px; height: 30px; }
+    .qn-btn { width: 26px; height: 26px; }
+    .qn-btn svg { width: 13px; height: 13px; }
+    .quick-nav { gap: 3px; }
     .dashboard { padding: 1rem !important; }
     .dash-header { flex-direction: column; align-items: flex-start; }
     .dash-title { font-size: 19px; }
     .view-toggle { width: 100%; overflow-x: auto; }
     .vt-btn { white-space: nowrap; }
+  }
+  @media (max-width: 420px) {
+    .nav-logo { height: 16px; }
+    .nav-tab { padding: 0 9px; font-size: 11.5px; }
+    .qn-btn { width: 24px; height: 24px; }
+    .qn-btn svg { width: 12px; height: 12px; }
+    .quick-nav { gap: 2px; }
+    .nav-right { gap: 4px; }
+    .upload-btn { width: 28px; height: 28px; }
+    .icon-btn { width: 28px; height: 28px; }
   }
   .pct-pos { color: var(--brand-green); font-weight: 500; }
   .pct-neg { color: var(--brand-orange); font-weight: 500; }

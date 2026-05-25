@@ -2,12 +2,18 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#F7F6F3">
 <title>Print Production — Neighborly</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+button,a,[role="button"],[onclick]{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 :root{
   --bg:#F7F6F3;--surface:#fff;--surface2:#F0EEE9;
   --border:rgba(0,0,0,0.08);--border-strong:rgba(0,0,0,0.14);
@@ -20,10 +26,11 @@
   --tan:#dbc6a2;--tl:#f7f0e4;--td:#5a4520;
   --lav:#cbc9d6;--ll:#f0eff5;--ld:#4a4760;
 }
-body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overscroll-behavior:none;-webkit-tap-highlight-color:transparent}
 button,input,select{font-family:inherit}
 
-nav{background:var(--surface);border-bottom:.5px solid var(--border-strong);padding:0 1.5rem;display:flex;align-items:center;justify-content:space-between;height:50px;position:sticky;top:0;z-index:50}
+nav{background:rgba(255,255,255,.82);-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);border-bottom:.5px solid var(--border-strong);padding:0 1.5rem;display:flex;align-items:center;justify-content:space-between;height:50px;position:sticky;top:0;z-index:50}
+@supports not (backdrop-filter:blur(20px)){nav{background:var(--surface)}}
 .nav-brand{display:flex;align-items:center;height:50px;text-decoration:none}
 .nav-brand img{height:20px;width:auto;display:block}
 .nav-links{display:flex;gap:8px}
@@ -132,6 +139,12 @@ nav{background:var(--surface);border-bottom:.5px solid var(--border-strong);padd
 .qn-btn.disabled{opacity:.4;pointer-events:none;cursor:default}
 .qn-btn svg{width:14px;height:14px}
 @media(max-width:420px){.qn-btn{width:24px;height:24px}.qn-btn svg{width:12px;height:12px}.quick-nav{gap:3px}}
+@media(max-width:767px){
+  html,body{width:100%;max-width:100vw;overflow-x:hidden}
+  body{padding-bottom:env(safe-area-inset-bottom)}
+  input,textarea,select{font-size:16px!important} /* prevent iOS auto-zoom on focus */
+  nav{padding-left:max(12px,env(safe-area-inset-left));padding-right:max(12px,env(safe-area-inset-right))}
+}
 .hub-nav-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}
 .hub-card{display:flex;flex-direction:column;gap:6px;padding:14px;border-radius:10px;border:.5px solid var(--border);background:var(--surface);cursor:pointer;transition:background .12s,border-color .12s;position:relative;text-decoration:none;color:inherit}
 .hub-card:hover{background:var(--surface2);border-color:var(--border-strong)}
