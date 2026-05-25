@@ -131,12 +131,10 @@
     gap: var(--s-5);
   }
   .nav-mark {
-    font-family: var(--f-display);
-    font-size: 22px; letter-spacing: 0.02em;
-    color: var(--ink);
+    display: inline-flex; align-items: center;
     text-decoration: none;
   }
-  .nav-mark .dot { color: var(--orange); }
+  .nav-mark img { height: 28px; width: auto; display: block; }
   .nav-links {
     display: flex; gap: 4px; flex-wrap: wrap;
   }
@@ -167,28 +165,40 @@
 
   /* ===== HERO ===== */
   .hero {
-    padding: var(--s-9) 0 var(--s-8);
+    padding: var(--s-8) 0 var(--s-7);
     border-bottom: 1px solid var(--line);
     position: relative;
   }
   .hero-eyebrow {
+    display: inline-block;
     font-family: var(--f-futura);
     font-size: 11px; font-weight: 600;
-    letter-spacing: 0.28em;
+    letter-spacing: 0.24em;
     text-transform: uppercase;
     color: var(--orange);
-    margin-bottom: var(--s-5);
+    background: rgba(232, 113, 66, 0.10);
+    padding: 8px 14px;
+    border-radius: 999px;
+    margin-top: var(--s-5);
   }
   .hero-title {
     font-family: var(--f-display);
-    font-size: clamp(3.4rem, 9vw, 7.2rem);
+    font-size: clamp(2.7rem, 7.2vw, 5.75rem);
     line-height: 0.95;
     letter-spacing: -0.01em;
     color: var(--ink);
     text-transform: uppercase;
     font-weight: 400;
   }
-  .hero-title .accent { color: var(--orange); text-transform: none; font-family: var(--f-tuppence); font-weight: 500; }
+  .hero-title .accent {
+    display: block;
+    color: var(--ink);
+    text-transform: none;
+    font-family: var(--f-tuppence);
+    font-weight: 500;
+    letter-spacing: 0;
+    margin-top: 0.05em;
+  }
   .hero-sub {
     margin-top: var(--s-6);
     max-width: 620px;
@@ -211,14 +221,14 @@
 
   /* ===== SECTION ===== */
   section.row {
-    padding: var(--s-8) 0;
+    padding: var(--s-7) 0;
     border-bottom: 1px solid var(--line);
     display: grid;
     grid-template-columns: 260px 1fr;
     gap: var(--s-7);
   }
   @media (max-width: 920px) {
-    section.row { grid-template-columns: 1fr; gap: var(--s-5); padding: var(--s-7) 0; }
+    section.row { grid-template-columns: 1fr; gap: var(--s-5); padding: var(--s-6) 0; }
   }
 
   .row-head { position: sticky; top: 88px; align-self: start; }
@@ -272,17 +282,28 @@
   .quick-cell {
     background: var(--cream);
     padding: var(--s-5);
-    min-height: 150px;
+    min-height: 160px;
     display: flex; flex-direction: column; justify-content: space-between;
     text-decoration: none; color: var(--ink);
-    transition: background 0.25s ease, transform 0.25s ease;
+    transition: background 0.25s ease, color 0.25s ease;
   }
-  .quick-cell:hover { background: #fff; }
-  .quick-cell.feature { background: var(--orange); color: #fff; }
-  .quick-cell.feature .quick-arrow { color: rgba(255,255,255,0.78); }
-  .quick-cell.feature .quick-num { color: rgba(255,255,255,0.6); }
-  .quick-cell.feature .quick-dot { background: rgba(255,255,255,0.9) !important; }
-  .quick-cell.feature:hover { background: #d96538; }
+
+  /* highlight on hover only */
+  .qc-orange:hover   { background: var(--orange);     color: #fff; }
+  .qc-lavender:hover { background: var(--lavender);   color: #fff; }
+  .qc-green:hover    { background: var(--green);      color: var(--ink); }
+  .qc-blue:hover     { background: var(--blue);       color: #fff; }
+  .qc-yellow:hover   { background: var(--yellow);     color: var(--ink); }
+  .qc-soft:hover     { background: var(--soft-green); color: var(--ink); }
+
+  .qc-orange:hover .quick-num,
+  .qc-blue:hover .quick-num,
+  .qc-lavender:hover .quick-num { color: rgba(255,255,255,0.7); }
+  .qc-orange:hover .quick-arrow,
+  .qc-blue:hover .quick-arrow,
+  .qc-lavender:hover .quick-arrow { color: rgba(255,255,255,0.85); }
+
+  .quick-cell:hover .quick-dot { opacity: 0; }
 
   .quick-top { display: flex; justify-content: space-between; align-items: center; }
   .quick-num {
@@ -290,7 +311,7 @@
     font-size: 10.5px; letter-spacing: 0.18em;
     color: var(--text-3);
   }
-  .quick-dot { width: 10px; height: 10px; border-radius: 50%; opacity: 0.85; }
+  .quick-dot { width: 10px; height: 10px; border-radius: 50%; opacity: 0.85; transition: opacity 0.25s ease; }
   .quick-name {
     font-family: var(--f-display);
     font-size: 1.65rem;
@@ -349,6 +370,18 @@
   .logo-stage.dark { background: var(--ink); }
   .logo-stage.cream { background: var(--cream); }
   .logo-stage img { max-width: 70%; max-height: 70%; object-fit: contain; }
+  .logo-mark-svg { width: 64%; height: auto; display: block; }
+  .wordmark-preview {
+    font-family: var(--f-display);
+    font-size: clamp(1.4rem, 2.6vw, 1.9rem);
+    line-height: 1.05;
+    letter-spacing: 0.02em;
+    color: var(--ink);
+    text-align: center;
+    text-transform: uppercase;
+  }
+  .wordmark-preview span { display: block; }
+  .wordmark-preview span:last-child { color: var(--orange); margin-top: 4px; }
   .logo-stage .placeholder {
     width: 100%; height: 100%;
     border: 1px dashed var(--line-strong);
@@ -549,7 +582,7 @@
     font-family: var(--f-tuppence);
     font-weight: 500;
     text-transform: none;
-    color: var(--ink);
+    color: #fff;
   }
   .voice-grid { display: flex; flex-direction: column; gap: var(--s-4); }
   .voice-item { padding-bottom: var(--s-4); border-bottom: 1px solid rgba(255,255,255,0.20); }
@@ -574,6 +607,7 @@
     font-family: var(--f-display);
     font-size: 1.6rem; line-height: 1;
     text-transform: uppercase;
+    color: var(--ink);
     margin-top: var(--s-3);
   }
   .photo-desc { font-size: 14.5px; color: var(--text-2); margin-top: var(--s-2); max-width: 520px; }
@@ -678,7 +712,7 @@
 <!-- NAV -->
 <nav class="top">
   <div class="nav-inner">
-    <a class="nav-mark" href="#top">Neighborly<span class="dot">.</span></a>
+    <a class="nav-mark" href="#top" aria-label="Neighborly home"><img src="NeighborlyLogo.png" alt="Neighborly" /></a>
     <div class="nav-links">
       <a href="#logos">Logos</a>
       <a href="#palette">Palette</a>
@@ -694,12 +728,9 @@
 
   <!-- HERO -->
   <header class="hero reveal">
+    <h1 class="hero-title">Brand <span class="accent">Guidelines</span></h1>
     <div class="hero-eyebrow">Internal · Brand Hub</div>
-    <h1 class="hero-title">Neighborly <span class="accent">Brand Guidelines</span></h1>
-    <p class="hero-sub">A single source for everything our brand stands for — the marks, colors, words, and rules that make Neighborly feel like Neighborly. Use these as written. When in doubt, keep it warm and keep it clear.</p>
-    <div class="hero-meta">
-      <span>Curated Kitchens and Marketplace</span>
-    </div>
+    <p class="hero-sub">A single source for everything Neighborly.</p>
   </header>
 
   <!-- INDEX -->
@@ -710,32 +741,32 @@
     </div>
     <div>
       <div class="quick">
-        <a class="quick-cell" href="#logos">
+        <a class="quick-cell qc-orange" href="#logos">
           <div class="quick-top"><span class="quick-num">01</span><span class="quick-dot" style="background:var(--orange)"></span></div>
           <div class="quick-name">Logos</div>
           <div class="quick-arrow">View</div>
         </a>
-        <a class="quick-cell feature" href="#REPLACE-BRAND-BOOK-URL">
-          <div class="quick-top"><span class="quick-num">02</span><span class="quick-dot" style="background:var(--orange)"></span></div>
+        <a class="quick-cell qc-lavender" href="#REPLACE-BRAND-BOOK-URL">
+          <div class="quick-top"><span class="quick-num">02</span><span class="quick-dot" style="background:var(--lavender)"></span></div>
           <div class="quick-name">Brand Book</div>
           <div class="quick-arrow">Open</div>
         </a>
-        <a class="quick-cell" href="#photography">
+        <a class="quick-cell qc-green" href="#photography">
           <div class="quick-top"><span class="quick-num">03</span><span class="quick-dot" style="background:var(--green)"></span></div>
           <div class="quick-name">Photography</div>
           <div class="quick-arrow">View</div>
         </a>
-        <a class="quick-cell" href="https://drive.google.com/drive/folders/1i4Fd8Y7zsXWMTAioRrGVfkGUB7ql50wU?usp=drive_link" target="_blank" rel="noopener">
-          <div class="quick-top"><span class="quick-num">04</span><span class="quick-dot" style="background:var(--lavender)"></span></div>
+        <a class="quick-cell qc-blue" href="https://drive.google.com/drive/folders/1i4Fd8Y7zsXWMTAioRrGVfkGUB7ql50wU?usp=drive_link" target="_blank" rel="noopener">
+          <div class="quick-top"><span class="quick-num">04</span><span class="quick-dot" style="background:var(--blue)"></span></div>
           <div class="quick-name">Templates</div>
           <div class="quick-arrow">Open</div>
         </a>
-        <a class="quick-cell" href="https://drive.google.com/drive/folders/19dfTyHtlgTvejIh5HZtrMzsvt0rQBdRd?usp=drive_link" target="_blank" rel="noopener">
+        <a class="quick-cell qc-yellow" href="https://drive.google.com/drive/folders/19dfTyHtlgTvejIh5HZtrMzsvt0rQBdRd?usp=drive_link" target="_blank" rel="noopener">
           <div class="quick-top"><span class="quick-num">05</span><span class="quick-dot" style="background:var(--yellow)"></span></div>
           <div class="quick-name">Menus</div>
           <div class="quick-arrow">Open</div>
         </a>
-        <a class="quick-cell" href="https://www.dropbox.com/scl/fo/s9qxbr2bqhr0x0kxu0mdg/ALiObuP72mEaQ4KY80-dKV8?rlkey=meypzjnbec1zcmi3ohle1ys8w&st=1nu52222&dl=0" target="_blank" rel="noopener">
+        <a class="quick-cell qc-soft" href="https://www.dropbox.com/scl/fo/s9qxbr2bqhr0x0kxu0mdg/ALiObuP72mEaQ4KY80-dKV8?rlkey=meypzjnbec1zcmi3ohle1ys8w&st=1nu52222&dl=0" target="_blank" rel="noopener">
           <div class="quick-top"><span class="quick-num">06</span><span class="quick-dot" style="background:var(--soft-green)"></span></div>
           <div class="quick-name">Social</div>
           <div class="quick-arrow">Open</div>
