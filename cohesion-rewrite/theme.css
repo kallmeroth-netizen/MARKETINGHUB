@@ -619,3 +619,66 @@ section.row    { padding: var(--s-7) 0; gap: var(--s-6); }
 /* Voice section "good neighbor" treatment — keeps Tuppence/upright override */
 .voice-line .accent { color: inherit; font-family: inherit; font-weight: inherit; font-style: normal; text-transform: none; background: none; }
 
+/* ============================================================
+   DASHBOARD aliases — class names rendered by the page JS
+   ============================================================ */
+.dashboard, .data-page { max-width: var(--content-max); margin: 0 auto; padding: var(--s-5) clamp(var(--s-4), 4vw, var(--s-7)); }
+.dash-header {
+  display: flex; flex-direction: column; align-items: flex-start;
+  gap: var(--s-2); margin-bottom: var(--s-5); padding-bottom: var(--s-2);
+}
+.dash-title { font-family: var(--f-display); font-weight: 400; font-size: var(--t-hero); line-height: 1.05; letter-spacing: -0.005em; color: var(--ink-pure); }
+.dash-sub   { font-family: var(--f-eyebrow); font-weight: 600; font-size: var(--t-eyebrow); letter-spacing: 0.28em; text-transform: uppercase; color: var(--text-3); }
+
+/* Week badge / period chip */
+.week-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: var(--brand-orange); color: #fff;
+  font-size: var(--t-caption); font-weight: 500;
+  padding: 4px 4px 4px 12px; border-radius: var(--r-pill);
+  margin-top: 6px; cursor: pointer;
+  transition: filter var(--t-base) var(--easing);
+}
+.week-badge:hover { filter: brightness(1.06); }
+
+/* Section title */
+.section-title {
+  font-family: var(--f-eyebrow); font-weight: 600;
+  font-size: var(--t-caption); letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--text-3); margin-bottom: var(--s-3);
+  display: flex; align-items: center; gap: 8px;
+}
+.section-title::after { content: ''; flex: 1; height: 0.5px; background: var(--line-strong); }
+
+/* Refresh / icon buttons (page-defined .upload-btn / .icon-btn coerced into np-icon-btn) */
+.upload-btn, .icon-btn {
+  width: 34px !important; height: 34px !important;
+  padding: 0 !important; font-size: 0 !important; gap: 0 !important;
+  border-radius: var(--r-md) !important;
+}
+.upload-btn svg, .icon-btn svg { width: 14px !important; height: 14px !important; }
+.daily-last-updated {
+  font-family: var(--f-mono); font-size: var(--t-caption-sm);
+  color: var(--text-3); white-space: nowrap;
+}
+
+/* Metrics table — category bars locked at 11px so iOS can't inflate them */
+.metrics-table { width: 100%; border-collapse: collapse; }
+.metrics-table th {
+  font-size: var(--t-eyebrow); font-weight: 500; color: var(--text-3);
+  text-align: left; padding: 6px 12px;
+  border-bottom: 0.5px solid var(--line-strong); white-space: nowrap;
+}
+.metrics-table th:not(:first-child) { text-align: right; }
+.metrics-table td { padding: 6px 12px; font-family: var(--f-mono); font-size: var(--t-body-sm); color: var(--text); }
+.metrics-table td:not(:first-child) { text-align: right; }
+.metrics-table .cat-row td {
+  font-family: var(--f-eyebrow); font-weight: 600;
+  font-size: var(--t-eyebrow); letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--text-2); background: var(--surface-2); padding: 6px 12px;
+}
+.metrics-table .cat-row { cursor: pointer; }
+.metrics-table .cat-row:hover td { background: var(--line); }
+.cat-chevron { transition: transform var(--t-base) var(--easing); }
+.metrics-table .cat-row.open .cat-chevron { transform: rotate(90deg); }
+
