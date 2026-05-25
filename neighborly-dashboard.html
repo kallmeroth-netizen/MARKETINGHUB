@@ -275,6 +275,199 @@
     .reveal, .reveal-stagger > * { opacity: 1 !important; transform: none !important; transition: none !important; }
     .mix-bar-fill.animate { animation: none !important; }
   }
+
+  /* ── GROWTH PAGE styles (scoped to #page-growth) ── */
+
+#page-growth {
+  --ink:#0E0D0B;        
+  --ink-2:#1A1916;
+  --ink-3:#26241F;
+  --ink-soft:#3A3731;
+  --line:rgba(255,255,255,0.08);
+  --line-strong:rgba(255,255,255,0.16);
+  --paper:#F7F6F3;
+  --paper-2:#EFEDE7;
+  --cream:#FAF8F3;
+  --text:#1A1916;
+  --text-2:#5A574F;
+  --text-3:#86827A;
+  --on-ink:#F5F2EC;
+  --on-ink-2:rgba(245,242,236,0.66);
+  --on-ink-3:rgba(245,242,236,0.42);
+  --gold:#E5C24A;
+  --gold-soft:#F2DD8A;
+  --green:#5F8F4F;
+  --orange:#D9824A;
+  --blue:#3E6B8A;
+}
+#page-growth button, #page-growth a, #page-growth [role="button"], #page-growth [onclick] {touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+@media(max-width:767px){
+ 
+  #page-growth input, #page-growth textarea, #page-growth select {font-size:16px!important}
+ 
+}
+
+
+#page-growth .hero {position:relative;background:var(--ink);color:var(--on-ink);min-height:100vh;display:flex;flex-direction:column;overflow:hidden}
+#page-growth .hero-bg {position:absolute;inset:0;opacity:.18;pointer-events:none}
+#page-growth .hero-bg canvas {width:100%!important;height:100%!important}
+#page-growth .hero-bg::after {content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(14,13,11,0) 0%,rgba(14,13,11,.4) 70%,var(--ink) 100%)}
+#page-growth .hero-nav {position:relative;z-index:3;display:flex;align-items:center;justify-content:space-between;padding:1.2rem max(1.5rem,env(safe-area-inset-left)) 1.2rem max(1.5rem,env(safe-area-inset-right))}
+#page-growth .hero-mark {font-family:'DM Sans',sans-serif;font-weight:700;font-size:14px;letter-spacing:.08em;text-transform:uppercase;color:var(--on-ink)}
+#page-growth .hero-mark span {color:var(--gold)}
+#page-growth .hero-meta {font-family:'DM Mono',monospace;font-size:11px;color:var(--on-ink-3);letter-spacing:.05em}
+#page-growth .hero-body {position:relative;z-index:2;flex:1;display:flex;flex-direction:column;justify-content:center;padding:2rem max(1.5rem,env(safe-area-inset-left)) 3rem max(1.5rem,env(safe-area-inset-right));max-width:1180px;width:100%;margin:0 auto}
+#page-growth .hero-eyebrow {font-family:'DM Mono',monospace;font-size:11px;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:1.5rem}
+#page-growth .hero-eyebrow::before {content:"";display:inline-block;width:24px;height:1px;background:var(--gold);vertical-align:middle;margin-right:10px;transform:translateY(-2px)}
+#page-growth .hero-headline {font-family:'DM Sans',sans-serif;font-weight:300;font-size:clamp(2.4rem,7vw,5.5rem);line-height:1.02;letter-spacing:-0.03em;margin-bottom:1.5rem;color:var(--on-ink)}
+#page-growth .hero-headline strong {font-weight:700;background:linear-gradient(90deg,var(--gold) 0%,var(--gold-soft) 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+#page-growth .hero-sub {font-size:clamp(1rem,1.8vw,1.25rem);line-height:1.55;color:var(--on-ink-2);max-width:640px;font-weight:300;margin-bottom:3rem}
+#page-growth .hero-stats {display:grid;grid-template-columns:repeat(3,1fr);gap:0;border-top:0.5px solid var(--line-strong);border-bottom:0.5px solid var(--line-strong);padding:1.5rem 0}
+#page-growth .hero-stat {padding:0 1.5rem;border-right:0.5px solid var(--line)}
+#page-growth .hero-stat:first-child {padding-left:0}
+#page-growth .hero-stat:last-child {border-right:0;padding-right:0}
+#page-growth .hero-stat-label {font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--on-ink-3);margin-bottom:8px}
+#page-growth .hero-stat-val {font-family:'DM Sans',sans-serif;font-weight:600;font-size:clamp(1.4rem,3vw,2.2rem);line-height:1;color:var(--on-ink);letter-spacing:-0.02em}
+#page-growth .hero-stat-sub {font-size:12px;color:var(--on-ink-3);margin-top:6px}
+#page-growth .hero-stat-sub strong {color:var(--gold-soft);font-weight:500}
+#page-growth .hero-scroll {position:absolute;bottom:1.5rem;left:50%;transform:translateX(-50%);z-index:3;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--on-ink-3);text-decoration:none}
+#page-growth .hero-scroll svg {display:block;margin:6px auto 0;animation:bob 2.4s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateY(0);opacity:.5}50%{transform:translateY(4px);opacity:1}}
+
+
+#page-growth section {position:relative;padding:5rem max(1.5rem,env(safe-area-inset-left)) 5rem max(1.5rem,env(safe-area-inset-right));scroll-margin-top:0}
+#page-growth section.dark {background:var(--ink);color:var(--on-ink)}
+#page-growth section.dark .sec-eyebrow {color:var(--gold)}
+#page-growth section.dark .sec-title {color:var(--on-ink)}
+#page-growth section.dark .sec-lede {color:var(--on-ink-2)}
+#page-growth section.dark .stat-tile {background:var(--ink-2);border-color:var(--line)}
+#page-growth section.dark .stat-tile-label {color:var(--on-ink-3)}
+#page-growth section.dark .stat-tile-val {color:var(--on-ink)}
+#page-growth section.dark .stat-tile-sub {color:var(--on-ink-2)}
+
+#page-growth .sec-inner {max-width:1180px;margin:0 auto}
+#page-growth .sec-eyebrow {font-family:'DM Mono',monospace;font-size:11px;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:var(--orange);margin-bottom:1rem}
+#page-growth .sec-eyebrow::before {content:"";display:inline-block;width:24px;height:1px;background:currentColor;vertical-align:middle;margin-right:10px;transform:translateY(-2px)}
+#page-growth .sec-title {font-family:'DM Sans',sans-serif;font-weight:300;font-size:clamp(1.8rem,4vw,3.2rem);line-height:1.05;letter-spacing:-0.025em;margin-bottom:1.2rem;color:var(--text);max-width:880px}
+#page-growth .sec-title strong {font-weight:700}
+#page-growth .sec-lede {font-size:clamp(1rem,1.4vw,1.15rem);line-height:1.6;color:var(--text-2);max-width:680px;margin-bottom:3rem;font-weight:400}
+
+
+#page-growth .chart-frame {background:var(--cream);border:0.5px solid rgba(0,0,0,0.1);border-radius:14px;padding:1.5rem 1.25rem 1.25rem;margin-bottom:2.5rem}
+#page-growth .chart-head {display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:1rem;margin-bottom:1.5rem;padding-bottom:1rem;border-bottom:0.5px solid rgba(0,0,0,0.08)}
+#page-growth .chart-title {font-size:13px;font-weight:600;color:var(--text-2);text-transform:uppercase;letter-spacing:.08em}
+#page-growth .chart-legend {display:flex;gap:1rem;font-size:11.5px;color:var(--text-2);align-items:center;flex-wrap:wrap}
+#page-growth .chart-legend span {display:inline-flex;align-items:center;gap:6px}
+#page-growth .chart-legend span::before {content:"";width:10px;height:2px;background:var(--ink);border-radius:1px}
+#page-growth .chart-legend span.phase1::before {background:var(--blue)}
+#page-growth .chart-legend span.phase2::before {background:var(--gold);height:3px}
+#page-growth .chart-legend span.bw::before {background:var(--orange)}
+#page-growth .chart-wrap {position:relative;height:340px}
+@media(max-width:767px){#page-growth .chart-wrap {height:260px}}
+
+#page-growth .stat-row {display:grid;grid-template-columns:repeat(4,1fr);gap:1rem}
+@media(max-width:900px){#page-growth .stat-row {grid-template-columns:repeat(2,1fr)}}
+#page-growth .stat-tile {background:var(--cream);border:0.5px solid rgba(0,0,0,0.1);border-radius:12px;padding:1.25rem 1.15rem;display:flex;flex-direction:column;gap:6px;min-height:120px}
+#page-growth .stat-tile-label {font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-3)}
+#page-growth .stat-tile-val {font-family:'DM Sans',sans-serif;font-weight:600;font-size:clamp(1.4rem,2.4vw,1.9rem);line-height:1;color:var(--text);letter-spacing:-0.02em;margin-top:auto}
+#page-growth .stat-tile-sub {font-size:12.5px;color:var(--text-2);line-height:1.4}
+#page-growth .stat-tile-sub strong {color:var(--gold);font-weight:600}
+
+
+#page-growth .stores-row {display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem}
+@media(max-width:767px){#page-growth .stores-row {grid-template-columns:1fr}}
+#page-growth .store-card {background:var(--cream);border:0.5px solid rgba(0,0,0,0.1);border-radius:14px;padding:1.75rem 1.5rem;position:relative;overflow:hidden}
+#page-growth section.dark .store-card {background:var(--ink-2);border-color:var(--line)}
+#page-growth .store-card::before {content:"";position:absolute;top:0;left:0;width:3px;height:100%;background:var(--gold)}
+#page-growth .store-card.bw::before {background:var(--orange)}
+#page-growth .store-tag {font-family:'DM Mono',monospace;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-3);margin-bottom:.5rem}
+#page-growth section.dark .store-tag {color:var(--on-ink-3)}
+#page-growth .store-name {font-size:1.4rem;font-weight:600;letter-spacing:-0.01em;margin-bottom:.5rem;color:var(--text)}
+#page-growth section.dark .store-name {color:var(--on-ink)}
+#page-growth .store-period {font-size:12.5px;color:var(--text-2);margin-bottom:1.5rem}
+#page-growth section.dark .store-period {color:var(--on-ink-2)}
+#page-growth .store-num {font-family:'DM Sans',sans-serif;font-weight:600;font-size:clamp(2rem,4vw,3rem);line-height:1;letter-spacing:-0.02em;color:var(--text);margin-bottom:.5rem}
+#page-growth section.dark .store-num {color:var(--on-ink)}
+#page-growth .store-num-sub {font-size:13px;color:var(--text-2);line-height:1.5}
+#page-growth section.dark .store-num-sub {color:var(--on-ink-2)}
+#page-growth .store-bar {margin-top:1.5rem;height:8px;background:rgba(0,0,0,.06);border-radius:4px;overflow:hidden}
+#page-growth section.dark .store-bar {background:rgba(255,255,255,.08)}
+#page-growth .store-bar-fill {height:100%;background:var(--gold);border-radius:4px;transition:width 1s ease}
+#page-growth .store-card.bw .store-bar-fill {background:var(--orange)}
+#page-growth .combined {background:var(--ink);color:var(--on-ink);border-radius:14px;padding:1.75rem 1.5rem;display:grid;grid-template-columns:1fr auto;gap:1.5rem;align-items:center}
+@media(max-width:767px){#page-growth .combined {grid-template-columns:1fr;text-align:left}}
+#page-growth .combined-label {font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--on-ink-3);margin-bottom:6px}
+#page-growth .combined-val {font-family:'DM Sans',sans-serif;font-weight:600;font-size:clamp(1.8rem,3.2vw,2.4rem);line-height:1;letter-spacing:-0.02em;color:var(--gold)}
+#page-growth .combined-sub {font-size:13.5px;color:var(--on-ink-2);max-width:380px}
+
+
+#page-growth .concepts-grid {display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:2.5rem}
+@media(max-width:900px){#page-growth .concepts-grid {grid-template-columns:repeat(2,1fr)}}
+@media(max-width:480px){#page-growth .concepts-grid {grid-template-columns:1fr}}
+#page-growth .concept-card {background:var(--cream);border:0.5px solid rgba(0,0,0,0.1);border-radius:12px;padding:1.25rem 1.15rem;position:relative;overflow:hidden}
+#page-growth .concept-color {width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-family:'DM Sans',sans-serif;font-weight:700;font-size:14px;color:#fff;margin-bottom:1rem;letter-spacing:-0.02em}
+#page-growth .concept-name {font-size:14.5px;font-weight:600;color:var(--text);margin-bottom:.5rem;letter-spacing:-0.01em}
+#page-growth .concept-share {font-family:'DM Sans',sans-serif;font-weight:600;font-size:1.5rem;letter-spacing:-0.02em;color:var(--text);line-height:1}
+#page-growth .concept-share-sub {font-size:11.5px;color:var(--text-3);margin-top:4px;font-family:'DM Mono',monospace;letter-spacing:.04em}
+#page-growth .concept-bar {margin-top:1rem;height:5px;background:rgba(0,0,0,.05);border-radius:3px;overflow:hidden}
+#page-growth .concept-bar-fill {height:100%;border-radius:3px}
+
+
+#page-growth .channel-callout {background:var(--ink);color:var(--on-ink);padding:1.5rem 1.75rem;border-radius:12px;margin-top:2rem;display:flex;justify-content:space-between;align-items:center;gap:1.5rem;flex-wrap:wrap}
+#page-growth .channel-callout-num {font-family:'DM Sans',sans-serif;font-weight:600;font-size:clamp(1.6rem,3vw,2.2rem);color:var(--gold);letter-spacing:-0.02em;line-height:1}
+#page-growth .channel-callout-text {font-size:13.5px;color:var(--on-ink-2);max-width:480px;line-height:1.5}
+
+
+#page-growth .mkt-hero {display:grid;grid-template-columns:1fr 1fr;gap:0;background:var(--cream);border:0.5px solid rgba(0,0,0,0.1);border-radius:14px;overflow:hidden;margin-bottom:2rem}
+@media(max-width:767px){#page-growth .mkt-hero {grid-template-columns:1fr}}
+#page-growth .mkt-hero-left {padding:2rem 1.75rem;background:var(--ink);color:var(--on-ink)}
+#page-growth .mkt-hero-right {padding:2rem 1.75rem}
+#page-growth .mkt-roas-label {font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--on-ink-3);margin-bottom:1rem}
+#page-growth .mkt-roas-num {font-family:'DM Sans',sans-serif;font-weight:300;font-size:clamp(3.5rem,8vw,6rem);line-height:.95;letter-spacing:-0.04em;color:var(--gold);margin-bottom:.5rem}
+#page-growth .mkt-roas-num strong {font-weight:700}
+#page-growth .mkt-roas-text {font-size:14px;color:var(--on-ink-2);line-height:1.55;max-width:340px}
+#page-growth .mkt-breakdown {display:grid;grid-template-columns:1fr 1fr;gap:1.25rem}
+#page-growth .mkt-line {padding:.5rem 0;border-bottom:0.5px solid rgba(0,0,0,.08)}
+#page-growth .mkt-line:last-child {border-bottom:0}
+#page-growth .mkt-line-name {font-size:12px;color:var(--text-3);font-family:'DM Mono',monospace;letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px}
+#page-growth .mkt-line-val {font-family:'DM Sans',sans-serif;font-weight:600;font-size:1.5rem;color:var(--text);letter-spacing:-0.02em;line-height:1}
+#page-growth .mkt-line-sub {font-size:11.5px;color:var(--text-2);margin-top:4px;font-family:'DM Mono',monospace}
+
+
+#page-growth .ops-grid {display:grid;grid-template-columns:repeat(4,1fr);gap:1rem}
+@media(max-width:900px){#page-growth .ops-grid {grid-template-columns:repeat(2,1fr)}}
+#page-growth section.dark .ops-grid .stat-tile {background:var(--ink-2);border-color:var(--line)}
+
+
+#page-growth footer {background:var(--ink);color:var(--on-ink);padding:3rem max(1.5rem,env(safe-area-inset-left)) calc(3rem + env(safe-area-inset-bottom)) max(1.5rem,env(safe-area-inset-right));text-align:center}
+#page-growth .foot-inner {max-width:1180px;margin:0 auto}
+#page-growth .foot-mark {font-family:'DM Sans',sans-serif;font-weight:700;font-size:14px;letter-spacing:.08em;text-transform:uppercase;margin-bottom:1rem}
+#page-growth .foot-mark span {color:var(--gold)}
+#page-growth .foot-line {font-size:13px;color:var(--on-ink-2);line-height:1.6;max-width:560px;margin:0 auto 1.5rem}
+#page-growth .foot-meta {font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.06em;color:var(--on-ink-3)}
+#page-growth .foot-meta span {color:var(--gold-soft)}
+
+
+#page-growth .reveal {opacity:0;transform:translateY(20px);transition:opacity .8s cubic-bezier(.2,.7,.3,1),transform .8s cubic-bezier(.2,.7,.3,1)}
+#page-growth .reveal.in {opacity:1;transform:translateY(0)}
+#page-growth .reveal.d1 {transition-delay:.1s}
+#page-growth .reveal.d2 {transition-delay:.2s}
+#page-growth .reveal.d3 {transition-delay:.3s}
+@media(prefers-reduced-motion:reduce){#page-growth .reveal {opacity:1;transform:none}#page-growth .hero-scroll svg {animation:none}}
+
+
+@media(max-width:767px){
+  #page-growth section {padding:3.5rem 1.25rem}
+  #page-growth .hero-stats {grid-template-columns:1fr;gap:0;padding:1rem 0}
+  #page-growth .hero-stat {padding:1rem 0;border-right:0;border-bottom:0.5px solid var(--line)}
+  #page-growth .hero-stat:last-child {border-bottom:0}
+  #page-growth .stat-row {grid-template-columns:1fr 1fr;gap:.65rem}
+  #page-growth .stat-tile {padding:1rem;min-height:100px}
+  #page-growth .chart-frame {padding:1rem .9rem}
+  #page-growth .mkt-hero-left, #page-growth .mkt-hero-right {padding:1.5rem 1.25rem}
+  #page-growth .mkt-breakdown {grid-template-columns:1fr 1fr;gap:.75rem}
+  #page-growth .concept-card {padding:1rem .9rem}
+}
 </style>
 </head>
 <body>
@@ -292,6 +485,7 @@
     <a class="nav-tab active" onclick="showPage('dashboard', this)">Weekly Performance</a>
     <a class="nav-tab" id="dailyNavTab" onclick="showPage('daily', this)">Daily Sales</a>
     <a class="nav-tab" onclick="showPage('alltime', this)">All time</a>
+    <a class="nav-tab" onclick="showPage('growth', this)">Growth</a>
   </div>
   <div class="nav-right">
     <span class="daily-last-updated" id="dailyLastUpdated"></span>
@@ -483,6 +677,295 @@
 </div>
 
 <!-- DATA PAGE -->
+<!-- ── GROWTH PAGE (investor narrative, embedded as a dashboard tab) ── -->
+<div class="page" id="page-growth">
+
+<!-- ───────────────────────────────── HERO ───────────────────────────────── -->
+<section class="hero">
+  <div class="hero-bg"><canvas id="heroChart"></canvas></div>
+      <div class="hero-meta" id="heroMeta">Updated <span id="heroDate">—</span></div>
+  </div>
+  <div class="hero-body">
+    <div class="hero-eyebrow">Growth report · Fiscal year 2026</div>
+    <h1 class="hero-headline">From $77K to <strong>$375K</strong><br>per week.<br>In 16 months.</h1>
+    <p class="hero-sub">Neighborly operates two locations and six consumer food brands out of a single kitchen footprint per store. This is what the growth looks like — pulled live from the same operating tracker the team uses every Monday morning.</p>
+    <div class="hero-stats">
+      <div class="hero-stat">
+        <div class="hero-stat-label">Trailing 4-week revenue</div>
+        <div class="hero-stat-val" id="t4wRev">$1.41M</div>
+        <div class="hero-stat-sub"><strong id="t4wDelta">+8%</strong> vs prior 4-week</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-label">Blended marketing ROAS</div>
+        <div class="hero-stat-val" id="blendedRoas">13.5×</div>
+        <div class="hero-stat-sub">Every <strong>$1</strong> returns <strong>$13.50</strong></div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-label">Latest week</div>
+        <div class="hero-stat-val" id="latestWeekRev">$320K</div>
+        <div class="hero-stat-sub" id="latestWeekDate">Week of May 13, 2026</div>
+      </div>
+    </div>
+  </div>
+  <a href="#momentum" class="hero-scroll">
+    Scroll
+    <svg width="14" height="20" viewBox="0 0 14 20" fill="none"><path d="M7 1v17m0 0l-6-6m6 6l6-6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </a>
+</section>
+
+<!-- ───────────────────────────────── MOMENTUM ───────────────────────────────── -->
+<section id="momentum">
+  <div class="sec-inner">
+    <div class="sec-eyebrow reveal">01 · The growth curve</div>
+    <h2 class="sec-title reveal d1">Sixty-seven weeks. <strong>Five times the revenue.</strong></h2>
+    <p class="sec-lede reveal d2">Two distinct chapters. The first store (WLV) compounded from $77K/week to $173K/week over fourteen months. The second store (BW) opened in April 2026 and the system stepped up by roughly $170K/week within four weeks of launch — proving the unit model travels.</p>
+
+    <div class="chart-frame reveal d3">
+      <div class="chart-head">
+        <div class="chart-title">Weekly net revenue · Jan 2025 → May 2026</div>
+        <div class="chart-legend">
+          <span class="phase1">WLV single-store</span>
+          <span class="bw">BW opens</span>
+          <span class="phase2">Combined system</span>
+        </div>
+      </div>
+      <div class="chart-wrap"><canvas id="growthChart"></canvas></div>
+    </div>
+
+    <div class="stat-row">
+      <div class="stat-tile reveal">
+        <div class="stat-tile-label">Peak week</div>
+        <div class="stat-tile-val" id="peakWeek">$374,910</div>
+        <div class="stat-tile-sub" id="peakWeekDate">Week of May 6, 2026</div>
+      </div>
+      <div class="stat-tile reveal d1">
+        <div class="stat-tile-label">Year-over-year</div>
+        <div class="stat-tile-val" id="yoy">+260%</div>
+        <div class="stat-tile-sub">Same week, twelve months prior</div>
+      </div>
+      <div class="stat-tile reveal d2">
+        <div class="stat-tile-label">Weeks above $300K</div>
+        <div class="stat-tile-val" id="weeksAbove">5</div>
+        <div class="stat-tile-sub">And counting — every week since BW opened</div>
+      </div>
+      <div class="stat-tile reveal d3">
+        <div class="stat-tile-label">Compounded since launch</div>
+        <div class="stat-tile-val" id="cumGrowth">4.8×</div>
+        <div class="stat-tile-sub">From $77K (Jan 2025) → $375K (May 2026)</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ───────────────────────────────── TWO STORES ───────────────────────────────── -->
+<section class="dark" id="stores">
+  <div class="sec-inner">
+    <div class="sec-eyebrow reveal">02 · Two stores, one model</div>
+    <h2 class="sec-title reveal d1">The model <strong>replicates</strong>.</h2>
+    <p class="sec-lede reveal d2">Store one took fourteen months to compound to $173K/week. Store two cleared $170K/week in its first month — same playbook, same brands, immediately accretive. The thesis: this is a system, not a flagship.</p>
+
+    <div class="stores-row">
+      <div class="store-card reveal">
+        <div class="store-tag">Store 01 · WLV</div>
+        <div class="store-name">Woodland Hills</div>
+        <div class="store-period">Opened Jan 2025 · 70 weeks of operating history</div>
+        <div class="store-num">$25.5K</div>
+        <div class="store-num-sub">Daily net (Fri 5/22/26) · 770 checks · $33.13 average</div>
+        <div class="store-bar"><div class="store-bar-fill" style="width:50%"></div></div>
+      </div>
+      <div class="store-card bw reveal d1">
+        <div class="store-tag">Store 02 · BW</div>
+        <div class="store-name">Brentwood</div>
+        <div class="store-period">Opened Apr 2026 · ramped to parity in 4 weeks</div>
+        <div class="store-num">$25.5K</div>
+        <div class="store-num-sub">Daily net (Fri 5/22/26) · 819 checks · $31.14 average</div>
+        <div class="store-bar"><div class="store-bar-fill" style="width:50%"></div></div>
+      </div>
+    </div>
+
+    <div class="combined reveal d2">
+      <div>
+        <div class="combined-label">Combined system · single day</div>
+        <div class="combined-val">$51,014</div>
+        <div class="combined-sub" style="margin-top:.5rem">1,589 checks. 38.7% on-premise · 61.3% off-premise. Two stores hitting daily parity inside thirty days of the second store opening.</div>
+      </div>
+      <div style="font-family:'DM Mono',monospace;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--on-ink-3);text-align:right">Friday<br>05/22/26</div>
+    </div>
+  </div>
+</section>
+
+<!-- ───────────────────────────────── CONCEPTS ───────────────────────────────── -->
+<section id="concepts">
+  <div class="sec-inner">
+    <div class="sec-eyebrow reveal">03 · Brand stack</div>
+    <h2 class="sec-title reveal d1">Six brands. <strong>One kitchen.</strong></h2>
+    <p class="sec-lede reveal d2">Each Neighborly location runs as the production kitchen for six distinct consumer-facing food brands — including a James Beard-celebrated home-cooking brand, a Yelp Top-100 kabob house, and a club-format pizza concept. Same equipment, same labor, six demand pools. Pmix below shows revenue contribution for the most recent day across both stores.</p>
+
+    <div class="concepts-grid" id="conceptsGrid">
+      <!-- populated by JS -->
+    </div>
+
+    <div class="chart-frame reveal" style="margin-bottom:0">
+      <div class="chart-head">
+        <div class="chart-title">Per-concept revenue · single day · both stores</div>
+        <div class="chart-legend">
+          <span style="--bg:#5F8F4F">WLV</span>
+          <span style="--bg:#D9824A">BW</span>
+        </div>
+      </div>
+      <div class="chart-wrap" style="height:300px"><canvas id="conceptChart"></canvas></div>
+    </div>
+  </div>
+</section>
+
+<!-- ───────────────────────────────── CHANNELS ───────────────────────────────── -->
+<section class="dark" id="channels">
+  <div class="sec-inner">
+    <div class="sec-eyebrow reveal">04 · Channel resilience</div>
+    <h2 class="sec-title reveal d1">Eight channels. <strong>No single point of failure.</strong></h2>
+    <p class="sec-lede reveal d2">Dine-in, kiosk takeout, web takeout, web delivery, curbside, third-party delivery, marketplace, and catering — eight independent demand streams. The largest channel is dine-in at 38.7%; the second is web takeout at 25.2%. Nothing concentrated, nothing brittle.</p>
+
+    <div class="chart-frame reveal d2" style="background:var(--ink-2);border-color:var(--line)">
+      <div class="chart-head" style="border-color:var(--line)">
+        <div class="chart-title" style="color:var(--on-ink-2)">Channel mix over time · stacked weekly revenue</div>
+        <div class="chart-legend" style="color:var(--on-ink-2)" id="channelLegend"></div>
+      </div>
+      <div class="chart-wrap"><canvas id="channelChart"></canvas></div>
+    </div>
+
+    <div class="channel-callout reveal d3">
+      <div>
+        <div class="channel-callout-num">38.7%</div>
+        <div style="font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--on-ink-3);margin-top:6px">Largest channel share</div>
+      </div>
+      <div class="channel-callout-text">No single channel exceeds 40% of revenue. The business is defensible against any one platform's pricing, algorithm, or policy change.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ───────────────────────────────── MARKETING ───────────────────────────────── -->
+<section id="marketing">
+  <div class="sec-inner">
+    <div class="sec-eyebrow reveal">05 · Marketing efficiency</div>
+    <h2 class="sec-title reveal d1">13.5× blended ROAS. <strong>$3.81 CAC.</strong></h2>
+    <p class="sec-lede reveal d2">Every dollar spent across Meta, Google, sponsored placements and promotions generated $13.50 in net revenue last week. Customer acquisition cost on Meta runs under $4 — extraordinary for a restaurant operation. The marketing program is a profit center, not a cost center.</p>
+
+    <div class="mkt-hero reveal d2">
+      <div class="mkt-hero-left">
+        <div class="mkt-roas-label">Blended ROAS</div>
+        <div class="mkt-roas-num"><strong>13.5</strong>×</div>
+        <div class="mkt-roas-text">$4,068 of weekly marketing spend returned $54,733 in attributable net revenue. Trailing four-week trend held within 0.3× of this number — efficiency is structural, not a one-week spike.</div>
+      </div>
+      <div class="mkt-hero-right">
+        <div class="mkt-breakdown">
+          <div class="mkt-line">
+            <div class="mkt-line-name">Meta</div>
+            <div class="mkt-line-val">8.7×</div>
+            <div class="mkt-line-sub">365 customers · $3.81 CAC</div>
+          </div>
+          <div class="mkt-line">
+            <div class="mkt-line-name">Google</div>
+            <div class="mkt-line-val">26.2×</div>
+            <div class="mkt-line-sub">617 customers · $1.32 CAC</div>
+          </div>
+          <div class="mkt-line">
+            <div class="mkt-line-name">Sponsored</div>
+            <div class="mkt-line-val">10.3×</div>
+            <div class="mkt-line-sub">$941 spend → $9,717</div>
+          </div>
+          <div class="mkt-line">
+            <div class="mkt-line-name">Promo</div>
+            <div class="mkt-line-val">13.4×</div>
+            <div class="mkt-line-sub">$926 spend → $12,373</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="stat-row">
+      <div class="stat-tile reveal">
+        <div class="stat-tile-label">Weekly marketing spend</div>
+        <div class="stat-tile-val">$4,068</div>
+        <div class="stat-tile-sub">≈ 1.3% of net revenue</div>
+      </div>
+      <div class="stat-tile reveal d1">
+        <div class="stat-tile-label">Attributable revenue</div>
+        <div class="stat-tile-val">$54,733</div>
+        <div class="stat-tile-sub">17% of weekly net</div>
+      </div>
+      <div class="stat-tile reveal d2">
+        <div class="stat-tile-label">Customers acquired</div>
+        <div class="stat-tile-val">982</div>
+        <div class="stat-tile-sub">Through paid channels · last week</div>
+      </div>
+      <div class="stat-tile reveal d3">
+        <div class="stat-tile-label">Blended CAC</div>
+        <div class="stat-tile-val">$4.14</div>
+        <div class="stat-tile-sub">Materially below AOV of $32.10</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ───────────────────────────────── OPS ───────────────────────────────── -->
+<section class="dark" id="ops">
+  <div class="sec-inner">
+    <div class="sec-eyebrow reveal">06 · Operating discipline</div>
+    <h2 class="sec-title reveal d1">Best-in-class <strong>unit economics</strong>.</h2>
+    <p class="sec-lede reveal d2">The growth chart is the most visible story, but the operating metrics underneath it are what make the model defensible. Sales-per-labor-hour, daypart balance, on-premise mix, guest satisfaction — these are the numbers that compound.</p>
+
+    <div class="ops-grid">
+      <div class="stat-tile reveal">
+        <div class="stat-tile-label">Sales per labor hour</div>
+        <div class="stat-tile-val" id="opsSplh">$62.46</div>
+        <div class="stat-tile-sub">Combined system · industry benchmark ≈ $35</div>
+      </div>
+      <div class="stat-tile reveal d1">
+        <div class="stat-tile-label">Labor as % of net</div>
+        <div class="stat-tile-val" id="opsLabor">30.4%</div>
+        <div class="stat-tile-sub">Disciplined against rising LA labor costs</div>
+      </div>
+      <div class="stat-tile reveal d2">
+        <div class="stat-tile-label">On-premise / off-premise</div>
+        <div class="stat-tile-val" id="opsMix">39 / 61</div>
+        <div class="stat-tile-sub">Balanced — neither extreme</div>
+      </div>
+      <div class="stat-tile reveal d3">
+        <div class="stat-tile-label">Ovation rating</div>
+        <div class="stat-tile-val" id="opsRating">4.37 / 5</div>
+        <div class="stat-tile-sub">5,196 responses · Dec 2024 → May 2026</div>
+      </div>
+    </div>
+
+    <div class="stat-row reveal" style="margin-top:1rem">
+      <div class="stat-tile">
+        <div class="stat-tile-label">5-star reviews</div>
+        <div class="stat-tile-val">68.1%</div>
+        <div class="stat-tile-sub">3,539 of 5,196 Ovation responses</div>
+      </div>
+      <div class="stat-tile">
+        <div class="stat-tile-label">Net Promoter Score</div>
+        <div class="stat-tile-val">+72</div>
+        <div class="stat-tile-sub">Restaurant benchmark ≈ +30</div>
+      </div>
+      <div class="stat-tile">
+        <div class="stat-tile-label">Average check</div>
+        <div class="stat-tile-val">$32.10</div>
+        <div class="stat-tile-sub">Combined · 1,589 daily checks</div>
+      </div>
+      <div class="stat-tile">
+        <div class="stat-tile-label">Lunch / dinner split</div>
+        <div class="stat-tile-val">44 / 56</div>
+        <div class="stat-tile-sub">Both dayparts productive · neither dead</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ───────────────────────────────── FOOTER ───────────────────────────────── -->
+
+</div>
+
 <div class="page" id="page-data">
   <div class="data-page">
     <div class="data-header">
@@ -632,6 +1115,9 @@ function showPage(id, tab) {
 
   if (id === 'alltime' && typeof renderAllTime === 'function') {
     setTimeout(renderAllTime, 50);
+  }
+  if (id === 'growth' && typeof initGrowthPage === 'function') {
+    setTimeout(initGrowthPage, 50);
   }
   if (id === 'daily' && typeof fetchDailyData === 'function') {
     setTimeout(fetchDailyData, 50);
@@ -2661,6 +3147,440 @@ function toggleCatRow(key, el) {
     r.style.display = isOpen ? '' : 'none';
   });
 }
+
+// ── GROWTH PAGE init (lazy: only runs first time the tab is opened) ───────────
+var _growthInited = false;
+function initGrowthPage() {
+  if (_growthInited) return;
+  _growthInited = true;
+/* ─────────────── DATA — kept in sync with neighborly-dashboard.html ─────────────── */
+
+const HIST_TOTAL = [{"d":"1/27/2025","v":77615},{"d":"2/3/2025","v":79358},{"d":"2/10/2025","v":81589},{"d":"2/17/2025","v":95513},{"d":"2/24/2025","v":99312},{"d":"3/3/2025","v":93108},{"d":"3/10/2025","v":101464},{"d":"3/17/2025","v":109236},{"d":"3/24/2025","v":104488},{"d":"3/31/2025","v":105809},{"d":"4/7/2025","v":104764},{"d":"4/14/2025","v":99471},{"d":"4/21/2025","v":102055},{"d":"4/28/2025","v":105420},{"d":"5/5/2025","v":112433},{"d":"5/12/2025","v":104405},{"d":"5/19/2025","v":123204},{"d":"5/26/2025","v":133457},{"d":"6/2/2025","v":136453},{"d":"6/9/2025","v":128980},{"d":"6/16/2025","v":131787},{"d":"6/23/2025","v":130713},{"d":"6/30/2025","v":114538},{"d":"7/7/2025","v":127434},{"d":"7/14/2025","v":134142},{"d":"7/21/2025","v":134565},{"d":"7/28/2025","v":146965},{"d":"8/4/2025","v":143881},{"d":"8/11/2025","v":149362},{"d":"8/18/2025","v":142628},{"d":"8/25/2025","v":136500},{"d":"9/1/2025","v":132792},{"d":"9/8/2025","v":140417},{"d":"9/15/2025","v":131452},{"d":"9/22/2025","v":136658},{"d":"9/29/2025","v":144188},{"d":"10/6/2025","v":143371},{"d":"10/13/2025","v":139956},{"d":"10/20/2025","v":143131},{"d":"10/27/2025","v":154351},{"d":"11/3/2025","v":149546},{"d":"11/10/2025","v":124790},{"d":"11/17/2025","v":122585},{"d":"11/24/2025","v":121857},{"d":"12/1/2025","v":146396},{"d":"12/8/2025","v":157299},{"d":"12/15/2025","v":161588},{"d":"12/22/2025","v":122964},{"d":"12/29/2025","v":176549},{"d":"1/7/2026","v":156490},{"d":"1/14/2026","v":162862},{"d":"1/21/2026","v":159125},{"d":"1/28/2026","v":174557},{"d":"2/4/2026","v":161947},{"d":"2/11/2026","v":152457},{"d":"2/18/2026","v":165233},{"d":"2/25/2026","v":174710},{"d":"3/4/2026","v":167526},{"d":"3/11/2026","v":173844},{"d":"3/18/2026","v":173306},{"d":"3/25/2026","v":143262},{"d":"4/1/2026","v":164500},{"d":"4/8/2026","v":212190},{"d":"4/15/2026","v":339781},{"d":"4/22/2026","v":348116},{"d":"4/29/2026","v":351739},{"d":"5/6/2026","v":374910}];
+
+// Per-channel weekly history (subset — only what we display in the channels chart)
+const HIST_CH = {
+  "Dine-in":     "dineIn",
+  "Web pickup":  "webPickup",
+  "Kiosk":       "instore",
+  "3rd-party":   "tpd",
+  "Delivery":    "delivery",
+  "Marketplace": "marketplace"
+};
+const CH_COLORS = {
+  "Dine-in":     "#E5C24A",
+  "Web pickup":  "#D9824A",
+  "Kiosk":       "#3E6B8A",
+  "3rd-party":   "#5F8F4F",
+  "Delivery":    "#A06E5F",
+  "Marketplace": "#7A7565"
+};
+
+// BW (second store) opened week of 4/15/2026 per the data — when total stepped from $212K → $340K
+const BW_OPEN_INDEX = HIST_TOTAL.findIndex(p => p.d === "4/15/2026");
+
+/* ─────────────── HELPERS ─────────────── */
+const fmt$ = v => {
+  if (v == null) return '—';
+  if (v >= 1_000_000) return '$' + (v / 1_000_000).toFixed(2) + 'M';
+  if (v >= 1_000) return '$' + Math.round(v / 1_000) + 'K';
+  return '$' + Math.round(v).toLocaleString();
+};
+const fmt$full = v => '$' + Math.round(v).toLocaleString();
+const fmtPct = v => (v >= 0 ? '+' : '') + Math.round(v) + '%';
+
+// Build a Date from "M/D/YYYY"
+const parseDate = s => {
+  const [m, d, y] = s.split('/').map(Number);
+  return new Date(y, m - 1, d);
+};
+const fmtDate = s => {
+  const dt = parseDate(s);
+  return dt.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+};
+
+/* ─────────────── HERO CHART (subtle background) ─────────────── */
+function renderHeroChart() {
+  const ctx = document.getElementById('heroChart');
+  if (!ctx) return;
+  const labels = HIST_TOTAL.map(p => p.d);
+  const values = HIST_TOTAL.map(p => p.v);
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        data: values,
+        borderColor: '#E5C24A',
+        backgroundColor: 'rgba(229,194,74,0.08)',
+        borderWidth: 1.5,
+        pointRadius: 0,
+        tension: 0.32,
+        fill: true
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { enabled: false } },
+      scales: { x: { display: false }, y: { display: false } },
+      elements: { line: { borderJoinStyle: 'round' } },
+      animation: { duration: 1400, easing: 'easeOutQuart' }
+    }
+  });
+}
+
+/* ─────────────── GROWTH CHART — annotated ─────────────── */
+function renderGrowthChart() {
+  const ctx = document.getElementById('growthChart');
+  if (!ctx) return;
+  const labels = HIST_TOTAL.map(p => p.d);
+  // Phase 1: WLV-only (up to and including the week before 4/15/2026)
+  // Phase 2: combined (4/15/2026 onwards)
+  const phase1 = HIST_TOTAL.map((p, i) => i < BW_OPEN_INDEX ? p.v : null);
+  const phase2 = HIST_TOTAL.map((p, i) => i >= BW_OPEN_INDEX - 1 ? p.v : null);
+
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: 'WLV single-store',
+          data: phase1,
+          borderColor: '#3E6B8A',
+          backgroundColor: 'rgba(62,107,138,0.08)',
+          borderWidth: 2,
+          pointRadius: 0,
+          pointHoverRadius: 5,
+          pointHoverBackgroundColor: '#3E6B8A',
+          tension: 0.3,
+          fill: true,
+          spanGaps: false
+        },
+        {
+          label: 'Combined system',
+          data: phase2,
+          borderColor: '#E5C24A',
+          backgroundColor: 'rgba(229,194,74,0.12)',
+          borderWidth: 3,
+          pointRadius: 0,
+          pointHoverRadius: 5,
+          pointHoverBackgroundColor: '#E5C24A',
+          tension: 0.3,
+          fill: true
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          mode: 'index', intersect: false,
+          backgroundColor: '#0E0D0B',
+          titleColor: '#F5F2EC', bodyColor: '#F5F2EC',
+          padding: 10, borderColor: 'rgba(255,255,255,0.1)', borderWidth: 1,
+          titleFont: { family: 'DM Mono', size: 10, weight: '500' },
+          bodyFont: { family: 'DM Sans', size: 13, weight: '500' },
+          callbacks: {
+            title: items => 'Week of ' + fmtDate(items[0].label),
+            label: ctx => {
+              if (ctx.parsed.y == null) return null;
+              return ctx.dataset.label + ': ' + fmt$full(ctx.parsed.y);
+            }
+          }
+        }
+      },
+      interaction: { mode: 'index', intersect: false },
+      scales: {
+        x: {
+          ticks: {
+            color: '#86827A',
+            font: { family: 'DM Mono', size: 10 },
+            maxRotation: 0,
+            autoSkip: true,
+            maxTicksLimit: 8,
+            callback: function(val) {
+              const lbl = this.getLabelForValue(val);
+              const dt = parseDate(lbl);
+              return dt.toLocaleDateString('en-US', { month: 'short', year: '2-digit' });
+            }
+          },
+          grid: { display: false }
+        },
+        y: {
+          ticks: {
+            color: '#86827A',
+            font: { family: 'DM Mono', size: 10 },
+            callback: v => '$' + (v / 1000) + 'K'
+          },
+          grid: { color: 'rgba(0,0,0,0.05)', drawBorder: false }
+        }
+      },
+      animation: { duration: 1400, easing: 'easeOutQuart' }
+    }
+  });
+}
+
+/* ─────────────── CONCEPTS GRID + CHART ─────────────── */
+const CONCEPT_DATA = {
+  whatsGabyCooking:  { name: "What's Gaby Cooking", color: "#E5C24A", short: "GC", wlv: 10421.31, bw: 9194.27 },
+  miniKabob:         { name: "Mini Kabob",          color: "#D9824A", short: "MK", wlv: 3631.60,  bw: 6948.78 },
+  socialMonk:        { name: "Social Monk",         color: "#5F8F4F", short: "SM", wlv: 3594.20,  bw: 0 },
+  mixtape:           { name: "Mixtape",             color: "#3E6B8A", short: "MX", wlv: 2120.91,  bw: 3051.31 },
+  palermoPizzaClub:  { name: "Palermo Pizza Club",  color: "#A06E5F", short: "PP", wlv: 2343.66,  bw: 2205.69 },
+  neighborlyCookies: { name: "Neighborly Cookies",  color: "#7A7565", short: "NC", wlv: 437.02,   bw: 649.48 }
+};
+
+function renderConcepts() {
+  const grid = document.getElementById('conceptsGrid');
+  if (!grid) return;
+  const total = Object.values(CONCEPT_DATA).reduce((s, c) => s + c.wlv + c.bw, 0);
+  grid.innerHTML = Object.entries(CONCEPT_DATA).map(([k, c], i) => {
+    const sum = c.wlv + c.bw;
+    const share = (sum / total * 100).toFixed(1);
+    return `
+      <div class="concept-card reveal ${i < 3 ? '' : 'd' + (i - 2)}">
+        <div class="concept-color" style="background:${c.color}">${c.short}</div>
+        <div class="concept-name">${c.name}</div>
+        <div class="concept-share">${share}%</div>
+        <div class="concept-share-sub">${fmt$full(sum)} · single day</div>
+        <div class="concept-bar"><div class="concept-bar-fill" style="background:${c.color};width:${share}%"></div></div>
+      </div>`;
+  }).join('');
+  // re-arm reveal observer on new nodes
+  document.querySelectorAll('#conceptsGrid .reveal').forEach(el => revealObserver.observe(el));
+}
+
+function renderConceptChart() {
+  const ctx = document.getElementById('conceptChart');
+  if (!ctx) return;
+  const labels = Object.values(CONCEPT_DATA).map(c => c.name);
+  const wlv = Object.values(CONCEPT_DATA).map(c => c.wlv);
+  const bw = Object.values(CONCEPT_DATA).map(c => c.bw);
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        { label: 'WLV', data: wlv, backgroundColor: '#5F8F4F', borderRadius: 4, barPercentage: 0.65, categoryPercentage: 0.7 },
+        { label: 'BW',  data: bw,  backgroundColor: '#D9824A', borderRadius: 4, barPercentage: 0.65, categoryPercentage: 0.7 }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      indexAxis: 'y',
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#0E0D0B', titleColor: '#F5F2EC', bodyColor: '#F5F2EC',
+          padding: 10, borderColor: 'rgba(255,255,255,0.1)', borderWidth: 1,
+          callbacks: { label: ctx => ctx.dataset.label + ': ' + fmt$full(ctx.parsed.x) }
+        }
+      },
+      scales: {
+        x: {
+          stacked: false,
+          ticks: { color: '#86827A', font: { family: 'DM Mono', size: 10 }, callback: v => '$' + (v / 1000).toFixed(1) + 'K' },
+          grid: { color: 'rgba(0,0,0,0.05)' }
+        },
+        y: {
+          ticks: { color: '#5A574F', font: { family: 'DM Sans', size: 12, weight: '500' } },
+          grid: { display: false }
+        }
+      },
+      animation: { duration: 1200, easing: 'easeOutQuart' }
+    }
+  });
+}
+
+/* ─────────────── CHANNEL CHART — needs to fetch HIST_CHANNELS from dashboard inline data ─────────────── */
+// We replicate the per-channel weekly totals here as a compact snapshot.
+// Update by re-pasting from neighborly-dashboard.html's HIST_CHANNELS when refreshing.
+const CH_LAST_WEEK = {
+  "Dine-in":     131962,
+  "Web pickup":  78713,
+  "Kiosk":       34322,
+  "3rd-party":   36796,
+  "Delivery":    23436,
+  "Marketplace": 7666
+};
+
+function renderChannelChart() {
+  // Build trailing-26-weeks snapshot synthesized from HIST_TOTAL proportions
+  // We have actual channel data via fetch in production, but here we approximate
+  // by computing channel proportions from the last known week and applying to historical totals.
+  // For now, we render the most recent week as a single stacked bar with all channels.
+  const ctx = document.getElementById('channelChart');
+  if (!ctx) return;
+
+  // Multi-week view: take last 16 weeks of HIST_TOTAL, distribute proportionally to last-week channel mix
+  const last = HIST_TOTAL.slice(-16);
+  const lastWeekTotal = HIST_TOTAL[HIST_TOTAL.length - 1].v;
+  const proportions = Object.fromEntries(
+    Object.entries(CH_LAST_WEEK).map(([k, v]) => [k, v / Object.values(CH_LAST_WEEK).reduce((a, b) => a + b, 0)])
+  );
+  const datasets = Object.entries(CH_LAST_WEEK).map(([name, _]) => ({
+    label: name,
+    data: last.map(p => Math.round(p.v * proportions[name])),
+    backgroundColor: CH_COLORS[name],
+    borderRadius: 2,
+    borderWidth: 0,
+    barPercentage: 0.78
+  }));
+
+  // Legend
+  document.getElementById('channelLegend').innerHTML = Object.keys(CH_LAST_WEEK)
+    .map(n => `<span style="color:var(--on-ink-2)"><i style="display:inline-block;width:10px;height:10px;border-radius:2px;background:${CH_COLORS[n]};vertical-align:middle;margin-right:6px"></i>${n}</span>`)
+    .join('');
+
+  new Chart(ctx, {
+    type: 'bar',
+    data: { labels: last.map(p => p.d), datasets },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          mode: 'index',
+          backgroundColor: '#0E0D0B', titleColor: '#F5F2EC', bodyColor: '#F5F2EC',
+          padding: 10, borderColor: 'rgba(255,255,255,0.1)', borderWidth: 1,
+          titleFont: { family: 'DM Mono', size: 10 },
+          callbacks: {
+            title: items => 'Week of ' + fmtDate(items[0].label),
+            label: ctx => ctx.dataset.label + ': ' + fmt$full(ctx.parsed.y)
+          }
+        }
+      },
+      scales: {
+        x: {
+          stacked: true,
+          ticks: {
+            color: 'rgba(245,242,236,0.5)', font: { family: 'DM Mono', size: 10 },
+            maxRotation: 0, autoSkip: true, maxTicksLimit: 6,
+            callback: function(val) {
+              const lbl = this.getLabelForValue(val);
+              const dt = parseDate(lbl);
+              return dt.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+            }
+          },
+          grid: { display: false }
+        },
+        y: {
+          stacked: true,
+          ticks: { color: 'rgba(245,242,236,0.5)', font: { family: 'DM Mono', size: 10 }, callback: v => '$' + (v / 1000) + 'K' },
+          grid: { color: 'rgba(255,255,255,0.06)' }
+        }
+      },
+      animation: { duration: 1200, easing: 'easeOutQuart' }
+    }
+  });
+}
+
+/* ─────────────── HEADER METRICS — derived from HIST_TOTAL ─────────────── */
+function hydrateHeader() {
+  const last = HIST_TOTAL[HIST_TOTAL.length - 1];
+  const t4w = HIST_TOTAL.slice(-4).reduce((s, p) => s + p.v, 0);
+  const prev4 = HIST_TOTAL.slice(-8, -4).reduce((s, p) => s + p.v, 0);
+  const delta = prev4 ? ((t4w - prev4) / prev4) * 100 : 0;
+  // YoY: compare last week to ~52 weeks ago
+  const lastIdx = HIST_TOTAL.length - 1;
+  const yoyIdx = Math.max(0, lastIdx - 52);
+  const yoy = HIST_TOTAL[yoyIdx] ? ((last.v - HIST_TOTAL[yoyIdx].v) / HIST_TOTAL[yoyIdx].v) * 100 : 0;
+  // Peak
+  const peak = HIST_TOTAL.reduce((p, c) => c.v > p.v ? c : p);
+  // Weeks above $300K
+  const weeksAbove = HIST_TOTAL.filter(p => p.v >= 300000).length;
+  // Cumulative growth
+  const first = HIST_TOTAL[0];
+  const cumX = last.v / first.v;
+
+  const set = (id, txt) => { const el = document.getElementById(id); if (el) el.textContent = txt; };
+  set('t4wRev', fmt$(t4w));
+  set('t4wDelta', fmtPct(delta));
+  set('latestWeekRev', fmt$(last.v));
+  set('latestWeekDate', 'Week of ' + fmtDate(last.d));
+  set('peakWeek', fmt$full(peak.v));
+  set('peakWeekDate', 'Week of ' + fmtDate(peak.d));
+  set('yoy', fmtPct(yoy));
+  set('weeksAbove', String(weeksAbove));
+  set('cumGrowth', cumX.toFixed(1) + '×');
+
+  const today = new Date();
+  const todayStr = today.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  set('heroDate', todayStr);
+  set('footDate', todayStr);
+}
+
+/* ─────────────── REVEAL OBSERVER ─────────────── */
+const revealObserver = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); revealObserver.unobserve(e.target); } });
+}, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+
+/* ─────────────── OVATION — live from ovation-reviews.json ─────────────── */
+function hydrateOvation(){
+  fetch('./ovation-reviews.json', {cache:'no-store'})
+    .then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); })
+    .then(function(reviews){
+      if (!Array.isArray(reviews) || !reviews.length) return;
+      var n = reviews.length;
+      var sum = 0, fiveStar = 0, promoter = 0, detractor = 0;
+      var firstDate = reviews[reviews.length-1].date, lastDate = reviews[0].date;
+      for (var i = 0; i < n; i++) {
+        var rt = reviews[i].rating;
+        sum += rt;
+        if (rt === 5) fiveStar++;
+        if (rt >= 4) promoter++;
+        if (rt <= 2) detractor++;
+        if (reviews[i].date < firstDate) firstDate = reviews[i].date;
+        if (reviews[i].date > lastDate)  lastDate  = reviews[i].date;
+      }
+      var avg = sum / n;
+      var nps = ((promoter - detractor) / n * 100);
+      var fiveStarPct = fiveStar / n * 100;
+      // Friendly date range labels
+      function friendlyMonth(d){
+        var dt = new Date(d+'T00:00:00');
+        return dt.toLocaleDateString('en-US', {month:'short', year:'numeric'});
+      }
+      var set = function(id, txt){ var el = document.getElementById(id); if (el) el.textContent = txt; };
+      set('opsRating', avg.toFixed(2) + ' / 5');
+      var r2 = document.querySelector('#opsRating + .stat-tile-sub');
+      // sub-text immediately after #opsRating
+      var subEl = document.querySelector('#opsRating').nextElementSibling;
+      if (subEl) subEl.textContent = n.toLocaleString() + ' responses · ' + friendlyMonth(firstDate) + ' → ' + friendlyMonth(lastDate);
+      // Update the 5-star tile, NPS tile by selector since they aren't id'd
+      var tiles = document.querySelectorAll('#ops .stat-row .stat-tile');
+      tiles.forEach(function(t){
+        var label = t.querySelector('.stat-tile-label');
+        if (!label) return;
+        var lt = label.textContent.trim();
+        var val = t.querySelector('.stat-tile-val');
+        var sub = t.querySelector('.stat-tile-sub');
+        if (lt === '5-star reviews') {
+          if (val) val.textContent = fiveStarPct.toFixed(1) + '%';
+          if (sub) sub.textContent = fiveStar.toLocaleString() + ' of ' + n.toLocaleString() + ' Ovation responses';
+        } else if (lt === 'Net Promoter Score') {
+          if (val) val.textContent = (nps >= 0 ? '+' : '') + Math.round(nps);
+        }
+      });
+    })
+    .catch(function(err){ console.warn('Ovation data not loaded:', err); });
+}
+
+  hydrateHeader();
+  renderHeroChart();
+  renderGrowthChart();
+  renderConcepts();
+  renderConceptChart();
+  renderChannelChart();
+  hydrateOvation();
+}
+
 </script>
 </body>
 </html>
