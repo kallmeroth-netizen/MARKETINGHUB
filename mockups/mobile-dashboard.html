@@ -148,7 +148,7 @@
   }
   .hub-title {
     font-family: 'TAYAmaya', 'DM Sans', sans-serif;
-    font-size: 21px; line-height: 1;
+    font-size: 24px; line-height: 1;
     color: var(--dark);
     letter-spacing: -0.005em;
     min-height: 1em;
@@ -161,27 +161,26 @@
     animation: blink 1s steps(1) infinite;
   }
   .hub-sub {
-    margin-top: 6px;
+    margin-top: 7px;
     font-family: 'DM Sans', sans-serif;
-    font-size: 12.5px; font-weight: 500;
+    font-size: 14.5px; font-weight: 500;
     color: var(--dark); opacity: 0.55;
     letter-spacing: 0.02em;
   }
   .hub-sub.empty { display: none; }
   @keyframes blink { 0%,49% { opacity:1; } 50%,100% { opacity:0; } }
 
-  /* Tile grid */
+  /* Tile grid — stacked single column for consistent spacing */
   .grid {
     position: relative; z-index: 2;
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr;
     gap: 10px;
     margin-top: 14px;
     align-content: start;
   }
   /* Guest = single big sales tile */
   .phone[data-side="guest"] .grid {
-    grid-template-columns: 1fr;
     grid-auto-rows: minmax(0, 1fr);
   }
 
@@ -191,7 +190,11 @@
     backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
     border: 1.5px solid rgba(31,35,40,0.10);
     border-radius: 16px;
-    padding: 11px 12px 11px;
+    padding: 14px 16px;
+    /* horizontal: icon on the left, title + sub vertically centered next to it */
+    flex-direction: row !important;
+    align-items: center;
+    gap: 14px;
     text-decoration: none; color: var(--dark);
     display: flex; flex-direction: column; justify-content: space-between;
     min-height: 0;
@@ -214,7 +217,7 @@
   }
   .tile-ico svg { width: 17px; height: 17px; }
 
-  .tile-body { display: flex; flex-direction: column; gap: 1px; margin-top: 12px; }
+  .tile-body { display: flex; flex-direction: column; gap: 2px; flex: 1; }
   .tile-label {
     font-family: 'TAYAmaya', 'DM Sans', sans-serif;
     font-size: 18px; font-weight: 400; letter-spacing: -0.005em;
@@ -231,7 +234,7 @@
 
   /* Decorative corner pulse — live indicator */
   .tile .pulse {
-    position: absolute; top: 14px; right: 14px;
+    position: absolute; top: 50%; right: 16px; transform: translateY(-50%);
     width: 6px; height: 6px; border-radius: 50%;
     background: var(--green);
     box-shadow: 0 0 0 4px rgba(123,189,145,0.18);

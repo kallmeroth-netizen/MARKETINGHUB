@@ -72,8 +72,7 @@
   nav.topbar {
     position: sticky; top: 0; z-index: 30;
     height: 64px;
-    display: grid; grid-template-columns: 1fr auto 1fr;
-    align-items: center;
+    display: flex; justify-content: space-between; align-items: center;
     padding: 0 28px;
     background: rgba(255,255,255,0.78);
     backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
@@ -81,7 +80,7 @@
   }
   .nav-brand {
     display: flex; align-items: center; gap: 10px;
-    justify-self: start; cursor: pointer;
+    cursor: pointer;
     padding: 6px 10px; border-radius: 10px;
     transition: background 0.2s ease;
   }
@@ -114,7 +113,6 @@
   }
 
   .nav-right {
-    justify-self: end;
     display: flex; align-items: center; gap: 8px;
   }
   .side-toggle {
@@ -197,19 +195,19 @@
   main {
     position: relative; z-index: 1;
     max-width: 1240px; margin: 0 auto;
-    padding: clamp(96px, 14vh, 160px) 32px 80px;
+    padding: clamp(128px, 18vh, 200px) 32px 80px;
   }
 
   .hero {
     text-align: center;
-    margin-bottom: 84px;
+    margin-bottom: 0; /* divider takes over spacing below */
   }
   .hero-greet {
     font-family: 'TAYAmaya', 'DM Sans', sans-serif;
-    font-size: clamp(23px, 2.6vw, 32px);
+    font-size: clamp(34px, 4vw, 52px);
     line-height: 1; letter-spacing: -0.005em;
     color: var(--dark);
-    margin-bottom: 10px;
+    margin-bottom: 12px;
     min-height: 1em;
     display: inline-flex; align-items: baseline;
   }
@@ -225,6 +223,13 @@
     max-width: 540px; margin: 0 auto;
   }
   .hero-sub.empty { display: none; }
+
+  /* Divider between greeting and the portals */
+  .hero-divider {
+    width: 120px; height: 1px;
+    background: var(--dark); opacity: 0.18;
+    margin: 56px auto 64px;
+  }
 
   /* Tile grid — flex so an incomplete last row centers on the page */
   .tile-grid {
@@ -348,7 +353,7 @@
   /* Fluid stacking when dragging window narrower */
   @media (max-width: 880px) {
     .tile-grid .tile { flex: 0 0 calc((100% - 16px) / 2); }
-    nav.topbar { grid-template-columns: auto 1fr auto; padding: 0 16px; }
+    nav.topbar { padding: 0 16px; }
     main { padding: clamp(72px, 10vh, 120px) 18px 60px; }
     .hub-pop { left: 16px; right: 16px; width: auto; }
   }
@@ -397,6 +402,8 @@
     <div class="hero-greet"><span id="heroGreet"></span><span class="cursor"></span></div>
     <div class="hero-sub" id="heroSub">Welcome to your team hub</div>
   </div>
+
+  <div class="hero-divider"></div>
 
   <div class="tile-grid in" id="tileGrid">
 
