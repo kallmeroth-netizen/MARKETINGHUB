@@ -649,7 +649,7 @@ nav{background:var(--surface);border-bottom:.5px solid var(--border-strong);padd
     <div style="display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:4px">
       <div>
         <div class="card-title">Rating trend by location</div>
-        <div class="card-sub">Average rating /4 over time · click Weekly or Monthly to change cadence</div>
+        <div class="card-sub">Average rating /5 over time · click Weekly or Monthly to change cadence</div>
       </div>
       <div style="display:flex;gap:6px;align-items:center">
         <button class="tr-btn active" id="ovTrBtnWeek" onclick="setOvTrendView('week',this)">Weekly</button>
@@ -1235,7 +1235,7 @@ function textMatches(text, kws){
   return false;
 }
 
-function rateScaleTo5(score){ return +score.toFixed(2); } // Native 1-4 scale (kept name for backwards compat)
+function rateScaleTo5(score){ return +(score * 1.25).toFixed(2); } // Ovation native 1-4 -> display as /5
 
 // Sub-pool for a prior comparison period (same length as current, immediately before)
 function getPriorPool(){
@@ -1343,8 +1343,8 @@ function renderOverview(){
     : 'No public reviews loaded';
 
   var kpis = [
-    {label:'Average rating', val:cur.avg5+' /4', valColor:'var(--text)', sub:cur.n+' responses · '+locLabelText()},
-    {label:'Since last week', val:'+0.14', valColor:'var(--green)', sub:'vs last week\'s 2.70 /4'},
+    {label:'Average rating', val:cur.avg5+' /5', valColor:'var(--text)', sub:cur.n+' responses · '+locLabelText()},
+    {label:'Since last week', val:'+0.18', valColor:'var(--green)', sub:'vs last week\'s 3.38 /5'},
     {label:'Public reviews', val:pubVal, valColor:'var(--text)', sub:pubSub},
     {label:'Top issue', val:topComplaint?topComplaint.name:'—', valColor:'var(--orange)', sub:topComplaint?(topComplaint.pct+'% mention rate · '+topComplaint.cat):'No issues detected'},
     {label:'Winning feedback', val:topWin?topWin.name:'—', valColor:'var(--green)', sub:topWin?(topWin.pct+'% of positive feedback'):'No wins detected'},
@@ -1376,7 +1376,7 @@ function renderOverview(){
       +'</div>'
       +'<div style="display:flex;align-items:baseline;gap:8px;margin-bottom:10px">'
         +'<div style="font-size:30px;font-weight:700;color:'+color+';font-family:\'DM Mono\',monospace;line-height:1">'+st.avg5+'</div>'
-        +'<div style="font-size:11px;color:var(--text3)">/4 avg</div>'
+        +'<div style="font-size:11px;color:var(--text3)">/5 avg</div>'
       +'</div>'
       +'<div style="display:flex;gap:6px;font-size:10.5px">'
         +'<div style="flex:1;text-align:center;background:var(--surface);border-radius:6px;padding:5px"><div style="font-weight:600;color:var(--gd);font-family:\'DM Mono\',monospace">'+st.pro+'%</div><div style="color:var(--text3);font-size:9.5px;margin-top:1px">Pos</div></div>'
@@ -1409,7 +1409,7 @@ function renderOverview(){
       +'<div style="width:32px;height:32px;border-radius:8px;background:'+bg+';display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0">'+t.icon+'</div>'
       +'<div style="flex:1;min-width:0">'
         +'<div style="font-size:12.5px;font-weight:600;color:var(--text)">'+t.name+'</div>'
-        +'<div style="font-size:10.5px;color:var(--text3);margin-top:1px">'+t.n+' mentions · avg rating '+rateScaleTo5(t.avg)+'/4 · '+t.cat+'</div>'
+        +'<div style="font-size:10.5px;color:var(--text3);margin-top:1px">'+t.n+' mentions · avg rating '+rateScaleTo5(t.avg)+'/5 · '+t.cat+'</div>'
       +'</div>'
       +'<div style="text-align:right">'
         +'<div style="font-size:13px;font-weight:600;color:'+(isWin?'var(--green)':'var(--orange)')+';font-family:\'DM Mono\',monospace">'+t.pct+'%</div>'
@@ -1445,7 +1445,7 @@ function renderOverview(){
     +'<div style="display:flex;gap:24px;margin-top:14px;flex-wrap:wrap">'
       +'<div style="flex:0 0 auto">'
         +'<div style="font-size:48px;font-weight:700;color:var(--text);font-family:\'DM Mono\',monospace;line-height:1">'+cur.avg5+'</div>'
-        +'<div style="font-size:11px;color:var(--text3);margin-top:4px">avg /4</div>'
+        +'<div style="font-size:11px;color:var(--text3);margin-top:4px">avg /5</div>'
       +'</div>'
       +'<div style="flex:1;min-width:200px">'+distRows+'</div>'
       +'<div style="flex:0 0 auto;display:flex;gap:8px;align-self:center">'
@@ -1548,7 +1548,7 @@ function openMenuDrawer(dishId){
   var byPos = matches.slice().sort(function(a,b){return b.rating-a.rating;}).slice(0,5);
   document.getElementById('drawerCat').textContent = 'Menu item';
   document.getElementById('drawerCat').className = 'pill pill-neutral';
-  document.getElementById('drawerPct').textContent = n + ' mentions · ' + rateScaleTo5(avg) + '/4 avg';
+  document.getElementById('drawerPct').textContent = n + ' mentions · ' + rateScaleTo5(avg) + '/5 avg';
   document.getElementById('drawerTitle').textContent = def.label;
   document.getElementById('drawerSub').textContent = locLabelText() + ' · ' + rangeLabelText();
   document.getElementById('drawerBody').innerHTML =
@@ -3190,7 +3190,7 @@ function renderLiveFeed(){
         +'<div style="font-size:11px;font-weight:600;letter-spacing:.06em;color:var(--text3);text-transform:uppercase;margin-bottom:12px">Score distribution</div>'
         +'<div style="display:flex;align-items:baseline;gap:8px;margin-bottom:14px">'
           +'<span style="font-size:32px;font-weight:700;color:var(--text);font-family:\'DM Mono\',monospace">'+avg5+'</span>'
-          +'<span style="font-size:12px;color:var(--text3)">/4 avg · '+pool.length+' responses</span>'
+          +'<span style="font-size:12px;color:var(--text3)">/5 avg · '+pool.length+' responses</span>'
         +'</div>'
         +distBars
         +'<div style="display:flex;gap:12px;margin-top:14px;flex-wrap:wrap">'
