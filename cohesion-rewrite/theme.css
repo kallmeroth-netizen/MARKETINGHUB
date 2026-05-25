@@ -183,7 +183,7 @@ a { color: inherit; text-decoration: none; }
   transition: background var(--t-base) var(--easing);
 }
 .np-nav-brand:hover { background: rgba(31,35,40,0.04); }
-.np-nav-brand img { height: 22px; width: auto; display: block; }
+.np-nav-brand img { height: 28px; width: auto; display: block; }
 .np-nav-brand .chev {
   width: 12px; height: 12px; color: var(--text-3);
   transition: transform var(--t-base) var(--easing);
@@ -461,7 +461,7 @@ a { color: inherit; text-decoration: none; }
     height: auto; min-height: auto;
   }
   .np-nav-brand     { grid-column: 1 / 2; grid-row: 1 / 2; justify-self: start; }
-  .np-nav-brand img { height: 18px; }
+  .np-nav-brand img { height: 22px; }
   .np-nav-right     { grid-column: 2 / 4; grid-row: 1 / 2; justify-self: end; }
 
   .np-tabs {
