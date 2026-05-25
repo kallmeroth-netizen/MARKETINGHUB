@@ -104,7 +104,7 @@
 
   .pass-hero {
     display: flex; flex-direction: column; align-items: center;
-    gap: 24px;
+    gap: 14px;
     width: min(440px, 100%);
   }
 
@@ -131,7 +131,7 @@
     font-weight: 600;
     font-size: 11px;
     text-transform: uppercase;
-    letter-spacing: 0.28em;
+    letter-spacing: 0.22em;
     color: var(--ink); opacity: 0; text-align: center;
     transition: opacity 0.5s ease;
   }
@@ -167,7 +167,7 @@
   .pw-input {
     flex: 1; border: none; background: transparent; outline: none;
     font-family: 'DM Mono', monospace;
-    font-size: 15px; letter-spacing: 0.18em; color: var(--ink); width: 100%;
+    font-size: 16px; letter-spacing: 0.16em; color: var(--ink); width: 100%;
   }
   .pw-input::placeholder {
     font-family: 'DM Sans', sans-serif;
@@ -194,7 +194,7 @@
 
   @media (max-width: 420px) {
     .capsule { height: 50px; padding: 0 12px; gap: 8px; }
-    .pw-input { font-size: 14px; letter-spacing: 0.14em; }
+    .pw-input { font-size: 16px; letter-spacing: 0.14em; }
     .pw-input::placeholder { font-size: 12px; }
     .submit { height: 32px; padding: 0 12px; font-size: 11px; }
   }
@@ -786,6 +786,13 @@
   function enterHub(side) {
     applySide(side);
     paintDate();
+    // Persist auth for 15 minutes so navigating back from internal pages
+    // (or briefly closing/reopening the tab) restores the hub without
+    // forcing the passcode again.
+    try {
+      localStorage.setItem('np_side', side);
+      localStorage.setItem('np_exp', String(Date.now() + 15 * 60 * 1000));
+    } catch (e) {}
     // Swap states (hub becomes visible) and lift the sweep curtain
     body.dataset.state = 'hub';
     // Land at the top of the hub instead of wherever the passcode page scrolled to
@@ -800,6 +807,33 @@
       typeHero();
     });
   }
+
+  // On page load: if the user authenticated within the last 15 minutes,
+  // skip the passcode screen and drop them straight into the hub. The
+  // back button on internal pages now returns here without re-prompting,
+  // and brief tab closes/reopens are also tolerated.
+  (function restoreSession() {
+    var saved, exp;
+    try {
+      saved = localStorage.getItem('np_side');
+      exp = parseInt(localStorage.getItem('np_exp') || '0', 10);
+    } catch (e) { saved = null; exp = 0; }
+    if (saved !== 'team' && saved !== 'guest') return;
+    if (!exp || Date.now() > exp) {
+      // Expired — clear and fall through to the passcode screen.
+      try { localStorage.removeItem('np_side'); localStorage.removeItem('np_exp'); } catch (e) {}
+      return;
+    }
+    // Sliding window: extend by another 15 minutes on each visit
+    try { localStorage.setItem('np_exp', String(Date.now() + 15 * 60 * 1000)); } catch (e) {}
+    applySide(saved);
+    paintDate();
+    body.dataset.state = 'hub';
+    // No sweep — just appear on the hub. Skip the typewriter delay too.
+    var heroEl = document.getElementById('heroGreet');
+    if (heroEl) heroEl.textContent = 'Hey, Neighbor!';
+    if (passShell) passShell.style.display = 'none';
+  })();
 </script>
 </body>
 </html>
