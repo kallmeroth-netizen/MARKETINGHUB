@@ -1583,17 +1583,18 @@ function setOvTrendView(view, btn){
 function drawOvRatingChart(){
   var canvas = document.getElementById('ovRatingChart');
   if(!canvas) return;
-  // Build series live from LIVE_REVIEWS so it always reflects current data
+  // Build series live from LIVE_REVIEWS so it always reflects current data.
+  // Week key is computed from the string (no Date object) so it's timezone-safe.
   var buckets = {};
   function key(dateStr){
-    var d = new Date(dateStr);
-    if(ovTrendView==='month'){
-      return dateStr.substring(0,7);
-    }
-    var day = d.getDay();
-    var diff = (day + 6) % 7; // Monday=0
-    d.setDate(d.getDate()-diff);
-    return d.toISOString().substring(0,10);
+    if(ovTrendView==='month') return dateStr.substring(0,7);
+    // Sunday-start week key — pure-string math, no TZ shenanigans
+    var parts = dateStr.split('-');
+    var y = +parts[0], m = +parts[1], d = +parts[2];
+    var dt = new Date(Date.UTC(y, m-1, d));
+    var dow = dt.getUTCDay(); // 0=Sun
+    dt.setUTCDate(dt.getUTCDate() - dow);
+    return dt.toISOString().substring(0,10);
   }
   LIVE_REVIEWS.forEach(function(r){
     if(!dateMatchReview(r)) return;
@@ -1603,11 +1604,16 @@ function drawOvRatingChart(){
     buckets[k][r.loc].push(r.rating);
   });
   var keys = Object.keys(buckets).sort();
-  // Compute averages, drop buckets with <3 responses
+  // Trim weekly view to the most recent 26 buckets — older weeks turn into a
+  // wall-of-pixels at chart width and obscure the per-location story.
+  if(ovTrendView==='week' && !dateFrom && !dateTo) keys = keys.slice(-26);
+  // Compute averages with a per-series minimum (>=3 for overall, >=2 per location
+  // for weekly so small sample sizes still draw a dot)
+  var locMin = ovTrendView==='week' ? 2 : 5;
   var series = keys.map(function(k){
     var b = buckets[k];
-    function avg(arr){ return arr.length>=3 ? rateScaleTo5(arr.reduce(function(s,r){return s+r;},0)/arr.length) : null; }
-    return { key:k, all:avg(b.all), westlake:avg(b.westlake), brentwood:avg(b.brentwood) };
+    function avg(arr, min){ return arr.length>=min ? rateScaleTo5(arr.reduce(function(s,r){return s+r;},0)/arr.length) : null; }
+    return { key:k, all:avg(b.all, 3), westlake:avg(b.westlake, locMin), brentwood:avg(b.brentwood, locMin) };
   }).filter(function(p){ return p.all!==null; });
 
   var ctx = canvas.getContext('2d');
@@ -1650,12 +1656,14 @@ function drawOvRatingChart(){
   function drawLine(key, color){
     var pts = series.map(function(p,i){ return p[key]!=null ? {x:xP(i),y:yP(p[key])} : null; });
     ctx.strokeStyle=color; ctx.lineWidth=2.5; ctx.lineJoin='round'; ctx.lineCap='round';
+    // Stroke each contiguous segment separately so gaps don't erase the prior segment.
     var started=false;
     pts.forEach(function(p){
-      if(!p){started=false;return;}
-      if(!started){ctx.beginPath(); ctx.moveTo(p.x,p.y); started=true;} else ctx.lineTo(p.x,p.y);
+      if(!p){ if(started){ ctx.stroke(); started=false; } return; }
+      if(!started){ ctx.beginPath(); ctx.moveTo(p.x,p.y); started=true; }
+      else ctx.lineTo(p.x,p.y);
     });
-    ctx.stroke();
+    if(started) ctx.stroke();
     pts.forEach(function(p){
       if(!p) return;
       ctx.beginPath(); ctx.arc(p.x,p.y,3,0,Math.PI*2); ctx.fillStyle=color; ctx.fill();
