@@ -30,7 +30,20 @@
 body {
   background: #F7F6F3 !important;
   color: #1f2328;
+  /* iOS Safari auto-inflates "important" text on narrow viewports, which
+     was making the metrics-table category bars (3PD SPONSORED LISTINGS,
+     META, GOOGLE, …) render at ~24px even though CSS asks for 11px. */
+  -webkit-text-size-adjust: 100% !important;
+  text-size-adjust: 100% !important;
 }
+
+/* Defensive: lock the category bar font size in case any container has
+   already had iOS inflation applied to it. */
+.metrics-table .cat-row td {
+  font-size: 11px !important;
+  letter-spacing: 0.06em !important;
+}
+.section-title { font-size: 13px !important; }
 
 /* =================== NAV (locked layout) ===================
    All nav children are positioned so the row never reflows when
