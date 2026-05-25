@@ -1,7 +1,8 @@
 /* skin-upgrade.js
-   Injects the back button + (calendar) header, and replaces the assets
-   page's text logo with the brand wordmark image. Idempotent: safe to
-   re-run after React re-renders. */
+   Injects the back button (now on the right, next to settings), the
+   marketing calendar header, and replaces the assets page text logo
+   with the brand wordmark. Idempotent: safe to re-run after React
+   re-renders. */
 (function () {
   const LOGO_SRC = 'NeighborlyLogo.png';
 
@@ -19,19 +20,35 @@
   }
 
   function ensureBack() {
-    // Skip if some <nav> on the page already owns a back button
     if (document.querySelector('nav .skin-back')) return;
     const nav = document.querySelector('nav');
     if (!nav) return;
-    nav.appendChild(makeBack()); // absolute-positioned, so position-in-flow doesn't matter
+
+    // Prefer injection INTO an existing right-side cluster so the back
+    // button becomes a flex sibling of the settings/refresh icons.
+    const right = nav.querySelector('.nav-right');
+    if (right) {
+      right.appendChild(makeBack());
+      return;
+    }
+    // Assets page: there's a .nav-links group on the right edge.
+    const links = nav.querySelector('.nav-links');
+    if (links && links.parentNode) {
+      links.parentNode.appendChild(makeBack());
+      return;
+    }
+    // Fallback (React calendar): append straight to nav. CSS positions
+    // it absolutely on the right via the .skin-back-fallback rule.
+    const a = makeBack();
+    a.classList.add('skin-back-fallback');
+    nav.appendChild(a);
   }
 
   function replaceAssetsLogo() {
     if (!/neighborly-assets/i.test(location.pathname)) return;
     const mark = document.querySelector('.nav-mark');
     if (!mark || mark.querySelector('img')) return;
-    mark.innerHTML =
-      '<img src="' + LOGO_SRC + '" alt="Neighborly">';
+    mark.innerHTML = '<img src="' + LOGO_SRC + '" alt="Neighborly">';
   }
 
   function ensureCalendarHeader() {
@@ -58,8 +75,6 @@
   } else {
     tick();
   }
-  // Re-run after React re-renders. The functions are idempotent so the cost
-  // of running on every mutation is negligible.
   const obs = new MutationObserver(tick);
   obs.observe(document.body || document.documentElement, {
     childList: true,
