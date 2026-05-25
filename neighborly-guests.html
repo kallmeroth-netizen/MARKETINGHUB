@@ -854,9 +854,9 @@ function setDatePreset(preset, btn){
     document.getElementById('drFrom').value = '';
     document.getElementById('drTo').value   = '';
   } else if(preset==='week'){
-    // Days since Monday (Mon=0 ... Sun=6). Sundays were previously rolling
-    // forward to next Monday, producing an empty range with zero matches.
-    var d = new Date(today); d.setDate(d.getDate() - ((d.getDay() + 6) % 7));
+    // Rolling 7-day window ending today, so on a Monday you don't collapse
+    // to a 1-day range (25-25). Always a full week of data.
+    var d = new Date(today); d.setDate(d.getDate() - 6);
     dateFrom = fmt(d); dateTo = fmt(today);
     document.getElementById('drFrom').value = dateFrom;
     document.getElementById('drTo').value   = dateTo;
