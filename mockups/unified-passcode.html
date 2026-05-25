@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Mockup — Unified Passcode</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&family=DM+Mono:wght@400&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&family=DM+Mono:wght@400&family=Jost:wght@500;600;700&display=swap');
 
   @font-face {
     font-family: 'TAYAmaya';
@@ -79,9 +79,13 @@
   }
   .logo-wrap img {
     width: 132px; height: auto; display: block;
-    /* invert dark-on-transparent PNG to white */
-    filter: brightness(0) invert(1) drop-shadow(0 1px 8px rgba(31,35,40,0.18));
+    /* dark wordmark on cream; flips to white on orange via the theme override below */
+    filter: drop-shadow(0 1px 8px rgba(31,35,40,0.08));
     opacity: 0; animation: rise 0.6s ease 0.1s forwards;
+    transition: filter 0.6s ease;
+  }
+  body.theme-orange .logo-wrap img {
+    filter: brightness(0) invert(1) drop-shadow(0 2px 12px rgba(0,0,0,0.18));
   }
 
   /* Hero block */
@@ -94,7 +98,7 @@
   /* Welcome — sized down 40% from prior clamp(56,9vw,92) */
   .greeting {
     font-family: 'TAYAmaya', 'DM Sans', sans-serif;
-    font-size: clamp(34px, 5.4vw, 55px);
+    font-size: clamp(31px, 4.9vw, 50px);
     line-height: 1;
     letter-spacing: -0.005em;
     color: var(--ink);
@@ -192,15 +196,24 @@
   }
   .err.show { opacity: 1; }
 
-  /* Bottom portal label */
+  /* Bottom portal label — full-width strip so animation can't break centering */
   .portal-foot {
-    position: fixed; bottom: 26px; left: 50%; transform: translateX(-50%);
-    font-family: 'DM Mono', monospace;
-    font-size: 10.5px; letter-spacing: 0.32em; text-transform: uppercase;
-    color: var(--ink); opacity: 0; z-index: 2;
-    animation: rise 0.6s ease 2.05s forwards;
+    position: fixed; bottom: 28px; left: 0; right: 0;
+    text-align: center; pointer-events: none;
+    font-family: 'futura-pt', 'Jost', 'Futura', 'Trebuchet MS', sans-serif;
+    font-weight: 600;
+    font-size: 11px;
+    letter-spacing: 0.34em;
+    text-transform: uppercase;
+    color: var(--ink);
+    opacity: 0;
+    z-index: 2;
+    animation: footRise 0.6s ease 2.05s forwards;
   }
-  .portal-foot.shown { opacity: 0.4; }
+  @keyframes footRise {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 0.55; transform: translateY(0); }
+  }
 
   /* Theme toggle */
   .theme-toggle {
@@ -284,8 +297,8 @@
 
   <div class="hero">
     <div class="greeting" id="greet"><span id="greetText"></span><span class="cursor"></span></div>
-    <div class="sub" id="sub">Sign in to continue.</div>
     <div class="divider"></div>
+    <div class="sub" id="sub">Sign in to continue.</div>
 
     <div class="capsule-wrap">
       <div class="capsule" id="capsule">
@@ -303,7 +316,7 @@
   </div>
 </div>
 
-<div class="portal-foot shown">Neighbors Only Portal</div>
+<div class="portal-foot">Neighbors Only Portal</div>
 
 <div class="sweep" id="sweep">
   <div class="sweep-text" id="sweepText"></div>
