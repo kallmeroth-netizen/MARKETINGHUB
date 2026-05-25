@@ -464,12 +464,22 @@ footer{background:var(--ink);color:var(--on-ink);padding:3rem max(1.5rem,env(saf
       </div>
       <div class="stat-tile reveal d3">
         <div class="stat-tile-label">Ovation rating</div>
-        <div class="stat-tile-val" id="opsRating">4.1 / 5</div>
-        <div class="stat-tile-sub">Across all customer feedback channels</div>
+        <div class="stat-tile-val" id="opsRating">4.37 / 5</div>
+        <div class="stat-tile-sub">5,196 responses · Dec 2024 → May 2026</div>
       </div>
     </div>
 
     <div class="stat-row reveal" style="margin-top:1rem">
+      <div class="stat-tile">
+        <div class="stat-tile-label">5-star reviews</div>
+        <div class="stat-tile-val">68.1%</div>
+        <div class="stat-tile-sub">3,539 of 5,196 Ovation responses</div>
+      </div>
+      <div class="stat-tile">
+        <div class="stat-tile-label">Net Promoter Score</div>
+        <div class="stat-tile-val">+72</div>
+        <div class="stat-tile-sub">Restaurant benchmark ≈ +30</div>
+      </div>
       <div class="stat-tile">
         <div class="stat-tile-label">Average check</div>
         <div class="stat-tile-val">$32.10</div>
@@ -478,17 +488,7 @@ footer{background:var(--ink);color:var(--on-ink);padding:3rem max(1.5rem,env(saf
       <div class="stat-tile">
         <div class="stat-tile-label">Lunch / dinner split</div>
         <div class="stat-tile-val">44 / 56</div>
-        <div class="stat-tile-sub">Both dayparts productive — neither dead</div>
-      </div>
-      <div class="stat-tile">
-        <div class="stat-tile-label">Repeat marketing customers</div>
-        <div class="stat-tile-val">982/wk</div>
-        <div class="stat-tile-sub">Acquired through paid channels last week</div>
-      </div>
-      <div class="stat-tile">
-        <div class="stat-tile-label">Daily checks</div>
-        <div class="stat-tile-val">1,589</div>
-        <div class="stat-tile-sub">Friday 05/22 · across both stores</div>
+        <div class="stat-tile-sub">Both dayparts productive · neither dead</div>
       </div>
     </div>
   </div>
@@ -872,6 +872,57 @@ const revealObserver = new IntersectionObserver(entries => {
 }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
 document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
 
+/* ─────────────── OVATION — live from ovation-reviews.json ─────────────── */
+function hydrateOvation(){
+  fetch('./ovation-reviews.json', {cache:'no-store'})
+    .then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); })
+    .then(function(reviews){
+      if (!Array.isArray(reviews) || !reviews.length) return;
+      var n = reviews.length;
+      var sum = 0, fiveStar = 0, promoter = 0, detractor = 0;
+      var firstDate = reviews[reviews.length-1].date, lastDate = reviews[0].date;
+      for (var i = 0; i < n; i++) {
+        var rt = reviews[i].rating;
+        sum += rt;
+        if (rt === 5) fiveStar++;
+        if (rt >= 4) promoter++;
+        if (rt <= 2) detractor++;
+        if (reviews[i].date < firstDate) firstDate = reviews[i].date;
+        if (reviews[i].date > lastDate)  lastDate  = reviews[i].date;
+      }
+      var avg = sum / n;
+      var nps = ((promoter - detractor) / n * 100);
+      var fiveStarPct = fiveStar / n * 100;
+      // Friendly date range labels
+      function friendlyMonth(d){
+        var dt = new Date(d+'T00:00:00');
+        return dt.toLocaleDateString('en-US', {month:'short', year:'numeric'});
+      }
+      var set = function(id, txt){ var el = document.getElementById(id); if (el) el.textContent = txt; };
+      set('opsRating', avg.toFixed(2) + ' / 5');
+      var r2 = document.querySelector('#opsRating + .stat-tile-sub');
+      // sub-text immediately after #opsRating
+      var subEl = document.querySelector('#opsRating').nextElementSibling;
+      if (subEl) subEl.textContent = n.toLocaleString() + ' responses · ' + friendlyMonth(firstDate) + ' → ' + friendlyMonth(lastDate);
+      // Update the 5-star tile, NPS tile by selector since they aren't id'd
+      var tiles = document.querySelectorAll('#ops .stat-row .stat-tile');
+      tiles.forEach(function(t){
+        var label = t.querySelector('.stat-tile-label');
+        if (!label) return;
+        var lt = label.textContent.trim();
+        var val = t.querySelector('.stat-tile-val');
+        var sub = t.querySelector('.stat-tile-sub');
+        if (lt === '5-star reviews') {
+          if (val) val.textContent = fiveStarPct.toFixed(1) + '%';
+          if (sub) sub.textContent = fiveStar.toLocaleString() + ' of ' + n.toLocaleString() + ' Ovation responses';
+        } else if (lt === 'Net Promoter Score') {
+          if (val) val.textContent = (nps >= 0 ? '+' : '') + Math.round(nps);
+        }
+      });
+    })
+    .catch(function(err){ console.warn('Ovation data not loaded:', err); });
+}
+
 /* ─────────────── BOOT ─────────────── */
 hydrateHeader();
 renderHeroChart();
@@ -879,6 +930,7 @@ renderGrowthChart();
 renderConcepts();
 renderConceptChart();
 renderChannelChart();
+hydrateOvation();
 </script>
 </body>
 </html>
