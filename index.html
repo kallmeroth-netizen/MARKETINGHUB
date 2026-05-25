@@ -786,6 +786,8 @@
   function enterHub(side) {
     applySide(side);
     paintDate();
+    // Persist auth so navigating back from internal pages restores the hub
+    try { sessionStorage.setItem('np_side', side); } catch (e) {}
     // Swap states (hub becomes visible) and lift the sweep curtain
     body.dataset.state = 'hub';
     // Land at the top of the hub instead of wherever the passcode page scrolled to
@@ -800,6 +802,23 @@
       typeHero();
     });
   }
+
+  // On page load: if the user has already authenticated this session,
+  // skip the passcode screen and drop them straight into the hub. This
+  // is what makes the back button on internal pages return to the hub
+  // instead of bouncing back to "Welcome / enter passcode".
+  (function restoreSession() {
+    var saved;
+    try { saved = sessionStorage.getItem('np_side'); } catch (e) { saved = null; }
+    if (saved !== 'team' && saved !== 'guest') return;
+    applySide(saved);
+    paintDate();
+    body.dataset.state = 'hub';
+    // No sweep — just appear on the hub. Skip the typewriter delay too.
+    var heroEl = document.getElementById('heroGreet');
+    if (heroEl) heroEl.textContent = 'Hey, Neighbor!';
+    if (passShell) passShell.style.display = 'none';
+  })();
 </script>
 </body>
 </html>
