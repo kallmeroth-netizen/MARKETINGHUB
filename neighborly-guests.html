@@ -648,18 +648,13 @@ nav{background:var(--surface);border-bottom:.5px solid var(--border-strong);padd
   <div class="full-card" style="margin-bottom:16px" id="ov-rating-chart-wrap">
     <div style="display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:4px">
       <div>
-        <div class="card-title">Rating trend by location</div>
-        <div class="card-sub">Average rating /5 over time · click Weekly or Monthly to change cadence</div>
+        <div class="card-title">Rating by location</div>
+        <div class="card-sub">Average rating /5 · <span id="ov-rating-period-label">—</span></div>
       </div>
       <div style="display:flex;gap:6px;align-items:center">
-        <button class="tr-btn active" id="ovTrBtnWeek" onclick="setOvTrendView('week',this)">Weekly</button>
-        <button class="tr-btn" id="ovTrBtnMonth" onclick="setOvTrendView('month',this)">Monthly</button>
+        <button class="tr-btn active" id="ovTrBtnWeek" onclick="setOvTrendView('week',this)">This week</button>
+        <button class="tr-btn" id="ovTrBtnMonth" onclick="setOvTrendView('month',this)">This month</button>
       </div>
-    </div>
-    <div style="display:flex;gap:16px;margin:10px 0 4px;flex-wrap:wrap">
-      <div style="display:flex;align-items:center;gap:5px;font-size:11.5px;color:var(--text2)"><span style="display:inline-block;width:20px;height:2.5px;background:var(--td);border-radius:2px"></span>All locations</div>
-      <div style="display:flex;align-items:center;gap:5px;font-size:11.5px;color:var(--text2)"><span style="display:inline-block;width:20px;height:2.5px;background:var(--green);border-radius:2px"></span>Westlake Village</div>
-      <div style="display:flex;align-items:center;gap:5px;font-size:11.5px;color:var(--text2)"><span style="display:inline-block;width:20px;height:2.5px;background:var(--blue);border-radius:2px"></span>Brentwood</div>
     </div>
     <div style="position:relative;width:100%;height:220px;margin-top:8px">
       <canvas id="ovRatingChart" style="width:100%;height:100%"></canvas>
@@ -1583,99 +1578,124 @@ function setOvTrendView(view, btn){
 function drawOvRatingChart(){
   var canvas = document.getElementById('ovRatingChart');
   if(!canvas) return;
-  // Build series live from LIVE_REVIEWS so it always reflects current data.
-  // Week key is computed from the string (no Date object) so it's timezone-safe.
-  var buckets = {};
-  function key(dateStr){
-    if(ovTrendView==='month') return dateStr.substring(0,7);
-    // Sunday-start week key — pure-string math, no TZ shenanigans
-    var parts = dateStr.split('-');
-    var y = +parts[0], m = +parts[1], d = +parts[2];
-    var dt = new Date(Date.UTC(y, m-1, d));
-    var dow = dt.getUTCDay(); // 0=Sun
-    dt.setUTCDate(dt.getUTCDate() - dow);
-    return dt.toISOString().substring(0,10);
-  }
-  LIVE_REVIEWS.forEach(function(r){
-    if(!dateMatchReview(r)) return;
-    var k = key(r.date);
-    if(!buckets[k]) buckets[k] = {all:[],westlake:[],brentwood:[]};
-    buckets[k].all.push(r.rating);
-    buckets[k][r.loc].push(r.rating);
-  });
-  var keys = Object.keys(buckets).sort();
-  // Trim weekly view to the most recent 26 buckets — older weeks turn into a
-  // wall-of-pixels at chart width and obscure the per-location story.
-  if(ovTrendView==='week' && !dateFrom && !dateTo) keys = keys.slice(-26);
-  // Compute averages with a per-series minimum (>=3 for overall, >=2 per location
-  // for weekly so small sample sizes still draw a dot)
-  var locMin = ovTrendView==='week' ? 2 : 5;
-  var series = keys.map(function(k){
-    var b = buckets[k];
-    function avg(arr, min){ return arr.length>=min ? rateScaleTo5(arr.reduce(function(s,r){return s+r;},0)/arr.length) : null; }
-    return { key:k, all:avg(b.all, 3), westlake:avg(b.westlake, locMin), brentwood:avg(b.brentwood, locMin) };
-  }).filter(function(p){ return p.all!==null; });
-
   var ctx = canvas.getContext('2d');
+
+  // ─── Determine the period (current week or current month from the data) ───
+  // 'Current' = the most recent period that has data, not the system clock,
+  // so the chart still reads sensibly the moment after a fresh export drops in.
+  if(!LIVE_REVIEWS.length){ ctx.clearRect(0,0,canvas.width,canvas.height); return; }
+  var lastDate = LIVE_REVIEWS[0].date; // sorted newest-first
+  var periodStart, periodEnd, periodLabel;
+  if(ovTrendView==='month'){
+    periodStart = lastDate.substring(0,8) + '01';
+    var parts = lastDate.split('-');
+    var dt = new Date(Date.UTC(+parts[0], +parts[1], 0));
+    periodEnd = dt.toISOString().substring(0,10);
+    var mdt = new Date(Date.UTC(+parts[0], +parts[1]-1, 1));
+    periodLabel = mdt.toLocaleString('en-US',{month:'long',year:'numeric',timeZone:'UTC'});
+  } else {
+    // Sunday-start week containing the latest review (pure UTC arithmetic, TZ-safe)
+    var p = lastDate.split('-');
+    var dts = new Date(Date.UTC(+p[0], +p[1]-1, +p[2]));
+    var dow = dts.getUTCDay();
+    dts.setUTCDate(dts.getUTCDate() - dow);
+    periodStart = dts.toISOString().substring(0,10);
+    dts.setUTCDate(dts.getUTCDate() + 6);
+    periodEnd = dts.toISOString().substring(0,10);
+    var sParts = periodStart.split('-'), eParts = periodEnd.split('-');
+    var sDt = new Date(Date.UTC(+sParts[0], +sParts[1]-1, +sParts[2]));
+    var eDt = new Date(Date.UTC(+eParts[0], +eParts[1]-1, +eParts[2]));
+    var sFmt = sDt.toLocaleString('en-US',{month:'short',day:'numeric',timeZone:'UTC'});
+    var eFmt = eDt.toLocaleString('en-US',{month:'short',day:'numeric',year:'numeric',timeZone:'UTC'});
+    periodLabel = sFmt + ' – ' + eFmt;
+  }
+
+  // ─── Aggregate the in-period reviews per location ───
+  var bucket = {all:[], westlake:[], brentwood:[]};
+  LIVE_REVIEWS.forEach(function(r){
+    if(r.date < periodStart || r.date > periodEnd) return;
+    bucket.all.push(r.rating);
+    if(bucket[r.loc]) bucket[r.loc].push(r.rating);
+  });
+  function avg(arr){ return arr.length ? +(arr.reduce(function(s,v){return s+v;},0)/arr.length).toFixed(2) : null; }
+  var rows = [
+    {key:'all',       label:'All locations',     n:bucket.all.length,       v:avg(bucket.all),       color:getComputedStyle(document.documentElement).getPropertyValue('--text').trim() || '#1A1916'},
+    {key:'westlake',  label:'Westlake Village',  n:bucket.westlake.length,  v:avg(bucket.westlake),  color:getComputedStyle(document.documentElement).getPropertyValue('--green').trim() || '#7bbd91'},
+    {key:'brentwood', label:'Brentwood',         n:bucket.brentwood.length, v:avg(bucket.brentwood), color:getComputedStyle(document.documentElement).getPropertyValue('--blue').trim() || '#6280bd'}
+  ];
+  // Respect the location filter — hide the row if a single location is selected
+  if(locationFilter !== 'all') rows = rows.filter(function(r){ return r.key === 'all' || r.key === locationFilter; });
+
+  // ─── Reflect the period in the card sub-label ───
+  var rangeEl = document.getElementById('ov-rating-period-label');
+  if(rangeEl) rangeEl.textContent = periodLabel;
+
+  // ─── Render — horizontal bars (one per row), no x-axis "trend" ───
   var W = canvas.offsetWidth * window.devicePixelRatio;
   var H = canvas.offsetHeight * window.devicePixelRatio;
   canvas.width = W; canvas.height = H;
   ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
   var cw = canvas.offsetWidth, ch = canvas.offsetHeight;
   ctx.clearRect(0,0,cw,ch);
-  if(!series.length){
-    ctx.fillStyle = 'rgba(0,0,0,0.3)';
-    ctx.font = '12px DM Sans, sans-serif';
-    ctx.textAlign = 'center';
-    ctx.fillText('No data in this period', cw/2, ch/2);
-    return;
-  }
-  var pad={t:14,r:14,b:32,l:34};
-  var pw=cw-pad.l-pad.r, ph=ch-pad.t-pad.b;
-  var minY=1, maxY=5, yR=maxY-minY;
-  function xP(i){ return pad.l + (i/Math.max(series.length-1,1))*pw; }
-  function yP(v){ return pad.t + ph - ((v-minY)/yR)*ph; }
-  // Grid
-  ctx.strokeStyle='rgba(0,0,0,0.06)'; ctx.lineWidth=1;
-  ctx.font='9.5px DM Sans, sans-serif'; ctx.textAlign='right';
-  [1,2,3,4,5].forEach(function(y){
-    var yp=yP(y);
-    ctx.beginPath(); ctx.moveTo(pad.l,yp); ctx.lineTo(pad.l+pw,yp); ctx.stroke();
-    ctx.fillStyle='rgba(0,0,0,0.3)'; ctx.fillText(y.toFixed(1), pad.l-5, yp+3);
+
+  var pad = {t:10, r:14, b:14, l:130};
+  var pw = cw - pad.l - pad.r, ph = ch - pad.t - pad.b;
+  var rowH = ph / rows.length;
+  var barH = Math.min(28, rowH - 14);
+
+  rows.forEach(function(r, i){
+    var yTop = pad.t + i*rowH + (rowH - barH)/2;
+    // Label
+    ctx.fillStyle = 'rgba(0,0,0,0.7)';
+    ctx.font = '500 12.5px DM Sans, sans-serif';
+    ctx.textAlign = 'right';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(r.label, pad.l - 10, yTop + barH/2);
+    // Track
+    ctx.fillStyle = 'rgba(0,0,0,0.04)';
+    ctx.fillRect(pad.l, yTop, pw, barH);
+    if(r.v == null){
+      ctx.fillStyle = 'rgba(0,0,0,0.3)';
+      ctx.font = '11.5px DM Sans, sans-serif';
+      ctx.textAlign = 'left';
+      ctx.fillText('No responses this ' + ovTrendView, pad.l + 8, yTop + barH/2);
+      return;
+    }
+    // Fill (value mapped to 1–5 over the track width)
+    var pct = Math.max(0, Math.min(1, (r.v - 1) / 4));
+    var fillW = pw * pct;
+    ctx.fillStyle = r.color;
+    ctx.fillRect(pad.l, yTop, fillW, barH);
+    // Value text — drawn inside the bar if there's room, otherwise just to the right
+    var valTxt = r.v.toFixed(2) + ' /5';
+    var nTxt = '· ' + r.n.toLocaleString() + ' responses';
+    ctx.font = '600 12.5px DM Sans, sans-serif';
+    ctx.textAlign = 'left';
+    var valX, valColor;
+    if(fillW > 80){
+      valX = pad.l + 10;
+      valColor = '#fff';
+    } else {
+      valX = pad.l + fillW + 8;
+      valColor = 'rgba(0,0,0,0.78)';
+    }
+    ctx.fillStyle = valColor;
+    ctx.fillText(valTxt, valX, yTop + barH/2);
+    ctx.font = '11.5px DM Mono, DM Sans, sans-serif';
+    ctx.fillStyle = fillW > 80 ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.45)';
+    ctx.fillText(nTxt, valX + ctx.measureText(valTxt).width + 6, yTop + barH/2);
   });
-  // X labels (subset)
-  var step = series.length>14 ? Math.ceil(series.length/10) : 1;
-  ctx.fillStyle='rgba(0,0,0,0.4)';
-  ctx.textAlign='center';
-  series.forEach(function(p,i){
-    if(i%step!==0 && i!==series.length-1) return;
-    var lbl = ovTrendView==='month' ? p.key.substring(2) : p.key.substring(5);
-    ctx.fillText(lbl, xP(i), ch-pad.b+13);
-  });
-  // Lines
-  function drawLine(key, color){
-    var pts = series.map(function(p,i){ return p[key]!=null ? {x:xP(i),y:yP(p[key])} : null; });
-    ctx.strokeStyle=color; ctx.lineWidth=2.5; ctx.lineJoin='round'; ctx.lineCap='round';
-    // Stroke each contiguous segment separately so gaps don't erase the prior segment.
-    var started=false;
-    pts.forEach(function(p){
-      if(!p){ if(started){ ctx.stroke(); started=false; } return; }
-      if(!started){ ctx.beginPath(); ctx.moveTo(p.x,p.y); started=true; }
-      else ctx.lineTo(p.x,p.y);
-    });
-    if(started) ctx.stroke();
-    pts.forEach(function(p){
-      if(!p) return;
-      ctx.beginPath(); ctx.arc(p.x,p.y,3,0,Math.PI*2); ctx.fillStyle=color; ctx.fill();
-      ctx.strokeStyle='#fff'; ctx.lineWidth=1.5; ctx.stroke();
-    });
+
+  // ─── Scale ticks (1 / 2 / 3 / 4 / 5) along the bottom for context ───
+  ctx.strokeStyle = 'rgba(0,0,0,0.08)'; ctx.lineWidth = 1;
+  ctx.fillStyle = 'rgba(0,0,0,0.3)';
+  ctx.font = '9.5px DM Mono, sans-serif';
+  ctx.textAlign = 'center';
+  for(var s=1; s<=5; s++){
+    var x = pad.l + ((s-1)/4)*pw;
+    ctx.beginPath(); ctx.moveTo(x, pad.t); ctx.lineTo(x, pad.t+ph); ctx.stroke();
+    if(s===1 || s===5) ctx.fillText(String(s), x, pad.t+ph+10);
   }
-  var showAll = locationFilter==='all';
-  var showWL  = locationFilter==='all' || locationFilter==='westlake';
-  var showBR  = locationFilter==='all' || locationFilter==='brentwood';
-  if(showAll) drawLine('all',getComputedStyle(document.documentElement).getPropertyValue('--td').trim() || '#5a4520');
-  if(showWL)  drawLine('westlake',getComputedStyle(document.documentElement).getPropertyValue('--green').trim() || '#7bbd91');
-  if(showBR)  drawLine('brentwood',getComputedStyle(document.documentElement).getPropertyValue('--blue').trim() || '#6280bd');
 }
 
 // Stubs to prevent calls from old code (cleaned out, but harmless)
