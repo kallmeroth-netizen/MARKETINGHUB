@@ -16,7 +16,7 @@
   .amp {
     font-family: 'Tuppence', serif;
     font-weight: 500;
-    font-style: italic;
+    font-style: normal;
     margin: 0 0.04em;
     font-size: 1.05em;
     vertical-align: baseline;
@@ -197,39 +197,29 @@
 
   .hero {
     text-align: center;
-    margin-bottom: 100px;   /* push tiles down */
+    margin-bottom: 84px;
   }
   .hero-greet {
     font-family: 'TAYAmaya', 'DM Sans', sans-serif;
-    font-size: clamp(48px, 6vw, 76px);
+    font-size: clamp(20px, 2.2vw, 28px);
     line-height: 1; letter-spacing: -0.005em;
     color: var(--dark);
-    margin-bottom: 10px;
+    margin-bottom: 8px;
+    min-height: 1em;
+    display: inline-flex; align-items: baseline;
   }
   .hero-greet .cursor {
-    display: inline-block; width: 3px; height: 0.78em;
-    background: var(--dark); margin-left: 6px;
+    display: inline-block; width: 2px; height: 0.78em;
+    background: var(--dark); margin-left: 4px;
     transform: translateY(0.08em);
     animation: blink 1s steps(1) infinite;
   }
   .hero-sub {
-    font-size: 14px; color: var(--text3);
+    font-size: 12.5px; color: var(--text3);
     letter-spacing: 0.04em;
-    max-width: 540px; margin: 0 auto 32px;
+    max-width: 540px; margin: 0 auto;
   }
   .hero-sub.empty { display: none; }
-  .hero-rule {
-    width: 96px; height: 1px;
-    background: var(--dark); opacity: 0.18;
-    margin: 0 auto 28px;
-  }
-  .hero-statement {
-    font-family: 'TAYAmaya', 'DM Sans', sans-serif;
-    font-size: clamp(22px, 2.4vw, 32px);
-    line-height: 1.2; letter-spacing: -0.005em;
-    color: var(--dark);
-    max-width: 720px; margin: 0 auto;
-  }
 
   /* Tile grid */
   .tile-grid {
@@ -402,10 +392,8 @@
 <!-- MAIN -->
 <main>
   <div class="hero">
-    <div class="hero-greet"><span id="heroGreet">Hey, Neighbor!</span><span class="cursor"></span></div>
+    <div class="hero-greet"><span id="heroGreet"></span><span class="cursor"></span></div>
     <div class="hero-sub" id="heroSub">Welcome to your team hub</div>
-    <div class="hero-rule"></div>
-    <div class="hero-statement" id="heroStatement">Building the neighborhood, together.</div>
   </div>
 
   <div class="tile-grid in" id="tileGrid">
@@ -540,15 +528,12 @@
 
     // hero copy per side
     const subEl = document.getElementById('heroSub');
-    const stEl  = document.getElementById('heroStatement');
     if (side === 'team') {
       subEl.textContent = 'Welcome to your team hub';
       subEl.classList.remove('empty');
-      stEl.innerHTML = 'Building the neighborhood, together.';
     } else {
       subEl.textContent = '';
       subEl.classList.add('empty');
-      stEl.innerHTML = 'Growing the neighborhood together.';
     }
 
     // tile-grid role filter
@@ -566,6 +551,19 @@
 
   btnTeam.addEventListener('click', () => setSide('team'));
   btnGuest.addEventListener('click', () => setSide('guest'));
+
+  // Typewriter for hero
+  (function typeHero() {
+    const txt = 'Hey, Neighbor!';
+    const el = document.getElementById('heroGreet');
+    let i = 0;
+    setTimeout(function step() {
+      if (i <= txt.length) {
+        el.textContent = txt.slice(0, i++);
+        setTimeout(step, 80);
+      }
+    }, 350);
+  })();
 
   // Date chip
   (function paintDate() {

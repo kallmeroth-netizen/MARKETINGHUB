@@ -15,7 +15,7 @@
   .amp {
     font-family: 'Tuppence', serif;
     font-weight: 500;
-    font-style: italic;
+    font-style: normal;
     margin: 0 0.04em;
     font-size: 1.05em;
     vertical-align: baseline;
@@ -125,48 +125,50 @@
   .phone[data-side="guest"] .b3 { background: var(--sand); }
 
   /* Logo (black, sleek wordmark) */
-  /* Date in top right of phone screen */
+  /* Top status row inside phone — logo left, date right */
+  .status-bar {
+    position: absolute; top: 60px; left: 22px; right: 22px; z-index: 3;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .status-logo {
+    width: 96px; height: auto; display: block;
+  }
   .status-date {
-    position: absolute; top: 22px; right: 22px; z-index: 3;
     font-family: 'DM Mono', monospace;
     font-size: 10px; letter-spacing: 0.16em;
     color: var(--dark); opacity: 0.55;
   }
+  /* Hero / greeting block — sits below the status row, with breathing room */
   .head {
     position: relative; z-index: 2;
     display: flex; flex-direction: column; align-items: center;
-    margin-bottom: 16px;
-  }
-  .head img {
-    width: 120px; height: auto; display: block;
+    margin-top: 64px;
+    margin-bottom: 28px;
+    text-align: center;
   }
   .hub-title {
-    margin-top: 18px;
     font-family: 'TAYAmaya', 'DM Sans', sans-serif;
-    font-size: 28px; line-height: 1;
+    font-size: 18px; line-height: 1;
     color: var(--dark);
     letter-spacing: -0.005em;
+    min-height: 1em;
+    display: inline-flex; align-items: baseline; justify-content: center;
+  }
+  .hub-title .cursor {
+    display: inline-block; width: 2px; height: 0.78em;
+    background: var(--dark); margin-left: 4px;
+    transform: translateY(0.08em);
+    animation: blink 1s steps(1) infinite;
   }
   .hub-sub {
     margin-top: 6px;
     font-family: 'DM Sans', sans-serif;
-    font-size: 11.5px; font-weight: 500;
+    font-size: 11px; font-weight: 500;
     color: var(--dark); opacity: 0.55;
     letter-spacing: 0.02em;
   }
   .hub-sub.empty { display: none; }
-  .hub-rule {
-    width: 64px; height: 1px;
-    background: var(--dark); opacity: 0.16;
-    margin: 16px auto 14px;
-  }
-  .hub-statement {
-    font-family: 'TAYAmaya', 'DM Sans', sans-serif;
-    font-size: 17px; line-height: 1.2; letter-spacing: -0.005em;
-    color: var(--dark); text-align: center;
-    padding: 0 8px;
-    margin-bottom: 24px;
-  }
+  @keyframes blink { 0%,49% { opacity:1; } 50%,100% { opacity:0; } }
 
   /* Tile grid */
   .grid {
@@ -319,13 +321,13 @@
 <div class="stage">
   <div class="phone" id="phone" data-side="team">
     <div class="screen">
-      <div class="status-date" id="statusDate">—</div>
+      <div class="status-bar">
+        <img class="status-logo" src="./NeighborlyLogo.png" alt="Neighborly">
+        <div class="status-date" id="statusDate">—</div>
+      </div>
       <div class="head">
-        <img src="./NeighborlyLogo.png" alt="Neighborly">
-        <div class="hub-title" id="hubTitle">Hey, Neighbor!</div>
+        <div class="hub-title"><span id="hubTitleText"></span><span class="cursor"></span></div>
         <div class="hub-sub" id="hubSub">Welcome to your team hub</div>
-        <div class="hub-rule"></div>
-        <div class="hub-statement" id="hubStatement">Building the neighborhood, together.</div>
       </div>
 
       <div class="grid in" id="grid">
@@ -390,24 +392,19 @@
 
 <script>
   const phone = document.getElementById('phone');
-  const title = document.getElementById('hubTitle');
   const team  = document.getElementById('btnTeam');
   const guest = document.getElementById('btnGuest');
   const grid  = document.getElementById('grid');
 
   function setSide(side) {
     phone.dataset.side = side;
-    title.textContent = 'Hey, Neighbor!';
     const sub = document.getElementById('hubSub');
-    const stmt = document.getElementById('hubStatement');
     if (side === 'team') {
       sub.textContent = 'Welcome to your team hub';
       sub.classList.remove('empty');
-      stmt.innerHTML = 'Building the neighborhood, together.';
     } else {
       sub.textContent = '';
       sub.classList.add('empty');
-      stmt.innerHTML = 'Growing the neighborhood together.';
     }
     // role-gated tile visibility
     grid.querySelectorAll('.tile').forEach(t => {
@@ -426,6 +423,19 @@
     guest.classList.add('active'); team.classList.remove('active');
     setSide('guest');
   });
+
+  // Typewriter for hub title
+  (function typeTitle() {
+    const txt = 'Hey, Neighbor!';
+    const el = document.getElementById('hubTitleText');
+    let i = 0;
+    setTimeout(function step() {
+      if (i <= txt.length) {
+        el.textContent = txt.slice(0, i++);
+        setTimeout(step, 80);
+      }
+    }, 350);
+  })();
 
   // Date in top-right of phone status area
   (function paintDate() {
