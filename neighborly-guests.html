@@ -1434,10 +1434,10 @@ function renderOverview(){
   document.getElementById('ov-best').innerHTML = bHtml;
 
   // ── SENTIMENT BREAKDOWN ───────────────────────────────────────
-  var distRows = [4,3,2,1].map(function(s){
+  var distRows = [5,4,3,2,1].map(function(s){
     var n = pool.filter(function(r){return r.rating===s;}).length;
     var pct = pool.length?Math.round(n/pool.length*100):0;
-    var label = s===4?'4 ★ (top)':s+' ★';
+    var label = s===5?'5 ★ (top)':s+' ★';
     var color = s>=4?'var(--green)':s===3?'var(--yellow)':'var(--orange)';
     return '<div style="display:flex;align-items:center;gap:10px;margin-bottom:7px">'
       +'<span style="font-size:11px;color:var(--text3);width:60px">'+label+'</span>'
