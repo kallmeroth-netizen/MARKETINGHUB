@@ -786,8 +786,13 @@
   function enterHub(side) {
     applySide(side);
     paintDate();
-    // Persist auth so navigating back from internal pages restores the hub
-    try { sessionStorage.setItem('np_side', side); } catch (e) {}
+    // Persist auth for 15 minutes so navigating back from internal pages
+    // (or briefly closing/reopening the tab) restores the hub without
+    // forcing the passcode again.
+    try {
+      localStorage.setItem('np_side', side);
+      localStorage.setItem('np_exp', String(Date.now() + 15 * 60 * 1000));
+    } catch (e) {}
     // Swap states (hub becomes visible) and lift the sweep curtain
     body.dataset.state = 'hub';
     // Land at the top of the hub instead of wherever the passcode page scrolled to
@@ -803,14 +808,24 @@
     });
   }
 
-  // On page load: if the user has already authenticated this session,
-  // skip the passcode screen and drop them straight into the hub. This
-  // is what makes the back button on internal pages return to the hub
-  // instead of bouncing back to "Welcome / enter passcode".
+  // On page load: if the user authenticated within the last 15 minutes,
+  // skip the passcode screen and drop them straight into the hub. The
+  // back button on internal pages now returns here without re-prompting,
+  // and brief tab closes/reopens are also tolerated.
   (function restoreSession() {
-    var saved;
-    try { saved = sessionStorage.getItem('np_side'); } catch (e) { saved = null; }
+    var saved, exp;
+    try {
+      saved = localStorage.getItem('np_side');
+      exp = parseInt(localStorage.getItem('np_exp') || '0', 10);
+    } catch (e) { saved = null; exp = 0; }
     if (saved !== 'team' && saved !== 'guest') return;
+    if (!exp || Date.now() > exp) {
+      // Expired — clear and fall through to the passcode screen.
+      try { localStorage.removeItem('np_side'); localStorage.removeItem('np_exp'); } catch (e) {}
+      return;
+    }
+    // Sliding window: extend by another 15 minutes on each visit
+    try { localStorage.setItem('np_exp', String(Date.now() + 15 * 60 * 1000)); } catch (e) {}
     applySide(saved);
     paintDate();
     body.dataset.state = 'hub';
