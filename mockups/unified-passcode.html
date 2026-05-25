@@ -404,12 +404,13 @@
         sweep.classList.toggle('lav', side === 'guest');
         sweepText.textContent = side === 'team' ? 'Team Hub' : 'Guest Hub';
         sweep.classList.add('up');
+        // After the sweep finishes, navigate to the actual hub page
         setTimeout(() => {
-          sweep.classList.remove('up');
-          cap.classList.remove('accept');
-          pw.value = '';
-          retypeGreeting(baseText);
-        }, 2200);
+          const dest = side === 'guest'
+            ? './web-dashboard.html?side=guest'
+            : './web-dashboard.html';
+          window.location.href = dest;
+        }, 900);
       }, 350);
     });
   }
