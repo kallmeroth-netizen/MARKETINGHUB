@@ -569,3 +569,53 @@ a { color: inherit; text-decoration: none; }
         max-width: var(--content-max); margin: 0 auto; }
 .page.active { display: block; }
 
+/* ============================================================
+   BRAND PAGE — section / overview cell / palette / type aliases
+   So the brand book section layouts inherit the same tokens.
+   ============================================================ */
+.hero          { padding-top: clamp(48px, 7vh, 88px); padding-bottom: 28px; }
+.hero-title    { font-family: var(--f-display); font-weight: 400; font-size: var(--t-hero); line-height: 1.05; letter-spacing: -0.005em; color: var(--ink-pure); margin-bottom: var(--s-3); }
+.hero-title .accent { color: var(--ink-pure); font-family: inherit; font-weight: inherit; font-style: normal; text-transform: none; }
+.hero-eyebrow  { font-family: var(--f-eyebrow); font-weight: 600; font-size: var(--t-eyebrow); letter-spacing: 0.28em; text-transform: uppercase; color: var(--text-3); margin-bottom: var(--s-2); }
+.hero-sub      { font-family: var(--f-sans); font-size: var(--t-body); color: var(--text-2); max-width: 720px; line-height: 1.6; }
+.hero-meta     { margin-top: var(--s-5); font-family: var(--f-eyebrow); font-weight: 600; font-size: var(--t-eyebrow); letter-spacing: 0.28em; text-transform: uppercase; color: var(--text-3); }
+
+section.row    { padding: var(--s-7) 0; gap: var(--s-6); }
+.row-title     { font-family: var(--f-display); font-weight: 400; font-size: var(--t-section); line-height: 1.05; letter-spacing: -0.005em; color: var(--ink-pure); }
+.row-num       { font-family: var(--f-eyebrow); font-weight: 600; font-size: var(--t-eyebrow); letter-spacing: 0.28em; text-transform: uppercase; color: var(--text-3); }
+.row-num span  { color: var(--brand-orange); margin-right: 8px; }
+.row-desc      { font-size: var(--t-body-sm); color: var(--text-2); line-height: 1.6; }
+
+.quick-cell    { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); padding: var(--s-4); transition: background var(--t-base) var(--easing), border-color var(--t-base) var(--easing), transform var(--t-base) var(--easing); }
+.quick-cell:hover { background: var(--cream-warm); border-color: var(--line-bold); transform: translateY(-1px); }
+.quick-cell.feature { background: var(--surface); color: var(--ink); }
+.quick-cell.feature .quick-name  { color: var(--ink); }
+.quick-cell.feature .quick-arrow { color: var(--text-3); }
+.quick-cell.feature .quick-num   { color: var(--text-3); }
+.quick-cell.feature .quick-dot   { background: var(--brand-orange); }
+.quick-cell.feature:hover        { background: var(--cream-warm); }
+
+.swatch-name   { font-family: var(--f-display); font-size: 15px; font-weight: 400; text-transform: uppercase; letter-spacing: 0.02em; }
+.swatch-chip   { border-radius: var(--r-md); }
+
+.type-row      { padding: var(--s-5); }
+.type-role     { font-family: var(--f-eyebrow); font-weight: 600; font-size: var(--t-meta); letter-spacing: 0.24em; text-transform: uppercase; color: var(--brand-orange); }
+
+.btn, .btn-primary {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 10px 18px;
+  font-family: var(--f-eyebrow); font-weight: 600; font-size: var(--t-caption);
+  text-transform: uppercase; letter-spacing: 0.18em;
+  border: none; border-radius: var(--r-round); cursor: pointer;
+  transition: background var(--t-base) var(--easing), transform var(--t-base) var(--easing);
+}
+.btn          { background: var(--brand-lavender); color: var(--ink); }
+.btn:hover    { background: #b9b7c8; transform: translateY(-1px); }
+.btn.primary, .btn-primary {
+  background: var(--brand-orange); color: #fff; box-shadow: var(--shadow-orange);
+}
+.btn.primary:hover, .btn-primary:hover { background: #d96538; transform: translateY(-1px); }
+
+/* Voice section "good neighbor" treatment — keeps Tuppence/upright override */
+.voice-line .accent { color: inherit; font-family: inherit; font-weight: inherit; font-style: normal; text-transform: none; background: none; }
+
