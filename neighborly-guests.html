@@ -549,18 +549,18 @@ nav{background:var(--surface);border-bottom:.5px solid var(--border-strong);padd
 <header class="np-page-header guest-header">
   <div class="np-page-header-main guest-header-left">
     <div class="guest-header-controls">
-      <div class="date-preset-group">
-        <button type="button" class="dp-btn active" onclick="setDatePreset('all',this)">All time</button>
-        <button type="button" class="dp-btn" onclick="setDatePreset('week',this)">This week</button>
-        <button type="button" class="dp-btn" onclick="setDatePreset('30d',this)">30d</button>
-        <button type="button" class="dp-btn" onclick="setDatePreset('90d',this)">90d</button>
-      </div>
       <button type="button" class="date-pill" id="datePill" onclick="openCalendar(event)">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
         <span class="date-pill-label" id="datePillLabel">All time</span>
         <span class="date-pill-badge" id="datePillBadge" style="display:none"></span>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="12" height="12" style="margin-left:2px"><polyline points="6 9 12 15 18 9"/></svg>
       </button>
+      <div class="date-preset-group">
+        <button type="button" class="dp-btn active" onclick="setDatePreset('all',this)">All time</button>
+        <button type="button" class="dp-btn" onclick="setDatePreset('week',this)">This week</button>
+        <button type="button" class="dp-btn" onclick="setDatePreset('30d',this)">30d</button>
+        <button type="button" class="dp-btn" onclick="setDatePreset('90d',this)">90d</button>
+      </div>
     </div>
   </div>
   <div class="loc-toggle" id="locToggle">
