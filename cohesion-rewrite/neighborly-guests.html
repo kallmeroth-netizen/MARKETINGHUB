@@ -39,10 +39,10 @@ nav{background:var(--surface);border-bottom:.5px solid var(--border-strong);padd
 .hub-nav-label{font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:1rem}
 .hub-back-home{font-size:11px;font-weight:500;color:var(--text2);text-decoration:none;padding:4px 10px;border:.5px solid var(--border-strong);border-radius:7px;background:var(--surface-2);letter-spacing:0;text-transform:none;transition:background .15s,color .15s;white-space:nowrap}
 .hub-back-home:hover{background:var(--surface);color:var(--text)}
-.hub-nav-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
-.hub-card{display:flex;flex-direction:column;gap:6px;padding:14px;border-radius:10px;border:.5px solid var(--border);background:var(--surface);cursor:pointer;transition:background .12s,border-color .12s;position:relative;text-decoration:none;color:inherit}
+.hub-nav-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.hub-card{display:flex;flex-direction:column;gap:8px;padding:16px;border-radius:14px;border:1px solid var(--border);background:var(--surface);cursor:pointer;transition:background .12s,border-color .12s;position:relative;text-decoration:none;color:inherit}
 .hub-card:hover{background:var(--surface-2);border-color:var(--border-strong)}
-.hub-card.active{background:var(--brand-yellow-light);border-color:#e3c030}
+.hub-card.active{background:var(--surface);border-color:var(--ink)}
 .hub-card-icon{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;margin-bottom:2px}
 .hub-card-icon svg{width:14px;height:14px}
 .hub-card-title{font-size:12px;font-weight:600;color:var(--text);line-height:1.2}
@@ -580,6 +580,14 @@ nav{background:var(--surface);border-bottom:.5px solid var(--border-strong);padd
     <a href="index.html" class="hub-back-home">← Home</a>
   </div>
   <div class="hub-nav-grid">
+
+    <a class="hub-card" href="index.html">
+      <div class="hub-card-icon" style="background:#F0EEE9">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#3a3d44" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12l9-9 9 9"/><path d="M5 10v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V10"/></svg>
+      </div>
+      <div class="hub-card-title">Home</div>
+      <div class="hub-card-sub">Marketing Hub overview</div>
+    </a>
 
     <!-- 1. Performance dashboard (main KPI dashboard) -->
     <a class="hub-card" href="neighborly-dashboard.html">
