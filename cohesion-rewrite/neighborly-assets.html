@@ -33,13 +33,7 @@
     font-weight: 600;
     font-display: swap;
   }
-  @font-face {
-    font-family: 'Telegraf';
-    src: url('fonts/TelegrafRegular.otf') format('opentype');
-    font-weight: 400;
-    font-style: normal;
-    font-display: swap;
-  }
+  /* Telegraf @font-face lives in theme.css */
 
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -239,14 +233,15 @@
   }
   @media (max-width: 760px) { .quick { grid-template-columns: repeat(2, 1fr); } }
   .quick-cell {
-    background: var(--cream);
+    background: #fff;
+    --tone-bg: #f7f5ef;
     padding: var(--s-5);
     min-height: 150px;
     display: flex; flex-direction: column; justify-content: space-between;
     text-decoration: none; color: var(--ink);
     transition: background 0.25s ease, transform 0.25s ease;
   }
-  .quick-cell:hover { background: #fff; }
+  .quick-cell:hover { background: var(--tone-bg); }
   .quick-cell.feature { background: var(--orange); color: #fff; }
   .quick-cell.feature .quick-arrow { color: rgba(255,255,255,0.78); }
   .quick-cell.feature .quick-num { color: rgba(255,255,255,0.6); }
@@ -516,10 +511,12 @@
     margin-top: var(--s-4);
     color: #fff;
   }
-  .voice-line .accent {
+  .voice-line .accent,
+  .voice-line .amp {
     font-family: var(--f-tuppence);
     font-weight: 500;
     text-transform: none;
+    font-size: 0.78em;
     color: var(--ink);
   }
   .voice-grid { display: flex; flex-direction: column; gap: var(--s-4); }
@@ -542,9 +539,11 @@
   }
   @media (max-width: 720px) { .photo { grid-template-columns: 1fr; } }
   .photo-title {
-    font-family: var(--f-display);
-    font-size: 1.6rem; line-height: 1;
-    text-transform: uppercase;
+    font-family: var(--f-sans);
+    font-size: 1.5rem; line-height: 1.15;
+    font-weight: 600;
+    letter-spacing: -0.005em;
+    color: var(--ink);
     margin-top: var(--s-3);
   }
   .photo-desc { font-size: 14.5px; color: var(--text-2); margin-top: var(--s-2); max-width: 520px; }
@@ -571,6 +570,7 @@
     overflow: hidden;
   }
   .dl-row {
+    --tone-bg: var(--cream);
     display: grid;
     grid-template-columns: 40px 1fr auto;
     gap: var(--s-4);
@@ -582,7 +582,7 @@
     transition: background 0.2s ease;
   }
   .dl-row:last-child { border-bottom: 0; }
-  .dl-row:hover { background: var(--cream); }
+  .dl-row:hover { background: var(--tone-bg); }
   .dl-num {
     font-family: var(--f-mono); font-size: 11px; letter-spacing: 0.12em;
     color: var(--text-3);
@@ -719,7 +719,7 @@
     </div>
     <div>
       <div class="quick">
-        <a class="quick-cell" href="#logos">
+        <a class="quick-cell" href="#logos" style="--tone-bg:var(--brand-orange-light)">
           <div class="quick-top"><span class="quick-num">01</span><span class="quick-dot" style="background:var(--orange)"></span></div>
           <div class="quick-name">Logos</div>
           <div class="quick-arrow">View</div>
@@ -729,22 +729,22 @@
           <div class="quick-name">Brand Book</div>
           <div class="quick-arrow">Open</div>
         </a>
-        <a class="quick-cell" href="#photography">
+        <a class="quick-cell" href="#photography" style="--tone-bg:var(--brand-green-light)">
           <div class="quick-top"><span class="quick-num">03</span><span class="quick-dot" style="background:var(--green)"></span></div>
           <div class="quick-name">Photography</div>
           <div class="quick-arrow">View</div>
         </a>
-        <a class="quick-cell" href="https://drive.google.com/drive/folders/1i4Fd8Y7zsXWMTAioRrGVfkGUB7ql50wU?usp=drive_link" target="_blank" rel="noopener">
+        <a class="quick-cell" href="https://drive.google.com/drive/folders/1i4Fd8Y7zsXWMTAioRrGVfkGUB7ql50wU?usp=drive_link" target="_blank" rel="noopener" style="--tone-bg:var(--brand-lavender-light)">
           <div class="quick-top"><span class="quick-num">04</span><span class="quick-dot" style="background:var(--lavender)"></span></div>
           <div class="quick-name">Templates</div>
           <div class="quick-arrow">Open</div>
         </a>
-        <a class="quick-cell" href="https://drive.google.com/drive/folders/19dfTyHtlgTvejIh5HZtrMzsvt0rQBdRd?usp=drive_link" target="_blank" rel="noopener">
+        <a class="quick-cell" href="https://drive.google.com/drive/folders/19dfTyHtlgTvejIh5HZtrMzsvt0rQBdRd?usp=drive_link" target="_blank" rel="noopener" style="--tone-bg:var(--brand-yellow-light)">
           <div class="quick-top"><span class="quick-num">05</span><span class="quick-dot" style="background:var(--yellow)"></span></div>
           <div class="quick-name">Menus</div>
           <div class="quick-arrow">Open</div>
         </a>
-        <a class="quick-cell" href="https://www.dropbox.com/scl/fo/s9qxbr2bqhr0x0kxu0mdg/ALiObuP72mEaQ4KY80-dKV8?rlkey=meypzjnbec1zcmi3ohle1ys8w&st=1nu52222&dl=0" target="_blank" rel="noopener">
+        <a class="quick-cell" href="https://www.dropbox.com/scl/fo/s9qxbr2bqhr0x0kxu0mdg/ALiObuP72mEaQ4KY80-dKV8?rlkey=meypzjnbec1zcmi3ohle1ys8w&st=1nu52222&dl=0" target="_blank" rel="noopener" style="--tone-bg:var(--brand-blue-light)">
           <div class="quick-top"><span class="quick-num">06</span><span class="quick-dot" style="background:var(--soft-green)"></span></div>
           <div class="quick-name">Social</div>
           <div class="quick-arrow">Open</div>
@@ -770,12 +770,12 @@
         <div class="found-card">
           <div class="eyebrow">Promise</div>
           <h4>Eat Different, Together.</h4>
-          <p>One table, many menus. Groups with different cravings share a meal without compromise.</p>
+          <p>Multiple menus, all under one roof. Find something for everyone.</p>
         </div>
         <div class="found-card">
           <div class="eyebrow">Feeling</div>
           <h4>Warm. Intentional.</h4>
-          <p>Solution-oriented. Always neighborly.</p>
+          <p>Here to be a good neighbor, and solve everyday problems.</p>
         </div>
       </div>
     </div>
@@ -1060,37 +1060,37 @@
     <div>
       <div class="downloads">
 
-        <a class="dl-row" href="https://drive.google.com/drive/folders/1Y0MDs_-ebbMRYdisIvFrPrgUGAf9vwjW?usp=drive_link" target="_blank" rel="noopener">
+        <a class="dl-row" href="https://drive.google.com/drive/folders/1Y0MDs_-ebbMRYdisIvFrPrgUGAf9vwjW?usp=drive_link" target="_blank" rel="noopener" style="--tone-bg:var(--brand-orange-light)">
           <span class="dl-num">01</span>
           <span class="dl-name">Logo Folder</span>
           <div class="dl-meta"><span class="tag green">Live</span><span class="dl-arrow">→</span></div>
         </a>
 
-        <a class="dl-row" href="#REPLACE-BRAND-BOOK-URL">
+        <a class="dl-row" href="#REPLACE-BRAND-BOOK-URL" style="--tone-bg:var(--brand-orange-light)">
           <span class="dl-num">02</span>
           <span class="dl-name">Brand Book</span>
           <div class="dl-meta"><span class="tag muted">Pending</span><span class="dl-arrow">→</span></div>
         </a>
 
-        <a class="dl-row" href="https://drive.google.com/drive/folders/1i4Fd8Y7zsXWMTAioRrGVfkGUB7ql50wU?usp=drive_link" target="_blank" rel="noopener">
+        <a class="dl-row" href="https://drive.google.com/drive/folders/1i4Fd8Y7zsXWMTAioRrGVfkGUB7ql50wU?usp=drive_link" target="_blank" rel="noopener" style="--tone-bg:var(--brand-lavender-light)">
           <span class="dl-num">03</span>
           <span class="dl-name">Neighborly Templates</span>
           <div class="dl-meta"><span class="tag green">Live</span><span class="dl-arrow">→</span></div>
         </a>
 
-        <a class="dl-row" href="https://drive.google.com/drive/folders/19dfTyHtlgTvejIh5HZtrMzsvt0rQBdRd?usp=drive_link" target="_blank" rel="noopener">
+        <a class="dl-row" href="https://drive.google.com/drive/folders/19dfTyHtlgTvejIh5HZtrMzsvt0rQBdRd?usp=drive_link" target="_blank" rel="noopener" style="--tone-bg:var(--brand-yellow-light)">
           <span class="dl-num">04</span>
           <span class="dl-name">Menu Files</span>
           <div class="dl-meta"><span class="tag green">Live</span><span class="dl-arrow">→</span></div>
         </a>
 
-        <a class="dl-row" href="https://www.dropbox.com/scl/fo/s9qxbr2bqhr0x0kxu0mdg/ALiObuP72mEaQ4KY80-dKV8?rlkey=meypzjnbec1zcmi3ohle1ys8w&st=1nu52222&dl=0" target="_blank" rel="noopener">
+        <a class="dl-row" href="https://www.dropbox.com/scl/fo/s9qxbr2bqhr0x0kxu0mdg/ALiObuP72mEaQ4KY80-dKV8?rlkey=meypzjnbec1zcmi3ohle1ys8w&st=1nu52222&dl=0" target="_blank" rel="noopener" style="--tone-bg:var(--brand-blue-light)">
           <span class="dl-num">05</span>
           <span class="dl-name">Social Assets</span>
           <div class="dl-meta"><span class="tag green">Live</span><span class="dl-arrow">→</span></div>
         </a>
 
-        <a class="dl-row" href="https://drive.google.com/drive/folders/1azLQe7_DvJ0kMiidm87u_0k2ga3N9H5Z?usp=drive_link" target="_blank" rel="noopener">
+        <a class="dl-row" href="https://drive.google.com/drive/folders/1azLQe7_DvJ0kMiidm87u_0k2ga3N9H5Z?usp=drive_link" target="_blank" rel="noopener" style="--tone-bg:var(--brand-green-light)">
           <span class="dl-num">06</span>
           <span class="dl-name">Photography</span>
           <div class="dl-meta"><span class="tag green">Live</span><span class="dl-arrow">→</span></div>
