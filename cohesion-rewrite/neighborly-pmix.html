@@ -117,7 +117,8 @@
     <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
   </a>
   <div class="np-nav-right">
-    <button class="np-icon-btn" title="Refresh" aria-label="Refresh" onclick="loadPMIX()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg></button>
+    <span class="np-nav-page-tag">Menu Mix</span>
+    <button class="np-icon-btn" title="Settings" aria-label="Settings" onclick="void(0)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg></button>
     <a class="np-icon-btn" href="index.html" title="Back to home" aria-label="Back to home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></a>
   </div>
 </nav>
@@ -139,15 +140,11 @@
   <div class="np-page-header-row">
     <header class="np-page-header">
       <div class="np-page-eyebrow" id="dateLabel">Item performance · loading…</div>
-      <h1 class="np-page-title">Top Sellers</h1>
     </header>
     <div class="np-page-selectors">
-      <div class="np-toggle view-mode-toggle">
-        <a href="neighborly-dashboard.html">Weekly</a>
-        <a href="neighborly-dashboard.html#daily">Daily</a>
-        <a href="neighborly-dashboard.html#alltime">All time</a>
-        <button class="is-active" type="button">PMIX</button>
-        <a href="neighborly-social.html">Social</a>
+      <div class="np-toggle view-type-toggle">
+        <a href="neighborly-dashboard.html">Sales</a>
+        <button class="is-active" type="button">Menu mix</button>
       </div>
       <div class="np-toggle" id="locToggle" role="tablist" aria-label="Location">
         <button class="is-active" data-loc="total" role="tab">Both locations</button>
