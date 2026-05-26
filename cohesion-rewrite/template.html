@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Page Title — Neighborly</title>
+
+<link rel="manifest" href="/manifest.json">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta name="theme-color" content="#e87142">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png">
+
+<!-- ──────────────────────────────────────────────────────────
+     CANONICAL STYLESHEET + CHROME JS
+     Every page on the portal loads exactly these two.
+     ────────────────────────────────────────────────────────── -->
+<link rel="stylesheet" href="theme.css">
+<script src="chrome.js" defer></script>
+
+<!-- Page-specific overrides (if any) go here. Leave empty if not needed. -->
+<style>
+  /* Anything truly unique to this page lives here. Prefer using the
+     np-* components from theme.css before adding new rules. */
+</style>
+</head>
+<body>
+
+<!-- ──────────────────────────────────────────────────────────
+     NAV (canonical chrome — same shape on every page)
+     - Brand on the left opens the hub dropdown
+     - Tabs (optional) in the middle
+     - Right cluster: any icon buttons + back-to-home
+     ────────────────────────────────────────────────────────── -->
+<nav class="np-nav">
+  <a class="np-nav-brand" onclick="toggleHubNav(event)" aria-label="Open hub">
+    <img src="NeighborlyLogo.png" alt="Neighborly">
+    <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+  </a>
+
+  <!-- OPTIONAL: page tabs. Delete this block if the page has no sub-views. -->
+  <div class="np-tabs">
+    <button class="np-tab is-active">Tab one</button>
+    <button class="np-tab">Tab two</button>
+    <button class="np-tab">Tab three</button>
+  </div>
+
+  <div class="np-nav-right">
+    <a class="np-icon-btn" href="index.html" title="Back to home" aria-label="Back to home">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+    </a>
+  </div>
+</nav>
+
+<!-- ──────────────────────────────────────────────────────────
+     HUB DROPDOWN — opens from the brand wordmark.
+     Mark the current page's card with class="np-hub-card is-active".
+     ────────────────────────────────────────────────────────── -->
+<div class="np-hub-overlay" aria-hidden="true"></div>
+<div class="np-hub" role="dialog" aria-label="Marketing Hub">
+  <div class="np-hub-label">Neighborly Marketing Hub</div>
+  <div class="np-hub-grid">
+    <a class="np-hub-card" href="neighborly-dashboard.html">
+      <div class="np-hub-card-ico" style="background:var(--brand-yellow-light)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--brand-yellow-deep)" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></div>
+      <div class="np-hub-card-title">Sales <span class="amp">&amp;</span> Performance</div>
+      <div class="np-hub-card-sub">Sales &amp; KPI tracker</div>
+    </a>
+    <a class="np-hub-card" href="neighborly-calendar.html">
+      <div class="np-hub-card-ico" style="background:var(--brand-green-light)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--brand-green-deep)" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+      <div class="np-hub-card-title">Marketing Calendar</div>
+      <div class="np-hub-card-sub">Campaigns &amp; scheduling</div>
+    </a>
+    <a class="np-hub-card" href="neighborly-assets.html">
+      <div class="np-hub-card-ico" style="background:var(--brand-tan-light)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--brand-tan-deep)" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 010 14.14M4.93 4.93a10 10 0 000 14.14M12 2v2M12 20v2M2 12h2M20 12h2"/></svg></div>
+      <div class="np-hub-card-title">Brand Guidelines</div>
+      <div class="np-hub-card-sub">Logos, fonts &amp; templates</div>
+    </a>
+    <a class="np-hub-card" href="neighborly-guests.html">
+      <div class="np-hub-card-ico" style="background:var(--brand-lavender-light)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--brand-lavender-deep)" stroke-width="2"><circle cx="9" cy="8" r="4"/><path d="M2 21a7 7 0 0 1 14 0"/><path d="M16 3.5a4 4 0 0 1 0 8M22 21a7 7 0 0 0-5-6.7"/></svg></div>
+      <div class="np-hub-card-title">Guest Intelligence</div>
+      <div class="np-hub-card-sub">Feedback &amp; experience trends</div>
+    </a>
+  </div>
+</div>
+
+<!-- ──────────────────────────────────────────────────────────
+     MAIN CONTENT
+     ────────────────────────────────────────────────────────── -->
+<main class="np-main">
+
+  <header class="np-page-header">
+    <div class="np-page-eyebrow">Page eyebrow · context line</div>
+    <h1 class="np-page-title">Page Title</h1>
+  </header>
+
+  <!-- Optional period / filter row -->
+  <div class="np-page-controls">
+    <button class="np-date-pill">Period selector</button>
+    <button class="np-pill is-active">Filter one</button>
+    <button class="np-pill">Filter two</button>
+  </div>
+
+  <!-- KPI grid (use np-kpi cards) -->
+  <div class="np-kpi-grid">
+    <div class="np-kpi">
+      <div class="np-kpi-label">Metric one</div>
+      <div class="np-kpi-value">—</div>
+      <div class="np-kpi-sub">vs last period</div>
+    </div>
+    <div class="np-kpi">
+      <div class="np-kpi-label">Metric two</div>
+      <div class="np-kpi-value">—</div>
+      <div class="np-kpi-sub">vs last period</div>
+    </div>
+    <div class="np-kpi">
+      <div class="np-kpi-label">Metric three</div>
+      <div class="np-kpi-value">—</div>
+      <div class="np-kpi-sub">vs last period</div>
+    </div>
+    <div class="np-kpi">
+      <div class="np-kpi-label">Metric four</div>
+      <div class="np-kpi-value">—</div>
+      <div class="np-kpi-sub">vs last period</div>
+    </div>
+  </div>
+
+  <!-- Section card -->
+  <section class="np-card">
+    <div class="np-card-title">Section title</div>
+    <div class="np-card-sub">A one-line description of what this card shows.</div>
+
+    <!-- Drop in chart, table, breakdown rows, etc. -->
+  </section>
+
+</main>
+
+<footer class="np-foot"><span class="track-trim">Neighbors Only Portal</span></footer>
+
+</body>
+</html>
