@@ -17,8 +17,8 @@ html{-webkit-text-size-adjust:100%;height:100%}
 body{font-family:'DM Sans',sans-serif;overscroll-behavior:none;height:100%;background:#F7F6F3}
 
 /* ── HUB NAV ─────────────────────────────────────────────────────────── */
-.hub-nav{position:fixed;top:50px;left:1.25rem;right:1.25rem;background:#fff;border:.5px solid rgba(0,0,0,.14);border-radius:16px;z-index:160;padding:1.25rem 1.5rem 1.5rem;transform:translateY(-10px);opacity:0;pointer-events:none;transition:opacity .18s ease,transform .18s ease;box-shadow:0 12px 40px rgba(0,0,0,.12)}
-.hub-nav.open{opacity:1;pointer-events:all;transform:translateY(0)}
+.hub-nav{position:fixed;top:50%;left:50%;transform:translate(-50%,calc(-50% - 6px));width:min(560px, calc(100vw - 32px));max-height:calc(100vh - 80px);overflow-y:auto;background:#fff;border:.5px solid rgba(0,0,0,.14);border-radius:16px;z-index:160;padding:1.25rem 1.5rem 1.5rem;opacity:0;pointer-events:none;transition:opacity .18s ease,transform .18s ease;box-shadow:0 12px 40px rgba(0,0,0,.12)}
+.hub-nav.open{opacity:1;pointer-events:all;transform:translate(-50%,-50%)}
 .hub-nav-label{font-size:10px;font-weight:600;color:#9E9C96;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.85rem}
 .hub-back-home{font-size:11px;font-weight:500;color:#6B6960;text-decoration:none;padding:4px 10px;border:.5px solid rgba(0,0,0,.14);border-radius:7px;background:#F0EEE9;letter-spacing:0;text-transform:none;transition:background .15s,color .15s;white-space:nowrap}
 .hub-back-home:hover{background:#FFFFFF;color:#1A1916}
@@ -77,7 +77,7 @@ body{font-family:'DM Sans',sans-serif;overscroll-behavior:none;height:100%;backg
     </a>
     <a class="np-hub-card" href="neighborly-dashboard.html">
       <div class="np-hub-card-ico" style="background:var(--brand-yellow-light)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--brand-yellow-deep)" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></div>
-      <div class="np-hub-card-title">Sales <span class="amp">&amp;</span> Performance</div>
+      <div class="np-hub-card-title">Sales &amp; Performance</div>
       <div class="np-hub-card-sub">Sales &amp; KPI tracker</div>
     </a>
     <a class="np-hub-card is-active" href="neighborly-calendar.html">

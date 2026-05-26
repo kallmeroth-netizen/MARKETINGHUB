@@ -98,7 +98,7 @@
   <div class="np-hub-label">Neighborly Marketing Hub</div>
   <div class="np-hub-grid">
     <a class="np-hub-card" href="index.html"><div class="np-hub-card-ico" style="background:var(--surface-2)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--text)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12l9-9 9 9"/><path d="M5 10v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V10"/></svg></div><div class="np-hub-card-title">Home</div><div class="np-hub-card-sub">Marketing Hub overview</div></a>
-    <a class="np-hub-card" href="neighborly-dashboard.html"><div class="np-hub-card-ico" style="background:var(--brand-yellow-light)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--brand-yellow-deep)" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></div><div class="np-hub-card-title">Sales <span class="amp">&amp;</span> Performance</div><div class="np-hub-card-sub">Sales &amp; KPI tracker</div></a>
+    <a class="np-hub-card" href="neighborly-dashboard.html"><div class="np-hub-card-ico" style="background:var(--brand-yellow-light)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--brand-yellow-deep)" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></div><div class="np-hub-card-title">Sales &amp; Performance</div><div class="np-hub-card-sub">Sales &amp; KPI tracker</div></a>
     <a class="np-hub-card" href="neighborly-calendar.html"><div class="np-hub-card-ico" style="background:var(--brand-green-light)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--brand-green-deep)" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div><div class="np-hub-card-title">Marketing Calendar</div><div class="np-hub-card-sub">Campaigns &amp; scheduling</div></a>
     <a class="np-hub-card" href="neighborly-assets.html"><div class="np-hub-card-ico" style="background:var(--brand-tan-light)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--brand-tan-deep)" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 010 14.14M4.93 4.93a10 10 0 000 14.14M12 2v2M12 20v2M2 12h2M20 12h2"/></svg></div><div class="np-hub-card-title">Brand Guidelines</div><div class="np-hub-card-sub">Logos, fonts &amp; templates</div></a>
     <a class="np-hub-card is-active" href="neighborly-social.html"><div class="np-hub-card-ico" style="background:var(--brand-blue-light)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--brand-blue-deep)" stroke-width="2"><path d="M3 12h4l3-9 4 18 3-9h4"/></svg></div><div class="np-hub-card-title">Social</div><div class="np-hub-card-sub">Reach &amp; engagement</div></a>
@@ -108,26 +108,44 @@
 
 <main class="np-main">
 
-  <header class="np-page-header">
-    <div class="np-page-eyebrow" id="dateLabel">Loading…</div>
-  </header>
+  <div class="np-page-header-row">
+    <header class="np-page-header">
+      <div class="np-page-eyebrow" id="dateLabel">Loading…</div>
+    </header>
+    <div class="np-page-selectors">
+      <button class="np-date-pill" id="dateRangeBtn" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 11h18"/></svg>
+        <span id="dateRangeLabel">Last 28 days</span>
+        <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Date range popover -->
+  <div id="dateRangeMenu" style="display:none; position:absolute; z-index:80; background:#fff; border:1px solid var(--line); border-radius:12px; box-shadow:var(--shadow-md); padding:6px; min-width:160px;">
+    <button class="dr-opt" data-range="7"  style="display:block; width:100%; text-align:left; padding:8px 12px; border:none; background:none; border-radius:8px; font-size:13px; cursor:pointer;">Last 7 days</button>
+    <button class="dr-opt" data-range="28" style="display:block; width:100%; text-align:left; padding:8px 12px; border:none; background:none; border-radius:8px; font-size:13px; cursor:pointer; background:var(--surface-2);">Last 28 days</button>
+    <button class="dr-opt" data-range="90" style="display:block; width:100%; text-align:left; padding:8px 12px; border:none; background:none; border-radius:8px; font-size:13px; cursor:pointer;">Last 90 days</button>
+    <button class="dr-opt" data-range="365" style="display:block; width:100%; text-align:left; padding:8px 12px; border:none; background:none; border-radius:8px; font-size:13px; cursor:pointer;">Last year</button>
+    <button class="dr-opt" data-range="0"   style="display:block; width:100%; text-align:left; padding:8px 12px; border:none; background:none; border-radius:8px; font-size:13px; cursor:pointer;">All time</button>
+  </div>
 
   <!-- KPI HERO -->
-  <div class="soc-kpis">
+  <div class="soc-kpis tab-pane" data-pane="overview">
     <div class="np-kpi">
-      <div class="np-kpi-label">Views (28d)</div>
+      <div class="np-kpi-label" id="kpiViewsLabel">Views (28d)</div>
       <div class="np-kpi-value" id="kpiViews">—</div>
-      <div class="np-kpi-sub"><span id="kpiViewsDelta" class="kpi-delta flat">—</span> &nbsp;vs prior 28d</div>
+      <div class="np-kpi-sub"><span id="kpiViewsDelta" class="kpi-delta flat">—</span> <span class="kpi-period">&nbsp;vs prior 28d</span></div>
     </div>
     <div class="np-kpi">
-      <div class="np-kpi-label">Reach (28d)</div>
+      <div class="np-kpi-label" id="kpiReachLabel">Reach (28d)</div>
       <div class="np-kpi-value" id="kpiReach">—</div>
-      <div class="np-kpi-sub"><span id="kpiReachDelta" class="kpi-delta flat">—</span> &nbsp;vs prior 28d</div>
+      <div class="np-kpi-sub"><span id="kpiReachDelta" class="kpi-delta flat">—</span> <span class="kpi-period">&nbsp;vs prior 28d</span></div>
     </div>
     <div class="np-kpi">
-      <div class="np-kpi-label">New follows (28d)</div>
+      <div class="np-kpi-label" id="kpiFollowsLabel">New follows (28d)</div>
       <div class="np-kpi-value" id="kpiFollows">—</div>
-      <div class="np-kpi-sub"><span id="kpiFollowsDelta" class="kpi-delta flat">—</span> &nbsp;vs prior 28d</div>
+      <div class="np-kpi-sub"><span id="kpiFollowsDelta" class="kpi-delta flat">—</span> <span class="kpi-period">&nbsp;vs prior 28d</span></div>
     </div>
     <div class="np-kpi">
       <div class="np-kpi-label">Engagement rate</div>
@@ -137,7 +155,7 @@
   </div>
 
   <!-- TREND CHART -->
-  <section class="np-card trend-card">
+  <section class="np-card trend-card tab-pane" data-pane="overview">
     <div class="np-card-title">Performance over time</div>
     <div class="np-card-sub">Daily totals · toggle metrics and time window</div>
     <div class="trend-toolbar">
@@ -161,14 +179,14 @@
   </section>
 
   <!-- INSIGHTS (growth marketer takeaways) -->
-  <section class="np-card" style="margin-bottom:var(--s-4)">
+  <section class="np-card tab-pane" data-pane="overview" style="margin-bottom:var(--s-4)">
     <div class="np-card-title">Growth insights</div>
     <div class="np-card-sub">Auto-computed takeaways from the last 28-day window</div>
     <div class="insights" id="insights"></div>
   </section>
 
   <!-- AUDIENCE -->
-  <div class="aud-grid">
+  <div class="aud-grid tab-pane" data-pane="audience">
     <section class="np-card">
       <div class="np-card-title">Top cities</div>
       <div class="np-card-sub">Share of audience</div>
@@ -191,7 +209,7 @@
   </div>
 
   <!-- CONTENT FORMAT MIX -->
-  <section class="np-card format-card">
+  <section class="np-card format-card tab-pane" data-pane="content">
     <div class="format-donut"><canvas id="formatDonut"></canvas>
       <div class="format-center">
         <span class="format-center-num" id="formatTotal">—</span>
@@ -473,6 +491,121 @@
       renderTrend();
     });
   });
+
+  /* ============ Tab switching ============ */
+  function showPane(pane) {
+    document.querySelectorAll('.np-tab').forEach(t => t.classList.toggle('is-active', t.dataset.tab === pane));
+    document.querySelectorAll('.tab-pane').forEach(el => {
+      el.style.display = (el.dataset.pane === pane) ? '' : 'none';
+    });
+    // Charts need a redraw after becoming visible
+    if (pane === 'overview' && DATA) renderTrend();
+    if (pane === 'content'  && DATA) renderFormats();
+  }
+  document.querySelectorAll('.np-tab').forEach(t => {
+    t.style.cursor = 'pointer';
+    t.addEventListener('click', e => { e.preventDefault(); showPane(t.dataset.tab); });
+  });
+
+  /* ============ Global date range picker ============ */
+  const RANGE_LABEL = { 7: 'Last 7 days', 28: 'Last 28 days', 90: 'Last 90 days', 365: 'Last year', 0: 'All time' };
+  let globalRange = 28;
+
+  function applyGlobalRange(range) {
+    globalRange = range;
+    document.getElementById('dateRangeLabel').textContent = RANGE_LABEL[range];
+    document.querySelectorAll('.dr-opt').forEach(b => {
+      b.style.background = parseInt(b.dataset.range) === range ? 'var(--surface-2)' : 'none';
+    });
+    // Sync trend chart to the same range
+    currentRange = range;
+    document.querySelectorAll('#rangeToggle button').forEach(x => x.classList.toggle('is-active', parseInt(x.dataset.range) === range));
+    // Re-render KPIs against the new range
+    if (DATA) {
+      renderKpisForRange(range);
+      renderTrend();
+    }
+  }
+
+  function renderKpisForRange(range) {
+    if (!DATA) return;
+    const s = DATA.summary;
+    const periodTxt = range === 0 ? 'all time' : `last ${range} days`;
+    document.querySelectorAll('.kpi-period').forEach(el => el.textContent = ' vs prior period');
+
+    // Compute totals from the trend series for arbitrary ranges (since
+    // the summary only carries 28d + all-time precomputed totals).
+    function rangeTotal(metric) {
+      const series = (DATA.trends && DATA.trends[metric]) || [];
+      const slice = range > 0 ? series.slice(-range) : series;
+      return slice.reduce((a, b) => a + (b.value || 0), 0);
+    }
+    function rangePrior(metric) {
+      const series = (DATA.trends && DATA.trends[metric]) || [];
+      if (range === 0) return null;
+      const prior = series.slice(-range * 2, -range);
+      return prior.reduce((a, b) => a + (b.value || 0), 0);
+    }
+    function delta(curr, prior) {
+      if (!prior || prior === 0) return null;
+      return ((curr - prior) / prior) * 100;
+    }
+
+    const views = rangeTotal('views');
+    const reach = rangeTotal('reach');
+    const follows = rangeTotal('follows');
+    const inter = rangeTotal('interactions');
+
+    document.getElementById('kpiViewsLabel').textContent   = `Views (${range === 0 ? 'all time' : range + 'd'})`;
+    document.getElementById('kpiReachLabel').textContent   = `Reach (${range === 0 ? 'all time' : range + 'd'})`;
+    document.getElementById('kpiFollowsLabel').textContent = `New follows (${range === 0 ? 'all time' : range + 'd'})`;
+
+    document.getElementById('kpiViews').textContent   = fmtN(views);
+    document.getElementById('kpiReach').textContent   = fmtN(reach);
+    document.getElementById('kpiFollows').textContent = fmtN(follows);
+    document.getElementById('kpiEng').textContent     = reach ? fmt2((inter / reach) * 100) : '—';
+
+    if (range === 0) {
+      ['kpiViewsDelta','kpiReachDelta','kpiFollowsDelta'].forEach(id => {
+        const el = document.getElementById(id);
+        el.textContent = '—'; el.className = 'kpi-delta flat';
+      });
+      document.querySelectorAll('.kpi-period').forEach(el => el.textContent = '');
+    } else {
+      setDelta(document.getElementById('kpiViewsDelta'),   delta(views,   rangePrior('views')));
+      setDelta(document.getElementById('kpiReachDelta'),   delta(reach,   rangePrior('reach')));
+      setDelta(document.getElementById('kpiFollowsDelta'), delta(follows, rangePrior('follows')));
+    }
+  }
+
+  const dateBtn  = document.getElementById('dateRangeBtn');
+  const dateMenu = document.getElementById('dateRangeMenu');
+  dateBtn.addEventListener('click', e => {
+    e.stopPropagation();
+    const r = dateBtn.getBoundingClientRect();
+    dateMenu.style.top  = (window.scrollY + r.bottom + 6) + 'px';
+    dateMenu.style.left = (window.scrollX + r.right - 180) + 'px';
+    dateMenu.style.display = dateMenu.style.display === 'block' ? 'none' : 'block';
+  });
+  document.addEventListener('click', e => {
+    if (!dateMenu.contains(e.target) && e.target !== dateBtn) dateMenu.style.display = 'none';
+  });
+  document.querySelectorAll('.dr-opt').forEach(b => {
+    b.addEventListener('click', () => {
+      applyGlobalRange(parseInt(b.dataset.range));
+      dateMenu.style.display = 'none';
+    });
+  });
+
+  /* Patch render() so KPIs use the global range */
+  const _origRender = render;
+  render = function() {
+    _origRender();
+    if (DATA) renderKpisForRange(globalRange);
+  };
+
+  // Default pane = overview
+  showPane('overview');
 
   loadSocial();
 </script>
