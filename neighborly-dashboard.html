@@ -287,11 +287,12 @@
 </div>
 
 <!-- NAV (canonical chrome from theme.css) -->
+<!-- Standalone dashboard view: brand mark is non-interactive so users can't
+     navigate out to other portals via the hub dropdown. -->
 <nav class="np-nav">
-  <a class="np-nav-brand nav-brand" id="brandMark" onclick="toggleHubNav(event)" aria-label="Open hub">
+  <span class="np-nav-brand nav-brand" id="brandMark" data-no-hub="1" style="cursor:default;" aria-label="Neighborly">
     <img class="nav-logo" src="NeighborlyLogo.png" alt="Neighborly">
-    <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
-  </a>
+  </span>
 
   <div class="np-tabs nav-tabs">
     <a class="np-tab nav-tab is-active active" onclick="showPage('dashboard', this)">Weekly Performance</a>
@@ -300,14 +301,11 @@
   </div>
 
   <div class="np-nav-right nav-right">
-    <span class="np-nav-page-tag">Sales &amp; Performance</span>
+    <span class="np-nav-page-tag" id="navDateTag">—</span>
     <span class="daily-last-updated" id="dailyLastUpdated"></span>
     <button class="np-icon-btn icon-btn" id="settingsBtn" onclick="showPage('data', null)" title="Data &amp; settings" aria-label="Data and settings">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
     </button>
-    <a class="np-icon-btn" href="index.html" title="Back to home" aria-label="Back to home">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-    </a>
     <input type="file" id="csvInput" accept=".csv" onchange="loadCSV(this)" style="display:none">
   </div>
 </nav>
@@ -1403,6 +1401,25 @@ function toggleHubNav(e) {
 function closeHubNav() {
   document.getElementById('hubNav').classList.remove('open');
   document.getElementById('hubOverlay').classList.remove('open');
+}
+
+/* Standalone dashboard: paint today's date into the nav slot
+   (replaces the page-tag now that the hub dropdown is disabled).
+   Wired to DOMContentLoaded so it doesn't depend on later scripts
+   loading successfully (e.g. Chart.js). */
+function _npPaintNavDate() {
+  const el = document.getElementById('navDateTag');
+  if (!el) return;
+  const d  = new Date();
+  const wk = d.toLocaleDateString('en-US', { weekday: 'short' });
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+  el.textContent = `${wk} ${mm}/${dd}`;
+}
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', _npPaintNavDate);
+} else {
+  _npPaintNavDate();
 }
 
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeHubNav(); });

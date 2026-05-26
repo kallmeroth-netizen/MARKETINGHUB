@@ -192,7 +192,7 @@ a { color: inherit; text-decoration: none; }
   transition: background var(--t-base) var(--easing);
 }
 .np-nav-brand:hover { background: transparent; }
-.np-nav-brand img { height: 26px; width: auto; display: block; }
+.np-nav-brand img { height: 28px; width: auto; display: block; }
 .np-nav-brand .chev {
   display: none;
   width: 10px; height: 10px; color: var(--text-3);
@@ -582,7 +582,7 @@ a { color: inherit; text-decoration: none; }
     height: auto; min-height: auto;
   }
   .np-nav-brand     { grid-column: 1 / 2; grid-row: 1 / 2; justify-self: start; }
-  .np-nav-brand img { height: 22px; }
+  .np-nav-brand img { height: 28px; }
   .np-nav-right     { grid-column: 2 / 4; grid-row: 1 / 2; justify-self: end; }
 
   .np-tabs {
@@ -829,7 +829,7 @@ section.row    { padding: var(--s-7) 0; gap: var(--s-6); }
   display: inline-flex; align-items: center; gap: 6px;
   padding: 6px 8px; border-radius: var(--r-md); cursor: pointer;
 }
-.nav-logo-wrap img { height: 26px !important; width: auto !important; }
+.nav-logo-wrap img { height: 28px !important; width: auto !important; }
 
 /* ============================================================
    INDEX (entry hub) — passcode capsule + hub tile aliases
@@ -872,7 +872,7 @@ section.row    { padding: var(--s-7) 0; gap: var(--s-6); }
   .np-nav-brand .nav-logo,
   .nav-logo-wrap img,
   #root nav img {
-    height: 14px !important; width: auto !important; max-width: 100px !important;
+    height: 18px !important; width: auto !important; max-width: 130px !important;
     object-fit: contain !important;
   }
   .np-nav-brand .chev { display: none !important; }
@@ -1066,7 +1066,7 @@ section.row    { padding: var(--s-7) 0; gap: var(--s-6); }
   .np-nav-brand img,
   .np-nav-brand .nav-logo,
   .nav-logo-wrap img,
-  #root nav img { height: 12px !important; max-width: 86px !important; }
+  #root nav img { height: 16px !important; max-width: 108px !important; }
   .np-nav-page-tag { font-size: 9px !important; max-width: 110px; }
   .np-kpi-value, .kpi-value { font-size: 16px !important; }
 }
