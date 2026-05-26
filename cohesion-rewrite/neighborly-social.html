@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Social Metrics — Neighborly</title>
+<title>Social — Neighborly</title>
 
 <link rel="manifest" href="/manifest.json">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -14,216 +14,192 @@
 
 <link rel="stylesheet" href="theme.css">
 <script src="chrome.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 
 <style>
-  /* Per-platform color dot */
-  .platform-dot { width:10px; height:10px; border-radius:50%; display:inline-block; flex-shrink:0; }
-  .platform-dot.instagram { background:#e87142; }
-  .platform-dot.tiktok    { background:#1f2328; }
-  .platform-dot.facebook  { background:#6280bd; }
-  .platform-dot.youtube   { background:#a32d2d; }
-  .platform-dot.threads   { background:#7bbd91; }
+  /* KPI grid */
+  .soc-kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--s-3); margin-bottom: var(--s-5); }
+  @media (max-width: 900px) { .soc-kpis { grid-template-columns: 1fr 1fr; } }
+  .kpi-delta { display: inline-flex; align-items: center; gap: 4px; font-family: var(--f-mono); font-weight: 600; font-size: var(--t-caption-sm); }
+  .kpi-delta.pos { color: var(--brand-green-deep); }
+  .kpi-delta.neg { color: var(--brand-orange-deep); }
+  .kpi-delta.flat { color: var(--text-3); }
 
-  /* Stat-row inside breakdown cards */
-  .mix-bar-wrap   { display:flex; flex-direction:column; gap:4px; padding:8px 0; }
-  .mix-bar-label  { display:flex; justify-content:space-between; align-items:center; gap:10px; font-size:13px; }
-  .mix-bar-label .mix-name { display:flex; align-items:center; gap:8px; }
-  .mix-detail     { font-family:var(--f-mono); font-size:12px; color:var(--text-3); }
-  .mix-bar-track  { height:8px; background:var(--surface-2); border-radius:var(--r-pill); overflow:hidden; }
-  .mix-bar-fill   { height:100%; border-radius:var(--r-pill); transition:width .4s var(--easing); }
+  /* Trend chart */
+  .trend-card { padding: var(--s-5); margin-bottom: var(--s-4); }
+  .trend-toolbar { display: flex; flex-wrap: wrap; gap: 6px; margin-top: var(--s-3); margin-bottom: var(--s-4); }
+  .trend-toolbar .np-toggle button { padding: 5px 11px; font-size: var(--t-caption); }
+  .trend-canvas { height: 320px; }
+
+  /* Audience */
+  .aud-grid { display: grid; grid-template-columns: 1.1fr 1fr 1fr; gap: var(--s-3); margin-bottom: var(--s-4); }
+  @media (max-width: 900px) { .aud-grid { grid-template-columns: 1fr; } }
+
+  .geo-row { display: grid; grid-template-columns: minmax(0, 1fr) 56px; gap: 10px; align-items: center; padding: 6px 0; }
+  .geo-name { font-size: var(--t-body-sm); color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .geo-name .geo-bar { height: 5px; border-radius: var(--r-pill); background: var(--surface-2); margin-top: 5px; overflow: hidden; }
+  .geo-name .geo-fill { height: 100%; border-radius: var(--r-pill); transition: width .5s var(--easing); }
+  .geo-pct { font-family: var(--f-mono); font-size: var(--t-caption); color: var(--text-3); text-align: right; }
+
+  /* Age & gender pyramid */
+  .ag-row { display: grid; grid-template-columns: 1fr 56px 1fr; gap: 8px; align-items: center; padding: 6px 0; }
+  .ag-bucket { font-family: var(--f-mono); font-size: var(--t-caption); color: var(--text-3); text-align: center; }
+  .ag-bar { height: 14px; border-radius: var(--r-pill); background: var(--surface-2); display: flex; overflow: hidden; }
+  .ag-bar.w { justify-content: flex-end; }
+  .ag-fill { height: 100%; transition: width .5s var(--easing); }
+  .ag-fill.w { background: var(--brand-orange); border-radius: var(--r-pill); }
+  .ag-fill.m { background: var(--brand-blue);   border-radius: var(--r-pill); }
+  .ag-legend { display: flex; gap: 16px; font-family: var(--f-eyebrow); font-weight: 600; font-size: var(--t-eyebrow); letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-3); margin-bottom: 6px; }
+  .ag-legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .ag-legend .swatch { width: 10px; height: 10px; border-radius: 50%; }
+
+  /* Insight callouts */
+  .insights { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: var(--s-3); margin-top: var(--s-3); }
+  .insight {
+    background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg);
+    padding: var(--s-4); position: relative;
+  }
+  .insight-eyebrow { font-family: var(--f-eyebrow); font-weight: 600; font-size: var(--t-eyebrow); letter-spacing: 0.18em; text-transform: uppercase; color: var(--text-3); margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+  .insight-eyebrow .dot { width: 8px; height: 8px; border-radius: 50%; }
+  .insight-title { font-size: var(--t-card-title); font-weight: 600; color: var(--text); margin-bottom: 6px; line-height: 1.3; }
+  .insight-copy { font-size: var(--t-body-sm); color: var(--text-2); line-height: 1.5; }
+
+  /* Format donut */
+  .format-card { padding: var(--s-5); display: flex; align-items: center; gap: var(--s-5); }
+  .format-donut { width: 180px; height: 180px; position: relative; flex-shrink: 0; }
+  .format-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  .format-center-num { font-family: var(--f-mono); font-size: 22px; font-weight: 500; color: var(--ink); }
+  .format-center-label { font-family: var(--f-eyebrow); font-weight: 600; font-size: 9.5px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-3); }
+  .format-rows { flex: 1; }
+  @media (max-width: 600px) { .format-card { flex-direction: column; } }
 </style>
 </head>
 <body>
 
-<!-- ============================================================
-     NAV
-     ============================================================ -->
 <nav class="np-nav">
   <a class="np-nav-brand" onclick="toggleHubNav(event)" aria-label="Open hub">
     <img src="NeighborlyLogo.png" alt="Neighborly">
     <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
   </a>
-
   <div class="np-tabs">
-    <button class="np-tab is-active" data-tab="weekly">Weekly</button>
-    <button class="np-tab" data-tab="monthly">Monthly</button>
-    <button class="np-tab" data-tab="alltime">All time</button>
+    <a class="np-tab is-active" data-tab="overview">Overview</a>
+    <a class="np-tab" data-tab="audience">Audience</a>
+    <a class="np-tab" data-tab="content">Content</a>
   </div>
-
   <div class="np-nav-right">
-    <button class="np-icon-btn" title="Refresh" aria-label="Refresh"
-            onclick="alert('TODO: wire to your social data source')">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
-    </button>
-    <a class="np-icon-btn" href="index.html" title="Back to home" aria-label="Back to home">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-    </a>
+    <button class="np-icon-btn" title="Refresh" onclick="loadSocial()" aria-label="Refresh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg></button>
+    <a class="np-icon-btn" href="index.html" title="Back to home" aria-label="Back to home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></a>
   </div>
 </nav>
 
-<!-- ============================================================
-     HUB DROPDOWN — Social is the active card
-     ============================================================ -->
 <div class="np-hub-overlay" aria-hidden="true"></div>
 <div class="np-hub" role="dialog" aria-label="Marketing Hub">
   <div class="np-hub-label">Neighborly Marketing Hub</div>
   <div class="np-hub-grid">
-    <a class="np-hub-card" href="neighborly-dashboard.html">
-      <div class="np-hub-card-ico" style="background:var(--brand-yellow-light)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--brand-yellow-deep)" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></div>
-      <div class="np-hub-card-title">Sales <span class="amp">&amp;</span> Performance</div>
-      <div class="np-hub-card-sub">Sales &amp; KPI tracker</div>
-    </a>
-    <a class="np-hub-card" href="neighborly-calendar.html">
-      <div class="np-hub-card-ico" style="background:var(--brand-green-light)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--brand-green-deep)" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
-      <div class="np-hub-card-title">Marketing Calendar</div>
-      <div class="np-hub-card-sub">Campaigns &amp; scheduling</div>
-    </a>
-    <a class="np-hub-card" href="neighborly-assets.html">
-      <div class="np-hub-card-ico" style="background:var(--brand-tan-light)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--brand-tan-deep)" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 010 14.14M4.93 4.93a10 10 0 000 14.14M12 2v2M12 20v2M2 12h2M20 12h2"/></svg></div>
-      <div class="np-hub-card-title">Brand Guidelines</div>
-      <div class="np-hub-card-sub">Logos, fonts &amp; templates</div>
-    </a>
-    <a class="np-hub-card is-active" href="neighborly-social.html">
-      <div class="np-hub-card-ico" style="background:var(--brand-blue-light)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--brand-blue-deep)" stroke-width="2"><path d="M3 12h4l3-9 4 18 3-9h4"/></svg></div>
-      <div class="np-hub-card-title">Social Metrics</div>
-      <div class="np-hub-card-sub">Reach &amp; engagement</div>
-    </a>
-    <a class="np-hub-card" href="neighborly-guests.html">
-      <div class="np-hub-card-ico" style="background:var(--brand-lavender-light)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--brand-lavender-deep)" stroke-width="2"><circle cx="9" cy="8" r="4"/><path d="M2 21a7 7 0 0 1 14 0"/><path d="M16 3.5a4 4 0 0 1 0 8M22 21a7 7 0 0 0-5-6.7"/></svg></div>
-      <div class="np-hub-card-title">Guest Intelligence</div>
-      <div class="np-hub-card-sub">Feedback &amp; experience trends</div>
-    </a>
+    <a class="np-hub-card" href="neighborly-dashboard.html"><div class="np-hub-card-ico" style="background:var(--brand-yellow-light)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--brand-yellow-deep)" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></div><div class="np-hub-card-title">Sales <span class="amp">&amp;</span> Performance</div><div class="np-hub-card-sub">Sales &amp; KPI tracker</div></a>
+    <a class="np-hub-card" href="neighborly-calendar.html"><div class="np-hub-card-ico" style="background:var(--brand-green-light)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--brand-green-deep)" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div><div class="np-hub-card-title">Marketing Calendar</div><div class="np-hub-card-sub">Campaigns &amp; scheduling</div></a>
+    <a class="np-hub-card" href="neighborly-assets.html"><div class="np-hub-card-ico" style="background:var(--brand-tan-light)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--brand-tan-deep)" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 010 14.14M4.93 4.93a10 10 0 000 14.14M12 2v2M12 20v2M2 12h2M20 12h2"/></svg></div><div class="np-hub-card-title">Brand Guidelines</div><div class="np-hub-card-sub">Logos, fonts &amp; templates</div></a>
+    <a class="np-hub-card is-active" href="neighborly-social.html"><div class="np-hub-card-ico" style="background:var(--brand-blue-light)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--brand-blue-deep)" stroke-width="2"><path d="M3 12h4l3-9 4 18 3-9h4"/></svg></div><div class="np-hub-card-title">Social</div><div class="np-hub-card-sub">Reach &amp; engagement</div></a>
+    <a class="np-hub-card" href="neighborly-guests.html"><div class="np-hub-card-ico" style="background:var(--brand-lavender-light)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--brand-lavender-deep)" stroke-width="2"><circle cx="9" cy="8" r="4"/><path d="M2 21a7 7 0 0 1 14 0"/><path d="M16 3.5a4 4 0 0 1 0 8M22 21a7 7 0 0 0-5-6.7"/></svg></div><div class="np-hub-card-title">Guest Intelligence</div><div class="np-hub-card-sub">Feedback &amp; experience trends</div></a>
   </div>
 </div>
 
-<!-- ============================================================
-     MAIN
-     ============================================================ -->
 <main class="np-main">
 
   <header class="np-page-header">
-    <div class="np-page-eyebrow">Neighborly social media overview</div>
-    <h1 class="np-page-title">Social Metrics</h1>
+    <div class="np-page-eyebrow" id="dateLabel">Loading…</div>
+    <h1 class="np-page-title">Social</h1>
   </header>
 
-  <div class="np-page-controls">
-    <button class="np-date-pill">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/></svg>
-      Week of —
-    </button>
-    <button class="np-pill is-active">This week</button>
-    <button class="np-pill">vs Last week</button>
-    <button class="np-pill">vs T4W avg</button>
-  </div>
-
-  <!-- KPI grid — placeholders, to be filled with real numbers -->
-  <div class="np-kpi-grid">
-    <div class="np-kpi" data-kpi="total-followers">
-      <div class="np-kpi-label">Total Followers</div>
-      <div class="np-kpi-value">—</div>
-      <div class="np-kpi-sub">across all platforms</div>
+  <!-- KPI HERO -->
+  <div class="soc-kpis">
+    <div class="np-kpi">
+      <div class="np-kpi-label">Views (28d)</div>
+      <div class="np-kpi-value" id="kpiViews">—</div>
+      <div class="np-kpi-sub"><span id="kpiViewsDelta" class="kpi-delta flat">—</span> &nbsp;vs prior 28d</div>
     </div>
-    <div class="np-kpi" data-kpi="engagement-rate">
-      <div class="np-kpi-label">Engagement Rate</div>
-      <div class="np-kpi-value">—%</div>
-      <div class="np-kpi-sub">vs last week</div>
+    <div class="np-kpi">
+      <div class="np-kpi-label">Reach (28d)</div>
+      <div class="np-kpi-value" id="kpiReach">—</div>
+      <div class="np-kpi-sub"><span id="kpiReachDelta" class="kpi-delta flat">—</span> &nbsp;vs prior 28d</div>
     </div>
-    <div class="np-kpi" data-kpi="total-reach">
-      <div class="np-kpi-label">Total Reach</div>
-      <div class="np-kpi-value">—</div>
-      <div class="np-kpi-sub">vs last week</div>
+    <div class="np-kpi">
+      <div class="np-kpi-label">New follows (28d)</div>
+      <div class="np-kpi-value" id="kpiFollows">—</div>
+      <div class="np-kpi-sub"><span id="kpiFollowsDelta" class="kpi-delta flat">—</span> &nbsp;vs prior 28d</div>
     </div>
-    <div class="np-kpi" data-kpi="posts-week">
-      <div class="np-kpi-label">Posts This Week</div>
-      <div class="np-kpi-value">—</div>
-      <div class="np-kpi-sub">vs T4W avg</div>
+    <div class="np-kpi">
+      <div class="np-kpi-label">Engagement rate</div>
+      <div class="np-kpi-value" id="kpiEng">—</div>
+      <div class="np-kpi-sub">interactions ÷ reach</div>
     </div>
   </div>
 
-  <!-- Followers by platform -->
+  <!-- TREND CHART -->
+  <section class="np-card trend-card">
+    <div class="np-card-title">Performance over time</div>
+    <div class="np-card-sub">Daily totals · toggle metrics and time window</div>
+    <div class="trend-toolbar">
+      <div class="np-toggle" id="metricToggle">
+        <button class="is-active" data-metric="views">Views</button>
+        <button data-metric="reach">Reach</button>
+        <button data-metric="interactions">Interactions</button>
+        <button data-metric="clicks">Link clicks</button>
+        <button data-metric="follows">Follows</button>
+        <button data-metric="visits">Visits</button>
+      </div>
+      <div class="np-toggle" id="rangeToggle" style="margin-left:auto">
+        <button data-range="7">7d</button>
+        <button class="is-active" data-range="28">28d</button>
+        <button data-range="90">90d</button>
+        <button data-range="365">1y</button>
+        <button data-range="0">All</button>
+      </div>
+    </div>
+    <div class="trend-canvas"><canvas id="trendChart"></canvas></div>
+  </section>
+
+  <!-- INSIGHTS (growth marketer takeaways) -->
   <section class="np-card" style="margin-bottom:var(--s-4)">
-    <div class="np-card-title">Followers by platform</div>
-    <div class="np-card-sub">Current totals · click a platform for breakdown</div>
+    <div class="np-card-title">Growth insights</div>
+    <div class="np-card-sub">Auto-computed takeaways from the last 28-day window</div>
+    <div class="insights" id="insights"></div>
+  </section>
 
-    <div id="platformBars">
-      <!-- TODO replace these placeholders once data is provided -->
-      <div class="mix-bar-wrap" title="Instagram: — followers"><div class="mix-bar-label"><span class="mix-name"><span class="platform-dot instagram"></span>Instagram</span><span class="mix-detail">— · —%</span></div><div class="mix-bar-track"><div class="mix-bar-fill" style="width:0%;background:var(--brand-orange)"></div></div></div>
-      <div class="mix-bar-wrap" title="TikTok: — followers"><div class="mix-bar-label"><span class="mix-name"><span class="platform-dot tiktok"></span>TikTok</span><span class="mix-detail">— · —%</span></div><div class="mix-bar-track"><div class="mix-bar-fill" style="width:0%;background:var(--ink)"></div></div></div>
-      <div class="mix-bar-wrap" title="Facebook: — followers"><div class="mix-bar-label"><span class="mix-name"><span class="platform-dot facebook"></span>Facebook</span><span class="mix-detail">— · —%</span></div><div class="mix-bar-track"><div class="mix-bar-fill" style="width:0%;background:var(--brand-blue)"></div></div></div>
-      <div class="mix-bar-wrap" title="YouTube: — followers"><div class="mix-bar-label"><span class="mix-name"><span class="platform-dot youtube"></span>YouTube</span><span class="mix-detail">— · —%</span></div><div class="mix-bar-track"><div class="mix-bar-fill" style="width:0%;background:#a32d2d"></div></div></div>
-      <div class="mix-bar-wrap" title="Threads: — followers"><div class="mix-bar-label"><span class="mix-name"><span class="platform-dot threads"></span>Threads</span><span class="mix-detail">— · —%</span></div><div class="mix-bar-track"><div class="mix-bar-fill" style="width:0%;background:var(--brand-green)"></div></div></div>
+  <!-- AUDIENCE -->
+  <div class="aud-grid">
+    <section class="np-card">
+      <div class="np-card-title">Top cities</div>
+      <div class="np-card-sub">Share of audience</div>
+      <div id="citiesList" style="margin-top:var(--s-3)"></div>
+    </section>
+    <section class="np-card">
+      <div class="np-card-title">Age &amp; gender</div>
+      <div class="np-card-sub">Audience composition (%)</div>
+      <div class="ag-legend" style="margin-top:var(--s-3)">
+        <span><span class="swatch" style="background:var(--brand-orange)"></span>Women</span>
+        <span><span class="swatch" style="background:var(--brand-blue)"></span>Men</span>
+      </div>
+      <div id="ageList"></div>
+    </section>
+    <section class="np-card">
+      <div class="np-card-title">Top countries</div>
+      <div class="np-card-sub">Reach share</div>
+      <div id="countriesList" style="margin-top:var(--s-3)"></div>
+    </section>
+  </div>
+
+  <!-- CONTENT FORMAT MIX -->
+  <section class="np-card format-card">
+    <div class="format-donut"><canvas id="formatDonut"></canvas>
+      <div class="format-center">
+        <span class="format-center-num" id="formatTotal">—</span>
+        <span class="format-center-label">Pieces published</span>
+      </div>
     </div>
-  </section>
-
-  <!-- All metrics table -->
-  <section class="np-card">
-    <div class="np-card-title">All metrics</div>
-    <div class="np-card-sub">Per-platform breakdown · click a category to expand</div>
-
-    <table class="metrics-table" style="margin-top:12px">
-      <thead>
-        <tr><th>Metric</th><th>T4W avg</th><th>Last week</th><th>This week</th></tr>
-      </thead>
-      <tbody>
-
-        <!-- INSTAGRAM -->
-        <tr class="cat-row"><td colspan="4"><span class="cat-chevron">▸</span> Instagram</td></tr>
-        <tr><td>Followers</td><td>—</td><td>—</td><td>—</td></tr>
-        <tr><td>Reach</td><td>—</td><td>—</td><td>—</td></tr>
-        <tr><td>Impressions</td><td>—</td><td>—</td><td>—</td></tr>
-        <tr><td>Engagement rate</td><td>—%</td><td>—%</td><td>—%</td></tr>
-        <tr><td>Posts</td><td>—</td><td>—</td><td>—</td></tr>
-        <tr><td>Reels views</td><td>—</td><td>—</td><td>—</td></tr>
-        <tr><td>Story views</td><td>—</td><td>—</td><td>—</td></tr>
-        <tr><td>Profile visits</td><td>—</td><td>—</td><td>—</td></tr>
-        <tr><td>Website taps</td><td>—</td><td>—</td><td>—</td></tr>
-
-        <!-- TIKTOK -->
-        <tr class="cat-row"><td colspan="4"><span class="cat-chevron">▸</span> TikTok</td></tr>
-        <tr><td>Followers</td><td>—</td><td>—</td><td>—</td></tr>
-        <tr><td>Video views</td><td>—</td><td>—</td><td>—</td></tr>
-        <tr><td>Profile views</td><td>—</td><td>—</td><td>—</td></tr>
-        <tr><td>Likes</td><td>—</td><td>—</td><td>—</td></tr>
-        <tr><td>Shares</td><td>—</td><td>—</td><td>—</td></tr>
-        <tr><td>Comments</td><td>—</td><td>—</td><td>—</td></tr>
-        <tr><td>Avg watch time</td><td>—</td><td>—</td><td>—</td></tr>
-
-        <!-- FACEBOOK -->
-        <tr class="cat-row"><td colspan="4"><span class="cat-chevron">▸</span> Facebook</td></tr>
-        <tr><td>Page likes</td><td>—</td><td>—</td><td>—</td></tr>
-        <tr><td>Reach</td><td>—</td><td>—</td><td>—</td></tr>
-        <tr><td>Engaged users</td><td>—</td><td>—</td><td>—</td></tr>
-        <tr><td>Posts</td><td>—</td><td>—</td><td>—</td></tr>
-
-        <!-- YOUTUBE -->
-        <tr class="cat-row"><td colspan="4"><span class="cat-chevron">▸</span> YouTube</td></tr>
-        <tr><td>Subscribers</td><td>—</td><td>—</td><td>—</td></tr>
-        <tr><td>Views</td><td>—</td><td>—</td><td>—</td></tr>
-        <tr><td>Watch hours</td><td>—</td><td>—</td><td>—</td></tr>
-
-      </tbody>
-    </table>
-  </section>
-
-  <!-- Top posts strip -->
-  <section class="np-card" style="margin-top:var(--s-4)">
-    <div class="np-card-title">Top posts this week</div>
-    <div class="np-card-sub">Highest engagement across platforms · placeholder rows</div>
-    <div id="topPosts" style="margin-top:12px; display:grid; gap:8px;">
-      <div class="mix-bar-wrap" style="border:1px solid var(--line); border-radius:var(--r-lg); padding:14px">
-        <div class="mix-bar-label">
-          <span class="mix-name"><span class="platform-dot instagram"></span>Instagram · Reel</span>
-          <span class="mix-detail">— views · — likes</span>
-        </div>
-        <div style="font-size:13px; color:var(--text-2); margin-top:4px">Placeholder — top performer copy goes here</div>
-      </div>
-      <div class="mix-bar-wrap" style="border:1px solid var(--line); border-radius:var(--r-lg); padding:14px">
-        <div class="mix-bar-label">
-          <span class="mix-name"><span class="platform-dot tiktok"></span>TikTok · Video</span>
-          <span class="mix-detail">— views · — likes</span>
-        </div>
-        <div style="font-size:13px; color:var(--text-2); margin-top:4px">Placeholder — top performer copy goes here</div>
-      </div>
+    <div class="format-rows" id="formatRows">
+      <div class="np-card-title">Content format split</div>
+      <div class="np-card-sub">Stories vs feed Posts over the export window</div>
     </div>
   </section>
 
@@ -232,29 +208,272 @@
 <footer class="np-foot"><span class="track-trim">Neighbors Only Portal</span></footer>
 
 <script>
-  /* Tabs (Weekly/Monthly/All time) — UI-only stub. Once a real data
-     source is wired (Instagram Graph API, TikTok Business, etc.) this
-     should re-fetch + re-render the KPIs, platform bars, and table. */
-  document.querySelectorAll('.np-tab[data-tab]').forEach(function (t) {
-    t.addEventListener('click', function () {
-      document.querySelectorAll('.np-tab[data-tab]').forEach(function (x) { x.classList.remove('is-active'); });
-      t.classList.add('is-active');
-      // TODO: load data for t.dataset.tab and re-render
+  const fmtN = n => n == null ? '—' : Math.round(n).toLocaleString();
+  const fmtPct = n => n == null ? '—' : (n >= 0 ? '+' : '') + n.toFixed(1) + '%';
+  const fmt2 = n => n == null ? '—' : n.toFixed(2) + '%';
+
+  let DATA = null;
+  let currentMetric = 'views';
+  let currentRange  = 28;
+  let trendChart, formatChart;
+
+  const METRIC_META = {
+    views:        { label: 'Views',         color: '#eace49' },
+    reach:        { label: 'Reach',         color: '#7bbd91' },
+    interactions: { label: 'Interactions',  color: '#e87142' },
+    clicks:       { label: 'Link clicks',   color: '#6280bd' },
+    follows:      { label: 'New follows',   color: '#cbc9d6' },
+    visits:       { label: 'Profile visits',color: '#dbc6a2' },
+  };
+
+  async function loadSocial() {
+    try {
+      const r = await fetch('social-data.json', { cache: 'no-store' });
+      DATA = await r.json();
+      render();
+    } catch (e) { console.error('social load failed', e); }
+  }
+
+  function setDelta(el, val) {
+    if (val == null) { el.textContent = '—'; el.className = 'kpi-delta flat'; return; }
+    el.textContent = fmtPct(val);
+    el.className = 'kpi-delta ' + (val > 0.5 ? 'pos' : val < -0.5 ? 'neg' : 'flat');
+  }
+
+  function render() {
+    if (!DATA) return;
+    const s = DATA.summary;
+    document.getElementById('dateLabel').textContent =
+      `Meta Business Suite · ${s.date_range} · ${s.period_label}`;
+
+    // KPIs
+    document.getElementById('kpiViews').textContent   = fmtN(s.views_28d);
+    setDelta(document.getElementById('kpiViewsDelta'), s.views_growth_28d);
+    document.getElementById('kpiReach').textContent   = fmtN(s.reach_28d);
+    setDelta(document.getElementById('kpiReachDelta'), s.reach_growth);
+    document.getElementById('kpiFollows').textContent = fmtN(s.follows_28d);
+    setDelta(document.getElementById('kpiFollowsDelta'), s.follows_growth);
+    document.getElementById('kpiEng').textContent     = fmt2((s.interactions_28d / s.reach_28d) * 100);
+
+    renderTrend();
+    renderInsights();
+    renderAudience();
+    renderFormats();
+  }
+
+  function renderTrend() {
+    const series = DATA.trends[currentMetric] || [];
+    const slice = currentRange > 0 ? series.slice(-currentRange) : series;
+    const meta  = METRIC_META[currentMetric];
+    const ctx   = document.getElementById('trendChart');
+    if (trendChart) trendChart.destroy();
+    trendChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: slice.map(s => s.date),
+        datasets: [{
+          label: meta.label,
+          data:  slice.map(s => s.value),
+          borderColor: meta.color,
+          backgroundColor: meta.color + '33',
+          tension: 0.25,
+          pointRadius: slice.length > 90 ? 0 : 3,
+          pointHoverRadius: 4,
+          fill: true,
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        animation: { duration: 600, easing: 'easeOutQuart' },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: '#1f2328', titleColor: '#fff', bodyColor: '#fff',
+            padding: 10, cornerRadius: 6,
+            titleFont: { family: 'DM Sans', size: 12, weight: '600' },
+            bodyFont: { family: 'DM Mono', size: 12 },
+            callbacks: { label: c => ` ${meta.label}: ${fmtN(c.parsed.y)}` }
+          }
+        },
+        scales: {
+          x: { ticks: { color: '#7a7770', maxTicksLimit: 8, autoSkip: true }, grid: { display: false } },
+          y: { ticks: { color: '#7a7770', callback: v => v >= 1000 ? (v/1000).toFixed(0) + 'k' : v }, grid: { color: 'rgba(31,35,40,0.06)' }, beginAtZero: true }
+        }
+      }
+    });
+  }
+
+  function renderInsights() {
+    const s = DATA.summary;
+    const peakViews = s.peak_views || {};
+    const cards = [];
+
+    // 1) Frequency
+    cards.push({
+      color: '#eace49',
+      eyebrow: 'Frequency',
+      title: `Each reached person saw your content ${s.frequency_28d || '—'}× on average`,
+      copy: `That's ${s.views_28d.toLocaleString()} views across ${fmtN(s.reach_28d)} unique people. Healthy frequency: 2–4. ${s.frequency_28d > 5 ? 'You may be over-serving — diversify your reach.' : s.frequency_28d < 2 ? 'Audience is fragmenting — double down on retargeting.' : 'In the sweet spot.'}`
+    });
+
+    // 2) Conversion
+    cards.push({
+      color: '#7bbd91',
+      eyebrow: 'Funnel',
+      title: `${s.follow_conv_28d}% of profile visitors became followers`,
+      copy: `${fmtN(s.visits_28d)} visited the profile, ${fmtN(s.follows_28d)} hit follow. Industry-standard for restaurants is 5–10% — ${s.follow_conv_28d > 10 ? "you're outperforming" : s.follow_conv_28d > 5 ? "you're on-pace" : 'optimize bio/highlights/grid'}.`
+    });
+
+    // 3) Engagement quality
+    const ipr = s.inter_per_reach;
+    cards.push({
+      color: '#e87142',
+      eyebrow: 'Engagement',
+      title: `${ipr}% of reached users interacted`,
+      copy: `${fmtN(s.interactions_28d)} interactions on ${fmtN(s.reach_28d)} reach. Above 2% = strong, 1–2% = healthy, sub-1% = content not landing. You're at ${ipr}%.`
+    });
+
+    // 4) Peak / viral moment
+    cards.push({
+      color: '#6280bd',
+      eyebrow: 'Peak day',
+      title: `${peakViews.date} pulled ${fmtN(peakViews.value)} views`,
+      copy: `${(peakViews.value / (s.views_28d / 28)).toFixed(1)}× your current daily average. Look at what posted that day — replicable hooks become content pillars.`
+    });
+
+    // 5) Growth direction
+    const dir = s.views_growth_28d;
+    cards.push({
+      color: dir > 0 ? '#7bbd91' : '#e87142',
+      eyebrow: dir > 0 ? 'Growing' : 'Cooling',
+      title: `Views ${dir > 0 ? 'up' : 'down'} ${Math.abs(dir).toFixed(1)}% vs prior 28 days`,
+      copy: dir > 0
+        ? `Momentum is real. Keep posting cadence steady and consider boosting top performers.`
+        : `Post the same volume but rotate hooks — a -50%+ swing usually traces back to fewer high-impression stories.`
+    });
+
+    // 6) Geo focus
+    const topCity = DATA.audience.cities && DATA.audience.cities[0];
+    cards.push({
+      color: '#cbc9d6',
+      eyebrow: 'Geo',
+      title: `${topCity.pct}% of your audience is in ${topCity.name}`,
+      copy: `Westlake-area top cities make up most of your reach — you've built a hyperlocal community. Use this for in-store events and 'spotted in [city]' UGC reposts.`
+    });
+
+    document.getElementById('insights').innerHTML = cards.map(c => `
+      <div class="insight">
+        <div class="insight-eyebrow"><span class="dot" style="background:${c.color}"></span>${c.eyebrow}</div>
+        <div class="insight-title">${c.title}</div>
+        <div class="insight-copy">${c.copy}</div>
+      </div>
+    `).join('');
+  }
+
+  function renderAudience() {
+    // Cities
+    const cities = DATA.audience.cities || [];
+    const cityMax = Math.max(...cities.map(c => c.pct), 1);
+    document.getElementById('citiesList').innerHTML = cities.map(c => `
+      <div class="geo-row">
+        <div>
+          <div class="geo-name">${c.name}</div>
+          <div class="geo-bar"><div class="geo-fill" style="width:${(c.pct/cityMax*100).toFixed(1)}%; background:var(--brand-orange)"></div></div>
+        </div>
+        <div class="geo-pct">${c.pct}%</div>
+      </div>
+    `).join('');
+
+    // Countries
+    const countries = DATA.audience.countries || [];
+    const cMax = Math.max(...countries.map(c => c.pct), 1);
+    document.getElementById('countriesList').innerHTML = countries.map(c => `
+      <div class="geo-row">
+        <div>
+          <div class="geo-name">${c.name}</div>
+          <div class="geo-bar"><div class="geo-fill" style="width:${(c.pct/cMax*100).toFixed(1)}%; background:var(--brand-blue)"></div></div>
+        </div>
+        <div class="geo-pct">${c.pct}%</div>
+      </div>
+    `).join('');
+
+    // Age & gender pyramid
+    const ag = DATA.audience.age_gender || [];
+    const maxSide = Math.max(...ag.flatMap(a => [a.women, a.men]), 1);
+    document.getElementById('ageList').innerHTML = ag.map(a => `
+      <div class="ag-row">
+        <div class="ag-bar w"><div class="ag-fill w" style="width:${(a.women/maxSide*100).toFixed(1)}%"></div></div>
+        <div class="ag-bucket">${a.bucket}</div>
+        <div class="ag-bar"><div class="ag-fill m" style="width:${(a.men/maxSide*100).toFixed(1)}%"></div></div>
+      </div>
+    `).join('');
+  }
+
+  function renderFormats() {
+    const formats = DATA.formats || [];
+    const total = formats.reduce((s, f) => s + f.count, 0);
+    document.getElementById('formatTotal').textContent = fmtN(total);
+
+    if (formatChart) formatChart.destroy();
+    formatChart = new Chart(document.getElementById('formatDonut'), {
+      type: 'doughnut',
+      data: {
+        labels: formats.map(f => f.format),
+        datasets: [{
+          data: formats.map(f => f.count),
+          backgroundColor: ['#e87142', '#6280bd'],
+          borderColor: '#fff', borderWidth: 2, hoverOffset: 6,
+        }]
+      },
+      options: {
+        cutout: '64%', responsive: true, maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: '#1f2328', titleColor: '#fff', bodyColor: '#fff', padding: 10, cornerRadius: 6,
+            callbacks: { label: c => ` ${c.parsed} (${(c.parsed/total*100).toFixed(1)}%)` }
+          }
+        }
+      }
+    });
+
+    document.getElementById('formatRows').innerHTML = `
+      <div class="np-card-title">Content format split</div>
+      <div class="np-card-sub">${formats[0].format} vs ${formats[1].format} over the export window</div>
+      <div style="margin-top:var(--s-4); display:flex; gap:var(--s-5); flex-wrap:wrap;">
+        ${formats.map((f, i) => `
+          <div>
+            <div class="insight-eyebrow"><span class="dot" style="background:${['#e87142','#6280bd'][i]}"></span>${f.format}</div>
+            <div style="font-family:var(--f-mono); font-size:22px; font-weight:500; color:var(--ink); line-height:1;">${fmtN(f.count)}</div>
+            <div class="np-kpi-sub">${(f.count/total*100).toFixed(1)}% of output</div>
+          </div>
+        `).join('')}
+      </div>
+      <div class="insight-copy" style="margin-top:var(--s-4)">
+        ${formats[0].count > formats[1].count * 2
+          ? 'Stories-heavy mix — great for daily presence and intimate audience. Consider reels for new-reach growth.'
+          : 'Balanced mix between stories and feed posts.'}
+      </div>
+    `;
+  }
+
+  /* Toggle wiring */
+  document.querySelectorAll('#metricToggle button').forEach(b => {
+    b.addEventListener('click', () => {
+      currentMetric = b.dataset.metric;
+      document.querySelectorAll('#metricToggle button').forEach(x => x.classList.toggle('is-active', x === b));
+      renderTrend();
+    });
+  });
+  document.querySelectorAll('#rangeToggle button').forEach(b => {
+    b.addEventListener('click', () => {
+      currentRange = parseInt(b.dataset.range);
+      document.querySelectorAll('#rangeToggle button').forEach(x => x.classList.toggle('is-active', x === b));
+      renderTrend();
     });
   });
 
-  /* Category row expand/collapse (matches dashboard's pattern) */
-  document.querySelectorAll('.metrics-table .cat-row').forEach(function (row) {
-    row.addEventListener('click', function () {
-      row.classList.toggle('open');
-      // walk forward until next cat-row, toggle visibility
-      var next = row.nextElementSibling;
-      while (next && !next.classList.contains('cat-row')) {
-        next.style.display = next.style.display === 'none' ? '' : 'none';
-        next = next.nextElementSibling;
-      }
-    });
-  });
+  loadSocial();
 </script>
 
 </body>
