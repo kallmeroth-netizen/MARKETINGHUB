@@ -180,7 +180,8 @@ a { color: inherit; text-decoration: none; }
   display: flex; align-items: center; gap: var(--s-3);
   padding-left: max(var(--gutter), calc(50% - var(--content-max) / 2 + var(--gutter)));
   padding-right: max(var(--gutter), calc(50% - var(--content-max) / 2 + var(--gutter)));
-  background: var(--surface-2);
+  background: rgba(253, 251, 246, 0.78);
+  backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
   border-bottom: 1px solid var(--line);
 }
 
@@ -299,14 +300,14 @@ a { color: inherit; text-decoration: none; }
 .np-hub-card {
   display: flex; flex-direction: column; gap: var(--s-2);
   padding: var(--s-4);
-  background: var(--surface-2);
-  border: 1px solid transparent;
+  background: var(--surface);
+  border: 1px solid var(--line);
   border-radius: var(--r-lg);
   cursor: pointer;
   text-decoration: none;
   transition: background var(--t-base) var(--easing), border-color var(--t-base) var(--easing), transform var(--t-base) var(--easing);
 }
-.np-hub-card:hover { transform: translateY(-1px); background: #ebe9e3; }
+.np-hub-card:hover { transform: translateY(-1px); background: var(--surface-2); border-color: var(--line-bold); }
 .np-hub-card.is-active {
   background: var(--surface);
   border-color: var(--ink);
