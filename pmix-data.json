@@ -13,76 +13,76 @@
           "totalQty": 3953.8,
           "concepts": [
             {
+              "name": "Gaby Food",
               "qty": 1066.0,
-              "net": 16386.260000000002,
-              "gross": 17388.0,
-              "name": "Gaby Food"
+              "net": 16386.26,
+              "gross": 17388.0
             },
             {
+              "name": "MK Food",
               "qty": 634.0,
               "net": 10074.59,
-              "gross": 10747.5,
-              "name": "MK Food"
+              "gross": 10747.5
             },
             {
+              "name": "Palermo Pizza Club",
               "qty": 312.0,
               "net": 5126.01,
-              "gross": 5681.5,
-              "name": "Palermo Pizza Club"
+              "gross": 5681.5
             },
             {
+              "name": "Mixtape Food",
               "qty": 453.0,
               "net": 4184.17,
-              "gross": 4526.0,
-              "name": "Mixtape Food"
+              "gross": 4526.0
             },
             {
+              "name": "Social Monk Food",
               "qty": 180.0,
               "net": 2560.74,
-              "gross": 2768.5,
-              "name": "Social Monk Food"
+              "gross": 2768.5
             },
             {
+              "name": "Marketplace",
               "qty": 652.8,
               "net": 2105.16,
-              "gross": 2179.66,
-              "name": "Marketplace"
+              "gross": 2179.66
             },
             {
+              "name": "NA Beverage",
               "qty": 428.0,
               "net": 1328.05,
-              "gross": 1358.4,
-              "name": "NA Beverage"
+              "gross": 1358.4
             },
             {
+              "name": "Neighborly Cookies",
               "qty": 128.0,
               "net": 866.95,
-              "gross": 925.0,
-              "name": "Neighborly Cookies"
+              "gross": 925.0
             },
             {
+              "name": "Wine",
               "qty": 52.0,
               "net": 679.65,
-              "gross": 688.0,
-              "name": "Wine"
+              "gross": 688.0
             },
             {
+              "name": "Bottled Beer",
               "qty": 43.0,
               "net": 274.5,
-              "gross": 274.5,
-              "name": "Bottled Beer"
+              "gross": 274.5
             },
             {
+              "name": "Catering Food",
               "qty": 1.0,
               "net": 125.0,
-              "gross": 125.0,
-              "name": "Catering Food"
+              "gross": 125.0
             },
             {
+              "name": "Food",
               "qty": 4.0,
               "net": 27.0,
-              "gross": 27.0,
-              "name": "Food"
+              "gross": 27.0
             }
           ],
           "groups": [],
@@ -218,14 +218,6 @@
               "avg_price": 1.1819179784589893
             },
             {
-              "qty": 293.0,
-              "net": 0.0,
-              "gross": 0.0,
-              "name": "TABLE NUMBER",
-              "category": "No Sales Category",
-              "avg_price": 0.0
-            },
-            {
               "qty": 187.0,
               "net": 2854.05,
               "gross": 3016.0,
@@ -328,6 +320,14 @@
               "name": "DIET COKE (8 OZ. BOTTLE)",
               "category": "NA Beverage",
               "avg_price": 1.9639344262295082
+            },
+            {
+              "qty": 57.0,
+              "net": 797.34,
+              "gross": 895.5,
+              "name": "CLASSIC CHEESEBURGER WRAP",
+              "category": "MK Food",
+              "avg_price": 13.98842105263158
             }
           ],
           "items": [
@@ -1568,14 +1568,6 @@
               "net": 0.0,
               "gross": 0.0,
               "name": "ADD UTENSILS",
-              "category": "No Sales Category",
-              "avg_price": 0.0
-            },
-            {
-              "qty": 293.0,
-              "net": 0.0,
-              "gross": 0.0,
-              "name": "TABLE NUMBER",
               "category": "No Sales Category",
               "avg_price": 0.0
             },
@@ -3704,14 +3696,6 @@
               "avg_price": 1.1774193548387097
             },
             {
-              "name": "TABLE NUMBER",
-              "category": "No Sales Category",
-              "qty": 293.0,
-              "net": 0.0,
-              "gross": 0.0,
-              "avg_price": 0.0
-            },
-            {
               "name": "MAMMA ALVA'S FAMILY PLATE",
               "category": "MK Food",
               "qty": 86.0,
@@ -3814,6 +3798,14 @@
               "net": 526.95,
               "gross": 528.5,
               "avg_price": 16.4671875
+            },
+            {
+              "name": "DIET COKE (8 OZ. BOTTLE)",
+              "category": "NA Beverage",
+              "qty": 32.0,
+              "net": 64.0,
+              "gross": 64.0,
+              "avg_price": 2.0
             }
           ],
           "items": [
@@ -5058,14 +5050,6 @@
               "avg_price": 0.0
             },
             {
-              "name": "TABLE NUMBER",
-              "category": "No Sales Category",
-              "qty": 293.0,
-              "net": 0.0,
-              "gross": 0.0,
-              "avg_price": 0.0
-            },
-            {
               "name": "CURBSIDE",
               "category": "No Sales Category",
               "qty": 5.0,
@@ -5138,79 +5122,79 @@
       "locations": {
         "total": {
           "totalNet": 43946.72,
-          "totalQty": 4330.2,
+          "totalQty": 4068.2,
           "concepts": [
             {
+              "name": "Gaby Food",
               "qty": 1130.0,
               "net": 17657.19,
-              "gross": 18344.0,
-              "name": "Gaby Food"
+              "gross": 18344.0
             },
             {
+              "name": "MK Food",
               "qty": 558.0,
               "net": 9285.44,
-              "gross": 9595.5,
-              "name": "MK Food"
+              "gross": 9595.5
             },
             {
+              "name": "Mixtape Food",
               "qty": 503.0,
               "net": 4889.72,
-              "gross": 5113.0,
-              "name": "Mixtape Food"
+              "gross": 5113.0
             },
             {
+              "name": "Palermo Pizza Club",
               "qty": 274.0,
               "net": 4585.08,
-              "gross": 4920.0,
-              "name": "Palermo Pizza Club"
+              "gross": 4920.0
             },
             {
+              "name": "Social Monk Food",
               "qty": 180.0,
               "net": 2749.69,
-              "gross": 2809.0,
-              "name": "Social Monk Food"
+              "gross": 2809.0
             },
             {
+              "name": "Marketplace",
               "qty": 559.2,
               "net": 1885.92,
-              "gross": 2272.21,
-              "name": "Marketplace"
+              "gross": 2272.21
             },
             {
+              "name": "NA Beverage",
               "qty": 424.0,
               "net": 1300.35,
-              "gross": 1327.9,
-              "name": "NA Beverage"
+              "gross": 1327.9
             },
             {
+              "name": "Neighborly Cookies",
               "qty": 140.0,
               "net": 793.83,
-              "gross": 1043.0,
-              "name": "Neighborly Cookies"
+              "gross": 1043.0
             },
             {
+              "name": "Wine",
               "qty": 36.0,
               "net": 570.0,
-              "gross": 570.0,
-              "name": "Wine"
+              "gross": 570.0
             },
             {
+              "name": "Bottled Beer",
               "qty": 25.0,
               "net": 149.5,
-              "gross": 149.5,
-              "name": "Bottled Beer"
+              "gross": 149.5
             },
             {
-              "qty": 314.0,
+              "name": "No Sales Category",
+              "qty": 52.0,
               "net": 80.0,
-              "gross": 80.0,
-              "name": "No Sales Category"
+              "gross": 80.0
             },
             {
+              "name": "Misc Non Sales",
               "qty": 187.0,
               "net": 0.0,
-              "gross": 0.0,
-              "name": "Misc Non Sales"
+              "gross": 0.0
             }
           ],
           "groups": [],
@@ -5346,14 +5330,6 @@
               "avg_price": 1.190111642743222
             },
             {
-              "qty": 262.0,
-              "net": 0.0,
-              "gross": 0.0,
-              "name": "TABLE NUMBER",
-              "category": "No Sales Category",
-              "avg_price": 0.0
-            },
-            {
               "qty": 191.0,
               "net": 2980.19,
               "gross": 3102.0,
@@ -5456,6 +5432,14 @@
               "name": "CLASSIC CHEESEBURGER WRAP",
               "category": "MK Food",
               "avg_price": 15.42153846153846
+            },
+            {
+              "qty": 65.0,
+              "net": 1013.55,
+              "gross": 1029.5,
+              "name": "SESAME GINGER TERIYAKI BOWL",
+              "category": "Gaby Food",
+              "avg_price": 15.593076923076922
             }
           ],
           "items": [
@@ -6972,14 +6956,6 @@
               "avg_price": 7.5
             },
             {
-              "qty": 262.0,
-              "net": 0.0,
-              "gross": 0.0,
-              "name": "TABLE NUMBER",
-              "category": "No Sales Category",
-              "avg_price": 0.0
-            },
-            {
               "qty": 2.0,
               "net": 80.0,
               "gross": 80.0,
@@ -7034,76 +7010,76 @@
           "totalQty": 1922.6,
           "concepts": [
             {
+              "name": "Gaby Food",
               "qty": 549.0,
               "net": 8568.01,
-              "gross": 8897.5,
-              "name": "Gaby Food"
+              "gross": 8897.5
             },
             {
+              "name": "MK Food",
               "qty": 185.0,
               "net": 2967.69,
-              "gross": 3054.5,
-              "name": "MK Food"
+              "gross": 3054.5
             },
             {
+              "name": "Social Monk Food",
               "qty": 180.0,
               "net": 2749.69,
-              "gross": 2809.0,
-              "name": "Social Monk Food"
+              "gross": 2809.0
             },
             {
+              "name": "Palermo Pizza Club",
               "qty": 132.0,
               "net": 2256.78,
-              "gross": 2412.0,
-              "name": "Palermo Pizza Club"
+              "gross": 2412.0
             },
             {
+              "name": "Mixtape Food",
               "qty": 191.0,
               "net": 1965.4,
-              "gross": 2005.5,
-              "name": "Mixtape Food"
+              "gross": 2005.5
             },
             {
+              "name": "NA Beverage",
               "qty": 193.0,
               "net": 577.2,
-              "gross": 595.2,
-              "name": "NA Beverage"
+              "gross": 595.2
             },
             {
+              "name": "Marketplace",
               "qty": 205.6,
               "net": 573.77,
-              "gross": 574.07,
-              "name": "Marketplace"
+              "gross": 574.07
             },
             {
+              "name": "Neighborly Cookies",
               "qty": 55.0,
               "net": 378.83,
-              "gross": 383.5,
-              "name": "Neighborly Cookies"
+              "gross": 383.5
             },
             {
+              "name": "Wine",
               "qty": 12.0,
               "net": 186.0,
-              "gross": 186.0,
-              "name": "Wine"
+              "gross": 186.0
             },
             {
+              "name": "Bottled Beer",
               "qty": 9.0,
               "net": 53.5,
-              "gross": 53.5,
-              "name": "Bottled Beer"
+              "gross": 53.5
             },
             {
+              "name": "Misc Non Sales",
               "qty": 187.0,
               "net": 0.0,
-              "gross": 0.0,
-              "name": "Misc Non Sales"
+              "gross": 0.0
             },
             {
+              "name": "No Sales Category",
               "qty": 24.0,
               "net": 0.0,
-              "gross": 0.0,
-              "name": "No Sales Category"
+              "gross": 0.0
             }
           ],
           "groups": [],
@@ -8588,67 +8564,67 @@
         },
         "bw": {
           "totalNet": 23669.85,
-          "totalQty": 2407.6,
+          "totalQty": 2145.6,
           "concepts": [
             {
+              "name": "Gaby Food",
               "qty": 581.0,
               "net": 9089.18,
-              "gross": 9446.5,
-              "name": "Gaby Food"
+              "gross": 9446.5
             },
             {
+              "name": "MK Food",
               "qty": 373.0,
               "net": 6317.75,
-              "gross": 6541.0,
-              "name": "MK Food"
+              "gross": 6541.0
             },
             {
+              "name": "Mixtape Food",
               "qty": 312.0,
               "net": 2924.32,
-              "gross": 3107.5,
-              "name": "Mixtape Food"
+              "gross": 3107.5
             },
             {
+              "name": "Palermo Pizza Club",
               "qty": 142.0,
               "net": 2328.3,
-              "gross": 2508.0,
-              "name": "Palermo Pizza Club"
+              "gross": 2508.0
             },
             {
+              "name": "Marketplace",
               "qty": 353.6,
               "net": 1312.15,
-              "gross": 1698.14,
-              "name": "Marketplace"
+              "gross": 1698.14
             },
             {
+              "name": "NA Beverage",
               "qty": 231.0,
               "net": 723.15,
-              "gross": 732.7,
-              "name": "NA Beverage"
+              "gross": 732.7
             },
             {
+              "name": "Neighborly Cookies",
               "qty": 85.0,
               "net": 415.0,
-              "gross": 659.5,
-              "name": "Neighborly Cookies"
+              "gross": 659.5
             },
             {
+              "name": "Wine",
               "qty": 24.0,
               "net": 384.0,
-              "gross": 384.0,
-              "name": "Wine"
+              "gross": 384.0
             },
             {
+              "name": "Bottled Beer",
               "qty": 16.0,
               "net": 96.0,
-              "gross": 96.0,
-              "name": "Bottled Beer"
+              "gross": 96.0
             },
             {
-              "qty": 290.0,
+              "name": "No Sales Category",
+              "qty": 28.0,
               "net": 80.0,
-              "gross": 80.0,
-              "name": "No Sales Category"
+              "gross": 80.0
             }
           ],
           "groups": [],
@@ -8776,14 +8752,6 @@
           ],
           "topItemsByQty": [
             {
-              "qty": 262.0,
-              "net": 0.0,
-              "gross": 0.0,
-              "name": "TABLE NUMBER",
-              "category": "No Sales Category",
-              "avg_price": 0.0
-            },
-            {
               "qty": 211.6,
               "net": 251.84,
               "gross": 251.84,
@@ -8894,6 +8862,14 @@
               "name": "KATYA'S CLASSIC GREEK SALAD",
               "category": "MK Food",
               "avg_price": 15.655405405405405
+            },
+            {
+              "qty": 34.0,
+              "net": 490.1,
+              "gross": 565.5,
+              "name": "THE MK MEZZE BOWL",
+              "category": "MK Food",
+              "avg_price": 14.414705882352942
             }
           ],
           "items": [
@@ -10054,14 +10030,6 @@
               "net": 0.0,
               "gross": 0.0,
               "name": "ADD UTENSILS",
-              "category": "No Sales Category",
-              "avg_price": 0.0
-            },
-            {
-              "qty": 262.0,
-              "net": 0.0,
-              "gross": 0.0,
-              "name": "TABLE NUMBER",
               "category": "No Sales Category",
               "avg_price": 0.0
             },

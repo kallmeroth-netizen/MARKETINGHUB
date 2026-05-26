@@ -344,6 +344,13 @@
     DATA.date_label = day.date_label;
     DATA.locations  = (fellBack ? labels.total : (labels[loc] || labels.total));
 
+    // Strip internal-ops rows (e.g. TABLE NUMBER) so they never enter rankings
+    const EXCLUDED_ITEMS = new Set(['TABLE NUMBER']);
+    const keep = it => it && !EXCLUDED_ITEMS.has((it.name || '').toUpperCase());
+    DATA.items         = (DATA.items || []).filter(keep);
+    DATA.topItemsByNet = (DATA.topItemsByNet || []).filter(keep);
+    DATA.topItemsByQty = (DATA.topItemsByQty || []).filter(keep);
+
     // Rebuild concept color map for THIS location's concept list
     conceptColor = {};
     const sorted = [...(DATA.concepts || [])].sort((a, b) => b.net - a.net);
