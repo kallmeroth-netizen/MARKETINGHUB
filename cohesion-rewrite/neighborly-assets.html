@@ -107,8 +107,8 @@
     z-index: 0;
   }
 
-  /* Blurred color blobs */
-  .blob {
+  /* Blurred color blobs — disabled (kept for future toggling) */
+  .blob { display: none;
     position: fixed; border-radius: 50%;
     filter: blur(110px); opacity: 0.14;
     pointer-events: none; z-index: 0;
@@ -241,7 +241,11 @@
     text-decoration: none; color: var(--ink);
     transition: background 0.25s ease, transform 0.25s ease;
   }
-  .quick-cell:hover { background: var(--tone-bg); }
+  .quick-cell:hover { background: var(--tone-bg); color: #fff; border-color: var(--tone-bg); }
+  .quick-cell:hover .quick-num { color: rgba(255,255,255,0.7); }
+  .quick-cell:hover .quick-name { color: #fff; }
+  .quick-cell:hover .quick-arrow { color: rgba(255,255,255,0.85); }
+  .quick-cell:hover .quick-dot { background: rgba(255,255,255,0.95) !important; }
   .quick-cell.feature { background: var(--orange); color: #fff; }
   .quick-cell.feature .quick-arrow { color: rgba(255,255,255,0.78); }
   .quick-cell.feature .quick-num { color: rgba(255,255,255,0.6); }
@@ -723,7 +727,7 @@
     </div>
     <div>
       <div class="quick">
-        <a class="quick-cell" href="#logos" style="--tone-bg:var(--brand-orange-light)">
+        <a class="quick-cell" href="#logos" style="--tone-bg:var(--orange)">
           <div class="quick-top"><span class="quick-num">01</span><span class="quick-dot" style="background:var(--orange)"></span></div>
           <div class="quick-name">Logos</div>
           <div class="quick-arrow">View</div>
@@ -733,22 +737,22 @@
           <div class="quick-name">Brand Book</div>
           <div class="quick-arrow">Open</div>
         </a>
-        <a class="quick-cell" href="#photography" style="--tone-bg:var(--brand-green-light)">
+        <a class="quick-cell" href="#photography" style="--tone-bg:var(--green)">
           <div class="quick-top"><span class="quick-num">03</span><span class="quick-dot" style="background:var(--green)"></span></div>
           <div class="quick-name">Photography</div>
           <div class="quick-arrow">View</div>
         </a>
-        <a class="quick-cell" href="https://drive.google.com/drive/folders/1i4Fd8Y7zsXWMTAioRrGVfkGUB7ql50wU?usp=drive_link" target="_blank" rel="noopener" style="--tone-bg:var(--brand-lavender-light)">
+        <a class="quick-cell" href="https://drive.google.com/drive/folders/1i4Fd8Y7zsXWMTAioRrGVfkGUB7ql50wU?usp=drive_link" target="_blank" rel="noopener" style="--tone-bg:var(--lavender)">
           <div class="quick-top"><span class="quick-num">04</span><span class="quick-dot" style="background:var(--lavender)"></span></div>
           <div class="quick-name">Templates</div>
           <div class="quick-arrow">Open</div>
         </a>
-        <a class="quick-cell" href="https://drive.google.com/drive/folders/19dfTyHtlgTvejIh5HZtrMzsvt0rQBdRd?usp=drive_link" target="_blank" rel="noopener" style="--tone-bg:var(--brand-yellow-light)">
+        <a class="quick-cell" href="https://drive.google.com/drive/folders/19dfTyHtlgTvejIh5HZtrMzsvt0rQBdRd?usp=drive_link" target="_blank" rel="noopener" style="--tone-bg:var(--yellow)">
           <div class="quick-top"><span class="quick-num">05</span><span class="quick-dot" style="background:var(--yellow)"></span></div>
           <div class="quick-name">Menus</div>
           <div class="quick-arrow">Open</div>
         </a>
-        <a class="quick-cell" href="https://www.dropbox.com/scl/fo/s9qxbr2bqhr0x0kxu0mdg/ALiObuP72mEaQ4KY80-dKV8?rlkey=meypzjnbec1zcmi3ohle1ys8w&st=1nu52222&dl=0" target="_blank" rel="noopener" style="--tone-bg:var(--brand-blue-light)">
+        <a class="quick-cell" href="https://www.dropbox.com/scl/fo/s9qxbr2bqhr0x0kxu0mdg/ALiObuP72mEaQ4KY80-dKV8?rlkey=meypzjnbec1zcmi3ohle1ys8w&st=1nu52222&dl=0" target="_blank" rel="noopener" style="--tone-bg:var(--soft-green)">
           <div class="quick-top"><span class="quick-num">06</span><span class="quick-dot" style="background:var(--soft-green)"></span></div>
           <div class="quick-name">Social</div>
           <div class="quick-arrow">Open</div>
@@ -1064,37 +1068,37 @@
     <div>
       <div class="downloads">
 
-        <a class="dl-row" href="https://drive.google.com/drive/folders/1Y0MDs_-ebbMRYdisIvFrPrgUGAf9vwjW?usp=drive_link" target="_blank" rel="noopener" style="--tone-bg:var(--brand-orange-light)">
+        <a class="dl-row" href="https://drive.google.com/drive/folders/1Y0MDs_-ebbMRYdisIvFrPrgUGAf9vwjW?usp=drive_link" target="_blank" rel="noopener" style="--tone-bg:var(--orange)">
           <span class="dl-num">01</span>
           <span class="dl-name">Logo Folder</span>
           <div class="dl-meta"><span class="tag green">Live</span><span class="dl-arrow">→</span></div>
         </a>
 
-        <a class="dl-row" href="#REPLACE-BRAND-BOOK-URL" style="--tone-bg:var(--brand-orange-light)">
+        <a class="dl-row" href="#REPLACE-BRAND-BOOK-URL" style="--tone-bg:var(--orange)">
           <span class="dl-num">02</span>
           <span class="dl-name">Brand Book</span>
           <div class="dl-meta"><span class="tag muted">Pending</span><span class="dl-arrow">→</span></div>
         </a>
 
-        <a class="dl-row" href="https://drive.google.com/drive/folders/1i4Fd8Y7zsXWMTAioRrGVfkGUB7ql50wU?usp=drive_link" target="_blank" rel="noopener" style="--tone-bg:var(--brand-lavender-light)">
+        <a class="dl-row" href="https://drive.google.com/drive/folders/1i4Fd8Y7zsXWMTAioRrGVfkGUB7ql50wU?usp=drive_link" target="_blank" rel="noopener" style="--tone-bg:var(--lavender)">
           <span class="dl-num">03</span>
           <span class="dl-name">Neighborly Templates</span>
           <div class="dl-meta"><span class="tag green">Live</span><span class="dl-arrow">→</span></div>
         </a>
 
-        <a class="dl-row" href="https://drive.google.com/drive/folders/19dfTyHtlgTvejIh5HZtrMzsvt0rQBdRd?usp=drive_link" target="_blank" rel="noopener" style="--tone-bg:var(--brand-yellow-light)">
+        <a class="dl-row" href="https://drive.google.com/drive/folders/19dfTyHtlgTvejIh5HZtrMzsvt0rQBdRd?usp=drive_link" target="_blank" rel="noopener" style="--tone-bg:var(--yellow)">
           <span class="dl-num">04</span>
           <span class="dl-name">Menu Files</span>
           <div class="dl-meta"><span class="tag green">Live</span><span class="dl-arrow">→</span></div>
         </a>
 
-        <a class="dl-row" href="https://www.dropbox.com/scl/fo/s9qxbr2bqhr0x0kxu0mdg/ALiObuP72mEaQ4KY80-dKV8?rlkey=meypzjnbec1zcmi3ohle1ys8w&st=1nu52222&dl=0" target="_blank" rel="noopener" style="--tone-bg:var(--brand-blue-light)">
+        <a class="dl-row" href="https://www.dropbox.com/scl/fo/s9qxbr2bqhr0x0kxu0mdg/ALiObuP72mEaQ4KY80-dKV8?rlkey=meypzjnbec1zcmi3ohle1ys8w&st=1nu52222&dl=0" target="_blank" rel="noopener" style="--tone-bg:var(--soft-green)">
           <span class="dl-num">05</span>
           <span class="dl-name">Social Assets</span>
           <div class="dl-meta"><span class="tag green">Live</span><span class="dl-arrow">→</span></div>
         </a>
 
-        <a class="dl-row" href="https://drive.google.com/drive/folders/1azLQe7_DvJ0kMiidm87u_0k2ga3N9H5Z?usp=drive_link" target="_blank" rel="noopener" style="--tone-bg:var(--brand-green-light)">
+        <a class="dl-row" href="https://drive.google.com/drive/folders/1azLQe7_DvJ0kMiidm87u_0k2ga3N9H5Z?usp=drive_link" target="_blank" rel="noopener" style="--tone-bg:var(--green)">
           <span class="dl-num">06</span>
           <span class="dl-name">Photography</span>
           <div class="dl-meta"><span class="tag green">Live</span><span class="dl-arrow">→</span></div>
