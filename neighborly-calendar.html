@@ -101,7 +101,12 @@ body{font-family:'DM Sans',sans-serif;overscroll-behavior:none;height:100%;backg
     <a class="np-hub-card" href="neighborly-dashboard.html">
       <div class="np-hub-card-ico" style="background:var(--brand-yellow-light)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--brand-yellow-deep)" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></div>
       <div class="np-hub-card-title">Performance Marketing</div>
-      <div class="np-hub-card-sub">Sales &amp; KPI tracker</div>
+      <div class="np-hub-card-sub">Weekly &amp; all-time KPIs</div>
+    </a>
+    <a class="np-hub-card" href="neighborly-pmix.html">
+      <div class="np-hub-card-ico" style="background:#e3ece3"><svg viewBox="0 0 24 24" fill="none" stroke="#5a7a5a" stroke-width="2" stroke-linecap="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></div>
+      <div class="np-hub-card-title">Sales &amp; Pmix</div>
+      <div class="np-hub-card-sub">Daily sales &amp; menu mix</div>
     </a>
     <a class="np-hub-card is-active" href="neighborly-calendar.html">
       <div class="np-hub-card-ico" style="background:var(--brand-green-light)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--brand-green-deep)" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
@@ -967,7 +972,8 @@ function NeighborlyCalendar() {
         <div className="hub-nav-grid">
           {[
             {title:'Home',                sub:'Marketing Hub overview',  iconType:'home',     bg:'#F0EEE9',ic:'#3a3d44', href:'https://beneighborly.team/index.html'},
-            {title:'Performance Marketing', sub:'Sales & KPI tracker',     iconType:'grid',     bg:'#fdf7d8',ic:'#b89a00', href:'https://beneighborly.team/neighborly-dashboard.html'},
+            {title:'Performance Marketing', sub:'Weekly & all-time KPIs',  iconType:'grid',     bg:'#fdf7d8',ic:'#b89a00', href:'https://beneighborly.team/neighborly-dashboard.html'},
+            {title:'Sales & Pmix',       sub:'Daily sales & menu mix',   iconType:'bars',     bg:'#e3ece3',ic:'#5a7a5a', href:'https://beneighborly.team/neighborly-pmix.html'},
             {title:'Marketing Calendar', sub:'Campaigns & scheduling',   iconType:'calendar', bg:'#e4f5ea',ic:'#2a7a4b', href:'https://beneighborly.team/neighborly-calendar.html', active:true},
             {title:'Brand Assets',       sub:'Logos, fonts & templates', iconType:'assets',   bg:'#f7f0e4',ic:'#9c7a3c', href:'https://beneighborly.team/neighborly-assets.html'},
             {title:'Social',             sub:'Reach & engagement',       iconType:'pulse',    bg:'#eaeef8',ic:'#3a59a0', href:'https://beneighborly.team/neighborly-social.html'},
@@ -1005,6 +1011,9 @@ function NeighborlyCalendar() {
                     <path d="M3 12l9-9 9 9"/>
                     <path d="M5 10v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V10"/>
                   </>)}
+                  {card.iconType==='bars' && (
+                    <path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>
+                  )}
                 </svg>
               </div>
               <div className="hub-card-title">{card.title}</div>
