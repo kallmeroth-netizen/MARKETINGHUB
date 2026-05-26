@@ -711,3 +711,12 @@ section.row    { padding: var(--s-7) 0; gap: var(--s-6); }
 }
 .nav-logo-wrap img { height: 28px !important; width: auto !important; }
 
+/* ============================================================
+   INDEX (entry hub) — passcode capsule + hub tile aliases
+   ============================================================ */
+.pw-input { font-size: 16px; }    /* prevent iOS auto-zoom */
+.submit, .submit:hover { box-shadow: var(--shadow-orange); }
+.tile, .hub-tile { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-xl); }
+.tile-label { font-family: var(--f-eyebrow); font-weight: 600; font-size: var(--t-caption); letter-spacing: 0.18em; text-transform: uppercase; color: var(--ink); }
+.tile-sub   { font-family: var(--f-sans); font-size: var(--t-caption); color: var(--text-3); }
+
