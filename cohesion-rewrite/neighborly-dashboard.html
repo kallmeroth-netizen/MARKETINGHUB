@@ -1810,7 +1810,7 @@ function _onDailyPageEnter() {
 //   }
 // }
 
-const DAILY_API_URL = './daily-data.json';
+const DAILY_API_URL = '/daily-data.json';
 
 const DAILY = { wlv: null, bw: null, total: null };
 const DAILY_PREV = { wlv: null, bw: null, total: null, date: null };
@@ -1968,8 +1968,8 @@ function _shortDate(label) {
 }
 
 // ── DAILY HISTORICAL CALENDAR ─────────────────────────────────────────────────
-const DAILY_ARCHIVE_INDEX_URL = './daily-data-index.json';
-const DAILY_ARCHIVE_PATH = './daily-data-archive';
+const DAILY_ARCHIVE_INDEX_URL = '/daily-data-index.json';
+const DAILY_ARCHIVE_PATH = '/daily-data-archive';
 let DAILY_INDEX = null;          // { dates: [{date, dateLabel, ...}], latest, count }
 let _dailyCalCursor = null;      // { y, m0 }
 let _dailyCalSelected = null;    // 'YYYY-MM-DD'

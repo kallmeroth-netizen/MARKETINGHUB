@@ -2161,7 +2161,7 @@ function drawRatingChart(){
 document.addEventListener('keydown',function(e){if(e.key==='Escape'){ closeDrawer(); closeHubNav(); }});
 
 // Fetch the live Ovation export, populate LIVE_REVIEWS, derive trend buckets, then render.
-fetch('./ovation-reviews.json', {cache:'no-store'})
+fetch('/ovation-reviews.json', {cache:'no-store'})
   .then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); })
   .then(function(data){
     LIVE_REVIEWS = data;
