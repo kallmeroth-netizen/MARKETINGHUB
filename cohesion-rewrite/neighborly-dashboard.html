@@ -412,6 +412,8 @@
           <button class="is-active" onclick="showPage('dashboard',this)">Weekly</button>
           <button id="dailyNavTab" onclick="showPage('daily',this)">Daily</button>
           <button onclick="showPage('alltime',this)">All time</button>
+          <a href="neighborly-pmix.html">PMIX</a>
+          <a href="neighborly-social.html">Social</a>
         </div>
         <div class="week-badge" id="weekBadge" onclick="toggleWeekCalendar(event)">
           <span class="week-badge-text">
@@ -1375,6 +1377,12 @@ document.addEventListener('keydown', e => {
 buildWeekPicker();
 renderDashboard();
 
+// Deep-link support: dashboard.html#daily or #alltime auto-switches sub-page
+(function applyDashboardHash(){
+  const h = (location.hash || '').replace('#','');
+  if (h === 'daily' || h === 'alltime') showPage(h, null);
+})();
+
 // ── HUB NAV ───────────────────────────────────────────────────────────────────
 const IS_GUEST = sessionStorage.getItem('nbly_guest') === '1';
 
@@ -1422,6 +1430,8 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeHubNav(
           <button onclick="showPage('dashboard',this)">Weekly</button>
           <button class="is-active" onclick="showPage('daily',this)">Daily</button>
           <button onclick="showPage('alltime',this)">All time</button>
+          <a href="neighborly-pmix.html">PMIX</a>
+          <a href="neighborly-social.html">Social</a>
         </div>
         <div class="week-badge" id="dailyDateBadge" onclick="toggleDailyCalendar(event)">
           <span class="week-badge-text">
@@ -1527,6 +1537,8 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeHubNav(
           <button onclick="showPage('dashboard',this)">Weekly</button>
           <button onclick="showPage('daily',this)">Daily</button>
           <button class="is-active" onclick="showPage('alltime',this)">All time</button>
+          <a href="neighborly-pmix.html">PMIX</a>
+          <a href="neighborly-social.html">Social</a>
         </div>
         <div class="view-toggle">
           <button class="vt-btn active" onclick="setATView('total',this)">Total revenue</button>
