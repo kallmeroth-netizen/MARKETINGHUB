@@ -271,12 +271,14 @@
 
   .date-chip {
     display: inline-flex; align-items: center; gap: 8px;
-    padding: 8px 16px;
+    padding: 7px 14px;
     background: rgba(31,35,40,0.04);
     border-radius: 100px;
     color: var(--text2);
-    font-family: 'DM Mono', monospace;
-    font-size: 13px; letter-spacing: 0.05em;
+    font-family: 'Jost', 'futura-pt', 'Futura', sans-serif;
+    font-weight: 600;
+    font-size: 11px; letter-spacing: 0.22em;
+    text-transform: uppercase;
     user-select: none;
   }
   .date-chip svg { opacity: 0.7; }
@@ -291,17 +293,21 @@
   }
   .hub-overlay.open { opacity: 1; pointer-events: auto; }
   .hub-pop {
-    position: fixed; top: 72px; left: 28px; z-index: 28;
+    position: fixed;
+    top: 50%; left: 50%;
+    transform: translate(-50%, calc(-50% - 6px));
+    z-index: 28;
     background: #fff;
     border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 16px;
-    width: 380px;
+    border-radius: 18px;
+    padding: 18px;
+    width: min(420px, calc(100vw - 24px));
+    max-height: calc(100vh - 80px); overflow-y: auto;
     box-shadow: 0 20px 60px rgba(0,0,0,0.16);
-    opacity: 0; transform: translateY(-6px); pointer-events: none;
+    opacity: 0; pointer-events: none;
     transition: opacity 0.2s ease, transform 0.2s ease;
   }
-  .hub-pop.open { opacity: 1; transform: translateY(0); pointer-events: auto; }
+  .hub-pop.open { opacity: 1; transform: translate(-50%, -50%); pointer-events: auto; }
   .hub-label {
     font-family: 'futura-pt', 'Jost', sans-serif;
     font-weight: 600; font-size: 11.5px; letter-spacing: 0.32em; text-transform: uppercase;
@@ -473,16 +479,16 @@
     .tile-grid .tile { flex: 0 0 calc((100% - 16px) / 2); }
     nav.topbar { padding: 0 16px; }
     main { padding: clamp(72px, 10vh, 120px) 18px 60px; }
-    .hub-pop { left: 16px; right: 16px; width: auto; }
+    .hub-pop { width: min(420px, calc(100vw - 24px)); }
   }
   @media (max-width: 520px) {
     /* Compact mobile nav: smaller logo, tighter chrome */
     nav.topbar { height: 52px; padding: 0 14px; }
-    .nav-brand { padding: 4px 6px; gap: 6px; }
+    .nav-brand { padding: 12px 12px 12px 8px; gap: 6px; min-height: 44px; min-width: 44px; }
     .nav-brand img { height: 11px; }
     .date-chip { padding: 6px 10px; font-size: 11px; }
     .date-chip svg { width: 11px; height: 11px; }
-    .hub-pop { top: 64px; padding: 12px; border-radius: 14px; }
+    .hub-pop { padding: 14px; border-radius: 16px; }
     .hub-grid { gap: 6px; }
     .hub-card { padding: 10px; border-radius: 10px; }
     .hub-card-title { font-size: 13px; }

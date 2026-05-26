@@ -42,8 +42,8 @@
   .hub-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.25); z-index: 150; opacity: 0; pointer-events: none; transition: opacity 0.2s ease; }
   .hub-overlay.open { opacity: 1; pointer-events: all; }
 
-  .hub-nav { position: fixed; top: 62px; left: 1.5rem; right: 1.5rem; background: var(--surface); border: 0.5px solid var(--border-strong); border-radius: 16px; z-index: 160; padding: 1.5rem 2rem 1.75rem; transform: translateY(-12px); opacity: 0; pointer-events: none; transition: opacity 0.18s ease, transform 0.18s ease; box-shadow: 0 12px 40px rgba(0,0,0,0.12); }
-  .hub-nav.open { opacity: 1; pointer-events: all; transform: translateY(0); }
+  .hub-nav { position: fixed; top: 50%; left: 50%; transform: translate(-50%, calc(-50% - 6px)); width: min(560px, calc(100vw - 32px)); max-height: calc(100vh - 80px); overflow-y: auto; background: var(--surface); border: 0.5px solid var(--border-strong); border-radius: 16px; z-index: 160; padding: 1.5rem 1.75rem 1.75rem; opacity: 0; pointer-events: none; transition: opacity 0.18s ease, transform 0.18s ease; box-shadow: 0 12px 40px rgba(0,0,0,0.12); }
+  .hub-nav.open { opacity: 1; pointer-events: all; transform: translate(-50%, -50%); }
 
   .hub-nav-label { font-size: 10px; font-weight: 600; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 1rem; }
   .hub-back-home { font-size: 11px; font-weight: 500; color: var(--text-2); text-decoration: none; padding: 4px 10px; border: 0.5px solid var(--border-strong); border-radius: 7px; background: var(--surface-2); letter-spacing: 0; text-transform: none; transition: background 0.15s, color 0.15s; white-space: nowrap; }
@@ -109,8 +109,8 @@
   .cal-foot { font-size: 10px; color: var(--text-3); margin-top: 10px; padding-top: 10px; border-top: 0.5px solid var(--border); line-height: 1.4; }
   .cal-foot strong { color: var(--text-2); font-weight: 600; }
 
-  .view-toggle { display: inline-flex; background: var(--surface-2); border-radius: var(--r-sm); padding: 3px; gap: 2px; }
-  .vt-btn { padding: 5px 14px; border-radius: 6px; font-size: var(--t-caption); font-weight: 500; cursor: pointer; border: none; background: transparent; color: var(--text-2); font-family: var(--f-sans); line-height: 1.4; transition: background var(--t-base) var(--easing), color var(--t-base) var(--easing), box-shadow var(--t-base) var(--easing); }
+  .view-toggle { display: inline-flex; background: var(--surface-2); border-radius: var(--r-pill); padding: 3px; gap: 2px; }
+  .vt-btn { padding: 6px 14px; border-radius: var(--r-pill); font-size: var(--t-caption); font-weight: 500; cursor: pointer; border: none; background: transparent; color: var(--text-2); font-family: var(--f-sans); line-height: 1.4; transition: background var(--t-base) var(--easing), color var(--t-base) var(--easing), box-shadow var(--t-base) var(--easing); }
   .vt-btn:hover { color: var(--text); }
   .vt-btn.active { background: var(--surface); color: var(--text); box-shadow: var(--shadow-sm); }
 
@@ -411,7 +411,12 @@
   <div class="dashboard">
     <div class="dash-header np-page-header">
       <div>
-        <div class="week-badge" id="weekBadge" onclick="toggleWeekCalendar(event)">
+        <h1 class="np-page-title">Sales &amp; Performance</h1>
+        <div class="np-toggle view-type-toggle" style="margin-top:10px;">
+          <button class="is-active" type="button">Sales</button>
+          <a href="neighborly-pmix.html">Menu mix</a>
+        </div>
+        <div class="week-badge" id="weekBadge" onclick="toggleWeekCalendar(event)" style="margin-top:10px;">
           <span class="week-badge-text">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
             Week of
@@ -1407,9 +1412,10 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeHubNav(
 <!-- DAILY PAGE -->
 <div class="page" id="page-daily">
   <div class="dashboard">
-    <div class="dash-header reveal">
+    <div class="dash-header reveal np-page-header">
       <div>
-        <div class="week-badge" id="dailyDateBadge" onclick="toggleDailyCalendar(event)" style="margin-top:8px">
+        <h1 class="np-page-title">Daily Sales</h1>
+        <div class="week-badge" id="dailyDateBadge" onclick="toggleDailyCalendar(event)" style="margin-top:10px">
           <span class="week-badge-text">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
             Date
@@ -1505,6 +1511,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeHubNav(
   <div class="dashboard">
     <div class="dash-header np-page-header">
       <div>
+        <h1 class="np-page-title">All-time Performance</h1>
       </div>
       <div class="view-toggle">
         <button class="vt-btn active" onclick="setATView('total',this)">Total revenue</button>

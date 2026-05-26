@@ -130,149 +130,121 @@
 
   /* ===== HERO ===== */
   .hero {
-    padding: var(--s-9) 0 var(--s-8);
+    padding: var(--s-7) 0 var(--s-6);
     border-bottom: 1px solid var(--line);
     position: relative;
   }
-  .hero-eyebrow {
-    font-family: var(--f-futura);
-    font-size: 11px; font-weight: 600;
-    letter-spacing: 0.28em;
-    text-transform: uppercase;
-    color: var(--orange);
-    margin-bottom: var(--s-5);
-  }
   .hero-title {
     font-family: var(--f-display);
-    font-size: clamp(3.4rem, 9vw, 7.2rem);
-    line-height: 0.95;
+    font-size: clamp(1.9rem, 4.4vw, 2.8rem);
+    line-height: 1.05;
     letter-spacing: -0.01em;
     color: var(--ink);
-    text-transform: uppercase;
     font-weight: 400;
+    margin-bottom: var(--s-3);
   }
-  .hero-title .accent { color: var(--orange); text-transform: none; font-family: var(--f-tuppence); font-weight: 500; }
+  .hero-title .accent { color: var(--orange); font-family: var(--f-tuppence); font-weight: 500; font-style: normal; }
   .hero-sub {
-    margin-top: var(--s-6);
     max-width: 620px;
-    font-size: clamp(1rem, 1.4vw, 1.18rem);
+    font-size: 14px;
     color: var(--text-2);
     line-height: 1.6;
-  }
-  .hero-meta {
-    margin-top: var(--s-7);
-    display: flex; gap: var(--s-6); flex-wrap: wrap;
-    font-family: var(--f-mono);
-    font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
-    color: var(--text-3);
-  }
-  .hero-meta span { display: inline-flex; align-items: center; gap: 8px; }
-  .hero-meta span::before {
-    content: ''; width: 6px; height: 6px; border-radius: 50%;
-    background: var(--ink); opacity: 0.4;
   }
 
   /* ===== SECTION ===== */
   section.row {
-    padding: var(--s-8) 0;
+    padding: var(--s-6) 0;
     border-bottom: 1px solid var(--line);
     display: grid;
-    grid-template-columns: 260px 1fr;
-    gap: var(--s-7);
+    grid-template-columns: 220px 1fr;
+    gap: var(--s-6);
   }
   @media (max-width: 920px) {
-    section.row { grid-template-columns: 1fr; gap: var(--s-5); padding: var(--s-7) 0; }
+    section.row { grid-template-columns: 1fr; gap: var(--s-4); padding: var(--s-5) 0; }
   }
 
   .row-head { position: sticky; top: 88px; align-self: start; }
   @media (max-width: 920px) { .row-head { position: static; } }
 
   .row-num {
-    font-family: var(--f-futura);
+    font-family: var(--f-eyebrow);
     font-size: 11px; font-weight: 600;
-    letter-spacing: 0.24em;
+    letter-spacing: 0.22em;
     text-transform: uppercase;
     color: var(--text-3);
-    margin-bottom: var(--s-3);
+    margin-bottom: var(--s-2);
   }
-  .row-num span { color: var(--orange); margin-right: 8px; }
   .row-title {
     font-family: var(--f-display);
-    font-size: clamp(2rem, 3.8vw, 2.8rem);
-    line-height: 1;
-    letter-spacing: 0.01em;
-    text-transform: uppercase;
+    font-size: clamp(1.4rem, 2.6vw, 1.8rem);
+    line-height: 1.1;
+    letter-spacing: -0.005em;
     font-weight: 400;
     color: var(--ink);
   }
   .row-desc {
-    margin-top: var(--s-3);
-    font-size: 14px;
+    margin-top: var(--s-2);
+    font-size: 13.5px;
     color: var(--text-2);
     max-width: 220px;
+    line-height: 1.55;
   }
 
   /* Eyebrow */
   .eyebrow {
-    font-family: var(--f-futura);
+    font-family: var(--f-eyebrow);
     font-size: 10.5px; font-weight: 600;
-    letter-spacing: 0.24em;
+    letter-spacing: 0.22em;
     text-transform: uppercase;
-    color: var(--orange);
+    color: var(--text-3);
   }
 
   /* ===== QUICK ACCESS ===== */
   .quick {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 1px;
-    background: var(--line);
-    border: 1px solid var(--line);
-    border-radius: var(--radius);
-    overflow: hidden;
+    gap: var(--s-3);
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    overflow: visible;
   }
-  @media (max-width: 760px) { .quick { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 760px) { .quick { grid-template-columns: repeat(2, 1fr); gap: var(--s-2); } }
   .quick-cell {
-    background: #fff;
-    --tone-bg: #f7f5ef;
-    padding: var(--s-5);
-    min-height: 150px;
+    background: var(--surface);
+    --tone-bg: var(--surface-2);
+    padding: var(--s-4);
+    min-height: 110px;
+    border: 1px solid var(--line);
+    border-radius: var(--r-lg);
     display: flex; flex-direction: column; justify-content: space-between;
     text-decoration: none; color: var(--ink);
-    transition: background 0.25s ease, transform 0.25s ease;
+    transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
   }
-  .quick-cell:hover { background: var(--tone-bg); color: #fff; border-color: var(--tone-bg); }
-  .quick-cell:hover .quick-num { color: rgba(255,255,255,0.7); }
+  .quick-cell:hover { background: var(--tone-bg); color: #fff; border-color: var(--tone-bg); transform: translateY(-1px); }
   .quick-cell:hover .quick-name { color: #fff; }
   .quick-cell:hover .quick-arrow { color: rgba(255,255,255,0.85); }
   .quick-cell:hover .quick-dot { background: rgba(255,255,255,0.95) !important; }
-  .quick-cell.feature { background: var(--orange); color: #fff; }
+  .quick-cell.feature { background: var(--orange); color: #fff; border-color: var(--orange); }
   .quick-cell.feature .quick-arrow { color: rgba(255,255,255,0.78); }
-  .quick-cell.feature .quick-num { color: rgba(255,255,255,0.6); }
   .quick-cell.feature .quick-dot { background: rgba(255,255,255,0.9) !important; }
-  .quick-cell.feature:hover { background: #d96538; }
+  .quick-cell.feature:hover { background: #d96538; border-color: #d96538; }
 
-  .quick-top { display: flex; justify-content: space-between; align-items: center; }
-  .quick-num {
-    font-family: var(--f-mono);
-    font-size: 10.5px; letter-spacing: 0.18em;
-    color: var(--text-3);
-  }
-  .quick-dot { width: 10px; height: 10px; border-radius: 50%; opacity: 0.85; }
+  .quick-top { display: flex; justify-content: flex-end; align-items: center; }
+  .quick-dot { width: 8px; height: 8px; border-radius: 50%; opacity: 0.85; }
   .quick-name {
     font-family: var(--f-display);
-    font-size: 1.65rem;
-    line-height: 1;
-    text-transform: uppercase;
+    font-size: 1.05rem;
+    line-height: 1.15;
     margin-top: auto;
   }
   .quick-arrow {
-    font-family: var(--f-futura);
-    font-size: 10.5px; font-weight: 600;
-    letter-spacing: 0.22em; text-transform: uppercase;
+    font-family: var(--f-eyebrow);
+    font-size: 10px; font-weight: 600;
+    letter-spacing: 0.20em; text-transform: uppercase;
     color: var(--text-3);
-    margin-top: var(--s-3);
-    display: inline-flex; align-items: center; gap: 8px;
+    margin-top: var(--s-2);
+    display: inline-flex; align-items: center; gap: 6px;
   }
   .quick-arrow::after { content: '→'; transition: transform 0.25s ease; }
   .quick-cell:hover .quick-arrow::after { transform: translateX(4px); }
@@ -286,15 +258,14 @@
     border-radius: var(--radius);
     padding: var(--s-6);
   }
-  .found-card .eyebrow { margin-bottom: var(--s-3); }
+  .found-card .eyebrow { margin-bottom: var(--s-2); }
   .found-card h4 {
     font-family: var(--f-display);
-    font-size: 1.3rem; line-height: 1.05;
-    text-transform: uppercase;
+    font-size: 1.05rem; line-height: 1.2;
     font-weight: 400;
-    margin-bottom: var(--s-3);
+    margin-bottom: var(--s-2);
   }
-  .found-card p { font-size: 14.5px; color: var(--text-2); line-height: 1.6; }
+  .found-card p { font-size: 13.5px; color: var(--text-2); line-height: 1.55; }
 
   /* ===== LOGOS ===== */
   .logo-list { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--s-4); }
@@ -325,8 +296,8 @@
     font-family: var(--f-mono); font-size: 11px;
     color: var(--text-3); letter-spacing: 0.12em; text-transform: uppercase;
   }
-  .logo-meta { padding: var(--s-5); display: flex; flex-direction: column; gap: var(--s-2); flex: 1; }
-  .logo-name { font-family: var(--f-display); font-size: 1.4rem; line-height: 1; text-transform: uppercase; margin-top: var(--s-2); }
+  .logo-meta { padding: var(--s-4); display: flex; flex-direction: column; gap: var(--s-2); flex: 1; }
+  .logo-name { font-family: var(--f-display); font-size: 1.05rem; line-height: 1.15; margin-top: var(--s-1); }
   .logo-use { font-size: 13.5px; color: var(--text-2); line-height: 1.55; flex: 1; }
   .logo-actions { margin-top: var(--s-3); display: flex; gap: var(--s-2); }
 
@@ -424,7 +395,7 @@
     padding: var(--s-3) var(--s-4) var(--s-4);
     display: flex; flex-direction: column; gap: 2px;
   }
-  .swatch-name { font-family: var(--f-display); font-size: 1.1rem; line-height: 1; text-transform: uppercase; letter-spacing: 0.02em; }
+  .swatch-name { font-family: var(--f-display); font-size: 0.95rem; line-height: 1.15; letter-spacing: 0; }
   .swatch-hex { font-family: var(--f-mono); font-size: 11px; color: var(--text-3); letter-spacing: 0.06em; }
   .swatch-copy {
     position: absolute; top: var(--s-3); right: var(--s-3);
@@ -455,12 +426,12 @@
   @media (max-width: 760px) { .type-row { grid-template-columns: 1fr; gap: var(--s-3); padding: var(--s-5); } }
 
   .type-meta { display: flex; flex-direction: column; gap: 8px; }
-  .type-role { font-family: var(--f-futura); font-weight: 600; font-size: 10.5px; letter-spacing: 0.24em; text-transform: uppercase; color: var(--orange); }
-  .type-name { font-family: var(--f-display); font-size: 1.6rem; line-height: 1.05; color: var(--ink); }
+  .type-role { font-family: var(--f-eyebrow); font-weight: 600; font-size: 10.5px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--text-3); }
+  .type-name { font-family: var(--f-display); font-size: 1.2rem; line-height: 1.15; color: var(--ink); }
   .type-name.name-amaya { font-family: var(--f-display); text-transform: uppercase; letter-spacing: 0.04em; }
-  .type-name.name-tuppence { font-family: var(--f-tuppence); font-weight: 500; font-size: 1.8rem; }
-  .type-name.name-futura { font-family: var(--f-futura); font-weight: 600; text-transform: uppercase; letter-spacing: 0.18em; font-size: 1.1rem; }
-  .type-name.name-telegraf { font-family: var(--f-telegraf); font-weight: 400; font-size: 1.4rem; letter-spacing: -0.005em; }
+  .type-name.name-tuppence { font-family: var(--f-tuppence); font-weight: 500; font-size: 1.3rem; }
+  .type-name.name-futura { font-family: var(--f-eyebrow); font-weight: 600; text-transform: uppercase; letter-spacing: 0.18em; font-size: 1rem; }
+  .type-name.name-telegraf { font-family: var(--f-telegraf); font-weight: 400; font-size: 1.1rem; letter-spacing: -0.005em; }
   .type-sample.telegraf { font-family: var(--f-telegraf); font-size: 1.05rem; line-height: 1.55; color: var(--text-2); }
   .type-sample.telegraf em { color: var(--ink); font-style: normal; font-weight: 500; }
   .type-detail { font-family: var(--f-mono); font-size: 11px; color: var(--text-3); letter-spacing: 0.06em; line-height: 1.45; }
@@ -510,9 +481,9 @@
   .voice .eyebrow { color: rgba(255,255,255,0.85); }
   .voice-line {
     font-family: var(--f-display);
-    font-size: clamp(2rem, 4vw, 3rem);
-    line-height: 1; text-transform: uppercase;
-    margin-top: var(--s-4);
+    font-size: clamp(1.3rem, 2.6vw, 1.8rem);
+    line-height: 1.15;
+    margin-top: var(--s-3);
     color: #fff;
   }
   .voice-line .accent,
@@ -543,14 +514,14 @@
   }
   @media (max-width: 720px) { .photo { grid-template-columns: 1fr; } }
   .photo-title {
-    font-family: var(--f-sans);
-    font-size: 1.5rem; line-height: 1.15;
-    font-weight: 600;
+    font-family: var(--f-display);
+    font-size: 1.15rem; line-height: 1.2;
+    font-weight: 400;
     letter-spacing: -0.005em;
     color: var(--ink);
-    margin-top: var(--s-3);
+    margin-top: var(--s-2);
   }
-  .photo-desc { font-size: 14.5px; color: var(--text-2); margin-top: var(--s-2); max-width: 520px; }
+  .photo-desc { font-size: 13.5px; color: var(--text-2); margin-top: var(--s-2); max-width: 520px; line-height: 1.55; }
 
   .photo-rules {
     margin-top: var(--s-4);
@@ -563,7 +534,7 @@
     border-radius: var(--radius);
     padding: var(--s-5);
   }
-  .photo-rules .item h5 { font-family: var(--f-display); font-size: 1.05rem; text-transform: uppercase; margin-bottom: 6px; font-weight: 400; }
+  .photo-rules .item h5 { font-family: var(--f-display); font-size: 0.95rem; margin-bottom: 6px; font-weight: 400; line-height: 1.2; }
   .photo-rules .item p { font-size: 13.5px; color: var(--text-2); line-height: 1.55; }
 
   /* ===== DOWNLOADS ===== */
@@ -591,7 +562,7 @@
     font-family: var(--f-mono); font-size: 11px; letter-spacing: 0.12em;
     color: var(--text-3);
   }
-  .dl-name { font-family: var(--f-display); font-size: 1.35rem; text-transform: uppercase; line-height: 1; }
+  .dl-name { font-family: var(--f-display); font-size: 1.05rem; line-height: 1.15; }
   .dl-meta { display: flex; align-items: center; gap: var(--s-3); }
   .dl-arrow {
     font-family: var(--f-mono); font-size: 14px;
@@ -690,7 +661,7 @@
     </a>
     <a class="np-hub-card" href="neighborly-dashboard.html">
       <div class="np-hub-card-ico" style="background:var(--brand-yellow-light)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--brand-yellow-deep)" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></div>
-      <div class="np-hub-card-title">Sales <span class="amp">&amp;</span> Performance</div>
+      <div class="np-hub-card-title">Sales &amp; Performance</div>
       <div class="np-hub-card-sub">Sales &amp; KPI tracker</div>
     </a>
     <a class="np-hub-card" href="neighborly-calendar.html">
@@ -716,49 +687,45 @@
 
   <!-- HERO -->
   <header class="hero reveal np-page-header">
-    <div class="hero-eyebrow np-page-eyebrow">Internal · Brand Hub</div>
-    <h1 class="hero-title np-page-title">Neighborly Brand<br><span class="accent">Guidelines</span></h1>
+    <h1 class="hero-title np-page-title">Neighborly Brand <span class="accent">Guidelines</span></h1>
     <p class="hero-sub">A single source for everything our brand stands for — the marks, colors, words, and rules that make Neighborly feel like Neighborly. Use these as written. When in doubt, keep it warm and keep it clear.</p>
-    <div class="hero-meta">
-      <span>Curated Kitchens and Marketplace</span>
-    </div>
   </header>
 
   <!-- INDEX -->
   <section class="row reveal" id="index">
     <div class="row-head">
-      <div class="row-num"><span>01</span> Overview</div>
+      <div class="row-num">Neighborly Brand Overview</div>
       <h2 class="row-title">Overview</h2>
     </div>
     <div>
       <div class="quick">
         <a class="quick-cell" href="#logos" style="--tone-bg:var(--orange)">
-          <div class="quick-top"><span class="quick-num">01</span><span class="quick-dot" style="background:var(--orange)"></span></div>
+          <div class="quick-top"><span class="quick-dot" style="background:var(--orange)"></span></div>
           <div class="quick-name">Logos</div>
           <div class="quick-arrow">View</div>
         </a>
         <a class="quick-cell feature" href="#REPLACE-BRAND-BOOK-URL">
-          <div class="quick-top"><span class="quick-num">02</span><span class="quick-dot" style="background:var(--orange)"></span></div>
+          <div class="quick-top"><span class="quick-dot" style="background:var(--orange)"></span></div>
           <div class="quick-name">Brand Book</div>
           <div class="quick-arrow">Open</div>
         </a>
         <a class="quick-cell" href="#photography" style="--tone-bg:var(--green)">
-          <div class="quick-top"><span class="quick-num">03</span><span class="quick-dot" style="background:var(--green)"></span></div>
+          <div class="quick-top"><span class="quick-dot" style="background:var(--green)"></span></div>
           <div class="quick-name">Photography</div>
           <div class="quick-arrow">View</div>
         </a>
         <a class="quick-cell" href="https://drive.google.com/drive/folders/1i4Fd8Y7zsXWMTAioRrGVfkGUB7ql50wU?usp=drive_link" target="_blank" rel="noopener" style="--tone-bg:var(--lavender)">
-          <div class="quick-top"><span class="quick-num">04</span><span class="quick-dot" style="background:var(--lavender)"></span></div>
+          <div class="quick-top"><span class="quick-dot" style="background:var(--lavender)"></span></div>
           <div class="quick-name">Templates</div>
           <div class="quick-arrow">Open</div>
         </a>
         <a class="quick-cell" href="https://drive.google.com/drive/folders/19dfTyHtlgTvejIh5HZtrMzsvt0rQBdRd?usp=drive_link" target="_blank" rel="noopener" style="--tone-bg:var(--yellow)">
-          <div class="quick-top"><span class="quick-num">05</span><span class="quick-dot" style="background:var(--yellow)"></span></div>
+          <div class="quick-top"><span class="quick-dot" style="background:var(--yellow)"></span></div>
           <div class="quick-name">Menus</div>
           <div class="quick-arrow">Open</div>
         </a>
         <a class="quick-cell" href="https://www.dropbox.com/scl/fo/s9qxbr2bqhr0x0kxu0mdg/ALiObuP72mEaQ4KY80-dKV8?rlkey=meypzjnbec1zcmi3ohle1ys8w&st=1nu52222&dl=0" target="_blank" rel="noopener" style="--tone-bg:var(--soft-green)">
-          <div class="quick-top"><span class="quick-num">06</span><span class="quick-dot" style="background:var(--soft-green)"></span></div>
+          <div class="quick-top"><span class="quick-dot" style="background:var(--soft-green)"></span></div>
           <div class="quick-name">Social</div>
           <div class="quick-arrow">Open</div>
         </a>
@@ -769,7 +736,7 @@
   <!-- FOUNDATION -->
   <section class="row reveal" id="foundation">
     <div class="row-head">
-      <div class="row-num"><span>02</span> Foundation</div>
+      <div class="row-num">Foundation</div>
       <h2 class="row-title">Who We Are</h2>
       <p class="row-desc">Bringing the neighborhood together, one meal at a time.</p>
     </div>
@@ -797,7 +764,7 @@
   <!-- LOGOS -->
   <section class="row reveal" id="logos">
     <div class="row-head">
-      <div class="row-num"><span>03</span> Identity</div>
+      <div class="row-num">Identity</div>
       <h2 class="row-title">Logos</h2>
       <p class="row-desc">Three marks. Use exactly as provided — never recreated, recolored, or restyled.</p>
     </div>
@@ -819,8 +786,8 @@
         </div>
 
         <div class="logo-item">
-          <div class="logo-stage" style="background:var(--warm)">
-            <div class="placeholder">House · Awaiting Upload</div>
+          <div class="logo-stage cream">
+            <img src="NeighborlyHouses.svg" alt="Neighborly house mark" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'placeholder',textContent:'House · Awaiting Upload'}))">
           </div>
           <div class="logo-meta">
             <span class="tag lavender">Secondary</span>
@@ -833,13 +800,13 @@
         </div>
 
         <div class="logo-item">
-          <div class="logo-stage" style="background:var(--warm)">
-            <div class="placeholder">WordMark · Awaiting Upload</div>
+          <div class="logo-stage" style="background:var(--orange); padding:0;">
+            <img src="NeighborlyTertiary.svg" alt="Eat / Shop / Be Neighborly tertiary lockup" style="max-width:100%; max-height:100%;" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'placeholder',textContent:'WordMark · Awaiting Upload'}))">
           </div>
           <div class="logo-meta">
             <span class="tag lavender">Tertiary</span>
-            <div class="logo-name">Be Neighborly. Eat Neighborly.</div>
-            <p class="logo-use">Used on bags as a third mark.</p>
+            <div class="logo-name">Eat / Shop / Be Neighborly</div>
+            <p class="logo-use">Used on bags and totes as a third mark.</p>
             <div class="logo-actions">
               <a class="btn" href="https://drive.google.com/drive/folders/1Y0MDs_-ebbMRYdisIvFrPrgUGAf9vwjW?usp=drive_link" target="_blank" rel="noopener">Download</a>
             </div>
@@ -853,7 +820,7 @@
   <!-- PALETTE -->
   <section class="row reveal" id="palette">
     <div class="row-head">
-      <div class="row-num"><span>04</span> Palette</div>
+      <div class="row-num">Palette</div>
       <h2 class="row-title">Colors</h2>
       <p class="row-desc">Click any swatch to copy its hex code.</p>
     </div>
@@ -944,7 +911,7 @@
   <!-- TYPE -->
   <section class="row reveal" id="type">
     <div class="row-head">
-      <div class="row-num"><span>05</span> Fonts</div>
+      <div class="row-num">Fonts</div>
       <h2 class="row-title">Fonts</h2>
       <p class="row-desc">Four typefaces. No substitutions.</p>
     </div>
@@ -993,7 +960,7 @@
   <!-- VOICE -->
   <section class="row reveal" id="voice">
     <div class="row-head">
-      <div class="row-num"><span>06</span> Voice</div>
+      <div class="row-num">Voice</div>
       <h2 class="row-title">Thoughtful, Friendly, Informative</h2>
       <p class="row-desc">Warm, plainspoken, never saleslike.</p>
     </div>
@@ -1028,7 +995,7 @@
   <!-- PHOTOGRAPHY -->
   <section class="row reveal" id="photography">
     <div class="row-head">
-      <div class="row-num"><span>07</span> Imagery</div>
+      <div class="row-num">Imagery</div>
       <h2 class="row-title">Photography</h2>
       <p class="row-desc">A brand-approved library. Pull from this set whenever possible.</p>
     </div>
@@ -1066,7 +1033,7 @@
   <!-- DOWNLOADS -->
   <section class="row reveal" id="downloads">
     <div class="row-head">
-      <div class="row-num"><span>08</span> Library</div>
+      <div class="row-num">Library</div>
       <h2 class="row-title">Downloads</h2>
       <p class="row-desc">All source files.</p>
     </div>
