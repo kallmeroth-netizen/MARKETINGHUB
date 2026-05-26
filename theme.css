@@ -812,7 +812,7 @@ section.row    { padding: var(--s-7) 0; gap: var(--s-6); }
   .np-nav-brand .nav-logo,
   .nav-logo-wrap img,
   #root nav img {
-    height: 16px !important; width: auto !important; max-width: 110px !important;
+    height: 13px !important; width: auto !important; max-width: 88px !important;
     object-fit: contain !important;
   }
   .np-nav-brand .chev { width: 10px !important; height: 10px !important; }
@@ -981,7 +981,7 @@ section.row    { padding: var(--s-7) 0; gap: var(--s-6); }
   .np-nav-brand img,
   .np-nav-brand .nav-logo,
   .nav-logo-wrap img,
-  #root nav img { max-width: 92px !important; }
+  #root nav img { max-width: 74px !important; }
   .np-nav-page-tag { display: none !important; }
   .np-kpi-value, .kpi-value { font-size: 16px !important; }
 }
