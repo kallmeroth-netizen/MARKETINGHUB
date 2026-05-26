@@ -25,3 +25,23 @@
     if (t.closest && (t.closest('.np-hub-overlay') || t.closest('.hub-overlay'))) toggleHub(false);
   });
 })();
+
+/* Calendar page: the React app keeps its own setHubOpen() local state,
+   but the new canonical np-hub is rendered as STATIC html outside the
+   React tree. Wire the brand mark click (any .nav-logo-wrap / .np-nav-brand)
+   to the static dropdown so it opens regardless of React state. */
+(function () {
+  if (!/neighborly-calendar/i.test(location.pathname)) return;
+  document.addEventListener('click', function (e) {
+    const brand = e.target.closest && e.target.closest('.nav-logo-wrap, .np-nav-brand');
+    if (!brand) return;
+    e.preventDefault(); e.stopPropagation();
+    const hub = document.querySelector('.np-hub#calHub');
+    const ovl = document.querySelector('.np-hub-overlay#calHubOverlay');
+    if (!hub) return;
+    const open = !hub.classList.contains('is-open');
+    hub.classList.toggle('is-open', open);
+    if (ovl) ovl.classList.toggle('is-open', open);
+  }, true);
+})();
+

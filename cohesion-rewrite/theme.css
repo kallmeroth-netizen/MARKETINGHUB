@@ -682,3 +682,32 @@ section.row    { padding: var(--s-7) 0; gap: var(--s-6); }
 .cat-chevron { transition: transform var(--t-base) var(--easing); }
 .metrics-table .cat-row.open .cat-chevron { transform: rotate(90deg); }
 
+/* ============================================================
+   CALENDAR aliases — the React-rendered calendar lives at #root.
+   Plain <nav> selector overrides any inline styling the JSX set
+   on the nav element so it picks up our canonical chrome.
+   ============================================================ */
+#root nav {
+  height: var(--nav-h);
+  min-height: var(--nav-h);
+  background: rgba(253, 251, 246, 0.78);
+  -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--line);
+  padding-left: max(var(--s-5), calc(50% - var(--content-max) / 2));
+  padding-right: max(var(--s-4), calc(50% - var(--content-max) / 2));
+}
+
+/* The injected page header above the calendar grid */
+#calPageHeader {
+  max-width: var(--content-max);
+  margin: 0 auto;
+  padding: var(--s-5) clamp(var(--s-4), 4vw, var(--s-7)) var(--s-3);
+}
+
+/* Calendar grid + theme banner — keep page tokens in sync */
+.nav-logo-wrap {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 8px; border-radius: var(--r-md); cursor: pointer;
+}
+.nav-logo-wrap img { height: 28px !important; width: auto !important; }
+
