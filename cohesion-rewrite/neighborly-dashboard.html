@@ -80,9 +80,6 @@
   /* DASHBOARD PAGE */
   .dashboard { padding: 2rem; max-width: 1200px; margin: 0 auto; }
   .dash-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 1.75rem; flex-wrap: wrap; gap: 1rem; }
-  .dash-header-right { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; flex-shrink: 0; }
-  .view-mode-toggle button.is-active { background: var(--surface, #fff); color: var(--text); box-shadow: 0 1px 3px rgba(0,0,0,.08); }
-  @media (max-width: 720px) { .dash-header-right { align-items: stretch; width: 100%; } }
   .dash-title { font-size: 22px; font-weight: 600; letter-spacing: -0.03em; color: var(--text); }
   .dash-sub { font-size: 13px; color: var(--text-2); margin-top: 3px; }
   .week-badge { display: inline-flex; align-items: center; gap: 6px; background: var(--brand-orange); color: #FFFFFF; font-size: 12px; font-weight: 500; padding: 4px 4px 4px 12px; border-radius: 20px; margin-top: 6px; cursor: pointer; transition: filter 0.15s; user-select: none; width: max-content; max-width: 100%; white-space: nowrap; }
@@ -296,6 +293,12 @@
     <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
   </a>
 
+  <div class="np-tabs nav-tabs">
+    <a class="np-tab nav-tab is-active active" onclick="showPage('dashboard', this)">Weekly Performance</a>
+    <a class="np-tab nav-tab" id="dailyNavTab" onclick="showPage('daily', this)">Daily Sales</a>
+    <a class="np-tab nav-tab" onclick="showPage('alltime', this)">All time</a>
+  </div>
+
   <div class="np-nav-right nav-right">
     <span class="daily-last-updated" id="dailyLastUpdated"></span>
     <button class="np-icon-btn upload-btn" id="refreshBtn" onclick="fetchDailyData()" title="Refresh" aria-label="Refresh">
@@ -404,19 +407,6 @@
       <div>
         <div class="dash-title">Weekly Performance</div>
         <div class="dash-sub">Neighborly marketing & revenue overview</div>
-        <!-- legacy hidden select kept so any existing code paths still work -->
-        <select id="weekPicker" onchange="switchWeek(this.value)" style="display:none"></select>
-      </div>
-      <div class="dash-header-right">
-        <div class="np-toggle view-type-toggle">
-          <button class="is-active" type="button">Sales</button>
-          <a href="neighborly-pmix.html">Menu mix</a>
-        </div>
-        <div class="np-toggle view-mode-toggle">
-          <button class="is-active" onclick="showPage('dashboard',this)">Weekly</button>
-          <button id="dailyNavTab" onclick="showPage('daily',this)">Daily</button>
-          <button onclick="showPage('alltime',this)">All time</button>
-        </div>
         <div class="week-badge" id="weekBadge" onclick="toggleWeekCalendar(event)">
           <span class="week-badge-text">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
@@ -425,11 +415,13 @@
           <span class="week-pick" id="weekPickLabel">—</span>
           <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-right:4px;opacity:0.7"><polyline points="6 9 12 15 18 9"/></svg>
         </div>
-        <div class="view-toggle">
-          <button class="vt-btn active" onclick="setView('weekly', this)">This week</button>
-          <button class="vt-btn" onclick="setView('trailing', this)">vs T4W avg</button>
-          <button class="vt-btn" onclick="setView('lastweek', this)">vs Last week</button>
-        </div>
+        <!-- legacy hidden select kept so any existing code paths still work -->
+        <select id="weekPicker" onchange="switchWeek(this.value)" style="display:none"></select>
+      </div>
+      <div class="view-toggle">
+        <button class="vt-btn active" onclick="setView('weekly', this)">This week</button>
+        <button class="vt-btn" onclick="setView('trailing', this)">vs T4W avg</button>
+        <button class="vt-btn" onclick="setView('lastweek', this)">vs Last week</button>
       </div>
     </div>
 
@@ -636,11 +628,6 @@ function showPage(id, tab) {
   page.classList.add('active');
 
   document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-  // Sync view-mode-toggle across every page's dash-header
-  document.querySelectorAll('.view-mode-toggle button').forEach(b => b.classList.remove('is-active'));
-  document.querySelectorAll('.view-mode-toggle button').forEach(b => {
-    if ((b.getAttribute('onclick') || '').indexOf("'" + id + "'") !== -1) b.classList.add('is-active');
-  });
   if (tab) tab.classList.add('active');
 
   if (id === 'alltime' && typeof renderAllTime === 'function') {
@@ -1379,12 +1366,6 @@ document.addEventListener('keydown', e => {
 buildWeekPicker();
 renderDashboard();
 
-// Deep-link support: dashboard.html#daily or #alltime auto-switches sub-page
-(function applyDashboardHash(){
-  const h = (location.hash || '').replace('#','');
-  if (h === 'daily' || h === 'alltime') showPage(h, null);
-})();
-
 // ── HUB NAV ───────────────────────────────────────────────────────────────────
 const IS_GUEST = sessionStorage.getItem('nbly_guest') === '1';
 
@@ -1422,22 +1403,11 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeHubNav(
 <!-- DAILY PAGE -->
 <div class="page" id="page-daily">
   <div class="dashboard">
-    <div class="dash-header np-page-header reveal">
+    <div class="dash-header reveal">
       <div>
         <div class="dash-title">Daily Sales</div>
         <div class="dash-sub" id="dailyDateSub">No data loaded — click Refresh to pull from Toast</div>
-      </div>
-      <div class="dash-header-right">
-        <div class="np-toggle view-type-toggle">
-          <button class="is-active" type="button">Sales</button>
-          <a href="neighborly-pmix.html">Menu mix</a>
-        </div>
-        <div class="np-toggle view-mode-toggle">
-          <button onclick="showPage('dashboard',this)">Weekly</button>
-          <button class="is-active" onclick="showPage('daily',this)">Daily</button>
-          <button onclick="showPage('alltime',this)">All time</button>
-        </div>
-        <div class="week-badge" id="dailyDateBadge" onclick="toggleDailyCalendar(event)">
+        <div class="week-badge" id="dailyDateBadge" onclick="toggleDailyCalendar(event)" style="margin-top:8px">
           <span class="week-badge-text">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
             Date
@@ -1445,11 +1415,11 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeHubNav(
           <span class="week-pick" id="dailyDateLabel">—</span>
           <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-right:4px;opacity:0.7"><polyline points="6 9 12 15 18 9"/></svg>
         </div>
-        <div class="view-toggle">
-          <button class="vt-btn active" onclick="setDailyLoc('wlv',this)">Westlake Village</button>
-          <button class="vt-btn" onclick="setDailyLoc('bw',this)">Brentwood</button>
-          <button class="vt-btn" onclick="setDailyLoc('total',this)">Total</button>
-        </div>
+      </div>
+      <div class="view-toggle">
+        <button class="vt-btn active" onclick="setDailyLoc('wlv',this)">Westlake Village</button>
+        <button class="vt-btn" onclick="setDailyLoc('bw',this)">Brentwood</button>
+        <button class="vt-btn" onclick="setDailyLoc('total',this)">Total</button>
       </div>
     </div>
 
@@ -1536,21 +1506,10 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeHubNav(
         <div class="dash-title">All-time performance</div>
         <div class="dash-sub">Weekly revenue from Jan 2025 — present &middot; 67 weeks of data</div>
       </div>
-      <div class="dash-header-right">
-        <div class="np-toggle view-type-toggle">
-          <button class="is-active" type="button">Sales</button>
-          <a href="neighborly-pmix.html">Menu mix</a>
-        </div>
-        <div class="np-toggle view-mode-toggle">
-          <button onclick="showPage('dashboard',this)">Weekly</button>
-          <button onclick="showPage('daily',this)">Daily</button>
-          <button class="is-active" onclick="showPage('alltime',this)">All time</button>
-        </div>
-        <div class="view-toggle">
-          <button class="vt-btn active" onclick="setATView('total',this)">Total revenue</button>
-          <button class="vt-btn" onclick="setATView('channels',this)">By channel</button>
-          <button class="vt-btn" onclick="setATView('digital',this)">Paid digital</button>
-        </div>
+      <div class="view-toggle">
+        <button class="vt-btn active" onclick="setATView('total',this)">Total revenue</button>
+        <button class="vt-btn" onclick="setATView('channels',this)">By channel</button>
+        <button class="vt-btn" onclick="setATView('digital',this)">Paid digital</button>
       </div>
     </div>
 
