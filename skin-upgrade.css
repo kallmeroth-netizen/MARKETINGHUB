@@ -79,7 +79,7 @@ nav.top {
   align-items: center !important;
 }
 .nav-logo {
-  height: 24px !important;
+  height: 30px !important;
   width: auto !important;
   display: block !important;
   cursor: pointer;
@@ -94,7 +94,7 @@ nav.top {
   line-height: 0 !important;
   text-decoration: none !important;
 }
-.nav-mark img { display: block; height: 24px; width: auto; }
+.nav-mark img { display: block; height: 30px; width: auto; }
 
 /* Back button — lives inside the right-side cluster (next to settings)
    so the logo on the left is free of any reserved space. */
@@ -421,8 +421,8 @@ nav.top {
     grid-column: 1 / 3 !important; grid-row: 1 / 2 !important;
     justify-self: start !important;
   }
-  .nav-logo { height: 18px !important; }
-  .nav-mark img { height: 18px !important; }
+  .nav-logo { height: 22px !important; }
+  .nav-mark img { height: 22px !important; }
 
   .nav-right {
     grid-column: 3 / 4 !important; grid-row: 1 / 2 !important;

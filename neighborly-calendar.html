@@ -140,7 +140,7 @@ nav.top {
   align-items: center !important;
 }
 .nav-logo {
-  height: 24px !important;
+  height: 30px !important;
   width: auto !important;
   display: block !important;
   cursor: pointer;
@@ -155,7 +155,7 @@ nav.top {
   line-height: 0 !important;
   text-decoration: none !important;
 }
-.nav-mark img { display: block; height: 24px; width: auto; }
+.nav-mark img { display: block; height: 30px; width: auto; }
 
 /* Back button — lives inside the right-side cluster (next to settings)
    so the logo on the left is free of any reserved space. */
@@ -482,8 +482,8 @@ nav.top {
     grid-column: 1 / 3 !important; grid-row: 1 / 2 !important;
     justify-self: start !important;
   }
-  .nav-logo { height: 18px !important; }
-  .nav-mark img { height: 18px !important; }
+  .nav-logo { height: 22px !important; }
+  .nav-mark img { height: 22px !important; }
 
   .nav-right {
     grid-column: 3 / 4 !important; grid-row: 1 / 2 !important;
@@ -712,10 +712,10 @@ section.row {
 </style>
 <script data-inlined-skin>
 /* skin-upgrade.js
-   Injects the back button (now on the right, next to settings), the
-   marketing calendar header, and replaces the assets page text logo
-   with the brand wordmark. Idempotent: safe to re-run after React
-   re-renders. */
+   Injects the back button (right cluster), the marketing calendar
+   header (title on top, eyebrow below), replaces the assets text
+   logo with the brand wordmark, and gives the assets page a hub
+   dropdown matching the other pages. Idempotent and re-render safe. */
 (function () {
   const LOGO_SRC = 'NeighborlyLogo.png';
 
@@ -736,22 +736,10 @@ section.row {
     if (document.querySelector('nav .skin-back')) return;
     const nav = document.querySelector('nav');
     if (!nav) return;
-
-    // Prefer injection INTO an existing right-side cluster so the back
-    // button becomes a flex sibling of the settings/refresh icons.
     const right = nav.querySelector('.nav-right');
-    if (right) {
-      right.appendChild(makeBack());
-      return;
-    }
-    // Assets page: there's a .nav-links group on the right edge.
+    if (right) { right.appendChild(makeBack()); return; }
     const links = nav.querySelector('.nav-links');
-    if (links && links.parentNode) {
-      links.parentNode.appendChild(makeBack());
-      return;
-    }
-    // Fallback (React calendar): append straight to nav. CSS positions
-    // it absolutely on the right via the .skin-back-fallback rule.
+    if (links && links.parentNode) { links.parentNode.appendChild(makeBack()); return; }
     const a = makeBack();
     a.classList.add('skin-back-fallback');
     nav.appendChild(a);
@@ -764,6 +752,7 @@ section.row {
     mark.innerHTML = '<img src="' + LOGO_SRC + '" alt="Neighborly">';
   }
 
+  /* Marketing calendar header: title on TOP, eyebrow BELOW it. */
   function ensureCalendarHeader() {
     if (!/neighborly-calendar/i.test(location.pathname)) return;
     if (document.querySelector('.skin-cal-header')) return;
@@ -772,15 +761,83 @@ section.row {
     const header = document.createElement('div');
     header.className = 'skin-cal-header';
     header.innerHTML =
-      '<div class="skin-cal-eyebrow">Campaigns &amp; scheduling</div>' +
-      '<h1 class="skin-cal-title">Marketing Calendar</h1>';
+      '<h1 class="skin-cal-title">Marketing Calendar</h1>' +
+      '<div class="skin-cal-eyebrow">Campaigns &amp; scheduling</div>';
     nav.parentNode.insertBefore(header, nav.nextSibling);
+  }
+
+  /* Brand (assets) page: inject a hub dropdown so the page has the
+     same Sales / Calendar / Brand / Guests navigation as the others. */
+  const HUB_CARDS = [
+    { key:'sales',    href:'neighborly-dashboard.html', title:'Sales & Performance',  sub:'Sales & KPI tracker',          bg:'#fdf7d8', ic:'#b89a00',
+      svg:'<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>' },
+    { key:'calendar', href:'neighborly-calendar.html',  title:'Marketing Calendar',   sub:'Campaigns & scheduling',       bg:'#e4f5ea', ic:'#2a7a4b',
+      svg:'<rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>' },
+    { key:'assets',   href:'neighborly-assets.html',    title:'Brand Guidelines',     sub:'Logos, fonts & templates',     bg:'#f7f0e4', ic:'#9c7a3c', active:true,
+      svg:'<circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 010 14.14M4.93 4.93a10 10 0 000 14.14M12 2v2M12 20v2M2 12h2M20 12h2"/>' },
+    { key:'guests',   href:'neighborly-guests.html',    title:'Guest Intelligence',   sub:'Feedback & experience trends', bg:'#f0eff5', ic:'#5a4a7a',
+      svg:'<circle cx="9" cy="8" r="4"/><path d="M2 21a7 7 0 0 1 14 0"/><path d="M16 3.5a4 4 0 0 1 0 8M22 21a7 7 0 0 0-5-6.7"/>' }
+  ];
+
+  function ensureBrandHubNav() {
+    if (!/neighborly-assets/i.test(location.pathname)) return;
+    if (document.getElementById('skin-brand-hub')) return;
+    if (!document.body) return;
+
+    const overlay = document.createElement('div');
+    overlay.className = 'hub-overlay';
+    overlay.id = 'skin-brand-overlay';
+    document.body.appendChild(overlay);
+
+    const hub = document.createElement('div');
+    hub.className = 'hub-nav';
+    hub.id = 'skin-brand-hub';
+    hub.innerHTML =
+      '<div class="hub-nav-label">Neighborly Marketing Hub</div>' +
+      '<div class="hub-nav-grid">' +
+      HUB_CARDS.map(function (c) {
+        return '<a class="hub-card' + (c.active ? ' active' : '') + '" href="' + c.href + '">' +
+          '<div class="hub-card-icon" style="background:' + c.bg + '">' +
+          '<svg viewBox="0 0 24 24" fill="none" stroke="' + c.ic + '" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + c.svg + '</svg>' +
+          '</div>' +
+          '<div class="hub-card-title">' + c.title + '</div>' +
+          '<div class="hub-card-sub">' + c.sub + '</div>' +
+          '</a>';
+      }).join('') +
+      '</div>';
+    document.body.appendChild(hub);
+
+    function toggle(open) {
+      const next = (typeof open === 'boolean') ? open : !hub.classList.contains('open');
+      hub.classList.toggle('open', next);
+      overlay.classList.toggle('open', next);
+    }
+    // Make the brand wordmark act as the hub trigger.
+    const mark = document.querySelector('.nav-mark');
+    if (mark && !mark.dataset.hubBound) {
+      mark.dataset.hubBound = '1';
+      mark.style.cursor = 'pointer';
+      mark.addEventListener('click', function (e) { e.preventDefault(); toggle(); });
+      // Tiny chevron next to the logo so users know it's a dropdown.
+      const chev = document.createElement('span');
+      chev.setAttribute('aria-hidden', 'true');
+      chev.style.cssText = 'display:inline-flex;align-items:center;margin-left:6px;color:rgba(31,35,40,0.45);transition:transform 0.2s ease';
+      chev.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>';
+      mark.parentNode.insertBefore(chev, mark.nextSibling);
+      // Visual feedback when open
+      const obs = new MutationObserver(function () {
+        chev.style.transform = hub.classList.contains('open') ? 'rotate(180deg)' : 'rotate(0)';
+      });
+      obs.observe(hub, { attributes: true, attributeFilter: ['class'] });
+    }
+    overlay.addEventListener('click', function () { toggle(false); });
   }
 
   function tick() {
     ensureBack();
     replaceAssetsLogo();
     ensureCalendarHeader();
+    ensureBrandHubNav();
   }
 
   if (document.readyState === 'loading') {
@@ -790,8 +847,7 @@ section.row {
   }
   const obs = new MutationObserver(tick);
   obs.observe(document.body || document.documentElement, {
-    childList: true,
-    subtree: true,
+    childList: true, subtree: true,
   });
 })();
 
@@ -1520,6 +1576,7 @@ function NeighborlyCalendar() {
   // Auto-land on the current real month
   const [curDate,   setCurDate]   = useState(() => { const n = new Date(); return new Date(n.getFullYear(), n.getMonth(), 1); });
   const [mode,      setMode]      = useState('edit');
+  const [viewMode,  setViewMode]  = useState('month'); // 'month' | 'week'
   const [filter,    setFilter]    = useState('all');
   const [sidebarId, setSidebarId] = useState(null);
   const [formOpen,  setFormOpen]  = useState(false);
@@ -1547,15 +1604,29 @@ function NeighborlyCalendar() {
     saveGoals({...goals, [mKey]: ng});
   };
 
-  const changeMonth = d => { const nd = new Date(curDate); nd.setMonth(nd.getMonth()+d); setCurDate(nd); setSidebarId(null); };
+  const changeMonth = d => {
+    const nd = new Date(curDate);
+    if (viewMode === 'week') nd.setDate(nd.getDate() + d * 7);
+    else nd.setMonth(nd.getMonth() + d);
+    setCurDate(nd); setSidebarId(null);
+  };
   const goToday = () => { setCurDate(new Date()); setSidebarId(null); };
 
-  // Grid cells
-  const first=new Date(yr,mo,1).getDay(), dim=new Date(yr,mo+1,0).getDate(), dip=new Date(yr,mo,0).getDate();
+  // Grid cells — month grid (42) or week strip (7) based on viewMode
   const cells=[];
-  for(let i=first-1;i>=0;i--) cells.push({d:dip-i,o:true,mo:mo-1,yr:mo===0?yr-1:yr});
-  for(let i=1;i<=dim;i++) cells.push({d:i,o:false,mo,yr});
-  for(let i=1;i<=42-cells.length;i++) cells.push({d:i,o:true,mo:mo+1,yr:mo===11?yr+1:yr});
+  if (viewMode === 'week') {
+    const ref = new Date(curDate);
+    ref.setDate(ref.getDate() - ref.getDay()); // back to Sunday
+    for (let i = 0; i < 7; i++) {
+      const day = new Date(ref); day.setDate(ref.getDate() + i);
+      cells.push({ d: day.getDate(), o: false, mo: day.getMonth(), yr: day.getFullYear() });
+    }
+  } else {
+    const first=new Date(yr,mo,1).getDay(), dim=new Date(yr,mo+1,0).getDate(), dip=new Date(yr,mo,0).getDate();
+    for(let i=first-1;i>=0;i--) cells.push({d:dip-i,o:true,mo:mo-1,yr:mo===0?yr-1:yr});
+    for(let i=1;i<=dim;i++) cells.push({d:i,o:false,mo,yr});
+    for(let i=1;i<=42-cells.length;i++) cells.push({d:i,o:true,mo:mo+1,yr:mo===11?yr+1:yr});
+  }
 
   const filtered = events.filter(e => filter==='all' || e.cat===filter);
   const dsOf = c => c.yr+'-'+String(c.mo+1).padStart(2,'0')+'-'+String(c.d).padStart(2,'0');
@@ -1685,7 +1756,17 @@ function NeighborlyCalendar() {
         {/* Right controls */}
         <div style={{display:'flex',alignItems:'center',gap:8,flexShrink:0}}>
 
-          {/* Mode toggle */}
+          {/* View toggle: Month / Week */}
+          <div style={{display:'flex',background:C.surface2,borderRadius:8,padding:3,gap:2}}>
+            {[['month','Month'],['week','Week']].map(([v,label]) => (
+              <button key={v} onClick={() => setViewMode(v)}
+                style={{padding:isMobile?'5px 10px':'5px 14px',borderRadius:6,fontSize:12,fontWeight:500,cursor:'pointer',border:'none',background:viewMode===v?C.surface:'transparent',color:viewMode===v?C.text:C.text2,boxShadow:viewMode===v?'0 1px 3px rgba(0,0,0,.09)':'none',transition:'all .15s',fontFamily:'inherit'}}>
+                {label}
+              </button>
+            ))}
+          </div>
+
+          {/* Mode toggle: Edit / Present */}
           <div style={{display:'flex',background:C.surface2,borderRadius:8,padding:3,gap:2}}>
             {[['edit','Edit'],['present','Present']].map(([m,label]) => (
               <button key={m} onClick={() => setMode(m)}
