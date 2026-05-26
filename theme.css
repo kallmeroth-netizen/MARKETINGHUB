@@ -223,19 +223,19 @@ a { color: inherit; text-decoration: none; }
 .np-tabs::-webkit-scrollbar { display: none; }
 .np-tab {
   position: relative;
-  padding: 4px 12px 6px;
+  padding: 5px 12px;
   border: none; background: none; cursor: pointer;
   border-radius: 0;
   font-family: var(--f-sans);
   font-size: var(--t-caption);
   font-weight: 500; color: var(--text-3); white-space: nowrap;
-  line-height: 1.3;
+  line-height: 1.4;
   transition: color var(--t-base) var(--easing);
 }
 .np-tab::after {
   content: '';
   position: absolute;
-  left: 12px; right: 12px; bottom: -1px;
+  left: 12px; right: 12px; bottom: 0;
   height: 1.5px; background: transparent; border-radius: 1px;
   transition: background var(--t-base) var(--easing);
 }
@@ -252,7 +252,7 @@ a { color: inherit; text-decoration: none; }
 .nav-tab::after {
   content: '';
   position: absolute;
-  left: 12px; right: 12px; bottom: -1px;
+  left: 12px; right: 12px; bottom: 0;
   height: 1.5px; background: transparent; border-radius: 1px;
   transition: background var(--t-base) var(--easing);
 }
@@ -298,10 +298,13 @@ a { color: inherit; text-decoration: none; }
 .np-icon-btn[aria-label*="ettings"] svg,
 .settings-btn svg { width: 16px !important; height: 16px !important; }
 
-/* Page name tag in nav-right — small eyebrow that labels each page. */
+/* Page name tag in nav-right — small eyebrow that labels each page.
+   Sized to share a baseline with the 28px icon buttons beside it. */
 .np-nav-page-tag {
+  display: inline-flex; align-items: center;
+  height: 28px;
   font-family: var(--f-eyebrow); font-weight: 600;
-  font-size: var(--t-eyebrow); letter-spacing: 0.22em;
+  font-size: var(--t-eyebrow); letter-spacing: 0.22em; line-height: 1;
   text-transform: uppercase; color: var(--text-2);
   white-space: nowrap; padding: 0 var(--s-2);
 }
@@ -842,14 +845,17 @@ section.row    { padding: var(--s-7) 0; gap: var(--s-6); }
    Plain <nav> selector overrides any inline styling the JSX set
    on the nav element so it picks up our canonical chrome.
    ============================================================ */
+/* Calendar nav is full-bleed — the calendar grid below it spans the
+   viewport, so the brand mark + page tag stretch to the edges too
+   (gutter only, no content-max clamp like the other pages). */
 #root nav {
   height: var(--nav-h);
   min-height: var(--nav-h);
   background: rgba(253, 251, 246, 0.78);
   -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px);
   border-bottom: 1px solid var(--line);
-  padding-left: max(var(--gutter), calc(50% - var(--content-max) / 2 + var(--gutter)));
-  padding-right: max(var(--gutter), calc(50% - var(--content-max) / 2 + var(--gutter)));
+  padding-left: var(--gutter);
+  padding-right: var(--gutter);
 }
 
 /* The injected page header above the calendar grid */
@@ -949,13 +955,13 @@ section.row    { padding: var(--s-7) 0; gap: var(--s-6); }
   }
   .np-tabs::-webkit-scrollbar { display: none; }
   .np-tab {
-    padding: 6px 10px 8px !important;
+    padding: 7px 10px !important;
     font-size: 11.5px !important;
     flex: 0 0 auto !important;
     border-radius: 0 !important;
     background: transparent !important;
   }
-  .np-tab::after { left: 10px !important; right: 10px !important; }
+  .np-tab::after { left: 10px !important; right: 10px !important; bottom: 0 !important; }
   .np-tab.is-active {
     background: transparent !important;
     box-shadow: none !important;

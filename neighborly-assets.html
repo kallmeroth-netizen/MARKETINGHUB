@@ -491,17 +491,19 @@
     border-radius: var(--radius-lg);
     padding: var(--s-7);
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1.5fr 1fr;
     gap: var(--s-7);
+    align-items: start;
   }
   @media (max-width: 820px) { .voice { grid-template-columns: 1fr; padding: var(--s-6); } }
   .voice .eyebrow { color: rgba(255,255,255,0.85); }
   .voice-line {
     font-family: var(--f-display);
-    font-size: clamp(1.3rem, 2.6vw, 1.8rem);
-    line-height: 1.15;
+    font-size: clamp(1.6rem, 3.6vw, 2.6rem);
+    line-height: 1.1;
     margin-top: var(--s-3);
     color: #fff;
+    max-width: none;
   }
   .voice-line .accent,
   .voice-line .amp {
@@ -837,24 +839,24 @@
   <section class="row reveal" id="foundation">
     <div class="row-head">
       <h2 class="row-title">Who We Are</h2>
-      <p class="row-desc">Bringing the neighborhood together, one meal at a time.</p>
+      <p class="row-desc">A neighborhood food hall — many kitchens, one table.</p>
     </div>
     <div>
       <div class="foundation">
         <div class="found-card">
           <div class="eyebrow">Mission</div>
-          <h4>The best chefs and creators, under one roof.</h4>
-          <p>Mix &amp; match across multiple menus — all in one easy order.</p>
+          <h4>Great chefs, under one roof.</h4>
+          <p>Bring the best independent kitchens together so every meal feels like a night out — without picking just one place.</p>
         </div>
         <div class="found-card">
           <div class="eyebrow">Promise</div>
-          <h4>Eat Different, Together.</h4>
-          <p>Multiple menus, all under one roof. Find something for everyone.</p>
+          <h4>Eat different, together.</h4>
+          <p>One order, many menus. Everyone at the table gets what they actually want.</p>
         </div>
         <div class="found-card">
           <div class="eyebrow">Feeling</div>
           <h4>Warm. Intentional.</h4>
-          <p>Here to be a good neighbor, and solve everyday problems.</p>
+          <p>A good neighbor — easy to lean on, never trying too hard.</p>
         </div>
       </div>
     </div>
@@ -966,7 +968,7 @@
   <!-- VOICE -->
   <section class="row reveal" id="voice">
     <div class="row-head">
-      <h2 class="row-title">Thoughtful, Friendly, Informative</h2>
+      <h2 class="row-title">Brand Voice</h2>
       <p class="row-desc">Warm, plainspoken, never saleslike.</p>
     </div>
     <div>
@@ -1010,7 +1012,7 @@
           <h3 class="photo-title">Photography by Brand</h3>
           <p class="photo-desc">The full image archive — food, people, neighborhood, and hospitality. Organized by brand.</p>
         </div>
-        <a class="btn" href="https://drive.google.com/drive/folders/1azLQe7_DvJ0kMiidm87u_0k2ga3N9H5Z?usp=drive_link" target="_blank" rel="noopener" style="background:var(--brand-lavender-deep, #5a4a7a); color:#fff; box-shadow:0 4px 14px rgba(90,74,122,0.28);">Open Library</a>
+        <a class="btn" href="https://drive.google.com/drive/folders/1azLQe7_DvJ0kMiidm87u_0k2ga3N9H5Z?usp=drive_link" target="_blank" rel="noopener" style="background:var(--lavender, #cbc9d6); color:var(--ink); box-shadow:none;">Open Library</a>
       </div>
 
       <div class="photo-rules">
@@ -1116,16 +1118,16 @@
     });
   });
 
-  // Active section in nav
-  const links = document.querySelectorAll('.nav-links a');
+  // Active section in nav — scrollspy for the brand page's tab strip
+  const links = document.querySelectorAll('#brandTabs .np-tab');
   const sections = Array.from(links).map(a => document.querySelector(a.getAttribute('href'))).filter(Boolean);
-  const linkFor = (id) => document.querySelector('.nav-links a[href="#' + id + '"]');
+  const linkFor = (id) => document.querySelector('#brandTabs .np-tab[href="#' + id + '"]');
   const navIo = new IntersectionObserver((entries) => {
     entries.forEach(e => {
       if (e.isIntersecting) {
-        links.forEach(a => a.classList.remove('active'));
+        links.forEach(a => { a.classList.remove('active'); a.classList.remove('is-active'); });
         const a = linkFor(e.target.id);
-        if (a) a.classList.add('active');
+        if (a) { a.classList.add('active'); a.classList.add('is-active'); }
       }
     });
   }, { rootMargin: '-40% 0px -55% 0px', threshold: 0 });
