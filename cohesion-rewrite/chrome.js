@@ -20,9 +20,14 @@
   if (typeof window.toggleHubNav !== 'function') {
     window.toggleHubNav = function (e) { if (e && e.preventDefault) e.preventDefault(); toggleHub(); };
   }
+  // Delegated click — works even when the inline onclick is stripped/clobbered
   document.addEventListener('click', function (e) {
     const t = e.target;
-    if (t.closest && (t.closest('.np-hub-overlay') || t.closest('.hub-overlay'))) toggleHub(false);
+    if (!t.closest) return;
+    if (t.closest('.np-hub-overlay') || t.closest('.hub-overlay')) { toggleHub(false); return; }
+    if (e.defaultPrevented) return; // inline onclick already handled it
+    const brand = t.closest('.np-nav-brand');
+    if (brand && !brand.closest('#root')) { e.preventDefault(); toggleHub(); }
   });
 })();
 

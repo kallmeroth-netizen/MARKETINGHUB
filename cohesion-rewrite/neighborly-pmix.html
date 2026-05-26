@@ -116,12 +116,6 @@
     <img src="NeighborlyLogo.png" alt="Neighborly">
     <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
   </a>
-  <div class="np-tabs">
-    <a class="np-tab" href="neighborly-dashboard.html">Weekly</a>
-    <a class="np-tab" href="neighborly-dashboard.html#daily">Daily</a>
-    <a class="np-tab" href="neighborly-dashboard.html#alltime">All time</a>
-    <a class="np-tab is-active">PMIX</a>
-  </div>
   <div class="np-nav-right">
     <button class="np-icon-btn" title="Refresh" aria-label="Refresh" onclick="loadPMIX()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg></button>
     <a class="np-icon-btn" href="index.html" title="Back to home" aria-label="Back to home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></a>
@@ -142,17 +136,17 @@
 
 <main class="np-main">
 
-  <header class="np-page-header">
-    <div class="np-page-eyebrow" id="dateLabel">Item performance · loading…</div>
-    <h1 class="np-page-title">Top Sellers</h1>
-  </header>
-
-  <!-- Location toggle -->
-  <div class="np-page-controls" style="margin-bottom: var(--s-4)">
-    <div class="np-toggle" id="locToggle" role="tablist" aria-label="Location">
-      <button class="is-active" data-loc="total" role="tab">Both locations</button>
-      <button data-loc="wlv" role="tab">Westlake Village</button>
-      <button data-loc="bw" role="tab">Brentwood</button>
+  <div class="np-page-header-row">
+    <header class="np-page-header">
+      <div class="np-page-eyebrow" id="dateLabel">Item performance · loading…</div>
+      <h1 class="np-page-title">Top Sellers</h1>
+    </header>
+    <div class="np-page-selectors">
+      <div class="np-toggle" id="locToggle" role="tablist" aria-label="Location">
+        <button class="is-active" data-loc="total" role="tab">Both locations</button>
+        <button data-loc="wlv" role="tab">Westlake Village</button>
+        <button data-loc="bw" role="tab">Brentwood</button>
+      </div>
     </div>
   </div>
 
