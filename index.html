@@ -841,8 +841,14 @@
     requestAnimationFrame(() => {
       sweep.classList.add('lift');
       setTimeout(() => {
+        // Disable transitions before resetting so the orange doesn't
+        // animate back down from translateY(0) → translateY(100%) and
+        // flash on screen for a frame.
+        sweep.style.transition = 'none';
         sweep.classList.remove('up', 'lift');
         sweep.style.opacity = '';
+        // Re-enable transitions on the next frame for future use.
+        requestAnimationFrame(() => { sweep.style.transition = ''; });
       }, 900);
       typeHero();
     });
