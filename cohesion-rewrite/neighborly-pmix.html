@@ -146,6 +146,24 @@
     <h1 class="np-page-title">Top Sellers</h1>
   </header>
 
+  <!-- Location toggle -->
+  <div class="np-page-controls" style="margin-bottom: var(--s-4)">
+    <div class="np-toggle" id="locToggle" role="tablist" aria-label="Location">
+      <button class="is-active" data-loc="total" role="tab">Both locations</button>
+      <button data-loc="wlv" role="tab">Westlake Village</button>
+      <button data-loc="bw" role="tab">Brentwood</button>
+    </div>
+  </div>
+
+  <!-- Empty-state banner shown when the selected location has no data yet -->
+  <div id="locEmpty" class="np-card" style="display:none; margin-bottom: var(--s-4); border-style: dashed; background: transparent;">
+    <div class="np-card-title" id="locEmptyTitle">No per-location export uploaded yet</div>
+    <div class="np-card-sub" id="locEmptyMsg">
+      Drop a location-specific Toast PMIX export and the breakdown for this location lights up automatically.
+      Until then, this view falls back to <strong>Both locations</strong> totals.
+    </div>
+  </div>
+
   <!-- KPI strip -->
   <div class="pmix-kpis">
     <div class="np-kpi"><div class="np-kpi-label">Items sold</div><div class="np-kpi-value" id="kpiQty">—</div><div class="np-kpi-sub">units across all menus</div></div>
@@ -210,8 +228,10 @@
   const fmt$2 = n => n == null ? '—' : '$' + n.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
   const fmtN  = n => n == null ? '—' : Math.round(n).toLocaleString();
 
-  let DATA = null;
-  let conceptColor = {};       // name → color
+  let RAW = null;          // full file: { date, date_label, locations: {total, wlv, bw}, labels }
+  let DATA = null;         // currently-rendered location payload
+  let activeLoc = 'total';
+  let conceptColor = {};   // concept name → color
   let activeMenu = 'all';
   let activeSort = 'net';
   let searchQ = '';
@@ -219,18 +239,50 @@
   async function loadPMIX() {
     try {
       const r = await fetch('pmix-data.json', { cache: 'no-store' });
-      DATA = await r.json();
-
-      // Build a menu name → color map (matches concept order in donut)
-      const sorted = [...(DATA.concepts || [])].sort((a, b) => b.net - a.net);
-      sorted.forEach((c, i) => { conceptColor[c.name] = COLORS[i % COLORS.length]; });
-      // Also color by sales category fallback (the export's "Sales Category" field
-      // often matches the menu name with a suffix like "Gaby Food", "Palermo Pizza
-      // Club", "MK Plates"). Build a fuzzy match map.
-      colorForCategory.cache = {};
-
-      render();
+      RAW = await r.json();
+      applyLocation(activeLoc);
     } catch (e) { console.error('PMIX load failed', e); }
+  }
+
+  function applyLocation(loc) {
+    if (!RAW) return;
+    activeLoc = loc;
+    const locs = RAW.locations || {};
+    const labels = RAW.labels || {};
+    const empty  = document.getElementById('locEmpty');
+    const main   = document.querySelectorAll('main > section, main > .pmix-kpis');
+
+    // If the selected location has no data, show the banner and fall back to "total"
+    let payload = locs[loc];
+    let fellBack = false;
+    if (!payload) {
+      payload = locs.total;
+      fellBack = true;
+    }
+    if (!payload) return; // nothing to render
+
+    document.querySelectorAll('#locToggle button').forEach(b => b.classList.toggle('is-active', b.dataset.loc === loc));
+
+    if (fellBack) {
+      empty.style.display = '';
+      document.getElementById('locEmptyTitle').textContent =
+        `No ${labels[loc] || loc} export uploaded yet`;
+    } else {
+      empty.style.display = 'none';
+    }
+
+    DATA = payload;
+    DATA.date       = RAW.date;
+    DATA.date_label = RAW.date_label;
+    DATA.locations  = (fellBack ? labels.total : (labels[loc] || labels.total));
+
+    // Rebuild concept color map for THIS location's concept list
+    conceptColor = {};
+    const sorted = [...(DATA.concepts || [])].sort((a, b) => b.net - a.net);
+    sorted.forEach((cc, i) => { conceptColor[cc.name] = COLORS[i % COLORS.length]; });
+    colorForCategory.cache = {};
+
+    render();
   }
 
   // Best-effort color from a Sales Category string
@@ -251,6 +303,7 @@
 
     document.getElementById('dateLabel').textContent =
       `Item performance · ${DATA.date_label} · ${DATA.locations}`;
+    // (DATA.locations is now the label string for the selected location)
 
     // KPI strip
     const topNet = [...items].sort((a, b) => b.net - a.net)[0];
@@ -355,6 +408,12 @@
       document.querySelectorAll('#sortToggle button').forEach(x => x.classList.toggle('is-active', x === b));
       renderTable();
     });
+  });
+
+
+  // Location toggle
+  document.querySelectorAll('#locToggle button').forEach(b => {
+    b.addEventListener('click', () => applyLocation(b.dataset.loc));
   });
 
   loadPMIX();

@@ -1,1967 +1,1977 @@
 {
   "date": "2026-05-24",
   "date_label": "Saturday 05/24/26",
-  "locations": "Westlake Village + Brentwood",
-  "totalNet": 43738.08,
-  "totalQty": 4464.8,
-  "concepts": [
-    {
-      "name": "Gaby",
-      "qty": 1066.0,
-      "gross": 17388.0,
-      "net": 16386.26
-    },
-    {
-      "name": "Palermo Pizza Club",
-      "qty": 312.0,
-      "gross": 5681.5,
-      "net": 5126.01
-    },
-    {
-      "name": "MK",
-      "qty": 634.0,
-      "gross": 10747.5,
-      "net": 10074.59
-    },
-    {
-      "name": "Social Monk",
-      "qty": 180.0,
-      "gross": 2768.5,
-      "net": 2560.74
-    },
-    {
-      "name": "Mixtape",
-      "qty": 453.0,
-      "gross": 4526.0,
-      "net": 4184.17
-    },
-    {
-      "name": "Neighborly Cookies",
-      "qty": 128.0,
-      "gross": 925.0,
-      "net": 866.95
-    },
-    {
-      "name": "Marketplace",
-      "qty": 652.8,
-      "gross": 2179.66,
-      "net": 2105.16
-    },
-    {
-      "name": "Utensils",
-      "qty": 57.0,
-      "gross": 0.0,
-      "net": 0.0
-    },
-    {
-      "name": "Beverages",
-      "qty": 428.0,
-      "gross": 1358.4,
-      "net": 1328.05
-    },
-    {
-      "name": "Beer",
-      "qty": 43.0,
-      "gross": 274.5,
-      "net": 274.5
-    },
-    {
-      "name": "Wine",
-      "qty": 52.0,
-      "gross": 688.0,
-      "net": 679.65
-    },
-    {
-      "name": "OLO Open Items",
-      "qty": 457.0,
-      "gross": 25.5,
-      "net": 25.5
-    },
-    {
-      "name": "Catering",
-      "qty": 1.0,
-      "gross": 125.0,
-      "net": 125.0
-    },
-    {
-      "name": "Open items",
-      "qty": 1.0,
-      "gross": 1.5,
-      "net": 1.5
-    }
-  ],
-  "groups": [
-    {
-      "name": "Sandwiches",
-      "qty": 461.0,
-      "gross": 7466.5,
-      "net": 7126.68
-    },
-    {
-      "name": "Salads",
-      "qty": 390.0,
-      "gross": 6640.5,
-      "net": 6409.2
-    },
-    {
-      "name": "Bowls & Plates",
-      "qty": 202.0,
-      "gross": 3518.5,
-      "net": 3106.88
-    },
-    {
-      "name": "Soup & Sides",
-      "qty": 21.0,
-      "gross": 196.5,
-      "net": 190.0
-    },
-    {
-      "name": "Lil' Foodies",
-      "qty": 45.0,
-      "gross": 505.0,
-      "net": 492.5
-    },
-    {
-      "name": "Pizza",
-      "qty": 134.0,
-      "gross": 2661.5,
-      "net": 2281.9
-    },
-    {
-      "name": "To Share",
-      "qty": 18.0,
-      "gross": 279.0,
-      "net": 279.0
-    },
-    {
-      "name": "Pasta",
-      "qty": 65.0,
-      "gross": 1388.5,
-      "net": 1257.86
-    },
-    {
-      "name": "Family Salads",
-      "qty": 17.0,
-      "gross": 261.5,
-      "net": 245.55
-    },
-    {
-      "name": "Kid's Menu",
-      "qty": 76.0,
-      "gross": 996.0,
-      "net": 966.7
-    },
-    {
-      "name": "Family Meals",
-      "qty": 2.0,
-      "gross": 95.0,
-      "net": 95.0
-    },
-    {
-      "name": "Appetizers",
-      "qty": 54.0,
-      "gross": 406.0,
-      "net": 399.5
-    },
-    {
-      "name": "Lavash Wraps",
-      "qty": 155.0,
-      "gross": 2416.0,
-      "net": 2209.4
-    },
-    {
-      "name": "Bowls",
-      "qty": 146.0,
-      "gross": 2226.0,
-      "net": 2050.23
-    },
-    {
-      "name": "Plates",
-      "qty": 224.0,
-      "gross": 4747.5,
-      "net": 4469.96
-    },
-    {
-      "name": "Add Ons",
-      "qty": 2.0,
-      "gross": 13.0,
-      "net": 6.5
-    },
-    {
-      "name": "Soup/Small Plates",
-      "qty": 21.0,
-      "gross": 231.5,
-      "net": 225.84
-    },
-    {
-      "name": "Classics",
-      "qty": 73.0,
-      "gross": 1363.0,
-      "net": 1247.0
-    },
-    {
-      "name": "Noodles & Rice",
-      "qty": 68.0,
-      "gross": 1007.0,
-      "net": 920.9
-    },
-    {
-      "name": "Lunch Combos",
-      "qty": 1.0,
-      "gross": 49.5,
-      "net": 49.5
-    },
-    {
-      "name": "Vegetables & Sides",
-      "qty": 17.0,
-      "gross": 117.5,
-      "net": 117.5
-    },
-    {
-      "name": "Better Tenders",
-      "qty": 125.0,
-      "gross": 1534.5,
-      "net": 1334.47
-    },
-    {
-      "name": "Burgers & Sandos",
-      "qty": 128.0,
-      "gross": 1835.0,
-      "net": 1738.5
-    },
-    {
-      "name": "Side Thangs",
-      "qty": 110.0,
-      "gross": 514.5,
-      "net": 489.9
-    },
-    {
-      "name": "Soft Serve Saturdaes",
-      "qty": 88.0,
-      "gross": 639.0,
-      "net": 618.3
-    },
-    {
-      "name": "MashUp Sauces",
-      "qty": 2.0,
-      "gross": 3.0,
-      "net": 3.0
-    },
-    {
-      "name": "Freshly Baked Cookies",
-      "qty": 128.0,
-      "gross": 925.0,
-      "net": 866.95
-    },
-    {
-      "name": "SNACKS",
-      "qty": 35.0,
-      "gross": 240.0,
-      "net": 222.0
-    },
-    {
-      "name": "CANDIES/DESSERTS",
-      "qty": 11.0,
-      "gross": 104.0,
-      "net": 96.38
-    },
-    {
-      "name": "MRKT BEV",
-      "qty": 4.0,
-      "gross": 22.0,
-      "net": 8.8
-    },
-    {
-      "name": "GABY MRKT",
-      "qty": 15.0,
-      "gross": 167.5,
-      "net": 165.6
-    },
-    {
-      "name": "CSBH MRKT",
-      "qty": 4.0,
-      "gross": 50.0,
-      "net": 50.0
-    },
-    {
-      "name": "NBRLY MRKT",
-      "qty": 93.0,
-      "gross": 971.6,
-      "net": 941.75
-    },
-    {
-      "name": "BETTER-FOR-YOU SNACKS",
-      "qty": 4.0,
-      "gross": 18.0,
-      "net": 18.0
-    },
-    {
-      "name": "KID APPROVED CUPBOARD",
-      "qty": 3.0,
-      "gross": 21.0,
-      "net": 21.0
-    },
-    {
-      "name": "FROM THE FRIDGE",
-      "qty": 1.0,
-      "gross": 11.0,
-      "net": 11.0
-    },
-    {
-      "name": "SOCKERBIT",
-      "qty": 482.79999999999995,
-      "gross": 574.56,
-      "net": 570.63
-    },
-    {
-      "name": "Utensils",
-      "qty": 57.0,
-      "gross": 0.0,
-      "net": 0.0
-    },
-    {
-      "name": "Beverages",
-      "qty": 428.0,
-      "gross": 1358.4,
-      "net": 1328.05
-    },
-    {
-      "name": "BEER",
-      "qty": 43.0,
-      "gross": 274.5,
-      "net": 274.5
-    },
-    {
-      "name": "BY THE GLASS",
-      "qty": 45.0,
-      "gross": 491.0,
-      "net": 482.65
-    },
-    {
-      "name": "BY THE BOTTLE",
-      "qty": 7.0,
-      "gross": 197.0,
-      "net": 197.0
-    },
-    {
-      "name": "OLO Open Items",
-      "qty": 457.0,
-      "gross": 25.5,
-      "net": 25.5
-    },
-    {
-      "name": "Packages",
-      "qty": 1.0,
-      "gross": 125.0,
-      "net": 125.0
-    },
-    {
-      "name": "Open Food",
-      "qty": 1.0,
-      "gross": 1.5,
-      "net": 1.5
-    }
-  ],
-  "topItemsByNet": [
-    {
-      "name": "GABY'S CAESAR AVOCADO WRAP",
-      "category": "Gaby Food",
-      "qty": 187.0,
-      "avg_price": 15.26,
-      "net": 2854.05
-    },
-    {
-      "name": "MAMMA ALVA'S FAMILY PLATE",
-      "category": "MK Food",
-      "qty": 135.0,
-      "avg_price": 18.46,
-      "net": 2492.3
-    },
-    {
-      "name": "CHINESE CHICKEN CRUNCH SALAD",
-      "category": "Gaby Food",
-      "qty": 132.0,
-      "avg_price": 16.55,
-      "net": 2184.3
-    },
-    {
-      "name": "PAPA HOV'S STEAK PLATE",
-      "category": "MK Food",
-      "qty": 89.0,
-      "avg_price": 22.22,
-      "net": 1977.66
-    },
-    {
-      "name": "THOMAS' CRISPY CHICKEN SANDWICH",
-      "category": "Gaby Food",
-      "qty": 92.0,
-      "avg_price": 15.5,
-      "net": 1425.9
-    },
-    {
-      "name": "THE ORIGINAL MINI KABOB WRAP",
-      "category": "MK Food",
-      "qty": 91.0,
-      "avg_price": 14.68,
-      "net": 1335.56
-    },
-    {
-      "name": "THE MK MEZZE BOWL",
-      "category": "MK Food",
-      "qty": 83.0,
-      "avg_price": 14.14,
-      "net": 1173.53
-    },
-    {
-      "name": "THE PERFECT CHICKEN CAESAR SALAD",
-      "category": "Gaby Food",
-      "qty": 62.0,
-      "avg_price": 15.64,
-      "net": 969.45
-    },
-    {
-      "name": "KATYA'S CLASSIC GREEK SALAD",
-      "category": "MK Food",
-      "qty": 53.0,
-      "avg_price": 17.72,
-      "net": 939.0
-    },
-    {
-      "name": "SESAME GINGER TERIYAKI BOWL",
-      "category": "Gaby Food",
-      "qty": 61.0,
-      "avg_price": 15.36,
-      "net": 937.1
-    },
-    {
-      "name": "BENSONHURST PEPPERONI PIZZA",
-      "category": "Palermo Pizza Club",
-      "qty": 46.0,
-      "avg_price": 18.63,
-      "net": 857.05
-    },
-    {
-      "name": "THE LA CHOP",
-      "category": "Gaby Food",
-      "qty": 53.0,
-      "avg_price": 16.04,
-      "net": 850.22
-    },
-    {
-      "name": "THE \"BURRITO-ISH\" WRAP",
-      "category": "Gaby Food",
-      "qty": 54.0,
-      "avg_price": 15.42,
-      "net": 832.43
-    },
-    {
-      "name": "THE MARKET SALAD",
-      "category": "Gaby Food",
-      "qty": 50.0,
-      "avg_price": 16.35,
-      "net": 817.7
-    },
-    {
-      "name": "CLASSIC CHEESEBURGER WRAP",
-      "category": "MK Food",
-      "qty": 57.0,
-      "avg_price": 13.99,
-      "net": 797.34
-    }
-  ],
-  "topItemsByQty": [
-    {
-      "name": "Swedish Candy",
-      "category": "Marketplace",
-      "qty": 482.79999999999995,
-      "avg_price": 1.18,
-      "net": 570.63
-    },
-    {
-      "name": "TABLE NUMBER",
-      "category": "",
-      "qty": 293.0,
-      "avg_price": 0.0,
-      "net": 0.0
-    },
-    {
-      "name": "GABY'S CAESAR AVOCADO WRAP",
-      "category": "Gaby Food",
-      "qty": 187.0,
-      "avg_price": 15.26,
-      "net": 2854.05
-    },
-    {
-      "name": "3RD PARTY DELIVERY INFO",
-      "category": "Misc Non Sales",
-      "qty": 156.0,
-      "avg_price": 0.0,
-      "net": 0.0
-    },
-    {
-      "name": "MAMMA ALVA'S FAMILY PLATE",
-      "category": "MK Food",
-      "qty": 135.0,
-      "avg_price": 18.46,
-      "net": 2492.3
-    },
-    {
-      "name": "CHINESE CHICKEN CRUNCH SALAD",
-      "category": "Gaby Food",
-      "qty": 132.0,
-      "avg_price": 16.55,
-      "net": 2184.3
-    },
-    {
-      "name": "WAFFLE FRIES",
-      "category": "Mixtape Food",
-      "qty": 107.0,
-      "avg_price": 4.51,
-      "net": 482.4
-    },
-    {
-      "name": "THOMAS' CRISPY CHICKEN SANDWICH",
-      "category": "Gaby Food",
-      "qty": 92.0,
-      "avg_price": 15.5,
-      "net": 1425.9
-    },
-    {
-      "name": "THE ORIGINAL MINI KABOB WRAP",
-      "category": "MK Food",
-      "qty": 91.0,
-      "avg_price": 14.68,
-      "net": 1335.56
-    },
-    {
-      "name": "PAPA HOV'S STEAK PLATE",
-      "category": "MK Food",
-      "qty": 89.0,
-      "avg_price": 22.22,
-      "net": 1977.66
-    },
-    {
-      "name": "THE MK MEZZE BOWL",
-      "category": "MK Food",
-      "qty": 83.0,
-      "avg_price": 14.14,
-      "net": 1173.53
-    },
-    {
-      "name": "BETTER TENDER BOX SET",
-      "category": "Mixtape Food",
-      "qty": 69.0,
-      "avg_price": 10.84,
-      "net": 748.12
-    },
-    {
-      "name": "Dispatch Fee",
-      "category": "",
-      "qty": 69.0,
-      "avg_price": 4.03,
-      "net": 278.31
-    },
-    {
-      "name": "Dispatch Tip",
-      "category": "",
-      "qty": 66.0,
-      "avg_price": 6.21,
-      "net": 409.93
-    },
-    {
-      "name": "THE PERFECT CHICKEN CAESAR SALAD",
-      "category": "Gaby Food",
-      "qty": 62.0,
-      "avg_price": 15.64,
-      "net": 969.45
-    }
-  ],
-  "items": [
-    {
-      "name": "GABY'S CAESAR AVOCADO WRAP",
-      "category": "Gaby Food",
-      "qty": 187.0,
-      "avg_price": 15.26,
-      "net": 2854.05
-    },
-    {
-      "name": "THOMAS' CRISPY CHICKEN SANDWICH",
-      "category": "Gaby Food",
-      "qty": 92.0,
-      "avg_price": 15.5,
-      "net": 1425.9
-    },
-    {
-      "name": "PESTO CHICKEN SANDWICH",
-      "category": "Gaby Food",
-      "qty": 27.0,
-      "avg_price": 14.65,
-      "net": 395.5
-    },
-    {
-      "name": "ROBERTSON TUNA SANDWICH",
-      "category": "Gaby Food",
-      "qty": 21.0,
-      "avg_price": 16.57,
-      "net": 348.0
-    },
-    {
-      "name": "TURKEY AVOCADO SANDWICH",
-      "category": "Gaby Food",
-      "qty": 22.0,
-      "avg_price": 14.92,
-      "net": 328.3
-    },
-    {
-      "name": "THE COUNTRY CLUB SANDWICH",
-      "category": "Gaby Food",
-      "qty": 37.0,
-      "avg_price": 15.66,
-      "net": 579.5
-    },
-    {
-      "name": "PROSCIUTTO & BURRATA SANDWICH",
-      "category": "Gaby Food",
-      "qty": 15.0,
-      "avg_price": 17.6,
-      "net": 264.0
-    },
-    {
-      "name": "BEETS BY GABY SANDWICH",
-      "category": "Gaby Food",
-      "qty": 6.0,
-      "avg_price": 16.5,
-      "net": 99.0
-    },
-    {
-      "name": "THE \"BURRITO-ISH\" WRAP",
-      "category": "Gaby Food",
-      "qty": 54.0,
-      "avg_price": 15.42,
-      "net": 832.43
-    },
-    {
-      "name": "THE MARKET SALAD",
-      "category": "Gaby Food",
-      "qty": 50.0,
-      "avg_price": 16.35,
-      "net": 817.7
-    },
-    {
-      "name": "CHIPOTLE TACO SALAD",
-      "category": "Gaby Food",
-      "qty": 40.0,
-      "avg_price": 16.21,
-      "net": 648.53
-    },
-    {
-      "name": "THE LA CHOP",
-      "category": "Gaby Food",
-      "qty": 53.0,
-      "avg_price": 16.04,
-      "net": 850.22
-    },
-    {
-      "name": "THE PERFECT CHICKEN CAESAR SALAD",
-      "category": "Gaby Food",
-      "qty": 62.0,
-      "avg_price": 15.64,
-      "net": 969.45
-    },
-    {
-      "name": "CHINESE CHICKEN CRUNCH SALAD",
-      "category": "Gaby Food",
-      "qty": 132.0,
-      "avg_price": 16.55,
-      "net": 2184.3
-    },
-    {
-      "name": "GABY'S GREEN RICE BURRITO BOWL",
-      "category": "Gaby Food",
-      "qty": 48.0,
-      "avg_price": 13.35,
-      "net": 641.0
-    },
-    {
-      "name": "ROASTED SALMON SOCAL BOWL",
-      "category": "Gaby Food",
-      "qty": 23.0,
-      "avg_price": 18.17,
-      "net": 418.0
-    },
-    {
-      "name": "SESAME GINGER TERIYAKI BOWL",
-      "category": "Gaby Food",
-      "qty": 61.0,
-      "avg_price": 15.36,
-      "net": 937.1
-    },
-    {
-      "name": "GABY'S CARNE ASADA GREEN RICE BURRITO BOWL",
-      "category": "Gaby Food",
-      "qty": 37.0,
-      "avg_price": 13.46,
-      "net": 498.15
-    },
-    {
-      "name": "MISO SALMON BOWL",
-      "category": "Gaby Food",
-      "qty": 33.0,
-      "avg_price": 18.56,
-      "net": 612.63
-    },
-    {
-      "name": "CREAMY TOMATO BASIL SOUP",
-      "category": "Gaby Food",
-      "qty": 17.0,
-      "avg_price": 10.5,
-      "net": 178.5
-    },
-    {
-      "name": "SIDE CHICKEN BREAST",
-      "category": "Gaby Food",
-      "qty": 2.0,
-      "avg_price": 4.5,
-      "net": 9.0
-    },
-    {
-      "name": "SIDE SALMON",
-      "category": "Gaby Food",
-      "qty": 1.0,
-      "avg_price": 0.0,
-      "net": 0.0
-    },
-    {
-      "name": "SIDE AVOCADO",
-      "category": "Gaby Food",
-      "qty": 1.0,
-      "avg_price": 2.5,
-      "net": 2.5
-    },
-    {
-      "name": "CHEESE QUESADILLA",
-      "category": "Gaby Food",
-      "qty": 14.0,
-      "avg_price": 8.39,
-      "net": 117.5
-    },
-    {
-      "name": "FINN'S MAC & CHEESE",
-      "category": "Gaby Food",
-      "qty": 31.0,
-      "avg_price": 12.1,
-      "net": 375.0
-    },
-    {
-      "name": "QUEEN MARGHERITA PIZZA",
-      "category": "Palermo Pizza Club",
-      "qty": 42.0,
-      "avg_price": 16.7,
-      "net": 701.5
-    },
-    {
-      "name": "BENSONHURST PEPPERONI PIZZA",
-      "category": "Palermo Pizza Club",
-      "qty": 46.0,
-      "avg_price": 18.63,
-      "net": 857.05
-    },
-    {
-      "name": "CHICKEN PARM PIZZA",
-      "category": "Palermo Pizza Club",
-      "qty": 14.0,
-      "avg_price": 21.56,
-      "net": 301.85
-    },
-    {
-      "name": "PIZZA ALLA VODKA",
-      "category": "Palermo Pizza Club",
-      "qty": 23.0,
-      "avg_price": 9.46,
-      "net": 217.5
-    },
-    {
-      "name": "THE PALERMO PROSCIUTTO & STRACCIATELLA PIZZA",
-      "category": "Palermo Pizza Club",
-      "qty": 9.0,
-      "avg_price": 22.67,
-      "net": 204.0
-    },
-    {
-      "name": "P.P.C. CHICKEN PARM",
-      "category": "Palermo Pizza Club",
-      "qty": 8.0,
-      "avg_price": 15.5,
-      "net": 124.0
-    },
-    {
-      "name": "HOUSE MEATBALLS",
-      "category": "Palermo Pizza Club",
-      "qty": 10.0,
-      "avg_price": 15.5,
-      "net": 155.0
-    },
-    {
-      "name": "RIGATONI ALLA VODKA",
-      "category": "Palermo Pizza Club",
-      "qty": 42.0,
-      "avg_price": 18.93,
-      "net": 794.86
-    },
-    {
-      "name": "PESTO ALLA FRANCESCO PASTA",
-      "category": "Palermo Pizza Club",
-      "qty": 14.0,
-      "avg_price": 19.96,
-      "net": 279.5
-    },
-    {
-      "name": "LEO'S ALFREDO PASTA",
-      "category": "Palermo Pizza Club",
-      "qty": 9.0,
-      "avg_price": 20.39,
-      "net": 183.5
-    },
-    {
-      "name": "ARUGULA SALAD",
-      "category": "Palermo Pizza Club",
-      "qty": 1.0,
-      "avg_price": 14.5,
-      "net": 14.5
-    },
-    {
-      "name": "DIANA'S GEM CAESAR SALAD",
-      "category": "Palermo Pizza Club",
-      "qty": 16.0,
-      "avg_price": 14.44,
-      "net": 231.05
-    },
-    {
-      "name": "KID'S CHEESE PIZZA (SHAREABLE)",
-      "category": "Palermo Pizza Club",
-      "qty": 26.0,
-      "avg_price": 12.02,
-      "net": 312.5
-    },
-    {
-      "name": "KID'S PEPPERONI PIZZA (SHAREABLE)",
-      "category": "Palermo Pizza Club",
-      "qty": 20.0,
-      "avg_price": 13.78,
-      "net": 275.5
-    },
-    {
-      "name": "KID'S POMODORO PASTA",
-      "category": "Palermo Pizza Club",
-      "qty": 10.0,
-      "avg_price": 13.15,
-      "net": 131.5
-    },
-    {
-      "name": "KID'S BUTTER & PARMESAN PASTA",
-      "category": "Palermo Pizza Club",
-      "qty": 20.0,
-      "avg_price": 12.36,
-      "net": 247.2
-    },
-    {
-      "name": "BEST PIZZA FAMILY MEAL",
-      "category": "Palermo Pizza Club",
-      "qty": 2.0,
-      "avg_price": 47.5,
-      "net": 95.0
-    },
-    {
-      "name": "DIP DUO",
-      "category": "MK Food",
-      "qty": 28.0,
-      "avg_price": 6.27,
-      "net": 175.5
-    },
-    {
-      "name": "HOUSE HUMMUS",
-      "category": "MK Food",
-      "qty": 9.0,
-      "avg_price": 8.5,
-      "net": 76.5
-    },
-    {
-      "name": "CRISPY FALAFEL",
-      "category": "MK Food",
-      "qty": 17.0,
-      "avg_price": 8.68,
-      "net": 147.5
-    },
-    {
-      "name": "KATYA'S CLASSIC GREEK SALAD",
-      "category": "MK Food",
-      "qty": 53.0,
-      "avg_price": 17.72,
-      "net": 939.0
-    },
-    {
-      "name": "THE ORIGINAL MINI KABOB WRAP",
-      "category": "MK Food",
-      "qty": 91.0,
-      "avg_price": 14.68,
-      "net": 1335.56
-    },
-    {
-      "name": "CLASSIC CHEESEBURGER WRAP",
-      "category": "MK Food",
-      "qty": 57.0,
-      "avg_price": 13.99,
-      "net": 797.34
-    },
-    {
-      "name": "KID'S MELTY CHEESE WRAP",
-      "category": "MK Food",
-      "qty": 7.0,
-      "avg_price": 10.93,
-      "net": 76.5
-    },
-    {
-      "name": "THE MK MEZZE BOWL",
-      "category": "MK Food",
-      "qty": 83.0,
-      "avg_price": 14.14,
-      "net": 1173.53
-    },
-    {
-      "name": "KID'S RICE BOWL",
-      "category": "MK Food",
-      "qty": 37.0,
-      "avg_price": 9.65,
-      "net": 357.1
-    },
-    {
-      "name": "MK MEZZE SALMON BOWL",
-      "category": "MK Food",
-      "qty": 26.0,
-      "avg_price": 19.98,
-      "net": 519.6
-    },
-    {
-      "name": "MAMMA ALVA'S FAMILY PLATE",
-      "category": "MK Food",
-      "qty": 135.0,
-      "avg_price": 18.46,
-      "net": 2492.3
-    },
-    {
-      "name": "PAPA HOV'S STEAK PLATE",
-      "category": "MK Food",
-      "qty": 89.0,
-      "avg_price": 22.22,
-      "net": 1977.66
-    },
-    {
-      "name": "SIDE STEAK",
-      "category": "MK Food",
-      "qty": 2.0,
-      "avg_price": 3.25,
-      "net": 6.5
-    },
-    {
-      "name": "CHICKEN WONTON SOUP",
-      "category": "Social Monk Food",
-      "qty": 5.0,
-      "avg_price": 9.5,
-      "net": 47.5
-    },
-    {
-      "name": "SPICY CHILI CHICKEN WONTONS",
-      "category": "Social Monk Food",
-      "qty": 16.0,
-      "avg_price": 11.15,
-      "net": 178.34
-    },
-    {
-      "name": "THAI BASIL CASHEW CHICKEN",
-      "category": "Social Monk Food",
-      "qty": 18.0,
-      "avg_price": 17.5,
-      "net": 315.0
-    },
-    {
-      "name": "ORANGE CHICKEN",
-      "category": "Social Monk Food",
-      "qty": 24.0,
-      "avg_price": 15.96,
-      "net": 383.0
-    },
-    {
-      "name": "KUNG PAO CHICKEN",
-      "category": "Social Monk Food",
-      "qty": 11.0,
-      "avg_price": 16.86,
-      "net": 185.5
-    },
-    {
-      "name": "PRINCESS CHICKEN & VEGGIES",
-      "category": "Social Monk Food",
-      "qty": 6.0,
-      "avg_price": 17.5,
-      "net": 105.0
-    },
-    {
-      "name": "BEEF AND BROCCOLI",
-      "category": "Social Monk Food",
-      "qty": 10.0,
-      "avg_price": 18.4,
-      "net": 184.0
-    },
-    {
-      "name": "MISO SALMON",
-      "category": "Social Monk Food",
-      "qty": 4.0,
-      "avg_price": 18.63,
-      "net": 74.5
-    },
-    {
-      "name": "DRUNKEN NOODLES",
-      "category": "Social Monk Food",
-      "qty": 17.0,
-      "avg_price": 14.59,
-      "net": 248.0
-    },
-    {
-      "name": "CHOW MEIN",
-      "category": "Social Monk Food",
-      "qty": 7.0,
-      "avg_price": 7.5,
-      "net": 52.5
-    },
-    {
-      "name": "THE ORIGINAL SM FRIED RICE",
-      "category": "Social Monk Food",
-      "qty": 17.0,
-      "avg_price": 12.63,
-      "net": 214.65
-    },
-    {
-      "name": "CHICKEN CHOW MEIN",
-      "category": "Social Monk Food",
-      "qty": 16.0,
-      "avg_price": 14.53,
-      "net": 232.5
-    },
-    {
-      "name": "BEEF CHOW MEIN",
-      "category": "Social Monk Food",
-      "qty": 11.0,
-      "avg_price": 15.75,
-      "net": 173.25
-    },
-    {
-      "name": "SOCIAL MONK FAMILY MEAL",
-      "category": "Social Monk Food",
-      "qty": 1.0,
-      "avg_price": 49.5,
-      "net": 49.5
-    },
-    {
-      "name": "WOK-SEARED GREEN BEANS",
-      "category": "Social Monk Food",
-      "qty": 7.0,
-      "avg_price": 8.5,
-      "net": 59.5
-    },
-    {
-      "name": "BROCCOLI WITH TOASTED GARLIC",
-      "category": "Social Monk Food",
-      "qty": 4.0,
-      "avg_price": 6.5,
-      "net": 26.0
-    },
-    {
-      "name": "KALE WITH TOASTED GARLIC",
-      "category": "Social Monk Food",
-      "qty": 1.0,
-      "avg_price": 6.5,
-      "net": 6.5
-    },
-    {
-      "name": "STEAMED RICE",
-      "category": "Social Monk Food",
-      "qty": 2.0,
-      "avg_price": 4.5,
-      "net": 9.0
-    },
-    {
-      "name": "ANCIENT GRAINS",
-      "category": "Social Monk Food",
-      "qty": 3.0,
-      "avg_price": 5.5,
-      "net": 16.5
-    },
-    {
-      "name": "BETTER TENDER BOX SET",
-      "category": "Mixtape Food",
-      "qty": 69.0,
-      "avg_price": 10.84,
-      "net": 748.12
-    },
-    {
-      "name": "KID'S BETTER TENDERS",
-      "category": "Mixtape Food",
-      "qty": 56.0,
-      "avg_price": 10.47,
-      "net": 586.35
-    },
-    {
-      "name": "ONLY THE CLASSICS CRISPY CHICKEN SANDWICH",
-      "category": "Mixtape Food",
-      "qty": 54.0,
-      "avg_price": 13.08,
-      "net": 706.5
-    },
-    {
-      "name": "THE OGB CHEESEBURGER",
-      "category": "Mixtape Food",
-      "qty": 19.0,
-      "avg_price": 11.53,
-      "net": 219.05
-    },
-    {
-      "name": "THE OGB ROYALE BURGER",
-      "category": "Mixtape Food",
-      "qty": 8.0,
-      "avg_price": 17.0,
-      "net": 136.0
-    },
-    {
-      "name": "BACKYARD BBQ BURGER",
-      "category": "Mixtape Food",
-      "qty": 12.0,
-      "avg_price": 15.9,
-      "net": 190.75
-    },
-    {
-      "name": "SPICY CRISPY CHICKEN SANDWICH",
-      "category": "Mixtape Food",
-      "qty": 35.0,
-      "avg_price": 13.89,
-      "net": 486.2
-    },
-    {
-      "name": "WAFFLE FRIES",
-      "category": "Mixtape Food",
-      "qty": 107.0,
-      "avg_price": 4.51,
-      "net": 482.4
-    },
-    {
-      "name": "SIGNATURE SLAW",
-      "category": "Mixtape Food",
-      "qty": 3.0,
-      "avg_price": 2.5,
-      "net": 7.5
-    },
-    {
-      "name": "STRAWBERRY GRAHAM JAM SATURDAE",
-      "category": "Mixtape Food",
-      "qty": 28.0,
-      "avg_price": 7.13,
-      "net": 199.5
-    },
-    {
-      "name": "SALTED CARAMEL CRUNCH SATURDAE",
-      "category": "Mixtape Food",
-      "qty": 17.0,
-      "avg_price": 7.59,
-      "net": 129.0
-    },
-    {
-      "name": "LOADED DARK CHOCOLATE BROWNIE SATURDAE",
-      "category": "Mixtape Food",
-      "qty": 31.0,
-      "avg_price": 7.36,
-      "net": 228.3
-    },
-    {
-      "name": "KID'S (PLAIN) SATURDAE",
-      "category": "Mixtape Food",
-      "qty": 12.0,
-      "avg_price": 5.13,
-      "net": 61.5
-    },
-    {
-      "name": "Add Side Sauce (Mixtape)",
-      "category": "Mixtape Food",
-      "qty": 2.0,
-      "avg_price": 1.5,
-      "net": 3.0
-    },
-    {
-      "name": "CHOCOLATE CHUNK & SEA SALT COOKIE",
-      "category": "Neighborly Cookies",
-      "qty": 39.0,
-      "avg_price": 4.92,
-      "net": 191.95
-    },
-    {
-      "name": "THE DOUBLE STUFFED OREO COOKIE",
-      "category": "Neighborly Cookies",
-      "qty": 16.0,
-      "avg_price": 5.16,
-      "net": 82.5
-    },
-    {
-      "name": "WHITE CHOCOLATE CORN CRUNCH COOKIE",
-      "category": "Neighborly Cookies",
-      "qty": 11.0,
-      "avg_price": 4.5,
-      "net": 49.5
-    },
-    {
-      "name": "THE EVERYDAY BIRTHDAY COOKIE",
-      "category": "Neighborly Cookies",
-      "qty": 19.0,
-      "avg_price": 5.5,
-      "net": 104.5
-    },
-    {
-      "name": "2 PACK COOKIES",
-      "category": "Neighborly Cookies",
-      "qty": 36.0,
-      "avg_price": 8.97,
-      "net": 323.0
-    },
-    {
-      "name": "4 PACK COOKIES",
-      "category": "Neighborly Cookies",
-      "qty": 7.0,
-      "avg_price": 16.5,
-      "net": 115.5
-    },
-    {
-      "name": "MASA - COBANERO",
-      "category": "Marketplace",
-      "qty": 1.0,
-      "avg_price": 13.0,
-      "net": 13.0
-    },
-    {
-      "name": "MASA - LIME",
-      "category": "Marketplace",
-      "qty": 1.0,
-      "avg_price": 13.0,
-      "net": 13.0
-    },
-    {
-      "name": "MASA - ORIGINAL",
-      "category": "Marketplace",
-      "qty": 2.0,
-      "avg_price": 13.0,
-      "net": 26.0
-    },
-    {
-      "name": "BJORNCORN - SPICY",
-      "category": "Marketplace",
-      "qty": 2.0,
-      "avg_price": 7.0,
-      "net": 14.0
-    },
-    {
-      "name": "SUNNIE - CHEDDAR CRACKERS",
-      "category": "Marketplace",
-      "qty": 1.0,
-      "avg_price": 5.0,
-      "net": 5.0
-    },
-    {
-      "name": "MEJORADO SEASONED TOTOPOS",
-      "category": "Marketplace",
-      "qty": 1.0,
-      "avg_price": 7.0,
-      "net": 7.0
-    },
-    {
-      "name": "TORRES - MEDI SALT CHIP",
-      "category": "Marketplace",
-      "qty": 5.0,
-      "avg_price": 5.0,
-      "net": 25.0
-    },
-    {
-      "name": "TORRES - TRUFFLE CHIP",
-      "category": "Marketplace",
-      "qty": 4.0,
-      "avg_price": 5.0,
-      "net": 20.0
-    },
-    {
-      "name": "OH SNAP! - COOL BEANS",
-      "category": "Marketplace",
-      "qty": 3.0,
-      "avg_price": 3.0,
-      "net": 9.0
-    },
-    {
-      "name": "OH SNAP! - HOTTIE PICKLE BITES",
-      "category": "Marketplace",
-      "qty": 2.0,
-      "avg_price": 3.0,
-      "net": 6.0
-    },
-    {
-      "name": "MONKEY BRITTLE",
-      "category": "Marketplace",
-      "qty": 2.0,
-      "avg_price": 6.0,
-      "net": 12.0
-    },
-    {
-      "name": "MASA - CHURRO",
-      "category": "Marketplace",
-      "qty": 1.0,
-      "avg_price": 0.0,
-      "net": 0.0
-    },
-    {
-      "name": "PAPA STEVE'S - BANANA CHOCO CHIP",
-      "category": "Marketplace",
-      "qty": 1.0,
-      "avg_price": 0.0,
-      "net": 0.0
-    },
-    {
-      "name": "TORRES - PICKLE",
-      "category": "Marketplace",
-      "qty": 3.0,
-      "avg_price": 5.0,
-      "net": 15.0
-    },
-    {
-      "name": "TORRES - VINEGAR",
-      "category": "Marketplace",
-      "qty": 3.0,
-      "avg_price": 5.0,
-      "net": 15.0
-    },
-    {
-      "name": "VANDY - BBQ",
-      "category": "Marketplace",
-      "qty": 3.0,
-      "avg_price": 14.0,
-      "net": 42.0
-    },
-    {
-      "name": "KOLSVART - SOUR RASP",
-      "category": "Marketplace",
-      "qty": 2.0,
-      "avg_price": 6.1,
-      "net": 12.19
-    },
-    {
-      "name": "KOLSVART - BLK CURRANT",
-      "category": "Marketplace",
-      "qty": 3.0,
-      "avg_price": 6.73,
-      "net": 20.19
-    },
-    {
-      "name": "MILD ADD - PECAN CHOC",
-      "category": "Marketplace",
-      "qty": 1.0,
-      "avg_price": 14.0,
-      "net": 14.0
-    },
-    {
-      "name": "MILD ADD - COCONUT",
-      "category": "Marketplace",
-      "qty": 1.0,
-      "avg_price": 14.0,
-      "net": 14.0
-    },
-    {
-      "name": "WHIMS DELIGHTS - PEANUT NOUGAT",
-      "category": "Marketplace",
-      "qty": 2.0,
-      "avg_price": 9.0,
-      "net": 18.0
-    },
-    {
-      "name": "WHIMS DELIGHTS - CARAMEL COOKIE",
-      "category": "Marketplace",
-      "qty": 1.0,
-      "avg_price": 9.0,
-      "net": 9.0
-    },
-    {
-      "name": "GISELLE'S - PEANUT BUTTER & JELLY",
-      "category": "Marketplace",
-      "qty": 1.0,
-      "avg_price": 9.0,
-      "net": 9.0
-    },
-    {
-      "name": "WILD WONDER - STRAWBERRY",
-      "category": "Marketplace",
-      "qty": 1.0,
-      "avg_price": 4.0,
-      "net": 4.0
-    },
-    {
-      "name": "STUMPTOWN - COLD BREW",
-      "category": "Marketplace",
-      "qty": 3.0,
-      "avg_price": 1.6,
-      "net": 4.8
-    },
-    {
-      "name": "GREEN GODDESS CHILI RANCH DRESSING",
-      "category": "Marketplace",
-      "qty": 1.0,
-      "avg_price": 10.0,
-      "net": 10.0
-    },
-    {
-      "name": "SNACK SALAD - THAI MANGO MISO",
-      "category": "Marketplace",
-      "qty": 2.0,
-      "avg_price": 8.55,
-      "net": 17.1
-    },
-    {
-      "name": "SNACK SALAD - DATE ME",
-      "category": "Marketplace",
-      "qty": 1.0,
-      "avg_price": 9.5,
-      "net": 9.5
-    },
-    {
-      "name": "CHIPOTLE CHICKEN W/SAUCE (9 OZ)",
-      "category": "Marketplace",
-      "qty": 3.0,
-      "avg_price": 11.0,
-      "net": 33.0
-    },
-    {
-      "name": "HERBED CHICKEN BREAST (9 OZ)",
-      "category": "Marketplace",
-      "qty": 4.0,
-      "avg_price": 11.0,
-      "net": 44.0
-    },
-    {
-      "name": "BUTTERNUT SQUASH BONE BROTH SOUP (32oz)",
-      "category": "Marketplace",
-      "qty": 2.0,
-      "avg_price": 16.0,
-      "net": 32.0
-    },
-    {
-      "name": "WGC THE BEST GF CHICKEN CUTLET",
-      "category": "Marketplace",
-      "qty": 2.0,
-      "avg_price": 10.0,
-      "net": 20.0
-    },
-    {
-      "name": "CAESAR SALAD",
-      "category": "Marketplace",
-      "qty": 4.0,
-      "avg_price": 12.5,
-      "net": 50.0
-    },
-    {
-      "name": "BURRITOS LA PALMA BIRRIA BOX",
-      "category": "Marketplace",
-      "qty": 4.0,
-      "avg_price": 23.99,
-      "net": 95.96
-    },
-    {
-      "name": "BURRITOS LA PALMA BIRRIA/FRIJOLES BOX",
-      "category": "Marketplace",
-      "qty": 1.0,
-      "avg_price": 23.99,
-      "net": 23.99
-    },
-    {
-      "name": "CRISPY CHICKEN CUTLET",
-      "category": "Marketplace",
-      "qty": 2.0,
-      "avg_price": 9.0,
-      "net": 18.0
-    },
-    {
-      "name": "GROUND UP - SMOOTH",
-      "category": "Marketplace",
-      "qty": 1.0,
-      "avg_price": 16.0,
-      "net": 16.0
-    },
-    {
-      "name": "NEIGHBORLY MEATBALLS & MARINARA",
-      "category": "Marketplace",
-      "qty": 1.0,
-      "avg_price": 15.5,
-      "net": 15.5
-    },
-    {
-      "name": "NEIGHBORLY GF CHICKEN TENDERS",
-      "category": "Marketplace",
-      "qty": 3.0,
-      "avg_price": 12.5,
-      "net": 37.5
-    },
-    {
-      "name": "NEIGHBORLY BOLOGNESE PASTA KIT",
-      "category": "Marketplace",
-      "qty": 2.0,
-      "avg_price": 24.0,
-      "net": 48.0
-    },
-    {
-      "name": "FARMERS MARKET GREEN JUICE",
-      "category": "Marketplace",
-      "qty": 26.0,
-      "avg_price": 9.57,
-      "net": 248.75
-    },
-    {
-      "name": "GARDEN PARTY LEMONADE",
-      "category": "Marketplace",
-      "qty": 11.0,
-      "avg_price": 9.05,
-      "net": 99.5
-    },
-    {
-      "name": "HOUSE LEMONADE",
-      "category": "Marketplace",
-      "qty": 40.0,
-      "avg_price": 7.75,
-      "net": 310.05
-    },
-    {
-      "name": "HOT GIRL PICKLES - BREAD & BUTTER",
-      "category": "Marketplace",
-      "qty": 1.0,
-      "avg_price": 13.0,
-      "net": 13.0
-    },
-    {
-      "name": "NEIGHBORLY MEATBALLS & VODKA SAUCE",
-      "category": "Marketplace",
-      "qty": 1.0,
-      "avg_price": 15.5,
-      "net": 15.5
-    },
-    {
-      "name": "NEW PRIMAL - CLASSIC BEEF STICK",
-      "category": "Marketplace",
-      "qty": 1.0,
-      "avg_price": 3.0,
-      "net": 3.0
-    },
-    {
-      "name": "SUNNY WITHIN - SUPER HUMAN",
-      "category": "Marketplace",
-      "qty": 1.0,
-      "avg_price": 4.0,
-      "net": 4.0
-    },
-    {
-      "name": "SUNNY WITHIN - DAILY DEFENSE",
-      "category": "Marketplace",
-      "qty": 1.0,
-      "avg_price": 4.0,
-      "net": 4.0
-    },
-    {
-      "name": "ROOT - SIXMIX CHIPS",
-      "category": "Marketplace",
-      "qty": 1.0,
-      "avg_price": 7.0,
-      "net": 7.0
-    },
-    {
-      "name": "ONCE AGAIN - PEANUT BUTTER GRAHAM SANDWICHES",
-      "category": "Marketplace",
-      "qty": 1.0,
-      "avg_price": 11.0,
-      "net": 11.0
-    },
-    {
-      "name": "SOPHIE'S ORGANICS - MANGO",
-      "category": "Marketplace",
-      "qty": 2.0,
-      "avg_price": 5.0,
-      "net": 10.0
-    },
-    {
-      "name": "BIRDIES - SMOKED GOUDA PIMENTO",
-      "category": "Marketplace",
-      "qty": 1.0,
-      "avg_price": 11.0,
-      "net": 11.0
-    },
-    {
-      "name": "Swedish Candy",
-      "category": "Marketplace",
-      "qty": 482.79999999999995,
-      "avg_price": 1.18,
-      "net": 570.63
-    },
-    {
-      "name": "ADD UTENSILS",
-      "category": "",
-      "qty": 57.0,
-      "avg_price": 0.0,
-      "net": 0.0
-    },
-    {
-      "name": "JASMINE GREEN TEA ITO-EN",
-      "category": "NA Beverage",
-      "qty": 15.0,
-      "avg_price": 2.95,
-      "net": 44.25
-    },
-    {
-      "name": "GREEN TEA OI OCHA ITO-EN",
-      "category": "NA Beverage",
-      "qty": 11.0,
-      "avg_price": 2.95,
-      "net": 32.45
-    },
-    {
-      "name": "THAI GINGER BAMBUCHA",
-      "category": "NA Beverage",
-      "qty": 8.0,
-      "avg_price": 3.95,
-      "net": 31.6
-    },
-    {
-      "name": "GUAVA PUNCH BAMBUCHA",
-      "category": "NA Beverage",
-      "qty": 10.0,
-      "avg_price": 3.95,
-      "net": 39.5
-    },
-    {
-      "name": "333ML SPARKLING MOUNTAIN VALLEY",
-      "category": "NA Beverage",
-      "qty": 55.0,
-      "avg_price": 2.9,
-      "net": 159.3
-    },
-    {
-      "name": "333ML SPRING MOUNTAIN VALLEY",
-      "category": "NA Beverage",
-      "qty": 43.0,
-      "avg_price": 2.95,
-      "net": 126.85
-    },
-    {
-      "name": "MANGO KIRRA",
-      "category": "NA Beverage",
-      "qty": 4.0,
-      "avg_price": 3.5,
-      "net": 14.0
-    },
-    {
-      "name": "PASSIONFRUIT KIRRA",
-      "category": "NA Beverage",
-      "qty": 13.0,
-      "avg_price": 3.5,
-      "net": 45.5
-    },
-    {
-      "name": "LYCHEE KIRRA",
-      "category": "NA Beverage",
-      "qty": 14.0,
-      "avg_price": 3.5,
-      "net": 49.0
-    },
-    {
-      "name": "LEMON LIME POPPI",
-      "category": "NA Beverage",
-      "qty": 16.0,
-      "avg_price": 3.0,
-      "net": 48.0
-    },
-    {
-      "name": "COLA POPPI",
-      "category": "NA Beverage",
-      "qty": 18.0,
-      "avg_price": 3.0,
-      "net": 54.0
-    },
-    {
-      "name": "MANGO CHILI DE LA CALLE TEPACHE",
-      "category": "NA Beverage",
-      "qty": 5.0,
-      "avg_price": 3.0,
-      "net": 15.0
-    },
-    {
-      "name": "PINEAPPLE SPICE DE LA CALLE TEPACHE",
-      "category": "NA Beverage",
-      "qty": 6.0,
-      "avg_price": 2.5,
-      "net": 15.0
-    },
-    {
-      "name": "MEXICAN COCA-COLA",
-      "category": "NA Beverage",
-      "qty": 46.0,
-      "avg_price": 2.65,
-      "net": 121.8
-    },
-    {
-      "name": "MEXICAN SPRITE",
-      "category": "NA Beverage",
-      "qty": 20.0,
-      "avg_price": 3.0,
-      "net": 60.0
-    },
-    {
-      "name": "NATALIE'S TANGERINE JUICE",
-      "category": "NA Beverage",
-      "qty": 6.0,
-      "avg_price": 5.0,
-      "net": 30.0
-    },
-    {
-      "name": "NATALIE'S NATURAL LEMONADE",
-      "category": "NA Beverage",
-      "qty": 24.0,
-      "avg_price": 4.88,
-      "net": 117.0
-    },
-    {
-      "name": "NATALIE'S STRAWBERRY LEMONADE",
-      "category": "NA Beverage",
-      "qty": 13.0,
-      "avg_price": 5.0,
-      "net": 65.0
-    },
-    {
-      "name": "GRAPEFRUIT LIME DE LA CALLE TEPACHE",
-      "category": "NA Beverage",
-      "qty": 4.0,
-      "avg_price": 2.25,
-      "net": 9.0
-    },
-    {
-      "name": "DIET COKE (8 OZ. BOTTLE)",
-      "category": "NA Beverage",
-      "qty": 61.0,
-      "avg_price": 1.96,
-      "net": 119.8
-    },
-    {
-      "name": "WILD WONDER RASPBERRY LYCHEE",
-      "category": "NA Beverage",
-      "qty": 6.0,
-      "avg_price": 4.0,
-      "net": 24.0
-    },
-    {
-      "name": "WILD WONDER CHERRY LEMONADE",
-      "category": "NA Beverage",
-      "qty": 3.0,
-      "avg_price": 4.0,
-      "net": 12.0
-    },
-    {
-      "name": "STUMPTOWN COLD BREW COFFEE",
-      "category": "NA Beverage",
-      "qty": 2.0,
-      "avg_price": 6.0,
-      "net": 12.0
-    },
-    {
-      "name": "WILD WONDER STRAWBERRY PASSION",
-      "category": "NA Beverage",
-      "qty": 4.0,
-      "avg_price": 4.0,
-      "net": 16.0
-    },
-    {
-      "name": "BOYLAN BOTTLING CO. SHIRLEY TEMPLE",
-      "category": "NA Beverage",
-      "qty": 8.0,
-      "avg_price": 3.0,
-      "net": 24.0
-    },
-    {
-      "name": "BOYLAN BOTTLING CO. ROOT BEER",
-      "category": "NA Beverage",
-      "qty": 9.0,
-      "avg_price": 3.0,
-      "net": 27.0
-    },
-    {
-      "name": "KOMBUCHA CULTURE PURPLE RAIN",
-      "category": "NA Beverage",
-      "qty": 1.0,
-      "avg_price": 4.0,
-      "net": 4.0
-    },
-    {
-      "name": "KOMBUCHA CULTURE GOLDEN HOUR",
-      "category": "NA Beverage",
-      "qty": 3.0,
-      "avg_price": 4.0,
-      "net": 12.0
-    },
-    {
-      "name": "MALIBU BREWING CO. CANYON ROSE RICE LAGER",
-      "category": "Bottled Beer",
-      "qty": 3.0,
-      "avg_price": 5.5,
-      "net": 16.5
-    },
-    {
-      "name": "MALIBU BREWING CO. HAPPY DAYS HONEY BLONDE ALE",
-      "category": "Bottled Beer",
-      "qty": 16.0,
-      "avg_price": 5.5,
-      "net": 88.0
-    },
-    {
-      "name": "MALIBU BREWING CO. HATCH GREEN CHILE LAGER",
-      "category": "Bottled Beer",
-      "qty": 7.0,
-      "avg_price": 7.5,
-      "net": 52.5
-    },
-    {
-      "name": "TARANTULA HILL CALI DAY IPA",
-      "category": "Bottled Beer",
-      "qty": 12.0,
-      "avg_price": 7.5,
-      "net": 90.0
-    },
-    {
-      "name": "TARANTULA HILL EL REY MEXICAN LAGER",
-      "category": "Bottled Beer",
-      "qty": 1.0,
-      "avg_price": 5.5,
-      "net": 5.5
-    },
-    {
-      "name": "ENEGREN THE LIGHTEST ONE",
-      "category": "Bottled Beer",
-      "qty": 4.0,
-      "avg_price": 5.5,
-      "net": 22.0
-    },
-    {
-      "name": "GLASS ADAMI BOSCO DI GICA PROSECCO",
-      "category": "Wine",
-      "qty": 5.0,
-      "avg_price": 12.0,
-      "net": 60.0
-    },
-    {
-      "name": "GLASS QUIVIRA SAUV BLANC",
-      "category": "Wine",
-      "qty": 11.0,
-      "avg_price": 10.0,
-      "net": 110.0
-    },
-    {
-      "name": "GLASS DOMAINE TRIENNES ROSE",
-      "category": "Wine",
-      "qty": 7.0,
-      "avg_price": 9.0,
-      "net": 63.0
-    },
-    {
-      "name": "GLASS THE PAIRING SANTA BARBARA PINOT NOIR",
-      "category": "Wine",
-      "qty": 8.0,
-      "avg_price": 13.0,
-      "net": 104.0
-    },
-    {
-      "name": "GLASS RONSARD SANCERRE LA PLEIADE",
-      "category": "Wine",
-      "qty": 14.0,
-      "avg_price": 10.4,
-      "net": 145.65
-    },
-    {
-      "name": "BOTTLE QUIVIRA SAUV BLANC",
-      "category": "Wine",
-      "qty": 1.0,
-      "avg_price": 31.0,
-      "net": 31.0
-    },
-    {
-      "name": "HALF BOTTLE DOMAINE TRIENNES ROSE",
-      "category": "Wine",
-      "qty": 2.0,
-      "avg_price": 15.0,
-      "net": 30.0
-    },
-    {
-      "name": "BOTTLE THE PAIRING SANTA BARBARA PINOT NOIR",
-      "category": "Wine",
-      "qty": 3.0,
-      "avg_price": 39.0,
-      "net": 117.0
-    },
-    {
-      "name": "HALF BOTTLE RONSARD SANCERRE LA PLEIADE",
-      "category": "Wine",
-      "qty": 1.0,
-      "avg_price": 19.0,
-      "net": 19.0
-    },
-    {
-      "name": "3RD PARTY DELIVERY INFO",
-      "category": "Misc Non Sales",
-      "qty": 156.0,
-      "avg_price": 0.0,
-      "net": 0.0
-    },
-    {
-      "name": "Dispatch Fee",
-      "category": "",
-      "qty": 69.0,
-      "avg_price": 4.03,
-      "net": 278.31
-    },
-    {
-      "name": "Dispatch Tip",
-      "category": "",
-      "qty": 66.0,
-      "avg_price": 6.21,
-      "net": 409.93
-    },
-    {
-      "name": "IN-STORE OPEN ITEM",
-      "category": "Food",
-      "qty": 3.0,
-      "avg_price": 8.5,
-      "net": 25.5
-    },
-    {
-      "name": "TABLE NUMBER",
-      "category": "",
-      "qty": 293.0,
-      "avg_price": 0.0,
-      "net": 0.0
-    },
-    {
-      "name": "CURBSIDE",
-      "category": "",
-      "qty": 5.0,
-      "avg_price": 0.0,
-      "net": 0.0
-    },
-    {
-      "name": "Salad Party Package",
-      "category": "Catering Food",
-      "qty": 1.0,
-      "avg_price": 125.0,
-      "net": 125.0
-    }
-  ]
+  "locations": {
+    "total": {
+      "totalNet": 43738.08,
+      "totalQty": 4464.8,
+      "concepts": [
+        {
+          "name": "Gaby",
+          "qty": 1066.0,
+          "gross": 17388.0,
+          "net": 16386.26
+        },
+        {
+          "name": "Palermo Pizza Club",
+          "qty": 312.0,
+          "gross": 5681.5,
+          "net": 5126.01
+        },
+        {
+          "name": "MK",
+          "qty": 634.0,
+          "gross": 10747.5,
+          "net": 10074.59
+        },
+        {
+          "name": "Social Monk",
+          "qty": 180.0,
+          "gross": 2768.5,
+          "net": 2560.74
+        },
+        {
+          "name": "Mixtape",
+          "qty": 453.0,
+          "gross": 4526.0,
+          "net": 4184.17
+        },
+        {
+          "name": "Neighborly Cookies",
+          "qty": 128.0,
+          "gross": 925.0,
+          "net": 866.95
+        },
+        {
+          "name": "Marketplace",
+          "qty": 652.8,
+          "gross": 2179.66,
+          "net": 2105.16
+        },
+        {
+          "name": "Utensils",
+          "qty": 57.0,
+          "gross": 0.0,
+          "net": 0.0
+        },
+        {
+          "name": "Beverages",
+          "qty": 428.0,
+          "gross": 1358.4,
+          "net": 1328.05
+        },
+        {
+          "name": "Beer",
+          "qty": 43.0,
+          "gross": 274.5,
+          "net": 274.5
+        },
+        {
+          "name": "Wine",
+          "qty": 52.0,
+          "gross": 688.0,
+          "net": 679.65
+        },
+        {
+          "name": "OLO Open Items",
+          "qty": 457.0,
+          "gross": 25.5,
+          "net": 25.5
+        },
+        {
+          "name": "Catering",
+          "qty": 1.0,
+          "gross": 125.0,
+          "net": 125.0
+        },
+        {
+          "name": "Open items",
+          "qty": 1.0,
+          "gross": 1.5,
+          "net": 1.5
+        }
+      ],
+      "groups": [
+        {
+          "name": "Sandwiches",
+          "qty": 461.0,
+          "gross": 7466.5,
+          "net": 7126.68
+        },
+        {
+          "name": "Salads",
+          "qty": 390.0,
+          "gross": 6640.5,
+          "net": 6409.2
+        },
+        {
+          "name": "Bowls & Plates",
+          "qty": 202.0,
+          "gross": 3518.5,
+          "net": 3106.88
+        },
+        {
+          "name": "Soup & Sides",
+          "qty": 21.0,
+          "gross": 196.5,
+          "net": 190.0
+        },
+        {
+          "name": "Lil' Foodies",
+          "qty": 45.0,
+          "gross": 505.0,
+          "net": 492.5
+        },
+        {
+          "name": "Pizza",
+          "qty": 134.0,
+          "gross": 2661.5,
+          "net": 2281.9
+        },
+        {
+          "name": "To Share",
+          "qty": 18.0,
+          "gross": 279.0,
+          "net": 279.0
+        },
+        {
+          "name": "Pasta",
+          "qty": 65.0,
+          "gross": 1388.5,
+          "net": 1257.86
+        },
+        {
+          "name": "Family Salads",
+          "qty": 17.0,
+          "gross": 261.5,
+          "net": 245.55
+        },
+        {
+          "name": "Kid's Menu",
+          "qty": 76.0,
+          "gross": 996.0,
+          "net": 966.7
+        },
+        {
+          "name": "Family Meals",
+          "qty": 2.0,
+          "gross": 95.0,
+          "net": 95.0
+        },
+        {
+          "name": "Appetizers",
+          "qty": 54.0,
+          "gross": 406.0,
+          "net": 399.5
+        },
+        {
+          "name": "Lavash Wraps",
+          "qty": 155.0,
+          "gross": 2416.0,
+          "net": 2209.4
+        },
+        {
+          "name": "Bowls",
+          "qty": 146.0,
+          "gross": 2226.0,
+          "net": 2050.23
+        },
+        {
+          "name": "Plates",
+          "qty": 224.0,
+          "gross": 4747.5,
+          "net": 4469.96
+        },
+        {
+          "name": "Add Ons",
+          "qty": 2.0,
+          "gross": 13.0,
+          "net": 6.5
+        },
+        {
+          "name": "Soup/Small Plates",
+          "qty": 21.0,
+          "gross": 231.5,
+          "net": 225.84
+        },
+        {
+          "name": "Classics",
+          "qty": 73.0,
+          "gross": 1363.0,
+          "net": 1247.0
+        },
+        {
+          "name": "Noodles & Rice",
+          "qty": 68.0,
+          "gross": 1007.0,
+          "net": 920.9
+        },
+        {
+          "name": "Lunch Combos",
+          "qty": 1.0,
+          "gross": 49.5,
+          "net": 49.5
+        },
+        {
+          "name": "Vegetables & Sides",
+          "qty": 17.0,
+          "gross": 117.5,
+          "net": 117.5
+        },
+        {
+          "name": "Better Tenders",
+          "qty": 125.0,
+          "gross": 1534.5,
+          "net": 1334.47
+        },
+        {
+          "name": "Burgers & Sandos",
+          "qty": 128.0,
+          "gross": 1835.0,
+          "net": 1738.5
+        },
+        {
+          "name": "Side Thangs",
+          "qty": 110.0,
+          "gross": 514.5,
+          "net": 489.9
+        },
+        {
+          "name": "Soft Serve Saturdaes",
+          "qty": 88.0,
+          "gross": 639.0,
+          "net": 618.3
+        },
+        {
+          "name": "MashUp Sauces",
+          "qty": 2.0,
+          "gross": 3.0,
+          "net": 3.0
+        },
+        {
+          "name": "Freshly Baked Cookies",
+          "qty": 128.0,
+          "gross": 925.0,
+          "net": 866.95
+        },
+        {
+          "name": "SNACKS",
+          "qty": 35.0,
+          "gross": 240.0,
+          "net": 222.0
+        },
+        {
+          "name": "CANDIES/DESSERTS",
+          "qty": 11.0,
+          "gross": 104.0,
+          "net": 96.38
+        },
+        {
+          "name": "MRKT BEV",
+          "qty": 4.0,
+          "gross": 22.0,
+          "net": 8.8
+        },
+        {
+          "name": "GABY MRKT",
+          "qty": 15.0,
+          "gross": 167.5,
+          "net": 165.6
+        },
+        {
+          "name": "CSBH MRKT",
+          "qty": 4.0,
+          "gross": 50.0,
+          "net": 50.0
+        },
+        {
+          "name": "NBRLY MRKT",
+          "qty": 93.0,
+          "gross": 971.6,
+          "net": 941.75
+        },
+        {
+          "name": "BETTER-FOR-YOU SNACKS",
+          "qty": 4.0,
+          "gross": 18.0,
+          "net": 18.0
+        },
+        {
+          "name": "KID APPROVED CUPBOARD",
+          "qty": 3.0,
+          "gross": 21.0,
+          "net": 21.0
+        },
+        {
+          "name": "FROM THE FRIDGE",
+          "qty": 1.0,
+          "gross": 11.0,
+          "net": 11.0
+        },
+        {
+          "name": "SOCKERBIT",
+          "qty": 482.79999999999995,
+          "gross": 574.56,
+          "net": 570.63
+        },
+        {
+          "name": "Utensils",
+          "qty": 57.0,
+          "gross": 0.0,
+          "net": 0.0
+        },
+        {
+          "name": "Beverages",
+          "qty": 428.0,
+          "gross": 1358.4,
+          "net": 1328.05
+        },
+        {
+          "name": "BEER",
+          "qty": 43.0,
+          "gross": 274.5,
+          "net": 274.5
+        },
+        {
+          "name": "BY THE GLASS",
+          "qty": 45.0,
+          "gross": 491.0,
+          "net": 482.65
+        },
+        {
+          "name": "BY THE BOTTLE",
+          "qty": 7.0,
+          "gross": 197.0,
+          "net": 197.0
+        },
+        {
+          "name": "OLO Open Items",
+          "qty": 457.0,
+          "gross": 25.5,
+          "net": 25.5
+        },
+        {
+          "name": "Packages",
+          "qty": 1.0,
+          "gross": 125.0,
+          "net": 125.0
+        },
+        {
+          "name": "Open Food",
+          "qty": 1.0,
+          "gross": 1.5,
+          "net": 1.5
+        }
+      ],
+      "topItemsByNet": [
+        {
+          "name": "GABY'S CAESAR AVOCADO WRAP",
+          "category": "Gaby Food",
+          "qty": 187.0,
+          "avg_price": 15.26,
+          "net": 2854.05
+        },
+        {
+          "name": "MAMMA ALVA'S FAMILY PLATE",
+          "category": "MK Food",
+          "qty": 135.0,
+          "avg_price": 18.46,
+          "net": 2492.3
+        },
+        {
+          "name": "CHINESE CHICKEN CRUNCH SALAD",
+          "category": "Gaby Food",
+          "qty": 132.0,
+          "avg_price": 16.55,
+          "net": 2184.3
+        },
+        {
+          "name": "PAPA HOV'S STEAK PLATE",
+          "category": "MK Food",
+          "qty": 89.0,
+          "avg_price": 22.22,
+          "net": 1977.66
+        },
+        {
+          "name": "THOMAS' CRISPY CHICKEN SANDWICH",
+          "category": "Gaby Food",
+          "qty": 92.0,
+          "avg_price": 15.5,
+          "net": 1425.9
+        },
+        {
+          "name": "THE ORIGINAL MINI KABOB WRAP",
+          "category": "MK Food",
+          "qty": 91.0,
+          "avg_price": 14.68,
+          "net": 1335.56
+        },
+        {
+          "name": "THE MK MEZZE BOWL",
+          "category": "MK Food",
+          "qty": 83.0,
+          "avg_price": 14.14,
+          "net": 1173.53
+        },
+        {
+          "name": "THE PERFECT CHICKEN CAESAR SALAD",
+          "category": "Gaby Food",
+          "qty": 62.0,
+          "avg_price": 15.64,
+          "net": 969.45
+        },
+        {
+          "name": "KATYA'S CLASSIC GREEK SALAD",
+          "category": "MK Food",
+          "qty": 53.0,
+          "avg_price": 17.72,
+          "net": 939.0
+        },
+        {
+          "name": "SESAME GINGER TERIYAKI BOWL",
+          "category": "Gaby Food",
+          "qty": 61.0,
+          "avg_price": 15.36,
+          "net": 937.1
+        },
+        {
+          "name": "BENSONHURST PEPPERONI PIZZA",
+          "category": "Palermo Pizza Club",
+          "qty": 46.0,
+          "avg_price": 18.63,
+          "net": 857.05
+        },
+        {
+          "name": "THE LA CHOP",
+          "category": "Gaby Food",
+          "qty": 53.0,
+          "avg_price": 16.04,
+          "net": 850.22
+        },
+        {
+          "name": "THE \"BURRITO-ISH\" WRAP",
+          "category": "Gaby Food",
+          "qty": 54.0,
+          "avg_price": 15.42,
+          "net": 832.43
+        },
+        {
+          "name": "THE MARKET SALAD",
+          "category": "Gaby Food",
+          "qty": 50.0,
+          "avg_price": 16.35,
+          "net": 817.7
+        },
+        {
+          "name": "CLASSIC CHEESEBURGER WRAP",
+          "category": "MK Food",
+          "qty": 57.0,
+          "avg_price": 13.99,
+          "net": 797.34
+        }
+      ],
+      "topItemsByQty": [
+        {
+          "name": "Swedish Candy",
+          "category": "Marketplace",
+          "qty": 482.79999999999995,
+          "avg_price": 1.18,
+          "net": 570.63
+        },
+        {
+          "name": "TABLE NUMBER",
+          "category": "",
+          "qty": 293.0,
+          "avg_price": 0.0,
+          "net": 0.0
+        },
+        {
+          "name": "GABY'S CAESAR AVOCADO WRAP",
+          "category": "Gaby Food",
+          "qty": 187.0,
+          "avg_price": 15.26,
+          "net": 2854.05
+        },
+        {
+          "name": "3RD PARTY DELIVERY INFO",
+          "category": "Misc Non Sales",
+          "qty": 156.0,
+          "avg_price": 0.0,
+          "net": 0.0
+        },
+        {
+          "name": "MAMMA ALVA'S FAMILY PLATE",
+          "category": "MK Food",
+          "qty": 135.0,
+          "avg_price": 18.46,
+          "net": 2492.3
+        },
+        {
+          "name": "CHINESE CHICKEN CRUNCH SALAD",
+          "category": "Gaby Food",
+          "qty": 132.0,
+          "avg_price": 16.55,
+          "net": 2184.3
+        },
+        {
+          "name": "WAFFLE FRIES",
+          "category": "Mixtape Food",
+          "qty": 107.0,
+          "avg_price": 4.51,
+          "net": 482.4
+        },
+        {
+          "name": "THOMAS' CRISPY CHICKEN SANDWICH",
+          "category": "Gaby Food",
+          "qty": 92.0,
+          "avg_price": 15.5,
+          "net": 1425.9
+        },
+        {
+          "name": "THE ORIGINAL MINI KABOB WRAP",
+          "category": "MK Food",
+          "qty": 91.0,
+          "avg_price": 14.68,
+          "net": 1335.56
+        },
+        {
+          "name": "PAPA HOV'S STEAK PLATE",
+          "category": "MK Food",
+          "qty": 89.0,
+          "avg_price": 22.22,
+          "net": 1977.66
+        },
+        {
+          "name": "THE MK MEZZE BOWL",
+          "category": "MK Food",
+          "qty": 83.0,
+          "avg_price": 14.14,
+          "net": 1173.53
+        },
+        {
+          "name": "BETTER TENDER BOX SET",
+          "category": "Mixtape Food",
+          "qty": 69.0,
+          "avg_price": 10.84,
+          "net": 748.12
+        },
+        {
+          "name": "Dispatch Fee",
+          "category": "",
+          "qty": 69.0,
+          "avg_price": 4.03,
+          "net": 278.31
+        },
+        {
+          "name": "Dispatch Tip",
+          "category": "",
+          "qty": 66.0,
+          "avg_price": 6.21,
+          "net": 409.93
+        },
+        {
+          "name": "THE PERFECT CHICKEN CAESAR SALAD",
+          "category": "Gaby Food",
+          "qty": 62.0,
+          "avg_price": 15.64,
+          "net": 969.45
+        }
+      ],
+      "items": [
+        {
+          "name": "GABY'S CAESAR AVOCADO WRAP",
+          "category": "Gaby Food",
+          "qty": 187.0,
+          "avg_price": 15.26,
+          "net": 2854.05
+        },
+        {
+          "name": "THOMAS' CRISPY CHICKEN SANDWICH",
+          "category": "Gaby Food",
+          "qty": 92.0,
+          "avg_price": 15.5,
+          "net": 1425.9
+        },
+        {
+          "name": "PESTO CHICKEN SANDWICH",
+          "category": "Gaby Food",
+          "qty": 27.0,
+          "avg_price": 14.65,
+          "net": 395.5
+        },
+        {
+          "name": "ROBERTSON TUNA SANDWICH",
+          "category": "Gaby Food",
+          "qty": 21.0,
+          "avg_price": 16.57,
+          "net": 348.0
+        },
+        {
+          "name": "TURKEY AVOCADO SANDWICH",
+          "category": "Gaby Food",
+          "qty": 22.0,
+          "avg_price": 14.92,
+          "net": 328.3
+        },
+        {
+          "name": "THE COUNTRY CLUB SANDWICH",
+          "category": "Gaby Food",
+          "qty": 37.0,
+          "avg_price": 15.66,
+          "net": 579.5
+        },
+        {
+          "name": "PROSCIUTTO & BURRATA SANDWICH",
+          "category": "Gaby Food",
+          "qty": 15.0,
+          "avg_price": 17.6,
+          "net": 264.0
+        },
+        {
+          "name": "BEETS BY GABY SANDWICH",
+          "category": "Gaby Food",
+          "qty": 6.0,
+          "avg_price": 16.5,
+          "net": 99.0
+        },
+        {
+          "name": "THE \"BURRITO-ISH\" WRAP",
+          "category": "Gaby Food",
+          "qty": 54.0,
+          "avg_price": 15.42,
+          "net": 832.43
+        },
+        {
+          "name": "THE MARKET SALAD",
+          "category": "Gaby Food",
+          "qty": 50.0,
+          "avg_price": 16.35,
+          "net": 817.7
+        },
+        {
+          "name": "CHIPOTLE TACO SALAD",
+          "category": "Gaby Food",
+          "qty": 40.0,
+          "avg_price": 16.21,
+          "net": 648.53
+        },
+        {
+          "name": "THE LA CHOP",
+          "category": "Gaby Food",
+          "qty": 53.0,
+          "avg_price": 16.04,
+          "net": 850.22
+        },
+        {
+          "name": "THE PERFECT CHICKEN CAESAR SALAD",
+          "category": "Gaby Food",
+          "qty": 62.0,
+          "avg_price": 15.64,
+          "net": 969.45
+        },
+        {
+          "name": "CHINESE CHICKEN CRUNCH SALAD",
+          "category": "Gaby Food",
+          "qty": 132.0,
+          "avg_price": 16.55,
+          "net": 2184.3
+        },
+        {
+          "name": "GABY'S GREEN RICE BURRITO BOWL",
+          "category": "Gaby Food",
+          "qty": 48.0,
+          "avg_price": 13.35,
+          "net": 641.0
+        },
+        {
+          "name": "ROASTED SALMON SOCAL BOWL",
+          "category": "Gaby Food",
+          "qty": 23.0,
+          "avg_price": 18.17,
+          "net": 418.0
+        },
+        {
+          "name": "SESAME GINGER TERIYAKI BOWL",
+          "category": "Gaby Food",
+          "qty": 61.0,
+          "avg_price": 15.36,
+          "net": 937.1
+        },
+        {
+          "name": "GABY'S CARNE ASADA GREEN RICE BURRITO BOWL",
+          "category": "Gaby Food",
+          "qty": 37.0,
+          "avg_price": 13.46,
+          "net": 498.15
+        },
+        {
+          "name": "MISO SALMON BOWL",
+          "category": "Gaby Food",
+          "qty": 33.0,
+          "avg_price": 18.56,
+          "net": 612.63
+        },
+        {
+          "name": "CREAMY TOMATO BASIL SOUP",
+          "category": "Gaby Food",
+          "qty": 17.0,
+          "avg_price": 10.5,
+          "net": 178.5
+        },
+        {
+          "name": "SIDE CHICKEN BREAST",
+          "category": "Gaby Food",
+          "qty": 2.0,
+          "avg_price": 4.5,
+          "net": 9.0
+        },
+        {
+          "name": "SIDE SALMON",
+          "category": "Gaby Food",
+          "qty": 1.0,
+          "avg_price": 0.0,
+          "net": 0.0
+        },
+        {
+          "name": "SIDE AVOCADO",
+          "category": "Gaby Food",
+          "qty": 1.0,
+          "avg_price": 2.5,
+          "net": 2.5
+        },
+        {
+          "name": "CHEESE QUESADILLA",
+          "category": "Gaby Food",
+          "qty": 14.0,
+          "avg_price": 8.39,
+          "net": 117.5
+        },
+        {
+          "name": "FINN'S MAC & CHEESE",
+          "category": "Gaby Food",
+          "qty": 31.0,
+          "avg_price": 12.1,
+          "net": 375.0
+        },
+        {
+          "name": "QUEEN MARGHERITA PIZZA",
+          "category": "Palermo Pizza Club",
+          "qty": 42.0,
+          "avg_price": 16.7,
+          "net": 701.5
+        },
+        {
+          "name": "BENSONHURST PEPPERONI PIZZA",
+          "category": "Palermo Pizza Club",
+          "qty": 46.0,
+          "avg_price": 18.63,
+          "net": 857.05
+        },
+        {
+          "name": "CHICKEN PARM PIZZA",
+          "category": "Palermo Pizza Club",
+          "qty": 14.0,
+          "avg_price": 21.56,
+          "net": 301.85
+        },
+        {
+          "name": "PIZZA ALLA VODKA",
+          "category": "Palermo Pizza Club",
+          "qty": 23.0,
+          "avg_price": 9.46,
+          "net": 217.5
+        },
+        {
+          "name": "THE PALERMO PROSCIUTTO & STRACCIATELLA PIZZA",
+          "category": "Palermo Pizza Club",
+          "qty": 9.0,
+          "avg_price": 22.67,
+          "net": 204.0
+        },
+        {
+          "name": "P.P.C. CHICKEN PARM",
+          "category": "Palermo Pizza Club",
+          "qty": 8.0,
+          "avg_price": 15.5,
+          "net": 124.0
+        },
+        {
+          "name": "HOUSE MEATBALLS",
+          "category": "Palermo Pizza Club",
+          "qty": 10.0,
+          "avg_price": 15.5,
+          "net": 155.0
+        },
+        {
+          "name": "RIGATONI ALLA VODKA",
+          "category": "Palermo Pizza Club",
+          "qty": 42.0,
+          "avg_price": 18.93,
+          "net": 794.86
+        },
+        {
+          "name": "PESTO ALLA FRANCESCO PASTA",
+          "category": "Palermo Pizza Club",
+          "qty": 14.0,
+          "avg_price": 19.96,
+          "net": 279.5
+        },
+        {
+          "name": "LEO'S ALFREDO PASTA",
+          "category": "Palermo Pizza Club",
+          "qty": 9.0,
+          "avg_price": 20.39,
+          "net": 183.5
+        },
+        {
+          "name": "ARUGULA SALAD",
+          "category": "Palermo Pizza Club",
+          "qty": 1.0,
+          "avg_price": 14.5,
+          "net": 14.5
+        },
+        {
+          "name": "DIANA'S GEM CAESAR SALAD",
+          "category": "Palermo Pizza Club",
+          "qty": 16.0,
+          "avg_price": 14.44,
+          "net": 231.05
+        },
+        {
+          "name": "KID'S CHEESE PIZZA (SHAREABLE)",
+          "category": "Palermo Pizza Club",
+          "qty": 26.0,
+          "avg_price": 12.02,
+          "net": 312.5
+        },
+        {
+          "name": "KID'S PEPPERONI PIZZA (SHAREABLE)",
+          "category": "Palermo Pizza Club",
+          "qty": 20.0,
+          "avg_price": 13.78,
+          "net": 275.5
+        },
+        {
+          "name": "KID'S POMODORO PASTA",
+          "category": "Palermo Pizza Club",
+          "qty": 10.0,
+          "avg_price": 13.15,
+          "net": 131.5
+        },
+        {
+          "name": "KID'S BUTTER & PARMESAN PASTA",
+          "category": "Palermo Pizza Club",
+          "qty": 20.0,
+          "avg_price": 12.36,
+          "net": 247.2
+        },
+        {
+          "name": "BEST PIZZA FAMILY MEAL",
+          "category": "Palermo Pizza Club",
+          "qty": 2.0,
+          "avg_price": 47.5,
+          "net": 95.0
+        },
+        {
+          "name": "DIP DUO",
+          "category": "MK Food",
+          "qty": 28.0,
+          "avg_price": 6.27,
+          "net": 175.5
+        },
+        {
+          "name": "HOUSE HUMMUS",
+          "category": "MK Food",
+          "qty": 9.0,
+          "avg_price": 8.5,
+          "net": 76.5
+        },
+        {
+          "name": "CRISPY FALAFEL",
+          "category": "MK Food",
+          "qty": 17.0,
+          "avg_price": 8.68,
+          "net": 147.5
+        },
+        {
+          "name": "KATYA'S CLASSIC GREEK SALAD",
+          "category": "MK Food",
+          "qty": 53.0,
+          "avg_price": 17.72,
+          "net": 939.0
+        },
+        {
+          "name": "THE ORIGINAL MINI KABOB WRAP",
+          "category": "MK Food",
+          "qty": 91.0,
+          "avg_price": 14.68,
+          "net": 1335.56
+        },
+        {
+          "name": "CLASSIC CHEESEBURGER WRAP",
+          "category": "MK Food",
+          "qty": 57.0,
+          "avg_price": 13.99,
+          "net": 797.34
+        },
+        {
+          "name": "KID'S MELTY CHEESE WRAP",
+          "category": "MK Food",
+          "qty": 7.0,
+          "avg_price": 10.93,
+          "net": 76.5
+        },
+        {
+          "name": "THE MK MEZZE BOWL",
+          "category": "MK Food",
+          "qty": 83.0,
+          "avg_price": 14.14,
+          "net": 1173.53
+        },
+        {
+          "name": "KID'S RICE BOWL",
+          "category": "MK Food",
+          "qty": 37.0,
+          "avg_price": 9.65,
+          "net": 357.1
+        },
+        {
+          "name": "MK MEZZE SALMON BOWL",
+          "category": "MK Food",
+          "qty": 26.0,
+          "avg_price": 19.98,
+          "net": 519.6
+        },
+        {
+          "name": "MAMMA ALVA'S FAMILY PLATE",
+          "category": "MK Food",
+          "qty": 135.0,
+          "avg_price": 18.46,
+          "net": 2492.3
+        },
+        {
+          "name": "PAPA HOV'S STEAK PLATE",
+          "category": "MK Food",
+          "qty": 89.0,
+          "avg_price": 22.22,
+          "net": 1977.66
+        },
+        {
+          "name": "SIDE STEAK",
+          "category": "MK Food",
+          "qty": 2.0,
+          "avg_price": 3.25,
+          "net": 6.5
+        },
+        {
+          "name": "CHICKEN WONTON SOUP",
+          "category": "Social Monk Food",
+          "qty": 5.0,
+          "avg_price": 9.5,
+          "net": 47.5
+        },
+        {
+          "name": "SPICY CHILI CHICKEN WONTONS",
+          "category": "Social Monk Food",
+          "qty": 16.0,
+          "avg_price": 11.15,
+          "net": 178.34
+        },
+        {
+          "name": "THAI BASIL CASHEW CHICKEN",
+          "category": "Social Monk Food",
+          "qty": 18.0,
+          "avg_price": 17.5,
+          "net": 315.0
+        },
+        {
+          "name": "ORANGE CHICKEN",
+          "category": "Social Monk Food",
+          "qty": 24.0,
+          "avg_price": 15.96,
+          "net": 383.0
+        },
+        {
+          "name": "KUNG PAO CHICKEN",
+          "category": "Social Monk Food",
+          "qty": 11.0,
+          "avg_price": 16.86,
+          "net": 185.5
+        },
+        {
+          "name": "PRINCESS CHICKEN & VEGGIES",
+          "category": "Social Monk Food",
+          "qty": 6.0,
+          "avg_price": 17.5,
+          "net": 105.0
+        },
+        {
+          "name": "BEEF AND BROCCOLI",
+          "category": "Social Monk Food",
+          "qty": 10.0,
+          "avg_price": 18.4,
+          "net": 184.0
+        },
+        {
+          "name": "MISO SALMON",
+          "category": "Social Monk Food",
+          "qty": 4.0,
+          "avg_price": 18.63,
+          "net": 74.5
+        },
+        {
+          "name": "DRUNKEN NOODLES",
+          "category": "Social Monk Food",
+          "qty": 17.0,
+          "avg_price": 14.59,
+          "net": 248.0
+        },
+        {
+          "name": "CHOW MEIN",
+          "category": "Social Monk Food",
+          "qty": 7.0,
+          "avg_price": 7.5,
+          "net": 52.5
+        },
+        {
+          "name": "THE ORIGINAL SM FRIED RICE",
+          "category": "Social Monk Food",
+          "qty": 17.0,
+          "avg_price": 12.63,
+          "net": 214.65
+        },
+        {
+          "name": "CHICKEN CHOW MEIN",
+          "category": "Social Monk Food",
+          "qty": 16.0,
+          "avg_price": 14.53,
+          "net": 232.5
+        },
+        {
+          "name": "BEEF CHOW MEIN",
+          "category": "Social Monk Food",
+          "qty": 11.0,
+          "avg_price": 15.75,
+          "net": 173.25
+        },
+        {
+          "name": "SOCIAL MONK FAMILY MEAL",
+          "category": "Social Monk Food",
+          "qty": 1.0,
+          "avg_price": 49.5,
+          "net": 49.5
+        },
+        {
+          "name": "WOK-SEARED GREEN BEANS",
+          "category": "Social Monk Food",
+          "qty": 7.0,
+          "avg_price": 8.5,
+          "net": 59.5
+        },
+        {
+          "name": "BROCCOLI WITH TOASTED GARLIC",
+          "category": "Social Monk Food",
+          "qty": 4.0,
+          "avg_price": 6.5,
+          "net": 26.0
+        },
+        {
+          "name": "KALE WITH TOASTED GARLIC",
+          "category": "Social Monk Food",
+          "qty": 1.0,
+          "avg_price": 6.5,
+          "net": 6.5
+        },
+        {
+          "name": "STEAMED RICE",
+          "category": "Social Monk Food",
+          "qty": 2.0,
+          "avg_price": 4.5,
+          "net": 9.0
+        },
+        {
+          "name": "ANCIENT GRAINS",
+          "category": "Social Monk Food",
+          "qty": 3.0,
+          "avg_price": 5.5,
+          "net": 16.5
+        },
+        {
+          "name": "BETTER TENDER BOX SET",
+          "category": "Mixtape Food",
+          "qty": 69.0,
+          "avg_price": 10.84,
+          "net": 748.12
+        },
+        {
+          "name": "KID'S BETTER TENDERS",
+          "category": "Mixtape Food",
+          "qty": 56.0,
+          "avg_price": 10.47,
+          "net": 586.35
+        },
+        {
+          "name": "ONLY THE CLASSICS CRISPY CHICKEN SANDWICH",
+          "category": "Mixtape Food",
+          "qty": 54.0,
+          "avg_price": 13.08,
+          "net": 706.5
+        },
+        {
+          "name": "THE OGB CHEESEBURGER",
+          "category": "Mixtape Food",
+          "qty": 19.0,
+          "avg_price": 11.53,
+          "net": 219.05
+        },
+        {
+          "name": "THE OGB ROYALE BURGER",
+          "category": "Mixtape Food",
+          "qty": 8.0,
+          "avg_price": 17.0,
+          "net": 136.0
+        },
+        {
+          "name": "BACKYARD BBQ BURGER",
+          "category": "Mixtape Food",
+          "qty": 12.0,
+          "avg_price": 15.9,
+          "net": 190.75
+        },
+        {
+          "name": "SPICY CRISPY CHICKEN SANDWICH",
+          "category": "Mixtape Food",
+          "qty": 35.0,
+          "avg_price": 13.89,
+          "net": 486.2
+        },
+        {
+          "name": "WAFFLE FRIES",
+          "category": "Mixtape Food",
+          "qty": 107.0,
+          "avg_price": 4.51,
+          "net": 482.4
+        },
+        {
+          "name": "SIGNATURE SLAW",
+          "category": "Mixtape Food",
+          "qty": 3.0,
+          "avg_price": 2.5,
+          "net": 7.5
+        },
+        {
+          "name": "STRAWBERRY GRAHAM JAM SATURDAE",
+          "category": "Mixtape Food",
+          "qty": 28.0,
+          "avg_price": 7.13,
+          "net": 199.5
+        },
+        {
+          "name": "SALTED CARAMEL CRUNCH SATURDAE",
+          "category": "Mixtape Food",
+          "qty": 17.0,
+          "avg_price": 7.59,
+          "net": 129.0
+        },
+        {
+          "name": "LOADED DARK CHOCOLATE BROWNIE SATURDAE",
+          "category": "Mixtape Food",
+          "qty": 31.0,
+          "avg_price": 7.36,
+          "net": 228.3
+        },
+        {
+          "name": "KID'S (PLAIN) SATURDAE",
+          "category": "Mixtape Food",
+          "qty": 12.0,
+          "avg_price": 5.13,
+          "net": 61.5
+        },
+        {
+          "name": "Add Side Sauce (Mixtape)",
+          "category": "Mixtape Food",
+          "qty": 2.0,
+          "avg_price": 1.5,
+          "net": 3.0
+        },
+        {
+          "name": "CHOCOLATE CHUNK & SEA SALT COOKIE",
+          "category": "Neighborly Cookies",
+          "qty": 39.0,
+          "avg_price": 4.92,
+          "net": 191.95
+        },
+        {
+          "name": "THE DOUBLE STUFFED OREO COOKIE",
+          "category": "Neighborly Cookies",
+          "qty": 16.0,
+          "avg_price": 5.16,
+          "net": 82.5
+        },
+        {
+          "name": "WHITE CHOCOLATE CORN CRUNCH COOKIE",
+          "category": "Neighborly Cookies",
+          "qty": 11.0,
+          "avg_price": 4.5,
+          "net": 49.5
+        },
+        {
+          "name": "THE EVERYDAY BIRTHDAY COOKIE",
+          "category": "Neighborly Cookies",
+          "qty": 19.0,
+          "avg_price": 5.5,
+          "net": 104.5
+        },
+        {
+          "name": "2 PACK COOKIES",
+          "category": "Neighborly Cookies",
+          "qty": 36.0,
+          "avg_price": 8.97,
+          "net": 323.0
+        },
+        {
+          "name": "4 PACK COOKIES",
+          "category": "Neighborly Cookies",
+          "qty": 7.0,
+          "avg_price": 16.5,
+          "net": 115.5
+        },
+        {
+          "name": "MASA - COBANERO",
+          "category": "Marketplace",
+          "qty": 1.0,
+          "avg_price": 13.0,
+          "net": 13.0
+        },
+        {
+          "name": "MASA - LIME",
+          "category": "Marketplace",
+          "qty": 1.0,
+          "avg_price": 13.0,
+          "net": 13.0
+        },
+        {
+          "name": "MASA - ORIGINAL",
+          "category": "Marketplace",
+          "qty": 2.0,
+          "avg_price": 13.0,
+          "net": 26.0
+        },
+        {
+          "name": "BJORNCORN - SPICY",
+          "category": "Marketplace",
+          "qty": 2.0,
+          "avg_price": 7.0,
+          "net": 14.0
+        },
+        {
+          "name": "SUNNIE - CHEDDAR CRACKERS",
+          "category": "Marketplace",
+          "qty": 1.0,
+          "avg_price": 5.0,
+          "net": 5.0
+        },
+        {
+          "name": "MEJORADO SEASONED TOTOPOS",
+          "category": "Marketplace",
+          "qty": 1.0,
+          "avg_price": 7.0,
+          "net": 7.0
+        },
+        {
+          "name": "TORRES - MEDI SALT CHIP",
+          "category": "Marketplace",
+          "qty": 5.0,
+          "avg_price": 5.0,
+          "net": 25.0
+        },
+        {
+          "name": "TORRES - TRUFFLE CHIP",
+          "category": "Marketplace",
+          "qty": 4.0,
+          "avg_price": 5.0,
+          "net": 20.0
+        },
+        {
+          "name": "OH SNAP! - COOL BEANS",
+          "category": "Marketplace",
+          "qty": 3.0,
+          "avg_price": 3.0,
+          "net": 9.0
+        },
+        {
+          "name": "OH SNAP! - HOTTIE PICKLE BITES",
+          "category": "Marketplace",
+          "qty": 2.0,
+          "avg_price": 3.0,
+          "net": 6.0
+        },
+        {
+          "name": "MONKEY BRITTLE",
+          "category": "Marketplace",
+          "qty": 2.0,
+          "avg_price": 6.0,
+          "net": 12.0
+        },
+        {
+          "name": "MASA - CHURRO",
+          "category": "Marketplace",
+          "qty": 1.0,
+          "avg_price": 0.0,
+          "net": 0.0
+        },
+        {
+          "name": "PAPA STEVE'S - BANANA CHOCO CHIP",
+          "category": "Marketplace",
+          "qty": 1.0,
+          "avg_price": 0.0,
+          "net": 0.0
+        },
+        {
+          "name": "TORRES - PICKLE",
+          "category": "Marketplace",
+          "qty": 3.0,
+          "avg_price": 5.0,
+          "net": 15.0
+        },
+        {
+          "name": "TORRES - VINEGAR",
+          "category": "Marketplace",
+          "qty": 3.0,
+          "avg_price": 5.0,
+          "net": 15.0
+        },
+        {
+          "name": "VANDY - BBQ",
+          "category": "Marketplace",
+          "qty": 3.0,
+          "avg_price": 14.0,
+          "net": 42.0
+        },
+        {
+          "name": "KOLSVART - SOUR RASP",
+          "category": "Marketplace",
+          "qty": 2.0,
+          "avg_price": 6.1,
+          "net": 12.19
+        },
+        {
+          "name": "KOLSVART - BLK CURRANT",
+          "category": "Marketplace",
+          "qty": 3.0,
+          "avg_price": 6.73,
+          "net": 20.19
+        },
+        {
+          "name": "MILD ADD - PECAN CHOC",
+          "category": "Marketplace",
+          "qty": 1.0,
+          "avg_price": 14.0,
+          "net": 14.0
+        },
+        {
+          "name": "MILD ADD - COCONUT",
+          "category": "Marketplace",
+          "qty": 1.0,
+          "avg_price": 14.0,
+          "net": 14.0
+        },
+        {
+          "name": "WHIMS DELIGHTS - PEANUT NOUGAT",
+          "category": "Marketplace",
+          "qty": 2.0,
+          "avg_price": 9.0,
+          "net": 18.0
+        },
+        {
+          "name": "WHIMS DELIGHTS - CARAMEL COOKIE",
+          "category": "Marketplace",
+          "qty": 1.0,
+          "avg_price": 9.0,
+          "net": 9.0
+        },
+        {
+          "name": "GISELLE'S - PEANUT BUTTER & JELLY",
+          "category": "Marketplace",
+          "qty": 1.0,
+          "avg_price": 9.0,
+          "net": 9.0
+        },
+        {
+          "name": "WILD WONDER - STRAWBERRY",
+          "category": "Marketplace",
+          "qty": 1.0,
+          "avg_price": 4.0,
+          "net": 4.0
+        },
+        {
+          "name": "STUMPTOWN - COLD BREW",
+          "category": "Marketplace",
+          "qty": 3.0,
+          "avg_price": 1.6,
+          "net": 4.8
+        },
+        {
+          "name": "GREEN GODDESS CHILI RANCH DRESSING",
+          "category": "Marketplace",
+          "qty": 1.0,
+          "avg_price": 10.0,
+          "net": 10.0
+        },
+        {
+          "name": "SNACK SALAD - THAI MANGO MISO",
+          "category": "Marketplace",
+          "qty": 2.0,
+          "avg_price": 8.55,
+          "net": 17.1
+        },
+        {
+          "name": "SNACK SALAD - DATE ME",
+          "category": "Marketplace",
+          "qty": 1.0,
+          "avg_price": 9.5,
+          "net": 9.5
+        },
+        {
+          "name": "CHIPOTLE CHICKEN W/SAUCE (9 OZ)",
+          "category": "Marketplace",
+          "qty": 3.0,
+          "avg_price": 11.0,
+          "net": 33.0
+        },
+        {
+          "name": "HERBED CHICKEN BREAST (9 OZ)",
+          "category": "Marketplace",
+          "qty": 4.0,
+          "avg_price": 11.0,
+          "net": 44.0
+        },
+        {
+          "name": "BUTTERNUT SQUASH BONE BROTH SOUP (32oz)",
+          "category": "Marketplace",
+          "qty": 2.0,
+          "avg_price": 16.0,
+          "net": 32.0
+        },
+        {
+          "name": "WGC THE BEST GF CHICKEN CUTLET",
+          "category": "Marketplace",
+          "qty": 2.0,
+          "avg_price": 10.0,
+          "net": 20.0
+        },
+        {
+          "name": "CAESAR SALAD",
+          "category": "Marketplace",
+          "qty": 4.0,
+          "avg_price": 12.5,
+          "net": 50.0
+        },
+        {
+          "name": "BURRITOS LA PALMA BIRRIA BOX",
+          "category": "Marketplace",
+          "qty": 4.0,
+          "avg_price": 23.99,
+          "net": 95.96
+        },
+        {
+          "name": "BURRITOS LA PALMA BIRRIA/FRIJOLES BOX",
+          "category": "Marketplace",
+          "qty": 1.0,
+          "avg_price": 23.99,
+          "net": 23.99
+        },
+        {
+          "name": "CRISPY CHICKEN CUTLET",
+          "category": "Marketplace",
+          "qty": 2.0,
+          "avg_price": 9.0,
+          "net": 18.0
+        },
+        {
+          "name": "GROUND UP - SMOOTH",
+          "category": "Marketplace",
+          "qty": 1.0,
+          "avg_price": 16.0,
+          "net": 16.0
+        },
+        {
+          "name": "NEIGHBORLY MEATBALLS & MARINARA",
+          "category": "Marketplace",
+          "qty": 1.0,
+          "avg_price": 15.5,
+          "net": 15.5
+        },
+        {
+          "name": "NEIGHBORLY GF CHICKEN TENDERS",
+          "category": "Marketplace",
+          "qty": 3.0,
+          "avg_price": 12.5,
+          "net": 37.5
+        },
+        {
+          "name": "NEIGHBORLY BOLOGNESE PASTA KIT",
+          "category": "Marketplace",
+          "qty": 2.0,
+          "avg_price": 24.0,
+          "net": 48.0
+        },
+        {
+          "name": "FARMERS MARKET GREEN JUICE",
+          "category": "Marketplace",
+          "qty": 26.0,
+          "avg_price": 9.57,
+          "net": 248.75
+        },
+        {
+          "name": "GARDEN PARTY LEMONADE",
+          "category": "Marketplace",
+          "qty": 11.0,
+          "avg_price": 9.05,
+          "net": 99.5
+        },
+        {
+          "name": "HOUSE LEMONADE",
+          "category": "Marketplace",
+          "qty": 40.0,
+          "avg_price": 7.75,
+          "net": 310.05
+        },
+        {
+          "name": "HOT GIRL PICKLES - BREAD & BUTTER",
+          "category": "Marketplace",
+          "qty": 1.0,
+          "avg_price": 13.0,
+          "net": 13.0
+        },
+        {
+          "name": "NEIGHBORLY MEATBALLS & VODKA SAUCE",
+          "category": "Marketplace",
+          "qty": 1.0,
+          "avg_price": 15.5,
+          "net": 15.5
+        },
+        {
+          "name": "NEW PRIMAL - CLASSIC BEEF STICK",
+          "category": "Marketplace",
+          "qty": 1.0,
+          "avg_price": 3.0,
+          "net": 3.0
+        },
+        {
+          "name": "SUNNY WITHIN - SUPER HUMAN",
+          "category": "Marketplace",
+          "qty": 1.0,
+          "avg_price": 4.0,
+          "net": 4.0
+        },
+        {
+          "name": "SUNNY WITHIN - DAILY DEFENSE",
+          "category": "Marketplace",
+          "qty": 1.0,
+          "avg_price": 4.0,
+          "net": 4.0
+        },
+        {
+          "name": "ROOT - SIXMIX CHIPS",
+          "category": "Marketplace",
+          "qty": 1.0,
+          "avg_price": 7.0,
+          "net": 7.0
+        },
+        {
+          "name": "ONCE AGAIN - PEANUT BUTTER GRAHAM SANDWICHES",
+          "category": "Marketplace",
+          "qty": 1.0,
+          "avg_price": 11.0,
+          "net": 11.0
+        },
+        {
+          "name": "SOPHIE'S ORGANICS - MANGO",
+          "category": "Marketplace",
+          "qty": 2.0,
+          "avg_price": 5.0,
+          "net": 10.0
+        },
+        {
+          "name": "BIRDIES - SMOKED GOUDA PIMENTO",
+          "category": "Marketplace",
+          "qty": 1.0,
+          "avg_price": 11.0,
+          "net": 11.0
+        },
+        {
+          "name": "Swedish Candy",
+          "category": "Marketplace",
+          "qty": 482.79999999999995,
+          "avg_price": 1.18,
+          "net": 570.63
+        },
+        {
+          "name": "ADD UTENSILS",
+          "category": "",
+          "qty": 57.0,
+          "avg_price": 0.0,
+          "net": 0.0
+        },
+        {
+          "name": "JASMINE GREEN TEA ITO-EN",
+          "category": "NA Beverage",
+          "qty": 15.0,
+          "avg_price": 2.95,
+          "net": 44.25
+        },
+        {
+          "name": "GREEN TEA OI OCHA ITO-EN",
+          "category": "NA Beverage",
+          "qty": 11.0,
+          "avg_price": 2.95,
+          "net": 32.45
+        },
+        {
+          "name": "THAI GINGER BAMBUCHA",
+          "category": "NA Beverage",
+          "qty": 8.0,
+          "avg_price": 3.95,
+          "net": 31.6
+        },
+        {
+          "name": "GUAVA PUNCH BAMBUCHA",
+          "category": "NA Beverage",
+          "qty": 10.0,
+          "avg_price": 3.95,
+          "net": 39.5
+        },
+        {
+          "name": "333ML SPARKLING MOUNTAIN VALLEY",
+          "category": "NA Beverage",
+          "qty": 55.0,
+          "avg_price": 2.9,
+          "net": 159.3
+        },
+        {
+          "name": "333ML SPRING MOUNTAIN VALLEY",
+          "category": "NA Beverage",
+          "qty": 43.0,
+          "avg_price": 2.95,
+          "net": 126.85
+        },
+        {
+          "name": "MANGO KIRRA",
+          "category": "NA Beverage",
+          "qty": 4.0,
+          "avg_price": 3.5,
+          "net": 14.0
+        },
+        {
+          "name": "PASSIONFRUIT KIRRA",
+          "category": "NA Beverage",
+          "qty": 13.0,
+          "avg_price": 3.5,
+          "net": 45.5
+        },
+        {
+          "name": "LYCHEE KIRRA",
+          "category": "NA Beverage",
+          "qty": 14.0,
+          "avg_price": 3.5,
+          "net": 49.0
+        },
+        {
+          "name": "LEMON LIME POPPI",
+          "category": "NA Beverage",
+          "qty": 16.0,
+          "avg_price": 3.0,
+          "net": 48.0
+        },
+        {
+          "name": "COLA POPPI",
+          "category": "NA Beverage",
+          "qty": 18.0,
+          "avg_price": 3.0,
+          "net": 54.0
+        },
+        {
+          "name": "MANGO CHILI DE LA CALLE TEPACHE",
+          "category": "NA Beverage",
+          "qty": 5.0,
+          "avg_price": 3.0,
+          "net": 15.0
+        },
+        {
+          "name": "PINEAPPLE SPICE DE LA CALLE TEPACHE",
+          "category": "NA Beverage",
+          "qty": 6.0,
+          "avg_price": 2.5,
+          "net": 15.0
+        },
+        {
+          "name": "MEXICAN COCA-COLA",
+          "category": "NA Beverage",
+          "qty": 46.0,
+          "avg_price": 2.65,
+          "net": 121.8
+        },
+        {
+          "name": "MEXICAN SPRITE",
+          "category": "NA Beverage",
+          "qty": 20.0,
+          "avg_price": 3.0,
+          "net": 60.0
+        },
+        {
+          "name": "NATALIE'S TANGERINE JUICE",
+          "category": "NA Beverage",
+          "qty": 6.0,
+          "avg_price": 5.0,
+          "net": 30.0
+        },
+        {
+          "name": "NATALIE'S NATURAL LEMONADE",
+          "category": "NA Beverage",
+          "qty": 24.0,
+          "avg_price": 4.88,
+          "net": 117.0
+        },
+        {
+          "name": "NATALIE'S STRAWBERRY LEMONADE",
+          "category": "NA Beverage",
+          "qty": 13.0,
+          "avg_price": 5.0,
+          "net": 65.0
+        },
+        {
+          "name": "GRAPEFRUIT LIME DE LA CALLE TEPACHE",
+          "category": "NA Beverage",
+          "qty": 4.0,
+          "avg_price": 2.25,
+          "net": 9.0
+        },
+        {
+          "name": "DIET COKE (8 OZ. BOTTLE)",
+          "category": "NA Beverage",
+          "qty": 61.0,
+          "avg_price": 1.96,
+          "net": 119.8
+        },
+        {
+          "name": "WILD WONDER RASPBERRY LYCHEE",
+          "category": "NA Beverage",
+          "qty": 6.0,
+          "avg_price": 4.0,
+          "net": 24.0
+        },
+        {
+          "name": "WILD WONDER CHERRY LEMONADE",
+          "category": "NA Beverage",
+          "qty": 3.0,
+          "avg_price": 4.0,
+          "net": 12.0
+        },
+        {
+          "name": "STUMPTOWN COLD BREW COFFEE",
+          "category": "NA Beverage",
+          "qty": 2.0,
+          "avg_price": 6.0,
+          "net": 12.0
+        },
+        {
+          "name": "WILD WONDER STRAWBERRY PASSION",
+          "category": "NA Beverage",
+          "qty": 4.0,
+          "avg_price": 4.0,
+          "net": 16.0
+        },
+        {
+          "name": "BOYLAN BOTTLING CO. SHIRLEY TEMPLE",
+          "category": "NA Beverage",
+          "qty": 8.0,
+          "avg_price": 3.0,
+          "net": 24.0
+        },
+        {
+          "name": "BOYLAN BOTTLING CO. ROOT BEER",
+          "category": "NA Beverage",
+          "qty": 9.0,
+          "avg_price": 3.0,
+          "net": 27.0
+        },
+        {
+          "name": "KOMBUCHA CULTURE PURPLE RAIN",
+          "category": "NA Beverage",
+          "qty": 1.0,
+          "avg_price": 4.0,
+          "net": 4.0
+        },
+        {
+          "name": "KOMBUCHA CULTURE GOLDEN HOUR",
+          "category": "NA Beverage",
+          "qty": 3.0,
+          "avg_price": 4.0,
+          "net": 12.0
+        },
+        {
+          "name": "MALIBU BREWING CO. CANYON ROSE RICE LAGER",
+          "category": "Bottled Beer",
+          "qty": 3.0,
+          "avg_price": 5.5,
+          "net": 16.5
+        },
+        {
+          "name": "MALIBU BREWING CO. HAPPY DAYS HONEY BLONDE ALE",
+          "category": "Bottled Beer",
+          "qty": 16.0,
+          "avg_price": 5.5,
+          "net": 88.0
+        },
+        {
+          "name": "MALIBU BREWING CO. HATCH GREEN CHILE LAGER",
+          "category": "Bottled Beer",
+          "qty": 7.0,
+          "avg_price": 7.5,
+          "net": 52.5
+        },
+        {
+          "name": "TARANTULA HILL CALI DAY IPA",
+          "category": "Bottled Beer",
+          "qty": 12.0,
+          "avg_price": 7.5,
+          "net": 90.0
+        },
+        {
+          "name": "TARANTULA HILL EL REY MEXICAN LAGER",
+          "category": "Bottled Beer",
+          "qty": 1.0,
+          "avg_price": 5.5,
+          "net": 5.5
+        },
+        {
+          "name": "ENEGREN THE LIGHTEST ONE",
+          "category": "Bottled Beer",
+          "qty": 4.0,
+          "avg_price": 5.5,
+          "net": 22.0
+        },
+        {
+          "name": "GLASS ADAMI BOSCO DI GICA PROSECCO",
+          "category": "Wine",
+          "qty": 5.0,
+          "avg_price": 12.0,
+          "net": 60.0
+        },
+        {
+          "name": "GLASS QUIVIRA SAUV BLANC",
+          "category": "Wine",
+          "qty": 11.0,
+          "avg_price": 10.0,
+          "net": 110.0
+        },
+        {
+          "name": "GLASS DOMAINE TRIENNES ROSE",
+          "category": "Wine",
+          "qty": 7.0,
+          "avg_price": 9.0,
+          "net": 63.0
+        },
+        {
+          "name": "GLASS THE PAIRING SANTA BARBARA PINOT NOIR",
+          "category": "Wine",
+          "qty": 8.0,
+          "avg_price": 13.0,
+          "net": 104.0
+        },
+        {
+          "name": "GLASS RONSARD SANCERRE LA PLEIADE",
+          "category": "Wine",
+          "qty": 14.0,
+          "avg_price": 10.4,
+          "net": 145.65
+        },
+        {
+          "name": "BOTTLE QUIVIRA SAUV BLANC",
+          "category": "Wine",
+          "qty": 1.0,
+          "avg_price": 31.0,
+          "net": 31.0
+        },
+        {
+          "name": "HALF BOTTLE DOMAINE TRIENNES ROSE",
+          "category": "Wine",
+          "qty": 2.0,
+          "avg_price": 15.0,
+          "net": 30.0
+        },
+        {
+          "name": "BOTTLE THE PAIRING SANTA BARBARA PINOT NOIR",
+          "category": "Wine",
+          "qty": 3.0,
+          "avg_price": 39.0,
+          "net": 117.0
+        },
+        {
+          "name": "HALF BOTTLE RONSARD SANCERRE LA PLEIADE",
+          "category": "Wine",
+          "qty": 1.0,
+          "avg_price": 19.0,
+          "net": 19.0
+        },
+        {
+          "name": "3RD PARTY DELIVERY INFO",
+          "category": "Misc Non Sales",
+          "qty": 156.0,
+          "avg_price": 0.0,
+          "net": 0.0
+        },
+        {
+          "name": "Dispatch Fee",
+          "category": "",
+          "qty": 69.0,
+          "avg_price": 4.03,
+          "net": 278.31
+        },
+        {
+          "name": "Dispatch Tip",
+          "category": "",
+          "qty": 66.0,
+          "avg_price": 6.21,
+          "net": 409.93
+        },
+        {
+          "name": "IN-STORE OPEN ITEM",
+          "category": "Food",
+          "qty": 3.0,
+          "avg_price": 8.5,
+          "net": 25.5
+        },
+        {
+          "name": "TABLE NUMBER",
+          "category": "",
+          "qty": 293.0,
+          "avg_price": 0.0,
+          "net": 0.0
+        },
+        {
+          "name": "CURBSIDE",
+          "category": "",
+          "qty": 5.0,
+          "avg_price": 0.0,
+          "net": 0.0
+        },
+        {
+          "name": "Salad Party Package",
+          "category": "Catering Food",
+          "qty": 1.0,
+          "avg_price": 125.0,
+          "net": 125.0
+        }
+      ]
+    },
+    "wlv": null,
+    "bw": null
+  },
+  "labels": {
+    "total": "Both locations \u00b7 Westlake + Brentwood",
+    "wlv": "Westlake Village",
+    "bw": "Brentwood"
+  }
 }
