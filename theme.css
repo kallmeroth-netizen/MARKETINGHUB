@@ -85,7 +85,7 @@
   --f-mono:     'DM Mono', monospace;
 
   /* — Type scale — */
-  --t-hero:        clamp(30px, 3.8vw, 48px);   /* page H1 / TAYAmaya (matches index hub hero) */
+  --t-hero:        clamp(28px, 3.4vw, 44px);   /* page H1 / TAYAmaya */
   --t-section:     clamp(22px, 2.4vw, 32px);   /* section H2 */
   --t-card-title:  15px;                       /* card title */
   --t-body:        14px;                       /* body */
@@ -125,8 +125,8 @@
 
   /* — Layout — */
   --content-max: 1240px;
-  --nav-h: 60px;
-  --nav-h-mobile-row: 54px;
+  --nav-h: 68px;
+  --nav-h-mobile-row: 56px;
   /* Single gutter used by nav, main, dashboard, page-header so left edges line up at every viewport */
   --gutter: clamp(var(--s-4), 4vw, var(--s-7));
 
@@ -192,7 +192,7 @@ a { color: inherit; text-decoration: none; }
   transition: background var(--t-base) var(--easing);
 }
 .np-nav-brand:hover { background: transparent; }
-.np-nav-brand img { height: 22px; width: auto; display: block; }
+.np-nav-brand img { height: 28px; width: auto; display: block; }
 .np-nav-brand .chev {
   display: none;
   width: 10px; height: 10px; color: var(--text-3);
@@ -270,11 +270,8 @@ a { color: inherit; text-decoration: none; }
 .np-icon-btn[aria-label*="ettings"] svg,
 .settings-btn svg { width: 16px !important; height: 16px !important; }
 
-/* Page name tag in nav-right — hidden by default since the body now
-   carries the big TAYAmaya page title. Pages can opt-in by overriding
-   `display: inline-block`. */
+/* Page name tag in nav-right — small eyebrow that labels each page. */
 .np-nav-page-tag {
-  display: none;
   font-family: var(--f-eyebrow); font-weight: 600;
   font-size: var(--t-eyebrow); letter-spacing: 0.22em;
   text-transform: uppercase; color: var(--text-2);
@@ -324,10 +321,23 @@ a { color: inherit; text-decoration: none; }
 .np-hub.is-open { opacity: 1; transform: translate(-50%, -50%); pointer-events: auto; }
 
 .np-hub-label {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
   font-family: var(--f-eyebrow); font-weight: 600;
   font-size: var(--t-eyebrow); letter-spacing: 0.28em; text-transform: uppercase;
   color: var(--text-3); margin-bottom: var(--s-3);
 }
+.np-hub-back-home {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-family: var(--f-sans); font-weight: 500;
+  font-size: 11px; letter-spacing: 0; text-transform: none;
+  color: var(--text-2); text-decoration: none;
+  padding: 4px 10px;
+  border: 1px solid var(--line-strong); border-radius: 7px;
+  background: var(--surface-2);
+  white-space: nowrap;
+  transition: background var(--t-base) var(--easing), color var(--t-base) var(--easing);
+}
+.np-hub-back-home:hover { background: var(--surface); color: var(--text); }
 
 .np-hub-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s-3); }
 
@@ -485,7 +495,7 @@ a { color: inherit; text-decoration: none; }
 
 .np-pill {
   display: inline-flex; align-items: center; gap: 6px;
-  padding: 6px 12px;
+  padding: 5px 12px;
   background: transparent;
   border: 1px solid var(--line-strong);
   border-radius: var(--r-pill);
@@ -505,9 +515,9 @@ a { color: inherit; text-decoration: none; }
 .np-date-pill,
 .date-pill,
 .week-badge {
-  display: inline-flex; align-items: center; gap: 8px;
-  height: 32px;
-  padding: 0 14px;
+  display: inline-flex; align-items: center; gap: 6px;
+  height: 28px;
+  padding: 0 12px;
   background: var(--brand-orange); color: #fff;
   border: none; border-radius: var(--r-pill);
   font-family: var(--f-sans); font-weight: 500; font-size: var(--t-caption);
@@ -520,16 +530,16 @@ a { color: inherit; text-decoration: none; }
 .week-badge:hover { filter: brightness(1.06); }
 .np-date-pill svg,
 .date-pill svg,
-.week-badge svg { width: 14px; height: 14px; }
+.week-badge svg { width: 12px; height: 12px; }
 
-/* Toggle group — Edit/Present, Month/Week */
+/* Toggle group — Edit/Present, Month/Week — matches .np-tabs thin size */
 .np-toggle {
   display: inline-flex; gap: 2px; padding: 3px;
   background: var(--surface-2); border-radius: var(--r-pill);
 }
 .np-toggle button,
 .np-toggle a {
-  padding: 6px 14px;
+  padding: 5px 14px;
   background: transparent; border: none; cursor: pointer;
   border-radius: var(--r-pill);
   font-family: var(--f-sans);
@@ -572,7 +582,7 @@ a { color: inherit; text-decoration: none; }
     height: auto; min-height: auto;
   }
   .np-nav-brand     { grid-column: 1 / 2; grid-row: 1 / 2; justify-self: start; }
-  .np-nav-brand img { height: 21px; }
+  .np-nav-brand img { height: 28px; }
   .np-nav-right     { grid-column: 2 / 4; grid-row: 1 / 2; justify-self: end; }
 
   .np-tabs {
@@ -599,7 +609,6 @@ a { color: inherit; text-decoration: none; }
   .np-page-header { padding-bottom: var(--s-4); }
   .np-page-title  { font-size: clamp(24px, 6vw, 32px); }
 
-  .np-hub { top: auto; bottom: var(--s-3); left: var(--s-3); right: var(--s-3); }
   .np-hub-grid { grid-template-columns: 1fr 1fr; }
 }
 
@@ -643,7 +652,7 @@ a { color: inherit; text-decoration: none; }
 
 .guest-header-controls { display: flex; flex-wrap: wrap; gap: var(--s-2); margin-top: var(--s-3); }
 .dp-btn, .lt-btn, .tr-btn {
-  padding: 6px 12px; border: 1px solid var(--line-strong); border-radius: var(--r-pill);
+  padding: 5px 12px; border: 1px solid var(--line-strong); border-radius: var(--r-pill);
   background: transparent; font-size: var(--t-caption); font-weight: 500;
   color: var(--text-2); cursor: pointer; transition: background var(--t-base) var(--easing), color var(--t-base) var(--easing);
 }
@@ -820,7 +829,7 @@ section.row    { padding: var(--s-7) 0; gap: var(--s-6); }
   display: inline-flex; align-items: center; gap: 6px;
   padding: 6px 8px; border-radius: var(--r-md); cursor: pointer;
 }
-.nav-logo-wrap img { height: 22px !important; width: auto !important; }
+.nav-logo-wrap img { height: 28px !important; width: auto !important; }
 
 /* ============================================================
    INDEX (entry hub) — passcode capsule + hub tile aliases
@@ -842,17 +851,17 @@ section.row    { padding: var(--s-7) 0; gap: var(--s-6); }
   /* Kill horizontal scroll everywhere */
   html, body { width: 100%; max-width: 100%; overflow-x: hidden; }
 
-  /* --- NAV: single compact row, wordmark logo cut down dramatically --- */
+  /* --- NAV: single row, banner sized like the index hub --- */
   .np-nav {
     grid-template-columns: auto 1fr auto !important;
     grid-template-rows: auto !important;
     column-gap: 8px !important; row-gap: 0 !important;
-    padding: 8px 14px !important;
-    min-height: 50px !important;
+    padding: 14px 16px !important;
+    min-height: 60px !important;
   }
-  /* Brand wrapper: keeps a 44×44 tap target even though the logo is tiny */
+  /* Brand wrapper: keeps a 44×44 tap target around the small wordmark */
   .np-nav-brand {
-    padding: 8px 12px 8px 0 !important;
+    padding: 10px 12px 10px 0 !important;
     margin-left: -4px !important;
     gap: 4px !important;
     min-height: 44px !important;
@@ -863,7 +872,7 @@ section.row    { padding: var(--s-7) 0; gap: var(--s-6); }
   .np-nav-brand .nav-logo,
   .nav-logo-wrap img,
   #root nav img {
-    height: 10px !important; width: auto !important; max-width: 70px !important;
+    height: 18px !important; width: auto !important; max-width: 130px !important;
     object-fit: contain !important;
   }
   .np-nav-brand .chev { display: none !important; }
@@ -964,7 +973,7 @@ section.row    { padding: var(--s-7) 0; gap: var(--s-6); }
     border-radius: var(--r-pill) !important;
   }
   .np-pill, .dp-btn, .lt-btn, .tr-btn, .chip {
-    padding: 6px 12px !important;
+    padding: 5px 12px !important;
     font-size: 11.5px !important;
     border-radius: var(--r-pill) !important;
     white-space: nowrap;
@@ -987,14 +996,15 @@ section.row    { padding: var(--s-7) 0; gap: var(--s-6); }
   .np-toggle button, .np-toggle a,
   .view-toggle .vt-btn,
   .menu-filter button, .sort-toggle button {
-    padding: 6px 12px !important;
+    padding: 5px 12px !important;
     font-size: 11.5px !important;
     flex: 0 0 auto !important;
     white-space: nowrap;
     border-radius: var(--r-pill) !important;
   }
   .np-date-pill, .date-pill, .week-badge {
-    padding: 6px 12px !important;
+    height: 28px !important;
+    padding: 0 12px !important;
     font-size: 11.5px !important;
     border-radius: var(--r-pill) !important;
   }
@@ -1056,8 +1066,8 @@ section.row    { padding: var(--s-7) 0; gap: var(--s-6); }
   .np-nav-brand img,
   .np-nav-brand .nav-logo,
   .nav-logo-wrap img,
-  #root nav img { max-width: 58px !important; }
-  .np-nav-page-tag { display: none !important; }
+  #root nav img { height: 16px !important; max-width: 108px !important; }
+  .np-nav-page-tag { font-size: 9px !important; max-width: 110px; }
   .np-kpi-value, .kpi-value { font-size: 16px !important; }
 }
 

@@ -27,7 +27,12 @@
     if (t.closest('.np-hub-overlay') || t.closest('.hub-overlay')) { toggleHub(false); return; }
     if (e.defaultPrevented) return; // inline onclick already handled it
     const brand = t.closest('.np-nav-brand');
-    if (brand && !brand.closest('#root')) { e.preventDefault(); toggleHub(); }
+    if (!brand) return;
+    if (brand.closest('#root')) return; // React-rendered nav handles its own click
+    // Opt-out: a brand mark can disable the hub via data-no-hub or hub-nav being absent
+    if (brand.dataset && brand.dataset.noHub === '1') return;
+    if (!document.querySelector('.np-hub, .hub-nav')) return;
+    e.preventDefault(); toggleHub();
   });
 })();
 
