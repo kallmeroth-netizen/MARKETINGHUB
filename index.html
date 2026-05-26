@@ -95,6 +95,11 @@
     filter: brightness(0) drop-shadow(0 1px 4px rgba(31,35,40,0.10));
     opacity: 0; animation: rise 0.6s ease 0.1s forwards;
   }
+  @media (max-width: 520px) {
+    /* Scale down passcode logo ~50% on phones */
+    .pass-logo { top: 28px; }
+    .pass-logo img { width: 66px; }
+  }
 
   .pass-hero {
     display: flex; flex-direction: column; align-items: center;
@@ -187,10 +192,13 @@
   .submit:hover { transform: scale(1.03); filter: brightness(1.05); box-shadow: 0 6px 18px rgba(232,113,66,0.36); }
 
   @media (max-width: 420px) {
-    .capsule { height: 50px; padding: 0 12px; gap: 8px; }
-    .pw-input { font-size: 16px; letter-spacing: 0.14em; }
-    .pw-input::placeholder { font-size: 12px; }
-    .submit { height: 32px; padding: 0 12px; font-size: 11px; }
+    .capsule { height: 52px; padding: 0 6px 0 14px; gap: 6px; }
+    .lock-ico svg { width: 14px; height: 14px; }
+    .toggle-vis { padding: 4px; }
+    .toggle-vis svg { width: 16px; height: 16px; }
+    .pw-input { font-size: 16px; letter-spacing: 0.12em; min-width: 0; }
+    .pw-input::placeholder { font-size: 12.5px; }
+    .submit { height: 38px; padding: 0 14px; font-size: 11px; }
   }
 
   .err {
@@ -252,8 +260,9 @@
     transition: background 0.2s ease;
   }
   .nav-brand:hover { background: rgba(31,35,40,0.04); }
-  .nav-brand img { height: 32px; width: auto; display: block; }
+  .nav-brand img { height: 26px; width: auto; display: block; }
   .nav-brand .chev {
+    display: none;
     width: 14px; height: 14px; color: var(--text3);
     transition: transform 0.25s ease;
   }
@@ -467,16 +476,34 @@
     .hub-pop { left: 16px; right: 16px; width: auto; }
   }
   @media (max-width: 520px) {
+    /* Compact mobile nav: smaller logo, tighter chrome */
+    nav.topbar { height: 52px; padding: 0 14px; }
+    .nav-brand { padding: 4px 6px; gap: 6px; }
+    .nav-brand img { height: 11px; }
+    .date-chip { padding: 6px 10px; font-size: 11px; }
+    .date-chip svg { width: 11px; height: 11px; }
+    .hub-pop { top: 64px; padding: 12px; border-radius: 14px; }
+    .hub-grid { gap: 6px; }
+    .hub-card { padding: 10px; border-radius: 10px; }
+    .hub-card-title { font-size: 13px; }
+    .hub-card-sub { font-size: 11.5px; }
+
+    /* Uniform mobile tiles */
     .tile-grid { gap: 10px; }
-    .tile-grid .tile { flex: 0 0 100%; min-height: 96px !important; padding: 12px 14px !important; border-radius: 14px !important; }
-    .tile .tile-ico { width: 28px !important; height: 28px !important; border-radius: 8px !important; }
+    .tile-grid .tile { flex: 0 0 100%; min-height: 84px !important; padding: 14px 16px !important; border-radius: 14px !important; }
+    .tile .tile-ico { width: 30px !important; height: 30px !important; border-radius: 8px !important; }
     .tile .tile-ico svg { width: 15px !important; height: 15px !important; }
-    .tile .tile-label { font-size: 12px !important; letter-spacing: 0.16em !important; }
-    .tile .tile-sub { font-size: 11px !important; }
+    .tile .tile-label { font-size: 12.5px !important; letter-spacing: 0.16em !important; }
+    .tile .tile-sub { font-size: 11.5px !important; }
     .tile-body { margin-top: 8px !important; }
     .tile .live { top: 12px !important; right: 12px !important; font-size: 8.5px !important; }
-    main { padding-top: clamp(56px, 8vh, 96px) !important; }
-    .hero-divider { margin: 36px auto 36px !important; }
+
+    /* Tighter hero spacing so first tile sits above the fold */
+    main { padding: 16px 16px 60px !important; }
+    .hero-greet { font-size: clamp(30px, 8vw, 38px) !important; }
+    .hero-sub { font-size: 10.5px !important; letter-spacing: 0.26em !important; }
+    .hero-divider { margin: 22px auto 22px !important; width: 80px !important; }
+    footer.foot { padding: 20px 0 24px; font-size: 11px; letter-spacing: 0.28em; }
   }
   .track-center { display: inline-block; margin-right: -0.34em; }
 
