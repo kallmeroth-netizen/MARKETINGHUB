@@ -483,13 +483,13 @@ a { color: inherit; text-decoration: none; }
 /* Toggle group — Edit/Present, Month/Week */
 .np-toggle {
   display: inline-flex; gap: 2px; padding: 3px;
-  background: var(--surface-2); border-radius: var(--r-sm);
+  background: var(--surface-2); border-radius: var(--r-pill);
 }
 .np-toggle button,
 .np-toggle a {
-  padding: 5px 14px;
+  padding: 6px 14px;
   background: transparent; border: none; cursor: pointer;
-  border-radius: 6px;
+  border-radius: var(--r-pill);
   font-family: var(--f-sans);
   font-size: var(--t-caption);
   font-weight: 500; color: var(--text-2);
@@ -808,7 +808,15 @@ section.row    { padding: var(--s-7) 0; gap: var(--s-6); }
     padding: 8px 14px !important;
     min-height: 50px !important;
   }
-  .np-nav-brand { padding: 4px 0 !important; gap: 4px !important; }
+  /* Brand wrapper: keeps a 44×44 tap target even though the logo is tiny */
+  .np-nav-brand {
+    padding: 8px 12px 8px 0 !important;
+    margin-left: -4px !important;
+    gap: 4px !important;
+    min-height: 44px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+  }
   .np-nav-brand img,
   .np-nav-brand .nav-logo,
   .nav-logo-wrap img,
@@ -817,6 +825,16 @@ section.row    { padding: var(--s-7) 0; gap: var(--s-6); }
     object-fit: contain !important;
   }
   .np-nav-brand .chev { display: none !important; }
+
+  /* Right cluster: wrap when content overflows (calendar / dashboard nav) */
+  .np-nav-right {
+    flex-wrap: wrap !important;
+    justify-content: flex-end !important;
+    row-gap: 6px !important;
+  }
+  /* Calendar page-tag is redundant once you're on the page — hide it on small screens
+     so the Month/Week + Edit/Present toggles have room. */
+  .np-nav .np-nav-page-tag { flex-shrink: 0; }
 
   /* Page tag in nav-right: keep but make it small + truncate */
   .np-nav-page-tag {
