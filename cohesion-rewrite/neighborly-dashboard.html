@@ -408,12 +408,14 @@
         <select id="weekPicker" onchange="switchWeek(this.value)" style="display:none"></select>
       </div>
       <div class="dash-header-right">
+        <div class="np-toggle view-type-toggle">
+          <button class="is-active" type="button">Sales</button>
+          <a href="neighborly-pmix.html">Menu mix</a>
+        </div>
         <div class="np-toggle view-mode-toggle">
           <button class="is-active" onclick="showPage('dashboard',this)">Weekly</button>
           <button id="dailyNavTab" onclick="showPage('daily',this)">Daily</button>
           <button onclick="showPage('alltime',this)">All time</button>
-          <a href="neighborly-pmix.html">PMIX</a>
-          <a href="neighborly-social.html">Social</a>
         </div>
         <div class="week-badge" id="weekBadge" onclick="toggleWeekCalendar(event)">
           <span class="week-badge-text">
@@ -1426,12 +1428,14 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeHubNav(
         <div class="dash-sub" id="dailyDateSub">No data loaded — click Refresh to pull from Toast</div>
       </div>
       <div class="dash-header-right">
+        <div class="np-toggle view-type-toggle">
+          <button class="is-active" type="button">Sales</button>
+          <a href="neighborly-pmix.html">Menu mix</a>
+        </div>
         <div class="np-toggle view-mode-toggle">
           <button onclick="showPage('dashboard',this)">Weekly</button>
           <button class="is-active" onclick="showPage('daily',this)">Daily</button>
           <button onclick="showPage('alltime',this)">All time</button>
-          <a href="neighborly-pmix.html">PMIX</a>
-          <a href="neighborly-social.html">Social</a>
         </div>
         <div class="week-badge" id="dailyDateBadge" onclick="toggleDailyCalendar(event)">
           <span class="week-badge-text">
@@ -1533,12 +1537,14 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeHubNav(
         <div class="dash-sub">Weekly revenue from Jan 2025 — present &middot; 67 weeks of data</div>
       </div>
       <div class="dash-header-right">
+        <div class="np-toggle view-type-toggle">
+          <button class="is-active" type="button">Sales</button>
+          <a href="neighborly-pmix.html">Menu mix</a>
+        </div>
         <div class="np-toggle view-mode-toggle">
           <button onclick="showPage('dashboard',this)">Weekly</button>
           <button onclick="showPage('daily',this)">Daily</button>
           <button class="is-active" onclick="showPage('alltime',this)">All time</button>
-          <a href="neighborly-pmix.html">PMIX</a>
-          <a href="neighborly-social.html">Social</a>
         </div>
         <div class="view-toggle">
           <button class="vt-btn active" onclick="setATView('total',this)">Total revenue</button>
