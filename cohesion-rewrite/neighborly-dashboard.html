@@ -110,9 +110,10 @@
   .cal-foot { font-size: 10px; color: var(--text-3); margin-top: 10px; padding-top: 10px; border-top: 0.5px solid var(--border); line-height: 1.4; }
   .cal-foot strong { color: var(--text-2); font-weight: 600; }
 
-  .view-toggle { display: flex; background: var(--surface2); border-radius: 8px; padding: 3px; gap: 2px; }
-  .vt-btn { padding: 6px 14px; border-radius: 6px; font-size: 12px; font-weight: 500; cursor: pointer; border: none; background: transparent; color: var(--text-2); font-family: 'DM Sans', sans-serif; transition: all 0.15s; }
-  .vt-btn.active { background: var(--surface); color: var(--text); box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+  .view-toggle { display: inline-flex; background: var(--surface-2); border-radius: var(--r-sm); padding: 3px; gap: 2px; }
+  .vt-btn { padding: 5px 14px; border-radius: 6px; font-size: var(--t-caption); font-weight: 500; cursor: pointer; border: none; background: transparent; color: var(--text-2); font-family: var(--f-sans); line-height: 1.4; transition: background var(--t-base) var(--easing), color var(--t-base) var(--easing), box-shadow var(--t-base) var(--easing); }
+  .vt-btn:hover { color: var(--text); }
+  .vt-btn.active { background: var(--surface); color: var(--text); box-shadow: var(--shadow-sm); }
 
   /* KPI CARDS */
   .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 1.5rem; }

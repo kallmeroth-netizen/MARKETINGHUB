@@ -1004,20 +1004,20 @@ function NeighborlyCalendar() {
           <span className="np-nav-page-tag">Marketing Calendar</span>
 
           {/* View toggle: Month / Week */}
-          <div style={{display:'flex',background:C.surface2,borderRadius:8,padding:3,gap:2}}>
+          <div className="np-toggle">
             {[['month','Month'],['week','Week']].map(([v,label]) => (
-              <button key={v} onClick={() => setViewMode(v)}
-                style={{padding:isMobile?'5px 10px':'5px 14px',borderRadius:6,fontSize:12,fontWeight:500,cursor:'pointer',border:'none',background:viewMode===v?C.surface:'transparent',color:viewMode===v?C.text:C.text2,boxShadow:viewMode===v?'0 1px 3px rgba(0,0,0,.09)':'none',transition:'all .15s',fontFamily:'inherit'}}>
+              <button key={v} type="button" onClick={() => setViewMode(v)}
+                className={viewMode===v?'is-active':''}>
                 {label}
               </button>
             ))}
           </div>
 
           {/* Mode toggle: Edit / Present */}
-          <div style={{display:'flex',background:C.surface2,borderRadius:8,padding:3,gap:2}}>
+          <div className="np-toggle">
             {[['edit','Edit'],['present','Present']].map(([m,label]) => (
-              <button key={m} onClick={() => setMode(m)}
-                style={{padding:isMobile?'5px 10px':'5px 14px',borderRadius:6,fontSize:12,fontWeight:500,cursor:'pointer',border:'none',background:mode===m?(m==='present'?C.dark:C.surface):'transparent',color:mode===m?(m==='present'?C.yellow:C.text):C.text2,boxShadow:mode===m&&m!=='present'?'0 1px 3px rgba(0,0,0,.09)':'none',transition:'all .15s',fontFamily:'inherit'}}>
+              <button key={m} type="button" onClick={() => setMode(m)}
+                className={mode===m?'is-active':''}>
                 {label}
               </button>
             ))}
