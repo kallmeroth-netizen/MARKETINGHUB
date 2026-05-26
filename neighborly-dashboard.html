@@ -140,14 +140,14 @@
   .chart-wrap { position: relative; }
 
   /* METRICS TABLE */
-  .metrics-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-  .metrics-table th { font-size: 11px; font-weight: 500; color: var(--text-3); text-align: left; padding: 6px 12px; border-bottom: 0.5px solid var(--border-strong); white-space: nowrap; }
+  .metrics-table { width: 100%; border-collapse: collapse; font-size: 13px; font-family: 'DM Sans', sans-serif; }
+  .metrics-table th { font-family: 'DM Sans', sans-serif; font-size: 11px; font-weight: 500; color: var(--text-3); text-align: left; padding: 6px 12px; border-bottom: 0.5px solid var(--border-strong); white-space: nowrap; }
   .metrics-table th:not(:first-child) { text-align: right; }
-  .metrics-table td { padding: 9px 12px; border-bottom: 0.5px solid var(--border); color: var(--text); white-space: nowrap; }
+  .metrics-table td { padding: 9px 12px; border-bottom: 0.5px solid var(--border); color: var(--text); white-space: nowrap; font-family: 'DM Sans', sans-serif; }
   .metrics-table td:not(:first-child) { text-align: right; font-family: 'DM Mono', monospace; font-size: 12px; }
   .metrics-table tr:last-child td { border-bottom: none; }
   .metrics-table tr:hover td { background: var(--surface-2); }
-  .metrics-table .cat-row td { font-weight: 600; color: var(--text-2); font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; background: var(--surface-2); padding: 5px 12px; }
+  .metrics-table .cat-row td { font-family: var(--f-eyebrow), 'Futura PT Demi', 'Jost', sans-serif; font-weight: 600; color: var(--text-2); font-size: 11px; text-transform: uppercase; letter-spacing: 0.16em; background: var(--surface-2); padding: 6px 12px; }
   .metrics-table .cat-row { cursor: pointer; user-select: none; }
   .metrics-table .cat-row:hover td { background: var(--border); }
   .cat-chevron { display: inline-block; width: 10px; height: 10px; margin-right: 8px; vertical-align: -1px; transition: transform 0.15s ease; color: var(--text-3); }
@@ -296,6 +296,7 @@
     <a class="np-tab nav-tab is-active active" onclick="showPage('dashboard', this)">Weekly Performance</a>
     <a class="np-tab nav-tab" id="dailyNavTab" onclick="showPage('daily', this)">Daily Sales</a>
     <a class="np-tab nav-tab" onclick="showPage('alltime', this)">All time</a>
+    <a class="np-tab nav-tab" href="neighborly-pmix.html">Menu mix</a>
   </div>
 
   <div class="np-nav-right nav-right">
@@ -425,10 +426,6 @@
         </div>
         <!-- legacy hidden select kept so any existing code paths still work -->
         <select id="weekPicker" onchange="switchWeek(this.value)" style="display:none"></select>
-      </div>
-      <div class="np-toggle view-type-toggle">
-        <button class="is-active" type="button">Sales</button>
-        <a href="neighborly-pmix.html">Menu mix</a>
       </div>
     </div>
 
@@ -636,6 +633,11 @@ function showPage(id, tab) {
 
   document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
   if (tab) tab.classList.add('active');
+  else {
+    // Caller didn't pass a tab (e.g. deep-link from ?p=…). Highlight by id.
+    const match = document.querySelector(`.nav-tab[onclick*="'${id}'"]`);
+    if (match) match.classList.add('active');
+  }
 
   if (id === 'alltime' && typeof renderAllTime === 'function') {
     setTimeout(renderAllTime, 50);
@@ -645,6 +647,19 @@ function showPage(id, tab) {
     setTimeout(() => { if (typeof _onDailyPageEnter === 'function') _onDailyPageEnter(); }, 60);
   }
 }
+
+/* Deep-link support: `?p=daily` or `?p=alltime` lands the user on the
+   matching sub-page (called from pmix's nav tabs). */
+(function _npRouteFromQuery() {
+  try {
+    const p = new URLSearchParams(location.search).get('p');
+    if (p && ['daily', 'alltime'].includes(p)) {
+      const run = () => { if (typeof showPage === 'function') showPage(p, null); };
+      if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run);
+      else run();
+    }
+  } catch (e) {}
+})();
 
 function setView(v, btn) {
   currentView = v;
@@ -1584,6 +1599,22 @@ function setATView(v, btn) {
   renderAllTime();
 }
 
+/* Hide all-time view buttons that don't have backing data, so users can't
+   tap into an empty / broken chart. Runs once on first all-time render. */
+function _atGuardButtons() {
+  if (_atGuardButtons._ran) return;
+  _atGuardButtons._ran = true;
+  const has = {
+    total:    Array.isArray(HIST_TOTAL)    && HIST_TOTAL.length    > 0,
+    channels: HIST_CHANNELS && Object.keys(HIST_CHANNELS).some(k => (HIST_CHANNELS[k]||[]).length > 0),
+    digital:  HIST_DIGITAL  && Object.keys(HIST_DIGITAL).some(k => (HIST_DIGITAL[k] ||[]).length > 0)
+  };
+  document.querySelectorAll('#page-alltime .vt-btn').forEach(b => {
+    const v = (b.getAttribute('onclick') || '').match(/setATView\('(\w+)'/)?.[1];
+    if (v && !has[v]) b.style.display = 'none';
+  });
+}
+
 function renderATKPIs() {
   const total = HIST_TOTAL;
   const pre = total.slice(0, BRENTWOOD_IDX);
@@ -1727,6 +1758,7 @@ function renderATMix() {
 }
 
 function renderAllTime() {
+  _atGuardButtons();
   renderATKPIs();
   renderATMain();
   setTimeout(renderATRolling, 30);

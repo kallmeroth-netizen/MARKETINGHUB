@@ -156,7 +156,7 @@
   <!-- TREND CHART -->
   <section class="np-card trend-card tab-pane" data-pane="overview">
     <div class="np-card-title">Performance over time</div>
-    <div class="np-card-sub">Daily totals · toggle metrics and time window</div>
+    <div class="np-card-sub">Daily totals · pick metric + window</div>
     <div class="trend-toolbar">
       <div class="np-toggle" id="metricToggle">
         <button class="is-active" data-metric="views">Views</button>
@@ -180,7 +180,7 @@
   <!-- INSIGHTS (growth marketer takeaways) -->
   <section class="np-card tab-pane" data-pane="overview" style="margin-bottom:var(--s-4)">
     <div class="np-card-title">Growth insights</div>
-    <div class="np-card-sub">Auto-computed takeaways from the last 28-day window</div>
+    <div class="np-card-sub">Signals from the current window.</div>
     <div class="insights" id="insights"></div>
   </section>
 
@@ -325,19 +325,23 @@
     const cards = [];
 
     // 1) Frequency
+    const freq = s.frequency_28d;
     cards.push({
       color: '#eace49',
       eyebrow: 'Frequency',
-      title: `Each reached person saw your content ${s.frequency_28d || '—'}× on average`,
-      copy: `That's ${s.views_28d.toLocaleString()} views across ${fmtN(s.reach_28d)} unique people. Healthy frequency: 2–4. ${s.frequency_28d > 5 ? 'You may be over-serving — diversify your reach.' : s.frequency_28d < 2 ? 'Audience is fragmenting — double down on retargeting.' : 'In the sweet spot.'}`
+      title: `${freq || '—'}× avg impressions per reach`,
+      copy: freq > 5 ? 'Over-serving. Diversify reach.'
+          : freq < 2 ? 'Under-frequency. Retarget warm audience.'
+          : `Target band: 2–4. ${freq}× — in range.`
     });
 
     // 2) Conversion
+    const conv = s.follow_conv_28d;
     cards.push({
       color: '#7bbd91',
-      eyebrow: 'Funnel',
-      title: `${s.follow_conv_28d}% of profile visitors became followers`,
-      copy: `${fmtN(s.visits_28d)} visited the profile, ${fmtN(s.follows_28d)} hit follow. Industry-standard for restaurants is 5–10% — ${s.follow_conv_28d > 10 ? "you're outperforming" : s.follow_conv_28d > 5 ? "you're on-pace" : 'optimize bio/highlights/grid'}.`
+      eyebrow: 'Follow conv.',
+      title: `${conv}% visit→follow`,
+      copy: `${fmtN(s.follows_28d)} follows / ${fmtN(s.visits_28d)} visits. Benchmark 5–10%. ${conv > 10 ? 'Above benchmark.' : conv > 5 ? 'In range.' : 'Below — bio + grid need work.'}`
     });
 
     // 3) Engagement quality
@@ -345,37 +349,38 @@
     cards.push({
       color: '#e87142',
       eyebrow: 'Engagement',
-      title: `${ipr}% of reached users interacted`,
-      copy: `${fmtN(s.interactions_28d)} interactions on ${fmtN(s.reach_28d)} reach. Above 2% = strong, 1–2% = healthy, sub-1% = content not landing. You're at ${ipr}%.`
+      title: `${ipr}% interactions / reach`,
+      copy: `${fmtN(s.interactions_28d)} on ${fmtN(s.reach_28d)}. >2% strong · 1–2% healthy · <1% weak.`
     });
 
     // 4) Peak / viral moment
+    const peakMult = peakViews.value / (s.views_28d / 28);
     cards.push({
       color: '#6280bd',
       eyebrow: 'Peak day',
-      title: `${peakViews.date} pulled ${fmtN(peakViews.value)} views`,
-      copy: `${(peakViews.value / (s.views_28d / 28)).toFixed(1)}× your current daily average. Look at what posted that day — replicable hooks become content pillars.`
+      title: `${peakViews.date} · ${fmtN(peakViews.value)} views`,
+      copy: `${peakMult.toFixed(1)}× daily avg. Replicate the hook.`
     });
 
     // 5) Growth direction
     const dir = s.views_growth_28d;
     cards.push({
       color: dir > 0 ? '#7bbd91' : '#e87142',
-      eyebrow: dir > 0 ? 'Growing' : 'Cooling',
-      title: `Views ${dir > 0 ? 'up' : 'down'} ${Math.abs(dir).toFixed(1)}% vs prior 28 days`,
-      copy: dir > 0
-        ? `Momentum is real. Keep posting cadence steady and consider boosting top performers.`
-        : `Post the same volume but rotate hooks — a -50%+ swing usually traces back to fewer high-impression stories.`
+      eyebrow: 'Trend',
+      title: `Views ${dir > 0 ? '+' : ''}${dir.toFixed(1)}% vs prior 28d`,
+      copy: dir > 0 ? 'Boost top performers, hold cadence.' : 'Rotate hooks — story volume likely down.'
     });
 
     // 6) Geo focus
     const topCity = DATA.audience.cities && DATA.audience.cities[0];
-    cards.push({
-      color: '#cbc9d6',
-      eyebrow: 'Geo',
-      title: `${topCity.pct}% of your audience is in ${topCity.name}`,
-      copy: `Westlake-area top cities make up most of your reach — you've built a hyperlocal community. Use this for in-store events and 'spotted in [city]' UGC reposts.`
-    });
+    if (topCity) {
+      cards.push({
+        color: '#cbc9d6',
+        eyebrow: 'Geo concentration',
+        title: `${topCity.pct}% in ${topCity.name}`,
+        copy: 'Hyperlocal audience. Lean into UGC and in-store events.'
+      });
+    }
 
     document.getElementById('insights').innerHTML = cards.map(c => `
       <div class="insight">
@@ -467,8 +472,8 @@
       </div>
       <div class="insight-copy" style="margin-top:var(--s-4)">
         ${formats[0].count > formats[1].count * 2
-          ? 'Stories-heavy mix — great for daily presence and intimate audience. Consider reels for new-reach growth.'
-          : 'Balanced mix between stories and feed posts.'}
+          ? 'Stories-heavy. Add reels to grow reach.'
+          : 'Balanced. Hold the mix.'}
       </div>
     `;
   }
