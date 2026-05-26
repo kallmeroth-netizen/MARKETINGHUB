@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Product Mix — Neighborly</title>
+
+<link rel="manifest" href="/manifest.json">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta name="theme-color" content="#e87142">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png">
+
+<link rel="stylesheet" href="theme.css">
+<script src="chrome.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+
+<style>
+  /* PMIX page layout — graphics-forward */
+  .pmix-hero {
+    display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+    gap: var(--s-5); margin-bottom: var(--s-5);
+  }
+  @media (max-width: 900px) { .pmix-hero { grid-template-columns: 1fr; } }
+
+  .pmix-donut-card { padding: var(--s-5); }
+  .pmix-donut-wrap { position: relative; height: 320px; }
+  .pmix-donut-center {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    pointer-events: none; text-align: center;
+  }
+  .pmix-donut-label {
+    font-family: var(--f-eyebrow); font-weight: 600;
+    font-size: var(--t-eyebrow); letter-spacing: 0.28em; text-transform: uppercase;
+    color: var(--text-3); margin-bottom: 4px;
+  }
+  .pmix-donut-value {
+    font-family: var(--f-mono); font-size: 32px; font-weight: 500;
+    color: var(--ink); line-height: 1;
+  }
+  .pmix-donut-sub { font-size: var(--t-caption); color: var(--text-3); margin-top: 4px; }
+
+  /* Concept grid */
+  .pmix-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: var(--s-3);
+  }
+  .pmix-concept {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--r-lg);
+    padding: var(--s-4);
+    transition: border-color var(--t-base) var(--easing), transform var(--t-base) var(--easing);
+  }
+  .pmix-concept:hover { border-color: var(--line-bold); transform: translateY(-1px); }
+  .pmix-concept-head {
+    display: flex; align-items: center; gap: 8px; margin-bottom: var(--s-3);
+  }
+  .pmix-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .pmix-name { font-size: var(--t-card-title); font-weight: 600; color: var(--text); }
+  .pmix-rev  { font-family: var(--f-mono); font-size: 20px; font-weight: 500; color: var(--ink); }
+  .pmix-pct  { font-family: var(--f-mono); font-size: var(--t-caption); color: var(--text-3); margin-top: 2px; }
+  .pmix-mini-bar {
+    height: 6px; border-radius: var(--r-pill); background: var(--surface-2);
+    margin-top: var(--s-3); overflow: hidden;
+  }
+  .pmix-mini-fill { height: 100%; border-radius: var(--r-pill); transition: width .5s var(--easing); }
+  .pmix-delta {
+    display: inline-flex; align-items: center; gap: 4px;
+    margin-top: var(--s-2);
+    font-family: var(--f-mono); font-size: var(--t-caption-sm); font-weight: 600;
+  }
+  .pmix-delta.pos { color: var(--brand-green-deep); }
+  .pmix-delta.neg { color: var(--brand-orange-deep); }
+  .pmix-delta.flat { color: var(--text-3); }
+
+  /* Loc toggle (same shape as the np-toggle component but reused here) */
+  .loc-toggle {
+    display: inline-flex; gap: 2px; padding: 3px;
+    background: var(--surface-2); border-radius: var(--r-sm);
+  }
+  .loc-toggle button {
+    padding: 5px 14px; border: none; background: transparent; cursor: pointer;
+    border-radius: 6px; font-size: var(--t-caption); font-weight: 500;
+    color: var(--text-2);
+    transition: all var(--t-fast) var(--easing);
+  }
+  .loc-toggle button.is-active {
+    background: var(--surface); color: var(--text);
+    box-shadow: var(--shadow-sm);
+  }
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     NAV
+     ============================================================ -->
+<nav class="np-nav">
+  <a class="np-nav-brand" onclick="toggleHubNav(event)" aria-label="Open hub">
+    <img src="NeighborlyLogo.png" alt="Neighborly">
+    <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+  </a>
+  <div class="np-tabs">
+    <a class="np-tab" href="neighborly-dashboard.html">Weekly</a>
+    <a class="np-tab" href="neighborly-dashboard.html#daily">Daily</a>
+    <a class="np-tab" href="neighborly-dashboard.html#alltime">All time</a>
+    <a class="np-tab is-active">PMIX</a>
+  </div>
+  <div class="np-nav-right">
+    <button class="np-icon-btn" title="Refresh" aria-label="Refresh" onclick="loadPMIX()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
+    </button>
+    <a class="np-icon-btn" href="index.html" title="Back to home" aria-label="Back to home">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+    </a>
+  </div>
+</nav>
+
+<!-- Hub dropdown -->
+<div class="np-hub-overlay" aria-hidden="true"></div>
+<div class="np-hub" role="dialog" aria-label="Marketing Hub">
+  <div class="np-hub-label">Neighborly Marketing Hub</div>
+  <div class="np-hub-grid">
+    <a class="np-hub-card is-active" href="neighborly-dashboard.html">
+      <div class="np-hub-card-ico" style="background:var(--brand-yellow-light)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--brand-yellow-deep)" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></div>
+      <div class="np-hub-card-title">Sales <span class="amp">&amp;</span> Performance</div>
+      <div class="np-hub-card-sub">Sales &amp; KPI tracker</div>
+    </a>
+    <a class="np-hub-card" href="neighborly-calendar.html">
+      <div class="np-hub-card-ico" style="background:var(--brand-green-light)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--brand-green-deep)" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+      <div class="np-hub-card-title">Marketing Calendar</div>
+      <div class="np-hub-card-sub">Campaigns &amp; scheduling</div>
+    </a>
+    <a class="np-hub-card" href="neighborly-assets.html">
+      <div class="np-hub-card-ico" style="background:var(--brand-tan-light)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--brand-tan-deep)" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 010 14.14M4.93 4.93a10 10 0 000 14.14M12 2v2M12 20v2M2 12h2M20 12h2"/></svg></div>
+      <div class="np-hub-card-title">Brand Guidelines</div>
+      <div class="np-hub-card-sub">Logos, fonts &amp; templates</div>
+    </a>
+    <a class="np-hub-card" href="neighborly-guests.html">
+      <div class="np-hub-card-ico" style="background:var(--brand-lavender-light)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--brand-lavender-deep)" stroke-width="2"><circle cx="9" cy="8" r="4"/><path d="M2 21a7 7 0 0 1 14 0"/><path d="M16 3.5a4 4 0 0 1 0 8M22 21a7 7 0 0 0-5-6.7"/></svg></div>
+      <div class="np-hub-card-title">Guest Intelligence</div>
+      <div class="np-hub-card-sub">Feedback &amp; experience trends</div>
+    </a>
+  </div>
+</div>
+
+<!-- ============================================================
+     MAIN
+     ============================================================ -->
+<main class="np-main">
+
+  <header class="np-page-header">
+    <div class="np-page-eyebrow">Concept performance · Sales mix today</div>
+    <h1 class="np-page-title">Product Mix</h1>
+  </header>
+
+  <div class="np-page-controls">
+    <span id="dateLabel" class="np-date-pill" style="cursor:default">—</span>
+    <div class="loc-toggle">
+      <button class="is-active" data-loc="total">Both locations</button>
+      <button data-loc="wlv">Westlake Village</button>
+      <button data-loc="bw">Brentwood</button>
+    </div>
+  </div>
+
+  <!-- HERO: donut + KPI -->
+  <div class="pmix-hero">
+    <section class="np-card pmix-donut-card">
+      <div class="np-card-title">Today&rsquo;s mix</div>
+      <div class="np-card-sub">Share of net sales by concept</div>
+      <div class="pmix-donut-wrap">
+        <canvas id="pmixDonut"></canvas>
+        <div class="pmix-donut-center">
+          <div class="pmix-donut-label">Net sales</div>
+          <div class="pmix-donut-value" id="centerVal">—</div>
+          <div class="pmix-donut-sub" id="centerSub">across concepts</div>
+        </div>
+      </div>
+    </section>
+
+    <div>
+      <div class="np-kpi-grid" style="grid-template-columns: 1fr 1fr; gap: var(--s-3); margin-bottom: 0;">
+        <div class="np-kpi"><div class="np-kpi-label">Top concept</div><div class="np-kpi-value" id="kpiTopName">—</div><div class="np-kpi-sub" id="kpiTopPct">—%</div></div>
+        <div class="np-kpi"><div class="np-kpi-label">Biggest gainer</div><div class="np-kpi-value" id="kpiGainName">—</div><div class="np-kpi-sub" id="kpiGainDelta">—</div></div>
+        <div class="np-kpi"><div class="np-kpi-label">Biggest loser</div><div class="np-kpi-value" id="kpiLoseName">—</div><div class="np-kpi-sub" id="kpiLoseDelta">—</div></div>
+        <div class="np-kpi"><div class="np-kpi-label">Concepts tracked</div><div class="np-kpi-value" id="kpiCount">—</div><div class="np-kpi-sub">active today</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONCEPT GRID -->
+  <section class="np-card" style="margin-bottom:var(--s-4)">
+    <div class="np-card-title">Concept breakdown</div>
+    <div class="np-card-sub">Today's revenue, mix share, and shift vs 6-week average</div>
+    <div class="pmix-grid" id="pmixGrid" style="margin-top:var(--s-3)">
+      <!-- Concept cards rendered by JS -->
+    </div>
+  </section>
+
+  <!-- COMPARISON: today vs 6-week avg -->
+  <section class="np-card">
+    <div class="np-card-title">Today vs 6-week average</div>
+    <div class="np-card-sub">Where the mix is shifting</div>
+    <canvas id="pmixCompare" style="margin-top:12px; max-height:300px"></canvas>
+  </section>
+
+</main>
+
+<footer class="np-foot"><span class="track-trim">Neighbors Only Portal</span></footer>
+
+<script>
+  /* ──────────────────────────────────────────────────────────
+     PMIX page — re-uses the dashboard's labels/colors and pulls
+     from the same daily-data.json that powers Weekly/Daily.
+     ────────────────────────────────────────────────────────── */
+  const PMIX_LABELS = {
+    whatsGabyCooking: "What's Gaby Cooking",
+    miniKabob: 'Mini Kabob',
+    palermoPizzaClub: 'Palermo Pizza Club',
+    mixtape: 'Mixtape',
+    marketplace: 'Marketplace',
+    catering: 'Catering',
+    socialMonk: 'Social Monk'
+  };
+  const PMIX_COLORS = {
+    whatsGabyCooking: '#eace49',
+    miniKabob: '#e87142',
+    palermoPizzaClub: '#7bbd91',
+    mixtape: '#6280bd',
+    marketplace: '#dbc6a2',
+    catering: '#cbc9d6',
+    socialMonk: '#a35bbf'
+  };
+  const SIXW_KEY = {  // map pmix key -> sixWeekAvg key
+    whatsGabyCooking: 'whatsGabyCookingPct',
+    miniKabob: 'miniKabobPct',
+    palermoPizzaClub: 'palermoPizzaClubPct',
+    mixtape: 'mixtapePct',
+    marketplace: 'marketplacePct',
+    catering: 'cateringPct',
+    socialMonk: 'socialMonkPct'
+  };
+
+  const fmt$  = n => n == null ? '—' : '$' + Math.round(n).toLocaleString();
+  const fmtPct = n => n == null ? '—' : (n>=0?'+':'') + n.toFixed(1) + '%';
+
+  let DATA = null;
+  let currentLoc = 'total';
+  let donutChart, compareChart;
+
+  async function loadPMIX() {
+    try {
+      const r = await fetch('daily-data.json', { cache: 'no-store' });
+      DATA = await r.json();
+      document.getElementById('dateLabel').textContent = DATA.date || 'Today';
+      render();
+    } catch (e) {
+      console.error('PMIX load failed', e);
+    }
+  }
+
+  function render() {
+    if (!DATA) return;
+    const bucket = DATA[currentLoc] || {};
+    const pmix = (bucket.today && bucket.today.pmix) || {};
+    const six  = bucket.sixWeekAvg || {};
+
+    // Build sorted list
+    const items = Object.keys(pmix)
+      .filter(k => PMIX_LABELS[k] && pmix[k] > 0)
+      .map(k => {
+        const v = pmix[k];
+        const sixPct = six[SIXW_KEY[k]];
+        return { k, label: PMIX_LABELS[k], color: PMIX_COLORS[k] || '#888', v, sixPct };
+      })
+      .sort((a, b) => b.v - a.v);
+
+    const total = items.reduce((s, it) => s + it.v, 0);
+    const itemsWithPct = items.map(it => {
+      const pct = total ? (it.v / total) * 100 : 0;
+      const delta = (it.sixPct != null) ? (pct - it.sixPct) : null;
+      return { ...it, pct, delta };
+    });
+
+    // KPIs
+    const top = itemsWithPct[0];
+    const sorted = [...itemsWithPct].filter(x => x.delta != null).sort((a, b) => b.delta - a.delta);
+    const gain = sorted[0], lose = sorted[sorted.length - 1];
+    document.getElementById('kpiTopName').textContent  = top ? top.label : '—';
+    document.getElementById('kpiTopPct').textContent   = top ? top.pct.toFixed(1) + '% of mix' : '—';
+    document.getElementById('kpiGainName').textContent = gain ? gain.label : '—';
+    document.getElementById('kpiGainDelta').textContent = gain ? fmtPct(gain.delta) + ' vs 6w avg' : '—';
+    document.getElementById('kpiLoseName').textContent = lose ? lose.label : '—';
+    document.getElementById('kpiLoseDelta').textContent = lose ? fmtPct(lose.delta) + ' vs 6w avg' : '—';
+    document.getElementById('kpiCount').textContent    = String(itemsWithPct.length);
+    document.getElementById('centerVal').textContent   = fmt$(total);
+    document.getElementById('centerSub').textContent   = `${itemsWithPct.length} concepts`;
+
+    // Donut
+    const ctx = document.getElementById('pmixDonut');
+    if (donutChart) donutChart.destroy();
+    donutChart = new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels: itemsWithPct.map(it => it.label),
+        datasets: [{
+          data: itemsWithPct.map(it => it.v),
+          backgroundColor: itemsWithPct.map(it => it.color),
+          borderColor: '#fff', borderWidth: 2, hoverOffset: 6
+        }]
+      },
+      options: {
+        cutout: '62%', responsive: true, maintainAspectRatio: false,
+        animation: { duration: 700, easing: 'easeOutQuart' },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: '#1f2328', titleColor: '#fff', bodyColor: '#fff',
+            padding: 10, cornerRadius: 6,
+            titleFont: { family: 'DM Sans', size: 12, weight: '600' },
+            bodyFont:  { family: 'DM Mono', size: 12 },
+            callbacks: {
+              label: c => {
+                const v = c.parsed; const pct = total ? (v/total*100).toFixed(1) : '0';
+                return ` ${fmt$(v)}  ·  ${pct}%`;
+              }
+            }
+          }
+        }
+      }
+    });
+
+    // Concept grid
+    const grid = document.getElementById('pmixGrid');
+    grid.innerHTML = itemsWithPct.map(it => {
+      const cls = it.delta == null ? 'flat' : (it.delta > 0.5 ? 'pos' : (it.delta < -0.5 ? 'neg' : 'flat'));
+      const arrow = it.delta == null ? '·' : (it.delta > 0.5 ? '▲' : (it.delta < -0.5 ? '▼' : '·'));
+      return `
+        <div class="pmix-concept" title="${it.label}: ${fmt$(it.v)} · ${it.pct.toFixed(1)}% of mix">
+          <div class="pmix-concept-head">
+            <span class="pmix-dot" style="background:${it.color}"></span>
+            <span class="pmix-name">${it.label}</span>
+          </div>
+          <div class="pmix-rev">${fmt$(it.v)}</div>
+          <div class="pmix-pct">${it.pct.toFixed(1)}% of mix</div>
+          <div class="pmix-mini-bar"><div class="pmix-mini-fill" style="width:${it.pct.toFixed(1)}%; background:${it.color}"></div></div>
+          <div class="pmix-delta ${cls}">${arrow} ${fmtPct(it.delta == null ? null : it.delta)} <span style="color:var(--text-3); font-weight:500"> vs 6w</span></div>
+        </div>
+      `;
+    }).join('');
+
+    // Comparison chart — grouped bars (today % vs 6-week avg %)
+    const cmpCtx = document.getElementById('pmixCompare');
+    if (compareChart) compareChart.destroy();
+    compareChart = new Chart(cmpCtx, {
+      type: 'bar',
+      data: {
+        labels: itemsWithPct.map(it => it.label),
+        datasets: [
+          { label: 'Today',     data: itemsWithPct.map(it => +it.pct.toFixed(1)),                       backgroundColor: itemsWithPct.map(it => it.color) },
+          { label: '6-week avg', data: itemsWithPct.map(it => it.sixPct != null ? +it.sixPct.toFixed(1) : null), backgroundColor: '#e8e6dd', borderColor: '#c9c5b8', borderWidth: 0 }
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        animation: { duration: 700, easing: 'easeOutQuart' },
+        plugins: {
+          legend: { position: 'top', labels: { font: { family: 'DM Sans', size: 12 }, color: '#7a7770' } },
+          tooltip: {
+            backgroundColor: '#1f2328', titleColor: '#fff', bodyColor: '#fff',
+            padding: 10, cornerRadius: 6,
+            titleFont: { family: 'DM Sans', size: 12, weight: '600' },
+            bodyFont:  { family: 'DM Mono', size: 12 },
+            callbacks: { label: c => ` ${c.dataset.label}: ${c.parsed.y == null ? '—' : c.parsed.y.toFixed(1) + '%'}` }
+          }
+        },
+        scales: {
+          y: { ticks: { color: '#7a7770', callback: v => v + '%' }, grid: { color: 'rgba(31,35,40,0.06)' } },
+          x: { ticks: { color: '#7a7770', maxRotation: 0, autoSkip: false }, grid: { display: false } }
+        }
+      }
+    });
+  }
+
+  document.querySelectorAll('.loc-toggle button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.loc-toggle button').forEach(b => b.classList.remove('is-active'));
+      btn.classList.add('is-active');
+      currentLoc = btn.dataset.loc;
+      render();
+    });
+  });
+
+  loadPMIX();
+</script>
+
+</body>
+</html>
