@@ -411,7 +411,8 @@
   <div class="dashboard">
     <div class="dash-header np-page-header">
       <div>
-        <div class="week-badge" id="weekBadge" onclick="toggleWeekCalendar(event)">
+        <h1 class="np-page-title">Sales &amp; Performance</h1>
+        <div class="week-badge" id="weekBadge" onclick="toggleWeekCalendar(event)" style="margin-top:10px;">
           <span class="week-badge-text">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
             Week of
@@ -1407,9 +1408,10 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeHubNav(
 <!-- DAILY PAGE -->
 <div class="page" id="page-daily">
   <div class="dashboard">
-    <div class="dash-header reveal">
+    <div class="dash-header reveal np-page-header">
       <div>
-        <div class="week-badge" id="dailyDateBadge" onclick="toggleDailyCalendar(event)" style="margin-top:8px">
+        <h1 class="np-page-title">Daily Sales</h1>
+        <div class="week-badge" id="dailyDateBadge" onclick="toggleDailyCalendar(event)" style="margin-top:10px">
           <span class="week-badge-text">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
             Date
@@ -1505,6 +1507,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeHubNav(
   <div class="dashboard">
     <div class="dash-header np-page-header">
       <div>
+        <h1 class="np-page-title">All-time Performance</h1>
       </div>
       <div class="view-toggle">
         <button class="vt-btn active" onclick="setATView('total',this)">Total revenue</button>

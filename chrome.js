@@ -31,6 +31,33 @@
   });
 })();
 
+/* Move the settings icon out of the sticky nav so its `position: fixed`
+   is resolved against the viewport (the nav's backdrop-filter creates a
+   containing block that traps fixed children). Idempotent and safe to
+   call on any page — we just re-parent the button to <body>. */
+(function () {
+  function relocateSettings() {
+    var btns = document.querySelectorAll(
+      '.np-icon-btn[title*="ettings"], .np-icon-btn[aria-label*="ettings"], .settings-btn'
+    );
+    btns.forEach(function (b) {
+      if (b.dataset.npRelocated === '1') return;
+      if (b.closest('.np-nav') || b.closest('nav')) {
+        b.dataset.npRelocated = '1';
+        document.body.appendChild(b);
+      }
+    });
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', relocateSettings);
+  } else {
+    relocateSettings();
+  }
+  // React-rendered navs (calendar) mount later — re-run on a short delay
+  setTimeout(relocateSettings, 100);
+  setTimeout(relocateSettings, 800);
+})();
+
 /* Calendar page: the React app keeps its own setHubOpen() local state,
    but the new canonical np-hub is rendered as STATIC html outside the
    React tree. Wire the brand mark click (any .nav-logo-wrap / .np-nav-brand)

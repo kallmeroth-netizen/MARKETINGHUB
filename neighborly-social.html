@@ -110,7 +110,7 @@
 
   <div class="np-page-header-row">
     <header class="np-page-header">
-      <div class="np-page-eyebrow" id="dateLabel">Loading…</div>
+      <h1 class="np-page-title">Social</h1>
     </header>
     <div class="np-page-selectors">
       <button class="np-date-pill" id="dateRangeBtn" type="button">
@@ -262,8 +262,6 @@
   function render() {
     if (!DATA) return;
     const s = DATA.summary;
-    document.getElementById('dateLabel').textContent =
-      `Meta Business Suite · ${s.date_range} · ${s.period_label}`;
 
     // KPIs
     document.getElementById('kpiViews').textContent   = fmtN(s.views_28d);

@@ -85,7 +85,7 @@
   --f-mono:     'DM Mono', monospace;
 
   /* — Type scale — */
-  --t-hero:        clamp(28px, 3.4vw, 44px);   /* page H1 / TAYAmaya */
+  --t-hero:        clamp(30px, 3.8vw, 48px);   /* page H1 / TAYAmaya (matches index hub hero) */
   --t-section:     clamp(22px, 2.4vw, 32px);   /* section H2 */
   --t-card-title:  15px;                       /* card title */
   --t-body:        14px;                       /* body */
@@ -241,15 +241,40 @@ a { color: inherit; text-decoration: none; }
   width: 28px; height: 28px;
   display: inline-flex; align-items: center; justify-content: center;
   background: transparent;
-  border: 1px solid var(--line-strong); border-radius: var(--r-md);
+  border: none; border-radius: var(--r-md);
   color: var(--text); cursor: pointer; flex-shrink: 0;
-  transition: background var(--t-base) var(--easing), border-color var(--t-base) var(--easing);
+  transition: background var(--t-base) var(--easing), color var(--t-base) var(--easing);
 }
-.np-icon-btn:hover { background: #fff; border-color: var(--line-bold); }
-.np-icon-btn svg { width: 12px; height: 12px; }
+.np-icon-btn:hover { background: rgba(31,35,40,0.06); color: var(--text); }
+.np-icon-btn svg { width: 14px; height: 14px; }
 
-/* Page name tag in nav-right — replaces large h1 page title */
+/* Floating settings — pinned to the bottom-left of every page so the
+   nav stays uncluttered. Marks itself by title="Settings". */
+.np-icon-btn[title*="ettings"],
+.np-icon-btn[aria-label*="ettings"],
+.settings-btn {
+  position: fixed !important;
+  bottom: 18px; left: 18px;
+  z-index: 90;
+  width: 40px !important; height: 40px !important;
+  border-radius: 50% !important;
+  background: var(--surface) !important;
+  border: 1px solid var(--line) !important;
+  box-shadow: var(--shadow-md);
+  color: var(--text-2);
+}
+.np-icon-btn[title*="ettings"]:hover,
+.np-icon-btn[aria-label*="ettings"]:hover,
+.settings-btn:hover { background: var(--surface-2) !important; color: var(--text); }
+.np-icon-btn[title*="ettings"] svg,
+.np-icon-btn[aria-label*="ettings"] svg,
+.settings-btn svg { width: 16px !important; height: 16px !important; }
+
+/* Page name tag in nav-right — hidden by default since the body now
+   carries the big TAYAmaya page title. Pages can opt-in by overriding
+   `display: inline-block`. */
 .np-nav-page-tag {
+  display: none;
   font-family: var(--f-eyebrow); font-weight: 600;
   font-size: var(--t-eyebrow); letter-spacing: 0.22em;
   text-transform: uppercase; color: var(--text-2);

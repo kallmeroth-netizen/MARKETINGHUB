@@ -548,7 +548,7 @@ nav{background:var(--surface);border-bottom:.5px solid var(--border-strong);padd
 <!-- PAGE HEADER — matches the dashboard's dash-header pattern -->
 <header class="np-page-header guest-header">
   <div class="np-page-header-main guest-header-left">
-    <div class="np-page-eyebrow guest-sub">Ovation survey responses across all locations</div>
+    <h1 class="np-page-title">Guest Intelligence</h1>
     <div class="guest-header-controls">
       <div class="date-preset-group">
         <button type="button" class="dp-btn active" onclick="setDatePreset('all',this)">All time</button>
@@ -740,6 +740,9 @@ nav{background:var(--surface);border-bottom:.5px solid var(--border-strong);padd
 <!-- ═══ SETTINGS / DATA SOURCES ════════════════════════════════════════════════ -->
 <div class="page" id="page-upload">
   <div class="sec-label">Settings · Data sources &amp; manual entry</div>
+  <p style="font-size:13px;color:var(--text2);margin:-8px 0 16px;line-height:1.55;">
+    Data source: <strong>Ovation survey responses</strong> across all locations.
+  </p>
 
   <div class="drop-zone" id="dropZone" onclick="document.getElementById('feedbackFile').click()"
     ondragover="event.preventDefault();this.classList.add('drag')"
