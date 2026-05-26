@@ -31,6 +31,12 @@
   font-style: normal;
   font-display: swap;
 }
+@font-face {
+  font-family: 'Futura PT Demi';
+  src: url('FuturaPTDemi.ttf') format('truetype');
+  font-weight: 600;
+  font-display: swap;
+}
 
 /* ============================================================
    TOKENS
@@ -80,7 +86,7 @@
   /* — Type families — */
   --f-display:  'TAYAmaya', 'DM Sans', sans-serif;
   --f-amp:      'Tuppence', serif;
-  --f-eyebrow:  'Jost', 'futura-pt', 'Futura', sans-serif;
+  --f-eyebrow:  'Futura PT Demi', 'Jost', 'futura-pt', 'Futura', sans-serif;
   --f-sans:     'DM Sans', sans-serif;
   --f-mono:     'DM Mono', monospace;
 
