@@ -1045,11 +1045,11 @@ function calApply(){
 // ── NAV ───────────────────────────────────────────────────────────────────────
 function showPage(id, btn){
   document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');});
-  document.querySelectorAll('.nav-tab').forEach(function(b){b.classList.remove('active');});
+  document.querySelectorAll('.nav-tab').forEach(function(b){b.classList.remove('active','is-active');});
   var pg = document.getElementById('page-'+id);
   if(!pg) return;
   pg.classList.add('active');
-  if(btn) btn.classList.add('active');
+  if(btn) { btn.classList.add('active'); btn.classList.add('is-active'); }
   // Hide the title + date/location bar on the settings page so it doesn't
   // float above unrelated upload UI.
   var header = document.querySelector('.guest-header');

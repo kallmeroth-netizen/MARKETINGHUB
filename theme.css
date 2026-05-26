@@ -845,14 +845,17 @@ section.row    { padding: var(--s-7) 0; gap: var(--s-6); }
    Plain <nav> selector overrides any inline styling the JSX set
    on the nav element so it picks up our canonical chrome.
    ============================================================ */
+/* Calendar nav is full-bleed — the calendar grid below it spans the
+   viewport, so the brand mark + page tag stretch to the edges too
+   (gutter only, no content-max clamp like the other pages). */
 #root nav {
   height: var(--nav-h);
   min-height: var(--nav-h);
   background: rgba(253, 251, 246, 0.78);
   -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px);
   border-bottom: 1px solid var(--line);
-  padding-left: max(var(--gutter), calc(50% - var(--content-max) / 2 + var(--gutter)));
-  padding-right: max(var(--gutter), calc(50% - var(--content-max) / 2 + var(--gutter)));
+  padding-left: var(--gutter);
+  padding-right: var(--gutter);
 }
 
 /* The injected page header above the calendar grid */
