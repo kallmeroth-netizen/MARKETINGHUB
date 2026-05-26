@@ -509,8 +509,9 @@ nav{background:var(--surface);border-bottom:.5px solid var(--border-strong);padd
     <button class="np-tab nav-tab" onclick="showPage('trends',this)">Trends</button>
   </div>
 
-  <!-- Right cluster: settings + back -->
+  <!-- Right cluster: page tag + settings + back -->
   <div class="np-nav-right">
+    <span class="np-nav-page-tag">Guest Intelligence</span>
     <button type="button" class="np-icon-btn settings-btn" onclick="showPage('upload',this)" title="Data &amp; settings" aria-label="Data and settings">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
     </button>
@@ -549,7 +550,6 @@ nav{background:var(--surface);border-bottom:.5px solid var(--border-strong);padd
 <header class="np-page-header guest-header">
   <div class="np-page-header-main guest-header-left">
     <div class="np-page-eyebrow guest-sub">Ovation survey responses across all locations</div>
-    <h1 class="np-page-title guest-title">Guest Feedback Trends</h1>
     <div class="guest-header-controls">
       <div class="date-preset-group">
         <button type="button" class="dp-btn active" onclick="setDatePreset('all',this)">All time</button>

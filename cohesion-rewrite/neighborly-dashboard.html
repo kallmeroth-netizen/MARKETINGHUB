@@ -300,10 +300,8 @@
   </div>
 
   <div class="np-nav-right nav-right">
+    <span class="np-nav-page-tag">Sales &amp; Performance</span>
     <span class="daily-last-updated" id="dailyLastUpdated"></span>
-    <button class="np-icon-btn upload-btn" id="refreshBtn" onclick="fetchDailyData()" title="Refresh" aria-label="Refresh">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
-    </button>
     <button class="np-icon-btn icon-btn" id="settingsBtn" onclick="showPage('data', null)" title="Data &amp; settings" aria-label="Data and settings">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
     </button>
@@ -405,7 +403,6 @@
   <div class="dashboard">
     <div class="dash-header np-page-header">
       <div>
-        <div class="dash-title">Weekly Performance</div>
         <div class="dash-sub">Neighborly marketing & revenue overview</div>
         <div class="week-badge" id="weekBadge" onclick="toggleWeekCalendar(event)">
           <span class="week-badge-text">
@@ -1405,7 +1402,6 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeHubNav(
   <div class="dashboard">
     <div class="dash-header reveal">
       <div>
-        <div class="dash-title">Daily Sales</div>
         <div class="dash-sub" id="dailyDateSub">No data loaded — click Refresh to pull from Toast</div>
         <div class="week-badge" id="dailyDateBadge" onclick="toggleDailyCalendar(event)" style="margin-top:8px">
           <span class="week-badge-text">
@@ -1503,7 +1499,6 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeHubNav(
   <div class="dashboard">
     <div class="dash-header np-page-header">
       <div>
-        <div class="dash-title">All-time performance</div>
         <div class="dash-sub">Weekly revenue from Jan 2025 — present &middot; 67 weeks of data</div>
       </div>
       <div class="view-toggle">

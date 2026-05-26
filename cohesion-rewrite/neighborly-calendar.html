@@ -64,10 +64,6 @@ body{font-family:'DM Sans',sans-serif;overscroll-behavior:none;height:100%;backg
 <body>
 
 <!-- Page header lives outside the React tree so it doesn't get unmounted on re-render -->
-<header class="np-page-header" id="calPageHeader">
-  <div class="np-page-eyebrow">Campaigns &amp; scheduling</div>
-  <h1 class="np-page-title">Marketing Calendar</h1>
-</header>
 
 <!-- Hub dropdown — opens from the React-rendered brand mark via window.toggleHubNav -->
 <div class="np-hub-overlay" id="calHubOverlay" aria-hidden="true"></div>
@@ -998,11 +994,14 @@ function NeighborlyCalendar() {
         <div className="np-nav-brand nav-logo-wrap" onClick={e=>{e.stopPropagation();setHubOpen(o=>!o);}}
           style={{display:'flex',alignItems:'center',height:50,cursor:'pointer',flexShrink:0}}>
           <img src="https://raw.githubusercontent.com/kallmeroth-netizen/MARKETINGHUB/a5d8cf8a019ba9e6f3d9bc3afb115dca7d42549a/NeighborlyLogo.png"
-            alt="Neighborly" style={{height:22,width:'auto',display:'block'}}/>
+            alt="Neighborly" style={{height:28,width:'auto',display:'block'}}/>
+          <svg className="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{width:10,height:10}}><polyline points="6 9 12 15 18 9"/></svg>
         </div>
 
         {/* Right controls */}
         <div className="np-nav-right" style={{display:'flex',alignItems:'center',gap:8,flexShrink:0}}>
+
+          <span className="np-nav-page-tag">Marketing Calendar</span>
 
           {/* View toggle: Month / Week */}
           <div style={{display:'flex',background:C.surface2,borderRadius:8,padding:3,gap:2}}>
