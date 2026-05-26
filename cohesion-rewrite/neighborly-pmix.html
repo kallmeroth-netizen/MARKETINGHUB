@@ -17,43 +17,96 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 
 <style>
-  /* Hero row */
-  .pmix-hero { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: var(--s-5); margin-bottom: var(--s-5); }
-  @media (max-width: 900px) { .pmix-hero { grid-template-columns: 1fr; } }
+  /* === KPI strip — slimmer, item-forward === */
+  .pmix-kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--s-3); margin-bottom: var(--s-5); }
+  @media (max-width: 900px) { .pmix-kpis { grid-template-columns: 1fr 1fr; } }
 
-  .pmix-donut-wrap { position: relative; height: 320px; margin-top: var(--s-3); }
-  .pmix-donut-center {
-    position: absolute; inset: 0;
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    pointer-events: none; text-align: center;
+  /* === Leaderboard (the new hero) === */
+  .leader-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: var(--s-3); }
+  .leader-card {
+    position: relative; padding: var(--s-4);
+    background: var(--surface);
+    border: 1px solid var(--line); border-radius: var(--r-lg);
+    transition: border-color var(--t-base) var(--easing), transform var(--t-base) var(--easing);
+    overflow: hidden;
   }
-  .pmix-donut-label { font-family: var(--f-eyebrow); font-weight: 600; font-size: var(--t-eyebrow); letter-spacing: 0.28em; text-transform: uppercase; color: var(--text-3); margin-bottom: 4px; }
-  .pmix-donut-value { font-family: var(--f-mono); font-size: 32px; font-weight: 500; color: var(--ink); line-height: 1; }
-  .pmix-donut-sub   { font-size: var(--t-caption); color: var(--text-3); margin-top: 4px; }
+  .leader-card:hover { border-color: var(--line-bold); transform: translateY(-1px); }
+  .leader-rank {
+    position: absolute; top: 14px; right: 16px;
+    font-family: var(--f-mono); font-size: 28px; font-weight: 500;
+    color: var(--line-bold); letter-spacing: -0.02em;
+  }
+  .leader-cat {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-family: var(--f-eyebrow); font-weight: 600;
+    font-size: 9.5px; letter-spacing: 0.20em; text-transform: uppercase;
+    color: var(--text-3); margin-bottom: 8px;
+  }
+  .leader-cat .dot { width: 8px; height: 8px; border-radius: 50%; }
+  .leader-name {
+    font-size: 15px; font-weight: 600; color: var(--text); line-height: 1.25;
+    margin-bottom: var(--s-3); padding-right: 50px;
+    /* clamp to 2 lines */
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+    min-height: 2.5em;
+  }
+  .leader-row { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px; }
+  .leader-stat { font-family: var(--f-mono); font-size: 20px; font-weight: 500; color: var(--ink); }
+  .leader-sublabel { font-family: var(--f-eyebrow); font-weight: 600; font-size: 9.5px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--text-3); }
+  .leader-bar { height: 6px; border-radius: var(--r-pill); background: var(--surface-2); overflow: hidden; margin-top: var(--s-3); }
+  .leader-bar-fill { height: 100%; border-radius: var(--r-pill); transition: width .55s var(--easing); }
+  .leader-meta { display: flex; justify-content: space-between; font-family: var(--f-mono); font-size: var(--t-caption-sm); color: var(--text-3); margin-top: 8px; }
 
-  /* Concept cards grid */
-  .pmix-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: var(--s-3); }
-  .pmix-concept { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); padding: var(--s-4); transition: border-color var(--t-base) var(--easing), transform var(--t-base) var(--easing); }
-  .pmix-concept:hover { border-color: var(--line-bold); transform: translateY(-1px); }
-  .pmix-concept-head { display: flex; align-items: center; gap: 8px; margin-bottom: var(--s-3); }
-  .pmix-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
-  .pmix-name { font-size: var(--t-card-title); font-weight: 600; color: var(--text); line-height: 1.2; }
-  .pmix-rev  { font-family: var(--f-mono); font-size: 20px; font-weight: 500; color: var(--ink); }
-  .pmix-pct  { font-family: var(--f-mono); font-size: var(--t-caption); color: var(--text-3); margin-top: 2px; }
-  .pmix-qty  { font-family: var(--f-mono); font-size: var(--t-caption-sm); color: var(--text-3); margin-top: 6px; }
-  .pmix-mini-bar { height: 6px; border-radius: var(--r-pill); background: var(--surface-2); margin-top: var(--s-3); overflow: hidden; }
-  .pmix-mini-fill { height: 100%; border-radius: var(--r-pill); transition: width .5s var(--easing); }
+  /* === Explorer table === */
+  .explorer-controls { display: flex; flex-wrap: wrap; gap: 8px; margin: var(--s-3) 0 var(--s-4); }
+  .search-input {
+    flex: 1 1 240px; min-width: 0;
+    padding: 8px 14px;
+    border: 1px solid var(--line-strong); border-radius: var(--r-pill);
+    background: var(--surface); font-size: var(--t-body-sm); color: var(--text);
+    outline: none;
+    transition: border-color var(--t-base) var(--easing);
+  }
+  .search-input:focus { border-color: var(--ink); }
+  .menu-filter, .sort-toggle { display: inline-flex; gap: 2px; padding: 3px; background: var(--surface-2); border-radius: var(--r-pill); overflow-x: auto; scrollbar-width: none; max-width: 100%; }
+  .menu-filter::-webkit-scrollbar, .sort-toggle::-webkit-scrollbar { display: none; }
+  .menu-filter button, .sort-toggle button {
+    padding: 6px 12px; border: none; background: transparent; cursor: pointer;
+    border-radius: var(--r-pill); font-size: var(--t-caption); font-weight: 500;
+    color: var(--text-3); white-space: nowrap; flex-shrink: 0;
+    transition: all var(--t-fast) var(--easing);
+  }
+  .menu-filter button:hover, .sort-toggle button:hover { color: var(--text); }
+  .menu-filter button.is-active, .sort-toggle button.is-active { background: var(--surface); color: var(--text); box-shadow: var(--shadow-sm); }
 
-  /* Top items list */
-  .item-row { display: grid; grid-template-columns: 24px minmax(0, 1fr) auto auto; gap: 14px; align-items: center; padding: 10px 12px; border-radius: var(--r-md); }
-  .item-row:nth-child(even) { background: rgba(31,35,40,0.02); }
-  .item-rank { font-family: var(--f-mono); font-size: var(--t-caption); color: var(--text-3); text-align: right; }
-  .item-name { font-size: var(--t-body-sm); font-weight: 500; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .item-cat  { font-family: var(--f-eyebrow); font-weight: 600; font-size: 9.5px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text-3); }
-  .item-qty  { font-family: var(--f-mono); font-size: var(--t-caption); color: var(--text-3); white-space: nowrap; }
-  .item-net  { font-family: var(--f-mono); font-size: var(--t-body-sm); font-weight: 500; color: var(--ink); white-space: nowrap; }
-  .top-items-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s-4); }
-  @media (max-width: 900px) { .top-items-grid { grid-template-columns: 1fr; } }
+  .item-table { width: 100%; border-collapse: collapse; }
+  .item-table th {
+    text-align: left; padding: 10px 12px;
+    font-family: var(--f-eyebrow); font-weight: 600; font-size: var(--t-eyebrow);
+    letter-spacing: 0.18em; text-transform: uppercase; color: var(--text-3);
+    border-bottom: 1px solid var(--line);
+  }
+  .item-table th.num { text-align: right; }
+  .item-table td { padding: 10px 12px; font-size: var(--t-body-sm); color: var(--text); border-bottom: 1px solid var(--line); }
+  .item-table td.num { font-family: var(--f-mono); text-align: right; }
+  .item-table tr:hover td { background: var(--surface-2); }
+  .item-table .item-cell { display: flex; flex-direction: column; gap: 2px; }
+  .item-table .item-cell .item-cat { font-family: var(--f-eyebrow); font-weight: 600; font-size: 9.5px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text-3); }
+  .item-table tr.empty td { text-align: center; color: var(--text-3); padding: var(--s-5); }
+  .qty-bar { width: 80px; height: 5px; border-radius: var(--r-pill); background: var(--surface-2); display: inline-block; vertical-align: middle; margin-left: 8px; overflow: hidden; }
+  .qty-bar-fill { height: 100%; background: var(--brand-orange); border-radius: var(--r-pill); }
+  .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 0 calc(var(--s-4) * -1); padding: 0 var(--s-4); }
+
+  /* === Concept context strip (demoted) === */
+  .concept-strip { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: var(--s-2); margin-top: var(--s-3); }
+  .concept-chip {
+    background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-md);
+    padding: 10px 12px;
+  }
+  .concept-chip-name { font-family: var(--f-eyebrow); font-weight: 600; font-size: var(--t-eyebrow); letter-spacing: 0.18em; text-transform: uppercase; color: var(--text-3); margin-bottom: 4px; display: flex; align-items: center; gap: 6px; }
+  .concept-chip-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .concept-chip-net { font-family: var(--f-mono); font-size: 16px; font-weight: 500; color: var(--ink); }
+  .concept-chip-meta { font-family: var(--f-mono); font-size: var(--t-caption-sm); color: var(--text-3); margin-top: 2px; }
 </style>
 </head>
 <body>
@@ -89,68 +142,62 @@
 <main class="np-main">
 
   <header class="np-page-header">
-    <div class="np-page-eyebrow" id="dateLabel">Sales mix · loading…</div>
-    <h1 class="np-page-title">Product Mix</h1>
+    <div class="np-page-eyebrow" id="dateLabel">Item performance · loading…</div>
+    <h1 class="np-page-title">Top Sellers</h1>
   </header>
 
-  <!-- HERO: donut + KPI -->
-  <div class="pmix-hero">
-    <section class="np-card">
-      <div class="np-card-title">Today&rsquo;s mix by concept</div>
-      <div class="np-card-sub">Share of net sales across menus</div>
-      <div class="pmix-donut-wrap">
-        <canvas id="pmixDonut"></canvas>
-        <div class="pmix-donut-center">
-          <div class="pmix-donut-label">Net sales</div>
-          <div class="pmix-donut-value" id="centerVal">—</div>
-          <div class="pmix-donut-sub" id="centerSub">across concepts</div>
-        </div>
-      </div>
-    </section>
+  <!-- KPI strip -->
+  <div class="pmix-kpis">
+    <div class="np-kpi"><div class="np-kpi-label">Items sold</div><div class="np-kpi-value" id="kpiQty">—</div><div class="np-kpi-sub">units across all menus</div></div>
+    <div class="np-kpi"><div class="np-kpi-label">Top by revenue</div><div class="np-kpi-value" id="kpiByRev" style="font-size:15px; line-height:1.25">—</div><div class="np-kpi-sub" id="kpiByRevSub">—</div></div>
+    <div class="np-kpi"><div class="np-kpi-label">Top by quantity</div><div class="np-kpi-value" id="kpiByQty" style="font-size:15px; line-height:1.25">—</div><div class="np-kpi-sub" id="kpiByQtySub">—</div></div>
+    <div class="np-kpi"><div class="np-kpi-label">Avg item price</div><div class="np-kpi-value" id="kpiAvg">—</div><div class="np-kpi-sub">net per unit</div></div>
+  </div>
 
-    <div>
-      <div class="np-kpi-grid" style="grid-template-columns: 1fr 1fr; gap: var(--s-3); margin-bottom: 0;">
-        <div class="np-kpi"><div class="np-kpi-label">Top concept</div><div class="np-kpi-value" id="kpiTopName" style="font-size:18px">—</div><div class="np-kpi-sub" id="kpiTopPct">—</div></div>
-        <div class="np-kpi"><div class="np-kpi-label">Top item</div><div class="np-kpi-value" id="kpiTopItem" style="font-size:15px; line-height:1.25">—</div><div class="np-kpi-sub" id="kpiTopItemQty">—</div></div>
-        <div class="np-kpi"><div class="np-kpi-label">Items sold</div><div class="np-kpi-value" id="kpiQty">—</div><div class="np-kpi-sub">across all menus</div></div>
-        <div class="np-kpi"><div class="np-kpi-label">Avg check size</div><div class="np-kpi-value" id="kpiAvg">—</div><div class="np-kpi-sub" id="kpiAvgSub">per item</div></div>
+  <!-- TOP PERFORMERS LEADERBOARD (hero) -->
+  <section class="np-card" style="margin-bottom:var(--s-4)">
+    <div class="np-card-title">Today&rsquo;s best sellers</div>
+    <div class="np-card-sub">Top 12 items by revenue — quantity bar shows volume vs the day&rsquo;s leader</div>
+    <div class="leader-grid" id="leaderGrid" style="margin-top:var(--s-3)"></div>
+  </section>
+
+  <!-- ITEM EXPLORER -->
+  <section class="np-card" style="margin-bottom:var(--s-4)">
+    <div class="np-card-title">All items</div>
+    <div class="np-card-sub">Search any item or filter by menu — sort by revenue, quantity, or price</div>
+
+    <div class="explorer-controls">
+      <input id="itemSearch" class="search-input" type="search" placeholder="Search items…">
+      <div class="sort-toggle" id="sortToggle">
+        <button class="is-active" data-sort="net">Revenue</button>
+        <button data-sort="qty">Quantity</button>
+        <button data-sort="avg">Avg price</button>
       </div>
     </div>
-  </div>
+    <div class="menu-filter" id="menuFilter" style="margin-bottom: var(--s-4)">
+      <!-- Menu chips injected by JS — first is "All" -->
+    </div>
 
-  <!-- CONCEPT GRID -->
-  <section class="np-card" style="margin-bottom:var(--s-4)">
-    <div class="np-card-title">Concept breakdown</div>
-    <div class="np-card-sub">Net sales, share of total, and quantity sold by menu</div>
-    <div class="pmix-grid" id="conceptGrid" style="margin-top:var(--s-3)"></div>
+    <div class="table-wrap">
+      <table class="item-table" id="itemTable">
+        <thead>
+          <tr>
+            <th>Item</th>
+            <th class="num">Qty</th>
+            <th class="num">Net sales</th>
+            <th class="num">Avg price</th>
+          </tr>
+        </thead>
+        <tbody id="itemTbody"></tbody>
+      </table>
+    </div>
   </section>
 
-  <!-- COMPARISON CHART -->
-  <section class="np-card" style="margin-bottom:var(--s-4)">
-    <div class="np-card-title">Net sales by concept</div>
-    <div class="np-card-sub">Horizontal ranking — sorted by today&rsquo;s revenue</div>
-    <canvas id="pmixBars" style="margin-top:12px; max-height:380px"></canvas>
-  </section>
-
-  <!-- TOP ITEMS -->
-  <div class="top-items-grid" style="margin-bottom:var(--s-4)">
-    <section class="np-card">
-      <div class="np-card-title">Top 15 by revenue</div>
-      <div class="np-card-sub">Best dollar performers across all menus</div>
-      <div id="topByNet" style="margin-top:var(--s-3)"></div>
-    </section>
-    <section class="np-card">
-      <div class="np-card-title">Top 15 by quantity</div>
-      <div class="np-card-sub">Highest unit volume across all menus</div>
-      <div id="topByQty" style="margin-top:var(--s-3)"></div>
-    </section>
-  </div>
-
-  <!-- MENU GROUPS -->
+  <!-- CONCEPT CONTEXT (demoted) -->
   <section class="np-card">
-    <div class="np-card-title">Menu groups</div>
-    <div class="np-card-sub">Sub-categories within each concept (Sandwiches, Salads, Pizza, &hellip;)</div>
-    <canvas id="groupBars" style="margin-top:12px; max-height:520px"></canvas>
+    <div class="np-card-title">Concept context</div>
+    <div class="np-card-sub">Which menu the items rolled up into today</div>
+    <div class="concept-strip" id="conceptStrip"></div>
   </section>
 
 </main>
@@ -158,151 +205,157 @@
 <footer class="np-foot"><span class="track-trim">Neighbors Only Portal</span></footer>
 
 <script>
-  /* Brand palette for concepts */
   const COLORS = ['#eace49','#e87142','#7bbd91','#6280bd','#dbc6a2','#cbc9d6','#a35bbf','#5fa9b8','#d99a3e','#88a07a','#b5654e','#3a6e9a','#c79c63','#9a7fbf','#7a9c8f'];
-  const colorFor = (i) => COLORS[i % COLORS.length];
-
   const fmt$  = n => n == null ? '—' : '$' + Math.round(n).toLocaleString();
   const fmt$2 = n => n == null ? '—' : '$' + n.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
   const fmtN  = n => n == null ? '—' : Math.round(n).toLocaleString();
 
   let DATA = null;
-  let donutChart, barsChart, groupChart;
+  let conceptColor = {};       // name → color
+  let activeMenu = 'all';
+  let activeSort = 'net';
+  let searchQ = '';
 
   async function loadPMIX() {
     try {
       const r = await fetch('pmix-data.json', { cache: 'no-store' });
       DATA = await r.json();
+
+      // Build a menu name → color map (matches concept order in donut)
+      const sorted = [...(DATA.concepts || [])].sort((a, b) => b.net - a.net);
+      sorted.forEach((c, i) => { conceptColor[c.name] = COLORS[i % COLORS.length]; });
+      // Also color by sales category fallback (the export's "Sales Category" field
+      // often matches the menu name with a suffix like "Gaby Food", "Palermo Pizza
+      // Club", "MK Plates"). Build a fuzzy match map.
+      colorForCategory.cache = {};
+
       render();
     } catch (e) { console.error('PMIX load failed', e); }
   }
 
+  // Best-effort color from a Sales Category string
+  function colorForCategory(cat) {
+    if (!cat) return COLORS[14];
+    if (colorForCategory.cache[cat]) return colorForCategory.cache[cat];
+    const lower = cat.toLowerCase();
+    let hit = null;
+    for (const k of Object.keys(conceptColor)) {
+      if (lower.includes(k.toLowerCase().split(' ')[0])) { hit = conceptColor[k]; break; }
+    }
+    return (colorForCategory.cache[cat] = hit || COLORS[14]);
+  }
+
   function render() {
     if (!DATA) return;
+    const items = (DATA.items || []).filter(it => it.qty > 0);
+
     document.getElementById('dateLabel').textContent =
-      `Sales mix · ${DATA.date_label} · ${DATA.locations}`;
+      `Item performance · ${DATA.date_label} · ${DATA.locations}`;
 
-    // Only show concepts with > 0 net
-    const concepts = (DATA.concepts || [])
-      .filter(c => c.net > 0)
-      .sort((a, b) => b.net - a.net)
-      .map((c, i) => ({ ...c, color: colorFor(i), pct: (c.net / DATA.totalNet) * 100 }));
-
-    const top    = concepts[0];
-    const topItem = DATA.topItemsByNet && DATA.topItemsByNet[0];
-
-    // KPIs
-    document.getElementById('centerVal').textContent  = fmt$(DATA.totalNet);
-    document.getElementById('centerSub').textContent  = `${concepts.length} concepts`;
-    document.getElementById('kpiTopName').textContent = top ? top.name : '—';
-    document.getElementById('kpiTopPct').textContent  = top ? `${fmt$(top.net)} · ${top.pct.toFixed(1)}%` : '—';
-    document.getElementById('kpiTopItem').textContent = topItem ? topItem.name : '—';
-    document.getElementById('kpiTopItemQty').textContent = topItem ? `${fmtN(topItem.qty)} sold · ${fmt$(topItem.net)}` : '—';
+    // KPI strip
+    const topNet = [...items].sort((a, b) => b.net - a.net)[0];
+    const topQty = [...items].sort((a, b) => b.qty - a.qty)[0];
     document.getElementById('kpiQty').textContent     = fmtN(DATA.totalQty);
+    document.getElementById('kpiByRev').textContent   = topNet ? topNet.name : '—';
+    document.getElementById('kpiByRevSub').textContent = topNet ? `${fmt$(topNet.net)} · ${fmtN(topNet.qty)} sold` : '—';
+    document.getElementById('kpiByQty').textContent   = topQty ? topQty.name : '—';
+    document.getElementById('kpiByQtySub').textContent = topQty ? `${fmtN(topQty.qty)} sold · ${fmt$(topQty.net)}` : '—';
     document.getElementById('kpiAvg').textContent     = DATA.totalQty ? fmt$2(DATA.totalNet / DATA.totalQty) : '—';
 
-    // Donut
-    if (donutChart) donutChart.destroy();
-    donutChart = new Chart(document.getElementById('pmixDonut'), {
-      type: 'doughnut',
-      data: {
-        labels: concepts.map(c => c.name),
-        datasets: [{ data: concepts.map(c => c.net), backgroundColor: concepts.map(c => c.color), borderColor: '#fff', borderWidth: 2, hoverOffset: 6 }]
-      },
-      options: {
-        cutout: '62%', responsive: true, maintainAspectRatio: false,
-        animation: { duration: 700, easing: 'easeOutQuart' },
-        plugins: {
-          legend: { display: false },
-          tooltip: {
-            backgroundColor: '#1f2328', titleColor: '#fff', bodyColor: '#fff', padding: 10, cornerRadius: 6,
-            titleFont: { family: 'DM Sans', size: 12, weight: '600' },
-            bodyFont:  { family: 'DM Mono', size: 12 },
-            callbacks: { label: c => ` ${fmt$(c.parsed)}  ·  ${(c.parsed / DATA.totalNet * 100).toFixed(1)}%` }
-          }
-        }
-      }
-    });
-
-    // Concept cards grid
-    document.getElementById('conceptGrid').innerHTML = concepts.map(c => `
-      <div class="pmix-concept" title="${c.name}: ${fmt$(c.net)} · ${c.pct.toFixed(1)}% of mix · ${fmtN(c.qty)} items">
-        <div class="pmix-concept-head"><span class="pmix-dot" style="background:${c.color}"></span><span class="pmix-name">${c.name}</span></div>
-        <div class="pmix-rev">${fmt$(c.net)}</div>
-        <div class="pmix-pct">${c.pct.toFixed(1)}% of mix</div>
-        <div class="pmix-mini-bar"><div class="pmix-mini-fill" style="width:${c.pct.toFixed(1)}%; background:${c.color}"></div></div>
-        <div class="pmix-qty">${fmtN(c.qty)} units sold</div>
-      </div>
-    `).join('');
-
-    // Horizontal bar chart of concepts
-    if (barsChart) barsChart.destroy();
-    barsChart = new Chart(document.getElementById('pmixBars'), {
-      type: 'bar',
-      data: {
-        labels: concepts.map(c => c.name),
-        datasets: [{ label: 'Net sales', data: concepts.map(c => c.net), backgroundColor: concepts.map(c => c.color), borderRadius: 6 }]
-      },
-      options: {
-        indexAxis: 'y', responsive: true, maintainAspectRatio: false,
-        animation: { duration: 700, easing: 'easeOutQuart' },
-        plugins: {
-          legend: { display: false },
-          tooltip: {
-            backgroundColor: '#1f2328', titleColor: '#fff', bodyColor: '#fff', padding: 10, cornerRadius: 6,
-            titleFont: { family: 'DM Sans', size: 12, weight: '600' }, bodyFont: { family: 'DM Mono', size: 12 },
-            callbacks: { label: c => ` ${fmt$(c.parsed.x)}  ·  ${(c.parsed.x / DATA.totalNet * 100).toFixed(1)}%` }
-          }
-        },
-        scales: {
-          x: { ticks: { color: '#7a7770', callback: v => '$' + (v/1000).toFixed(1) + 'k' }, grid: { color: 'rgba(31,35,40,0.06)' } },
-          y: { ticks: { color: '#7a7770', font: { size: 12, family: 'DM Sans' } }, grid: { display: false } }
-        }
-      }
-    });
-
-    // Top items lists
-    const renderItems = (arr, sortKey) => arr.slice(0, 15).map((it, i) => `
-      <div class="item-row" title="${it.name}: ${fmtN(it.qty)} units · ${fmt$(it.net)}">
-        <div class="item-rank">${i + 1}</div>
-        <div>
-          <div class="item-name">${it.name}</div>
-          <div class="item-cat">${it.category || ''}</div>
+    // Top performers leaderboard
+    const top12 = [...items].sort((a, b) => b.net - a.net).slice(0, 12);
+    const maxQty = Math.max(...top12.map(it => it.qty));
+    document.getElementById('leaderGrid').innerHTML = top12.map((it, i) => {
+      const color = colorForCategory(it.category);
+      const w = maxQty ? (it.qty / maxQty) * 100 : 0;
+      return `
+        <div class="leader-card" title="${it.name}: ${fmtN(it.qty)} sold · ${fmt$(it.net)}">
+          <span class="leader-rank">${String(i + 1).padStart(2, '0')}</span>
+          <div class="leader-cat"><span class="dot" style="background:${color}"></span>${it.category || 'Item'}</div>
+          <div class="leader-name">${it.name}</div>
+          <div class="leader-row">
+            <span class="leader-stat">${fmt$(it.net)}</span>
+            <span class="leader-sublabel">Net</span>
+          </div>
+          <div class="leader-bar"><div class="leader-bar-fill" style="width:${w.toFixed(1)}%; background:${color}"></div></div>
+          <div class="leader-meta">
+            <span>${fmtN(it.qty)} sold</span>
+            <span>${fmt$2(it.avg_price)} avg</span>
+          </div>
         </div>
-        <div class="item-qty">${fmtN(it.qty)} qty</div>
-        <div class="item-net">${fmt$(it.net)}</div>
+      `;
+    }).join('');
+
+    // Menu filter chips — derived from unique sales categories
+    const cats = ['All', ...Array.from(new Set(items.map(it => it.category).filter(Boolean))).sort()];
+    document.getElementById('menuFilter').innerHTML = cats.map(c => {
+      const v = c === 'All' ? 'all' : c;
+      const cls = (v === activeMenu) ? 'is-active' : '';
+      return `<button class="${cls}" data-menu="${v.replace(/"/g, '&quot;')}">${c}</button>`;
+    }).join('');
+    document.querySelectorAll('#menuFilter button').forEach(b => {
+      b.addEventListener('click', () => {
+        activeMenu = b.dataset.menu;
+        renderTable();
+        document.querySelectorAll('#menuFilter button').forEach(x => x.classList.toggle('is-active', x === b));
+      });
+    });
+
+    // Concept context strip
+    const concepts = (DATA.concepts || []).filter(c => c.net > 0).sort((a, b) => b.net - a.net);
+    document.getElementById('conceptStrip').innerHTML = concepts.map(c => `
+      <div class="concept-chip" title="${c.name}: ${fmt$(c.net)} · ${fmtN(c.qty)} sold">
+        <div class="concept-chip-name"><span class="concept-chip-dot" style="background:${conceptColor[c.name] || COLORS[14]}"></span>${c.name}</div>
+        <div class="concept-chip-net">${fmt$(c.net)}</div>
+        <div class="concept-chip-meta">${(c.net / DATA.totalNet * 100).toFixed(1)}% · ${fmtN(c.qty)} sold</div>
       </div>
     `).join('');
-    document.getElementById('topByNet').innerHTML = renderItems(DATA.topItemsByNet || [], 'net');
-    document.getElementById('topByQty').innerHTML = renderItems(DATA.topItemsByQty || [], 'qty');
 
-    // Menu groups — show top 20 by net
-    const groups = (DATA.groups || []).filter(g => g.net > 0).sort((a, b) => b.net - a.net).slice(0, 20);
-    if (groupChart) groupChart.destroy();
-    groupChart = new Chart(document.getElementById('groupBars'), {
-      type: 'bar',
-      data: {
-        labels: groups.map(g => g.name),
-        datasets: [{ label: 'Net sales', data: groups.map(g => g.net), backgroundColor: groups.map((_, i) => colorFor(i)), borderRadius: 6 }]
-      },
-      options: {
-        indexAxis: 'y', responsive: true, maintainAspectRatio: false,
-        animation: { duration: 700, easing: 'easeOutQuart' },
-        plugins: {
-          legend: { display: false },
-          tooltip: {
-            backgroundColor: '#1f2328', titleColor: '#fff', bodyColor: '#fff', padding: 10, cornerRadius: 6,
-            titleFont: { family: 'DM Sans', size: 12, weight: '600' }, bodyFont: { family: 'DM Mono', size: 12 },
-            callbacks: { label: c => ` ${fmt$(c.parsed.x)}  ·  ${fmtN(groups[c.dataIndex].qty)} qty` }
-          }
-        },
-        scales: {
-          x: { ticks: { color: '#7a7770', callback: v => '$' + (v/1000).toFixed(1) + 'k' }, grid: { color: 'rgba(31,35,40,0.06)' } },
-          y: { ticks: { color: '#7a7770', font: { size: 11, family: 'DM Sans' } }, grid: { display: false } }
-        }
-      }
-    });
+    renderTable();
   }
+
+  function renderTable() {
+    const items = (DATA.items || []).filter(it => it.qty > 0);
+    let filtered = items;
+    if (activeMenu !== 'all') filtered = filtered.filter(it => it.category === activeMenu);
+    if (searchQ)              filtered = filtered.filter(it => it.name.toLowerCase().includes(searchQ));
+    if (activeSort === 'qty') filtered.sort((a, b) => b.qty - a.qty);
+    else if (activeSort === 'avg') filtered.sort((a, b) => b.avg_price - a.avg_price);
+    else                      filtered.sort((a, b) => b.net - a.net);
+
+    const maxQty = Math.max(...filtered.map(it => it.qty), 1);
+    const tbody = document.getElementById('itemTbody');
+    if (!filtered.length) {
+      tbody.innerHTML = '<tr class="empty"><td colspan="4">No items match those filters.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = filtered.map(it => `
+      <tr>
+        <td>
+          <div class="item-cell">
+            <span>${it.name}</span>
+            <span class="item-cat">${it.category || ''}</span>
+          </div>
+        </td>
+        <td class="num">${fmtN(it.qty)}<span class="qty-bar"><span class="qty-bar-fill" style="width:${(it.qty / maxQty * 100).toFixed(1)}%; background:${colorForCategory(it.category)}"></span></span></td>
+        <td class="num">${fmt$(it.net)}</td>
+        <td class="num">${fmt$2(it.avg_price)}</td>
+      </tr>
+    `).join('');
+  }
+
+  /* Wire search + sort */
+  document.getElementById('itemSearch').addEventListener('input', e => {
+    searchQ = e.target.value.trim().toLowerCase();
+    renderTable();
+  });
+  document.querySelectorAll('#sortToggle button').forEach(b => {
+    b.addEventListener('click', () => {
+      activeSort = b.dataset.sort;
+      document.querySelectorAll('#sortToggle button').forEach(x => x.classList.toggle('is-active', x === b));
+      renderTable();
+    });
+  });
 
   loadPMIX();
 </script>
