@@ -315,7 +315,7 @@
     width: 34px !important; height: 34px !important; padding: 0 !important;
     border-radius: 50% !important; gap: 0 !important;
     font-size: 0 !important;
-    background: var(--brand-lavender, #cbc9d6) !important; color: var(--ink) !important;
+    background: var(--brand-lavender, #cbc9d6) !important; color: #fff !important;
     display: inline-flex; align-items: center; justify-content: center;
   }
   .logo-actions .btn::after { content: '↓'; font-size: 16px !important; font-weight: 600; letter-spacing: 0; line-height: 1; }
@@ -349,7 +349,7 @@
     border-radius: 999px;
     text-decoration: none;
     border: 0;
-    color: var(--ink);
+    color: #fff;
     background: var(--lavender);
     transition: background 0.2s, color 0.2s, transform 0.2s, box-shadow 0.2s;
     cursor: pointer;
@@ -449,8 +449,8 @@
   .type-role {
     display: inline-flex; align-items: center;
     padding: 5px 10px;
-    background: var(--lavender, #CBC9D6);
-    color: #fff;
+    background: var(--brand-lavender, #cbc9d6);
+    color: #fff !important;
     border-radius: 999px;
     font-family: 'Futura PT Demi', var(--f-eyebrow);
     font-weight: 700;
@@ -459,20 +459,20 @@
     text-transform: uppercase;
     line-height: 1;
   }
-  .type-name { font-family: var(--f-display); font-size: 1.2rem; line-height: 1.15; color: var(--ink); }
-  .type-name.name-amaya { font-family: var(--f-display); text-transform: uppercase; letter-spacing: 0.04em; }
-  .type-name.name-tuppence { font-family: var(--f-tuppence); font-weight: 500; font-size: 1.3rem; }
-  .type-name.name-futura { font-family: var(--f-eyebrow); font-weight: 600; text-transform: uppercase; letter-spacing: 0.18em; font-size: 1rem; }
-  .type-name.name-telegraf { font-family: var(--f-telegraf); font-weight: 400; font-size: 1.1rem; letter-spacing: -0.005em; }
-  .type-sample.telegraf { font-family: var(--f-telegraf); font-size: 1.05rem; line-height: 1.55; color: var(--text-2); }
+  .type-name { font-family: var(--f-display); font-size: 1.2rem; line-height: 1.15; color: var(--ink); letter-spacing: normal; }
+  .type-name.name-amaya { font-family: var(--f-display); text-transform: uppercase; letter-spacing: normal; }
+  .type-name.name-tuppence { font-family: var(--f-tuppence); font-weight: 500; font-size: 1.3rem; letter-spacing: normal; }
+  .type-name.name-futura { font-family: var(--f-eyebrow); font-weight: 600; text-transform: uppercase; font-size: 1rem; letter-spacing: normal; }
+  .type-name.name-telegraf { font-family: var(--f-telegraf); font-weight: 400; font-size: 1.1rem; letter-spacing: normal; }
+  .type-sample.telegraf { font-family: var(--f-telegraf); font-size: 1.05rem; line-height: 1.55; color: var(--text-2); letter-spacing: normal; }
   .type-sample.telegraf em { color: var(--ink); font-style: normal; font-weight: 500; }
-  .type-detail { font-family: var(--f-mono); font-size: 11px; color: var(--text-3); letter-spacing: 0.06em; line-height: 1.45; }
+  .type-detail { font-family: var(--f-mono); font-size: 11px; color: var(--text-3); line-height: 1.45; letter-spacing: normal; }
 
   .type-sample.amaya {
     font-family: var(--f-display);
     font-size: clamp(2.2rem, 5vw, 3.6rem);
     text-transform: uppercase;
-    letter-spacing: 0.04em;
+    letter-spacing: normal;
     line-height: 0.95;
     color: var(--ink);
   }
@@ -482,13 +482,14 @@
     font-size: clamp(1.8rem, 3.8vw, 2.6rem);
     line-height: 1.15;
     color: var(--ink);
+    letter-spacing: normal;
   }
   .type-sample.eyebrow-sample {
     font-family: var(--f-futura);
     font-weight: 600;
     font-size: clamp(1rem, 1.6vw, 1.2rem);
     text-transform: uppercase;
-    letter-spacing: 0.28em;
+    letter-spacing: normal;
     color: var(--ink);
   }
   .type-sample.body {
@@ -899,7 +900,6 @@
   <section class="row reveal" id="logos">
     <div class="row-head">
       <h2 class="row-title">Logos</h2>
-      <p class="row-desc">Three marks. Use exactly as provided — never recreated, recolored, or restyled.</p>
     </div>
     <div>
       <div class="logo-list">
@@ -1008,7 +1008,7 @@
           <div class="eyebrow">Our Voice</div>
           <div class="voice-line">
             <span class="lead">Like a good neighbor</span>
-            <span class="shout">Always be warm,<br>welcoming <span class="amp">&amp;</span> willing to help.</span>
+            <span class="shout">Always be warm,<br>welcoming <span class="amp">&amp;</span><br>willing to help.</span>
           </div>
         </div>
         <div class="voice-grid">
@@ -1045,7 +1045,7 @@
           <h3 class="photo-title">Photography by Brand</h3>
           <p class="photo-desc">The full image archive — food, people, neighborhood, and hospitality. Organized by brand.</p>
         </div>
-        <a class="btn" href="https://drive.google.com/drive/folders/1azLQe7_DvJ0kMiidm87u_0k2ga3N9H5Z?usp=drive_link" target="_blank" rel="noopener" style="background:var(--lavender, #cbc9d6); color:var(--ink); box-shadow:none;">Open Library</a>
+        <a class="btn" href="https://drive.google.com/drive/folders/1azLQe7_DvJ0kMiidm87u_0k2ga3N9H5Z?usp=drive_link" target="_blank" rel="noopener" style="background:var(--lavender, #cbc9d6); color:#fff; box-shadow:none;">Open Library</a>
       </div>
 
       <div class="photo-rules">
