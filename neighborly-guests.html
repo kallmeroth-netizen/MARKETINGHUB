@@ -284,6 +284,10 @@ nav{background:var(--surface);border-bottom:.5px solid var(--border-strong);padd
 .quote-card{background:var(--surface-2);border-radius:10px;padding:12px 14px;margin-bottom:10px;font-size:13px;color:var(--text2);line-height:1.6;border-left:3px solid transparent}
 .quote-card.neg{border-left-color:var(--tan)}
 .quote-card.pos{border-left-color:var(--tan)}
+.quote-text{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:5;overflow:hidden;word-break:break-word}
+.quote-text.expanded{-webkit-line-clamp:unset;overflow:visible;display:block}
+.quote-more{display:inline-block;margin-top:6px;font-size:11.5px;font-weight:600;color:var(--orange);background:none;border:0;padding:0;cursor:pointer;letter-spacing:.02em}
+.quote-more:hover{text-decoration:underline}
 
 /* DATA UPLOAD */
 .drop-zone{border:1.5px dashed var(--border-strong);border-radius:12px;padding:2.5rem;text-align:center;cursor:pointer;transition:all .2s;color:var(--text3);margin-bottom:14px}
@@ -1083,6 +1087,32 @@ function closeHubNav(){
   document.getElementById('hubOverlay').classList.remove('open');
 }
 
+// ── EXPANDABLE QUOTE TEXT ─────────────────────────────────────────────────────
+// Adds a "Read more" toggle below any .quote-text that overflows its 5-line
+// clamp. Called after each drawer-body render. Re-running on the same DOM
+// is safe — already-wired elements are skipped via a data-wired flag.
+function wireQuoteExpanders(){
+  var nodes = document.querySelectorAll('.quote-text');
+  nodes.forEach(function(el){
+    if(el.dataset.wired) return;
+    el.dataset.wired = '1';
+    // Defer measurement until layout settles
+    requestAnimationFrame(function(){
+      var overflows = el.scrollHeight - el.clientHeight > 2;
+      if(!overflows) return;
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'quote-more';
+      btn.textContent = 'Read more…';
+      btn.addEventListener('click', function(){
+        var open = el.classList.toggle('expanded');
+        btn.textContent = open ? 'Show less' : 'Read more…';
+      });
+      el.parentNode.appendChild(btn);
+    });
+  });
+}
+
 // ── DRAWER ────────────────────────────────────────────────────────────────────
 var ALL_ITEMS = {};
 COMPLAINTS.forEach(function(c){ ALL_ITEMS[c.id]=c; });
@@ -1104,9 +1134,10 @@ function openDrawer(id){
   var body='';
   body+='<div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);margin-bottom:8px">Guest quotes</div>';
   (item.quotes||[]).forEach(function(q){
-    body+='<div class="quote-card '+(isWin?'pos':'neg')+'">&ldquo;'+q+'&rdquo;</div>';
+    body+='<div class="quote-card '+(isWin?'pos':'neg')+'"><div class="quote-text">&ldquo;'+q+'&rdquo;</div></div>';
   });
   document.getElementById('drawerBody').innerHTML=body;
+  wireQuoteExpanders();
   document.getElementById('drawer').classList.add('open');
   document.getElementById('drawerOverlay').classList.add('open');
 }
@@ -1519,10 +1550,11 @@ function openOvDrawer(themeId, isWin){
   document.getElementById('drawerBody').innerHTML =
     '<div style="font-size:11px;font-weight:600;letter-spacing:.06em;color:var(--text3);text-transform:uppercase;margin-bottom:10px">Guest quotes (verbatim from Ovation)</div>'
     + quotes.map(function(q){
-        return '<div class="quote-card" style="margin-bottom:10px">' + q + '</div>';
+        return '<div class="quote-card" style="margin-bottom:10px"><div class="quote-text">' + q + '</div></div>';
       }).join('');
   document.getElementById('drawerOverlay').classList.add('open');
   document.getElementById('drawer').classList.add('open');
+  wireQuoteExpanders();
 }
 
 // ── MENU HEALTH PAGE ─────────────────────────────────────────────────────────
@@ -1588,14 +1620,15 @@ function openMenuDrawer(dishId){
   document.getElementById('drawerBody').innerHTML =
     '<div style="font-size:11px;font-weight:600;letter-spacing:.06em;color:var(--rd);text-transform:uppercase;margin-bottom:10px">Negative</div>'
     + byNeg.map(function(r){
-        return '<div class="quote-card" style="margin-bottom:8px;border-left-color:var(--rd)!important"><div style="font-size:10.5px;color:var(--text3);margin-bottom:4px">'+r.rating+'★ · '+(r.loc==='westlake'?'Westlake':'Brentwood')+' · '+r.date+'</div>'+r.text+'</div>';
+        return '<div class="quote-card" style="margin-bottom:8px;border-left-color:var(--rd)!important"><div style="font-size:10.5px;color:var(--text3);margin-bottom:4px">'+r.rating+'★ · '+(r.loc==='westlake'?'Westlake':'Brentwood')+' · '+r.date+'</div><div class="quote-text">'+r.text+'</div></div>';
       }).join('')
     +'<div style="font-size:11px;font-weight:600;letter-spacing:.06em;color:var(--gd);text-transform:uppercase;margin:20px 0 10px">Positive feedback</div>'
     + byPos.map(function(r){
-        return '<div class="quote-card" style="margin-bottom:8px;border-left-color:var(--gd)!important"><div style="font-size:10.5px;color:var(--text3);margin-bottom:4px">'+r.rating+'★ · '+(r.loc==='westlake'?'Westlake':'Brentwood')+' · '+r.date+'</div>'+r.text+'</div>';
+        return '<div class="quote-card" style="margin-bottom:8px;border-left-color:var(--gd)!important"><div style="font-size:10.5px;color:var(--text3);margin-bottom:4px">'+r.rating+'★ · '+(r.loc==='westlake'?'Westlake':'Brentwood')+' · '+r.date+'</div><div class="quote-text">'+r.text+'</div></div>';
       }).join('');
   document.getElementById('drawerOverlay').classList.add('open');
   document.getElementById('drawer').classList.add('open');
+  wireQuoteExpanders();
 }
 
 // ── OVERVIEW RATING CHART ────────────────────────────────────────────────────
