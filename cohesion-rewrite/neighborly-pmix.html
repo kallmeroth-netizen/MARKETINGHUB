@@ -17,87 +17,47 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 
 <style>
-  /* PMIX page layout — graphics-forward */
-  .pmix-hero {
-    display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
-    gap: var(--s-5); margin-bottom: var(--s-5);
-  }
+  /* Hero row */
+  .pmix-hero { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: var(--s-5); margin-bottom: var(--s-5); }
   @media (max-width: 900px) { .pmix-hero { grid-template-columns: 1fr; } }
 
-  .pmix-donut-card { padding: var(--s-5); }
-  .pmix-donut-wrap { position: relative; height: 320px; }
+  .pmix-donut-wrap { position: relative; height: 320px; margin-top: var(--s-3); }
   .pmix-donut-center {
     position: absolute; inset: 0;
     display: flex; flex-direction: column; align-items: center; justify-content: center;
     pointer-events: none; text-align: center;
   }
-  .pmix-donut-label {
-    font-family: var(--f-eyebrow); font-weight: 600;
-    font-size: var(--t-eyebrow); letter-spacing: 0.28em; text-transform: uppercase;
-    color: var(--text-3); margin-bottom: 4px;
-  }
-  .pmix-donut-value {
-    font-family: var(--f-mono); font-size: 32px; font-weight: 500;
-    color: var(--ink); line-height: 1;
-  }
-  .pmix-donut-sub { font-size: var(--t-caption); color: var(--text-3); margin-top: 4px; }
+  .pmix-donut-label { font-family: var(--f-eyebrow); font-weight: 600; font-size: var(--t-eyebrow); letter-spacing: 0.28em; text-transform: uppercase; color: var(--text-3); margin-bottom: 4px; }
+  .pmix-donut-value { font-family: var(--f-mono); font-size: 32px; font-weight: 500; color: var(--ink); line-height: 1; }
+  .pmix-donut-sub   { font-size: var(--t-caption); color: var(--text-3); margin-top: 4px; }
 
-  /* Concept grid */
-  .pmix-grid {
-    display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    gap: var(--s-3);
-  }
-  .pmix-concept {
-    background: var(--surface);
-    border: 1px solid var(--line);
-    border-radius: var(--r-lg);
-    padding: var(--s-4);
-    transition: border-color var(--t-base) var(--easing), transform var(--t-base) var(--easing);
-  }
+  /* Concept cards grid */
+  .pmix-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: var(--s-3); }
+  .pmix-concept { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); padding: var(--s-4); transition: border-color var(--t-base) var(--easing), transform var(--t-base) var(--easing); }
   .pmix-concept:hover { border-color: var(--line-bold); transform: translateY(-1px); }
-  .pmix-concept-head {
-    display: flex; align-items: center; gap: 8px; margin-bottom: var(--s-3);
-  }
+  .pmix-concept-head { display: flex; align-items: center; gap: 8px; margin-bottom: var(--s-3); }
   .pmix-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
-  .pmix-name { font-size: var(--t-card-title); font-weight: 600; color: var(--text); }
+  .pmix-name { font-size: var(--t-card-title); font-weight: 600; color: var(--text); line-height: 1.2; }
   .pmix-rev  { font-family: var(--f-mono); font-size: 20px; font-weight: 500; color: var(--ink); }
   .pmix-pct  { font-family: var(--f-mono); font-size: var(--t-caption); color: var(--text-3); margin-top: 2px; }
-  .pmix-mini-bar {
-    height: 6px; border-radius: var(--r-pill); background: var(--surface-2);
-    margin-top: var(--s-3); overflow: hidden;
-  }
+  .pmix-qty  { font-family: var(--f-mono); font-size: var(--t-caption-sm); color: var(--text-3); margin-top: 6px; }
+  .pmix-mini-bar { height: 6px; border-radius: var(--r-pill); background: var(--surface-2); margin-top: var(--s-3); overflow: hidden; }
   .pmix-mini-fill { height: 100%; border-radius: var(--r-pill); transition: width .5s var(--easing); }
-  .pmix-delta {
-    display: inline-flex; align-items: center; gap: 4px;
-    margin-top: var(--s-2);
-    font-family: var(--f-mono); font-size: var(--t-caption-sm); font-weight: 600;
-  }
-  .pmix-delta.pos { color: var(--brand-green-deep); }
-  .pmix-delta.neg { color: var(--brand-orange-deep); }
-  .pmix-delta.flat { color: var(--text-3); }
 
-  /* Loc toggle (same shape as the np-toggle component but reused here) */
-  .loc-toggle {
-    display: inline-flex; gap: 2px; padding: 3px;
-    background: var(--surface-2); border-radius: var(--r-sm);
-  }
-  .loc-toggle button {
-    padding: 5px 14px; border: none; background: transparent; cursor: pointer;
-    border-radius: 6px; font-size: var(--t-caption); font-weight: 500;
-    color: var(--text-2);
-    transition: all var(--t-fast) var(--easing);
-  }
-  .loc-toggle button.is-active {
-    background: var(--surface); color: var(--text);
-    box-shadow: var(--shadow-sm);
-  }
+  /* Top items list */
+  .item-row { display: grid; grid-template-columns: 24px minmax(0, 1fr) auto auto; gap: 14px; align-items: center; padding: 10px 12px; border-radius: var(--r-md); }
+  .item-row:nth-child(even) { background: rgba(31,35,40,0.02); }
+  .item-rank { font-family: var(--f-mono); font-size: var(--t-caption); color: var(--text-3); text-align: right; }
+  .item-name { font-size: var(--t-body-sm); font-weight: 500; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .item-cat  { font-family: var(--f-eyebrow); font-weight: 600; font-size: 9.5px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text-3); }
+  .item-qty  { font-family: var(--f-mono); font-size: var(--t-caption); color: var(--text-3); white-space: nowrap; }
+  .item-net  { font-family: var(--f-mono); font-size: var(--t-body-sm); font-weight: 500; color: var(--ink); white-space: nowrap; }
+  .top-items-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s-4); }
+  @media (max-width: 900px) { .top-items-grid { grid-template-columns: 1fr; } }
 </style>
 </head>
 <body>
 
-<!-- ============================================================
-     NAV
-     ============================================================ -->
 <nav class="np-nav">
   <a class="np-nav-brand" onclick="toggleHubNav(event)" aria-label="Open hub">
     <img src="NeighborlyLogo.png" alt="Neighborly">
@@ -110,67 +70,34 @@
     <a class="np-tab is-active">PMIX</a>
   </div>
   <div class="np-nav-right">
-    <button class="np-icon-btn" title="Refresh" aria-label="Refresh" onclick="loadPMIX()">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
-    </button>
-    <a class="np-icon-btn" href="index.html" title="Back to home" aria-label="Back to home">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-    </a>
+    <button class="np-icon-btn" title="Refresh" aria-label="Refresh" onclick="loadPMIX()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg></button>
+    <a class="np-icon-btn" href="index.html" title="Back to home" aria-label="Back to home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></a>
   </div>
 </nav>
 
-<!-- Hub dropdown -->
 <div class="np-hub-overlay" aria-hidden="true"></div>
 <div class="np-hub" role="dialog" aria-label="Marketing Hub">
   <div class="np-hub-label">Neighborly Marketing Hub</div>
   <div class="np-hub-grid">
-    <a class="np-hub-card is-active" href="neighborly-dashboard.html">
-      <div class="np-hub-card-ico" style="background:var(--brand-yellow-light)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--brand-yellow-deep)" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></div>
-      <div class="np-hub-card-title">Sales <span class="amp">&amp;</span> Performance</div>
-      <div class="np-hub-card-sub">Sales &amp; KPI tracker</div>
-    </a>
-    <a class="np-hub-card" href="neighborly-calendar.html">
-      <div class="np-hub-card-ico" style="background:var(--brand-green-light)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--brand-green-deep)" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
-      <div class="np-hub-card-title">Marketing Calendar</div>
-      <div class="np-hub-card-sub">Campaigns &amp; scheduling</div>
-    </a>
-    <a class="np-hub-card" href="neighborly-assets.html">
-      <div class="np-hub-card-ico" style="background:var(--brand-tan-light)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--brand-tan-deep)" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 010 14.14M4.93 4.93a10 10 0 000 14.14M12 2v2M12 20v2M2 12h2M20 12h2"/></svg></div>
-      <div class="np-hub-card-title">Brand Guidelines</div>
-      <div class="np-hub-card-sub">Logos, fonts &amp; templates</div>
-    </a>
-    <a class="np-hub-card" href="neighborly-guests.html">
-      <div class="np-hub-card-ico" style="background:var(--brand-lavender-light)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--brand-lavender-deep)" stroke-width="2"><circle cx="9" cy="8" r="4"/><path d="M2 21a7 7 0 0 1 14 0"/><path d="M16 3.5a4 4 0 0 1 0 8M22 21a7 7 0 0 0-5-6.7"/></svg></div>
-      <div class="np-hub-card-title">Guest Intelligence</div>
-      <div class="np-hub-card-sub">Feedback &amp; experience trends</div>
-    </a>
+    <a class="np-hub-card is-active" href="neighborly-dashboard.html"><div class="np-hub-card-ico" style="background:var(--brand-yellow-light)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--brand-yellow-deep)" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></div><div class="np-hub-card-title">Sales <span class="amp">&amp;</span> Performance</div><div class="np-hub-card-sub">Sales &amp; KPI tracker</div></a>
+    <a class="np-hub-card" href="neighborly-calendar.html"><div class="np-hub-card-ico" style="background:var(--brand-green-light)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--brand-green-deep)" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div><div class="np-hub-card-title">Marketing Calendar</div><div class="np-hub-card-sub">Campaigns &amp; scheduling</div></a>
+    <a class="np-hub-card" href="neighborly-assets.html"><div class="np-hub-card-ico" style="background:var(--brand-tan-light)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--brand-tan-deep)" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 010 14.14M4.93 4.93a10 10 0 000 14.14M12 2v2M12 20v2M2 12h2M20 12h2"/></svg></div><div class="np-hub-card-title">Brand Guidelines</div><div class="np-hub-card-sub">Logos, fonts &amp; templates</div></a>
+    <a class="np-hub-card" href="neighborly-guests.html"><div class="np-hub-card-ico" style="background:var(--brand-lavender-light)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--brand-lavender-deep)" stroke-width="2"><circle cx="9" cy="8" r="4"/><path d="M2 21a7 7 0 0 1 14 0"/><path d="M16 3.5a4 4 0 0 1 0 8M22 21a7 7 0 0 0-5-6.7"/></svg></div><div class="np-hub-card-title">Guest Intelligence</div><div class="np-hub-card-sub">Feedback &amp; experience trends</div></a>
   </div>
 </div>
 
-<!-- ============================================================
-     MAIN
-     ============================================================ -->
 <main class="np-main">
 
   <header class="np-page-header">
-    <div class="np-page-eyebrow">Concept performance · Sales mix today</div>
+    <div class="np-page-eyebrow" id="dateLabel">Sales mix · loading…</div>
     <h1 class="np-page-title">Product Mix</h1>
   </header>
 
-  <div class="np-page-controls">
-    <span id="dateLabel" class="np-date-pill" style="cursor:default">—</span>
-    <div class="loc-toggle">
-      <button class="is-active" data-loc="total">Both locations</button>
-      <button data-loc="wlv">Westlake Village</button>
-      <button data-loc="bw">Brentwood</button>
-    </div>
-  </div>
-
   <!-- HERO: donut + KPI -->
   <div class="pmix-hero">
-    <section class="np-card pmix-donut-card">
-      <div class="np-card-title">Today&rsquo;s mix</div>
-      <div class="np-card-sub">Share of net sales by concept</div>
+    <section class="np-card">
+      <div class="np-card-title">Today&rsquo;s mix by concept</div>
+      <div class="np-card-sub">Share of net sales across menus</div>
       <div class="pmix-donut-wrap">
         <canvas id="pmixDonut"></canvas>
         <div class="pmix-donut-center">
@@ -183,10 +110,10 @@
 
     <div>
       <div class="np-kpi-grid" style="grid-template-columns: 1fr 1fr; gap: var(--s-3); margin-bottom: 0;">
-        <div class="np-kpi"><div class="np-kpi-label">Top concept</div><div class="np-kpi-value" id="kpiTopName">—</div><div class="np-kpi-sub" id="kpiTopPct">—%</div></div>
-        <div class="np-kpi"><div class="np-kpi-label">Biggest gainer</div><div class="np-kpi-value" id="kpiGainName">—</div><div class="np-kpi-sub" id="kpiGainDelta">—</div></div>
-        <div class="np-kpi"><div class="np-kpi-label">Biggest loser</div><div class="np-kpi-value" id="kpiLoseName">—</div><div class="np-kpi-sub" id="kpiLoseDelta">—</div></div>
-        <div class="np-kpi"><div class="np-kpi-label">Concepts tracked</div><div class="np-kpi-value" id="kpiCount">—</div><div class="np-kpi-sub">active today</div></div>
+        <div class="np-kpi"><div class="np-kpi-label">Top concept</div><div class="np-kpi-value" id="kpiTopName" style="font-size:18px">—</div><div class="np-kpi-sub" id="kpiTopPct">—</div></div>
+        <div class="np-kpi"><div class="np-kpi-label">Top item</div><div class="np-kpi-value" id="kpiTopItem" style="font-size:15px; line-height:1.25">—</div><div class="np-kpi-sub" id="kpiTopItemQty">—</div></div>
+        <div class="np-kpi"><div class="np-kpi-label">Items sold</div><div class="np-kpi-value" id="kpiQty">—</div><div class="np-kpi-sub">across all menus</div></div>
+        <div class="np-kpi"><div class="np-kpi-label">Avg check size</div><div class="np-kpi-value" id="kpiAvg">—</div><div class="np-kpi-sub" id="kpiAvgSub">per item</div></div>
       </div>
     </div>
   </div>
@@ -194,17 +121,36 @@
   <!-- CONCEPT GRID -->
   <section class="np-card" style="margin-bottom:var(--s-4)">
     <div class="np-card-title">Concept breakdown</div>
-    <div class="np-card-sub">Today's revenue, mix share, and shift vs 6-week average</div>
-    <div class="pmix-grid" id="pmixGrid" style="margin-top:var(--s-3)">
-      <!-- Concept cards rendered by JS -->
-    </div>
+    <div class="np-card-sub">Net sales, share of total, and quantity sold by menu</div>
+    <div class="pmix-grid" id="conceptGrid" style="margin-top:var(--s-3)"></div>
   </section>
 
-  <!-- COMPARISON: today vs 6-week avg -->
+  <!-- COMPARISON CHART -->
+  <section class="np-card" style="margin-bottom:var(--s-4)">
+    <div class="np-card-title">Net sales by concept</div>
+    <div class="np-card-sub">Horizontal ranking — sorted by today&rsquo;s revenue</div>
+    <canvas id="pmixBars" style="margin-top:12px; max-height:380px"></canvas>
+  </section>
+
+  <!-- TOP ITEMS -->
+  <div class="top-items-grid" style="margin-bottom:var(--s-4)">
+    <section class="np-card">
+      <div class="np-card-title">Top 15 by revenue</div>
+      <div class="np-card-sub">Best dollar performers across all menus</div>
+      <div id="topByNet" style="margin-top:var(--s-3)"></div>
+    </section>
+    <section class="np-card">
+      <div class="np-card-title">Top 15 by quantity</div>
+      <div class="np-card-sub">Highest unit volume across all menus</div>
+      <div id="topByQty" style="margin-top:var(--s-3)"></div>
+    </section>
+  </div>
+
+  <!-- MENU GROUPS -->
   <section class="np-card">
-    <div class="np-card-title">Today vs 6-week average</div>
-    <div class="np-card-sub">Where the mix is shifting</div>
-    <canvas id="pmixCompare" style="margin-top:12px; max-height:300px"></canvas>
+    <div class="np-card-title">Menu groups</div>
+    <div class="np-card-sub">Sub-categories within each concept (Sandwiches, Salads, Pizza, &hellip;)</div>
+    <canvas id="groupBars" style="margin-top:12px; max-height:520px"></canvas>
   </section>
 
 </main>
@@ -212,105 +158,56 @@
 <footer class="np-foot"><span class="track-trim">Neighbors Only Portal</span></footer>
 
 <script>
-  /* ──────────────────────────────────────────────────────────
-     PMIX page — re-uses the dashboard's labels/colors and pulls
-     from the same daily-data.json that powers Weekly/Daily.
-     ────────────────────────────────────────────────────────── */
-  const PMIX_LABELS = {
-    whatsGabyCooking: "What's Gaby Cooking",
-    miniKabob: 'Mini Kabob',
-    palermoPizzaClub: 'Palermo Pizza Club',
-    mixtape: 'Mixtape',
-    marketplace: 'Marketplace',
-    catering: 'Catering',
-    socialMonk: 'Social Monk'
-  };
-  const PMIX_COLORS = {
-    whatsGabyCooking: '#eace49',
-    miniKabob: '#e87142',
-    palermoPizzaClub: '#7bbd91',
-    mixtape: '#6280bd',
-    marketplace: '#dbc6a2',
-    catering: '#cbc9d6',
-    socialMonk: '#a35bbf'
-  };
-  const SIXW_KEY = {  // map pmix key -> sixWeekAvg key
-    whatsGabyCooking: 'whatsGabyCookingPct',
-    miniKabob: 'miniKabobPct',
-    palermoPizzaClub: 'palermoPizzaClubPct',
-    mixtape: 'mixtapePct',
-    marketplace: 'marketplacePct',
-    catering: 'cateringPct',
-    socialMonk: 'socialMonkPct'
-  };
+  /* Brand palette for concepts */
+  const COLORS = ['#eace49','#e87142','#7bbd91','#6280bd','#dbc6a2','#cbc9d6','#a35bbf','#5fa9b8','#d99a3e','#88a07a','#b5654e','#3a6e9a','#c79c63','#9a7fbf','#7a9c8f'];
+  const colorFor = (i) => COLORS[i % COLORS.length];
 
   const fmt$  = n => n == null ? '—' : '$' + Math.round(n).toLocaleString();
-  const fmtPct = n => n == null ? '—' : (n>=0?'+':'') + n.toFixed(1) + '%';
+  const fmt$2 = n => n == null ? '—' : '$' + n.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+  const fmtN  = n => n == null ? '—' : Math.round(n).toLocaleString();
 
   let DATA = null;
-  let currentLoc = 'total';
-  let donutChart, compareChart;
+  let donutChart, barsChart, groupChart;
 
   async function loadPMIX() {
     try {
-      const r = await fetch('daily-data.json', { cache: 'no-store' });
+      const r = await fetch('pmix-data.json', { cache: 'no-store' });
       DATA = await r.json();
-      document.getElementById('dateLabel').textContent = DATA.date || 'Today';
       render();
-    } catch (e) {
-      console.error('PMIX load failed', e);
-    }
+    } catch (e) { console.error('PMIX load failed', e); }
   }
 
   function render() {
     if (!DATA) return;
-    const bucket = DATA[currentLoc] || {};
-    const pmix = (bucket.today && bucket.today.pmix) || {};
-    const six  = bucket.sixWeekAvg || {};
+    document.getElementById('dateLabel').textContent =
+      `Sales mix · ${DATA.date_label} · ${DATA.locations}`;
 
-    // Build sorted list
-    const items = Object.keys(pmix)
-      .filter(k => PMIX_LABELS[k] && pmix[k] > 0)
-      .map(k => {
-        const v = pmix[k];
-        const sixPct = six[SIXW_KEY[k]];
-        return { k, label: PMIX_LABELS[k], color: PMIX_COLORS[k] || '#888', v, sixPct };
-      })
-      .sort((a, b) => b.v - a.v);
+    // Only show concepts with > 0 net
+    const concepts = (DATA.concepts || [])
+      .filter(c => c.net > 0)
+      .sort((a, b) => b.net - a.net)
+      .map((c, i) => ({ ...c, color: colorFor(i), pct: (c.net / DATA.totalNet) * 100 }));
 
-    const total = items.reduce((s, it) => s + it.v, 0);
-    const itemsWithPct = items.map(it => {
-      const pct = total ? (it.v / total) * 100 : 0;
-      const delta = (it.sixPct != null) ? (pct - it.sixPct) : null;
-      return { ...it, pct, delta };
-    });
+    const top    = concepts[0];
+    const topItem = DATA.topItemsByNet && DATA.topItemsByNet[0];
 
     // KPIs
-    const top = itemsWithPct[0];
-    const sorted = [...itemsWithPct].filter(x => x.delta != null).sort((a, b) => b.delta - a.delta);
-    const gain = sorted[0], lose = sorted[sorted.length - 1];
-    document.getElementById('kpiTopName').textContent  = top ? top.label : '—';
-    document.getElementById('kpiTopPct').textContent   = top ? top.pct.toFixed(1) + '% of mix' : '—';
-    document.getElementById('kpiGainName').textContent = gain ? gain.label : '—';
-    document.getElementById('kpiGainDelta').textContent = gain ? fmtPct(gain.delta) + ' vs 6w avg' : '—';
-    document.getElementById('kpiLoseName').textContent = lose ? lose.label : '—';
-    document.getElementById('kpiLoseDelta').textContent = lose ? fmtPct(lose.delta) + ' vs 6w avg' : '—';
-    document.getElementById('kpiCount').textContent    = String(itemsWithPct.length);
-    document.getElementById('centerVal').textContent   = fmt$(total);
-    document.getElementById('centerSub').textContent   = `${itemsWithPct.length} concepts`;
+    document.getElementById('centerVal').textContent  = fmt$(DATA.totalNet);
+    document.getElementById('centerSub').textContent  = `${concepts.length} concepts`;
+    document.getElementById('kpiTopName').textContent = top ? top.name : '—';
+    document.getElementById('kpiTopPct').textContent  = top ? `${fmt$(top.net)} · ${top.pct.toFixed(1)}%` : '—';
+    document.getElementById('kpiTopItem').textContent = topItem ? topItem.name : '—';
+    document.getElementById('kpiTopItemQty').textContent = topItem ? `${fmtN(topItem.qty)} sold · ${fmt$(topItem.net)}` : '—';
+    document.getElementById('kpiQty').textContent     = fmtN(DATA.totalQty);
+    document.getElementById('kpiAvg').textContent     = DATA.totalQty ? fmt$2(DATA.totalNet / DATA.totalQty) : '—';
 
     // Donut
-    const ctx = document.getElementById('pmixDonut');
     if (donutChart) donutChart.destroy();
-    donutChart = new Chart(ctx, {
+    donutChart = new Chart(document.getElementById('pmixDonut'), {
       type: 'doughnut',
       data: {
-        labels: itemsWithPct.map(it => it.label),
-        datasets: [{
-          data: itemsWithPct.map(it => it.v),
-          backgroundColor: itemsWithPct.map(it => it.color),
-          borderColor: '#fff', borderWidth: 2, hoverOffset: 6
-        }]
+        labels: concepts.map(c => c.name),
+        datasets: [{ data: concepts.map(c => c.net), backgroundColor: concepts.map(c => c.color), borderColor: '#fff', borderWidth: 2, hoverOffset: 6 }]
       },
       options: {
         cutout: '62%', responsive: true, maintainAspectRatio: false,
@@ -318,81 +215,94 @@
         plugins: {
           legend: { display: false },
           tooltip: {
-            backgroundColor: '#1f2328', titleColor: '#fff', bodyColor: '#fff',
-            padding: 10, cornerRadius: 6,
+            backgroundColor: '#1f2328', titleColor: '#fff', bodyColor: '#fff', padding: 10, cornerRadius: 6,
             titleFont: { family: 'DM Sans', size: 12, weight: '600' },
             bodyFont:  { family: 'DM Mono', size: 12 },
-            callbacks: {
-              label: c => {
-                const v = c.parsed; const pct = total ? (v/total*100).toFixed(1) : '0';
-                return ` ${fmt$(v)}  ·  ${pct}%`;
-              }
-            }
+            callbacks: { label: c => ` ${fmt$(c.parsed)}  ·  ${(c.parsed / DATA.totalNet * 100).toFixed(1)}%` }
           }
         }
       }
     });
 
-    // Concept grid
-    const grid = document.getElementById('pmixGrid');
-    grid.innerHTML = itemsWithPct.map(it => {
-      const cls = it.delta == null ? 'flat' : (it.delta > 0.5 ? 'pos' : (it.delta < -0.5 ? 'neg' : 'flat'));
-      const arrow = it.delta == null ? '·' : (it.delta > 0.5 ? '▲' : (it.delta < -0.5 ? '▼' : '·'));
-      return `
-        <div class="pmix-concept" title="${it.label}: ${fmt$(it.v)} · ${it.pct.toFixed(1)}% of mix">
-          <div class="pmix-concept-head">
-            <span class="pmix-dot" style="background:${it.color}"></span>
-            <span class="pmix-name">${it.label}</span>
-          </div>
-          <div class="pmix-rev">${fmt$(it.v)}</div>
-          <div class="pmix-pct">${it.pct.toFixed(1)}% of mix</div>
-          <div class="pmix-mini-bar"><div class="pmix-mini-fill" style="width:${it.pct.toFixed(1)}%; background:${it.color}"></div></div>
-          <div class="pmix-delta ${cls}">${arrow} ${fmtPct(it.delta == null ? null : it.delta)} <span style="color:var(--text-3); font-weight:500"> vs 6w</span></div>
-        </div>
-      `;
-    }).join('');
+    // Concept cards grid
+    document.getElementById('conceptGrid').innerHTML = concepts.map(c => `
+      <div class="pmix-concept" title="${c.name}: ${fmt$(c.net)} · ${c.pct.toFixed(1)}% of mix · ${fmtN(c.qty)} items">
+        <div class="pmix-concept-head"><span class="pmix-dot" style="background:${c.color}"></span><span class="pmix-name">${c.name}</span></div>
+        <div class="pmix-rev">${fmt$(c.net)}</div>
+        <div class="pmix-pct">${c.pct.toFixed(1)}% of mix</div>
+        <div class="pmix-mini-bar"><div class="pmix-mini-fill" style="width:${c.pct.toFixed(1)}%; background:${c.color}"></div></div>
+        <div class="pmix-qty">${fmtN(c.qty)} units sold</div>
+      </div>
+    `).join('');
 
-    // Comparison chart — grouped bars (today % vs 6-week avg %)
-    const cmpCtx = document.getElementById('pmixCompare');
-    if (compareChart) compareChart.destroy();
-    compareChart = new Chart(cmpCtx, {
+    // Horizontal bar chart of concepts
+    if (barsChart) barsChart.destroy();
+    barsChart = new Chart(document.getElementById('pmixBars'), {
       type: 'bar',
       data: {
-        labels: itemsWithPct.map(it => it.label),
-        datasets: [
-          { label: 'Today',     data: itemsWithPct.map(it => +it.pct.toFixed(1)),                       backgroundColor: itemsWithPct.map(it => it.color) },
-          { label: '6-week avg', data: itemsWithPct.map(it => it.sixPct != null ? +it.sixPct.toFixed(1) : null), backgroundColor: '#e8e6dd', borderColor: '#c9c5b8', borderWidth: 0 }
-        ]
+        labels: concepts.map(c => c.name),
+        datasets: [{ label: 'Net sales', data: concepts.map(c => c.net), backgroundColor: concepts.map(c => c.color), borderRadius: 6 }]
       },
       options: {
-        responsive: true, maintainAspectRatio: false,
+        indexAxis: 'y', responsive: true, maintainAspectRatio: false,
         animation: { duration: 700, easing: 'easeOutQuart' },
         plugins: {
-          legend: { position: 'top', labels: { font: { family: 'DM Sans', size: 12 }, color: '#7a7770' } },
+          legend: { display: false },
           tooltip: {
-            backgroundColor: '#1f2328', titleColor: '#fff', bodyColor: '#fff',
-            padding: 10, cornerRadius: 6,
-            titleFont: { family: 'DM Sans', size: 12, weight: '600' },
-            bodyFont:  { family: 'DM Mono', size: 12 },
-            callbacks: { label: c => ` ${c.dataset.label}: ${c.parsed.y == null ? '—' : c.parsed.y.toFixed(1) + '%'}` }
+            backgroundColor: '#1f2328', titleColor: '#fff', bodyColor: '#fff', padding: 10, cornerRadius: 6,
+            titleFont: { family: 'DM Sans', size: 12, weight: '600' }, bodyFont: { family: 'DM Mono', size: 12 },
+            callbacks: { label: c => ` ${fmt$(c.parsed.x)}  ·  ${(c.parsed.x / DATA.totalNet * 100).toFixed(1)}%` }
           }
         },
         scales: {
-          y: { ticks: { color: '#7a7770', callback: v => v + '%' }, grid: { color: 'rgba(31,35,40,0.06)' } },
-          x: { ticks: { color: '#7a7770', maxRotation: 0, autoSkip: false }, grid: { display: false } }
+          x: { ticks: { color: '#7a7770', callback: v => '$' + (v/1000).toFixed(1) + 'k' }, grid: { color: 'rgba(31,35,40,0.06)' } },
+          y: { ticks: { color: '#7a7770', font: { size: 12, family: 'DM Sans' } }, grid: { display: false } }
+        }
+      }
+    });
+
+    // Top items lists
+    const renderItems = (arr, sortKey) => arr.slice(0, 15).map((it, i) => `
+      <div class="item-row" title="${it.name}: ${fmtN(it.qty)} units · ${fmt$(it.net)}">
+        <div class="item-rank">${i + 1}</div>
+        <div>
+          <div class="item-name">${it.name}</div>
+          <div class="item-cat">${it.category || ''}</div>
+        </div>
+        <div class="item-qty">${fmtN(it.qty)} qty</div>
+        <div class="item-net">${fmt$(it.net)}</div>
+      </div>
+    `).join('');
+    document.getElementById('topByNet').innerHTML = renderItems(DATA.topItemsByNet || [], 'net');
+    document.getElementById('topByQty').innerHTML = renderItems(DATA.topItemsByQty || [], 'qty');
+
+    // Menu groups — show top 20 by net
+    const groups = (DATA.groups || []).filter(g => g.net > 0).sort((a, b) => b.net - a.net).slice(0, 20);
+    if (groupChart) groupChart.destroy();
+    groupChart = new Chart(document.getElementById('groupBars'), {
+      type: 'bar',
+      data: {
+        labels: groups.map(g => g.name),
+        datasets: [{ label: 'Net sales', data: groups.map(g => g.net), backgroundColor: groups.map((_, i) => colorFor(i)), borderRadius: 6 }]
+      },
+      options: {
+        indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+        animation: { duration: 700, easing: 'easeOutQuart' },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: '#1f2328', titleColor: '#fff', bodyColor: '#fff', padding: 10, cornerRadius: 6,
+            titleFont: { family: 'DM Sans', size: 12, weight: '600' }, bodyFont: { family: 'DM Mono', size: 12 },
+            callbacks: { label: c => ` ${fmt$(c.parsed.x)}  ·  ${fmtN(groups[c.dataIndex].qty)} qty` }
+          }
+        },
+        scales: {
+          x: { ticks: { color: '#7a7770', callback: v => '$' + (v/1000).toFixed(1) + 'k' }, grid: { color: 'rgba(31,35,40,0.06)' } },
+          y: { ticks: { color: '#7a7770', font: { size: 11, family: 'DM Sans' } }, grid: { display: false } }
         }
       }
     });
   }
-
-  document.querySelectorAll('.loc-toggle button').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('.loc-toggle button').forEach(b => b.classList.remove('is-active'));
-      btn.classList.add('is-active');
-      currentLoc = btn.dataset.loc;
-      render();
-    });
-  });
 
   loadPMIX();
 </script>
