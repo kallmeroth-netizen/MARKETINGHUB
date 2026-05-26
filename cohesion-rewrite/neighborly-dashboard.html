@@ -46,13 +46,13 @@
   .hub-nav.open { opacity: 1; pointer-events: all; transform: translateY(0); }
 
   .hub-nav-label { font-size: 10px; font-weight: 600; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 1rem; }
-  .hub-back-home { font-size: 11px; font-weight: 500; color: var(--text-2); text-decoration: none; padding: 4px 10px; border: 0.5px solid var(--border-strong); border-radius: 7px; background: var(--surface2); letter-spacing: 0; text-transform: none; transition: background 0.15s, color 0.15s; white-space: nowrap; }
+  .hub-back-home { font-size: 11px; font-weight: 500; color: var(--text-2); text-decoration: none; padding: 4px 10px; border: 0.5px solid var(--border-strong); border-radius: 7px; background: var(--surface-2); letter-spacing: 0; text-transform: none; transition: background 0.15s, color 0.15s; white-space: nowrap; }
   .hub-back-home:hover { background: var(--surface); color: var(--text); }
   .hub-nav-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
   @media (max-width: 768px) { .hub-nav-grid { grid-template-columns: repeat(2, 1fr); } }
 
   .hub-card { display: flex; flex-direction: column; gap: 6px; padding: 14px; border-radius: 10px; border: 0.5px solid var(--border); background: var(--surface); cursor: pointer; transition: background 0.12s, border-color 0.12s; text-decoration: none; position: relative; }
-  .hub-card:hover { background: var(--surface2); border-color: var(--border-strong); }
+  .hub-card:hover { background: var(--surface-2); border-color: var(--border-strong); }
   .hub-card.active { background: var(--brand-yellow-light); border-color: #e3c030; }
   .hub-card-icon { width: 28px; height: 28px; border-radius: 7px; display: flex; align-items: center; justify-content: center; margin-bottom: 2px; }
   .hub-card-icon svg { width: 14px; height: 14px; }
@@ -64,10 +64,10 @@
   .nav-tab.active { color: var(--brand-yellow); border-bottom-color: var(--brand-yellow); }
   .nav-right { display: flex; align-items: center; gap: 10px; }
   .upload-btn { display: flex; align-items: center; gap: 6px; padding: 6px 14px; border: 0.5px solid var(--border-strong); border-radius: 8px; background: var(--surface); font-size: 12px; font-weight: 500; color: var(--text-2); cursor: pointer; transition: all 0.15s; font-family: 'DM Sans', sans-serif; }
-  .upload-btn:hover { background: var(--surface2); color: var(--text); }
+  .upload-btn:hover { background: var(--surface-2); color: var(--text); }
   .upload-btn svg { width: 14px; height: 14px; }
   .icon-btn { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border: 0.5px solid var(--border-strong); border-radius: 8px; background: var(--surface); color: var(--text-2); cursor: pointer; transition: all 0.15s; padding: 0; }
-  .icon-btn:hover { background: var(--surface2); color: var(--text); border-color: var(--text-2); }
+  .icon-btn:hover { background: var(--surface-2); color: var(--text); border-color: var(--text-2); }
   .icon-btn:active { transform: scale(0.95); }
   .icon-btn svg { width: 15px; height: 15px; }
   #csvInput { display: none; }
@@ -95,7 +95,7 @@
   .cal-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
   .cal-title { font-size: 13px; font-weight: 600; color: var(--text); font-family: 'DM Sans', sans-serif; }
   .cal-nav { display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; border: none; background: transparent; border-radius: 6px; cursor: pointer; color: var(--text-2); transition: background 0.12s; }
-  .cal-nav:hover:not(:disabled) { background: var(--surface2); color: var(--text); }
+  .cal-nav:hover:not(:disabled) { background: var(--surface-2); color: var(--text); }
   .cal-nav:disabled { opacity: 0.25; cursor: not-allowed; }
   .cal-nav svg { width: 14px; height: 14px; }
   .cal-dow { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; margin-bottom: 4px; }
@@ -124,7 +124,7 @@
   .kpi-change .chg { padding: 2px 7px; border-radius: 20px; font-size: 11px; font-weight: 600; }
   .chg.pos { background: var(--brand-green-light); color: #085041; }
   .chg.neg { background: var(--brand-orange-light); color: #A32D2D; }
-  .chg.neu { background: var(--surface2); color: var(--text-2); }
+  .chg.neu { background: var(--surface-2); color: var(--text-2); }
   .kpi-change-label { color: var(--text-3); font-size: 11px; }
 
   /* SECTION */
@@ -147,23 +147,23 @@
   .metrics-table td { padding: 9px 12px; border-bottom: 0.5px solid var(--border); color: var(--text); white-space: nowrap; }
   .metrics-table td:not(:first-child) { text-align: right; font-family: 'DM Mono', monospace; font-size: 12px; }
   .metrics-table tr:last-child td { border-bottom: none; }
-  .metrics-table tr:hover td { background: var(--surface2); }
-  .metrics-table .cat-row td { font-weight: 600; color: var(--text-2); font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; background: var(--surface2); padding: 5px 12px; }
+  .metrics-table tr:hover td { background: var(--surface-2); }
+  .metrics-table .cat-row td { font-weight: 600; color: var(--text-2); font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; background: var(--surface-2); padding: 5px 12px; }
   .metrics-table .cat-row { cursor: pointer; user-select: none; }
   .metrics-table .cat-row:hover td { background: var(--border); }
   .cat-chevron { display: inline-block; width: 10px; height: 10px; margin-right: 8px; vertical-align: -1px; transition: transform 0.15s ease; color: var(--text-3); }
   .metrics-table .cat-row.open .cat-chevron { transform: rotate(90deg); }
   .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; max-width: 100%; }
   .table-scroll::-webkit-scrollbar { height: 6px; }
-  .table-scroll::-webkit-scrollbar-track { background: var(--surface2); border-radius: 3px; }
+  .table-scroll::-webkit-scrollbar-track { background: var(--surface-2); border-radius: 3px; }
   .table-scroll::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 3px; }
   @media (max-width: 768px) {
     .metrics-table th:first-child, .metrics-table td:first-child {
       position: sticky; left: 0; background: var(--surface); z-index: 1;
       box-shadow: 1px 0 0 var(--border);
     }
-    .metrics-table .cat-row td:first-child { background: var(--surface2); }
-    .metrics-table tr:hover td:first-child { background: var(--surface2); }
+    .metrics-table .cat-row td:first-child { background: var(--surface-2); }
+    .metrics-table tr:hover td:first-child { background: var(--surface-2); }
 
     /* NAV — compact on mobile */
     html, body { overflow-x: hidden; }
@@ -187,11 +187,11 @@
 
   /* REVENUE MIX */
   .mix-bar-wrap { margin-bottom: 6px; padding: 4px 6px; border-radius: 6px; transition: background 0.15s; cursor: default; }
-  .mix-bar-wrap:hover { background: var(--surface2); }
+  .mix-bar-wrap:hover { background: var(--surface-2); }
   .mix-bar-wrap:hover .mix-bar-label .mix-detail { color: var(--text); }
   .mix-bar-label { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-2); margin-bottom: 4px; }
   .mix-bar-label .mix-detail { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text-3); transition: color 0.15s; }
-  .mix-bar-track { height: 6px; background: var(--surface2); border-radius: 3px; overflow: hidden; }
+  .mix-bar-track { height: 6px; background: var(--surface-2); border-radius: 3px; overflow: hidden; }
   .mix-bar-fill { height: 100%; border-radius: 3px; transition: width 0.4s ease, filter 0.15s; }
   .mix-bar-wrap:hover .mix-bar-fill { filter: brightness(0.92); }
 
@@ -216,7 +216,7 @@
   .instructions ol { padding-left: 1.25rem; }
   .instructions li { font-size: 13px; color: var(--text-2); margin-bottom: 6px; line-height: 1.5; }
   .instructions li strong { color: var(--text); font-weight: 600; }
-  .format-tag { display: inline-block; background: var(--surface2); color: var(--text-2); font-family: 'DM Mono', monospace; font-size: 11px; padding: 2px 6px; border-radius: 4px; }
+  .format-tag { display: inline-block; background: var(--surface-2); color: var(--text-2); font-family: 'DM Mono', monospace; font-size: 11px; padding: 2px 6px; border-radius: 4px; }
 
   /* EMPTY STATE */
   .empty-state { text-align: center; padding: 4rem 2rem; color: var(--text-3); }
@@ -251,7 +251,7 @@
   .concept-card-value { font-size: 22px; font-weight: 600; letter-spacing: -0.03em; color: var(--text); font-family: 'DM Mono', monospace; line-height: 1.1; padding-left: 8px; }
   .concept-card-meta { display: flex; align-items: center; gap: 8px; margin-top: 8px; padding-left: 8px; font-size: 11px; }
   .concept-card-share { color: var(--text-2); font-family: 'DM Mono', monospace; font-weight: 500; }
-  .concept-card-share-bar { flex: 1; height: 4px; background: var(--surface2); border-radius: 2px; overflow: hidden; }
+  .concept-card-share-bar { flex: 1; height: 4px; background: var(--surface-2); border-radius: 2px; overflow: hidden; }
   .concept-card-share-fill { height: 100%; border-radius: 2px; transition: width 0.5s ease; }
   .concept-card-vs { display: inline-block; margin-top: 6px; margin-left: 8px; font-size: 10px; font-family: 'DM Sans', sans-serif; }
   .concept-card-vs .chg { font-size: 10px; padding: 1px 6px; }
@@ -404,7 +404,6 @@
   <div class="dashboard">
     <div class="dash-header np-page-header">
       <div>
-        <div class="dash-sub">Neighborly marketing & revenue overview</div>
         <div class="week-badge" id="weekBadge" onclick="toggleWeekCalendar(event)">
           <span class="week-badge-text">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
@@ -1403,7 +1402,6 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeHubNav(
   <div class="dashboard">
     <div class="dash-header reveal">
       <div>
-        <div class="dash-sub" id="dailyDateSub">No data loaded — click Refresh to pull from Toast</div>
         <div class="week-badge" id="dailyDateBadge" onclick="toggleDailyCalendar(event)" style="margin-top:8px">
           <span class="week-badge-text">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
@@ -1500,7 +1498,6 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeHubNav(
   <div class="dashboard">
     <div class="dash-header np-page-header">
       <div>
-        <div class="dash-sub">Weekly revenue from Jan 2025 — present &middot; 67 weeks of data</div>
       </div>
       <div class="view-toggle">
         <button class="vt-btn active" onclick="setATView('total',this)">Total revenue</button>
