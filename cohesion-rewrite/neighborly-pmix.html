@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Product Mix — Neighborly</title>
+
+<link rel="manifest" href="/manifest.json">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta name="theme-color" content="#e87142">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png">
+
+<link rel="stylesheet" href="theme.css">
+<script src="chrome.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+
+<style>
+  /* === KPI strip — slimmer, item-forward === */
+  .pmix-kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--s-3); margin-bottom: var(--s-5); }
+  @media (max-width: 900px) { .pmix-kpis { grid-template-columns: 1fr 1fr; } }
+
+  /* === Leaderboard (the new hero) === */
+  .leader-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: var(--s-3); }
+  .leader-card {
+    position: relative; padding: var(--s-4);
+    background: var(--surface);
+    border: 1px solid var(--line); border-radius: var(--r-lg);
+    transition: border-color var(--t-base) var(--easing), transform var(--t-base) var(--easing);
+    overflow: hidden;
+  }
+  .leader-card:hover { border-color: var(--line-bold); transform: translateY(-1px); }
+  .leader-rank {
+    position: absolute; top: 14px; right: 16px;
+    font-family: var(--f-mono); font-size: 28px; font-weight: 500;
+    color: var(--line-bold); letter-spacing: -0.02em;
+  }
+  .leader-cat {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-family: var(--f-eyebrow); font-weight: 600;
+    font-size: 9.5px; letter-spacing: 0.20em; text-transform: uppercase;
+    color: var(--text-3); margin-bottom: 8px;
+  }
+  .leader-cat .dot { width: 8px; height: 8px; border-radius: 50%; }
+  .leader-name {
+    font-size: 15px; font-weight: 600; color: var(--text); line-height: 1.25;
+    margin-bottom: var(--s-3); padding-right: 50px;
+    /* clamp to 2 lines */
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+    min-height: 2.5em;
+  }
+  .leader-row { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px; }
+  .leader-stat { font-family: var(--f-mono); font-size: 20px; font-weight: 500; color: var(--ink); }
+  .leader-sublabel { font-family: var(--f-eyebrow); font-weight: 600; font-size: 9.5px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--text-3); }
+  .leader-bar { height: 6px; border-radius: var(--r-pill); background: var(--surface-2); overflow: hidden; margin-top: var(--s-3); }
+  .leader-bar-fill { height: 100%; border-radius: var(--r-pill); transition: width .55s var(--easing); }
+  .leader-meta { display: flex; justify-content: space-between; font-family: var(--f-mono); font-size: var(--t-caption-sm); color: var(--text-3); margin-top: 8px; }
+
+  /* === Explorer table === */
+  .explorer-controls { display: flex; flex-wrap: wrap; gap: 8px; margin: var(--s-3) 0 var(--s-4); }
+  .search-input {
+    flex: 1 1 240px; min-width: 0;
+    padding: 8px 14px;
+    border: 1px solid var(--line-strong); border-radius: var(--r-pill);
+    background: var(--surface); font-size: var(--t-body-sm); color: var(--text);
+    outline: none;
+    transition: border-color var(--t-base) var(--easing);
+  }
+  .search-input:focus { border-color: var(--ink); }
+  .menu-filter, .sort-toggle { display: inline-flex; gap: 2px; padding: 3px; background: var(--surface-2); border-radius: var(--r-pill); overflow-x: auto; scrollbar-width: none; max-width: 100%; }
+  .menu-filter::-webkit-scrollbar, .sort-toggle::-webkit-scrollbar { display: none; }
+  .menu-filter button, .sort-toggle button {
+    padding: 6px 12px; border: none; background: transparent; cursor: pointer;
+    border-radius: var(--r-pill); font-size: var(--t-caption); font-weight: 500;
+    color: var(--text-3); white-space: nowrap; flex-shrink: 0;
+    transition: all var(--t-fast) var(--easing);
+  }
+  .menu-filter button:hover, .sort-toggle button:hover { color: var(--text); }
+  .menu-filter button.is-active, .sort-toggle button.is-active { background: var(--surface); color: var(--text); box-shadow: var(--shadow-sm); }
+
+  .item-table { width: 100%; border-collapse: collapse; }
+  .item-table th {
+    text-align: left; padding: 10px 12px;
+    font-family: var(--f-eyebrow); font-weight: 600; font-size: var(--t-eyebrow);
+    letter-spacing: 0.18em; text-transform: uppercase; color: var(--text-3);
+    border-bottom: 1px solid var(--line);
+  }
+  .item-table th.num { text-align: right; }
+  .item-table td { padding: 10px 12px; font-size: var(--t-body-sm); color: var(--text); border-bottom: 1px solid var(--line); }
+  .item-table td.num { font-family: var(--f-mono); text-align: right; }
+  .item-table tr:hover td { background: var(--surface-2); }
+  .item-table .item-cell { display: flex; flex-direction: column; gap: 2px; }
+  .item-table .item-cell .item-cat { font-family: var(--f-eyebrow); font-weight: 600; font-size: 9.5px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text-3); }
+  .item-table tr.empty td { text-align: center; color: var(--text-3); padding: var(--s-5); }
+  .qty-bar { width: 80px; height: 5px; border-radius: var(--r-pill); background: var(--surface-2); display: inline-block; vertical-align: middle; margin-left: 8px; overflow: hidden; }
+  .qty-bar-fill { height: 100%; background: var(--brand-orange); border-radius: var(--r-pill); }
+  .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 0 calc(var(--s-4) * -1); padding: 0 var(--s-4); }
+
+  /* === Concept context strip (demoted) === */
+  .concept-strip { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: var(--s-2); margin-top: var(--s-3); }
+  .concept-chip {
+    background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-md);
+    padding: 10px 12px;
+  }
+  .concept-chip-name { font-family: var(--f-eyebrow); font-weight: 600; font-size: var(--t-eyebrow); letter-spacing: 0.18em; text-transform: uppercase; color: var(--text-3); margin-bottom: 4px; display: flex; align-items: center; gap: 6px; }
+  .concept-chip-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .concept-chip-net { font-family: var(--f-mono); font-size: 16px; font-weight: 500; color: var(--ink); }
+  .concept-chip-meta { font-family: var(--f-mono); font-size: var(--t-caption-sm); color: var(--text-3); margin-top: 2px; }
+</style>
+</head>
+<body>
+
+<nav class="np-nav">
+  <a class="np-nav-brand" onclick="toggleHubNav(event)" aria-label="Open hub">
+    <img src="NeighborlyLogo.png" alt="Neighborly">
+    <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+  </a>
+  <div class="np-tabs">
+    <a class="np-tab" href="neighborly-dashboard.html">Weekly</a>
+    <a class="np-tab" href="neighborly-dashboard.html#daily">Daily</a>
+    <a class="np-tab" href="neighborly-dashboard.html#alltime">All time</a>
+    <a class="np-tab is-active">PMIX</a>
+  </div>
+  <div class="np-nav-right">
+    <button class="np-icon-btn" title="Refresh" aria-label="Refresh" onclick="loadPMIX()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg></button>
+    <a class="np-icon-btn" href="index.html" title="Back to home" aria-label="Back to home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></a>
+  </div>
+</nav>
+
+<div class="np-hub-overlay" aria-hidden="true"></div>
+<div class="np-hub" role="dialog" aria-label="Marketing Hub">
+  <div class="np-hub-label">Neighborly Marketing Hub</div>
+  <div class="np-hub-grid">
+    <a class="np-hub-card is-active" href="neighborly-dashboard.html"><div class="np-hub-card-ico" style="background:var(--brand-yellow-light)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--brand-yellow-deep)" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></div><div class="np-hub-card-title">Sales <span class="amp">&amp;</span> Performance</div><div class="np-hub-card-sub">Sales &amp; KPI tracker</div></a>
+    <a class="np-hub-card" href="neighborly-calendar.html"><div class="np-hub-card-ico" style="background:var(--brand-green-light)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--brand-green-deep)" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div><div class="np-hub-card-title">Marketing Calendar</div><div class="np-hub-card-sub">Campaigns &amp; scheduling</div></a>
+    <a class="np-hub-card" href="neighborly-assets.html"><div class="np-hub-card-ico" style="background:var(--brand-tan-light)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--brand-tan-deep)" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 010 14.14M4.93 4.93a10 10 0 000 14.14M12 2v2M12 20v2M2 12h2M20 12h2"/></svg></div><div class="np-hub-card-title">Brand Guidelines</div><div class="np-hub-card-sub">Logos, fonts &amp; templates</div></a>
+        <a class="np-hub-card" href="neighborly-social.html"><div class="np-hub-card-ico" style="background:var(--brand-blue-light)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--brand-blue-deep)" stroke-width="2"><path d="M3 12h4l3-9 4 18 3-9h4"/></svg></div><div class="np-hub-card-title">Social</div><div class="np-hub-card-sub">Reach &amp; engagement</div></a>
+    <a class="np-hub-card" href="neighborly-guests.html"><div class="np-hub-card-ico" style="background:var(--brand-lavender-light)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--brand-lavender-deep)" stroke-width="2"><circle cx="9" cy="8" r="4"/><path d="M2 21a7 7 0 0 1 14 0"/><path d="M16 3.5a4 4 0 0 1 0 8M22 21a7 7 0 0 0-5-6.7"/></svg></div><div class="np-hub-card-title">Guest Intelligence</div><div class="np-hub-card-sub">Feedback &amp; experience trends</div></a>
+  </div>
+</div>
+
+<main class="np-main">
+
+  <header class="np-page-header">
+    <div class="np-page-eyebrow" id="dateLabel">Item performance · loading…</div>
+    <h1 class="np-page-title">Top Sellers</h1>
+  </header>
+
+  <!-- Location toggle -->
+  <div class="np-page-controls" style="margin-bottom: var(--s-4)">
+    <div class="np-toggle" id="locToggle" role="tablist" aria-label="Location">
+      <button class="is-active" data-loc="total" role="tab">Both locations</button>
+      <button data-loc="wlv" role="tab">Westlake Village</button>
+      <button data-loc="bw" role="tab">Brentwood</button>
+    </div>
+  </div>
+
+  <!-- Empty-state banner shown when the selected location has no data yet -->
+  <div id="locEmpty" class="np-card" style="display:none; margin-bottom: var(--s-4); border-style: dashed; background: transparent;">
+    <div class="np-card-title" id="locEmptyTitle">No per-location export uploaded yet</div>
+    <div class="np-card-sub" id="locEmptyMsg">
+      Drop a location-specific Toast PMIX export and the breakdown for this location lights up automatically.
+      Until then, this view falls back to <strong>Both locations</strong> totals.
+    </div>
+  </div>
+
+  <!-- KPI strip -->
+  <div class="pmix-kpis">
+    <div class="np-kpi"><div class="np-kpi-label">Items sold</div><div class="np-kpi-value" id="kpiQty">—</div><div class="np-kpi-sub">units across all menus</div></div>
+    <div class="np-kpi"><div class="np-kpi-label">Top by revenue</div><div class="np-kpi-value" id="kpiByRev" style="font-size:15px; line-height:1.25">—</div><div class="np-kpi-sub" id="kpiByRevSub">—</div></div>
+    <div class="np-kpi"><div class="np-kpi-label">Top by quantity</div><div class="np-kpi-value" id="kpiByQty" style="font-size:15px; line-height:1.25">—</div><div class="np-kpi-sub" id="kpiByQtySub">—</div></div>
+    <div class="np-kpi"><div class="np-kpi-label">Avg item price</div><div class="np-kpi-value" id="kpiAvg">—</div><div class="np-kpi-sub">net per unit</div></div>
+  </div>
+
+  <!-- TOP PERFORMERS LEADERBOARD (hero) -->
+  <section class="np-card" style="margin-bottom:var(--s-4)">
+    <div class="np-card-title">Today&rsquo;s best sellers</div>
+    <div class="np-card-sub">Top 12 items by revenue — quantity bar shows volume vs the day&rsquo;s leader</div>
+    <div class="leader-grid" id="leaderGrid" style="margin-top:var(--s-3)"></div>
+  </section>
+
+  <!-- ITEM EXPLORER -->
+  <section class="np-card" style="margin-bottom:var(--s-4)">
+    <div class="np-card-title">All items</div>
+    <div class="np-card-sub">Search any item or filter by menu — sort by revenue, quantity, or price</div>
+
+    <div class="explorer-controls">
+      <input id="itemSearch" class="search-input" type="search" placeholder="Search items…">
+      <div class="sort-toggle" id="sortToggle">
+        <button class="is-active" data-sort="net">Revenue</button>
+        <button data-sort="qty">Quantity</button>
+        <button data-sort="avg">Avg price</button>
+      </div>
+    </div>
+    <div class="menu-filter" id="menuFilter" style="margin-bottom: var(--s-4)">
+      <!-- Menu chips injected by JS — first is "All" -->
+    </div>
+
+    <div class="table-wrap">
+      <table class="item-table" id="itemTable">
+        <thead>
+          <tr>
+            <th>Item</th>
+            <th class="num">Qty</th>
+            <th class="num">Net sales</th>
+            <th class="num">Avg price</th>
+          </tr>
+        </thead>
+        <tbody id="itemTbody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- CONCEPT CONTEXT (demoted) -->
+  <section class="np-card">
+    <div class="np-card-title">Concept context</div>
+    <div class="np-card-sub">Which menu the items rolled up into today</div>
+    <div class="concept-strip" id="conceptStrip"></div>
+  </section>
+
+</main>
+
+<footer class="np-foot"><span class="track-trim">Neighbors Only Portal</span></footer>
+
+<script>
+  const COLORS = ['#eace49','#e87142','#7bbd91','#6280bd','#dbc6a2','#cbc9d6','#a35bbf','#5fa9b8','#d99a3e','#88a07a','#b5654e','#3a6e9a','#c79c63','#9a7fbf','#7a9c8f'];
+  const fmt$  = n => n == null ? '—' : '$' + Math.round(n).toLocaleString();
+  const fmt$2 = n => n == null ? '—' : '$' + n.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+  const fmtN  = n => n == null ? '—' : Math.round(n).toLocaleString();
+
+  let RAW = null;          // full file: { date, date_label, locations: {total, wlv, bw}, labels }
+  let DATA = null;         // currently-rendered location payload
+  let activeLoc = 'total';
+  let conceptColor = {};   // concept name → color
+  let activeMenu = 'all';
+  let activeSort = 'net';
+  let searchQ = '';
+
+  async function loadPMIX() {
+    try {
+      const r = await fetch('pmix-data.json', { cache: 'no-store' });
+      RAW = await r.json();
+      applyLocation(activeLoc);
+    } catch (e) { console.error('PMIX load failed', e); }
+  }
+
+  function applyLocation(loc) {
+    if (!RAW) return;
+    activeLoc = loc;
+    const locs = RAW.locations || {};
+    const labels = RAW.labels || {};
+    const empty  = document.getElementById('locEmpty');
+    const main   = document.querySelectorAll('main > section, main > .pmix-kpis');
+
+    // If the selected location has no data, show the banner and fall back to "total"
+    let payload = locs[loc];
+    let fellBack = false;
+    if (!payload) {
+      payload = locs.total;
+      fellBack = true;
+    }
+    if (!payload) return; // nothing to render
+
+    document.querySelectorAll('#locToggle button').forEach(b => b.classList.toggle('is-active', b.dataset.loc === loc));
+
+    if (fellBack) {
+      empty.style.display = '';
+      document.getElementById('locEmptyTitle').textContent =
+        `No ${labels[loc] || loc} export uploaded yet`;
+    } else {
+      empty.style.display = 'none';
+    }
+
+    DATA = payload;
+    DATA.date       = RAW.date;
+    DATA.date_label = RAW.date_label;
+    DATA.locations  = (fellBack ? labels.total : (labels[loc] || labels.total));
+
+    // Rebuild concept color map for THIS location's concept list
+    conceptColor = {};
+    const sorted = [...(DATA.concepts || [])].sort((a, b) => b.net - a.net);
+    sorted.forEach((cc, i) => { conceptColor[cc.name] = COLORS[i % COLORS.length]; });
+    colorForCategory.cache = {};
+
+    render();
+  }
+
+  // Best-effort color from a Sales Category string
+  function colorForCategory(cat) {
+    if (!cat) return COLORS[14];
+    if (colorForCategory.cache[cat]) return colorForCategory.cache[cat];
+    const lower = cat.toLowerCase();
+    let hit = null;
+    for (const k of Object.keys(conceptColor)) {
+      if (lower.includes(k.toLowerCase().split(' ')[0])) { hit = conceptColor[k]; break; }
+    }
+    return (colorForCategory.cache[cat] = hit || COLORS[14]);
+  }
+
+  function render() {
+    if (!DATA) return;
+    const items = (DATA.items || []).filter(it => it.qty > 0);
+
+    document.getElementById('dateLabel').textContent =
+      `Item performance · ${DATA.date_label} · ${DATA.locations}`;
+    // (DATA.locations is now the label string for the selected location)
+
+    // KPI strip
+    const topNet = [...items].sort((a, b) => b.net - a.net)[0];
+    const topQty = [...items].sort((a, b) => b.qty - a.qty)[0];
+    document.getElementById('kpiQty').textContent     = fmtN(DATA.totalQty);
+    document.getElementById('kpiByRev').textContent   = topNet ? topNet.name : '—';
+    document.getElementById('kpiByRevSub').textContent = topNet ? `${fmt$(topNet.net)} · ${fmtN(topNet.qty)} sold` : '—';
+    document.getElementById('kpiByQty').textContent   = topQty ? topQty.name : '—';
+    document.getElementById('kpiByQtySub').textContent = topQty ? `${fmtN(topQty.qty)} sold · ${fmt$(topQty.net)}` : '—';
+    document.getElementById('kpiAvg').textContent     = DATA.totalQty ? fmt$2(DATA.totalNet / DATA.totalQty) : '—';
+
+    // Top performers leaderboard
+    const top12 = [...items].sort((a, b) => b.net - a.net).slice(0, 12);
+    const maxQty = Math.max(...top12.map(it => it.qty));
+    document.getElementById('leaderGrid').innerHTML = top12.map((it, i) => {
+      const color = colorForCategory(it.category);
+      const w = maxQty ? (it.qty / maxQty) * 100 : 0;
+      return `
+        <div class="leader-card" title="${it.name}: ${fmtN(it.qty)} sold · ${fmt$(it.net)}">
+          <span class="leader-rank">${String(i + 1).padStart(2, '0')}</span>
+          <div class="leader-cat"><span class="dot" style="background:${color}"></span>${it.category || 'Item'}</div>
+          <div class="leader-name">${it.name}</div>
+          <div class="leader-row">
+            <span class="leader-stat">${fmt$(it.net)}</span>
+            <span class="leader-sublabel">Net</span>
+          </div>
+          <div class="leader-bar"><div class="leader-bar-fill" style="width:${w.toFixed(1)}%; background:${color}"></div></div>
+          <div class="leader-meta">
+            <span>${fmtN(it.qty)} sold</span>
+            <span>${fmt$2(it.avg_price)} avg</span>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    // Menu filter chips — derived from unique sales categories
+    const cats = ['All', ...Array.from(new Set(items.map(it => it.category).filter(Boolean))).sort()];
+    document.getElementById('menuFilter').innerHTML = cats.map(c => {
+      const v = c === 'All' ? 'all' : c;
+      const cls = (v === activeMenu) ? 'is-active' : '';
+      return `<button class="${cls}" data-menu="${v.replace(/"/g, '&quot;')}">${c}</button>`;
+    }).join('');
+    document.querySelectorAll('#menuFilter button').forEach(b => {
+      b.addEventListener('click', () => {
+        activeMenu = b.dataset.menu;
+        renderTable();
+        document.querySelectorAll('#menuFilter button').forEach(x => x.classList.toggle('is-active', x === b));
+      });
+    });
+
+    // Concept context strip
+    const concepts = (DATA.concepts || []).filter(c => c.net > 0).sort((a, b) => b.net - a.net);
+    document.getElementById('conceptStrip').innerHTML = concepts.map(c => `
+      <div class="concept-chip" title="${c.name}: ${fmt$(c.net)} · ${fmtN(c.qty)} sold">
+        <div class="concept-chip-name"><span class="concept-chip-dot" style="background:${conceptColor[c.name] || COLORS[14]}"></span>${c.name}</div>
+        <div class="concept-chip-net">${fmt$(c.net)}</div>
+        <div class="concept-chip-meta">${(c.net / DATA.totalNet * 100).toFixed(1)}% · ${fmtN(c.qty)} sold</div>
+      </div>
+    `).join('');
+
+    renderTable();
+  }
+
+  function renderTable() {
+    const items = (DATA.items || []).filter(it => it.qty > 0);
+    let filtered = items;
+    if (activeMenu !== 'all') filtered = filtered.filter(it => it.category === activeMenu);
+    if (searchQ)              filtered = filtered.filter(it => it.name.toLowerCase().includes(searchQ));
+    if (activeSort === 'qty') filtered.sort((a, b) => b.qty - a.qty);
+    else if (activeSort === 'avg') filtered.sort((a, b) => b.avg_price - a.avg_price);
+    else                      filtered.sort((a, b) => b.net - a.net);
+
+    const maxQty = Math.max(...filtered.map(it => it.qty), 1);
+    const tbody = document.getElementById('itemTbody');
+    if (!filtered.length) {
+      tbody.innerHTML = '<tr class="empty"><td colspan="4">No items match those filters.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = filtered.map(it => `
+      <tr>
+        <td>
+          <div class="item-cell">
+            <span>${it.name}</span>
+            <span class="item-cat">${it.category || ''}</span>
+          </div>
+        </td>
+        <td class="num">${fmtN(it.qty)}<span class="qty-bar"><span class="qty-bar-fill" style="width:${(it.qty / maxQty * 100).toFixed(1)}%; background:${colorForCategory(it.category)}"></span></span></td>
+        <td class="num">${fmt$(it.net)}</td>
+        <td class="num">${fmt$2(it.avg_price)}</td>
+      </tr>
+    `).join('');
+  }
+
+  /* Wire search + sort */
+  document.getElementById('itemSearch').addEventListener('input', e => {
+    searchQ = e.target.value.trim().toLowerCase();
+    renderTable();
+  });
+  document.querySelectorAll('#sortToggle button').forEach(b => {
+    b.addEventListener('click', () => {
+      activeSort = b.dataset.sort;
+      document.querySelectorAll('#sortToggle button').forEach(x => x.classList.toggle('is-active', x === b));
+      renderTable();
+    });
+  });
+
+
+  // Location toggle
+  document.querySelectorAll('#locToggle button').forEach(b => {
+    b.addEventListener('click', () => applyLocation(b.dataset.loc));
+  });
+
+  loadPMIX();
+</script>
+
+</body>
+</html>

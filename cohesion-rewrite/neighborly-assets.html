@@ -33,6 +33,13 @@
     font-weight: 600;
     font-display: swap;
   }
+  @font-face {
+    font-family: 'Telegraf';
+    src: url('fonts/TelegrafRegular.otf') format('opentype');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+  }
 
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -67,6 +74,7 @@
     --f-tuppence: 'Tuppence', 'DM Serif Display', Georgia, serif;
     --f-futura: 'Futura PT Demi', 'DM Sans', system-ui, sans-serif;
     --f-sans: 'DM Sans', system-ui, -apple-system, sans-serif;
+    --f-telegraf: 'Telegraf', 'DM Sans', system-ui, sans-serif;
     --f-mono: 'DM Mono', ui-monospace, monospace;
 
     /* Spacing */
@@ -492,7 +500,9 @@
   .type-name.name-amaya { font-family: var(--f-display); text-transform: uppercase; letter-spacing: 0.04em; }
   .type-name.name-tuppence { font-family: var(--f-tuppence); font-weight: 500; font-size: 1.8rem; }
   .type-name.name-futura { font-family: var(--f-futura); font-weight: 600; text-transform: uppercase; letter-spacing: 0.18em; font-size: 1.1rem; }
-  .type-name.name-telegraf { font-family: var(--f-sans); font-weight: 500; font-size: 1.4rem; letter-spacing: -0.005em; }
+  .type-name.name-telegraf { font-family: var(--f-telegraf); font-weight: 400; font-size: 1.4rem; letter-spacing: -0.005em; }
+  .type-sample.telegraf { font-family: var(--f-telegraf); font-size: 1.05rem; line-height: 1.55; color: var(--text-2); }
+  .type-sample.telegraf em { color: var(--ink); font-style: normal; font-weight: 500; }
   .type-detail { font-family: var(--f-mono); font-size: 11px; color: var(--text-3); letter-spacing: 0.06em; line-height: 1.45; }
 
   .type-sample.amaya {
@@ -719,6 +729,7 @@
       <div class="np-hub-card-title">Brand Guidelines</div>
       <div class="np-hub-card-sub">Logos, fonts &amp; templates</div>
     </a>
+        <a class="np-hub-card" href="neighborly-social.html"><div class="np-hub-card-ico" style="background:var(--brand-blue-light)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--brand-blue-deep)" stroke-width="2"><path d="M3 12h4l3-9 4 18 3-9h4"/></svg></div><div class="np-hub-card-title">Social</div><div class="np-hub-card-sub">Reach &amp; engagement</div></a>
     <a class="np-hub-card" href="neighborly-guests.html">
       <div class="np-hub-card-ico" style="background:var(--brand-lavender-light)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--brand-lavender-deep)" stroke-width="2"><circle cx="9" cy="8" r="4"/><path d="M2 21a7 7 0 0 1 14 0"/><path d="M16 3.5a4 4 0 0 1 0 8M22 21a7 7 0 0 0-5-6.7"/></svg></div>
       <div class="np-hub-card-title">Guest Intelligence</div>
@@ -994,10 +1005,11 @@
 
         <div class="type-row">
           <div class="type-meta">
-            <span class="type-role">Body</span>
+            <span class="type-role">Body · Reference</span>
             <span class="type-name name-telegraf">Telegraf Regular</span>
+            <span class="type-detail">Specimen only</span>
           </div>
-          <p class="type-sample body">Mealtime made easy. Find something for everyone.</p>
+          <p class="type-sample telegraf">Mealtime made easy. Find something for everyone.</p>
         </div>
 
       </div>
