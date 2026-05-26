@@ -124,46 +124,7 @@
   .blob-3 { width: 380px; height: 380px; background: var(--lavender); bottom: -120px; right: 14%; opacity: 0.18; }
   .blob-4 { width: 320px; height: 320px; background: var(--orange); bottom: 28%; left: 22%; opacity: 0.07; }
 
-  /* ===== NAV ===== */
-  nav.top {
-    position: sticky; top: 0; z-index: 50;
-    background: rgba(242, 242, 242, 0.78);
-    backdrop-filter: saturate(140%) blur(16px);
-    -webkit-backdrop-filter: saturate(140%) blur(16px);
-    border-bottom: 1px solid var(--line);
-  }
-  .nav-inner {
-    max-width: 1240px; margin: 0 auto;
-    padding: 18px 32px;
-    display: flex; align-items: center; justify-content: space-between;
-    gap: var(--s-5);
-  }
-  .nav-mark {
-    font-family: var(--f-display);
-    font-size: 22px; letter-spacing: 0.02em;
-    color: var(--ink);
-    text-decoration: none;
-  }
-  .nav-mark .dot { color: var(--orange); }
-  .nav-links {
-    display: flex; gap: 4px; flex-wrap: wrap;
-  }
-  .nav-links a {
-    font-family: var(--f-futura);
-    font-size: 11.5px; font-weight: 600;
-    letter-spacing: 0.18em; text-transform: uppercase;
-    color: var(--text-2);
-    text-decoration: none;
-    padding: 8px 14px; border-radius: 999px;
-    transition: color 0.2s, background 0.2s;
-  }
-  .nav-links a:hover { color: var(--ink); background: rgba(232,113,66,0.10); }
-  .nav-links a.active { color: var(--orange); background: rgba(232,113,66,0.12); }
-
-  @media (max-width: 720px) {
-    .nav-inner { padding: 14px 20px; }
-    .nav-links { display: none; }
-  }
+  /* Nav inherits canonical np-nav / np-tab styles from theme.css */
 
   /* ===== LAYOUT ===== */
   .frame {
@@ -688,13 +649,13 @@
 <div class="blob blob-4"></div>
 
 <!-- NAV (canonical chrome from theme.css) -->
-<nav class="np-nav top">
-  <a class="np-nav-brand nav-mark" id="brandMark" onclick="toggleHubNav(event)" aria-label="Open hub">
-    <img class="nav-logo" src="NeighborlyLogo.png" alt="Neighborly">
+<nav class="np-nav">
+  <a class="np-nav-brand" id="brandMark" onclick="toggleHubNav(event)" aria-label="Open hub">
+    <img src="NeighborlyLogo.png" alt="Neighborly">
     <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
   </a>
   <!-- Section anchors (in-page nav for the brand book) -->
-  <div class="np-tabs nav-links">
+  <div class="np-tabs" id="brandTabs">
     <a class="np-tab" href="#logos">Logos</a>
     <a class="np-tab" href="#palette">Palette</a>
     <a class="np-tab" href="#type">Fonts</a>
