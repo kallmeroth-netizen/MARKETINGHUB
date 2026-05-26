@@ -299,7 +299,11 @@ a { color: inherit; text-decoration: none; }
 .settings-btn svg { width: 16px !important; height: 16px !important; }
 
 /* Page name tag in nav-right — small eyebrow that labels each page.
-   Sized to share a baseline with the 28px icon buttons beside it. */
+   On web the caps sit slightly low against the lowercase tab labels
+   because Futura PT Demi's cap-height is centered in a line-box that's
+   slightly taller than the cap itself; the half-leading at top is
+   thicker than at bottom, pushing the visible glyph down. Trim it with
+   a small negative margin-top. */
 .np-nav-page-tag {
   display: inline-flex; align-items: center;
   height: 28px;
@@ -307,6 +311,7 @@ a { color: inherit; text-decoration: none; }
   font-size: var(--t-eyebrow); letter-spacing: 0.22em; line-height: 1;
   text-transform: uppercase; color: var(--text-2);
   white-space: nowrap; padding: 0 var(--s-2);
+  margin-top: -2px;
 }
 
 .np-date-chip {
@@ -939,6 +944,7 @@ section.row    { padding: var(--s-7) 0; gap: var(--s-6); }
   .np-nav-page-tag {
     font-size: 9.5px !important; letter-spacing: 0.18em !important;
     padding: 0 4px !important;
+    margin-top: 0 !important;
     max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
   }
 
