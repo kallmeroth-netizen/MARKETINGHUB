@@ -724,7 +724,7 @@ function renderKPIs() {
 // ── REVENUE CHART ────────────────────────────────────────────────────────────
 function renderRevenueChart() {
   const rev = DATA.revenue;
-  const labels = ['Dine in','Web Pickup','In-store','Delivery','Catering','3PD','Marketplace'];
+  const labels = ['Dine in','Web Pickup','In-store Takeout','Delivery','Catering','3PD','Marketplace'];
   const vals = [getVal(rev.dineIn), getVal(rev.webPickup), getVal(rev.instore), getVal(rev.delivery), getVal(rev.catering), getVal(rev.tpd), getVal(rev.marketplace)];
   const colors = ['#eace49','#7bbd91','#cbc9d6','#6280bd','#dbc6a2','#888780','#e87142'];
 
@@ -752,7 +752,7 @@ function renderMixBars() {
   const items = [
     { label: 'Dine in',     val: getVal(mix.dineIn),    color: '#eace49' },
     { label: 'Web pickup',  val: getVal(mix.webPickup),  color: '#7bbd91' },
-    { label: 'In-store',    val: getVal(mix.instore),    color: '#cbc9d6' },
+    { label: 'In-store Takeout', val: getVal(mix.instore),  color: '#cbc9d6' },
     { label: 'Delivery',    val: getVal(mix.delivery),   color: '#6280bd' },
     { label: 'Catering',    val: getVal(mix.catering),   color: '#dbc6a2' },
     { label: '3PD',         val: getVal(mix.tpd),        color: '#888780' },
@@ -1881,7 +1881,7 @@ function renderTRMain() {
     });
   } else {
     const keys=['dineIn','webPickup','instore','delivery','tpd','marketplace'];
-    const lbls=['Dine in','Web pickup','In-store','Delivery','3PD','Marketplace'];
+    const lbls=['Dine in','Web pickup','In-store Takeout','Delivery','3PD','Marketplace'];
     const cols=['#eace49','#7bbd91','#cbc9d6','#6280bd','#dbc6a2','#e87142'];
     const datasets = keys.map((k,i)=>{
       const lk={};(HIST_CHANNELS[k]||[]).forEach(p=>{lk[p.d]=p.v;});
@@ -1920,7 +1920,7 @@ function renderTRRolling() {
 
 function renderTRMix() {
   const keys=['dineIn','webPickup','instore','delivery','tpd'];
-  const lbls=['Dine in','Web','In-store','Delivery','3PD'];
+  const lbls=['Dine in','Web','In-store Takeout','Delivery','3PD'];
   const cols=['#eace49','#7bbd91','#cbc9d6','#6280bd','#dbc6a2'];
   const allDates=HIST_TOTAL.map(x=>x.d);
   const sample=allDates.filter((_,i)=>i%4===0);

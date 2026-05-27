@@ -306,6 +306,20 @@
      ("GABY'S CAESAR AVOCADO WRAP" vs "Swedish Candy") — render every
      name in Title Case so the page reads with one voice. */
   const SMALL = new Set(['a','an','and','at','but','by','for','in','nor','of','on','or','so','the','to','vs','with']);
+  /* Concept display names — Toast ships internal codes ("MK Food",
+     "Gaby Food", "Mixtape Food"); display the team-facing brand
+     names everywhere a concept appears. */
+  const CONCEPT_DISPLAY = {
+    'mk food':       'Mini Kabob',
+    'gaby food':     "What's Gaby Cooking",
+    'mixtape food':  'Mixtape',
+  };
+  const conceptName = s => {
+    if (s == null) return s;
+    const key = String(s).toLowerCase().trim();
+    return CONCEPT_DISPLAY[key] || titleCase(s);
+  };
+
   const titleCase = s => {
     if (s == null) return s;
     return String(s).toLowerCase().replace(/[\w'’]+/g, (w, i, str) => {
@@ -470,7 +484,7 @@
     document.getElementById('menuFilter').innerHTML = cats.map(c => {
       const v = c === 'All' ? 'all' : c;
       const cls = (v === activeMenu) ? 'is-active' : '';
-      return `<button class="${cls}" data-menu="${v.replace(/"/g, '&quot;')}">${c === 'All' ? c : titleCase(c)}</button>`;
+      return `<button class="${cls}" data-menu="${v.replace(/"/g, '&quot;')}">${c === 'All' ? c : conceptName(c)}</button>`;
     }).join('');
     document.querySelectorAll('#menuFilter button').forEach(b => {
       b.addEventListener('click', () => {
@@ -487,8 +501,8 @@
       .filter(c => c.net > 0 && !NON_CONCEPT.test(c.name || ''))
       .sort((a, b) => b.net - a.net);
     document.getElementById('conceptStrip').innerHTML = concepts.map(c => `
-      <div class="concept-chip" title="${titleCase(c.name)}: ${fmt$(c.net)} · ${fmtN(c.qty)} sold">
-        <div class="concept-chip-name"><span class="concept-chip-dot" style="background:${conceptColor[c.name] || COLORS[14]}"></span>${titleCase(c.name)}</div>
+      <div class="concept-chip" title="${conceptName(c.name)}: ${fmt$(c.net)} · ${fmtN(c.qty)} sold">
+        <div class="concept-chip-name"><span class="concept-chip-dot" style="background:${conceptColor[c.name] || COLORS[14]}"></span>${conceptName(c.name)}</div>
         <div class="concept-chip-net">${fmt$(c.net)}</div>
         <div class="concept-chip-meta">${(c.net / DATA.totalNet * 100).toFixed(1)}% · ${fmtN(c.qty)} sold</div>
       </div>
@@ -517,7 +531,7 @@
         <td>
           <div class="item-cell">
             <span>${titleCase(it.name)}</span>
-            <span class="item-cat">${titleCase(it.category) || ''}</span>
+            <span class="item-cat">${conceptName(it.category) || ''}</span>
           </div>
         </td>
         <td class="num">${fmtN(it.qty)}<span class="qty-bar"><span class="qty-bar-fill" style="width:${(it.qty / maxQty * 100).toFixed(1)}%; background:${colorForCategory(it.category)}"></span></span></td>
@@ -565,7 +579,7 @@
       return `
         <div class="leader-card" title="${titleCase(it.name)}: ${fmtN(it.qty)} sold · ${fmt$(it.net)}">
           <span class="leader-rank">#${i + 1}</span>
-          <div class="leader-cat"><span class="dot" style="background:${color}"></span>${titleCase(it.category) || 'Item'}</div>
+          <div class="leader-cat"><span class="dot" style="background:${color}"></span>${conceptName(it.category) || 'Item'}</div>
           <div class="leader-name">${titleCase(it.name)}</div>
           <div class="leader-row">
             <span class="leader-stat">${primary}</span>
@@ -600,8 +614,8 @@
       const pct = totalQty ? (c.qty / totalQty * 100) : 0;
       const avg = c.qty ? c.net / c.qty : 0;
       return `
-        <div class="qty-row" title="${titleCase(c.name)}: ${fmtN(c.qty)} units · ${pct.toFixed(1)}% · ${fmt$2(avg)} avg basket">
-          <div class="qty-row-label"><span class="dot" style="background:${color}"></span><span class="name">${titleCase(c.name)}</span></div>
+        <div class="qty-row" title="${conceptName(c.name)}: ${fmtN(c.qty)} units · ${pct.toFixed(1)}% · ${fmt$2(avg)} avg basket">
+          <div class="qty-row-label"><span class="dot" style="background:${color}"></span><span class="name">${conceptName(c.name)}</span></div>
           <div class="qty-track"><div class="qty-fill" style="width:${w.toFixed(1)}%; background:${color}"></div></div>
           <div class="qty-row-meta">
             <span class="qty-num">${fmtN(c.qty)}</span>
