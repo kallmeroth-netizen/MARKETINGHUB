@@ -122,11 +122,12 @@
 
   /* ===== LAYOUT ===== */
   .frame {
-    max-width: 1240px; margin: 0 auto;
-    padding: 0 32px;
+    /* Mirror the nav's container + gutter so the logo lines up with the
+       widest text on the page across every viewport. */
+    max-width: var(--content-max); margin: 0 auto;
+    padding: 0 var(--gutter);
     position: relative; z-index: 1;
   }
-  @media (max-width: 720px) { .frame { padding: 0 20px; } }
 
   /* ===== HERO ===== */
   .hero {

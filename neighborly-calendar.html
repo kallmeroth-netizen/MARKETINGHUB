@@ -80,6 +80,12 @@ body{font-family:'DM Sans',sans-serif;overscroll-behavior:none;height:100%;backg
 .hub-card-icon svg{width:14px;height:14px}
 @media(max-width:767px){.hub-nav{top:58px!important;left:.8rem!important;right:.8rem!important;padding:1rem!important}.hub-nav-grid{grid-template-columns:repeat(2,1fr)!important}}
 
+/* Calendar content is full-bleed (no centred container), so the nav's
+   default centring math leaves the logo well inside the widest text.
+   Collapse the nav padding to a flat --gutter, matching the content's
+   horizontal padding below — logo + first calendar cell line up. */
+.np-nav{padding-left:var(--gutter)!important;padding-right:var(--gutter)!important}
+
 </style>
 <link rel="stylesheet" href="theme.css">
 <script src="chrome.js" defer></script>
@@ -1050,7 +1056,7 @@ function NeighborlyCalendar() {
       <div style={{display:'flex',flex:1,overflow:'hidden',height:'calc(100vh - 50px)'}}>
         {/* MAIN */}
         <div style={{flex:1,overflowY:'auto',minWidth:0}}>
-          <div style={{padding:isMobile?'0.75rem 0.6rem 6rem':'1.1rem 1.4rem 3rem'}}>
+          <div style={{padding:isMobile?'0.75rem var(--gutter) 6rem':'1.1rem var(--gutter) 3rem'}}>
 
             {/* THEME BANNER */}
             <div onClick={() => mode==='edit' && setThemeOpen(true)}
