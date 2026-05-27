@@ -649,12 +649,12 @@ function showPage(id, tab) {
   }
   page.classList.add('active');
 
-  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-  if (tab) tab.classList.add('active');
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active', 'is-active'));
+  if (tab) tab.classList.add('active', 'is-active');
   else {
     // Caller didn't pass a tab (e.g. deep-link from ?p=…). Highlight by id.
     const match = document.querySelector(`.nav-tab[onclick*="'${id}'"]`);
-    if (match) match.classList.add('active');
+    if (match) match.classList.add('active', 'is-active');
   }
 
   if (id === 'alltime' && typeof renderAllTime === 'function') {
