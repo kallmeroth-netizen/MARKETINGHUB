@@ -147,13 +147,18 @@
   .qty-row-meta {
     font-family: var(--f-mono); font-size: var(--t-caption);
     color: var(--text-2); white-space: nowrap;
-    display: flex; align-items: baseline; gap: 8px;
+    display: grid; grid-template-columns: auto auto auto;
+    align-items: baseline; gap: 4px 12px;
+    justify-items: end;
   }
   .qty-row-meta .qty-num { font-weight: 500; color: var(--ink); }
-  .qty-row-meta .qty-pct { color: var(--text-3); font-size: var(--t-caption-sm); }
+  .qty-row-meta .qty-pct { color: var(--text-3); font-size: var(--t-caption-sm); min-width: 44px; text-align: right; }
+  .qty-row-meta .qty-avg { color: var(--text-2); font-size: var(--t-caption-sm); padding-left: 12px; border-left: 0.5px solid var(--line); min-width: 70px; text-align: right; }
   @media (max-width: 640px) {
     .qty-row { grid-template-columns: 1fr auto; gap: var(--s-2); }
     .qty-row .qty-track { grid-column: 1 / -1; }
+    .qty-row-meta { grid-template-columns: auto auto; }
+    .qty-row-meta .qty-avg { grid-column: 1 / -1; padding-left: 0; border-left: none; padding-top: 2px; }
   }
 </style>
 </head>
@@ -252,7 +257,7 @@
   <!-- QUANTITY BY CONCEPT — graph breakdown -->
   <section class="np-card" style="margin-bottom:var(--s-4)">
     <div class="np-card-title">Quantity sold by concept</div>
-    <div class="np-card-sub">Units sold per concept today — share of total volume</div>
+    <div class="np-card-sub">Units sold, share of total volume, and average basket spend per concept</div>
     <div class="qty-by-concept" id="qtyByConcept" style="margin-top:var(--s-4)"></div>
   </section>
 
@@ -301,6 +306,20 @@
      ("GABY'S CAESAR AVOCADO WRAP" vs "Swedish Candy") — render every
      name in Title Case so the page reads with one voice. */
   const SMALL = new Set(['a','an','and','at','but','by','for','in','nor','of','on','or','so','the','to','vs','with']);
+  /* Concept display names — Toast ships internal codes ("MK Food",
+     "Gaby Food", "Mixtape Food"); display the team-facing brand
+     names everywhere a concept appears. */
+  const CONCEPT_DISPLAY = {
+    'mk food':       'Mini Kabob',
+    'gaby food':     "What's Gaby Cooking",
+    'mixtape food':  'Mixtape',
+  };
+  const conceptName = s => {
+    if (s == null) return s;
+    const key = String(s).toLowerCase().trim();
+    return CONCEPT_DISPLAY[key] || titleCase(s);
+  };
+
   const titleCase = s => {
     if (s == null) return s;
     return String(s).toLowerCase().replace(/[\w'’]+/g, (w, i, str) => {
@@ -465,7 +484,7 @@
     document.getElementById('menuFilter').innerHTML = cats.map(c => {
       const v = c === 'All' ? 'all' : c;
       const cls = (v === activeMenu) ? 'is-active' : '';
-      return `<button class="${cls}" data-menu="${v.replace(/"/g, '&quot;')}">${c === 'All' ? c : titleCase(c)}</button>`;
+      return `<button class="${cls}" data-menu="${v.replace(/"/g, '&quot;')}">${c === 'All' ? c : conceptName(c)}</button>`;
     }).join('');
     document.querySelectorAll('#menuFilter button').forEach(b => {
       b.addEventListener('click', () => {
@@ -475,11 +494,15 @@
       });
     });
 
-    // Concept context strip
-    const concepts = (DATA.concepts || []).filter(c => c.net > 0).sort((a, b) => b.net - a.net);
+    // Concept context strip — drop operational catch-all buckets so the
+    // summary only shows real culinary concepts.
+    const NON_CONCEPT = /^(no sales category|misc non sales)$/i;
+    const concepts = (DATA.concepts || [])
+      .filter(c => c.net > 0 && !NON_CONCEPT.test(c.name || ''))
+      .sort((a, b) => b.net - a.net);
     document.getElementById('conceptStrip').innerHTML = concepts.map(c => `
-      <div class="concept-chip" title="${titleCase(c.name)}: ${fmt$(c.net)} · ${fmtN(c.qty)} sold">
-        <div class="concept-chip-name"><span class="concept-chip-dot" style="background:${conceptColor[c.name] || COLORS[14]}"></span>${titleCase(c.name)}</div>
+      <div class="concept-chip" title="${conceptName(c.name)}: ${fmt$(c.net)} · ${fmtN(c.qty)} sold">
+        <div class="concept-chip-name"><span class="concept-chip-dot" style="background:${conceptColor[c.name] || COLORS[14]}"></span>${conceptName(c.name)}</div>
         <div class="concept-chip-net">${fmt$(c.net)}</div>
         <div class="concept-chip-meta">${(c.net / DATA.totalNet * 100).toFixed(1)}% · ${fmtN(c.qty)} sold</div>
       </div>
@@ -508,7 +531,7 @@
         <td>
           <div class="item-cell">
             <span>${titleCase(it.name)}</span>
-            <span class="item-cat">${titleCase(it.category) || ''}</span>
+            <span class="item-cat">${conceptName(it.category) || ''}</span>
           </div>
         </td>
         <td class="num">${fmtN(it.qty)}<span class="qty-bar"><span class="qty-bar-fill" style="width:${(it.qty / maxQty * 100).toFixed(1)}%; background:${colorForCategory(it.category)}"></span></span></td>
@@ -556,7 +579,7 @@
       return `
         <div class="leader-card" title="${titleCase(it.name)}: ${fmtN(it.qty)} sold · ${fmt$(it.net)}">
           <span class="leader-rank">#${i + 1}</span>
-          <div class="leader-cat"><span class="dot" style="background:${color}"></span>${titleCase(it.category) || 'Item'}</div>
+          <div class="leader-cat"><span class="dot" style="background:${color}"></span>${conceptName(it.category) || 'Item'}</div>
           <div class="leader-name">${titleCase(it.name)}</div>
           <div class="leader-row">
             <span class="leader-stat">${primary}</span>
@@ -573,7 +596,13 @@
   }
 
   function renderQtyByConcept() {
-    const concepts = (DATA.concepts || []).filter(c => c.qty > 0).sort((a, b) => b.qty - a.qty);
+    // Filter out operational catch-all buckets (Toast ships rows like
+    // "No Sales Category" / "Misc Non Sales" that mix odds-and-ends and
+    // shouldn't sit alongside real concepts).
+    const NON_CONCEPT = /^(no sales category|misc non sales)$/i;
+    const concepts = (DATA.concepts || [])
+      .filter(c => c.qty > 0 && c.net > 0 && !NON_CONCEPT.test(c.name || ''))
+      .sort((a, b) => b.qty - a.qty);
     const totalQty = concepts.reduce((s, c) => s + c.qty, 0);
     const maxQty = concepts.length ? concepts[0].qty : 0;
     const wrap = document.getElementById('qtyByConcept');
@@ -583,11 +612,16 @@
       const color = conceptColor[c.name] || COLORS[14];
       const w = maxQty ? (c.qty / maxQty) * 100 : 0;
       const pct = totalQty ? (c.qty / totalQty * 100) : 0;
+      const avg = c.qty ? c.net / c.qty : 0;
       return `
-        <div class="qty-row" title="${titleCase(c.name)}: ${fmtN(c.qty)} units · ${pct.toFixed(1)}%">
-          <div class="qty-row-label"><span class="dot" style="background:${color}"></span><span class="name">${titleCase(c.name)}</span></div>
+        <div class="qty-row" title="${conceptName(c.name)}: ${fmtN(c.qty)} units · ${pct.toFixed(1)}% · ${fmt$2(avg)} avg basket">
+          <div class="qty-row-label"><span class="dot" style="background:${color}"></span><span class="name">${conceptName(c.name)}</span></div>
           <div class="qty-track"><div class="qty-fill" style="width:${w.toFixed(1)}%; background:${color}"></div></div>
-          <div class="qty-row-meta"><span class="qty-num">${fmtN(c.qty)}</span><span class="qty-pct">${pct.toFixed(1)}%</span></div>
+          <div class="qty-row-meta">
+            <span class="qty-num">${fmtN(c.qty)}</span>
+            <span class="qty-pct">${pct.toFixed(1)}%</span>
+            <span class="qty-avg">${fmt$2(avg)} avg</span>
+          </div>
         </div>
       `;
     }).join('');
