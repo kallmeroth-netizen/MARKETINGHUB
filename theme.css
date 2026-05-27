@@ -674,6 +674,12 @@ a { color: inherit; text-decoration: none; }
 }
 .kpi-label { font-family: var(--f-eyebrow); font-weight: 600; font-size: var(--t-eyebrow); letter-spacing: 0.18em; text-transform: uppercase; color: var(--text-3); }
 .kpi-value { font-family: var(--f-mono); font-weight: 500; font-size: var(--t-mono-lg); color: var(--ink); line-height: 1.1; margin: 6px 0 4px; }
+.kpi-foot  { font-family: var(--f-mono); font-size: var(--t-meta); color: var(--text-3); margin-top: 6px; }
+.chart-source {
+  font-family: var(--f-mono); font-size: var(--t-meta);
+  color: var(--text-3); margin-top: var(--s-3);
+  padding-top: var(--s-2); border-top: 0.5px solid var(--line);
+}
 .kpi-sub   { font-size: var(--t-caption-sm); color: var(--text-3); }
 
 .card-title { font-size: var(--t-card-title); font-weight: 600; color: var(--text); margin-bottom: 4px; }
