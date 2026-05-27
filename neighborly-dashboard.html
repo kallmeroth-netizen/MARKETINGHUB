@@ -299,7 +299,7 @@
   <div class="np-tabs nav-tabs" id="navTabsSales" style="display:none">
     <a class="np-tab nav-tab is-active active" id="dailyNavTab" onclick="showPage('daily', this)">Daily sales</a>
     <a class="np-tab nav-tab" id="trendsNavTab" onclick="showPage('trends', this)">Sales trends</a>
-    <a class="np-tab nav-tab" href="neighborly-pmix.html">Menu mix</a>
+    <a class="np-tab nav-tab" href="neighborly-pmix.html">Product mix</a>
   </div>
 
   <div class="np-nav-right nav-right">
@@ -345,7 +345,7 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="#5a7a5a" stroke-width="2" stroke-linecap="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>
       </div>
       <div class="hub-card-title">Sales & Pmix</div>
-      <div class="hub-card-sub">Daily sales & menu mix</div>
+      <div class="hub-card-sub">Daily sales & product mix</div>
     </a>
 
     <a class="hub-card" href="neighborly-calendar.html">
@@ -1470,7 +1470,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeHubNav(
       <div class="view-toggle">
         <button class="vt-btn active" onclick="setDailyLoc('wlv',this)">Westlake Village</button>
         <button class="vt-btn" onclick="setDailyLoc('bw',this)">Brentwood</button>
-        <button class="vt-btn" onclick="setDailyLoc('total',this)">Total</button>
+        <button class="vt-btn" onclick="setDailyLoc('total',this)">All Locations</button>
       </div>
     </div>
 
@@ -2376,7 +2376,7 @@ function renderDailyDashboard() {
   const data = DAILY[dailyLoc];
   const locName = dailyLoc === 'wlv' ? 'Westlake Village'
                 : dailyLoc === 'bw'  ? 'Brentwood'
-                : 'Total — All locations';
+                : 'All Locations';
   const sub = document.getElementById('dailyDateSub');
   if (sub) sub.textContent = data
     ? `${DAILY_META.date || 'Today'}  ·  ${locName}`

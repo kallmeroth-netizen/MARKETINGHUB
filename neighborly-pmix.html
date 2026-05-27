@@ -97,16 +97,64 @@
   .qty-bar-fill { height: 100%; background: var(--brand-orange); border-radius: var(--r-pill); }
   .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 0 calc(var(--s-4) * -1); padding: 0 var(--s-4); }
 
-  /* === Concept context strip (demoted) === */
-  .concept-strip { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: var(--s-2); margin-top: var(--s-3); }
-  .concept-chip {
-    background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-md);
-    padding: 10px 12px;
+  /* === Concept summary — page-opening overview === */
+  .concept-summary {
+    margin-bottom: var(--s-4);
+    padding: var(--s-3) 0 var(--s-4);
+    border-bottom: 0.5px solid var(--line-strong);
   }
+  .concept-summary-eyebrow {
+    font-family: var(--f-eyebrow); font-weight: 600;
+    font-size: var(--t-eyebrow); letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--text-3); margin-bottom: var(--s-3);
+    display: flex; align-items: center; gap: var(--s-2);
+  }
+  .concept-summary-eyebrow::after { content: ''; flex: 1; height: 0.5px; background: var(--line); }
+  .concept-strip { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: var(--s-3); }
+  .concept-chip {
+    padding: 4px 0 4px 12px;
+    border-left: 2px solid var(--line-strong);
+    transition: border-color var(--t-base) var(--easing);
+  }
+  .concept-chip:hover { border-left-color: var(--ink); }
   .concept-chip-name { font-family: var(--f-eyebrow); font-weight: 600; font-size: var(--t-eyebrow); letter-spacing: 0.18em; text-transform: uppercase; color: var(--text-3); margin-bottom: 4px; display: flex; align-items: center; gap: 6px; }
   .concept-chip-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
   .concept-chip-net { font-family: var(--f-mono); font-size: 16px; font-weight: 500; color: var(--ink); }
   .concept-chip-meta { font-family: var(--f-mono); font-size: var(--t-caption-sm); color: var(--text-3); margin-top: 2px; }
+
+  /* === Quantity by concept — graph === */
+  .qty-by-concept { display: flex; flex-direction: column; gap: var(--s-3); }
+  .qty-row {
+    display: grid;
+    grid-template-columns: minmax(120px, 180px) 1fr auto;
+    align-items: center;
+    gap: var(--s-3);
+    padding: 6px 0;
+  }
+  .qty-row-label {
+    display: flex; align-items: center; gap: 8px;
+    font-family: var(--f-eyebrow); font-weight: 600;
+    font-size: var(--t-eyebrow); letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--text-2); min-width: 0;
+  }
+  .qty-row-label .dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+  .qty-row-label .name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .qty-track { height: 10px; border-radius: var(--r-pill); background: var(--surface-2); overflow: hidden; }
+  .qty-fill {
+    height: 100%; border-radius: var(--r-pill);
+    transition: width 0.55s var(--easing);
+  }
+  .qty-row-meta {
+    font-family: var(--f-mono); font-size: var(--t-caption);
+    color: var(--text-2); white-space: nowrap;
+    display: flex; align-items: baseline; gap: 8px;
+  }
+  .qty-row-meta .qty-num { font-weight: 500; color: var(--ink); }
+  .qty-row-meta .qty-pct { color: var(--text-3); font-size: var(--t-caption-sm); }
+  @media (max-width: 640px) {
+    .qty-row { grid-template-columns: 1fr auto; gap: var(--s-2); }
+    .qty-row .qty-track { grid-column: 1 / -1; }
+  }
 </style>
 </head>
 <body>
@@ -118,7 +166,7 @@
   <div class="np-tabs">
     <a class="np-tab" href="neighborly-dashboard.html?p=daily">Daily sales</a>
     <a class="np-tab" href="neighborly-dashboard.html?p=trends">Sales trends</a>
-    <a class="np-tab is-active">Menu mix</a>
+    <a class="np-tab is-active">Product mix</a>
   </div>
   <div class="np-nav-right">
     <span class="np-nav-page-tag">Sales &amp; Pmix</span>
@@ -133,7 +181,7 @@
   <div class="np-hub-grid">
     <a class="np-hub-card" href="index.html"><div class="np-hub-card-ico" style="background:var(--surface-2)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--text)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12l9-9 9 9"/><path d="M5 10v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V10"/></svg></div><div class="np-hub-card-title">Home</div><div class="np-hub-card-sub">Marketing Hub overview</div></a>
     <a class="np-hub-card" href="neighborly-dashboard.html"><div class="np-hub-card-ico" style="background:var(--brand-yellow-light)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--brand-yellow-deep)" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></div><div class="np-hub-card-title">Performance Marketing</div><div class="np-hub-card-sub">Weekly &amp; all-time KPIs</div></a>
-    <a class="np-hub-card is-active" href="neighborly-pmix.html"><div class="np-hub-card-ico" style="background:#e3ece3"><svg viewBox="0 0 24 24" fill="none" stroke="#5a7a5a" stroke-width="2" stroke-linecap="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></div><div class="np-hub-card-title">Sales &amp; Pmix</div><div class="np-hub-card-sub">Daily sales &amp; menu mix</div></a>
+    <a class="np-hub-card is-active" href="neighborly-pmix.html"><div class="np-hub-card-ico" style="background:#e3ece3"><svg viewBox="0 0 24 24" fill="none" stroke="#5a7a5a" stroke-width="2" stroke-linecap="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></div><div class="np-hub-card-title">Sales &amp; Pmix</div><div class="np-hub-card-sub">Daily sales &amp; product mix</div></a>
     <a class="np-hub-card" href="neighborly-calendar.html"><div class="np-hub-card-ico" style="background:var(--brand-green-light)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--brand-green-deep)" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div><div class="np-hub-card-title">Marketing Calendar</div><div class="np-hub-card-sub">Campaigns &amp; scheduling</div></a>
     <a class="np-hub-card" href="neighborly-assets.html"><div class="np-hub-card-ico" style="background:var(--brand-tan-light)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--brand-tan-deep)" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 010 14.14M4.93 4.93a10 10 0 000 14.14M12 2v2M12 20v2M2 12h2M20 12h2"/></svg></div><div class="np-hub-card-title">Brand Guidelines</div><div class="np-hub-card-sub">Logos, fonts &amp; templates</div></a>
         <a class="np-hub-card" href="neighborly-social.html"><div class="np-hub-card-ico" style="background:var(--brand-blue-light)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--brand-blue-deep)" stroke-width="2"><path d="M3 12h4l3-9 4 18 3-9h4"/></svg></div><div class="np-hub-card-title">Social</div><div class="np-hub-card-sub">Reach &amp; engagement</div></a>
@@ -153,9 +201,9 @@
         <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
       </button>
       <div class="np-toggle" id="locToggle" role="tablist" aria-label="Location">
-        <button class="is-active" data-loc="total" role="tab">Both locations</button>
         <button data-loc="wlv" role="tab">Westlake Village</button>
         <button data-loc="bw" role="tab">Brentwood</button>
+        <button class="is-active" data-loc="total" role="tab">All Locations</button>
       </div>
     </div>
   </div>
@@ -168,9 +216,15 @@
     <div class="np-card-title" id="locEmptyTitle">No per-location export uploaded yet</div>
     <div class="np-card-sub" id="locEmptyMsg">
       Drop a location-specific Toast PMIX export and the breakdown for this location lights up automatically.
-      Until then, this view falls back to <strong>Both locations</strong> totals.
+      Until then, this view falls back to <strong>All Locations</strong> totals.
     </div>
   </div>
+
+  <!-- CONCEPT SUMMARY — page-opening overview that sets the tone -->
+  <section class="concept-summary">
+    <div class="concept-summary-eyebrow">Concept summary</div>
+    <div class="concept-strip" id="conceptStrip"></div>
+  </section>
 
   <!-- KPI strip -->
   <div class="pmix-kpis">
@@ -182,9 +236,24 @@
 
   <!-- TOP PERFORMERS LEADERBOARD (hero) -->
   <section class="np-card" style="margin-bottom:var(--s-4)">
-    <div class="np-card-title">Today&rsquo;s best sellers</div>
-    <div class="np-card-sub">Top 12 items by revenue — quantity bar shows volume vs the day&rsquo;s leader</div>
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:var(--s-3);flex-wrap:wrap">
+      <div>
+        <div class="np-card-title">Today&rsquo;s best sellers</div>
+        <div class="np-card-sub" id="leaderSub">Top 12 items by revenue — quantity bar shows volume vs the day&rsquo;s leader</div>
+      </div>
+      <div class="sort-toggle" id="leaderToggle" role="tablist" aria-label="Leaderboard sort">
+        <button class="is-active" data-leader="net" role="tab">By revenue</button>
+        <button data-leader="qty" role="tab">By quantity</button>
+      </div>
+    </div>
     <div class="leader-grid" id="leaderGrid" style="margin-top:var(--s-3)"></div>
+  </section>
+
+  <!-- QUANTITY BY CONCEPT — graph breakdown -->
+  <section class="np-card" style="margin-bottom:var(--s-4)">
+    <div class="np-card-title">Quantity sold by concept</div>
+    <div class="np-card-sub">Units sold per concept today — share of total volume</div>
+    <div class="qty-by-concept" id="qtyByConcept" style="margin-top:var(--s-4)"></div>
   </section>
 
   <!-- ITEM EXPLORER -->
@@ -219,13 +288,6 @@
     </div>
   </section>
 
-  <!-- CONCEPT CONTEXT (demoted) -->
-  <section class="np-card">
-    <div class="np-card-title">Concept context</div>
-    <div class="np-card-sub">Which menu the items rolled up into today</div>
-    <div class="concept-strip" id="conceptStrip"></div>
-  </section>
-
 </main>
 
 <footer class="np-foot"><span class="track-trim">Neighbors Only Portal</span></footer>
@@ -257,6 +319,7 @@
   let conceptColor = {};   // concept name → color
   let activeMenu = 'all';
   let activeSort = 'net';
+  let leaderSort = 'net';  // 'net' | 'qty' — drives the best-sellers leaderboard
   let searchQ = '';
 
   async function loadPMIX() {
@@ -345,9 +408,16 @@
     DATA.date_label = day.date_label;
     DATA.locations  = (fellBack ? labels.total : (labels[loc] || labels.total));
 
-    // Strip internal-ops rows (e.g. TABLE NUMBER) so they never enter rankings
+    // Strip internal-ops rows (table-number prompts, utensil flags, curbside,
+    // 3PD info, etc.) so they never enter rankings or the product breakdown.
     const EXCLUDED_ITEMS = new Set(['TABLE NUMBER']);
-    const keep = it => it && !EXCLUDED_ITEMS.has((it.name || '').toUpperCase());
+    const EXCLUDED_CATEGORY = /^(no sales category|misc non sales)$/i;
+    const keep = it => {
+      if (!it) return false;
+      if (EXCLUDED_ITEMS.has((it.name || '').toUpperCase())) return false;
+      if (EXCLUDED_CATEGORY.test(it.category || '')) return false;
+      return true;
+    };
     DATA.items         = (DATA.items || []).filter(keep);
     DATA.topItemsByNet = (DATA.topItemsByNet || []).filter(keep);
     DATA.topItemsByQty = (DATA.topItemsByQty || []).filter(keep);
@@ -387,29 +457,8 @@
     document.getElementById('kpiByQtySub').textContent = topQty ? `${fmtN(topQty.qty)} sold · ${fmt$(topQty.net)}` : '—';
     document.getElementById('kpiAvg').textContent     = DATA.totalQty ? fmt$2(DATA.totalNet / DATA.totalQty) : '—';
 
-    // Top performers leaderboard
-    const top12 = [...items].sort((a, b) => b.net - a.net).slice(0, 12);
-    const maxQty = Math.max(...top12.map(it => it.qty));
-    document.getElementById('leaderGrid').innerHTML = top12.map((it, i) => {
-      const color = colorForCategory(it.category);
-      const w = maxQty ? (it.qty / maxQty) * 100 : 0;
-      return `
-        <div class="leader-card" title="${titleCase(it.name)}: ${fmtN(it.qty)} sold · ${fmt$(it.net)}">
-          <span class="leader-rank">#${i + 1}</span>
-          <div class="leader-cat"><span class="dot" style="background:${color}"></span>${titleCase(it.category) || 'Item'}</div>
-          <div class="leader-name">${titleCase(it.name)}</div>
-          <div class="leader-row">
-            <span class="leader-stat">${fmt$(it.net)}</span>
-            <span class="leader-sublabel">Net</span>
-          </div>
-          <div class="leader-bar"><div class="leader-bar-fill" style="width:${w.toFixed(1)}%; background:${color}"></div></div>
-          <div class="leader-meta">
-            <span>${fmtN(it.qty)} sold</span>
-            <span>${fmt$2(it.avg_price)} avg</span>
-          </div>
-        </div>
-      `;
-    }).join('');
+    renderLeaderboard(items);
+    renderQtyByConcept();
 
     // Menu filter chips — derived from unique sales categories
     const cats = ['All', ...Array.from(new Set(items.map(it => it.category).filter(Boolean))).sort()];
@@ -481,6 +530,68 @@
       renderTable();
     });
   });
+  document.querySelectorAll('#leaderToggle button').forEach(b => {
+    b.addEventListener('click', () => {
+      leaderSort = b.dataset.leader;
+      document.querySelectorAll('#leaderToggle button').forEach(x => x.classList.toggle('is-active', x === b));
+      if (DATA) renderLeaderboard((DATA.items || []).filter(it => it.qty > 0));
+    });
+  });
+
+  function renderLeaderboard(items) {
+    const sortKey = leaderSort === 'qty' ? 'qty' : 'net';
+    const top12 = [...items].sort((a, b) => b[sortKey] - a[sortKey]).slice(0, 12);
+    const maxOther = Math.max(...top12.map(it => sortKey === 'net' ? it.qty : it.net));
+    document.getElementById('leaderSub').textContent = sortKey === 'qty'
+      ? 'Top 12 items by units sold — revenue bar shows dollar share vs the day’s leader'
+      : 'Top 12 items by revenue — quantity bar shows volume vs the day’s leader';
+    document.getElementById('leaderGrid').innerHTML = top12.map((it, i) => {
+      const color = colorForCategory(it.category);
+      const primary  = sortKey === 'qty' ? `${fmtN(it.qty)} sold` : fmt$(it.net);
+      const primaryL = sortKey === 'qty' ? 'Units' : 'Net';
+      const barVal = sortKey === 'qty' ? it.net : it.qty;
+      const w = maxOther ? (barVal / maxOther) * 100 : 0;
+      const metaLeft  = sortKey === 'qty' ? fmt$(it.net) + ' net' : `${fmtN(it.qty)} sold`;
+      const metaRight = `${fmt$2(it.avg_price)} avg`;
+      return `
+        <div class="leader-card" title="${titleCase(it.name)}: ${fmtN(it.qty)} sold · ${fmt$(it.net)}">
+          <span class="leader-rank">#${i + 1}</span>
+          <div class="leader-cat"><span class="dot" style="background:${color}"></span>${titleCase(it.category) || 'Item'}</div>
+          <div class="leader-name">${titleCase(it.name)}</div>
+          <div class="leader-row">
+            <span class="leader-stat">${primary}</span>
+            <span class="leader-sublabel">${primaryL}</span>
+          </div>
+          <div class="leader-bar"><div class="leader-bar-fill" style="width:${w.toFixed(1)}%; background:${color}"></div></div>
+          <div class="leader-meta">
+            <span>${metaLeft}</span>
+            <span>${metaRight}</span>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  function renderQtyByConcept() {
+    const concepts = (DATA.concepts || []).filter(c => c.qty > 0).sort((a, b) => b.qty - a.qty);
+    const totalQty = concepts.reduce((s, c) => s + c.qty, 0);
+    const maxQty = concepts.length ? concepts[0].qty : 0;
+    const wrap = document.getElementById('qtyByConcept');
+    if (!wrap) return;
+    if (!concepts.length) { wrap.innerHTML = '<div class="np-card-sub">No concept volume to show yet.</div>'; return; }
+    wrap.innerHTML = concepts.map(c => {
+      const color = conceptColor[c.name] || COLORS[14];
+      const w = maxQty ? (c.qty / maxQty) * 100 : 0;
+      const pct = totalQty ? (c.qty / totalQty * 100) : 0;
+      return `
+        <div class="qty-row" title="${titleCase(c.name)}: ${fmtN(c.qty)} units · ${pct.toFixed(1)}%">
+          <div class="qty-row-label"><span class="dot" style="background:${color}"></span><span class="name">${titleCase(c.name)}</span></div>
+          <div class="qty-track"><div class="qty-fill" style="width:${w.toFixed(1)}%; background:${color}"></div></div>
+          <div class="qty-row-meta"><span class="qty-num">${fmtN(c.qty)}</span><span class="qty-pct">${pct.toFixed(1)}%</span></div>
+        </div>
+      `;
+    }).join('');
+  }
 
 
   // Location toggle

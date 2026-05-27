@@ -568,9 +568,9 @@ nav{background:var(--surface);border-bottom:.5px solid var(--border-strong);padd
     </div>
   </div>
   <div class="loc-toggle" id="locToggle">
-    <button type="button" class="lt-btn active" data-location="all" onclick="setLocationFilter('all',this,event)">All locations</button>
     <button type="button" class="lt-btn" data-location="westlake" onclick="setLocationFilter('westlake',this,event)">Westlake Village</button>
     <button type="button" class="lt-btn" data-location="brentwood" onclick="setLocationFilter('brentwood',this,event)">Brentwood</button>
+    <button type="button" class="lt-btn active" data-location="all" onclick="setLocationFilter('all',this,event)">All Locations</button>
   </div>
 </header>
 
@@ -613,7 +613,7 @@ nav{background:var(--surface);border-bottom:.5px solid var(--border-strong);padd
         </svg>
       </div>
       <div class="hub-card-title">Sales & Pmix</div>
-      <div class="hub-card-sub">Daily sales & menu mix</div>
+      <div class="hub-card-sub">Daily sales & product mix</div>
     </a>
 
     <!-- 2. Marketing Calendar -->
@@ -685,9 +685,9 @@ nav{background:var(--surface);border-bottom:.5px solid var(--border-strong);padd
       </div>
     </div>
     <div style="display:flex;gap:16px;margin:10px 0 4px;flex-wrap:wrap">
-      <div style="display:flex;align-items:center;gap:5px;font-size:11.5px;color:var(--text2)"><span style="display:inline-block;width:20px;height:2.5px;background:var(--text);border-radius:2px"></span>All locations</div>
       <div style="display:flex;align-items:center;gap:5px;font-size:11.5px;color:var(--text2)"><span style="display:inline-block;width:20px;height:2.5px;background:var(--green);border-radius:2px"></span>Westlake Village</div>
       <div style="display:flex;align-items:center;gap:5px;font-size:11.5px;color:var(--text2)"><span style="display:inline-block;width:20px;height:2.5px;background:var(--blue);border-radius:2px"></span>Brentwood</div>
+      <div style="display:flex;align-items:center;gap:5px;font-size:11.5px;color:var(--text2)"><span style="display:inline-block;width:20px;height:2.5px;background:var(--text);border-radius:2px"></span>All Locations</div>
     </div>
     <div style="position:relative;width:100%;height:220px;margin-top:8px">
       <canvas id="ovRatingChart" style="width:100%;height:100%"></canvas>
@@ -740,9 +740,9 @@ nav{background:var(--surface);border-bottom:.5px solid var(--border-strong);padd
     </div>
     <!-- Legend -->
     <div style="display:flex;gap:16px;margin:10px 0 4px;flex-wrap:wrap">
-      <div style="display:flex;align-items:center;gap:5px;font-size:11.5px;color:var(--text2)"><span style="display:inline-block;width:20px;height:2.5px;background:var(--td);border-radius:2px"></span>All locations</div>
       <div style="display:flex;align-items:center;gap:5px;font-size:11.5px;color:var(--text2)"><span style="display:inline-block;width:20px;height:2.5px;background:var(--green);border-radius:2px"></span>Westlake Village</div>
       <div style="display:flex;align-items:center;gap:5px;font-size:11.5px;color:var(--text2)"><span style="display:inline-block;width:20px;height:2.5px;background:var(--blue);border-radius:2px"></span>Brentwood</div>
+      <div style="display:flex;align-items:center;gap:5px;font-size:11.5px;color:var(--text2)"><span style="display:inline-block;width:20px;height:2.5px;background:var(--td);border-radius:2px"></span>All Locations</div>
     </div>
     <div style="position:relative;width:100%;height:220px;margin-top:8px">
       <canvas id="ratingChart" style="width:100%;height:100%"></canvas>
@@ -1344,7 +1344,7 @@ function rangeLabelText(){
 function locLabelText(){
   return locationFilter==='westlake' ? 'Westlake Village'
        : locationFilter==='brentwood' ? 'Brentwood'
-       : 'Both locations';
+       : 'All Locations';
 }
 
 function renderOverview(){
@@ -1949,7 +1949,7 @@ var lastSyncSeconds = 0;
 function renderLiveFeed(){
   var pool = LIVE_REVIEWS.filter(function(r){ return locMatch(r) && dateMatchReview(r); });
   var rangeLabel = (dateFrom||dateTo)?((dateFrom||'start')+' → '+(dateTo||'today')):'all time';
-  var locLabel = locationFilter==='westlake'?'Westlake Village':locationFilter==='brentwood'?'Brentwood':'both locations';
+  var locLabel = locationFilter==='westlake'?'Westlake Village':locationFilter==='brentwood'?'Brentwood':'all locations';
 
   var liveEl = document.getElementById('reviews-live');
   if(!liveEl) return;
