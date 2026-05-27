@@ -36,7 +36,7 @@
   /* NAV */
   nav { background: var(--surface); border-bottom: 0.5px solid var(--border-strong); padding: 0 2rem; display: flex; align-items: center; justify-content: space-between; height: 52px; position: sticky; top: 0; z-index: 100; }
   .nav-brand { display: flex; align-items: center; position: relative; }
-  .nav-logo { height: 22px; width: auto; display: block; cursor: pointer; }
+  .nav-logo { height: 24px; width: auto; display: block; cursor: pointer; }
 
   /* HUB NAV OVERLAY */
   .hub-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.25); z-index: 150; opacity: 0; pointer-events: none; transition: opacity 0.2s ease; }
@@ -169,7 +169,7 @@
     nav { padding: 0 0.75rem; gap: 4px; }
     .nav-tab { padding: 7px 10px; font-size: 11.5px; }
     .nav-right { gap: 6px; }
-    .nav-logo { height: 18px; }
+    .nav-logo { height: 20px; }
     .daily-last-updated { display: none; }
     .upload-btn { padding: 6px 8px; font-size: 0; gap: 0; }
     .upload-btn svg { width: 14px; height: 14px; }
@@ -188,8 +188,14 @@
   .mix-bar-wrap { margin-bottom: 6px; padding: 4px 6px; border-radius: 6px; transition: background 0.15s; cursor: default; }
   .mix-bar-wrap:hover { background: var(--surface-2); }
   .mix-bar-wrap:hover .mix-bar-label .mix-detail { color: var(--text); }
-  .mix-bar-label { display: flex; justify-content: space-between; font-size: var(--t-caption); color: var(--text-2); margin-bottom: 4px; }
-  .mix-bar-label .mix-detail { font-family: var(--f-mono); font-size: var(--t-caption-sm); color: var(--text-3); transition: color 0.15s; }
+  .mix-bar-label { display: flex; justify-content: space-between; align-items: baseline; font-size: var(--t-caption); color: var(--text-2); margin-bottom: 4px; gap: 8px; }
+  .mix-bar-label .mix-detail { display: inline-flex; align-items: baseline; gap: 8px; font-family: var(--f-mono); font-size: var(--t-caption-sm); color: var(--text-3); transition: color 0.15s; }
+  .mix-bar-label .mix-pct { font-size: var(--t-caption); color: var(--text); }
+  .mix-bar-label .mix-delta { font-weight: 600; padding: 1px 6px; border-radius: 100px; font-size: 10px; letter-spacing: 0.02em; }
+  .mix-bar-label .mix-delta.pct-pos { background: var(--brand-green-light); color: #085041; }
+  .mix-bar-label .mix-delta.pct-neg { background: var(--brand-orange-light); color: #a32d2d; }
+  .mix-bar-label .mix-delta.pct-neu { background: var(--surface-2); color: var(--text-3); }
+  .mix-bar-label .mix-delta-foot { font-size: 9.5px; color: var(--text-3); letter-spacing: 0.04em; }
   .mix-bar-track { height: 6px; background: var(--surface-2); border-radius: 3px; overflow: hidden; }
   .mix-bar-fill { height: 100%; border-radius: 3px; transition: width 0.4s ease, filter 0.15s; }
   .mix-bar-wrap:hover .mix-bar-fill { filter: brightness(0.92); }
@@ -750,19 +756,29 @@ function renderRevenueChart() {
 function renderMixBars() {
   const mix = DATA.revMix;
   const items = [
-    { label: 'Dine in',     val: getVal(mix.dineIn),    color: '#eace49' },
-    { label: 'Web pickup',  val: getVal(mix.webPickup),  color: '#7bbd91' },
-    { label: 'In-store Takeout', val: getVal(mix.instore),  color: '#cbc9d6' },
-    { label: 'Delivery',    val: getVal(mix.delivery),   color: '#6280bd' },
-    { label: 'Catering',    val: getVal(mix.catering),   color: '#dbc6a2' },
-    { label: '3PD',         val: getVal(mix.tpd),        color: '#888780' },
-    { label: 'Marketplace', val: getVal(mix.marketplace),color: '#e87142' }
+    { label: 'Dine in',          k: 'dineIn',      color: '#eace49' },
+    { label: 'Web pickup',       k: 'webPickup',   color: '#7bbd91' },
+    { label: 'In-store Takeout', k: 'instore',     color: '#cbc9d6' },
+    { label: 'Delivery',         k: 'delivery',    color: '#6280bd' },
+    { label: 'Catering',         k: 'catering',    color: '#dbc6a2' },
+    { label: '3PD',              k: 'tpd',         color: '#888780' },
+    { label: 'Marketplace',      k: 'marketplace', color: '#e87142' }
   ];
-  document.getElementById('mixBars').innerHTML = items.map(i => `
+  document.getElementById('mixBars').innerHTML = items.map(i => {
+    const row = mix[i.k] || {};
+    const val = getVal(row);
+    const delta = (row.cw != null && row.lw != null) ? row.cw - row.lw : null;
+    const dCls = delta == null ? 'pct-neu' : (delta > 0 ? 'pct-pos' : (delta < 0 ? 'pct-neg' : 'pct-neu'));
+    const dText = delta == null ? '—' : `${delta > 0 ? '+' : ''}${delta.toFixed(1)} pts`;
+    return `
     <div class="mix-bar-wrap">
-      <div class="mix-bar-label"><span>${i.label}</span><span style="font-family:'DM Mono',monospace;font-size:12px">${(+i.val).toFixed(1)}%</span></div>
-      <div class="mix-bar-track"><div class="mix-bar-fill" style="width:${i.val}%;background:${i.color}"></div></div>
-    </div>`).join('');
+      <div class="mix-bar-label">
+        <span>${i.label}</span>
+        <span class="mix-detail"><span class="mix-pct">${(+val).toFixed(1)}%</span><span class="mix-delta ${dCls}">${dText}</span><span class="mix-delta-foot">vs last wk</span></span>
+      </div>
+      <div class="mix-bar-track"><div class="mix-bar-fill" style="width:${val}%;background:${i.color}"></div></div>
+    </div>`;
+  }).join('');
 }
 
 // ── PAID DIGITAL CHARTS ───────────────────────────────────────────────────────
