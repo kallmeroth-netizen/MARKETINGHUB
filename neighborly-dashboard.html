@@ -1470,7 +1470,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeHubNav(
       <div class="view-toggle">
         <button class="vt-btn active" onclick="setDailyLoc('wlv',this)">Westlake Village</button>
         <button class="vt-btn" onclick="setDailyLoc('bw',this)">Brentwood</button>
-        <button class="vt-btn" onclick="setDailyLoc('total',this)">Total</button>
+        <button class="vt-btn" onclick="setDailyLoc('total',this)">All Locations</button>
       </div>
     </div>
 
@@ -2376,7 +2376,7 @@ function renderDailyDashboard() {
   const data = DAILY[dailyLoc];
   const locName = dailyLoc === 'wlv' ? 'Westlake Village'
                 : dailyLoc === 'bw'  ? 'Brentwood'
-                : 'Total — All locations';
+                : 'All Locations';
   const sub = document.getElementById('dailyDateSub');
   if (sub) sub.textContent = data
     ? `${DAILY_META.date || 'Today'}  ·  ${locName}`
