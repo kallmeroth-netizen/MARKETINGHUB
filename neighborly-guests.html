@@ -1484,7 +1484,7 @@ function renderOverview(){
   }
 
   var wHtml = '<div class="card-title" style="color:var(--rd)">To be improved</div>'
-    +'<div class="card-sub">Most common complaints · click any row for guest quotes and recommended actions</div>'
+    +'<div class="card-sub">Most common complaints</div>'
     +'<div style="margin-top:10px">' + (complaints.length ? complaints.map(function(c){return themeRow(c,false);}).join('') : '<div style="color:var(--text3);font-size:12px;padding:8px 0">No complaints in this period — nice.</div>') + '</div>';
   document.getElementById('ov-worst').innerHTML = wHtml;
 
