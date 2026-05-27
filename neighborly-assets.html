@@ -441,36 +441,31 @@
     overflow: hidden;
   }
   .type-row {
-    display: grid; grid-template-columns: 220px 1fr; gap: var(--s-5);
-    padding: var(--s-6);
+    display: grid; grid-template-columns: 200px 1fr; gap: var(--s-6);
+    padding: var(--s-6) var(--s-7);
     border-bottom: 1px solid var(--line);
     align-items: center;
   }
   .type-row:last-child { border-bottom: 0; }
   @media (max-width: 760px) { .type-row { grid-template-columns: 1fr; gap: var(--s-3); padding: var(--s-5); } }
 
-  .type-meta { display: flex; flex-direction: column; gap: 8px; align-items: flex-start; }
+  .type-meta { display: flex; flex-direction: column; gap: 6px; align-items: flex-start; }
   .type-role {
-    display: inline-flex; align-items: center;
-    padding: 5px 10px;
-    background: var(--brand-lavender, #cbc9d6);
-    color: #fff !important;
-    border-radius: 999px;
     font-family: 'Futura PT Demi', var(--f-eyebrow);
-    font-weight: 700;
-    font-size: 10.5px;
-    letter-spacing: 0.16em;
+    font-weight: 600;
+    font-size: 10px;
+    letter-spacing: 0.22em;
     text-transform: uppercase;
     line-height: 1;
+    color: var(--brand-lavender, #cbc9d6);
   }
-  .type-name { font-family: var(--f-display); font-size: 1.2rem; line-height: 1.15; color: var(--ink); letter-spacing: normal; }
+  .type-name { font-family: var(--f-display); font-size: 1.6rem; line-height: 1.1; color: var(--ink); letter-spacing: normal; }
   .type-name.name-amaya { font-family: var(--f-display); text-transform: uppercase; letter-spacing: normal; }
-  .type-name.name-tuppence { font-family: var(--f-tuppence); font-weight: 500; font-size: 1.3rem; letter-spacing: normal; }
-  .type-name.name-futura { font-family: var(--f-eyebrow); font-weight: 600; text-transform: uppercase; font-size: 1rem; letter-spacing: normal; }
-  .type-name.name-telegraf { font-family: var(--f-telegraf); font-weight: 400; font-size: 1.1rem; letter-spacing: normal; }
+  .type-name.name-tuppence { font-family: var(--f-tuppence); font-weight: 500; font-size: 1.75rem; letter-spacing: normal; }
+  .type-name.name-futura { font-family: var(--f-eyebrow); font-weight: 600; text-transform: uppercase; font-size: 1.15rem; letter-spacing: normal; }
+  .type-name.name-telegraf { font-family: var(--f-telegraf); font-weight: 400; font-size: 1.5rem; letter-spacing: normal; }
   .type-sample.telegraf { font-family: var(--f-telegraf); font-size: 1.05rem; line-height: 1.55; color: var(--text-2); letter-spacing: normal; }
   .type-sample.telegraf em { color: var(--ink); font-style: normal; font-weight: 500; }
-  .type-detail { font-family: var(--f-mono); font-size: 11px; color: var(--text-3); line-height: 1.45; letter-spacing: normal; }
 
   .type-sample.amaya {
     font-family: var(--f-display);
@@ -962,27 +957,24 @@
 
         <div class="type-row">
           <div class="type-meta">
-            <span class="type-role">Subhead Accent</span>
+            <span class="type-role">Subhead</span>
             <span class="type-name name-tuppence">Tuppence</span>
-            <span class="type-detail">Sentence case · emphasis words or prepositions</span>
           </div>
           <div class="type-sample tuppence">Eat different, together.</div>
         </div>
 
         <div class="type-row">
           <div class="type-meta">
-            <span class="type-role">Eyebrow · Button</span>
+            <span class="type-role">Eyebrow</span>
             <span class="type-name name-futura">Futura PT Demi</span>
-            <span class="type-detail">All caps</span>
           </div>
           <div class="type-sample eyebrow-sample">Curated Food Hall</div>
         </div>
 
         <div class="type-row">
           <div class="type-meta">
-            <span class="type-role">Body · Reference</span>
+            <span class="type-role">Body</span>
             <span class="type-name name-telegraf">Telegraf Regular</span>
-            <span class="type-detail">Specimen only</span>
           </div>
           <p class="type-sample telegraf">Mealtime made easy. Find something for everyone.</p>
         </div>
