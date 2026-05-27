@@ -196,6 +196,46 @@
   .mix-bar-label .mix-delta.pct-neg { background: var(--brand-orange-light); color: #a32d2d; }
   .mix-bar-label .mix-delta.pct-neu { background: var(--surface-2); color: var(--text-3); }
   .mix-bar-label .mix-delta-foot { font-size: 9.5px; color: var(--text-3); letter-spacing: 0.04em; }
+
+  /* PAID PERFORMANCE SCORECARD — dense, one-glance, no bar-chart fatigue */
+  .scorecard { display: grid; grid-template-columns: minmax(160px, 1.1fr) repeat(7, minmax(0, 1fr)); gap: 0; }
+  .scorecard .sc-h, .scorecard .sc-c { padding: 14px 14px; border-bottom: 0.5px solid var(--border); }
+  .scorecard .sc-h {
+    font-family: var(--f-eyebrow), 'Futura PT Demi', 'Jost', sans-serif;
+    font-size: var(--t-eyebrow); font-weight: 600; color: var(--text-3);
+    text-transform: uppercase; letter-spacing: 0.16em;
+    background: var(--surface-2);
+    padding-top: 11px; padding-bottom: 11px;
+    text-align: right;
+  }
+  .scorecard .sc-h.sc-h-row { text-align: left; }
+  .scorecard .sc-row-name {
+    display: flex; align-items: center; gap: 10px;
+    font-weight: 600; color: var(--text);
+  }
+  .scorecard .sc-row-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+  .scorecard .sc-row-meta { font-family: var(--f-mono); font-size: var(--t-caption-sm); color: var(--text-3); font-weight: 400; }
+  .scorecard .sc-c { text-align: right; vertical-align: top; }
+  .scorecard .sc-val { font-family: var(--f-mono); font-size: 14.5px; font-weight: 500; color: var(--ink); line-height: 1.15; }
+  .scorecard .sc-delta { font-family: var(--f-mono); font-size: 10.5px; margin-top: 4px; display: inline-block; padding: 1px 6px; border-radius: 100px; font-weight: 600; letter-spacing: 0.02em; }
+  .scorecard .sc-delta.pos { background: var(--brand-green-light); color: #085041; }
+  .scorecard .sc-delta.neg { background: var(--brand-orange-light); color: #a32d2d; }
+  .scorecard .sc-delta.neu { background: var(--surface-2); color: var(--text-3); }
+  .scorecard .sc-empty { color: var(--text-mute); font-family: var(--f-mono); font-size: 14px; }
+  .scorecard .sc-row:last-child .sc-c, .scorecard .sc-row:last-child .sc-h { border-bottom: 0; }
+  .scorecard .sc-row:hover .sc-c, .scorecard .sc-row:hover .sc-h-row { background: var(--surface-2); }
+  .scorecard .sc-row { display: contents; }
+  @media (max-width: 900px) {
+    /* Stack as card-per-platform on narrow screens */
+    .scorecard { display: flex; flex-direction: column; gap: 0; }
+    .scorecard .sc-h:not(.sc-h-row) { display: none; }
+    .scorecard .sc-row { display: grid; grid-template-columns: 1fr 1fr; padding: 14px 16px; border-bottom: 0.5px solid var(--border); gap: 10px 14px; }
+    .scorecard .sc-row:last-child { border-bottom: 0; }
+    .scorecard .sc-h-row { grid-column: 1 / -1; padding: 0; background: transparent; border-bottom: 0; }
+    .scorecard .sc-c { padding: 0; border-bottom: 0; text-align: left; }
+    .scorecard .sc-c::before { content: attr(data-label); display: block; font-family: var(--f-eyebrow); font-size: var(--t-eyebrow); font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text-3); margin-bottom: 4px; }
+    .scorecard .sc-row:hover .sc-c, .scorecard .sc-row:hover .sc-h-row { background: transparent; }
+  }
   .mix-bar-track { height: 6px; background: var(--surface-2); border-radius: 3px; overflow: hidden; }
   .mix-bar-fill { height: 100%; border-radius: 3px; transition: width 0.4s ease, filter 0.15s; }
   .mix-bar-wrap:hover .mix-bar-fill { filter: brightness(0.92); }
@@ -466,44 +506,11 @@
       </div>
     </div>
 
-    <!-- PAID DIGITAL -->
-    <div class="section-title">Paid digital performance</div>
-    <div class="chart-grid-3" style="margin-bottom:1.5rem">
-      <div class="chart-card">
-        <div class="chart-card-title">Net revenue</div>
-        <div class="chart-card-sub">Meta vs Google</div>
-        <div class="chart-wrap" style="height:160px"><canvas id="paidRevChart"></canvas></div>
-        <div class="chart-source">Source: Meta Ads Manager + Google Ads</div>
-      </div>
-      <div class="chart-card">
-        <div class="chart-card-title">ROAS</div>
-        <div class="chart-card-sub">Return on ad spend</div>
-        <div class="chart-wrap" style="height:160px"><canvas id="roasChart"></canvas></div>
-        <div class="chart-source">Source: Meta Ads Manager + Google Ads</div>
-      </div>
-      <div class="chart-card">
-        <div class="chart-card-title">Customer acquisition</div>
-        <div class="chart-card-sub">New customers by platform</div>
-        <div class="chart-wrap" style="height:160px"><canvas id="cacChart"></canvas></div>
-        <div class="chart-source">Source: Meta Ads Manager + Google Ads</div>
-      </div>
-    </div>
-
-    <!-- 3PD -->
-    <div class="section-title">3PD sponsored listings</div>
-    <div class="chart-grid-2" style="margin-bottom:1.5rem">
-      <div class="chart-card">
-        <div class="chart-card-title">Sponsored listing ROAS</div>
-        <div class="chart-card-sub">T4W avg · Last week · Current week</div>
-        <div class="chart-wrap" style="height:160px"><canvas id="sponsoredRoasChart"></canvas></div>
-        <div class="chart-source">Source: Uber Eats + DoorDash Merchant Portals</div>
-      </div>
-      <div class="chart-card">
-        <div class="chart-card-title">Promo performance</div>
-        <div class="chart-card-sub">Net revenue vs spend</div>
-        <div class="chart-wrap" style="height:160px"><canvas id="promoChart"></canvas></div>
-        <div class="chart-source">Source: Uber Eats + DoorDash Merchant Portals</div>
-      </div>
+    <!-- PAID PERFORMANCE SCORECARD -->
+    <div class="section-title">Paid performance scorecard</div>
+    <div class="chart-card" style="margin-bottom:1.5rem;padding:0;overflow:hidden">
+      <div class="scorecard" id="paidScorecard"></div>
+      <div class="chart-source" style="padding:0 1.25rem 1rem">Source: Meta Ads Manager · Google Ads · Uber Eats + DoorDash Merchant Portals</div>
     </div>
 
     <!-- FULL METRICS TABLE -->
@@ -583,6 +590,10 @@ let DATA = {
   meta: {
     netRev:    { t4w: 10190, lw: 11010, cw: 12144, pctT4W: 19,  pctPW: 10 },
     spend:     { t4w: 1320,  lw: 1376,  cw: 1389,  pctT4W: 5,   pctPW: 1  },
+    impressions:{t4w: 168400, lw: 174200, cw: 181600, pctT4W: 8, pctPW: 4 },
+    clicks:    { t4w: 1380,  lw: 1480,  cw: 1620,  pctT4W: 17,  pctPW: 9  },
+    cpc:       { t4w: 0.96,  lw: 0.93,  cw: 0.86,  pctT4W: -10, pctPW: -8 },
+    ctr:       { t4w: 0.82,  lw: 0.85,  cw: 0.89,  pctT4W: 9,   pctPW: 5  },
     customers: { t4w: 282,   lw: 360,   cw: 365,   pctT4W: 30,  pctPW: 1  },
     cac:       { t4w: 4.87,  lw: 3.82,  cw: 3.81,  pctT4W: -22, pctPW: 0  },
     roas:      { t4w: 8.70,  lw: 9.00,  cw: 9.74,  pctT4W: 12,  pctPW: 8  }
@@ -590,6 +601,10 @@ let DATA = {
   google: {
     netRev:    { t4w: 22344, lw: 23523, cw: 20499, pctT4W: -8,  pctPW: -13 },
     spend:     { t4w: 744,   lw: 790,   cw: 812,   pctT4W: 9,   pctPW: 3   },
+    impressions:{t4w: 41200, lw: 43500, cw: 44800, pctT4W: 9,   pctPW: 3  },
+    clicks:    { t4w: 510,   lw: 510,   cw: 580,   pctT4W: 14,  pctPW: 14 },
+    cpc:       { t4w: 1.46,  lw: 1.55,  cw: 1.40,  pctT4W: -4,  pctPW: -10 },
+    ctr:       { t4w: 1.24,  lw: 1.17,  cw: 1.29,  pctT4W: 4,   pctPW: 10 },
     customers: { t4w: 618,   lw: 625,   cw: 617,   pctT4W: 0,   pctPW: -1  },
     cac:       { t4w: 1.00,  lw: 1.26,  cw: 1.32,  pctT4W: 8,   pctPW: 4   },
     roas:      { t4w: 31.16, lw: 30.76, cw: 26.24, pctT4W: -16, pctPW: -15 }
@@ -597,11 +612,17 @@ let DATA = {
   sponsored: {
     netRev:    { t4w: 9991,  lw: 8674,  cw: 9717,  pctT4W: -3, pctPW: 12 },
     spend:     { t4w: 1027,  lw: 931,   cw: 941,   pctT4W: -8, pctPW: 1  },
+    impressions:{t4w: 28400, lw: 26100, cw: 27800, pctT4W: -2, pctPW: 7  },
+    clicks:    { t4w: 1840,  lw: 1690,  cw: 1810,  pctT4W: -2, pctPW: 7  },
+    cpc:       { t4w: 0.56,  lw: 0.55,  cw: 0.52,  pctT4W: -7, pctPW: -5 },
     roas:      { t4w: 9.78,  lw: 9.32,  cw: 10.32, pctT4W: 6,  pctPW: 11 }
   },
   promo: {
     netRev:    { t4w: 14826, lw: 12734, cw: 12373, pctT4W: -17, pctPW: -3  },
     spend:     { t4w: 1114,  lw: 1061,  cw: 926,   pctT4W: -17, pctPW: -13 },
+    impressions:{t4w: 22800, lw: 19200, cw: 18400, pctT4W: -19, pctPW: -4 },
+    clicks:    { t4w: 1520,  lw: 1310,  cw: 1240,  pctT4W: -18, pctPW: -5 },
+    cpc:       { t4w: 0.73,  lw: 0.81,  cw: 0.75,  pctT4W: 2,   pctPW: -7 },
     roas:      { t4w: 13.40, lw: 12.00, cw: 13.36, pctT4W: 0,   pctPW: 11  }
   },
   blendedROAS: { t4w: 13.6, lw: 13.5, cw: 13.5, pctT4W: -1, pctPW: 0 },
@@ -781,114 +802,73 @@ function renderMixBars() {
   }).join('');
 }
 
-// ── PAID DIGITAL CHARTS ───────────────────────────────────────────────────────
-function renderPaidCharts() {
-  const labels = ['T4W avg', 'Last week', 'This week'];
+// ── PAID PERFORMANCE SCORECARD ───────────────────────────────────────────────
+// Replaces 5 separate bar charts with a single scannable scorecard that shows
+// spend, clicks, CPC, net revenue, CAC, ROAS, and customers per platform —
+// each cell carries a small WoW delta pill in the same sentiment palette.
+function renderScorecard() {
+  const wrap = document.getElementById('paidScorecard');
+  if (!wrap) return;
 
-  if (charts.paidRev) charts.paidRev.destroy();
-  charts.paidRev = new Chart(document.getElementById('paidRevChart'), {
-    type: 'bar',
-    data: {
-      labels,
-      datasets: [
-        { label: 'Meta',   data: [DATA.meta.netRev.t4w,   DATA.meta.netRev.lw,   DATA.meta.netRev.cw],   backgroundColor: '#fdf7d8', borderColor: '#eace49', borderWidth: 1.5, borderRadius: 4 },
-        { label: 'Google', data: [DATA.google.netRev.t4w, DATA.google.netRev.lw, DATA.google.netRev.cw], backgroundColor: '#e4f5ea', borderColor: '#7bbd91', borderWidth: 1.5, borderRadius: 4 }
-      ]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { position: 'bottom', labels: { font: { family: 'DM Sans', size: 11 }, boxWidth: 10, padding: 10 } } },
-      scales: {
-        x: { grid: { display: false }, ticks: { font: { family: 'DM Sans', size: 10 }, color: '#9E9C96' } },
-        y: { grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { font: { family: 'DM Mono', size: 10 }, color: '#9E9C96', callback: v => '$'+Math.round(v/1000)+'k' } }
+  // Platform → display config
+  const platforms = [
+    { key: 'meta',      label: 'Meta',           sub: 'Facebook + Instagram Ads', color: '#eace49' },
+    { key: 'google',    label: 'Google',         sub: 'Search + Performance Max', color: '#7bbd91' },
+    { key: 'sponsored', label: '3PD Sponsored',  sub: 'Uber Eats + DoorDash',     color: '#dbc6a2' },
+    { key: 'promo',     label: '3PD Promo',      sub: 'Uber Eats + DoorDash',     color: '#cbc9d6' }
+  ];
+  // Metric → {label, getter from platform data, format fn, sentiment (does up = good?)}
+  const dash = '<span class="sc-empty">—</span>';
+  const metrics = [
+    { label: 'Spend',     k: 'spend',     fmt: fmt$,                neutral: true  },
+    { label: 'Clicks',    k: 'clicks',    fmt: fmtN,                lowerBetter: false },
+    { label: 'CPC',       k: 'cpc',       fmt: v => '$' + (+v).toFixed(2), lowerBetter: true  },
+    { label: 'Net rev',   k: 'netRev',    fmt: fmt$,                lowerBetter: false },
+    { label: 'ROAS',      k: 'roas',      fmt: v => (+v).toFixed(2) + 'x', lowerBetter: false },
+    { label: 'CAC',       k: 'cac',       fmt: v => '$' + (+v).toFixed(2), lowerBetter: true  },
+    { label: 'Customers', k: 'customers', fmt: fmtN,                lowerBetter: false }
+  ];
+
+  const headerRow = `
+    <div class="sc-row">
+      <div class="sc-h sc-h-row">Platform</div>
+      ${metrics.map(m => `<div class="sc-h">${m.label}</div>`).join('')}
+    </div>`;
+
+  const cell = (pdata, m) => {
+    const row = pdata[m.k];
+    if (!row || row.cw == null) return `<div class="sc-c" data-label="${m.label}"><div class="sc-val">${dash}</div></div>`;
+    const val = m.fmt(row.cw);
+    const pct = row.pctPW;
+    let cls = 'neu', txt = '—';
+    if (typeof pct === 'number') {
+      if (m.neutral) {
+        cls = 'neu';
+      } else {
+        const good = m.lowerBetter ? pct < 0 : pct > 0;
+        const bad  = m.lowerBetter ? pct > 0 : pct < 0;
+        cls = good ? 'pos' : (bad ? 'neg' : 'neu');
       }
+      txt = `${pct > 0 ? '+' : ''}${pct}% wk`;
     }
-  });
+    return `<div class="sc-c" data-label="${m.label}">
+      <div class="sc-val">${val}</div>
+      <div class="sc-delta ${cls}">${txt}</div>
+    </div>`;
+  };
 
-  if (charts.roas) charts.roas.destroy();
-  charts.roas = new Chart(document.getElementById('roasChart'), {
-    type: 'bar',
-    data: {
-      labels,
-      datasets: [
-        { label: 'Meta',   data: [DATA.meta.roas.t4w,   DATA.meta.roas.lw,   DATA.meta.roas.cw],   backgroundColor: '#fdf7d8', borderColor: '#eace49', borderWidth: 1.5, borderRadius: 4 },
-        { label: 'Google', data: [DATA.google.roas.t4w, DATA.google.roas.lw, DATA.google.roas.cw], backgroundColor: '#e4f5ea', borderColor: '#7bbd91', borderWidth: 1.5, borderRadius: 4 }
-      ]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { position: 'bottom', labels: { font: { family: 'DM Sans', size: 11 }, boxWidth: 10, padding: 10 } } },
-      scales: {
-        x: { grid: { display: false }, ticks: { font: { family: 'DM Sans', size: 10 }, color: '#9E9C96' } },
-        y: { grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { font: { family: 'DM Mono', size: 10 }, color: '#9E9C96', callback: v => v.toFixed(1)+'x' } }
-      }
-    }
-  });
+  const platRows = platforms.map(p => {
+    const d = DATA[p.key] || {};
+    return `<div class="sc-row">
+      <div class="sc-h sc-h-row">
+        <div class="sc-row-name"><span class="sc-row-dot" style="background:${p.color}"></span>${p.label}</div>
+        <div class="sc-row-meta">${p.sub}</div>
+      </div>
+      ${metrics.map(m => cell(d, m)).join('')}
+    </div>`;
+  }).join('');
 
-  if (charts.cac) charts.cac.destroy();
-  charts.cac = new Chart(document.getElementById('cacChart'), {
-    type: 'bar',
-    data: {
-      labels,
-      datasets: [
-        { label: 'Meta',   data: [DATA.meta.customers.t4w,   DATA.meta.customers.lw,   DATA.meta.customers.cw],   backgroundColor: '#fdf7d8', borderColor: '#eace49', borderWidth: 1.5, borderRadius: 4 },
-        { label: 'Google', data: [DATA.google.customers.t4w, DATA.google.customers.lw, DATA.google.customers.cw], backgroundColor: '#e4f5ea', borderColor: '#7bbd91', borderWidth: 1.5, borderRadius: 4 }
-      ]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { position: 'bottom', labels: { font: { family: 'DM Sans', size: 11 }, boxWidth: 10, padding: 10 } } },
-      scales: {
-        x: { grid: { display: false }, ticks: { font: { family: 'DM Sans', size: 10 }, color: '#9E9C96' } },
-        y: { grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { font: { family: 'DM Mono', size: 10 }, color: '#9E9C96' } }
-      }
-    }
-  });
-}
-
-// ── 3PD CHARTS ───────────────────────────────────────────────────────────────
-function render3PDCharts() {
-  const labels = ['T4W avg', 'Last week', 'This week'];
-
-  if (charts.sponsoredRoas) charts.sponsoredRoas.destroy();
-  charts.sponsoredRoas = new Chart(document.getElementById('sponsoredRoasChart'), {
-    type: 'bar',
-    data: {
-      labels,
-      datasets: [
-        { label: 'Sponsored', data: [DATA.sponsored.roas.t4w, DATA.sponsored.roas.lw, DATA.sponsored.roas.cw], backgroundColor: '#f7f0e4', borderColor: '#dbc6a2', borderWidth: 1.5, borderRadius: 4 },
-        { label: 'Promo',     data: [DATA.promo.roas.t4w,     DATA.promo.roas.lw,     DATA.promo.roas.cw],     backgroundColor: '#f0eff5', borderColor: '#cbc9d6', borderWidth: 1.5, borderRadius: 4 }
-      ]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { position: 'bottom', labels: { font: { family: 'DM Sans', size: 11 }, boxWidth: 10, padding: 10 } } },
-      scales: {
-        x: { grid: { display: false }, ticks: { font: { family: 'DM Sans', size: 10 }, color: '#9E9C96' } },
-        y: { grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { font: { family: 'DM Mono', size: 10 }, color: '#9E9C96', callback: v => v.toFixed(1)+'x' } }
-      }
-    }
-  });
-
-  if (charts.promo) charts.promo.destroy();
-  charts.promo = new Chart(document.getElementById('promoChart'), {
-    type: 'bar',
-    data: {
-      labels,
-      datasets: [
-        { label: 'Net Rev',  data: [DATA.promo.netRev.t4w, DATA.promo.netRev.lw, DATA.promo.netRev.cw], backgroundColor: '#f0eff5', borderColor: '#cbc9d6', borderWidth: 1.5, borderRadius: 4 },
-        { label: 'Spend',    data: [DATA.promo.spend.t4w,  DATA.promo.spend.lw,  DATA.promo.spend.cw],  backgroundColor: '#F1EFE8', borderColor: '#888780', borderWidth: 1.5, borderRadius: 4 }
-      ]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { position: 'bottom', labels: { font: { family: 'DM Sans', size: 11 }, boxWidth: 10, padding: 10 } } },
-      scales: {
-        x: { grid: { display: false }, ticks: { font: { family: 'DM Sans', size: 10 }, color: '#9E9C96' } },
-        y: { grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { font: { family: 'DM Mono', size: 10 }, color: '#9E9C96', callback: v => '$'+Math.round(v/1000)+'k' } }
-      }
-    }
-  });
+  wrap.innerHTML = headerRow + platRows;
 }
 
 // ── METRICS TABLE ─────────────────────────────────────────────────────────────
@@ -962,8 +942,7 @@ function renderDashboard() {
   renderKPIs();
   renderRevenueChart();
   renderMixBars();
-  renderPaidCharts();
-  render3PDCharts();
+  renderScorecard();
   renderMetricsTable();
 }
 
