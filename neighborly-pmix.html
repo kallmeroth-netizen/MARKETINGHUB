@@ -121,6 +121,40 @@
   .concept-chip-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
   .concept-chip-net { font-family: var(--f-mono); font-size: 16px; font-weight: 500; color: var(--ink); }
   .concept-chip-meta { font-family: var(--f-mono); font-size: var(--t-caption-sm); color: var(--text-3); margin-top: 2px; }
+
+  /* === Quantity by concept — graph === */
+  .qty-by-concept { display: flex; flex-direction: column; gap: var(--s-3); }
+  .qty-row {
+    display: grid;
+    grid-template-columns: minmax(120px, 180px) 1fr auto;
+    align-items: center;
+    gap: var(--s-3);
+    padding: 6px 0;
+  }
+  .qty-row-label {
+    display: flex; align-items: center; gap: 8px;
+    font-family: var(--f-eyebrow); font-weight: 600;
+    font-size: var(--t-eyebrow); letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--text-2); min-width: 0;
+  }
+  .qty-row-label .dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+  .qty-row-label .name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .qty-track { height: 10px; border-radius: var(--r-pill); background: var(--surface-2); overflow: hidden; }
+  .qty-fill {
+    height: 100%; border-radius: var(--r-pill);
+    transition: width 0.55s var(--easing);
+  }
+  .qty-row-meta {
+    font-family: var(--f-mono); font-size: var(--t-caption);
+    color: var(--text-2); white-space: nowrap;
+    display: flex; align-items: baseline; gap: 8px;
+  }
+  .qty-row-meta .qty-num { font-weight: 500; color: var(--ink); }
+  .qty-row-meta .qty-pct { color: var(--text-3); font-size: var(--t-caption-sm); }
+  @media (max-width: 640px) {
+    .qty-row { grid-template-columns: 1fr auto; gap: var(--s-2); }
+    .qty-row .qty-track { grid-column: 1 / -1; }
+  }
 </style>
 </head>
 <body>
@@ -202,9 +236,24 @@
 
   <!-- TOP PERFORMERS LEADERBOARD (hero) -->
   <section class="np-card" style="margin-bottom:var(--s-4)">
-    <div class="np-card-title">Today&rsquo;s best sellers</div>
-    <div class="np-card-sub">Top 12 items by revenue — quantity bar shows volume vs the day&rsquo;s leader</div>
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:var(--s-3);flex-wrap:wrap">
+      <div>
+        <div class="np-card-title">Today&rsquo;s best sellers</div>
+        <div class="np-card-sub" id="leaderSub">Top 12 items by revenue — quantity bar shows volume vs the day&rsquo;s leader</div>
+      </div>
+      <div class="sort-toggle" id="leaderToggle" role="tablist" aria-label="Leaderboard sort">
+        <button class="is-active" data-leader="net" role="tab">By revenue</button>
+        <button data-leader="qty" role="tab">By quantity</button>
+      </div>
+    </div>
     <div class="leader-grid" id="leaderGrid" style="margin-top:var(--s-3)"></div>
+  </section>
+
+  <!-- QUANTITY BY CONCEPT — graph breakdown -->
+  <section class="np-card" style="margin-bottom:var(--s-4)">
+    <div class="np-card-title">Quantity sold by concept</div>
+    <div class="np-card-sub">Units sold per concept today — share of total volume</div>
+    <div class="qty-by-concept" id="qtyByConcept" style="margin-top:var(--s-4)"></div>
   </section>
 
   <!-- ITEM EXPLORER -->
@@ -270,6 +319,7 @@
   let conceptColor = {};   // concept name → color
   let activeMenu = 'all';
   let activeSort = 'net';
+  let leaderSort = 'net';  // 'net' | 'qty' — drives the best-sellers leaderboard
   let searchQ = '';
 
   async function loadPMIX() {
@@ -407,29 +457,8 @@
     document.getElementById('kpiByQtySub').textContent = topQty ? `${fmtN(topQty.qty)} sold · ${fmt$(topQty.net)}` : '—';
     document.getElementById('kpiAvg').textContent     = DATA.totalQty ? fmt$2(DATA.totalNet / DATA.totalQty) : '—';
 
-    // Top performers leaderboard
-    const top12 = [...items].sort((a, b) => b.net - a.net).slice(0, 12);
-    const maxQty = Math.max(...top12.map(it => it.qty));
-    document.getElementById('leaderGrid').innerHTML = top12.map((it, i) => {
-      const color = colorForCategory(it.category);
-      const w = maxQty ? (it.qty / maxQty) * 100 : 0;
-      return `
-        <div class="leader-card" title="${titleCase(it.name)}: ${fmtN(it.qty)} sold · ${fmt$(it.net)}">
-          <span class="leader-rank">#${i + 1}</span>
-          <div class="leader-cat"><span class="dot" style="background:${color}"></span>${titleCase(it.category) || 'Item'}</div>
-          <div class="leader-name">${titleCase(it.name)}</div>
-          <div class="leader-row">
-            <span class="leader-stat">${fmt$(it.net)}</span>
-            <span class="leader-sublabel">Net</span>
-          </div>
-          <div class="leader-bar"><div class="leader-bar-fill" style="width:${w.toFixed(1)}%; background:${color}"></div></div>
-          <div class="leader-meta">
-            <span>${fmtN(it.qty)} sold</span>
-            <span>${fmt$2(it.avg_price)} avg</span>
-          </div>
-        </div>
-      `;
-    }).join('');
+    renderLeaderboard(items);
+    renderQtyByConcept();
 
     // Menu filter chips — derived from unique sales categories
     const cats = ['All', ...Array.from(new Set(items.map(it => it.category).filter(Boolean))).sort()];
@@ -501,6 +530,68 @@
       renderTable();
     });
   });
+  document.querySelectorAll('#leaderToggle button').forEach(b => {
+    b.addEventListener('click', () => {
+      leaderSort = b.dataset.leader;
+      document.querySelectorAll('#leaderToggle button').forEach(x => x.classList.toggle('is-active', x === b));
+      if (DATA) renderLeaderboard((DATA.items || []).filter(it => it.qty > 0));
+    });
+  });
+
+  function renderLeaderboard(items) {
+    const sortKey = leaderSort === 'qty' ? 'qty' : 'net';
+    const top12 = [...items].sort((a, b) => b[sortKey] - a[sortKey]).slice(0, 12);
+    const maxOther = Math.max(...top12.map(it => sortKey === 'net' ? it.qty : it.net));
+    document.getElementById('leaderSub').textContent = sortKey === 'qty'
+      ? 'Top 12 items by units sold — revenue bar shows dollar share vs the day’s leader'
+      : 'Top 12 items by revenue — quantity bar shows volume vs the day’s leader';
+    document.getElementById('leaderGrid').innerHTML = top12.map((it, i) => {
+      const color = colorForCategory(it.category);
+      const primary  = sortKey === 'qty' ? `${fmtN(it.qty)} sold` : fmt$(it.net);
+      const primaryL = sortKey === 'qty' ? 'Units' : 'Net';
+      const barVal = sortKey === 'qty' ? it.net : it.qty;
+      const w = maxOther ? (barVal / maxOther) * 100 : 0;
+      const metaLeft  = sortKey === 'qty' ? fmt$(it.net) + ' net' : `${fmtN(it.qty)} sold`;
+      const metaRight = `${fmt$2(it.avg_price)} avg`;
+      return `
+        <div class="leader-card" title="${titleCase(it.name)}: ${fmtN(it.qty)} sold · ${fmt$(it.net)}">
+          <span class="leader-rank">#${i + 1}</span>
+          <div class="leader-cat"><span class="dot" style="background:${color}"></span>${titleCase(it.category) || 'Item'}</div>
+          <div class="leader-name">${titleCase(it.name)}</div>
+          <div class="leader-row">
+            <span class="leader-stat">${primary}</span>
+            <span class="leader-sublabel">${primaryL}</span>
+          </div>
+          <div class="leader-bar"><div class="leader-bar-fill" style="width:${w.toFixed(1)}%; background:${color}"></div></div>
+          <div class="leader-meta">
+            <span>${metaLeft}</span>
+            <span>${metaRight}</span>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  function renderQtyByConcept() {
+    const concepts = (DATA.concepts || []).filter(c => c.qty > 0).sort((a, b) => b.qty - a.qty);
+    const totalQty = concepts.reduce((s, c) => s + c.qty, 0);
+    const maxQty = concepts.length ? concepts[0].qty : 0;
+    const wrap = document.getElementById('qtyByConcept');
+    if (!wrap) return;
+    if (!concepts.length) { wrap.innerHTML = '<div class="np-card-sub">No concept volume to show yet.</div>'; return; }
+    wrap.innerHTML = concepts.map(c => {
+      const color = conceptColor[c.name] || COLORS[14];
+      const w = maxQty ? (c.qty / maxQty) * 100 : 0;
+      const pct = totalQty ? (c.qty / totalQty * 100) : 0;
+      return `
+        <div class="qty-row" title="${titleCase(c.name)}: ${fmtN(c.qty)} units · ${pct.toFixed(1)}%">
+          <div class="qty-row-label"><span class="dot" style="background:${color}"></span><span class="name">${titleCase(c.name)}</span></div>
+          <div class="qty-track"><div class="qty-fill" style="width:${w.toFixed(1)}%; background:${color}"></div></div>
+          <div class="qty-row-meta"><span class="qty-num">${fmtN(c.qty)}</span><span class="qty-pct">${pct.toFixed(1)}%</span></div>
+        </div>
+      `;
+    }).join('');
+  }
 
 
   // Location toggle
