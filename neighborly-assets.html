@@ -500,55 +500,200 @@
   }
   .type-sample.body em { color: var(--ink); font-style: normal; font-weight: 500; }
 
-  /* ===== VOICE ===== */
-  .voice {
+  /* ===== TYPE-IN-USE SPECIMEN =====
+     Four horizontal slots (eyebrow / headline / CTA / footer) stacked
+     inside one orange card. Each slot is a 2-col row: the live
+     creative on the left, the font name in the same slot on the right.
+     Hairlines between rows line up the slots across both columns so
+     the reader can scan top-to-bottom and see exactly which font
+     drives each tier of the layout. */
+  .specimen {
     background: var(--orange);
     color: #fff;
     border-radius: var(--radius-lg);
-    padding: var(--s-7);
+    padding: var(--s-7) var(--s-7) var(--s-6);
+    display: flex; flex-direction: column;
+    overflow: hidden;
+  }
+  @media (max-width: 820px) {
+    .specimen { padding: var(--s-5) var(--s-5) var(--s-4); }
+  }
+
+  .specimen-row {
     display: grid;
-    grid-template-columns: 1.5fr 1fr;
-    gap: var(--s-7);
-    align-items: start;
+    grid-template-columns: 1fr 1px 1fr;
+    column-gap: var(--s-7);
+    align-items: center;
+    padding: var(--s-6) 0;
+    border-bottom: 1px solid rgba(255,255,255,0.22);
   }
-  @media (max-width: 820px) { .voice { grid-template-columns: 1fr; padding: var(--s-6); } }
-  .voice .eyebrow { color: rgba(255,255,255,0.85); }
-  .voice-line {
-    margin-top: var(--s-4);
+  .specimen-row:last-child { border-bottom: 0; }
+  /* Vertical divider lives in its own column so cell widths stay equal */
+  .specimen-row::after {
+    content: '';
+    grid-column: 2 / 3; grid-row: 1 / 2;
+    width: 1px; height: 70%;
+    background: rgba(255,255,255,0.22);
+    justify-self: center;
+  }
+  @media (max-width: 820px) {
+    .specimen-row {
+      grid-template-columns: 1fr; column-gap: 0; row-gap: var(--s-4);
+      padding: var(--s-5) 0;
+    }
+    .specimen-row::after { display: none; }
+  }
+
+  .specimen-cell {
+    display: flex; align-items: center; justify-content: center;
+    text-align: center;
+    min-height: 0;
+  }
+  .specimen-cell.specimen-live   { grid-column: 1 / 2; }
+  .specimen-cell.specimen-label  { grid-column: 3 / 4; }
+  @media (max-width: 820px) {
+    .specimen-cell.specimen-live,
+    .specimen-cell.specimen-label { grid-column: 1 / -1; }
+  }
+
+  /* Eyebrow — Futura PT Demi, slightly tracked caps */
+  .specimen-eyebrow {
+    font-family: 'Futura PT Demi', var(--f-eyebrow);
+    font-weight: 600;
+    font-size: clamp(13px, 1.15vw, 15px);
+    letter-spacing: 0.20em;
+    text-transform: uppercase;
+    line-height: 1.45;
     color: #fff;
-    max-width: none;
   }
-  .voice-line .lead {
-    display: block;
-    font-family: var(--f-tuppence);
-    font-weight: 500;
-    font-style: normal;
-    font-size: clamp(2rem, 4.2vw, 3rem);
+
+  /* Headline cluster — Tuppence + TAY Amaya. Real breathing room between
+     the script and the display caps so each font owns its space. */
+  .specimen-headline {
+    display: flex; flex-direction: column; align-items: center;
+    gap: clamp(14px, 1.4vw, 22px);
     line-height: 1;
-    margin-bottom: var(--s-3);
   }
-  .voice-line .shout {
-    display: block;
+  .specimen-script {
+    font-family: var(--f-tuppence);
+    font-weight: 500; font-style: normal;
+    font-size: clamp(2.4rem, 4.6vw, 3.4rem);
+    line-height: 0.95;
+  }
+  .specimen-display {
     font-family: 'TAY Amaya', var(--f-display);
     font-weight: 400;
     text-transform: uppercase;
     letter-spacing: 0.02em;
-    font-size: clamp(1.7rem, 4vw, 2.8rem);
+    font-size: clamp(1.95rem, 4.2vw, 2.85rem);
     line-height: 1.05;
   }
-  .voice-line .shout .amp {
-    font-family: var(--f-tuppence);
-    font-weight: 500;
-    text-transform: none;
-    font-size: 0.95em;
-    line-height: 1;
-    vertical-align: -0.05em;
+
+  /* CTA pill — same dimensions on both sides so heights line up */
+  .specimen-cta {
+    display: inline-flex; align-items: center; justify-content: center;
+    background: var(--cream, #F7F6F3);
+    color: var(--ink, #1f2328);
+    font-family: 'Futura PT Demi', var(--f-eyebrow);
+    font-weight: 600;
+    font-size: 13.5px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    height: 44px;
+    padding: 0 28px;
+    border-radius: 999px;
+    text-decoration: none;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+    transition: filter 0.15s var(--easing, ease);
   }
-  .voice-grid { display: flex; flex-direction: column; gap: var(--s-4); }
-  .voice-item { padding-bottom: var(--s-4); border-bottom: 1px solid rgba(255,255,255,0.20); }
-  .voice-item:last-child { border-bottom: 0; padding-bottom: 0; }
-  .voice-principle { font-family: var(--f-sans); font-weight: 600; font-size: 17px; color: #fff; margin-bottom: 6px; letter-spacing: -0.005em; }
-  .voice-item p { font-size: 15px; color: rgba(255,255,255,0.92); line-height: 1.55; }
+  .specimen-live .specimen-cta:hover { filter: brightness(0.96); }
+  .specimen-cta-label { cursor: default; }
+
+  /* Footer — Telegraf, quiet and lighter */
+  .specimen-foot {
+    font-family: 'Telegraf', var(--f-sans);
+    font-weight: 400;
+    font-size: clamp(15px, 1.35vw, 17px);
+    color: rgba(255,255,255,0.88);
+    letter-spacing: 0.005em;
+    line-height: 1.4;
+  }
+
+  /* === Spec card — the right-hand "brand book entry" for each row ===
+     Font name set IN its own typeface at display size, then a hairline
+     and a two-line metadata block: role on top, technical spec below. */
+  .specimen-spec { align-items: center; }
+  .spec-card {
+    display: flex; flex-direction: column;
+    gap: 10px;
+    text-align: left;
+    max-width: 360px;
+    color: #fff;
+  }
+  .spec-stack { display: flex; flex-direction: column; gap: var(--s-4); max-width: 360px; }
+
+  /* The font name itself — large, set in the typeface it documents */
+  .spec-name {
+    color: #fff;
+    line-height: 1;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(255,255,255,0.32);
+  }
+  .spec-name-futura {
+    font-family: 'Futura PT Demi', var(--f-eyebrow);
+    font-weight: 600;
+    font-size: clamp(1.4rem, 2.1vw, 1.85rem);
+    letter-spacing: 0.02em;
+  }
+  .spec-name-tuppence {
+    font-family: var(--f-tuppence);
+    font-weight: 500; font-style: normal;
+    font-size: clamp(2rem, 3vw, 2.6rem);
+    line-height: 0.9;
+  }
+  .spec-name-tay {
+    font-family: 'TAY Amaya', var(--f-display);
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    font-size: clamp(1.6rem, 2.4vw, 2.1rem);
+    line-height: 1;
+  }
+  .spec-name-telegraf {
+    font-family: 'Telegraf', var(--f-sans);
+    font-weight: 400;
+    font-size: clamp(1.55rem, 2.2vw, 1.95rem);
+    letter-spacing: -0.005em;
+  }
+
+  /* Metadata — small, mono / sans for clean spec-sheet feel */
+  .spec-meta {
+    display: flex; flex-direction: column;
+    gap: 3px;
+    font-family: var(--f-sans);
+    color: rgba(255,255,255,0.85);
+  }
+  .spec-role {
+    font-family: 'Futura PT Demi', var(--f-eyebrow);
+    font-weight: 600;
+    font-size: 10.5px;
+    letter-spacing: 0.20em;
+    text-transform: uppercase;
+    color: #fff;
+  }
+  .spec-tech {
+    font-family: var(--f-mono, 'DM Mono', monospace);
+    font-size: 11.5px;
+    color: rgba(255,255,255,0.78);
+    letter-spacing: 0.01em;
+  }
+
+  @media (max-width: 820px) {
+    .spec-card { max-width: 100%; text-align: center; align-items: center; }
+    .spec-stack { max-width: 100%; align-items: center; }
+    .spec-name { width: 100%; text-align: center; }
+    .spec-meta { align-items: center; text-align: center; }
+  }
 
   /* ===== PHOTOGRAPHY ===== */
   .photo {
@@ -683,7 +828,7 @@
     <a class="np-tab" href="#logos">Logos</a>
     <a class="np-tab" href="#palette">Palette</a>
     <a class="np-tab" href="#type">Fonts</a>
-    <a class="np-tab" href="#voice">Voice</a>
+    <a class="np-tab" href="#in-use">In use</a>
     <a class="np-tab" href="#photography">Photography</a>
     <a class="np-tab" href="#downloads">Downloads</a>
   </div>
@@ -996,36 +1141,82 @@
     </div>
   </section>
 
-  <!-- VOICE -->
-  <section class="row reveal" id="voice">
+  <!-- TYPE IN USE — paired specimen showing the fonts working together -->
+  <section class="row reveal" id="in-use">
     <div class="row-head">
-      <h2 class="row-title">Brand Voice</h2>
+      <h2 class="row-title">Type in use</h2>
     </div>
     <div>
-      <div class="voice">
-        <div>
-          <div class="eyebrow">OUR VOICE</div>
-          <div class="voice-line">
-            <span class="lead">Hi, Neighbor!</span>
-            <span class="shout">We can&rsquo;t wait<br>to serve you.</span>
+      <div class="specimen">
+        <div class="specimen-row" data-slot="eyebrow">
+          <div class="specimen-cell specimen-live">
+            <div class="specimen-eyebrow">We can&rsquo;t wait<br>to serve you!</div>
+          </div>
+          <div class="specimen-cell specimen-spec">
+            <div class="spec-card">
+              <div class="spec-name spec-name-futura">Futura&nbsp;PT Demi</div>
+              <div class="spec-meta">
+                <span class="spec-role">Eyebrow &middot; CTA</span>
+                <span class="spec-tech">Demi 600 &middot; 14&thinsp;px &middot; +0.20em tracking &middot; UPPERCASE</span>
+              </div>
+            </div>
           </div>
         </div>
-        <div class="voice-grid">
-          <div class="voice-item">
-            <div class="voice-principle">Say it simply.</div>
-            <p>Short, clear, and easy to understand.</p>
+
+        <div class="specimen-row" data-slot="headline">
+          <div class="specimen-cell specimen-live">
+            <div class="specimen-headline">
+              <span class="specimen-script">Brentwood,</span>
+              <span class="specimen-display">Meet your new<br>neighbors</span>
+            </div>
           </div>
-          <div class="voice-item">
-            <div class="voice-principle">Sound like people.</div>
-            <p>Use &ldquo;we&rdquo; and &ldquo;you.&rdquo; Write like we are talking across the table.</p>
+          <div class="specimen-cell specimen-spec">
+            <div class="spec-stack">
+              <div class="spec-card">
+                <div class="spec-name spec-name-tuppence">Tuppence</div>
+                <div class="spec-meta">
+                  <span class="spec-role">Display script &middot; warmth</span>
+                  <span class="spec-tech">Variable italic &middot; sentence case</span>
+                </div>
+              </div>
+              <div class="spec-card">
+                <div class="spec-name spec-name-tay">TAY Amaya</div>
+                <div class="spec-meta">
+                  <span class="spec-role">Display anchor &middot; statement</span>
+                  <span class="spec-tech">Regular &middot; UPPERCASE &middot; +0.02em tracking</span>
+                </div>
+              </div>
+            </div>
           </div>
-          <div class="voice-item">
-            <div class="voice-principle">Be specific.</div>
-            <p>Real dishes, real moments, real reasons to visit.</p>
+        </div>
+
+        <div class="specimen-row" data-slot="cta">
+          <div class="specimen-cell specimen-live">
+            <a class="specimen-cta" href="#">Order now</a>
           </div>
-          <div class="voice-item">
-            <div class="voice-principle">Be clear, not clever.</div>
-            <p>A little warmth is good. Trying too hard is not.</p>
+          <div class="specimen-cell specimen-spec">
+            <div class="spec-card">
+              <div class="spec-name spec-name-futura">Futura&nbsp;PT Demi</div>
+              <div class="spec-meta">
+                <span class="spec-role">Button label</span>
+                <span class="spec-tech">Demi 600 &middot; 13.5&thinsp;px &middot; +0.18em tracking &middot; UPPERCASE</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="specimen-row" data-slot="footer">
+          <div class="specimen-cell specimen-live">
+            <div class="specimen-foot">Coming Soon</div>
+          </div>
+          <div class="specimen-cell specimen-spec">
+            <div class="spec-card">
+              <div class="spec-name spec-name-telegraf">Telegraf</div>
+              <div class="spec-meta">
+                <span class="spec-role">Body &middot; supporting text</span>
+                <span class="spec-tech">Regular &middot; sentence case &middot; 16&thinsp;px</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>

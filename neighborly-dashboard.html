@@ -197,6 +197,16 @@
   .mix-bar-label .mix-delta.pct-neu { background: var(--surface-2); color: var(--text-3); }
   .mix-bar-label .mix-delta-foot { font-size: 9.5px; color: var(--text-3); letter-spacing: 0.04em; }
 
+  /* Daily Channel mix — pie + side legend */
+  .channel-pie-wrap { display: grid; grid-template-columns: 200px 1fr; gap: 1rem; align-items: center; margin-top: 0.5rem; }
+  @media (max-width: 560px) { .channel-pie-wrap { grid-template-columns: 1fr; } .channel-pie-canvas { max-width: 200px; margin: 0 auto; } }
+  .channel-pie-legend { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+  .channel-pie-row { display: grid; grid-template-columns: 10px 1fr auto; align-items: center; gap: 8px; font-family: var(--f-sans); font-size: var(--t-caption); color: var(--text); }
+  .channel-pie-row .swatch { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+  .channel-pie-row .name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .channel-pie-row .val { font-family: var(--f-mono); font-size: var(--t-caption-sm); color: var(--text-3); }
+  .channel-pie-row .val strong { font-weight: 500; color: var(--text); }
+
   /* PAID PERFORMANCE SCORECARD — dense, one-glance, no bar-chart fatigue */
   .scorecard { display: grid; grid-template-columns: minmax(160px, 1.1fr) repeat(7, minmax(0, 1fr)); gap: 0; }
   .scorecard .sc-h, .scorecard .sc-c { padding: 14px 14px; border-bottom: 0.5px solid var(--border); }
@@ -479,7 +489,6 @@
         <div class="view-toggle">
           <button class="vt-btn active" onclick="setView('weekly', this)">This week</button>
           <button class="vt-btn" onclick="setView('trailing', this)">vs T4W avg</button>
-          <button class="vt-btn" onclick="setView('lastweek', this)">vs Last week</button>
         </div>
         <!-- legacy hidden select kept so any existing code paths still work -->
         <select id="weekPicker" onchange="switchWeek(this.value)" style="display:none"></select>
@@ -1451,21 +1460,18 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeHubNav(
 <!-- DAILY PAGE -->
 <div class="page" id="page-daily">
   <div class="dashboard">
-    <div class="dash-header reveal np-page-header">
-      <div>
-        <div class="week-badge" id="dailyDateBadge" onclick="toggleDailyCalendar(event)" style="margin-top:0">
-          <span class="week-badge-text">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-            Date
-          </span>
-          <span class="week-pick" id="dailyDateLabel">—</span>
-          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-right:4px;opacity:0.7"><polyline points="6 9 12 15 18 9"/></svg>
+    <div class="np-page-header-row reveal">
+      <div class="np-page-selectors">
+        <button class="np-date-pill" id="dailyDateBadge" type="button" onclick="toggleDailyCalendar(event)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 11h18"/></svg>
+          <span id="dailyDateLabel">—</span>
+          <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="view-toggle">
+          <button class="vt-btn" onclick="setDailyLoc('wlv',this)">Westlake Village</button>
+          <button class="vt-btn" onclick="setDailyLoc('bw',this)">Brentwood</button>
+          <button class="vt-btn active" onclick="setDailyLoc('total',this)">All Locations</button>
         </div>
-      </div>
-      <div class="view-toggle">
-        <button class="vt-btn active" onclick="setDailyLoc('wlv',this)">Westlake Village</button>
-        <button class="vt-btn" onclick="setDailyLoc('bw',this)">Brentwood</button>
-        <button class="vt-btn" onclick="setDailyLoc('total',this)">All Locations</button>
       </div>
     </div>
 
@@ -1495,7 +1501,10 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeHubNav(
       <div class="chart-card">
         <div class="chart-card-title">Channel mix %</div>
         <div class="chart-card-sub">Share of today's net sales · hover for detail</div>
-        <div id="dailyChannelMix" style="margin-top:0.5rem"></div>
+        <div class="channel-pie-wrap">
+          <div class="chart-wrap channel-pie-canvas" style="height:200px"><canvas id="dailyChannelMixChart"></canvas></div>
+          <div id="dailyChannelMixLegend" class="channel-pie-legend"></div>
+        </div>
         <div class="chart-source">Source: Toast POS · Uber Eats · DoorDash</div>
       </div>
     </div>
@@ -2031,7 +2040,7 @@ const DAILY = { wlv: null, bw: null, total: null };
 const DAILY_PREV = { wlv: null, bw: null, total: null, date: null };
 let DAILY_META = { date: '', generated: '' };
 const _dailyCharts = {};
-let dailyLoc = 'wlv';
+let dailyLoc = 'total';
 let _dailyFetching = false;
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -2468,10 +2477,12 @@ const CHANNEL_COLORS = ['#1f2328','#e87142','#eace49','#7bbd91','#6280bd','#dbc6
 
 function renderDailyChannels(data) {
   const canvas = document.getElementById('dailyChannelChart');
-  const mixWrap = document.getElementById('dailyChannelMix');
-  if (!canvas || !mixWrap) return;
-  if (_dailyCharts.channel) { try { _dailyCharts.channel.destroy(); } catch(e){} }
-  if (!data) { mixWrap.innerHTML = '<div class="daily-empty-kpi">No data</div>'; return; }
+  const pieCanvas = document.getElementById('dailyChannelMixChart');
+  const legendEl = document.getElementById('dailyChannelMixLegend');
+  if (!canvas || !pieCanvas || !legendEl) return;
+  if (_dailyCharts.channel)    { try { _dailyCharts.channel.destroy(); } catch(e){} }
+  if (_dailyCharts.channelPie) { try { _dailyCharts.channelPie.destroy(); } catch(e){} }
+  if (!data) { legendEl.innerHTML = '<div class="daily-empty-kpi">No data</div>'; return; }
 
   const ch = data.today.channels || {};
   const keys = Object.keys(CHANNEL_LABELS).filter(k => (ch[k] || 0) > 0);
@@ -2519,17 +2530,49 @@ function renderDailyChannels(data) {
     }
   });
 
-  mixWrap.innerHTML = keys
-    .map(k => ({ k, v: +ch[k]||0 }))
-    .sort((a,b) => b.v - a.v)
-    .map((row, i) => {
-      const pct = row.v/total*100;
-      const color = CHANNEL_COLORS[keys.indexOf(row.k) % CHANNEL_COLORS.length];
-      return `<div class="mix-bar-wrap" title="${CHANNEL_LABELS[row.k]}: ${_fmtDollarRound(row.v)} (${pct.toFixed(1)}% of net)">
-        <div class="mix-bar-label"><span>${CHANNEL_LABELS[row.k]}</span><span class="mix-detail">${_fmtDollarRound(row.v)} &middot; ${pct.toFixed(1)}%</span></div>
-        <div class="mix-bar-track"><div class="mix-bar-fill animate" style="width:${pct.toFixed(2)}%;background:${color}"></div></div>
-      </div>`;
-    }).join('');
+  // Channel mix % — pie chart with side legend
+  const sorted = keys.map((k, i) => ({ k, v: +ch[k] || 0, color: CHANNEL_COLORS[i % CHANNEL_COLORS.length] }))
+                     .sort((a, b) => b.v - a.v);
+  _dailyCharts.channelPie = new Chart(pieCanvas, {
+    type: 'doughnut',
+    data: {
+      labels: sorted.map(r => CHANNEL_LABELS[r.k]),
+      datasets: [{
+        data: sorted.map(r => r.v),
+        backgroundColor: sorted.map(r => r.color),
+        hoverBackgroundColor: sorted.map(r => r.color),
+        borderColor: '#fff',
+        borderWidth: 1.5,
+        hoverOffset: 6
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      cutout: '58%',
+      animation: { duration: 700, easing: 'easeOutQuart' },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#1f2328', titleColor: '#fff', bodyColor: '#fff',
+          padding: 10, cornerRadius: 6, displayColors: false,
+          titleFont: { family: 'DM Sans', size: 12, weight: '600' },
+          bodyFont:  { family: 'DM Mono', size: 12 },
+          callbacks: {
+            title: ctx => ctx[0].label,
+            label: ctx => [_fmtDollarRound(ctx.parsed), (ctx.parsed/total*100).toFixed(1) + '% of net']
+          }
+        }
+      }
+    }
+  });
+  legendEl.innerHTML = sorted.map(r => {
+    const pct = r.v / total * 100;
+    return `<div class="channel-pie-row" title="${CHANNEL_LABELS[r.k]}: ${_fmtDollarRound(r.v)} (${pct.toFixed(1)}% of net)">
+      <span class="swatch" style="background:${r.color}"></span>
+      <span class="name">${CHANNEL_LABELS[r.k]}</span>
+      <span class="val"><strong>${pct.toFixed(1)}%</strong> &middot; ${_fmtDollarRound(r.v)}</span>
+    </div>`;
+  }).join('');
 }
 
 // ── PMIX (concepts) ───────────────────────────────────────────────────────────
