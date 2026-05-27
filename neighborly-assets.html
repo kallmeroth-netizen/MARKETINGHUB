@@ -500,95 +500,131 @@
   }
   .type-sample.body em { color: var(--ink); font-style: normal; font-weight: 500; }
 
-  /* ===== TYPE-IN-USE SPECIMEN ===== */
+  /* ===== TYPE-IN-USE SPECIMEN =====
+     Four horizontal slots (eyebrow / headline / CTA / footer) stacked
+     inside one orange card. Each slot is a 2-col row: the live
+     creative on the left, the font name in the same slot on the right.
+     Hairlines between rows line up the slots across both columns so
+     the reader can scan top-to-bottom and see exactly which font
+     drives each tier of the layout. */
   .specimen {
     background: var(--orange);
     color: #fff;
     border-radius: var(--radius-lg);
-    padding: var(--s-7);
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: var(--s-7);
-    align-items: stretch;
+    padding: var(--s-7) var(--s-7) var(--s-6);
+    display: flex; flex-direction: column;
     overflow: hidden;
   }
   @media (max-width: 820px) {
-    .specimen { grid-template-columns: 1fr; padding: var(--s-6); gap: var(--s-6); }
-  }
-  .specimen-panel {
-    display: flex; flex-direction: column;
-    align-items: center; justify-content: space-between;
-    gap: var(--s-5);
-    text-align: center;
-    min-height: 420px;
-    padding: var(--s-3) 0;
-  }
-  /* The right-hand "labels" column gets a soft divider on desktop only */
-  @media (min-width: 821px) {
-    .specimen-labels {
-      border-left: 1px dashed rgba(255,255,255,0.35);
-      padding-left: var(--s-7);
-      margin-left: calc(var(--s-7) * -0.5);
-    }
+    .specimen { padding: var(--s-5) var(--s-5) var(--s-4); }
   }
 
-  /* Small caps eyebrow at the top (Futura PT Demi) */
+  .specimen-row {
+    display: grid;
+    grid-template-columns: 1fr 1px 1fr;
+    column-gap: var(--s-7);
+    align-items: center;
+    padding: var(--s-6) 0;
+    border-bottom: 1px solid rgba(255,255,255,0.22);
+  }
+  .specimen-row:last-child { border-bottom: 0; }
+  /* Vertical divider lives in its own column so cell widths stay equal */
+  .specimen-row::after {
+    content: '';
+    grid-column: 2 / 3; grid-row: 1 / 2;
+    width: 1px; height: 70%;
+    background: rgba(255,255,255,0.22);
+    justify-self: center;
+  }
+  @media (max-width: 820px) {
+    .specimen-row {
+      grid-template-columns: 1fr; column-gap: 0; row-gap: var(--s-4);
+      padding: var(--s-5) 0;
+    }
+    .specimen-row::after { display: none; }
+  }
+
+  .specimen-cell {
+    display: flex; align-items: center; justify-content: center;
+    text-align: center;
+    min-height: 0;
+  }
+  .specimen-cell.specimen-live   { grid-column: 1 / 2; }
+  .specimen-cell.specimen-label  { grid-column: 3 / 4; }
+  @media (max-width: 820px) {
+    .specimen-cell.specimen-live,
+    .specimen-cell.specimen-label { grid-column: 1 / -1; }
+  }
+
+  /* Eyebrow — Futura PT Demi, slightly tracked caps */
   .specimen-eyebrow {
     font-family: 'Futura PT Demi', var(--f-eyebrow);
-    font-weight: 700;
-    font-size: clamp(13px, 1.2vw, 16px);
-    letter-spacing: 0.18em;
+    font-weight: 600;
+    font-size: clamp(13px, 1.15vw, 15px);
+    letter-spacing: 0.20em;
     text-transform: uppercase;
-    line-height: 1.25;
+    line-height: 1.45;
     color: #fff;
   }
-  /* Headline cluster: Tuppence script + TAY Amaya display */
-  .specimen-headline { display: flex; flex-direction: column; gap: 6px; line-height: 1; }
+
+  /* Headline cluster — Tuppence + TAY Amaya. Real breathing room between
+     the script and the display caps so each font owns its space. */
+  .specimen-headline {
+    display: flex; flex-direction: column; align-items: center;
+    gap: clamp(14px, 1.4vw, 22px);
+    line-height: 1;
+  }
   .specimen-script {
     font-family: var(--f-tuppence);
     font-weight: 500; font-style: normal;
-    font-size: clamp(2.3rem, 4.6vw, 3.4rem);
-    line-height: 1;
+    font-size: clamp(2.4rem, 4.6vw, 3.4rem);
+    line-height: 0.95;
   }
   .specimen-display {
     font-family: 'TAY Amaya', var(--f-display);
     font-weight: 400;
     text-transform: uppercase;
-    letter-spacing: 0.015em;
-    font-size: clamp(1.9rem, 4.4vw, 3rem);
-    line-height: 1.02;
+    letter-spacing: 0.02em;
+    font-size: clamp(1.95rem, 4.2vw, 2.85rem);
+    line-height: 1.05;
   }
-  /* CTA pill — Futura PT Demi caps on a light cream */
+
+  /* CTA pill — same dimensions on both sides so heights line up */
   .specimen-cta {
-    display: inline-block;
+    display: inline-flex; align-items: center; justify-content: center;
     background: var(--cream, #F7F6F3);
     color: var(--ink, #1f2328);
     font-family: 'Futura PT Demi', var(--f-eyebrow);
-    font-weight: 700;
-    font-size: 14px;
-    letter-spacing: 0.16em;
+    font-weight: 600;
+    font-size: 13.5px;
+    letter-spacing: 0.18em;
     text-transform: uppercase;
-    padding: 14px 28px;
+    height: 44px;
+    padding: 0 28px;
     border-radius: 999px;
     text-decoration: none;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
     transition: filter 0.15s var(--easing, ease);
   }
-  .specimen-live .specimen-cta:hover { filter: brightness(0.95); }
+  .specimen-live .specimen-cta:hover { filter: brightness(0.96); }
   .specimen-cta-label { cursor: default; }
-  /* Soft Telegraf footer */
+
+  /* Footer — Telegraf, quiet and lighter */
   .specimen-foot {
     font-family: 'Telegraf', var(--f-sans);
     font-weight: 400;
-    font-size: clamp(15px, 1.4vw, 18px);
-    color: rgba(255,255,255,0.85);
+    font-size: clamp(15px, 1.35vw, 17px);
+    color: rgba(255,255,255,0.88);
     letter-spacing: 0.005em;
+    line-height: 1.4;
   }
-  /* The label column slightly de-emphasises so the live creative reads first */
-  .specimen-labels .specimen-eyebrow,
-  .specimen-labels .specimen-foot,
-  .specimen-labels .specimen-script,
-  .specimen-labels .specimen-display { color: rgba(255,255,255,0.88); }
-  .specimen-labels .specimen-cta { background: rgba(255,255,255,0.92); }
+
+  /* The label column reads slightly softer so the live creative leads */
+  .specimen-label .specimen-eyebrow,
+  .specimen-label .specimen-foot,
+  .specimen-label .specimen-script,
+  .specimen-label .specimen-display { color: rgba(255,255,255,0.92); }
+  .specimen-label .specimen-cta { background: rgba(255,255,255,0.94); }
 
   /* ===== PHOTOGRAPHY ===== */
   .photo {
@@ -1043,25 +1079,49 @@
     </div>
     <div>
       <div class="specimen">
-        <!-- LEFT: the actual creative -->
-        <div class="specimen-panel specimen-live">
-          <div class="specimen-eyebrow">We can&rsquo;t wait<br>to serve you!</div>
-          <div class="specimen-headline">
-            <span class="specimen-script">Brentwood,</span>
-            <span class="specimen-display">Meet your new<br>neighbors</span>
+        <!-- Each row is one font slot. Hairlines span both columns so
+             eyebrow / headline / CTA / footer line up exactly across
+             the live creative and its labelled twin. -->
+        <div class="specimen-row" data-slot="eyebrow">
+          <div class="specimen-cell specimen-live">
+            <div class="specimen-eyebrow">We can&rsquo;t wait<br>to serve you!</div>
           </div>
-          <a class="specimen-cta" href="#">Order now</a>
-          <div class="specimen-foot">Coming Soon</div>
+          <div class="specimen-cell specimen-label" aria-hidden="true">
+            <div class="specimen-eyebrow">Futura PT Demi</div>
+          </div>
         </div>
-        <!-- RIGHT: same layout, labeled with the font names -->
-        <div class="specimen-panel specimen-labels" aria-hidden="true">
-          <div class="specimen-eyebrow">Futura PT Demi</div>
-          <div class="specimen-headline">
-            <span class="specimen-script">Tuppence</span>
-            <span class="specimen-display">TAY Amaya</span>
+
+        <div class="specimen-row" data-slot="headline">
+          <div class="specimen-cell specimen-live">
+            <div class="specimen-headline">
+              <span class="specimen-script">Brentwood,</span>
+              <span class="specimen-display">Meet your new<br>neighbors</span>
+            </div>
           </div>
-          <div class="specimen-cta specimen-cta-label">Futura PT Demi</div>
-          <div class="specimen-foot">Telegraf</div>
+          <div class="specimen-cell specimen-label" aria-hidden="true">
+            <div class="specimen-headline">
+              <span class="specimen-script">Tuppence</span>
+              <span class="specimen-display">TAY Amaya</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="specimen-row" data-slot="cta">
+          <div class="specimen-cell specimen-live">
+            <a class="specimen-cta" href="#">Order now</a>
+          </div>
+          <div class="specimen-cell specimen-label" aria-hidden="true">
+            <span class="specimen-cta specimen-cta-label">Futura PT Demi</span>
+          </div>
+        </div>
+
+        <div class="specimen-row" data-slot="footer">
+          <div class="specimen-cell specimen-live">
+            <div class="specimen-foot">Coming Soon</div>
+          </div>
+          <div class="specimen-cell specimen-label" aria-hidden="true">
+            <div class="specimen-foot">Telegraf</div>
+          </div>
         </div>
       </div>
     </div>
