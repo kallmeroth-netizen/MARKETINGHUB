@@ -110,17 +110,53 @@
     display: flex; align-items: center; gap: var(--s-2);
   }
   .concept-summary-eyebrow::after { content: ''; flex: 1; height: 0.5px; background: var(--line); }
-  .concept-strip { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: var(--s-3); }
+  .concept-strip { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: var(--s-3); }
   .concept-chip {
-    padding: 4px 0 4px 12px;
-    border-left: 2px solid var(--line-strong);
-    transition: border-color var(--t-base) var(--easing);
+    position: relative;
+    padding: 14px 16px;
+    background: var(--surface);
+    border: 0.5px solid var(--line);
+    border-radius: var(--r-md);
+    transition: border-color var(--t-base) var(--easing), transform var(--t-base) var(--easing), box-shadow var(--t-base) var(--easing);
   }
-  .concept-chip:hover { border-left-color: var(--ink); }
-  .concept-chip-name { font-family: var(--f-eyebrow); font-weight: 600; font-size: var(--t-eyebrow); letter-spacing: 0.18em; text-transform: uppercase; color: var(--text-3); margin-bottom: 4px; display: flex; align-items: center; gap: 6px; }
-  .concept-chip-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-  .concept-chip-net { font-family: var(--f-mono); font-size: 16px; font-weight: 500; color: var(--ink); }
-  .concept-chip-meta { font-family: var(--f-mono); font-size: var(--t-caption-sm); color: var(--text-3); margin-top: 2px; }
+  .concept-chip::before {
+    content: '';
+    position: absolute; left: 0; top: 12px; bottom: 12px;
+    width: 3px; border-radius: 0 2px 2px 0;
+    background: var(--concept-color, var(--line-strong));
+  }
+  .concept-chip:hover {
+    border-color: var(--line-bold);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-sm);
+  }
+  .concept-chip-name {
+    font-family: var(--f-eyebrow); font-weight: 600;
+    font-size: var(--t-eyebrow); letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--text-2); margin-bottom: 8px;
+    display: flex; align-items: center; gap: 8px;
+    line-height: 1.2;
+  }
+  .concept-chip-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+  .concept-chip-net {
+    font-family: var(--f-mono); font-size: 22px; font-weight: 500;
+    color: var(--ink); line-height: 1.05; margin-bottom: 10px;
+  }
+  .concept-chip-stats {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 4px 12px;
+    padding-top: 8px; border-top: 0.5px solid var(--line);
+  }
+  .concept-stat { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+  .concept-stat-val {
+    font-family: var(--f-mono); font-size: var(--t-body-sm); font-weight: 500;
+    color: var(--ink); line-height: 1.15;
+  }
+  .concept-stat-lbl {
+    font-family: var(--f-eyebrow); font-weight: 600;
+    font-size: 9.5px; letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--text-3);
+  }
 
   /* === Quantity by concept — graph === */
   .qty-by-concept { display: flex; flex-direction: column; gap: var(--s-3); }
@@ -310,9 +346,10 @@
      "Gaby Food", "Mixtape Food"); display the team-facing brand
      names everywhere a concept appears. */
   const CONCEPT_DISPLAY = {
-    'mk food':       'Mini Kabob',
-    'gaby food':     "What's Gaby Cooking",
-    'mixtape food':  'Mixtape',
+    'mk food':           'Mini Kabob',
+    'gaby food':         "What's Gaby Cooking",
+    'mixtape food':      'Mixtape',
+    'social monk food':  'Social Monk',
   };
   const conceptName = s => {
     if (s == null) return s;
@@ -500,13 +537,19 @@
     const concepts = (DATA.concepts || [])
       .filter(c => c.net > 0 && !NON_CONCEPT.test(c.name || ''))
       .sort((a, b) => b.net - a.net);
-    document.getElementById('conceptStrip').innerHTML = concepts.map(c => `
-      <div class="concept-chip" title="${conceptName(c.name)}: ${fmt$(c.net)} · ${fmtN(c.qty)} sold">
-        <div class="concept-chip-name"><span class="concept-chip-dot" style="background:${conceptColor[c.name] || COLORS[14]}"></span>${conceptName(c.name)}</div>
+    document.getElementById('conceptStrip').innerHTML = concepts.map(c => {
+      const color = conceptColor[c.name] || COLORS[14];
+      const avg = c.qty ? c.net / c.qty : 0;
+      return `
+      <div class="concept-chip" style="--concept-color:${color}" title="${conceptName(c.name)}: ${fmt$(c.net)} · ${fmtN(c.qty)} sold · ${fmt$2(avg)} avg basket">
+        <div class="concept-chip-name"><span class="concept-chip-dot" style="background:${color}"></span>${conceptName(c.name)}</div>
         <div class="concept-chip-net">${fmt$(c.net)}</div>
-        <div class="concept-chip-meta">${(c.net / DATA.totalNet * 100).toFixed(1)}% · ${fmtN(c.qty)} sold</div>
-      </div>
-    `).join('');
+        <div class="concept-chip-stats">
+          <div class="concept-stat"><span class="concept-stat-val">${fmtN(c.qty)}</span><span class="concept-stat-lbl">Items sold</span></div>
+          <div class="concept-stat"><span class="concept-stat-val">${fmt$2(avg)}</span><span class="concept-stat-lbl">Avg basket</span></div>
+        </div>
+      </div>`;
+    }).join('');
 
     renderTable();
   }
@@ -574,8 +617,7 @@
       const primaryL = sortKey === 'qty' ? 'Units' : 'Net';
       const barVal = sortKey === 'qty' ? it.net : it.qty;
       const w = maxOther ? (barVal / maxOther) * 100 : 0;
-      const metaLeft  = sortKey === 'qty' ? fmt$(it.net) + ' net' : `${fmtN(it.qty)} sold`;
-      const metaRight = `${fmt$2(it.avg_price)} avg`;
+      const metaText = sortKey === 'qty' ? fmt$(it.net) + ' net' : `${fmtN(it.qty)} sold`;
       return `
         <div class="leader-card" title="${titleCase(it.name)}: ${fmtN(it.qty)} sold · ${fmt$(it.net)}">
           <span class="leader-rank">#${i + 1}</span>
@@ -587,8 +629,7 @@
           </div>
           <div class="leader-bar"><div class="leader-bar-fill" style="width:${w.toFixed(1)}%; background:${color}"></div></div>
           <div class="leader-meta">
-            <span>${metaLeft}</span>
-            <span>${metaRight}</span>
+            <span>${metaText}</span>
           </div>
         </div>
       `;
