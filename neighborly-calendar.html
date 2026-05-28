@@ -80,6 +80,12 @@ body{font-family:'DM Sans',sans-serif;overscroll-behavior:none;height:100%;backg
 .hub-card-icon svg{width:14px;height:14px}
 @media(max-width:767px){.hub-nav{top:58px!important;left:.8rem!important;right:.8rem!important;padding:1rem!important}.hub-nav-grid{grid-template-columns:repeat(2,1fr)!important}}
 
+/* Calendar content is full-bleed (no centred container), so the nav's
+   default centring math leaves the logo well inside the widest text.
+   Collapse the nav padding to a flat --gutter, matching the content's
+   horizontal padding below — logo + first calendar cell line up. */
+.np-nav{padding-left:var(--gutter)!important;padding-right:var(--gutter)!important}
+
 </style>
 <link rel="stylesheet" href="theme.css">
 <script src="chrome.js" defer></script>
@@ -116,7 +122,7 @@ body{font-family:'DM Sans',sans-serif;overscroll-behavior:none;height:100%;backg
     <a class="np-hub-card" href="neighborly-assets.html">
       <div class="np-hub-card-ico" style="background:var(--brand-tan-light)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--brand-tan-deep)" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 010 14.14M4.93 4.93a10 10 0 000 14.14M12 2v2M12 20v2M2 12h2M20 12h2"/></svg></div>
       <div class="np-hub-card-title">Brand Guidelines</div>
-      <div class="np-hub-card-sub">Logos, fonts &amp; templates</div>
+      <div class="np-hub-card-sub">Logos &amp; templates</div>
     </a>
     <a class="np-hub-card" href="neighborly-social.html">
       <div class="np-hub-card-ico" style="background:var(--brand-blue-light)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--brand-blue-deep)" stroke-width="2"><path d="M3 12h4l3-9 4 18 3-9h4"/></svg></div>
@@ -975,7 +981,7 @@ function NeighborlyCalendar() {
             {title:'Performance Marketing', sub:'Weekly & all-time KPIs',  iconType:'grid',     bg:'#fdf7d8',ic:'#b89a00', href:'https://beneighborly.team/neighborly-dashboard.html'},
             {title:'Sales & Pmix',       sub:'Daily sales & product mix',iconType:'bars',     bg:'#e3ece3',ic:'#5a7a5a', href:'https://beneighborly.team/neighborly-pmix.html'},
             {title:'Marketing Calendar', sub:'Campaigns & scheduling',   iconType:'calendar', bg:'#e4f5ea',ic:'#2a7a4b', href:'https://beneighborly.team/neighborly-calendar.html', active:true},
-            {title:'Brand Assets',       sub:'Logos, fonts & templates', iconType:'assets',   bg:'#f7f0e4',ic:'#9c7a3c', href:'https://beneighborly.team/neighborly-assets.html'},
+            {title:'Brand Assets',       sub:'Logos & templates', iconType:'assets',   bg:'#f7f0e4',ic:'#9c7a3c', href:'https://beneighborly.team/neighborly-assets.html'},
             {title:'Social',             sub:'Reach & engagement',       iconType:'pulse',    bg:'#eaeef8',ic:'#3a59a0', href:'https://beneighborly.team/neighborly-social.html'},
             {title:'Guest Intelligence', sub:'Feedback & experience trends', iconType:'chat', bg:'#f0eff5',ic:'#5a4a7a', href:'https://beneighborly.team/neighborly-guests.html'},
           ].map(card => (
@@ -1050,7 +1056,7 @@ function NeighborlyCalendar() {
       <div style={{display:'flex',flex:1,overflow:'hidden',height:'calc(100vh - 50px)'}}>
         {/* MAIN */}
         <div style={{flex:1,overflowY:'auto',minWidth:0}}>
-          <div style={{padding:isMobile?'0.75rem 0.6rem 6rem':'1.1rem 1.4rem 3rem'}}>
+          <div style={{padding:isMobile?'0.75rem var(--gutter) 6rem':'1.1rem var(--gutter) 3rem'}}>
 
             {/* THEME BANNER */}
             <div onClick={() => mode==='edit' && setThemeOpen(true)}
