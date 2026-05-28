@@ -550,7 +550,11 @@
     min-height: 0;
   }
   .specimen-cell.specimen-live   { grid-column: 1 / 2; }
-  .specimen-cell.specimen-label  { grid-column: 3 / 4; }
+  .specimen-cell.specimen-label  {
+    grid-column: 3 / 4;
+    justify-content: flex-start;
+    text-align: left;
+  }
   @media (max-width: 820px) {
     .specimen-cell.specimen-live,
     .specimen-cell.specimen-label { grid-column: 1 / -1; }
@@ -1144,7 +1148,7 @@
   <!-- TYPE IN USE — paired specimen showing the fonts working together -->
   <section class="row reveal" id="in-use">
     <div class="row-head">
-      <h2 class="row-title">Type in use</h2>
+      <h2 class="row-title">Fonts now</h2>
     </div>
     <div>
       <div class="specimen">
