@@ -278,39 +278,38 @@
     border: 1px solid var(--line);
     border-radius: var(--radius);
     overflow: hidden;
-    display: grid;
-    grid-template-columns: 72px minmax(0, 1fr) auto;
-    align-items: center;
-    gap: 10px;
-    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    padding: var(--s-5);
+    gap: var(--s-4);
   }
   .logo-stage {
-    grid-column: 1;
-    width: 72px; height: 54px;
+    width: 100%;
+    aspect-ratio: 4 / 3;
     background: var(--warm);
     display: flex; align-items: center; justify-content: center;
-    padding: 6px;
+    padding: var(--s-5);
     border-radius: var(--r-md);
     border: 1px solid var(--line);
     position: relative;
   }
   .logo-stage.dark { background: var(--ink); }
   .logo-stage.cream { background: var(--cream); }
-  .logo-stage img { max-width: 100%; max-height: 100%; object-fit: contain; }
+  .logo-stage img { max-width: 78%; max-height: 78%; object-fit: contain; }
   .logo-stage .placeholder {
     width: 100%; height: 100%;
     border: 1px dashed var(--line-strong);
     border-radius: 4px;
     display: flex; align-items: center; justify-content: center; text-align: center;
-    font-family: var(--f-mono); font-size: 8px;
+    font-family: var(--f-mono); font-size: 10px;
     color: var(--text-3); letter-spacing: 0.08em; text-transform: uppercase;
-    padding: 2px;
+    padding: var(--s-3);
   }
-  .logo-meta { grid-column: 2; display: flex; flex-direction: column; gap: 2px; min-width: 0; padding: 0; flex: none; }
-  .logo-meta .tag { align-self: flex-start; font-size: 9px; padding: 3px 7px; }
-  .logo-name { font-family: 'Futura PT Demi', var(--f-eyebrow); font-weight: 700; text-transform: uppercase; font-size: 0.85rem; line-height: 1.15; margin-top: 2px; }
-  .logo-use { font-size: 11.5px; color: var(--text-2); line-height: 1.4; flex: none; }
-  .logo-actions { grid-column: 3; margin-top: 0; display: flex; gap: 6px; }
+  .logo-meta { display: flex; flex-direction: column; gap: 4px; min-width: 0; padding: 0 var(--s-2); }
+  .logo-meta .tag { align-self: flex-start; font-size: 10px; padding: 3px 8px; }
+  .logo-name { font-family: 'Futura PT Demi', var(--f-eyebrow); font-weight: 700; text-transform: uppercase; font-size: 1rem; line-height: 1.15; margin-top: 2px; }
+  .logo-use { font-size: 12.5px; color: var(--text-2); line-height: 1.45; flex: none; }
+  .logo-actions { margin-top: auto; display: flex; gap: 6px; padding: 0 var(--s-2); }
   .logo-actions .btn {
     width: 34px !important; height: 34px !important; padding: 0 !important;
     border-radius: 50% !important; gap: 0 !important;
@@ -429,78 +428,7 @@
   }
   .swatch:hover .swatch-copy { opacity: 1; transform: translateY(0); }
 
-  /* ===== TYPOGRAPHY ===== */
-  .type-card {
-    background: var(--card-solid);
-    border: 1px solid var(--line);
-    border-radius: var(--radius);
-    overflow: hidden;
-  }
-  .type-row {
-    display: grid; grid-template-columns: 220px 1fr; gap: var(--s-5);
-    padding: var(--s-6);
-    border-bottom: 1px solid var(--line);
-    align-items: center;
-  }
-  .type-row:last-child { border-bottom: 0; }
-  @media (max-width: 760px) { .type-row { grid-template-columns: 1fr; gap: var(--s-3); padding: var(--s-5); } }
-
-  .type-meta { display: flex; flex-direction: column; gap: 8px; align-items: flex-start; }
-  .type-role {
-    display: inline-flex; align-items: center;
-    padding: 5px 10px;
-    background: var(--brand-lavender, #cbc9d6);
-    color: #fff !important;
-    border-radius: 999px;
-    font-family: 'Futura PT Demi', var(--f-eyebrow);
-    font-weight: 700;
-    font-size: 10.5px;
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-    line-height: 1;
-  }
-  .type-name { font-family: var(--f-display); font-size: 1.2rem; line-height: 1.15; color: var(--ink); letter-spacing: normal; }
-  .type-name.name-amaya { font-family: var(--f-display); text-transform: uppercase; letter-spacing: normal; }
-  .type-name.name-tuppence { font-family: var(--f-tuppence); font-weight: 500; font-size: 1.3rem; letter-spacing: normal; }
-  .type-name.name-futura { font-family: var(--f-eyebrow); font-weight: 600; text-transform: uppercase; font-size: 1rem; letter-spacing: normal; }
-  .type-name.name-telegraf { font-family: var(--f-telegraf); font-weight: 400; font-size: 1.1rem; letter-spacing: normal; }
-  .type-sample.telegraf { font-family: var(--f-telegraf); font-size: 1.05rem; line-height: 1.55; color: var(--text-2); letter-spacing: normal; }
-  .type-sample.telegraf em { color: var(--ink); font-style: normal; font-weight: 500; }
-  .type-detail { font-family: var(--f-mono); font-size: 11px; color: var(--text-3); line-height: 1.45; letter-spacing: normal; }
-
-  .type-sample.amaya {
-    font-family: var(--f-display);
-    font-size: clamp(2.2rem, 5vw, 3.6rem);
-    text-transform: uppercase;
-    letter-spacing: normal;
-    line-height: 0.95;
-    color: var(--ink);
-  }
-  .type-sample.tuppence {
-    font-family: var(--f-tuppence);
-    font-weight: 500;
-    font-size: clamp(1.8rem, 3.8vw, 2.6rem);
-    line-height: 1.15;
-    color: var(--ink);
-    letter-spacing: normal;
-  }
-  .type-sample.eyebrow-sample {
-    font-family: var(--f-futura);
-    font-weight: 600;
-    font-size: clamp(1rem, 1.6vw, 1.2rem);
-    text-transform: uppercase;
-    letter-spacing: normal;
-    color: var(--ink);
-  }
-  .type-sample.body {
-    font-family: var(--f-sans);
-    font-size: 15px; line-height: 1.65;
-    color: var(--text-2);
-    max-width: 540px;
-  }
-  .type-sample.body em { color: var(--ink); font-style: normal; font-weight: 500; }
-
-  /* ===== TYPE-IN-USE SPECIMEN =====
+  /* ===== TYPOGRAPHY — Fonts now specimen =====
      Four horizontal slots (eyebrow / headline / CTA / footer) stacked
      inside one orange card. Each slot is a 2-col row: the live
      creative on the left, the font name in the same slot on the right.
@@ -831,8 +759,7 @@
   <div class="np-tabs" id="brandTabs">
     <a class="np-tab" href="#logos">Logos</a>
     <a class="np-tab" href="#palette">Palette</a>
-    <a class="np-tab" href="#type">Fonts</a>
-    <a class="np-tab" href="#in-use">In use</a>
+    <a class="np-tab" href="#in-use">Fonts now</a>
     <a class="np-tab" href="#photography">Photography</a>
     <a class="np-tab" href="#downloads">Downloads</a>
   </div>
@@ -1098,54 +1025,7 @@
     </div>
   </section>
 
-  <!-- TYPE -->
-  <section class="row reveal" id="type">
-    <div class="row-head">
-      <h2 class="row-title">Fonts</h2>
-    </div>
-    <div>
-      <div class="type-card">
-
-        <div class="type-row">
-          <div class="type-meta">
-            <span class="type-role">Headline</span>
-            <span class="type-name name-amaya">TAY Amaya</span>
-          </div>
-          <div class="type-sample amaya">Be Neighborly.</div>
-        </div>
-
-        <div class="type-row">
-          <div class="type-meta">
-            <span class="type-role">Subhead Accent</span>
-            <span class="type-name name-tuppence">Tuppence</span>
-            <span class="type-detail">Sentence case · emphasis words or prepositions</span>
-          </div>
-          <div class="type-sample tuppence">Eat different, together.</div>
-        </div>
-
-        <div class="type-row">
-          <div class="type-meta">
-            <span class="type-role">Eyebrow · Button</span>
-            <span class="type-name name-futura">Futura PT Demi</span>
-            <span class="type-detail">All caps</span>
-          </div>
-          <div class="type-sample eyebrow-sample">Curated Food Hall</div>
-        </div>
-
-        <div class="type-row">
-          <div class="type-meta">
-            <span class="type-role">Body · Reference</span>
-            <span class="type-name name-telegraf">Telegraf Regular</span>
-            <span class="type-detail">Specimen only</span>
-          </div>
-          <p class="type-sample telegraf">Mealtime made easy. Find something for everyone.</p>
-        </div>
-
-      </div>
-    </div>
-  </section>
-
-  <!-- TYPE IN USE — paired specimen showing the fonts working together -->
+  <!-- FONTS NOW — paired specimen showing the typefaces working together -->
   <section class="row reveal" id="in-use">
     <div class="row-head">
       <h2 class="row-title">Fonts now</h2>
