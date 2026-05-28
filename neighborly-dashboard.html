@@ -1444,7 +1444,10 @@ document.addEventListener('keydown', e => {
 });
 
 buildWeekPicker();
-renderDashboard();
+// Hydrate DATA from the freshest entry in WEEK_HISTORY so first paint
+// matches the picker's default selection (was painting the stale inline
+// seed until the user manually picked a week).
+if (WEEK_HISTORY.length) switchWeek(0); else renderDashboard();
 
 // ── HUB NAV ───────────────────────────────────────────────────────────────────
 const IS_GUEST = sessionStorage.getItem('nbly_guest') === '1';
