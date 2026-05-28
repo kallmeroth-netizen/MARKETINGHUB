@@ -204,7 +204,7 @@ a { color: inherit; text-decoration: none; }
   transition: background var(--t-base) var(--easing);
 }
 .np-nav-brand:hover { background: transparent; }
-.np-nav-brand img { height: 28px; width: auto; display: block; }
+.np-nav-brand img { height: 31px; width: auto; display: block; }
 .np-nav-brand .chev {
   display: none;
   width: 10px; height: 10px; color: var(--text-3);
@@ -507,9 +507,9 @@ a { color: inherit; text-decoration: none; }
   border-radius: var(--r-lg);
   padding: var(--s-4);
 }
-.np-kpi-label  { font-family: var(--f-eyebrow); font-weight: 600; font-size: var(--t-eyebrow); letter-spacing: 0.18em; text-transform: uppercase; color: var(--text-3); }
-.np-kpi-value  { font-family: var(--f-mono); font-weight: 500; font-size: var(--t-mono-lg); color: var(--ink); line-height: 1.1; margin: 6px 0 4px; }
-.np-kpi-sub    { font-size: var(--t-caption-sm); color: var(--text-3); display: inline-flex; align-items: center; gap: 6px; }
+.np-kpi-label  { font-family: var(--f-eyebrow); font-weight: 600; font-size: var(--t-eyebrow); letter-spacing: 0.18em; text-transform: uppercase; color: var(--text-3); margin-bottom: 6px; }
+.np-kpi-value  { font-family: var(--f-mono); font-weight: 600; font-size: 26px; letter-spacing: -0.04em; color: var(--ink); line-height: 1; margin: 0 0 6px; }
+.np-kpi-sub    { font-size: var(--t-caption-sm); color: var(--text-3); display: inline-flex; align-items: center; gap: 6px; line-height: 1.35; }
 
 /* ============================================================
    BUTTONS + PILLS (unified)
@@ -623,7 +623,7 @@ a { color: inherit; text-decoration: none; }
     height: auto; min-height: auto;
   }
   .np-nav-brand     { grid-column: 1 / 2; grid-row: 1 / 2; justify-self: start; }
-  .np-nav-brand img { height: 28px; }
+  .np-nav-brand img { height: 31px; }
   .np-nav-right     { grid-column: 2 / 4; grid-row: 1 / 2; justify-self: end; }
 
   .np-tabs {
@@ -674,6 +674,12 @@ a { color: inherit; text-decoration: none; }
 }
 .kpi-label { font-family: var(--f-eyebrow); font-weight: 600; font-size: var(--t-eyebrow); letter-spacing: 0.18em; text-transform: uppercase; color: var(--text-3); }
 .kpi-value { font-family: var(--f-mono); font-weight: 500; font-size: var(--t-mono-lg); color: var(--ink); line-height: 1.1; margin: 6px 0 4px; }
+.kpi-foot  { font-family: var(--f-mono); font-size: var(--t-meta); color: var(--text-3); margin-top: 6px; }
+.chart-source {
+  font-family: var(--f-mono); font-size: var(--t-meta);
+  color: var(--text-3); margin-top: var(--s-3);
+  padding-top: var(--s-2); border-top: 0.5px solid var(--line);
+}
 .kpi-sub   { font-size: var(--t-caption-sm); color: var(--text-3); }
 
 .card-title { font-size: var(--t-card-title); font-weight: 600; color: var(--text); margin-bottom: 4px; }
@@ -885,7 +891,7 @@ section.row    { padding: var(--s-7) 0; gap: var(--s-6); }
   display: inline-flex; align-items: center; gap: 6px;
   padding: 6px 8px; border-radius: var(--r-md); cursor: pointer;
 }
-.nav-logo-wrap img { height: 28px !important; width: auto !important; }
+.nav-logo-wrap img { height: 31px !important; width: auto !important; }
 
 /* ============================================================
    INDEX (entry hub) — passcode capsule + hub tile aliases
@@ -928,29 +934,32 @@ section.row    { padding: var(--s-7) 0; gap: var(--s-6); }
   .np-nav-brand .nav-logo,
   .nav-logo-wrap img,
   #root nav img {
-    height: 18px !important; width: auto !important; max-width: 130px !important;
+    height: 20px !important; width: auto !important; max-width: 140px !important;
     object-fit: contain !important;
   }
   .np-nav-brand .chev { display: none !important; }
 
-  /* Right cluster: wrap when content overflows (calendar / dashboard nav) */
+  /* Right cluster: keep on one line, align baseline; tag truncates if narrow */
   .np-nav-right {
-    flex-wrap: wrap !important;
+    flex-wrap: nowrap !important;
     justify-content: flex-end !important;
-    row-gap: 6px !important;
+    align-items: center !important;
+    gap: var(--s-2) !important;
+    min-width: 0 !important;
   }
   /* Calendar already has heavy nav controls on mobile (Month/Week +
      Edit/Present + Google cal link). Hide its redundant page tag on
      phones to stop "MARKETING CALENDAR" from crashing into the logo. */
   #root nav .np-nav-page-tag { display: none !important; }
-  .np-nav .np-nav-page-tag { flex-shrink: 0; }
+  .np-nav .np-nav-page-tag { flex-shrink: 1; min-width: 0; }
 
-  /* Page tag in nav-right: keep but make it small + truncate */
+  /* Page tag in nav-right: small + tracked but legible, truncates gracefully */
   .np-nav-page-tag {
-    font-size: 9.5px !important; letter-spacing: 0.18em !important;
-    padding: 0 4px !important;
+    font-size: 10px !important; letter-spacing: 0.14em !important;
+    padding: 0 !important;
     margin-top: 0 !important;
-    max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    color: var(--text-3) !important;
+    max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
   }
 
   /* Tabs row drops below the nav as a slim underline strip */

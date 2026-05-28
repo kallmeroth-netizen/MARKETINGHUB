@@ -112,7 +112,7 @@ body{font-family:'DM Sans',sans-serif;overscroll-behavior:none;height:100%;backg
     <a class="np-hub-card" href="neighborly-pmix.html">
       <div class="np-hub-card-ico" style="background:#e3ece3"><svg viewBox="0 0 24 24" fill="none" stroke="#5a7a5a" stroke-width="2" stroke-linecap="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></div>
       <div class="np-hub-card-title">Sales &amp; Pmix</div>
-      <div class="np-hub-card-sub">Daily sales &amp; menu mix</div>
+      <div class="np-hub-card-sub">Daily sales &amp; product mix</div>
     </a>
     <a class="np-hub-card is-active" href="neighborly-calendar.html">
       <div class="np-hub-card-ico" style="background:var(--brand-green-light)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--brand-green-deep)" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
@@ -979,7 +979,7 @@ function NeighborlyCalendar() {
           {[
             {title:'Home',                sub:'Marketing Hub overview',  iconType:'home',     bg:'#F0EEE9',ic:'#3a3d44', href:'https://beneighborly.team/index.html'},
             {title:'Performance Marketing', sub:'Weekly & all-time KPIs',  iconType:'grid',     bg:'#fdf7d8',ic:'#b89a00', href:'https://beneighborly.team/neighborly-dashboard.html'},
-            {title:'Sales & Pmix',       sub:'Daily sales & menu mix',   iconType:'bars',     bg:'#e3ece3',ic:'#5a7a5a', href:'https://beneighborly.team/neighborly-pmix.html'},
+            {title:'Sales & Pmix',       sub:'Daily sales & product mix',iconType:'bars',     bg:'#e3ece3',ic:'#5a7a5a', href:'https://beneighborly.team/neighborly-pmix.html'},
             {title:'Marketing Calendar', sub:'Campaigns & scheduling',   iconType:'calendar', bg:'#e4f5ea',ic:'#2a7a4b', href:'https://beneighborly.team/neighborly-calendar.html', active:true},
             {title:'Brand Assets',       sub:'Logos & templates', iconType:'assets',   bg:'#f7f0e4',ic:'#9c7a3c', href:'https://beneighborly.team/neighborly-assets.html'},
             {title:'Social',             sub:'Reach & engagement',       iconType:'pulse',    bg:'#eaeef8',ic:'#3a59a0', href:'https://beneighborly.team/neighborly-social.html'},
@@ -1123,8 +1123,13 @@ function NeighborlyCalendar() {
               ))}
             </div>
 
-            {/* DAY HEADERS — hidden in week view since each cell labels its own day */}
-            {viewMode!=='week' && (
+            {/* Mobile-month renders the month as a vertical agenda
+                (one row per day) instead of a cramped 7-col grid. */}
+            {(() => { return null; })()}
+
+            {/* DAY HEADERS — hidden in week view (each cell labels its own day)
+                and hidden in the mobile-month agenda layout (each row labels itself). */}
+            {viewMode!=='week' && !(isMobile && viewMode==='month') && (
               <div style={{display:'grid',gridTemplateColumns:'repeat(7,1fr)',gap:1,marginBottom:1}}>
                 {['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map(d => (
                   <div key={d} style={{textAlign:'center',fontSize:isMobile?9:11,color:C.text3,padding:isMobile?'3px 0':'6px 0',fontWeight:500,letterSpacing:'.03em'}}>
@@ -1134,26 +1139,28 @@ function NeighborlyCalendar() {
               </div>
             )}
 
-            {/* CALENDAR GRID — week view breaks into a 4-col × 2-row grid
-                on both desktop and mobile so each day cell is big and
-                events stay legible. Month view keeps the 7-col layout. */}
-            <div style={{display:'grid',gridTemplateColumns: viewMode==='week' ? 'repeat(4,1fr)' : 'repeat(7,1fr)',gap:1,background:C.border,border:`0.5px solid ${C.border}`,borderRadius:12,overflow:'hidden',boxShadow:'0 1px 4px rgba(0,0,0,.04)'}}>
-              {cells.map((c, ci) => {
+            {/* CALENDAR GRID — desktop month keeps the 7-col layout; week view
+                breaks into a 4-col × 2-row grid; mobile-month stacks to a
+                single column so each day reads as a full agenda row. */}
+            <div style={{display:'grid',gridTemplateColumns: (isMobile && viewMode==='month') ? '1fr' : (viewMode==='week' ? 'repeat(4,1fr)' : 'repeat(7,1fr)'),gap:1,background:C.border,border:`0.5px solid ${C.border}`,borderRadius:12,overflow:'hidden',boxShadow:'0 1px 4px rgba(0,0,0,.04)'}}>
+              {cells.filter(c => !(isMobile && viewMode==='month' && c.o)).map((c, ci) => {
                 const ds = dsOf(c);
                 const cd = new Date(c.yr,c.mo,c.d); cd.setHours(0,0,0,0);
                 const isTod = cd.getTime()===today.getTime();
                 const cellEvs = filtered.filter(e => e.start<=ds && e.end>=ds);
                 const isWeek = viewMode === 'week';
-                const maxShow = isWeek ? 12 : (isMobile ? 2 : 3);
+                const isAgenda = isMobile && viewMode === 'month';
+                const maxShow = isWeek ? 12 : (isAgenda ? 8 : (isMobile ? 2 : 3));
                 const show = cellEvs.slice(0, maxShow), more = cellEvs.length - maxShow;
                 const isDropTarget = dropCell===ds && mode==='edit';
                 const cellMinH = isWeek
                   ? (isMobile ? 220 : 460)
-                  : (isMobile ? 90 : 124);
+                  : (isAgenda ? 56 : (isMobile ? 90 : 124));
                 const cellPad = isWeek
                   ? (isMobile ? '12px 10px' : '14px 12px')
-                  : (isMobile ? '4px 3px' : '7px 6px');
+                  : (isAgenda ? '10px 12px' : (isMobile ? '4px 3px' : '7px 6px'));
                 const DAY_NAMES = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+                const showDayName = isWeek || isAgenda;
 
                 return (
                   <div key={ci}
@@ -1162,16 +1169,19 @@ function NeighborlyCalendar() {
                     onDrop={mode==='edit' ? e=>handleDrop(e,ds) : undefined}
                     onClick={mode==='edit' ? ()=>openAdd(ds) : undefined}
                     style={{background:isDropTarget?C.yl:isTod?'#FFFDF2':c.o?'#FAFAF8':C.surface,minHeight:cellMinH,padding:cellPad,overflow:'hidden',position:'relative',cursor:mode==='edit'?'pointer':'default',transition:'background .1s',outline:isDropTarget?`2px dashed ${C.yellow}`:'none'}}>
-                    {/* Day header — in week view, embed day name + number directly in the cell */}
-                    <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:isWeek?10:(isMobile?2:4)}}>
-                      {isWeek && (
+                    {/* Day header — in week and agenda views, embed day name + number directly in the cell */}
+                    <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:isWeek?10:(isAgenda?6:(isMobile?2:4))}}>
+                      {showDayName && (
                         <span style={{fontSize:isMobile?11:12,color:C.text3,fontWeight:600,letterSpacing:'.06em',textTransform:'uppercase'}}>
                           {DAY_NAMES[cd.getDay()]}
                         </span>
                       )}
-                      <div style={{fontSize:isWeek?(isMobile?15:18):(isMobile?10:11.5),fontWeight:500,width:isWeek?(isMobile?28:32):(isMobile?20:22),height:isWeek?(isMobile?28:32):(isMobile?20:22),display:'flex',alignItems:'center',justifyContent:'center',borderRadius:'50%',background:isTod?C.orange:'transparent',color:isTod?'#fff':c.o?C.text3:C.text,flexShrink:0,fontFamily:"'DM Mono',monospace"}}>
+                      <div style={{fontSize:isWeek?(isMobile?15:18):(isAgenda?14:(isMobile?10:11.5)),fontWeight:500,width:isWeek?(isMobile?28:32):(isAgenda?26:(isMobile?20:22)),height:isWeek?(isMobile?28:32):(isAgenda?26:(isMobile?20:22)),display:'flex',alignItems:'center',justifyContent:'center',borderRadius:'50%',background:isTod?C.orange:'transparent',color:isTod?'#fff':c.o?C.text3:C.text,flexShrink:0,fontFamily:"'DM Mono',monospace"}}>
                         {c.d}
                       </div>
+                      {isAgenda && cellEvs.length === 0 && (
+                        <span style={{fontSize:11,color:C.text3,marginLeft:'auto',fontStyle:'italic'}}>No events</span>
+                      )}
                     </div>
                     {show.map(ev => {
                       const cat = CATS[ev.cat]||CATS.social;
@@ -1183,13 +1193,13 @@ function NeighborlyCalendar() {
                           onDragStart={mode==='edit' ? e=>{e.stopPropagation();handleDragStart(e,ev.id);} : undefined}
                           onDragEnd={handleDragEnd}
                           onClick={e => { e.stopPropagation(); setSidebarId(sidebarId===ev.id?null:ev.id); }}
-                          style={{borderRadius:isWeek?8:(isMobile?4:6),padding:isWeek?(isMobile?'6px 8px':'8px 10px'):(isMobile?'2px 4px':'4px 7px'),fontSize:isWeek?(isMobile?12:13):(isMobile?9:11),fontWeight:500,marginBottom:isWeek?6:(isMobile?2:3),cursor:'pointer',display:'flex',alignItems:'flex-start',gap:isWeek?8:(isMobile?3:5),background:ev.hold?'transparent':cat.bg,color:ev.hold?C.text2:cat.text,border:ev.hold?`1.5px dashed ${C.tan}`:isSelected?`1.5px solid ${C.orange}`:`0.5px solid rgba(0,0,0,0.05)`,fontStyle:ev.hold?'italic':'normal',boxShadow:isSelected?`0 0 0 1px ${C.orange}`:'0 1px 2px rgba(0,0,0,.03)',opacity:isDragging?.35:1,transition:'opacity .15s,box-shadow .15s,border-color .15s',userSelect:'none'}}>
-                          <div style={{width:isWeek?14:(isMobile?8:12),height:isWeek?14:(isMobile?8:12),borderRadius:'50%',background:ev.hold?'transparent':cat.color,flexShrink:0,marginTop:isWeek?2:(isMobile?1:1.5),display:'flex',alignItems:'center',justifyContent:'center'}}>
-                            {!ev.hold && <svg width={isWeek?9:(isMobile?5:8)} height={isWeek?9:(isMobile?5:8)} viewBox="0 0 12 12" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d={cat.icon}/></svg>}
+                          style={{borderRadius:isWeek?8:(isAgenda?6:(isMobile?4:6)),padding:isWeek?(isMobile?'6px 8px':'8px 10px'):(isAgenda?'6px 9px':(isMobile?'2px 4px':'4px 7px')),fontSize:isWeek?(isMobile?12:13):(isAgenda?12:(isMobile?9:11)),fontWeight:500,marginBottom:isWeek?6:(isAgenda?4:(isMobile?2:3)),cursor:'pointer',display:'flex',alignItems:'flex-start',gap:isWeek?8:(isAgenda?7:(isMobile?3:5)),background:ev.hold?'transparent':cat.bg,color:ev.hold?C.text2:cat.text,border:ev.hold?`1.5px dashed ${C.tan}`:isSelected?`1.5px solid ${C.orange}`:`0.5px solid rgba(0,0,0,0.05)`,fontStyle:ev.hold?'italic':'normal',boxShadow:isSelected?`0 0 0 1px ${C.orange}`:'0 1px 2px rgba(0,0,0,.03)',opacity:isDragging?.35:1,transition:'opacity .15s,box-shadow .15s,border-color .15s',userSelect:'none'}}>
+                          <div style={{width:isWeek?14:(isAgenda?12:(isMobile?8:12)),height:isWeek?14:(isAgenda?12:(isMobile?8:12)),borderRadius:'50%',background:ev.hold?'transparent':cat.color,flexShrink:0,marginTop:isWeek?2:(isAgenda?2:(isMobile?1:1.5)),display:'flex',alignItems:'center',justifyContent:'center'}}>
+                            {!ev.hold && <svg width={isWeek?9:(isAgenda?8:(isMobile?5:8))} height={isWeek?9:(isAgenda?8:(isMobile?5:8))} viewBox="0 0 12 12" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d={cat.icon}/></svg>}
                           </div>
                           <div style={{flex:1,minWidth:0}}>
-                            <div style={{fontSize:isWeek?(isMobile?12:13):(isMobile?9:11),fontWeight:600,lineHeight:1.25,overflow:'hidden',display:'-webkit-box',WebkitLineClamp:isWeek?3:(isMobile?1:2),WebkitBoxOrient:'vertical',textOverflow:'ellipsis'}}>{ev.name}</div>
-                            {ev.sub && (isWeek || !isMobile) && <div style={{fontSize:isWeek?11:9.5,opacity:.65,marginTop:2,whiteSpace:isWeek?'normal':'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{ev.sub}</div>}
+                            <div style={{fontSize:isWeek?(isMobile?12:13):(isAgenda?12:(isMobile?9:11)),fontWeight:600,lineHeight:1.25,overflow:'hidden',display:'-webkit-box',WebkitLineClamp:isWeek?3:(isAgenda?2:(isMobile?1:2)),WebkitBoxOrient:'vertical',textOverflow:'ellipsis'}}>{ev.name}</div>
+                            {ev.sub && (isWeek || isAgenda || !isMobile) && <div style={{fontSize:isWeek?11:(isAgenda?10.5:9.5),opacity:.65,marginTop:2,whiteSpace:(isWeek||isAgenda)?'normal':'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{ev.sub}</div>}
                           </div>
                         </div>
                       );

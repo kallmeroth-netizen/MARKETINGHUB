@@ -36,7 +36,7 @@
   /* NAV */
   nav { background: var(--surface); border-bottom: 0.5px solid var(--border-strong); padding: 0 2rem; display: flex; align-items: center; justify-content: space-between; height: 52px; position: sticky; top: 0; z-index: 100; }
   .nav-brand { display: flex; align-items: center; position: relative; }
-  .nav-logo { height: 22px; width: auto; display: block; cursor: pointer; }
+  .nav-logo { height: 24px; width: auto; display: block; cursor: pointer; }
 
   /* HUB NAV OVERLAY */
   .hub-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.25); z-index: 150; opacity: 0; pointer-events: none; transition: opacity 0.2s ease; }
@@ -58,7 +58,7 @@
   .hub-card-title { font-size: 12px; font-weight: 600; color: var(--text); line-height: 1.2; }
   .hub-card-sub { font-size: 11px; color: var(--text-3); line-height: 1.3; }
   .nav-tabs { display: flex; gap: 0; }
-  .nav-tab { padding: 5px 12px; font-size: 12px; font-weight: 500; color: var(--text-3); cursor: pointer; text-decoration: none; line-height: 1.4; }
+  .nav-tab { padding: 5px 12px; font-size: var(--t-caption); font-weight: 500; color: var(--text-3); cursor: pointer; text-decoration: none; line-height: 1.4; }
   .nav-tab:hover { color: var(--text); }
   .nav-tab.active { color: var(--text); }
   .nav-right { display: flex; align-items: center; gap: 10px; }
@@ -121,17 +121,17 @@
   /* KPI CARDS */
   .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 1.5rem; }
   .kpi-card { background: var(--surface); border: 0.5px solid var(--border); border-radius: 12px; padding: 1.1rem 1.25rem; }
-  .kpi-label { font-family: var(--f-eyebrow), 'Futura PT Demi', 'Jost', sans-serif; font-size: 11px; font-weight: 600; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.18em; margin-bottom: 6px; }
-  .kpi-value { font-size: 26px; font-weight: 600; letter-spacing: -0.04em; color: var(--text); font-family: 'DM Mono', monospace; line-height: 1; }
-  .kpi-change { display: flex; align-items: center; gap: 5px; margin-top: 8px; font-size: 12px; font-weight: 500; }
-  .kpi-change .chg { padding: 2px 7px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+  .kpi-label { font-family: var(--f-eyebrow), 'Futura PT Demi', 'Jost', sans-serif; font-size: var(--t-eyebrow); font-weight: 600; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.18em; margin-bottom: 6px; }
+  .kpi-value { font-size: 26px; font-weight: 600; letter-spacing: -0.04em; color: var(--text); font-family: var(--f-mono); line-height: 1; }
+  .kpi-change { display: flex; align-items: center; gap: 5px; margin-top: 8px; font-size: var(--t-caption); font-weight: 500; }
+  .kpi-change .chg { padding: 2px 7px; border-radius: 20px; font-size: var(--t-caption-sm); font-weight: 600; }
   .chg.pos { background: var(--brand-green-light); color: #085041; }
   .chg.neg { background: var(--brand-orange-light); color: #A32D2D; }
   .chg.neu { background: var(--surface-2); color: var(--text-2); }
-  .kpi-change-label { color: var(--text-3); font-size: 11px; }
+  .kpi-change-label { color: var(--text-3); font-size: var(--t-caption-sm); }
 
   /* SECTION */
-  .section-title { font-family: var(--f-eyebrow), 'Futura PT Demi', 'Jost', sans-serif; font-size: 11px; font-weight: 600; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.18em; margin-bottom: 1rem; display: flex; align-items: center; gap: 8px; }
+  .section-title { font-family: var(--f-eyebrow), 'Futura PT Demi', 'Jost', sans-serif; font-size: var(--t-eyebrow); font-weight: 600; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.18em; margin-bottom: 1rem; display: flex; align-items: center; gap: 8px; }
   .section-title::after { content: ''; flex: 1; height: 0.5px; background: var(--border-strong); }
 
   /* CHART CARDS */
@@ -139,19 +139,19 @@
   .chart-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 1.5rem; }
   .chart-card { background: var(--surface); border: 0.5px solid var(--border); border-radius: 12px; padding: 1.25rem; }
   .chart-card.wide { grid-column: 1 / -1; }
-  .chart-card-title { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
-  .chart-card-sub { font-size: 11px; color: var(--text-3); margin-bottom: 1rem; }
+  .chart-card-title { font-size: var(--t-body-sm); font-weight: 600; color: var(--text); margin-bottom: 4px; }
+  .chart-card-sub { font-size: var(--t-caption-sm); color: var(--text-3); margin-bottom: 1rem; }
   .chart-wrap { position: relative; }
 
   /* METRICS TABLE */
   .metrics-table { width: 100%; border-collapse: collapse; font-size: var(--t-body-sm); font-family: var(--f-sans); }
-  .metrics-table th { font-family: var(--f-eyebrow), 'Futura PT Demi', 'Jost', sans-serif; font-size: 11px; font-weight: 600; color: var(--text-3); text-align: left; padding: 10px 12px; border-bottom: 0.5px solid var(--border-strong); white-space: nowrap; text-transform: uppercase; letter-spacing: 0.18em; }
+  .metrics-table th { font-family: var(--f-eyebrow), 'Futura PT Demi', 'Jost', sans-serif; font-size: var(--t-eyebrow); font-weight: 600; color: var(--text-3); text-align: left; padding: 10px 12px; border-bottom: 0.5px solid var(--border-strong); white-space: nowrap; text-transform: uppercase; letter-spacing: 0.18em; }
   .metrics-table th:not(:first-child) { text-align: right; }
   .metrics-table td { padding: 10px 12px; border-bottom: 0.5px solid var(--border); color: var(--text); white-space: nowrap; font-family: var(--f-sans); font-size: var(--t-body-sm); font-weight: 500; }
   .metrics-table td:not(:first-child) { text-align: right; font-family: var(--f-mono); font-size: var(--t-body-sm); font-weight: 400; }
   .metrics-table tr:last-child td { border-bottom: none; }
   .metrics-table tr:hover td { background: var(--surface-2); }
-  .metrics-table .cat-row td { font-family: var(--f-eyebrow), 'Futura PT Demi', 'Jost', sans-serif; font-weight: 600; color: var(--text-3); font-size: 11px; text-transform: uppercase; letter-spacing: 0.18em; background: var(--surface-2); padding: 8px 12px; }
+  .metrics-table .cat-row td { font-family: var(--f-eyebrow), 'Futura PT Demi', 'Jost', sans-serif; font-weight: 600; color: var(--text-3); font-size: var(--t-eyebrow); text-transform: uppercase; letter-spacing: 0.18em; background: var(--surface-2); padding: 8px 12px; }
   .metrics-table .cat-row { cursor: pointer; user-select: none; }
   .metrics-table .cat-row:hover td { background: var(--border); }
   .cat-chevron { display: inline-block; width: 10px; height: 10px; margin-right: 8px; vertical-align: -1px; transition: transform 0.15s ease; color: var(--text-3); }
@@ -173,7 +173,7 @@
     nav { padding: 0 0.75rem; gap: 4px; }
     .nav-tab { padding: 7px 10px; font-size: 11.5px; }
     .nav-right { gap: 6px; }
-    .nav-logo { height: 18px; }
+    .nav-logo { height: 20px; }
     .daily-last-updated { display: none; }
     .upload-btn { padding: 6px 8px; font-size: 0; gap: 0; }
     .upload-btn svg { width: 14px; height: 14px; }
@@ -192,8 +192,64 @@
   .mix-bar-wrap { margin-bottom: 6px; padding: 4px 6px; border-radius: 6px; transition: background 0.15s; cursor: default; }
   .mix-bar-wrap:hover { background: var(--surface-2); }
   .mix-bar-wrap:hover .mix-bar-label .mix-detail { color: var(--text); }
-  .mix-bar-label { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-2); margin-bottom: 4px; }
-  .mix-bar-label .mix-detail { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text-3); transition: color 0.15s; }
+  .mix-bar-label { display: flex; justify-content: space-between; align-items: baseline; font-size: var(--t-caption); color: var(--text-2); margin-bottom: 4px; gap: 8px; }
+  .mix-bar-label .mix-detail { display: inline-flex; align-items: baseline; gap: 8px; font-family: var(--f-mono); font-size: var(--t-caption-sm); color: var(--text-3); transition: color 0.15s; }
+  .mix-bar-label .mix-pct { font-size: var(--t-caption); color: var(--text); }
+  .mix-bar-label .mix-delta { font-weight: 600; padding: 1px 6px; border-radius: 100px; font-size: 10px; letter-spacing: 0.02em; }
+  .mix-bar-label .mix-delta.pct-pos { background: var(--brand-green-light); color: #085041; }
+  .mix-bar-label .mix-delta.pct-neg { background: var(--brand-orange-light); color: #a32d2d; }
+  .mix-bar-label .mix-delta.pct-neu { background: var(--surface-2); color: var(--text-3); }
+  .mix-bar-label .mix-delta-foot { font-size: 9.5px; color: var(--text-3); letter-spacing: 0.04em; }
+
+  /* Daily Channel mix — pie + side legend */
+  .channel-pie-wrap { display: grid; grid-template-columns: 200px 1fr; gap: 1rem; align-items: center; margin-top: 0.5rem; }
+  @media (max-width: 560px) { .channel-pie-wrap { grid-template-columns: 1fr; } .channel-pie-canvas { max-width: 200px; margin: 0 auto; } }
+  .channel-pie-legend { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+  .channel-pie-row { display: grid; grid-template-columns: 10px 1fr auto; align-items: center; gap: 8px; font-family: var(--f-sans); font-size: var(--t-caption); color: var(--text); }
+  .channel-pie-row .swatch { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+  .channel-pie-row .name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .channel-pie-row .val { font-family: var(--f-mono); font-size: var(--t-caption-sm); color: var(--text-3); }
+  .channel-pie-row .val strong { font-weight: 500; color: var(--text); }
+
+  /* PAID PERFORMANCE SCORECARD — dense, one-glance, no bar-chart fatigue */
+  .scorecard { display: grid; grid-template-columns: minmax(160px, 1.1fr) repeat(7, minmax(0, 1fr)); gap: 0; }
+  .scorecard .sc-h, .scorecard .sc-c { padding: 14px 14px; border-bottom: 0.5px solid var(--border); }
+  .scorecard .sc-h {
+    font-family: var(--f-eyebrow), 'Futura PT Demi', 'Jost', sans-serif;
+    font-size: var(--t-eyebrow); font-weight: 600; color: var(--text-3);
+    text-transform: uppercase; letter-spacing: 0.16em;
+    background: var(--surface-2);
+    padding-top: 11px; padding-bottom: 11px;
+    text-align: right;
+  }
+  .scorecard .sc-h.sc-h-row { text-align: left; }
+  .scorecard .sc-row-name {
+    display: flex; align-items: center; gap: 10px;
+    font-weight: 600; color: var(--text);
+  }
+  .scorecard .sc-row-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+  .scorecard .sc-row-meta { font-family: var(--f-mono); font-size: var(--t-caption-sm); color: var(--text-3); font-weight: 400; }
+  .scorecard .sc-c { text-align: right; vertical-align: top; }
+  .scorecard .sc-val { font-family: var(--f-mono); font-size: 14.5px; font-weight: 500; color: var(--ink); line-height: 1.15; }
+  .scorecard .sc-delta { font-family: var(--f-mono); font-size: 10.5px; margin-top: 4px; display: inline-block; padding: 1px 6px; border-radius: 100px; font-weight: 600; letter-spacing: 0.02em; }
+  .scorecard .sc-delta.pos { background: var(--brand-green-light); color: #085041; }
+  .scorecard .sc-delta.neg { background: var(--brand-orange-light); color: #a32d2d; }
+  .scorecard .sc-delta.neu { background: var(--surface-2); color: var(--text-3); }
+  .scorecard .sc-empty { color: var(--text-mute); font-family: var(--f-mono); font-size: 14px; }
+  .scorecard .sc-row:last-child .sc-c, .scorecard .sc-row:last-child .sc-h { border-bottom: 0; }
+  .scorecard .sc-row:hover .sc-c, .scorecard .sc-row:hover .sc-h-row { background: var(--surface-2); }
+  .scorecard .sc-row { display: contents; }
+  @media (max-width: 900px) {
+    /* Stack as card-per-platform on narrow screens */
+    .scorecard { display: flex; flex-direction: column; gap: 0; }
+    .scorecard .sc-h:not(.sc-h-row) { display: none; }
+    .scorecard .sc-row { display: grid; grid-template-columns: 1fr 1fr; padding: 14px 16px; border-bottom: 0.5px solid var(--border); gap: 10px 14px; }
+    .scorecard .sc-row:last-child { border-bottom: 0; }
+    .scorecard .sc-h-row { grid-column: 1 / -1; padding: 0; background: transparent; border-bottom: 0; }
+    .scorecard .sc-c { padding: 0; border-bottom: 0; text-align: left; }
+    .scorecard .sc-c::before { content: attr(data-label); display: block; font-family: var(--f-eyebrow); font-size: var(--t-eyebrow); font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text-3); margin-bottom: 4px; }
+    .scorecard .sc-row:hover .sc-c, .scorecard .sc-row:hover .sc-h-row { background: transparent; }
+  }
   .mix-bar-track { height: 6px; background: var(--surface-2); border-radius: 3px; overflow: hidden; }
   .mix-bar-fill { height: 100%; border-radius: 3px; transition: width 0.4s ease, filter 0.15s; }
   .mix-bar-wrap:hover .mix-bar-fill { filter: brightness(0.92); }
@@ -308,7 +364,8 @@
   </div>
   <div class="np-tabs nav-tabs" id="navTabsSales" style="display:none">
     <a class="np-tab nav-tab is-active active" id="dailyNavTab" onclick="showPage('daily', this)">Daily sales</a>
-    <a class="np-tab nav-tab" href="neighborly-pmix.html">Menu mix</a>
+    <a class="np-tab nav-tab" id="trendsNavTab" onclick="showPage('trends', this)">Sales trends</a>
+    <a class="np-tab nav-tab" href="neighborly-pmix.html">Product mix</a>
   </div>
 
   <div class="np-nav-right nav-right">
@@ -354,7 +411,7 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="#5a7a5a" stroke-width="2" stroke-linecap="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>
       </div>
       <div class="hub-card-title">Sales & Pmix</div>
-      <div class="hub-card-sub">Daily sales & menu mix</div>
+      <div class="hub-card-sub">Daily sales & product mix</div>
     </a>
 
     <a class="hub-card" href="neighborly-calendar.html">
@@ -442,7 +499,6 @@
         <div class="view-toggle">
           <button class="vt-btn active" onclick="setView('weekly', this)">This week</button>
           <button class="vt-btn" onclick="setView('trailing', this)">vs T4W avg</button>
-          <button class="vt-btn" onclick="setView('lastweek', this)">vs Last week</button>
         </div>
         <!-- legacy hidden select kept so any existing code paths still work -->
         <select id="weekPicker" onchange="switchWeek(this.value)" style="display:none"></select>
@@ -459,47 +515,21 @@
         <div class="chart-card-title">Revenue center breakdown</div>
         <div class="chart-card-sub" id="revChartSub">Current week — $331,703 total</div>
         <div class="chart-wrap" style="height:220px"><canvas id="revChart"></canvas></div>
+        <div class="chart-source">Source: Toast POS</div>
       </div>
       <div class="chart-card">
         <div class="chart-card-title">Channel mix %</div>
         <div class="chart-card-sub">Share of total revenue by channel</div>
         <div id="mixBars" style="margin-top:0.5rem"></div>
+        <div class="chart-source">Source: Toast POS</div>
       </div>
     </div>
 
-    <!-- PAID DIGITAL -->
-    <div class="section-title">Paid digital performance</div>
-    <div class="chart-grid-3" style="margin-bottom:1.5rem">
-      <div class="chart-card">
-        <div class="chart-card-title">Net revenue</div>
-        <div class="chart-card-sub">Meta vs Google</div>
-        <div class="chart-wrap" style="height:160px"><canvas id="paidRevChart"></canvas></div>
-      </div>
-      <div class="chart-card">
-        <div class="chart-card-title">ROAS</div>
-        <div class="chart-card-sub">Return on ad spend</div>
-        <div class="chart-wrap" style="height:160px"><canvas id="roasChart"></canvas></div>
-      </div>
-      <div class="chart-card">
-        <div class="chart-card-title">Customer acquisition</div>
-        <div class="chart-card-sub">New customers by platform</div>
-        <div class="chart-wrap" style="height:160px"><canvas id="cacChart"></canvas></div>
-      </div>
-    </div>
-
-    <!-- 3PD -->
-    <div class="section-title">3PD sponsored listings</div>
-    <div class="chart-grid-2" style="margin-bottom:1.5rem">
-      <div class="chart-card">
-        <div class="chart-card-title">Sponsored listing ROAS</div>
-        <div class="chart-card-sub">T4W avg · Last week · Current week</div>
-        <div class="chart-wrap" style="height:160px"><canvas id="sponsoredRoasChart"></canvas></div>
-      </div>
-      <div class="chart-card">
-        <div class="chart-card-title">Promo performance</div>
-        <div class="chart-card-sub">Net revenue vs spend</div>
-        <div class="chart-wrap" style="height:160px"><canvas id="promoChart"></canvas></div>
-      </div>
+    <!-- PAID PERFORMANCE SCORECARD -->
+    <div class="section-title">Paid performance scorecard</div>
+    <div class="chart-card" style="margin-bottom:1.5rem;padding:0;overflow:hidden">
+      <div class="scorecard" id="paidScorecard"></div>
+      <div class="chart-source" style="padding:0 1.25rem 1rem">Source: Meta Ads Manager · Google Ads · Uber Eats + DoorDash Merchant Portals</div>
     </div>
 
     <!-- FULL METRICS TABLE -->
@@ -579,6 +609,10 @@ let DATA = {
   meta: {
     netRev:    { t4w: 10190, lw: 11010, cw: 12144, pctT4W: 19,  pctPW: 10 },
     spend:     { t4w: 1320,  lw: 1376,  cw: 1389,  pctT4W: 5,   pctPW: 1  },
+    impressions:{t4w: 168400, lw: 174200, cw: 181600, pctT4W: 8, pctPW: 4 },
+    clicks:    { t4w: 1380,  lw: 1480,  cw: 1620,  pctT4W: 17,  pctPW: 9  },
+    cpc:       { t4w: 0.96,  lw: 0.93,  cw: 0.86,  pctT4W: -10, pctPW: -8 },
+    ctr:       { t4w: 0.82,  lw: 0.85,  cw: 0.89,  pctT4W: 9,   pctPW: 5  },
     customers: { t4w: 282,   lw: 360,   cw: 365,   pctT4W: 30,  pctPW: 1  },
     cac:       { t4w: 4.87,  lw: 3.82,  cw: 3.81,  pctT4W: -22, pctPW: 0  },
     roas:      { t4w: 8.70,  lw: 9.00,  cw: 9.74,  pctT4W: 12,  pctPW: 8  }
@@ -586,6 +620,10 @@ let DATA = {
   google: {
     netRev:    { t4w: 22344, lw: 23523, cw: 20499, pctT4W: -8,  pctPW: -13 },
     spend:     { t4w: 744,   lw: 790,   cw: 812,   pctT4W: 9,   pctPW: 3   },
+    impressions:{t4w: 41200, lw: 43500, cw: 44800, pctT4W: 9,   pctPW: 3  },
+    clicks:    { t4w: 510,   lw: 510,   cw: 580,   pctT4W: 14,  pctPW: 14 },
+    cpc:       { t4w: 1.46,  lw: 1.55,  cw: 1.40,  pctT4W: -4,  pctPW: -10 },
+    ctr:       { t4w: 1.24,  lw: 1.17,  cw: 1.29,  pctT4W: 4,   pctPW: 10 },
     customers: { t4w: 618,   lw: 625,   cw: 617,   pctT4W: 0,   pctPW: -1  },
     cac:       { t4w: 1.00,  lw: 1.26,  cw: 1.32,  pctT4W: 8,   pctPW: 4   },
     roas:      { t4w: 31.16, lw: 30.76, cw: 26.24, pctT4W: -16, pctPW: -15 }
@@ -593,11 +631,17 @@ let DATA = {
   sponsored: {
     netRev:    { t4w: 9991,  lw: 8674,  cw: 9717,  pctT4W: -3, pctPW: 12 },
     spend:     { t4w: 1027,  lw: 931,   cw: 941,   pctT4W: -8, pctPW: 1  },
+    impressions:{t4w: 28400, lw: 26100, cw: 27800, pctT4W: -2, pctPW: 7  },
+    clicks:    { t4w: 1840,  lw: 1690,  cw: 1810,  pctT4W: -2, pctPW: 7  },
+    cpc:       { t4w: 0.56,  lw: 0.55,  cw: 0.52,  pctT4W: -7, pctPW: -5 },
     roas:      { t4w: 9.78,  lw: 9.32,  cw: 10.32, pctT4W: 6,  pctPW: 11 }
   },
   promo: {
     netRev:    { t4w: 14826, lw: 12734, cw: 12373, pctT4W: -17, pctPW: -3  },
     spend:     { t4w: 1114,  lw: 1061,  cw: 926,   pctT4W: -17, pctPW: -13 },
+    impressions:{t4w: 22800, lw: 19200, cw: 18400, pctT4W: -19, pctPW: -4 },
+    clicks:    { t4w: 1520,  lw: 1310,  cw: 1240,  pctT4W: -18, pctPW: -5 },
+    cpc:       { t4w: 0.73,  lw: 0.81,  cw: 0.75,  pctT4W: 2,   pctPW: -7 },
     roas:      { t4w: 13.40, lw: 12.00, cw: 13.36, pctT4W: 0,   pctPW: 11  }
   },
   blendedROAS: { t4w: 13.6, lw: 13.5, cw: 13.5, pctT4W: -1, pctPW: 0 },
@@ -651,16 +695,19 @@ function showPage(id, tab) {
   }
   page.classList.add('active');
 
-  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-  if (tab) tab.classList.add('active');
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active', 'is-active'));
+  if (tab) tab.classList.add('active', 'is-active');
   else {
     // Caller didn't pass a tab (e.g. deep-link from ?p=…). Highlight by id.
     const match = document.querySelector(`.nav-tab[onclick*="'${id}'"]`);
-    if (match) match.classList.add('active');
+    if (match) match.classList.add('active', 'is-active');
   }
 
   if (id === 'alltime' && typeof renderAllTime === 'function') {
     setTimeout(renderAllTime, 50);
+  }
+  if (id === 'trends' && typeof renderTrends === 'function') {
+    setTimeout(renderTrends, 50);
   }
   if (id === 'daily' && typeof fetchDailyData === 'function') {
     setTimeout(fetchDailyData, 50);
@@ -677,12 +724,12 @@ function showPage(id, tab) {
     const perfTabs = document.getElementById('navTabsPerf');
     const salesTabs = document.getElementById('navTabsSales');
     const pageTag = document.getElementById('navPageTag');
-    if (p === 'daily') {
+    if (p === 'daily' || p === 'trends') {
       if (perfTabs)  perfTabs.style.display = 'none';
       if (salesTabs) salesTabs.style.display = '';
       if (pageTag)   pageTag.textContent = 'Sales & Pmix';
     }
-    if (p && ['daily', 'alltime'].includes(p)) {
+    if (p && ['daily', 'trends', 'alltime'].includes(p)) {
       const run = () => { if (typeof showPage === 'function') showPage(p, null); };
       if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run);
       else run();
@@ -723,7 +770,7 @@ function renderKPIs() {
 // ── REVENUE CHART ────────────────────────────────────────────────────────────
 function renderRevenueChart() {
   const rev = DATA.revenue;
-  const labels = ['Dine in','Web Pickup','In-store','Delivery','Catering','3PD','Marketplace'];
+  const labels = ['Dine in','Web Pickup','In-store Takeout','Delivery','Catering','3PD','Marketplace'];
   const vals = [getVal(rev.dineIn), getVal(rev.webPickup), getVal(rev.instore), getVal(rev.delivery), getVal(rev.catering), getVal(rev.tpd), getVal(rev.marketplace)];
   const colors = ['#eace49','#7bbd91','#cbc9d6','#6280bd','#dbc6a2','#888780','#e87142'];
 
@@ -749,129 +796,98 @@ function renderRevenueChart() {
 function renderMixBars() {
   const mix = DATA.revMix;
   const items = [
-    { label: 'Dine in',     val: getVal(mix.dineIn),    color: '#eace49' },
-    { label: 'Web pickup',  val: getVal(mix.webPickup),  color: '#7bbd91' },
-    { label: 'In-store',    val: getVal(mix.instore),    color: '#cbc9d6' },
-    { label: 'Delivery',    val: getVal(mix.delivery),   color: '#6280bd' },
-    { label: 'Catering',    val: getVal(mix.catering),   color: '#dbc6a2' },
-    { label: '3PD',         val: getVal(mix.tpd),        color: '#888780' },
-    { label: 'Marketplace', val: getVal(mix.marketplace),color: '#e87142' }
+    { label: 'Dine in',          k: 'dineIn',      color: '#eace49' },
+    { label: 'Web pickup',       k: 'webPickup',   color: '#7bbd91' },
+    { label: 'In-store Takeout', k: 'instore',     color: '#cbc9d6' },
+    { label: 'Delivery',         k: 'delivery',    color: '#6280bd' },
+    { label: 'Catering',         k: 'catering',    color: '#dbc6a2' },
+    { label: '3PD',              k: 'tpd',         color: '#888780' },
+    { label: 'Marketplace',      k: 'marketplace', color: '#e87142' }
   ];
-  document.getElementById('mixBars').innerHTML = items.map(i => `
+  document.getElementById('mixBars').innerHTML = items.map(i => {
+    const row = mix[i.k] || {};
+    const val = getVal(row);
+    const delta = (row.cw != null && row.lw != null) ? row.cw - row.lw : null;
+    const dCls = delta == null ? 'pct-neu' : (delta > 0 ? 'pct-pos' : (delta < 0 ? 'pct-neg' : 'pct-neu'));
+    const dText = delta == null ? '—' : `${delta > 0 ? '+' : ''}${delta.toFixed(1)} pts`;
+    return `
     <div class="mix-bar-wrap">
-      <div class="mix-bar-label"><span>${i.label}</span><span style="font-family:'DM Mono',monospace;font-size:12px">${(+i.val).toFixed(1)}%</span></div>
-      <div class="mix-bar-track"><div class="mix-bar-fill" style="width:${i.val}%;background:${i.color}"></div></div>
-    </div>`).join('');
+      <div class="mix-bar-label">
+        <span>${i.label}</span>
+        <span class="mix-detail"><span class="mix-pct">${(+val).toFixed(1)}%</span><span class="mix-delta ${dCls}">${dText}</span><span class="mix-delta-foot">vs last wk</span></span>
+      </div>
+      <div class="mix-bar-track"><div class="mix-bar-fill" style="width:${val}%;background:${i.color}"></div></div>
+    </div>`;
+  }).join('');
 }
 
-// ── PAID DIGITAL CHARTS ───────────────────────────────────────────────────────
-function renderPaidCharts() {
-  const labels = ['T4W avg', 'Last week', 'This week'];
+// ── PAID PERFORMANCE SCORECARD ───────────────────────────────────────────────
+// Replaces 5 separate bar charts with a single scannable scorecard that shows
+// spend, clicks, CPC, net revenue, CAC, ROAS, and customers per platform —
+// each cell carries a small WoW delta pill in the same sentiment palette.
+function renderScorecard() {
+  const wrap = document.getElementById('paidScorecard');
+  if (!wrap) return;
 
-  if (charts.paidRev) charts.paidRev.destroy();
-  charts.paidRev = new Chart(document.getElementById('paidRevChart'), {
-    type: 'bar',
-    data: {
-      labels,
-      datasets: [
-        { label: 'Meta',   data: [DATA.meta.netRev.t4w,   DATA.meta.netRev.lw,   DATA.meta.netRev.cw],   backgroundColor: '#fdf7d8', borderColor: '#eace49', borderWidth: 1.5, borderRadius: 4 },
-        { label: 'Google', data: [DATA.google.netRev.t4w, DATA.google.netRev.lw, DATA.google.netRev.cw], backgroundColor: '#e4f5ea', borderColor: '#7bbd91', borderWidth: 1.5, borderRadius: 4 }
-      ]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { position: 'bottom', labels: { font: { family: 'DM Sans', size: 11 }, boxWidth: 10, padding: 10 } } },
-      scales: {
-        x: { grid: { display: false }, ticks: { font: { family: 'DM Sans', size: 10 }, color: '#9E9C96' } },
-        y: { grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { font: { family: 'DM Mono', size: 10 }, color: '#9E9C96', callback: v => '$'+Math.round(v/1000)+'k' } }
+  // Platform → display config
+  const platforms = [
+    { key: 'meta',      label: 'Meta',           sub: 'Facebook + Instagram Ads', color: '#eace49' },
+    { key: 'google',    label: 'Google',         sub: 'Search + Performance Max', color: '#7bbd91' },
+    { key: 'sponsored', label: '3PD Sponsored',  sub: 'Uber Eats + DoorDash',     color: '#dbc6a2' },
+    { key: 'promo',     label: '3PD Promo',      sub: 'Uber Eats + DoorDash',     color: '#cbc9d6' }
+  ];
+  // Metric → {label, getter from platform data, format fn, sentiment (does up = good?)}
+  const dash = '<span class="sc-empty">—</span>';
+  const metrics = [
+    { label: 'Spend',     k: 'spend',     fmt: fmt$,                neutral: true  },
+    { label: 'Clicks',    k: 'clicks',    fmt: fmtN,                lowerBetter: false },
+    { label: 'CPC',       k: 'cpc',       fmt: v => '$' + (+v).toFixed(2), lowerBetter: true  },
+    { label: 'Net rev',   k: 'netRev',    fmt: fmt$,                lowerBetter: false },
+    { label: 'ROAS',      k: 'roas',      fmt: v => (+v).toFixed(2) + 'x', lowerBetter: false },
+    { label: 'CAC',       k: 'cac',       fmt: v => '$' + (+v).toFixed(2), lowerBetter: true  },
+    { label: 'Customers', k: 'customers', fmt: fmtN,                lowerBetter: false }
+  ];
+
+  const headerRow = `
+    <div class="sc-row">
+      <div class="sc-h sc-h-row">Platform</div>
+      ${metrics.map(m => `<div class="sc-h">${m.label}</div>`).join('')}
+    </div>`;
+
+  const cell = (pdata, m) => {
+    const row = pdata[m.k];
+    if (!row || row.cw == null) return `<div class="sc-c" data-label="${m.label}"><div class="sc-val">${dash}</div></div>`;
+    const val = m.fmt(row.cw);
+    const pct = row.pctPW;
+    let cls = 'neu', txt = '—';
+    if (typeof pct === 'number') {
+      if (m.neutral) {
+        cls = 'neu';
+      } else {
+        const good = m.lowerBetter ? pct < 0 : pct > 0;
+        const bad  = m.lowerBetter ? pct > 0 : pct < 0;
+        cls = good ? 'pos' : (bad ? 'neg' : 'neu');
       }
+      txt = `${pct > 0 ? '+' : ''}${pct}% wk`;
     }
-  });
+    return `<div class="sc-c" data-label="${m.label}">
+      <div class="sc-val">${val}</div>
+      <div class="sc-delta ${cls}">${txt}</div>
+    </div>`;
+  };
 
-  if (charts.roas) charts.roas.destroy();
-  charts.roas = new Chart(document.getElementById('roasChart'), {
-    type: 'bar',
-    data: {
-      labels,
-      datasets: [
-        { label: 'Meta',   data: [DATA.meta.roas.t4w,   DATA.meta.roas.lw,   DATA.meta.roas.cw],   backgroundColor: '#fdf7d8', borderColor: '#eace49', borderWidth: 1.5, borderRadius: 4 },
-        { label: 'Google', data: [DATA.google.roas.t4w, DATA.google.roas.lw, DATA.google.roas.cw], backgroundColor: '#e4f5ea', borderColor: '#7bbd91', borderWidth: 1.5, borderRadius: 4 }
-      ]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { position: 'bottom', labels: { font: { family: 'DM Sans', size: 11 }, boxWidth: 10, padding: 10 } } },
-      scales: {
-        x: { grid: { display: false }, ticks: { font: { family: 'DM Sans', size: 10 }, color: '#9E9C96' } },
-        y: { grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { font: { family: 'DM Mono', size: 10 }, color: '#9E9C96', callback: v => v.toFixed(1)+'x' } }
-      }
-    }
-  });
+  const platRows = platforms.map(p => {
+    const d = DATA[p.key] || {};
+    return `<div class="sc-row">
+      <div class="sc-h sc-h-row">
+        <div class="sc-row-name"><span class="sc-row-dot" style="background:${p.color}"></span>${p.label}</div>
+        <div class="sc-row-meta">${p.sub}</div>
+      </div>
+      ${metrics.map(m => cell(d, m)).join('')}
+    </div>`;
+  }).join('');
 
-  if (charts.cac) charts.cac.destroy();
-  charts.cac = new Chart(document.getElementById('cacChart'), {
-    type: 'bar',
-    data: {
-      labels,
-      datasets: [
-        { label: 'Meta',   data: [DATA.meta.customers.t4w,   DATA.meta.customers.lw,   DATA.meta.customers.cw],   backgroundColor: '#fdf7d8', borderColor: '#eace49', borderWidth: 1.5, borderRadius: 4 },
-        { label: 'Google', data: [DATA.google.customers.t4w, DATA.google.customers.lw, DATA.google.customers.cw], backgroundColor: '#e4f5ea', borderColor: '#7bbd91', borderWidth: 1.5, borderRadius: 4 }
-      ]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { position: 'bottom', labels: { font: { family: 'DM Sans', size: 11 }, boxWidth: 10, padding: 10 } } },
-      scales: {
-        x: { grid: { display: false }, ticks: { font: { family: 'DM Sans', size: 10 }, color: '#9E9C96' } },
-        y: { grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { font: { family: 'DM Mono', size: 10 }, color: '#9E9C96' } }
-      }
-    }
-  });
-}
-
-// ── 3PD CHARTS ───────────────────────────────────────────────────────────────
-function render3PDCharts() {
-  const labels = ['T4W avg', 'Last week', 'This week'];
-
-  if (charts.sponsoredRoas) charts.sponsoredRoas.destroy();
-  charts.sponsoredRoas = new Chart(document.getElementById('sponsoredRoasChart'), {
-    type: 'bar',
-    data: {
-      labels,
-      datasets: [
-        { label: 'Sponsored', data: [DATA.sponsored.roas.t4w, DATA.sponsored.roas.lw, DATA.sponsored.roas.cw], backgroundColor: '#f7f0e4', borderColor: '#dbc6a2', borderWidth: 1.5, borderRadius: 4 },
-        { label: 'Promo',     data: [DATA.promo.roas.t4w,     DATA.promo.roas.lw,     DATA.promo.roas.cw],     backgroundColor: '#f0eff5', borderColor: '#cbc9d6', borderWidth: 1.5, borderRadius: 4 }
-      ]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { position: 'bottom', labels: { font: { family: 'DM Sans', size: 11 }, boxWidth: 10, padding: 10 } } },
-      scales: {
-        x: { grid: { display: false }, ticks: { font: { family: 'DM Sans', size: 10 }, color: '#9E9C96' } },
-        y: { grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { font: { family: 'DM Mono', size: 10 }, color: '#9E9C96', callback: v => v.toFixed(1)+'x' } }
-      }
-    }
-  });
-
-  if (charts.promo) charts.promo.destroy();
-  charts.promo = new Chart(document.getElementById('promoChart'), {
-    type: 'bar',
-    data: {
-      labels,
-      datasets: [
-        { label: 'Net Rev',  data: [DATA.promo.netRev.t4w, DATA.promo.netRev.lw, DATA.promo.netRev.cw], backgroundColor: '#f0eff5', borderColor: '#cbc9d6', borderWidth: 1.5, borderRadius: 4 },
-        { label: 'Spend',    data: [DATA.promo.spend.t4w,  DATA.promo.spend.lw,  DATA.promo.spend.cw],  backgroundColor: '#F1EFE8', borderColor: '#888780', borderWidth: 1.5, borderRadius: 4 }
-      ]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { position: 'bottom', labels: { font: { family: 'DM Sans', size: 11 }, boxWidth: 10, padding: 10 } } },
-      scales: {
-        x: { grid: { display: false }, ticks: { font: { family: 'DM Sans', size: 10 }, color: '#9E9C96' } },
-        y: { grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { font: { family: 'DM Mono', size: 10 }, color: '#9E9C96', callback: v => '$'+Math.round(v/1000)+'k' } }
-      }
-    }
-  });
+  wrap.innerHTML = headerRow + platRows;
 }
 
 // ── METRICS TABLE ─────────────────────────────────────────────────────────────
@@ -945,8 +961,7 @@ function renderDashboard() {
   renderKPIs();
   renderRevenueChart();
   renderMixBars();
-  renderPaidCharts();
-  render3PDCharts();
+  renderScorecard();
   renderMetricsTable();
 }
 
@@ -1455,21 +1470,18 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeHubNav(
 <!-- DAILY PAGE -->
 <div class="page" id="page-daily">
   <div class="dashboard">
-    <div class="dash-header reveal np-page-header">
-      <div>
-        <div class="week-badge" id="dailyDateBadge" onclick="toggleDailyCalendar(event)" style="margin-top:0">
-          <span class="week-badge-text">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-            Date
-          </span>
-          <span class="week-pick" id="dailyDateLabel">—</span>
-          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-right:4px;opacity:0.7"><polyline points="6 9 12 15 18 9"/></svg>
+    <div class="np-page-header-row reveal">
+      <div class="np-page-selectors">
+        <button class="np-date-pill" id="dailyDateBadge" type="button" onclick="toggleDailyCalendar(event)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 11h18"/></svg>
+          <span id="dailyDateLabel">—</span>
+          <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="view-toggle">
+          <button class="vt-btn" onclick="setDailyLoc('wlv',this)">Westlake Village</button>
+          <button class="vt-btn" onclick="setDailyLoc('bw',this)">Brentwood</button>
+          <button class="vt-btn active" onclick="setDailyLoc('total',this)">All Locations</button>
         </div>
-      </div>
-      <div class="view-toggle">
-        <button class="vt-btn active" onclick="setDailyLoc('wlv',this)">Westlake Village</button>
-        <button class="vt-btn" onclick="setDailyLoc('bw',this)">Brentwood</button>
-        <button class="vt-btn" onclick="setDailyLoc('total',this)">Total</button>
       </div>
     </div>
 
@@ -1494,11 +1506,16 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeHubNav(
         <div class="chart-card-title">Sales by channel</div>
         <div class="chart-card-sub" id="dailyChannelSub">Today's net sales by ordering channel</div>
         <div class="chart-wrap" style="height:280px"><canvas id="dailyChannelChart"></canvas></div>
+        <div class="chart-source">Source: Toast POS · Uber Eats · DoorDash</div>
       </div>
       <div class="chart-card">
         <div class="chart-card-title">Channel mix %</div>
         <div class="chart-card-sub">Share of today's net sales · hover for detail</div>
-        <div id="dailyChannelMix" style="margin-top:0.5rem"></div>
+        <div class="channel-pie-wrap">
+          <div class="chart-wrap channel-pie-canvas" style="height:200px"><canvas id="dailyChannelMixChart"></canvas></div>
+          <div id="dailyChannelMixLegend" class="channel-pie-legend"></div>
+        </div>
+        <div class="chart-source">Source: Toast POS · Uber Eats · DoorDash</div>
       </div>
     </div>
 
@@ -1513,11 +1530,13 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeHubNav(
         <div class="chart-card-title">Sales by concept</div>
         <div class="chart-card-sub" id="dailyPmixSub">Today's revenue by concept</div>
         <div class="chart-wrap" style="height:280px"><canvas id="dailyPmixChart"></canvas></div>
+        <div class="chart-source">Source: Toast POS</div>
       </div>
       <div class="chart-card">
         <div class="chart-card-title">Other revenue · marketplace, catering & beverages</div>
         <div class="chart-card-sub">Non-concept revenue streams</div>
         <div id="dailyPmixMix" style="margin-top:0.5rem"></div>
+        <div class="chart-source">Source: Toast POS</div>
       </div>
     </div>
 
@@ -1548,16 +1567,61 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeHubNav(
   </div>
 </div>
 
-<!-- ALL TIME PAGE -->
+<!-- ALL TIME PERFORMANCE PAGE — paid digital only -->
 <div class="page" id="page-alltime">
   <div class="dashboard">
     <div class="dash-header np-page-header">
-      <div>
-      </div>
+      <div></div>
       <div class="view-toggle">
-        <button class="vt-btn active" onclick="setATView('total',this)">Total revenue</button>
-        <button class="vt-btn" onclick="setATView('channels',this)">By channel</button>
-        <button class="vt-btn" onclick="setATView('digital',this)">Paid digital</button>
+        <button class="vt-btn active" onclick="setATView('digital',this)">Net revenue</button>
+        <button class="vt-btn" onclick="setATView('share',this)">Channel mix</button>
+      </div>
+    </div>
+
+    <div class="section-title">Paid digital — all time</div>
+    <div class="kpi-grid" id="atKpiGrid" style="margin-bottom:1.5rem"></div>
+
+    <div class="chart-card" style="margin-bottom:1.5rem">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:var(--s-4);flex-wrap:wrap;gap:var(--s-2)">
+        <div>
+          <div class="chart-card-title" id="atChartTitle">Paid digital net revenue over time</div>
+          <div class="chart-card-sub" id="atChartSub">Meta vs Google weekly net revenue · Jan 2025 – May 2026</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:var(--s-3);font-size:var(--t-caption-sm);color:var(--text-3)">
+          <span style="display:inline-flex;align-items:center;gap:5px"><span style="width:14px;height:10px;background:#fdf7d8;border:1.5px solid #eace49;border-radius:2px;display:inline-block"></span>Meta</span>
+          <span style="display:inline-flex;align-items:center;gap:5px"><span style="width:14px;height:10px;background:#e4f5ea;border:1.5px solid #7bbd91;border-radius:2px;display:inline-block"></span>Google</span>
+        </div>
+      </div>
+      <div style="position:relative;height:320px"><canvas id="atMainChart"></canvas></div>
+      <div class="chart-source">Source: Meta Ads Manager + Google Ads · automated daily</div>
+    </div>
+
+    <div class="chart-grid-2" style="margin-bottom:1.5rem">
+      <div class="chart-card">
+        <div class="chart-card-title">Paid digital rolling average</div>
+        <div class="chart-card-sub">6-week smoothed Meta + Google net revenue</div>
+        <div style="position:relative;height:180px"><canvas id="atRollingChart"></canvas></div>
+        <div class="chart-source">Source: Meta Ads Manager + Google Ads</div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-card-title">Meta vs Google share</div>
+        <div class="chart-card-sub">% of paid digital net revenue by platform</div>
+        <div style="position:relative;height:180px"><canvas id="atMixChart"></canvas></div>
+        <div class="chart-source">Source: Meta Ads Manager + Google Ads</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- SALES TRENDS PAGE — Brentwood opening impact + sales over time -->
+<div class="page" id="page-trends">
+  <div class="dashboard">
+    <div class="dash-header np-page-header">
+      <div></div>
+      <div class="view-toggle">
+        <button class="vt-btn active" onclick="setTRView('total',this)">Total revenue</button>
+        <button class="vt-btn" onclick="setTRView('channels',this)">By channel</button>
       </div>
     </div>
 
@@ -1565,48 +1629,52 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeHubNav(
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:1.5rem">
       <div class="chart-card" style="text-align:center">
         <div class="kpi-label">Pre-Brentwood avg / week</div>
-        <div class="kpi-value" style="font-size:22px" id="atPreAvg">—</div>
-        <div style="font-size:11px;color:var(--text-3);margin-top:4px">Jan 2025 – Apr 1, 2026</div>
+        <div class="kpi-value" id="trPreAvg">—</div>
+        <div class="kpi-foot">Jan 2025 – Apr 1, 2026</div>
       </div>
-      <div class="chart-card" style="text-align:center;border-left:3px solid var(--brand-orange);border-radius:0 12px 12px 0">
+      <div class="chart-card" style="text-align:center;border-left:3px solid var(--brand-orange);border-radius:0 var(--r-lg) var(--r-lg) 0">
         <div class="kpi-label">Post-Brentwood avg / week</div>
-        <div class="kpi-value" style="font-size:22px" id="atPostAvg">—</div>
-        <div style="font-size:11px;color:var(--text-3);margin-top:4px">Apr 8, 2026 – present</div>
+        <div class="kpi-value" id="trPostAvg">—</div>
+        <div class="kpi-foot">Apr 8, 2026 – present</div>
       </div>
       <div class="chart-card" style="text-align:center">
         <div class="kpi-label">Revenue lift from opening</div>
-        <div class="kpi-value" style="font-size:22px;color:#2a7a4b" id="atLift">—</div>
-        <div style="font-size:11px;color:var(--text-3);margin-top:4px">avg uplift vs pre-opening</div>
+        <div class="kpi-value" id="trLift" style="color:var(--brand-green-deep)">—</div>
+        <div class="kpi-foot">avg uplift vs pre-opening</div>
       </div>
     </div>
 
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:1.5rem" id="atKpiGrid"></div>
+    <div class="section-title">All-time sales</div>
+    <div class="kpi-grid" id="trKpiGrid" style="margin-bottom:1.5rem"></div>
 
     <div class="chart-card" style="margin-bottom:1.5rem">
-      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:8px">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:var(--s-4);flex-wrap:wrap;gap:var(--s-2)">
         <div>
-          <div class="chart-card-title" id="atChartTitle">Weekly total revenue</div>
-          <div class="chart-card-sub" id="atChartSub">Jan 2025 – May 2026 &middot; all Neighborly locations</div>
+          <div class="chart-card-title" id="trChartTitle">Weekly total revenue</div>
+          <div class="chart-card-sub" id="trChartSub">Jan 2025 – May 2026 · all Neighborly locations</div>
         </div>
-        <div style="display:flex;align-items:center;gap:14px;font-size:11px;color:var(--text-3)">
+        <div style="display:flex;align-items:center;gap:var(--s-3);font-size:var(--t-caption-sm);color:var(--text-3)">
           <span style="display:inline-flex;align-items:center;gap:5px"><span style="width:14px;height:10px;background:#fdf7d8;border:1.5px solid #eace49;border-radius:2px;display:inline-block"></span>Pre-Brentwood</span>
           <span style="display:inline-flex;align-items:center;gap:5px"><span style="width:14px;height:10px;background:#1f2328;border-radius:2px;display:inline-block"></span>Post-opening</span>
           <span style="display:inline-flex;align-items:center;gap:5px;background:#fdf7d8;color:#7a6b00;padding:3px 8px;border-radius:20px;font-weight:500">&#9733; Brentwood opening Apr 8, 2026</span>
         </div>
       </div>
-      <div style="position:relative;height:320px"><canvas id="atMainChart"></canvas></div>
+      <div style="position:relative;height:320px"><canvas id="trMainChart"></canvas></div>
+      <div class="chart-source">Source: Toast POS · automated daily</div>
     </div>
 
     <div class="chart-grid-2" style="margin-bottom:1.5rem">
       <div class="chart-card">
         <div class="chart-card-title">6-week rolling average</div>
         <div class="chart-card-sub">Smoothed revenue trend over time</div>
-        <div style="position:relative;height:180px"><canvas id="atRollingChart"></canvas></div>
+        <div style="position:relative;height:180px"><canvas id="trRollingChart"></canvas></div>
+        <div class="chart-source">Source: Toast POS</div>
       </div>
       <div class="chart-card">
         <div class="chart-card-title">Channel mix over time</div>
         <div class="chart-card-sub">% share by revenue center (sampled)</div>
-        <div style="position:relative;height:180px"><canvas id="atMixChart"></canvas></div>
+        <div style="position:relative;height:180px"><canvas id="trMixChart"></canvas></div>
+        <div class="chart-source">Source: Toast POS</div>
       </div>
     </div>
 
@@ -1618,7 +1686,17 @@ const HIST_CHANNELS = {"dineIn": [{"d": "1/27/2025", "v": 27386}, {"d": "2/3/202
 const HIST_DIGITAL = {"meta": [{"d": "1/27/2025", "v": 2201}, {"d": "2/3/2025", "v": 3010}, {"d": "2/10/2025", "v": 3084}, {"d": "2/17/2025", "v": 2429}, {"d": "2/24/2025", "v": 2199}, {"d": "3/3/2025", "v": 3017}, {"d": "3/10/2025", "v": 3356}, {"d": "3/17/2025", "v": 4042}, {"d": "3/24/2025", "v": 3322}, {"d": "3/31/2025", "v": 4164}, {"d": "4/7/2025", "v": 3312}, {"d": "4/14/2025", "v": 4026}, {"d": "4/21/2025", "v": 5214}, {"d": "4/28/2025", "v": 3661}, {"d": "5/5/2025", "v": 4479}, {"d": "5/12/2025", "v": 3812}, {"d": "5/19/2025", "v": 3646}, {"d": "5/26/2025", "v": 4278}, {"d": "6/2/2025", "v": 5359}, {"d": "6/9/2025", "v": 4415}, {"d": "6/16/2025", "v": 4156}, {"d": "6/23/2025", "v": 3043}, {"d": "6/30/2025", "v": 4633}, {"d": "7/7/2025", "v": 3457}, {"d": "7/14/2025", "v": 5010}, {"d": "7/21/2025", "v": 5108}, {"d": "7/28/2025", "v": 4222}, {"d": "8/4/2025", "v": 5256}, {"d": "8/11/2025", "v": 5426}, {"d": "8/18/2025", "v": 5785}, {"d": "8/25/2025", "v": 5790}, {"d": "9/1/2025", "v": 5738}, {"d": "9/8/2025", "v": 4899}, {"d": "9/15/2025", "v": 6258}, {"d": "9/22/2025", "v": 5060}, {"d": "9/29/2025", "v": 6895}, {"d": "10/6/2025", "v": 5557}, {"d": "10/13/2025", "v": 6931}, {"d": "10/20/2025", "v": 6204}, {"d": "10/27/2025", "v": 6103}, {"d": "11/3/2025", "v": 7405}, {"d": "11/10/2025", "v": 6688}, {"d": "11/17/2025", "v": 6122}, {"d": "11/24/2025", "v": 6601}, {"d": "12/1/2025", "v": 8235}, {"d": "12/8/2025", "v": 8285}, {"d": "12/15/2025", "v": 8010}, {"d": "12/22/2025", "v": 6635}, {"d": "12/29/2025", "v": 7960}, {"d": "1/7/2026", "v": 8076}, {"d": "1/14/2026", "v": 7040}, {"d": "1/21/2026", "v": 7901}, {"d": "1/28/2026", "v": 9102}, {"d": "2/4/2026", "v": 7689}, {"d": "2/11/2026", "v": 8454}, {"d": "2/18/2026", "v": 8251}, {"d": "2/25/2026", "v": 8420}, {"d": "3/4/2026", "v": 8681}, {"d": "3/11/2026", "v": 8837}, {"d": "3/18/2026", "v": 8662}, {"d": "3/25/2026", "v": 7650}, {"d": "4/1/2026", "v": 9156}, {"d": "4/8/2026", "v": 11984}, {"d": "4/15/2026", "v": 12918}, {"d": "4/22/2026", "v": 10585}, {"d": "4/29/2026", "v": 11438}, {"d": "5/6/2026", "v": 11010}], "google": [{"d": "1/27/2025", "v": 3412}, {"d": "2/3/2025", "v": 3650}, {"d": "2/10/2025", "v": 3701}, {"d": "2/17/2025", "v": 4007}, {"d": "2/24/2025", "v": 4096}, {"d": "3/3/2025", "v": 3928}, {"d": "3/10/2025", "v": 4410}, {"d": "3/17/2025", "v": 4753}, {"d": "3/24/2025", "v": 4028}, {"d": "3/31/2025", "v": 5051}, {"d": "4/7/2025", "v": 5046}, {"d": "4/14/2025", "v": 4570}, {"d": "4/21/2025", "v": 4361}, {"d": "4/28/2025", "v": 5588}, {"d": "5/5/2025", "v": 5392}, {"d": "5/12/2025", "v": 6055}, {"d": "5/19/2025", "v": 5428}, {"d": "5/26/2025", "v": 6827}, {"d": "6/2/2025", "v": 6581}, {"d": "6/9/2025", "v": 5884}, {"d": "6/16/2025", "v": 6155}, {"d": "6/23/2025", "v": 6948}, {"d": "6/30/2025", "v": 5791}, {"d": "7/7/2025", "v": 6383}, {"d": "7/14/2025", "v": 7145}, {"d": "7/21/2025", "v": 6750}, {"d": "7/28/2025", "v": 6621}, {"d": "8/4/2025", "v": 6700}, {"d": "8/11/2025", "v": 7984}, {"d": "8/18/2025", "v": 6709}, {"d": "8/25/2025", "v": 7229}, {"d": "9/1/2025", "v": 8162}, {"d": "9/8/2025", "v": 7324}, {"d": "9/15/2025", "v": 7914}, {"d": "9/22/2025", "v": 7345}, {"d": "9/29/2025", "v": 8631}, {"d": "10/6/2025", "v": 8808}, {"d": "10/13/2025", "v": 8211}, {"d": "10/20/2025", "v": 7590}, {"d": "10/27/2025", "v": 8021}, {"d": "11/3/2025", "v": 8910}, {"d": "11/10/2025", "v": 7799}, {"d": "11/17/2025", "v": 8152}, {"d": "11/24/2025", "v": 8337}, {"d": "12/1/2025", "v": 8387}, {"d": "12/8/2025", "v": 9084}, {"d": "12/15/2025", "v": 9970}, {"d": "12/22/2025", "v": 7217}, {"d": "12/29/2025", "v": 10162}, {"d": "1/7/2026", "v": 9979}, {"d": "1/14/2026", "v": 8482}, {"d": "1/21/2026", "v": 9163}, {"d": "1/28/2026", "v": 10294}, {"d": "2/4/2026", "v": 9917}, {"d": "2/11/2026", "v": 9257}, {"d": "2/18/2026", "v": 10430}, {"d": "2/25/2026", "v": 9851}, {"d": "3/4/2026", "v": 9785}, {"d": "3/11/2026", "v": 10323}, {"d": "3/18/2026", "v": 11024}, {"d": "3/25/2026", "v": 9432}, {"d": "4/1/2026", "v": 10206}, {"d": "4/8/2026", "v": 12795}, {"d": "4/15/2026", "v": 18909}, {"d": "4/22/2026", "v": 24156}, {"d": "4/29/2026", "v": 22788}, {"d": "5/6/2026", "v": 23523}]};
 const BRENTWOOD_IDX = 62;
 
-let atView = 'total';
+// Shared helpers
+const _MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+function _fmtWeekShort(s){ const [m,d,y]=s.split('/').map(Number); return `${_MONTHS[m-1]} ${d}, ${y}`; }
+function _kpiCard(label,val,sub){
+  return `<div class="kpi-card"><div class="kpi-label">${label}</div><div class="kpi-value">${val}</div><div class="kpi-foot">${sub}</div></div>`;
+}
+
+// ═════════════════════════════════════════════════════════════════════════
+// ALL TIME PERFORMANCE — paid digital only
+// ═════════════════════════════════════════════════════════════════════════
+let atView = 'digital';
 let atCharts = {};
 
 function setATView(v, btn) {
@@ -1628,23 +1706,142 @@ function setATView(v, btn) {
   renderAllTime();
 }
 
-/* Hide all-time view buttons that don't have backing data, so users can't
-   tap into an empty / broken chart. Runs once on first all-time render. */
-function _atGuardButtons() {
-  if (_atGuardButtons._ran) return;
-  _atGuardButtons._ran = true;
-  const has = {
-    total:    Array.isArray(HIST_TOTAL)    && HIST_TOTAL.length    > 0,
-    channels: HIST_CHANNELS && Object.keys(HIST_CHANNELS).some(k => (HIST_CHANNELS[k]||[]).length > 0),
-    digital:  HIST_DIGITAL  && Object.keys(HIST_DIGITAL).some(k => (HIST_DIGITAL[k] ||[]).length > 0)
-  };
-  document.querySelectorAll('#page-alltime .vt-btn').forEach(b => {
-    const v = (b.getAttribute('onclick') || '').match(/setATView\('(\w+)'/)?.[1];
-    if (v && !has[v]) b.style.display = 'none';
+function renderATKPIs() {
+  const meta = HIST_DIGITAL.meta || [];
+  const google = HIST_DIGITAL.google || [];
+  const total = meta.map((m,i)=>({d:m.d, v:m.v + (google[i]?.v||0)}));
+  if (!total.length) { document.getElementById('atKpiGrid').innerHTML = ''; return; }
+
+  const ttmCount = Math.min(52, total.length);
+  const ttm = total.slice(-ttmCount).reduce((s,x)=>s+x.v,0);
+  const ttmLabel = ttmCount === 52 ? '52-week paid revenue' : `${ttmCount}-week paid revenue`;
+
+  const topWeek = total.reduce((best, x) => x.v > best.v ? x : best, total[0]);
+  const metaTtm = meta.slice(-ttmCount).reduce((s,x)=>s+x.v,0);
+  const googleTtm = google.slice(-ttmCount).reduce((s,x)=>s+x.v,0);
+  const latest = total[total.length-1];
+
+  document.getElementById('atKpiGrid').innerHTML = [
+    _kpiCard(ttmLabel,           '$'+ttm.toLocaleString(),       'Meta + Google · trailing 12 mo'),
+    _kpiCard('Meta share',       Math.round(metaTtm/ttm*100)+'%','TTM Meta net revenue share'),
+    _kpiCard('Google share',     Math.round(googleTtm/ttm*100)+'%','TTM Google net revenue share'),
+    _kpiCard('Top paid week',    '$'+topWeek.v.toLocaleString(), 'Week of ' + _fmtWeekShort(topWeek.d))
+  ].join('');
+}
+
+function renderATMain() {
+  const allDates = HIST_TOTAL.map(x=>x.d);
+  if (atCharts.main) atCharts.main.destroy();
+
+  document.getElementById('atChartTitle').textContent =
+    atView === 'share' ? 'Meta vs Google share over time' : 'Paid digital net revenue over time';
+  document.getElementById('atChartSub').textContent =
+    atView === 'share' ? '% share of paid digital net revenue by platform · Jan 2025 – May 2026'
+                       : 'Meta vs Google weekly net revenue · Jan 2025 – May 2026';
+
+  if (atView === 'share') {
+    const meta = HIST_DIGITAL.meta || [];
+    const google = HIST_DIGITAL.google || [];
+    const sample = allDates.filter((_,i)=>i%4===0);
+    const metaLk = {}; meta.forEach(p=>{metaLk[p.d]=p.v;});
+    const googleLk = {}; google.forEach(p=>{googleLk[p.d]=p.v;});
+    const metaShare = sample.map(d=>{ const t=(metaLk[d]||0)+(googleLk[d]||0); return t?Math.round((metaLk[d]||0)/t*100):null; });
+    const googleShare = sample.map((_,i)=>metaShare[i]==null?null:100-metaShare[i]);
+    atCharts.main = new Chart(document.getElementById('atMainChart'), {
+      type:'bar',
+      data:{labels:sample, datasets:[
+        {label:'Meta',  data:metaShare,  backgroundColor:'#eace49', stack:'p', borderRadius:2},
+        {label:'Google',data:googleShare,backgroundColor:'#7bbd91', stack:'p', borderRadius:2}
+      ]},
+      options:{responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{position:'bottom',labels:{font:{family:'DM Sans',size:11},boxWidth:10,padding:10}}},
+        scales:{
+          x:{stacked:true,grid:{display:false},ticks:{font:{family:'DM Sans',size:9},color:'#9E9C96',maxTicksLimit:14,maxRotation:45}},
+          y:{stacked:true,max:100,grid:{color:'rgba(0,0,0,0.04)'},ticks:{font:{family:'DM Mono',size:10},color:'#9E9C96',callback:v=>v+'%'}}
+        }
+      }
+    });
+  } else {
+    atCharts.main = new Chart(document.getElementById('atMainChart'), {
+      type:'line',data:{labels:allDates,datasets:[
+        {label:'Meta',  data:(HIST_DIGITAL.meta  ||[]).map(x=>x.v), borderColor:'#eace49', backgroundColor:'rgba(234,206,73,0.10)', tension:0.3, pointRadius:0, borderWidth:2, fill:true},
+        {label:'Google',data:(HIST_DIGITAL.google||[]).map(x=>x.v), borderColor:'#7bbd91', backgroundColor:'rgba(123,189,145,0.10)', tension:0.3, pointRadius:0, borderWidth:2, fill:true}
+      ]},
+      options:{responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{display:false}},
+        scales:{
+          x:{grid:{display:false},ticks:{font:{family:'DM Sans',size:9},color:'#9E9C96',maxTicksLimit:14,maxRotation:45}},
+          y:{grid:{color:'rgba(0,0,0,0.04)'},ticks:{font:{family:'DM Mono',size:10},color:'#9E9C96',callback:v=>'$'+Math.round(v/1000)+'k'}}
+        }
+      }
+    });
+  }
+}
+
+function renderATRolling() {
+  const meta = HIST_DIGITAL.meta || [];
+  const google = HIST_DIGITAL.google || [];
+  const series = meta.map((m,i)=>m.v + (google[i]?.v||0));
+  const rolling = series.map((_,i)=>{ const a=series.slice(Math.max(0,i-5),i+1); return Math.round(a.reduce((s,x)=>s+x,0)/a.length); });
+  if(atCharts.rolling) atCharts.rolling.destroy();
+  atCharts.rolling = new Chart(document.getElementById('atRollingChart'),{
+    type:'line',data:{labels:meta.map(x=>x.d),datasets:[{data:rolling,borderColor:'#b89a00',backgroundColor:'#fdf7d8',fill:true,tension:0.35,pointRadius:0,borderWidth:2}]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false}},
+      scales:{
+        x:{grid:{display:false},ticks:{display:false}},
+        y:{grid:{color:'rgba(0,0,0,0.04)'},ticks:{font:{family:'DM Mono',size:9},color:'#9E9C96',callback:v=>'$'+Math.round(v/1000)+'k'}}
+      }
+    }
   });
 }
 
-function renderATKPIs() {
+function renderATMix() {
+  const meta = HIST_DIGITAL.meta || [];
+  const google = HIST_DIGITAL.google || [];
+  const sample = meta.map(x=>x.d).filter((_,i)=>i%4===0);
+  const metaLk = {}; meta.forEach(p=>{metaLk[p.d]=p.v;});
+  const googleLk = {}; google.forEach(p=>{googleLk[p.d]=p.v;});
+  const metaShare = sample.map(d=>{ const t=(metaLk[d]||0)+(googleLk[d]||0); return t?Math.round((metaLk[d]||0)/t*100):null; });
+  const googleShare = sample.map((_,i)=>metaShare[i]==null?null:100-metaShare[i]);
+  if(atCharts.mix) atCharts.mix.destroy();
+  atCharts.mix = new Chart(document.getElementById('atMixChart'),{
+    type:'bar',
+    data:{labels:sample,datasets:[
+      {label:'Meta',  data:metaShare,  backgroundColor:'#eace49', stack:'p'},
+      {label:'Google',data:googleShare,backgroundColor:'#7bbd91', stack:'p'}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{position:'bottom',labels:{font:{family:'DM Sans',size:10},boxWidth:8,padding:8}}},
+      scales:{
+        x:{stacked:true,grid:{display:false},ticks:{font:{family:'DM Sans',size:9},color:'#9E9C96',maxTicksLimit:8,maxRotation:30}},
+        y:{stacked:true,max:100,grid:{color:'rgba(0,0,0,0.04)'},ticks:{font:{family:'DM Mono',size:9},color:'#9E9C96',callback:v=>v+'%'}}
+      }
+    }
+  });
+}
+
+function renderAllTime() {
+  renderATKPIs();
+  renderATMain();
+  setTimeout(renderATRolling, 30);
+  setTimeout(renderATMix, 60);
+}
+
+// ═════════════════════════════════════════════════════════════════════════
+// SALES TRENDS — Brentwood opening impact + total revenue + channels
+// ═════════════════════════════════════════════════════════════════════════
+let trView = 'total';
+let trCharts = {};
+
+function setTRView(v, btn) {
+  trView = v;
+  document.querySelectorAll('#page-trends .vt-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderTrends();
+}
+
+function renderTRKPIs() {
   const total = HIST_TOTAL;
   const pre = total.slice(0, BRENTWOOD_IDX);
   const post = total.slice(BRENTWOOD_IDX);
@@ -1652,50 +1849,37 @@ function renderATKPIs() {
   const postAvg = Math.round(post.reduce((s,x)=>s+x.v,0)/post.length);
   const lift = Math.round(((postAvg-preAvg)/preAvg)*100);
 
-  // Top sales week (was "Peak week") — include the week's date
   const topWeek = total.reduce((best, x) => x.v > best.v ? x : best, total[0]);
-  // Format date as "Apr 22, 2026"
-  const _fmtWeekShort = (s) => {
-    const [m,d,y] = s.split('/').map(Number);
-    const mo = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][m-1];
-    return `${mo} ${d}, ${y}`;
-  };
-
-  // 52-week trailing revenue (TTM) — sum of last min(52, available) weeks
   const ttmCount = Math.min(52, total.length);
   const ttm = total.slice(-ttmCount).reduce((s,x)=>s+x.v,0);
   const ttmLabel = ttmCount === 52 ? '52-week trailing revenue' : `${ttmCount}-week trailing revenue`;
-
   const growth = Math.round(((total[total.length-1].v - total[0].v)/total[0].v)*100);
   const latest = total[total.length-1];
 
-  document.getElementById('atPreAvg').textContent = '$'+preAvg.toLocaleString();
-  document.getElementById('atPostAvg').textContent = '$'+postAvg.toLocaleString();
-  document.getElementById('atLift').textContent = '+'+lift+'%';
-  document.getElementById('atKpiGrid').innerHTML = [
-    {label:'Top sales week', val:'$'+topWeek.v.toLocaleString(), sub:'Week of ' + _fmtWeekShort(topWeek.d)},
-    {label:ttmLabel,         val:'$'+ttm.toLocaleString(),       sub:'Trailing twelve months'},
-    {label:'Growth since first week', val:'+'+growth+'%',        sub:'Jan 2025 → present'},
-    {label:'Latest week',    val:'$'+latest.v.toLocaleString(),  sub:'Week of ' + _fmtWeekShort(latest.d)}
-  ].map(k=>`<div class="kpi-card"><div class="kpi-label">${k.label}</div><div class="kpi-value" style="font-size:20px">${k.val}</div><div style="font-size:10px;color:var(--text-3);margin-top:6px;font-family:'DM Mono',monospace">${k.sub}</div></div>`).join('');
+  document.getElementById('trPreAvg').textContent = '$'+preAvg.toLocaleString();
+  document.getElementById('trPostAvg').textContent = '$'+postAvg.toLocaleString();
+  document.getElementById('trLift').textContent = '+'+lift+'%';
+  document.getElementById('trKpiGrid').innerHTML = [
+    _kpiCard('Top sales week',           '$'+topWeek.v.toLocaleString(), 'Week of ' + _fmtWeekShort(topWeek.d)),
+    _kpiCard(ttmLabel,                   '$'+ttm.toLocaleString(),       'Trailing twelve months'),
+    _kpiCard('Growth since first week',  '+'+growth+'%',                 'Jan 2025 → present'),
+    _kpiCard('Latest week',              '$'+latest.v.toLocaleString(),  'Week of ' + _fmtWeekShort(latest.d))
+  ].join('');
 }
 
-function renderATMain() {
-  document.getElementById('atChartTitle').textContent =
-    atView==='total'    ? 'Weekly total revenue' :
-    atView==='channels' ? 'Revenue by channel — stacked weekly' :
-                          'Paid digital net revenue over time';
-  document.getElementById('atChartSub').textContent =
-    atView==='total'    ? 'Jan 2025 – May 2026 · all Neighborly locations' :
-    atView==='channels' ? 'All channels · Brentwood opening Apr 8, 2026' :
-                          'Meta vs Google weekly net revenue trend';
+function renderTRMain() {
+  document.getElementById('trChartTitle').textContent =
+    trView==='total' ? 'Weekly total revenue' : 'Revenue by channel — stacked weekly';
+  document.getElementById('trChartSub').textContent =
+    trView==='total' ? 'Jan 2025 – May 2026 · all Neighborly locations'
+                     : 'All channels · Brentwood opening Apr 8, 2026';
 
   const allDates = HIST_TOTAL.map(x=>x.d);
-  if (atCharts.main) atCharts.main.destroy();
+  if (trCharts.main) trCharts.main.destroy();
 
-  if (atView === 'total') {
+  if (trView === 'total') {
     const vals = HIST_TOTAL.map(x=>x.v);
-    atCharts.main = new Chart(document.getElementById('atMainChart'), {
+    trCharts.main = new Chart(document.getElementById('trMainChart'), {
       type:'bar',
       data:{labels:allDates, datasets:[
         {label:'Pre-Brentwood', data:vals.map((v,i)=>i<BRENTWOOD_IDX?v:null), backgroundColor:'#fdf7d8', borderColor:'#eace49', borderWidth:1.5, borderRadius:3, barPercentage:0.85},
@@ -1709,15 +1893,15 @@ function renderATMain() {
         }
       }
     });
-  } else if (atView === 'channels') {
+  } else {
     const keys=['dineIn','webPickup','instore','delivery','tpd','marketplace'];
-    const lbls=['Dine in','Web pickup','In-store','Delivery','3PD','Marketplace'];
+    const lbls=['Dine in','Web pickup','In-store Takeout','Delivery','3PD','Marketplace'];
     const cols=['#eace49','#7bbd91','#cbc9d6','#6280bd','#dbc6a2','#e87142'];
     const datasets = keys.map((k,i)=>{
       const lk={};(HIST_CHANNELS[k]||[]).forEach(p=>{lk[p.d]=p.v;});
       return {label:lbls[i],data:allDates.map(d=>lk[d]||null),backgroundColor:cols[i],borderColor:cols[i],borderWidth:0.5,borderRadius:2,stack:'s',barPercentage:0.85};
     });
-    atCharts.main = new Chart(document.getElementById('atMainChart'), {
+    trCharts.main = new Chart(document.getElementById('trMainChart'), {
       type:'bar',data:{labels:allDates,datasets},
       options:{responsive:true,maintainAspectRatio:false,
         plugins:{legend:{position:'bottom',labels:{font:{family:'DM Sans',size:11},boxWidth:10,padding:10}}},
@@ -1727,30 +1911,16 @@ function renderATMain() {
         }
       }
     });
-  } else {
-    atCharts.main = new Chart(document.getElementById('atMainChart'), {
-      type:'line',data:{labels:allDates,datasets:[
-        {label:'Meta',data:HIST_DIGITAL.meta.map(x=>x.v),borderColor:'#eace49',backgroundColor:'#fdf7d8',tension:0.3,pointRadius:0,borderWidth:2},
-        {label:'Google',data:HIST_DIGITAL.google.map(x=>x.v),borderColor:'#7bbd91',backgroundColor:'#e4f5ea',tension:0.3,pointRadius:0,borderWidth:2}
-      ]},
-      options:{responsive:true,maintainAspectRatio:false,
-        plugins:{legend:{position:'bottom',labels:{font:{family:'DM Sans',size:11},boxWidth:10,padding:10}}},
-        scales:{
-          x:{grid:{display:false},ticks:{font:{family:'DM Sans',size:9},color:'#9E9C96',maxTicksLimit:14,maxRotation:45}},
-          y:{grid:{color:'rgba(0,0,0,0.04)'},ticks:{font:{family:'DM Mono',size:10},color:'#9E9C96',callback:v=>'$'+Math.round(v/1000)+'k'}}
-        }
-      }
-    });
   }
 }
 
-function renderATRolling() {
+function renderTRRolling() {
   const rolling = HIST_TOTAL.map((p,i)=>{
     const start=Math.max(0,i-5); const arr=HIST_TOTAL.slice(start,i+1);
     return Math.round(arr.reduce((s,x)=>s+x.v,0)/arr.length);
   });
-  if(atCharts.rolling)atCharts.rolling.destroy();
-  atCharts.rolling=new Chart(document.getElementById('atRollingChart'),{
+  if(trCharts.rolling) trCharts.rolling.destroy();
+  trCharts.rolling = new Chart(document.getElementById('trRollingChart'),{
     type:'line',data:{labels:HIST_TOTAL.map(x=>x.d),datasets:[{data:rolling,borderColor:'#1f2328',backgroundColor:'#fdf7d8',fill:true,tension:0.35,pointRadius:0,borderWidth:2}]},
     options:{responsive:true,maintainAspectRatio:false,
       plugins:{legend:{display:false}},
@@ -1762,9 +1932,9 @@ function renderATRolling() {
   });
 }
 
-function renderATMix() {
+function renderTRMix() {
   const keys=['dineIn','webPickup','instore','delivery','tpd'];
-  const lbls=['Dine in','Web','In-store','Delivery','3PD'];
+  const lbls=['Dine in','Web','In-store Takeout','Delivery','3PD'];
   const cols=['#eace49','#7bbd91','#cbc9d6','#6280bd','#dbc6a2'];
   const allDates=HIST_TOTAL.map(x=>x.d);
   const sample=allDates.filter((_,i)=>i%4===0);
@@ -1773,8 +1943,8 @@ function renderATMix() {
     const lk={};(HIST_CHANNELS[k]||[]).forEach(p=>{lk[p.d]=p.v;});
     return {label:lbls[i],data:sample.map(d=>totLk[d]?Math.round((lk[d]||0)/totLk[d]*100):null),backgroundColor:cols[i],stack:'m'};
   });
-  if(atCharts.mix)atCharts.mix.destroy();
-  atCharts.mix=new Chart(document.getElementById('atMixChart'),{
+  if(trCharts.mix) trCharts.mix.destroy();
+  trCharts.mix = new Chart(document.getElementById('trMixChart'),{
     type:'bar',data:{labels:sample,datasets},
     options:{responsive:true,maintainAspectRatio:false,
       plugins:{legend:{position:'bottom',labels:{font:{family:'DM Sans',size:10},boxWidth:8,padding:8}}},
@@ -1786,12 +1956,11 @@ function renderATMix() {
   });
 }
 
-function renderAllTime() {
-  _atGuardButtons();
-  renderATKPIs();
-  renderATMain();
-  setTimeout(renderATRolling, 30);
-  setTimeout(renderATMix, 60);
+function renderTrends() {
+  renderTRKPIs();
+  renderTRMain();
+  setTimeout(renderTRRolling, 30);
+  setTimeout(renderTRMix, 60);
 }
 </script>
 
@@ -1881,7 +2050,7 @@ const DAILY = { wlv: null, bw: null, total: null };
 const DAILY_PREV = { wlv: null, bw: null, total: null, date: null };
 let DAILY_META = { date: '', generated: '' };
 const _dailyCharts = {};
-let dailyLoc = 'wlv';
+let dailyLoc = 'total';
 let _dailyFetching = false;
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -2221,7 +2390,7 @@ function renderDailyDashboard() {
   const data = DAILY[dailyLoc];
   const locName = dailyLoc === 'wlv' ? 'Westlake Village'
                 : dailyLoc === 'bw'  ? 'Brentwood'
-                : 'Total — All locations';
+                : 'All Locations';
   const sub = document.getElementById('dailyDateSub');
   if (sub) sub.textContent = data
     ? `${DAILY_META.date || 'Today'}  ·  ${locName}`
@@ -2318,10 +2487,12 @@ const CHANNEL_COLORS = ['#1f2328','#e87142','#eace49','#7bbd91','#6280bd','#dbc6
 
 function renderDailyChannels(data) {
   const canvas = document.getElementById('dailyChannelChart');
-  const mixWrap = document.getElementById('dailyChannelMix');
-  if (!canvas || !mixWrap) return;
-  if (_dailyCharts.channel) { try { _dailyCharts.channel.destroy(); } catch(e){} }
-  if (!data) { mixWrap.innerHTML = '<div class="daily-empty-kpi">No data</div>'; return; }
+  const pieCanvas = document.getElementById('dailyChannelMixChart');
+  const legendEl = document.getElementById('dailyChannelMixLegend');
+  if (!canvas || !pieCanvas || !legendEl) return;
+  if (_dailyCharts.channel)    { try { _dailyCharts.channel.destroy(); } catch(e){} }
+  if (_dailyCharts.channelPie) { try { _dailyCharts.channelPie.destroy(); } catch(e){} }
+  if (!data) { legendEl.innerHTML = '<div class="daily-empty-kpi">No data</div>'; return; }
 
   const ch = data.today.channels || {};
   const keys = Object.keys(CHANNEL_LABELS).filter(k => (ch[k] || 0) > 0);
@@ -2369,17 +2540,49 @@ function renderDailyChannels(data) {
     }
   });
 
-  mixWrap.innerHTML = keys
-    .map(k => ({ k, v: +ch[k]||0 }))
-    .sort((a,b) => b.v - a.v)
-    .map((row, i) => {
-      const pct = row.v/total*100;
-      const color = CHANNEL_COLORS[keys.indexOf(row.k) % CHANNEL_COLORS.length];
-      return `<div class="mix-bar-wrap" title="${CHANNEL_LABELS[row.k]}: ${_fmtDollarRound(row.v)} (${pct.toFixed(1)}% of net)">
-        <div class="mix-bar-label"><span>${CHANNEL_LABELS[row.k]}</span><span class="mix-detail">${_fmtDollarRound(row.v)} &middot; ${pct.toFixed(1)}%</span></div>
-        <div class="mix-bar-track"><div class="mix-bar-fill animate" style="width:${pct.toFixed(2)}%;background:${color}"></div></div>
-      </div>`;
-    }).join('');
+  // Channel mix % — pie chart with side legend
+  const sorted = keys.map((k, i) => ({ k, v: +ch[k] || 0, color: CHANNEL_COLORS[i % CHANNEL_COLORS.length] }))
+                     .sort((a, b) => b.v - a.v);
+  _dailyCharts.channelPie = new Chart(pieCanvas, {
+    type: 'doughnut',
+    data: {
+      labels: sorted.map(r => CHANNEL_LABELS[r.k]),
+      datasets: [{
+        data: sorted.map(r => r.v),
+        backgroundColor: sorted.map(r => r.color),
+        hoverBackgroundColor: sorted.map(r => r.color),
+        borderColor: '#fff',
+        borderWidth: 1.5,
+        hoverOffset: 6
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      cutout: '58%',
+      animation: { duration: 700, easing: 'easeOutQuart' },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#1f2328', titleColor: '#fff', bodyColor: '#fff',
+          padding: 10, cornerRadius: 6, displayColors: false,
+          titleFont: { family: 'DM Sans', size: 12, weight: '600' },
+          bodyFont:  { family: 'DM Mono', size: 12 },
+          callbacks: {
+            title: ctx => ctx[0].label,
+            label: ctx => [_fmtDollarRound(ctx.parsed), (ctx.parsed/total*100).toFixed(1) + '% of net']
+          }
+        }
+      }
+    }
+  });
+  legendEl.innerHTML = sorted.map(r => {
+    const pct = r.v / total * 100;
+    return `<div class="channel-pie-row" title="${CHANNEL_LABELS[r.k]}: ${_fmtDollarRound(r.v)} (${pct.toFixed(1)}% of net)">
+      <span class="swatch" style="background:${r.color}"></span>
+      <span class="name">${CHANNEL_LABELS[r.k]}</span>
+      <span class="val"><strong>${pct.toFixed(1)}%</strong> &middot; ${_fmtDollarRound(r.v)}</span>
+    </div>`;
+  }).join('');
 }
 
 // ── PMIX (concepts) ───────────────────────────────────────────────────────────

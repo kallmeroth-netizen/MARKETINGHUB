@@ -57,6 +57,57 @@
   .leader-bar-fill { height: 100%; border-radius: var(--r-pill); transition: width .55s var(--easing); }
   .leader-meta { display: flex; justify-content: space-between; font-family: var(--f-mono); font-size: var(--t-caption-sm); color: var(--text-3); margin-top: 8px; }
 
+  /* === Best-sellers carousel — 2 pages of 6, arrows + swipe + dots === */
+  .leader-carousel { position: relative; display: flex; align-items: stretch; gap: 4px; }
+  .leader-track {
+    flex: 1; min-width: 0;
+    display: flex; overflow-x: auto; scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+    scrollbar-width: none;
+  }
+  .leader-track::-webkit-scrollbar { display: none; }
+  .leader-page {
+    flex: 0 0 100%;
+    min-width: 0;
+    scroll-snap-align: start;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--s-3);
+    padding: 2px 4px;
+  }
+  @media (max-width: 900px) { .leader-page { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 560px) { .leader-page { grid-template-columns: 1fr; } }
+  .leader-nav {
+    flex: 0 0 32px;
+    align-self: center;
+    height: 32px; width: 32px;
+    display: inline-flex; align-items: center; justify-content: center;
+    background: var(--surface); color: var(--text-2);
+    border: 0.5px solid var(--line-strong); border-radius: 50%;
+    cursor: pointer;
+    transition: background var(--t-base) var(--easing), color var(--t-base) var(--easing), border-color var(--t-base) var(--easing), opacity var(--t-base) var(--easing);
+    padding: 0;
+  }
+  .leader-nav svg { width: 14px; height: 14px; }
+  .leader-nav:hover:not(:disabled) { background: var(--ink); color: #fff; border-color: var(--ink); }
+  .leader-nav:disabled { opacity: 0.3; cursor: default; }
+  .leader-nav-prev { margin-right: 2px; }
+  .leader-nav-next { margin-left: 2px; }
+  @media (max-width: 560px) {
+    .leader-nav { display: none; }
+  }
+  .leader-dots {
+    display: flex; justify-content: center; gap: 8px;
+    margin-top: var(--s-3);
+  }
+  .leader-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--line-strong); border: none; padding: 0; cursor: pointer;
+    transition: background var(--t-base) var(--easing), transform var(--t-base) var(--easing);
+  }
+  .leader-dot.is-active { background: var(--ink); transform: scale(1.25); }
+
   /* === Explorer table === */
   .explorer-controls { display: flex; flex-wrap: wrap; gap: 8px; margin: var(--s-3) 0 var(--s-4); }
   .search-input {
@@ -93,62 +144,109 @@
   .item-table .item-cell { display: flex; flex-direction: column; gap: 2px; }
   .item-table .item-cell .item-cat { font-family: var(--f-eyebrow); font-weight: 600; font-size: var(--t-eyebrow); letter-spacing: 0.18em; text-transform: uppercase; color: var(--text-3); }
   .item-table tr.empty td { text-align: center; color: var(--text-3); padding: var(--s-5); }
-  /* Item-explorer disclosure */
-  .explorer-summary {
-    list-style: none; cursor: pointer;
-    display: flex; align-items: center; justify-content: space-between;
-    gap: var(--s-3);
-  }
-  .explorer-summary::-webkit-details-marker { display: none; }
-  .explorer-chev {
-    display: inline-flex; align-items: center; justify-content: center;
-    width: 32px; height: 32px;
-    border-radius: 50%; background: var(--surface-2); color: var(--text-2);
-    transition: transform var(--t-base) var(--easing), background var(--t-base) var(--easing);
-  }
-  details[open] .explorer-chev { transform: rotate(180deg); background: var(--ink); color: #fff; }
-  details[open] #explorerSub::after { content: ' — collapse'; color: var(--text-3); }
-
   .qty-bar { width: 80px; height: 5px; border-radius: var(--r-pill); background: var(--surface-2); display: inline-block; vertical-align: middle; margin-left: 8px; overflow: hidden; }
   .qty-bar-fill { height: 100%; background: var(--brand-orange); border-radius: var(--r-pill); }
   .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 0 calc(var(--s-4) * -1); padding: 0 var(--s-4); }
 
-  /* === Concept performance grid === */
-  .concept-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: var(--s-3); margin-top: var(--s-3); }
-  .concept-card {
-    background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-md);
-    padding: var(--s-4);
-    display: flex; flex-direction: column; gap: 10px;
+  /* === Concept summary — page-opening overview === */
+  .concept-summary {
+    margin-bottom: var(--s-4);
+    padding: var(--s-3) 0 var(--s-4);
+    border-bottom: 0.5px solid var(--line-strong);
+  }
+  .concept-summary-eyebrow {
+    font-family: var(--f-eyebrow); font-weight: 600;
+    font-size: var(--t-eyebrow); letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--text-3); margin-bottom: var(--s-3);
+    display: flex; align-items: center; gap: var(--s-2);
+  }
+  .concept-summary-eyebrow::after { content: ''; flex: 1; height: 0.5px; background: var(--line); }
+  .concept-strip { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: var(--s-3); }
+  .concept-chip {
     position: relative;
-    transition: border-color var(--t-base) var(--easing), transform var(--t-base) var(--easing);
+    padding: 14px 16px;
+    background: var(--surface);
+    border: 0.5px solid var(--line);
+    border-radius: var(--r-md);
+    transition: border-color var(--t-base) var(--easing), transform var(--t-base) var(--easing), box-shadow var(--t-base) var(--easing);
   }
-  .concept-card:hover { border-color: var(--line-bold); transform: translateY(-1px); }
-  .concept-head { display: flex; align-items: center; gap: 8px; }
-  .concept-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
-  .concept-name { font-family: var(--f-sans); font-weight: 600; font-size: 14px; color: var(--ink); line-height: 1.2; flex: 1; min-width: 0; }
-  .concept-trend {
-    font-family: var(--f-eyebrow); font-weight: 600; font-size: 10px;
-    letter-spacing: 0.16em; text-transform: uppercase;
-    padding: 3px 7px; border-radius: var(--r-pill);
-    white-space: nowrap; line-height: 1;
+  .concept-chip::before {
+    content: '';
+    position: absolute; left: 0; top: 12px; bottom: 12px;
+    width: 3px; border-radius: 0 2px 2px 0;
+    background: var(--concept-color, var(--line-strong));
   }
-  .concept-trend.up    { background: rgba(123,189,145,0.18); color: #2f6e44; }
-  .concept-trend.down  { background: rgba(232,113,66,0.16);  color: #b8542a; }
-  .concept-trend.flat  { background: var(--surface-2);       color: var(--text-3); }
-  .concept-trend.new   { background: rgba(98,128,189,0.16);  color: #2d4480; }
-  .concept-hero { display: flex; align-items: baseline; gap: 8px; margin-top: 2px; }
-  .concept-net { font-family: var(--f-mono); font-size: 22px; font-weight: 500; color: var(--ink); line-height: 1; }
-  .concept-share { font-family: var(--f-mono); font-size: 12px; color: var(--text-3); }
-  .concept-share-bar { height: 4px; border-radius: var(--r-pill); background: var(--surface-2); overflow: hidden; }
-  .concept-share-fill { height: 100%; border-radius: var(--r-pill); transition: width .55s var(--easing); }
-  .concept-stats {
-    display: grid; grid-template-columns: 1fr 1fr; gap: 2px var(--s-3);
-    padding-top: 8px; border-top: 1px solid var(--line);
+  .concept-chip:hover {
+    border-color: var(--line-bold);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-sm);
   }
-  .concept-stat-label { font-family: var(--f-eyebrow); font-weight: 600; font-size: 9.5px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text-3); line-height: 1.6; }
-  .concept-stat-value { font-family: var(--f-mono); font-size: 13px; font-weight: 500; color: var(--ink); text-align: right; line-height: 1.6; }
-  .concept-top-item { font-size: 11px; color: var(--text-3); line-height: 1.4; }
-  .concept-top-item strong { color: var(--text-2); font-weight: 500; }
+  .concept-chip-name {
+    font-family: var(--f-eyebrow); font-weight: 600;
+    font-size: var(--t-eyebrow); letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--text-2); margin-bottom: 8px;
+    display: flex; align-items: center; gap: 8px;
+    line-height: 1.2;
+  }
+  .concept-chip-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+  .concept-chip-net {
+    font-family: var(--f-mono); font-size: 22px; font-weight: 500;
+    color: var(--ink); line-height: 1.05; margin-bottom: 10px;
+  }
+  .concept-chip-stats {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 4px 12px;
+    padding-top: 8px; border-top: 0.5px solid var(--line);
+  }
+  .concept-stat { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+  .concept-stat-val {
+    font-family: var(--f-mono); font-size: var(--t-body-sm); font-weight: 500;
+    color: var(--ink); line-height: 1.15;
+  }
+  .concept-stat-lbl {
+    font-family: var(--f-eyebrow); font-weight: 600;
+    font-size: 9.5px; letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--text-3);
+  }
+
+  /* === Quantity by concept — graph === */
+  .qty-by-concept { display: flex; flex-direction: column; gap: var(--s-3); }
+  .qty-row {
+    display: grid;
+    grid-template-columns: minmax(120px, 180px) 1fr auto;
+    align-items: center;
+    gap: var(--s-3);
+    padding: 6px 0;
+  }
+  .qty-row-label {
+    display: flex; align-items: center; gap: 8px;
+    font-family: var(--f-eyebrow); font-weight: 600;
+    font-size: var(--t-eyebrow); letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--text-2); min-width: 0;
+  }
+  .qty-row-label .dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+  .qty-row-label .name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .qty-track { height: 10px; border-radius: var(--r-pill); background: var(--surface-2); overflow: hidden; }
+  .qty-fill {
+    height: 100%; border-radius: var(--r-pill);
+    transition: width 0.55s var(--easing);
+  }
+  .qty-row-meta {
+    font-family: var(--f-mono); font-size: var(--t-caption);
+    color: var(--text-2); white-space: nowrap;
+    display: grid; grid-template-columns: auto auto auto;
+    align-items: baseline; gap: 4px 12px;
+    justify-items: end;
+  }
+  .qty-row-meta .qty-num { font-weight: 500; color: var(--ink); }
+  .qty-row-meta .qty-pct { color: var(--text-3); font-size: var(--t-caption-sm); min-width: 44px; text-align: right; }
+  .qty-row-meta .qty-avg { color: var(--text-2); font-size: var(--t-caption-sm); padding-left: 12px; border-left: 0.5px solid var(--line); min-width: 70px; text-align: right; }
+  @media (max-width: 640px) {
+    .qty-row { grid-template-columns: 1fr auto; gap: var(--s-2); }
+    .qty-row .qty-track { grid-column: 1 / -1; }
+    .qty-row-meta { grid-template-columns: auto auto; }
+    .qty-row-meta .qty-avg { grid-column: 1 / -1; padding-left: 0; border-left: none; padding-top: 2px; }
+  }
 </style>
 </head>
 <body>
@@ -159,7 +257,8 @@
   </a>
   <div class="np-tabs">
     <a class="np-tab" href="neighborly-dashboard.html?p=daily">Daily sales</a>
-    <a class="np-tab is-active">Menu mix</a>
+    <a class="np-tab" href="neighborly-dashboard.html?p=trends">Sales trends</a>
+    <a class="np-tab is-active">Product mix</a>
   </div>
   <div class="np-nav-right">
     <span class="np-nav-page-tag">Sales &amp; Pmix</span>
@@ -174,7 +273,7 @@
   <div class="np-hub-grid">
     <a class="np-hub-card" href="index.html"><div class="np-hub-card-ico" style="background:var(--surface-2)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--text)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12l9-9 9 9"/><path d="M5 10v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V10"/></svg></div><div class="np-hub-card-title">Home</div><div class="np-hub-card-sub">Marketing Hub overview</div></a>
     <a class="np-hub-card" href="neighborly-dashboard.html"><div class="np-hub-card-ico" style="background:var(--brand-yellow-light)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--brand-yellow-deep)" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></div><div class="np-hub-card-title">Performance Marketing</div><div class="np-hub-card-sub">Weekly &amp; all-time KPIs</div></a>
-    <a class="np-hub-card is-active" href="neighborly-pmix.html"><div class="np-hub-card-ico" style="background:#e3ece3"><svg viewBox="0 0 24 24" fill="none" stroke="#5a7a5a" stroke-width="2" stroke-linecap="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></div><div class="np-hub-card-title">Sales &amp; Pmix</div><div class="np-hub-card-sub">Daily sales &amp; menu mix</div></a>
+    <a class="np-hub-card is-active" href="neighborly-pmix.html"><div class="np-hub-card-ico" style="background:#e3ece3"><svg viewBox="0 0 24 24" fill="none" stroke="#5a7a5a" stroke-width="2" stroke-linecap="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></div><div class="np-hub-card-title">Sales &amp; Pmix</div><div class="np-hub-card-sub">Daily sales &amp; product mix</div></a>
     <a class="np-hub-card" href="neighborly-calendar.html"><div class="np-hub-card-ico" style="background:var(--brand-green-light)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--brand-green-deep)" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div><div class="np-hub-card-title">Marketing Calendar</div><div class="np-hub-card-sub">Campaigns &amp; scheduling</div></a>
     <a class="np-hub-card" href="neighborly-assets.html"><div class="np-hub-card-ico" style="background:var(--brand-tan-light)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--brand-tan-deep)" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 010 14.14M4.93 4.93a10 10 0 000 14.14M12 2v2M12 20v2M2 12h2M20 12h2"/></svg></div><div class="np-hub-card-title">Brand Guidelines</div><div class="np-hub-card-sub">Logos &amp; templates</div></a>
         <a class="np-hub-card" href="neighborly-social.html"><div class="np-hub-card-ico" style="background:var(--brand-blue-light)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--brand-blue-deep)" stroke-width="2"><path d="M3 12h4l3-9 4 18 3-9h4"/></svg></div><div class="np-hub-card-title">Social</div><div class="np-hub-card-sub">Reach &amp; engagement</div></a>
@@ -194,9 +293,9 @@
         <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
       </button>
       <div class="np-toggle" id="locToggle" role="tablist" aria-label="Location">
-        <button class="is-active" data-loc="total" role="tab">Both locations</button>
         <button data-loc="wlv" role="tab">Westlake Village</button>
         <button data-loc="bw" role="tab">Brentwood</button>
+        <button class="is-active" data-loc="total" role="tab">All Locations</button>
       </div>
     </div>
   </div>
@@ -209,71 +308,88 @@
     <div class="np-card-title" id="locEmptyTitle">No per-location export uploaded yet</div>
     <div class="np-card-sub" id="locEmptyMsg">
       Drop a location-specific Toast PMIX export and the breakdown for this location lights up automatically.
-      Until then, this view falls back to <strong>Both locations</strong> totals.
+      Until then, this view falls back to <strong>All Locations</strong> totals.
     </div>
   </div>
+
+  <!-- CONCEPT SUMMARY — page-opening overview that sets the tone -->
+  <section class="concept-summary">
+    <div class="concept-summary-eyebrow">Concept summary</div>
+    <div class="concept-strip" id="conceptStrip"></div>
+  </section>
 
   <!-- KPI strip -->
   <div class="pmix-kpis">
     <div class="np-kpi"><div class="np-kpi-label">Items sold</div><div class="np-kpi-value" id="kpiQty">—</div><div class="np-kpi-sub">units across all menus</div></div>
-    <div class="np-kpi"><div class="np-kpi-label">Top by revenue</div><div class="np-kpi-value" id="kpiByRev" style="font-size:15px; line-height:1.25">—</div><div class="np-kpi-sub" id="kpiByRevSub">—</div></div>
-    <div class="np-kpi"><div class="np-kpi-label">Top by quantity</div><div class="np-kpi-value" id="kpiByQty" style="font-size:15px; line-height:1.25">—</div><div class="np-kpi-sub" id="kpiByQtySub">—</div></div>
+    <div class="np-kpi"><div class="np-kpi-label">Top by revenue</div><div class="np-kpi-value" id="kpiByRev">—</div><div class="np-kpi-sub" id="kpiByRevSub">—</div></div>
+    <div class="np-kpi"><div class="np-kpi-label">Top by quantity</div><div class="np-kpi-value" id="kpiByQty">—</div><div class="np-kpi-sub" id="kpiByQtySub">—</div></div>
     <div class="np-kpi"><div class="np-kpi-label">Avg item price</div><div class="np-kpi-value" id="kpiAvg">—</div><div class="np-kpi-sub">net per unit</div></div>
   </div>
 
-  <!-- CONCEPT PERFORMANCE (promoted) -->
+  <!-- TOP PERFORMERS LEADERBOARD (hero) — paged carousel: 2 sets of 6 -->
   <section class="np-card" style="margin-bottom:var(--s-4)">
-    <div class="np-card-title">Concept performance</div>
-    <div class="np-card-sub" id="conceptSub">How each kitchen performed today — with day-over-day trend</div>
-    <div class="concept-grid" id="conceptGrid"></div>
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:var(--s-3);flex-wrap:wrap">
+      <div>
+        <div class="np-card-title">Today&rsquo;s best sellers</div>
+        <div class="np-card-sub" id="leaderSub">Top 12 items by revenue — quantity bar shows volume vs the day&rsquo;s leader</div>
+      </div>
+      <div class="sort-toggle" id="leaderToggle" role="tablist" aria-label="Leaderboard sort">
+        <button class="is-active" data-leader="net" role="tab">By revenue</button>
+        <button data-leader="qty" role="tab">By quantity</button>
+      </div>
+    </div>
+    <div class="leader-carousel" id="leaderCarousel" style="margin-top:var(--s-3)">
+      <button class="leader-nav leader-nav-prev" id="leaderPrev" aria-label="Previous page" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <div class="leader-track" id="leaderTrack" role="region" aria-roledescription="carousel" aria-label="Top sellers — swipe or use arrows">
+        <div class="leader-page" data-page="0"></div>
+        <div class="leader-page" data-page="1"></div>
+      </div>
+      <button class="leader-nav leader-nav-next" id="leaderNext" aria-label="Next page" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+    </div>
+    <div class="leader-dots" id="leaderDots" aria-hidden="true"></div>
   </section>
 
-  <!-- TOP PERFORMERS LEADERBOARD -->
+  <!-- QUANTITY BY CONCEPT — graph breakdown -->
   <section class="np-card" style="margin-bottom:var(--s-4)">
-    <div class="np-card-title">Today&rsquo;s best sellers</div>
-    <div class="np-card-sub">Top 8 items by revenue — quantity bar shows volume vs the day&rsquo;s leader</div>
-    <div class="leader-grid" id="leaderGrid" style="margin-top:var(--s-3)"></div>
+    <div class="np-card-title">Quantity sold by concept</div>
+    <div class="np-card-sub">Units sold, share of total volume, and average basket spend per concept</div>
+    <div class="qty-by-concept" id="qtyByConcept" style="margin-top:var(--s-4)"></div>
   </section>
 
-  <!-- ITEM EXPLORER (collapsed by default) -->
+  <!-- ITEM EXPLORER -->
   <section class="np-card" style="margin-bottom:var(--s-4)">
-    <details id="explorerDisclosure">
-      <summary class="explorer-summary">
-        <div>
-          <div class="np-card-title" style="margin:0">All items</div>
-          <div class="np-card-sub" id="explorerSub" style="margin:0">Search and sort every item sold — click to expand</div>
-        </div>
-        <span class="explorer-chev" aria-hidden="true">
-          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
-        </span>
-      </summary>
+    <div class="np-card-title">All items</div>
+    <div class="np-card-sub">Search any item or filter by menu — sort by revenue, quantity, or price</div>
 
-      <div class="explorer-controls" style="margin-top:var(--s-4)">
-        <input id="itemSearch" class="search-input" type="search" placeholder="Search items…">
-        <div class="sort-toggle" id="sortToggle">
-          <button class="is-active" data-sort="net">Revenue</button>
-          <button data-sort="qty">Quantity</button>
-          <button data-sort="avg">Avg price</button>
-        </div>
+    <div class="explorer-controls">
+      <input id="itemSearch" class="search-input" type="search" placeholder="Search items…">
+      <div class="sort-toggle" id="sortToggle">
+        <button class="is-active" data-sort="net">Revenue</button>
+        <button data-sort="qty">Quantity</button>
+        <button data-sort="avg">Avg price</button>
       </div>
-      <div class="menu-filter" id="menuFilter" style="margin-bottom: var(--s-4)">
-        <!-- Menu chips injected by JS — first is "All" -->
-      </div>
+    </div>
+    <div class="menu-filter" id="menuFilter" style="margin-bottom: var(--s-4)">
+      <!-- Menu chips injected by JS — first is "All" -->
+    </div>
 
-      <div class="table-wrap">
-        <table class="item-table" id="itemTable">
-          <thead>
-            <tr>
-              <th>Item</th>
-              <th class="num">Qty</th>
-              <th class="num">Net sales</th>
-              <th class="num">Avg price</th>
-            </tr>
-          </thead>
-          <tbody id="itemTbody"></tbody>
-        </table>
-      </div>
-    </details>
+    <div class="table-wrap">
+      <table class="item-table" id="itemTable">
+        <thead>
+          <tr>
+            <th>Item</th>
+            <th class="num">Qty</th>
+            <th class="num">Net sales</th>
+            <th class="num">Avg price</th>
+          </tr>
+        </thead>
+        <tbody id="itemTbody"></tbody>
+      </table>
+    </div>
   </section>
 
 </main>
@@ -289,6 +405,21 @@
      ("GABY'S CAESAR AVOCADO WRAP" vs "Swedish Candy") — render every
      name in Title Case so the page reads with one voice. */
   const SMALL = new Set(['a','an','and','at','but','by','for','in','nor','of','on','or','so','the','to','vs','with']);
+  /* Concept display names — Toast ships internal codes ("MK Food",
+     "Gaby Food", "Mixtape Food"); display the team-facing brand
+     names everywhere a concept appears. */
+  const CONCEPT_DISPLAY = {
+    'mk food':           'Mini Kabob',
+    'gaby food':         "What's Gaby Cooking",
+    'mixtape food':      'Mixtape',
+    'social monk food':  'Social Monk',
+  };
+  const conceptName = s => {
+    if (s == null) return s;
+    const key = String(s).toLowerCase().trim();
+    return CONCEPT_DISPLAY[key] || titleCase(s);
+  };
+
   const titleCase = s => {
     if (s == null) return s;
     return String(s).toLowerCase().replace(/[\w'’]+/g, (w, i, str) => {
@@ -307,6 +438,7 @@
   let conceptColor = {};   // concept name → color
   let activeMenu = 'all';
   let activeSort = 'net';
+  let leaderSort = 'net';  // 'net' | 'qty' — drives the best-sellers leaderboard
   let searchQ = '';
 
   async function loadPMIX() {
@@ -395,9 +527,16 @@
     DATA.date_label = day.date_label;
     DATA.locations  = (fellBack ? labels.total : (labels[loc] || labels.total));
 
-    // Strip internal-ops rows (e.g. TABLE NUMBER) so they never enter rankings
+    // Strip internal-ops rows (table-number prompts, utensil flags, curbside,
+    // 3PD info, etc.) so they never enter rankings or the product breakdown.
     const EXCLUDED_ITEMS = new Set(['TABLE NUMBER']);
-    const keep = it => it && !EXCLUDED_ITEMS.has((it.name || '').toUpperCase());
+    const EXCLUDED_CATEGORY = /^(no sales category|misc non sales)$/i;
+    const keep = it => {
+      if (!it) return false;
+      if (EXCLUDED_ITEMS.has((it.name || '').toUpperCase())) return false;
+      if (EXCLUDED_CATEGORY.test(it.category || '')) return false;
+      return true;
+    };
     DATA.items         = (DATA.items || []).filter(keep);
     DATA.topItemsByNet = (DATA.topItemsByNet || []).filter(keep);
     DATA.topItemsByQty = (DATA.topItemsByQty || []).filter(keep);
@@ -423,24 +562,6 @@
     return (colorForCategory.cache[cat] = hit || COLORS[14]);
   }
 
-  // Find the most recent date in DAYS *before* the active one and return that
-  // day's concepts at the active location as a { byName, label } object — or
-  // null if no usable prior data exists.
-  function priorDayConcepts() {
-    if (!activeDate || !DAYS) return null;
-    const earlier = Object.keys(DAYS).filter(d => d < activeDate).sort();
-    if (!earlier.length) return null;
-    for (let i = earlier.length - 1; i >= 0; i--) {
-      const day = DAYS[earlier[i]];
-      const payload = day?.locations?.[activeLoc] || day?.locations?.total;
-      if (!payload || !payload.concepts || !payload.concepts.length) continue;
-      const byName = {};
-      payload.concepts.forEach(c => { byName[c.name] = { net: c.net || 0, qty: c.qty || 0 }; });
-      return { byName, label: day.date_label || earlier[i] };
-    }
-    return null;
-  }
-
   function render() {
     if (!DATA) return;
     const items = (DATA.items || []).filter(it => it.qty > 0);
@@ -449,42 +570,21 @@
     const topNet = [...items].sort((a, b) => b.net - a.net)[0];
     const topQty = [...items].sort((a, b) => b.qty - a.qty)[0];
     document.getElementById('kpiQty').textContent     = fmtN(DATA.totalQty);
-    document.getElementById('kpiByRev').textContent   = topNet ? titleCase(topNet.name) : '—';
-    document.getElementById('kpiByRevSub').textContent = topNet ? `${fmt$(topNet.net)} · ${fmtN(topNet.qty)} sold` : '—';
-    document.getElementById('kpiByQty').textContent   = topQty ? titleCase(topQty.name) : '—';
-    document.getElementById('kpiByQtySub').textContent = topQty ? `${fmtN(topQty.qty)} sold · ${fmt$(topQty.net)}` : '—';
+    document.getElementById('kpiByRev').textContent   = topNet ? fmt$(topNet.net) : '—';
+    document.getElementById('kpiByRevSub').textContent = topNet ? titleCase(topNet.name) : '—';
+    document.getElementById('kpiByQty').textContent   = topQty ? fmtN(topQty.qty) : '—';
+    document.getElementById('kpiByQtySub').textContent = topQty ? titleCase(topQty.name) : '—';
     document.getElementById('kpiAvg').textContent     = DATA.totalQty ? fmt$2(DATA.totalNet / DATA.totalQty) : '—';
 
-    // Top performers leaderboard
-    const top8 = [...items].sort((a, b) => b.net - a.net).slice(0, 8);
-    const maxQty = Math.max(...top8.map(it => it.qty));
-    document.getElementById('leaderGrid').innerHTML = top8.map((it, i) => {
-      const color = colorForCategory(it.category);
-      const w = maxQty ? (it.qty / maxQty) * 100 : 0;
-      return `
-        <div class="leader-card" title="${titleCase(it.name)}: ${fmtN(it.qty)} sold · ${fmt$(it.net)}">
-          <span class="leader-rank">#${i + 1}</span>
-          <div class="leader-cat"><span class="dot" style="background:${color}"></span>${titleCase(it.category) || 'Item'}</div>
-          <div class="leader-name">${titleCase(it.name)}</div>
-          <div class="leader-row">
-            <span class="leader-stat">${fmt$(it.net)}</span>
-            <span class="leader-sublabel">Net</span>
-          </div>
-          <div class="leader-bar"><div class="leader-bar-fill" style="width:${w.toFixed(1)}%; background:${color}"></div></div>
-          <div class="leader-meta">
-            <span>${fmtN(it.qty)} sold</span>
-            <span>${(it.net / DATA.totalNet * 100).toFixed(1)}% of net</span>
-          </div>
-        </div>
-      `;
-    }).join('');
+    renderLeaderboard(items);
+    renderQtyByConcept();
 
     // Menu filter chips — derived from unique sales categories
     const cats = ['All', ...Array.from(new Set(items.map(it => it.category).filter(Boolean))).sort()];
     document.getElementById('menuFilter').innerHTML = cats.map(c => {
       const v = c === 'All' ? 'all' : c;
       const cls = (v === activeMenu) ? 'is-active' : '';
-      return `<button class="${cls}" data-menu="${v.replace(/"/g, '&quot;')}">${c === 'All' ? c : titleCase(c)}</button>`;
+      return `<button class="${cls}" data-menu="${v.replace(/"/g, '&quot;')}">${c === 'All' ? c : conceptName(c)}</button>`;
     }).join('');
     document.querySelectorAll('#menuFilter button').forEach(b => {
       b.addEventListener('click', () => {
@@ -494,70 +594,24 @@
       });
     });
 
-    // Concept performance grid — per-concept revenue, share, avg price, trend vs prior day
-    const concepts  = (DATA.concepts || []).filter(c => c.net > 0).sort((a, b) => b.net - a.net);
-    const prior     = priorDayConcepts();              // { conceptName: { net, qty } } from the most recent prior day, or null
-    const totalNet  = DATA.totalNet || concepts.reduce((s, c) => s + (c.net || 0), 0);
-    const maxShare  = concepts.reduce((m, c) => Math.max(m, c.net / totalNet), 0) || 1;
-    const subEl     = document.getElementById('conceptSub');
-    if (subEl) {
-      subEl.textContent = prior
-        ? `How each kitchen performed today vs ${prior.label}`
-        : 'How each kitchen performed today — upload prior-day data to see trend';
-    }
-
-    document.getElementById('conceptGrid').innerHTML = concepts.map(c => {
-      const color   = conceptColor[c.name] || COLORS[14];
-      const share   = c.net / totalNet * 100;
-      const avg     = c.qty ? c.net / c.qty : null;
-      const sharePct = (c.net / totalNet / maxShare) * 100;
-      // Top item inside this concept (matches by category prefix)
-      const inConcept = items
-        .filter(it => {
-          const cat = (it.category || '').toLowerCase();
-          const key = c.name.toLowerCase().split(' ')[0];
-          return cat.includes(key);
-        })
-        .sort((a, b) => b.net - a.net);
-      const topItem = inConcept[0];
-
-      // Day-over-day trend
-      const priorC = prior && prior.byName[c.name];
-      let trendCls = 'flat', trendTxt = 'Flat';
-      if (!prior) {
-        trendCls = 'flat'; trendTxt = '—';
-      } else if (!priorC) {
-        trendCls = 'new'; trendTxt = 'New today';
-      } else if (priorC.net > 0) {
-        const delta = (c.net - priorC.net) / priorC.net * 100;
-        if (delta > 1.5)       { trendCls = 'up';   trendTxt = '+' + delta.toFixed(1) + '%'; }
-        else if (delta < -1.5) { trendCls = 'down'; trendTxt = delta.toFixed(1) + '%'; }
-        else                   { trendCls = 'flat'; trendTxt = 'Flat'; }
-      }
-
+    // Concept context strip — drop operational catch-all buckets so the
+    // summary only shows real culinary concepts.
+    const NON_CONCEPT = /^(no sales category|misc non sales)$/i;
+    const concepts = (DATA.concepts || [])
+      .filter(c => c.net > 0 && !NON_CONCEPT.test(c.name || ''))
+      .sort((a, b) => b.net - a.net);
+    document.getElementById('conceptStrip').innerHTML = concepts.map(c => {
+      const color = conceptColor[c.name] || COLORS[14];
+      const avg = c.qty ? c.net / c.qty : 0;
       return `
-        <div class="concept-card" title="${titleCase(c.name)}: ${fmt$(c.net)} · ${fmtN(c.qty)} sold">
-          <div class="concept-head">
-            <span class="concept-dot" style="background:${color}"></span>
-            <span class="concept-name">${titleCase(c.name)}</span>
-            <span class="concept-trend ${trendCls}">${trendTxt}</span>
-          </div>
-          <div>
-            <div class="concept-hero">
-              <span class="concept-net">${fmt$(c.net)}</span>
-              <span class="concept-share">${share.toFixed(1)}% of net</span>
-            </div>
-            <div class="concept-share-bar" style="margin-top:6px"><div class="concept-share-fill" style="width:${sharePct.toFixed(1)}%; background:${color}"></div></div>
-          </div>
-          <div class="concept-stats">
-            <span class="concept-stat-label">Items sold</span>
-            <span class="concept-stat-value">${fmtN(c.qty)}</span>
-            <span class="concept-stat-label">Avg price</span>
-            <span class="concept-stat-value">${avg != null ? fmt$2(avg) : '—'}</span>
-          </div>
-          ${topItem ? `<div class="concept-top-item">Top: <strong>${titleCase(topItem.name)}</strong> · ${fmt$(topItem.net)}</div>` : ''}
+      <div class="concept-chip" style="--concept-color:${color}" title="${conceptName(c.name)}: ${fmt$(c.net)} · ${fmtN(c.qty)} sold · ${fmt$2(avg)} avg basket">
+        <div class="concept-chip-name"><span class="concept-chip-dot" style="background:${color}"></span>${conceptName(c.name)}</div>
+        <div class="concept-chip-net">${fmt$(c.net)}</div>
+        <div class="concept-chip-stats">
+          <div class="concept-stat"><span class="concept-stat-val">${fmtN(c.qty)}</span><span class="concept-stat-lbl">Items sold</span></div>
+          <div class="concept-stat"><span class="concept-stat-val">${fmt$2(avg)}</span><span class="concept-stat-lbl">Avg basket</span></div>
         </div>
-      `;
+      </div>`;
     }).join('');
 
     renderTable();
@@ -583,7 +637,7 @@
         <td>
           <div class="item-cell">
             <span>${titleCase(it.name)}</span>
-            <span class="item-cat">${titleCase(it.category) || ''}</span>
+            <span class="item-cat">${conceptName(it.category) || ''}</span>
           </div>
         </td>
         <td class="num">${fmtN(it.qty)}<span class="qty-bar"><span class="qty-bar-fill" style="width:${(it.qty / maxQty * 100).toFixed(1)}%; background:${colorForCategory(it.category)}"></span></span></td>
@@ -605,6 +659,122 @@
       renderTable();
     });
   });
+  document.querySelectorAll('#leaderToggle button').forEach(b => {
+    b.addEventListener('click', () => {
+      leaderSort = b.dataset.leader;
+      document.querySelectorAll('#leaderToggle button').forEach(x => x.classList.toggle('is-active', x === b));
+      if (DATA) renderLeaderboard((DATA.items || []).filter(it => it.qty > 0));
+    });
+  });
+
+  function renderLeaderboard(items) {
+    const sortKey = leaderSort === 'qty' ? 'qty' : 'net';
+    const top12 = [...items].sort((a, b) => b[sortKey] - a[sortKey]).slice(0, 12);
+    const maxOther = Math.max(...top12.map(it => sortKey === 'net' ? it.qty : it.net));
+    document.getElementById('leaderSub').textContent = sortKey === 'qty'
+      ? 'Top 12 items by units sold — revenue bar shows dollar share vs the day’s leader'
+      : 'Top 12 items by revenue — quantity bar shows volume vs the day’s leader';
+
+    const cardHTML = (it, i) => {
+      const color = colorForCategory(it.category);
+      const primary  = sortKey === 'qty' ? `${fmtN(it.qty)} sold` : fmt$(it.net);
+      const primaryL = sortKey === 'qty' ? 'Units' : 'Net';
+      const barVal   = sortKey === 'qty' ? it.net : it.qty;
+      const w        = maxOther ? (barVal / maxOther) * 100 : 0;
+      const metaText = sortKey === 'qty' ? fmt$(it.net) + ' net' : `${fmtN(it.qty)} sold`;
+      return `
+        <div class="leader-card" title="${titleCase(it.name)}: ${fmtN(it.qty)} sold · ${fmt$(it.net)}">
+          <span class="leader-rank">#${i + 1}</span>
+          <div class="leader-cat"><span class="dot" style="background:${color}"></span>${conceptName(it.category) || 'Item'}</div>
+          <div class="leader-name">${titleCase(it.name)}</div>
+          <div class="leader-row">
+            <span class="leader-stat">${primary}</span>
+            <span class="leader-sublabel">${primaryL}</span>
+          </div>
+          <div class="leader-bar"><div class="leader-bar-fill" style="width:${w.toFixed(1)}%; background:${color}"></div></div>
+          <div class="leader-meta"><span>${metaText}</span></div>
+        </div>`;
+    };
+
+    // Split top 12 into two pages of 6
+    const pages = [top12.slice(0, 6), top12.slice(6, 12)];
+    const trackEl = document.getElementById('leaderTrack');
+    const pageEls = trackEl ? trackEl.querySelectorAll('.leader-page') : [];
+    pages.forEach((slice, p) => {
+      const el = pageEls[p];
+      if (!el) return;
+      el.innerHTML = slice.map((it, i) => cardHTML(it, p * 6 + i)).join('');
+    });
+
+    // Reset scroll to page 0 on re-render (sort toggle, location change, etc.)
+    if (trackEl) trackEl.scrollLeft = 0;
+    syncLeaderCarousel();
+  }
+
+  // Carousel state + controls
+  function syncLeaderCarousel() {
+    const track = document.getElementById('leaderTrack');
+    const prev  = document.getElementById('leaderPrev');
+    const next  = document.getElementById('leaderNext');
+    const dots  = document.getElementById('leaderDots');
+    if (!track || !prev || !next || !dots) return;
+    const pageW = track.clientWidth || 1;
+    const idx = Math.round(track.scrollLeft / pageW);
+    prev.disabled = idx <= 0;
+    next.disabled = idx >= 1;
+    if (!dots.children.length) {
+      dots.innerHTML = '<button class="leader-dot" type="button" aria-label="Page 1"></button><button class="leader-dot" type="button" aria-label="Page 2"></button>';
+      Array.from(dots.children).forEach((d, i) => {
+        d.addEventListener('click', () => { track.scrollTo({left: i * track.clientWidth, behavior: 'smooth'}); });
+      });
+    }
+    Array.from(dots.children).forEach((d, i) => d.classList.toggle('is-active', i === idx));
+  }
+  document.getElementById('leaderPrev').addEventListener('click', () => {
+    const t = document.getElementById('leaderTrack');
+    t.scrollTo({left: 0, behavior: 'smooth'});
+  });
+  document.getElementById('leaderNext').addEventListener('click', () => {
+    const t = document.getElementById('leaderTrack');
+    t.scrollTo({left: t.clientWidth, behavior: 'smooth'});
+  });
+  document.getElementById('leaderTrack').addEventListener('scroll', () => {
+    clearTimeout(window.__leaderScrollT);
+    window.__leaderScrollT = setTimeout(syncLeaderCarousel, 80);
+  });
+  window.addEventListener('resize', syncLeaderCarousel);
+
+  function renderQtyByConcept() {
+    // Filter out operational catch-all buckets (Toast ships rows like
+    // "No Sales Category" / "Misc Non Sales" that mix odds-and-ends and
+    // shouldn't sit alongside real concepts).
+    const NON_CONCEPT = /^(no sales category|misc non sales)$/i;
+    const concepts = (DATA.concepts || [])
+      .filter(c => c.qty > 0 && c.net > 0 && !NON_CONCEPT.test(c.name || ''))
+      .sort((a, b) => b.qty - a.qty);
+    const totalQty = concepts.reduce((s, c) => s + c.qty, 0);
+    const maxQty = concepts.length ? concepts[0].qty : 0;
+    const wrap = document.getElementById('qtyByConcept');
+    if (!wrap) return;
+    if (!concepts.length) { wrap.innerHTML = '<div class="np-card-sub">No concept volume to show yet.</div>'; return; }
+    wrap.innerHTML = concepts.map(c => {
+      const color = conceptColor[c.name] || COLORS[14];
+      const w = maxQty ? (c.qty / maxQty) * 100 : 0;
+      const pct = totalQty ? (c.qty / totalQty * 100) : 0;
+      const avg = c.qty ? c.net / c.qty : 0;
+      return `
+        <div class="qty-row" title="${conceptName(c.name)}: ${fmtN(c.qty)} units · ${pct.toFixed(1)}% · ${fmt$2(avg)} avg basket">
+          <div class="qty-row-label"><span class="dot" style="background:${color}"></span><span class="name">${conceptName(c.name)}</span></div>
+          <div class="qty-track"><div class="qty-fill" style="width:${w.toFixed(1)}%; background:${color}"></div></div>
+          <div class="qty-row-meta">
+            <span class="qty-num">${fmtN(c.qty)}</span>
+            <span class="qty-pct">${pct.toFixed(1)}%</span>
+            <span class="qty-avg">${fmt$2(avg)} avg</span>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
 
 
   // Location toggle

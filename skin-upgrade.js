@@ -58,7 +58,7 @@
   const HUB_CARDS = [
     { key:'sales',    href:'neighborly-dashboard.html', title:'Performance Marketing', sub:'Weekly & all-time KPIs',      bg:'#fdf7d8', ic:'#b89a00',
       svg:'<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>' },
-    { key:'pmix',     href:'neighborly-pmix.html',      title:'Sales & Pmix',         sub:'Daily sales & menu mix',       bg:'#e3ece3', ic:'#5a7a5a',
+    { key:'pmix',     href:'neighborly-pmix.html',      title:'Sales & Pmix',         sub:'Daily sales & product mix',    bg:'#e3ece3', ic:'#5a7a5a',
       svg:'<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>' },
     { key:'calendar', href:'neighborly-calendar.html',  title:'Marketing Calendar',   sub:'Campaigns & scheduling',       bg:'#e4f5ea', ic:'#2a7a4b',
       svg:'<rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>' },
