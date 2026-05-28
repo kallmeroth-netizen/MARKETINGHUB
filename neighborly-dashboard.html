@@ -1,1 +1,2954 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Neighborly — Performance Dashboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
 
+  :root {
+    --bg: #F7F6F3;
+    --surface: #FFFFFF;
+    --surface2: #F0EEE9;
+    --border: rgba(0,0,0,0.08);
+    --border-strong: rgba(0,0,0,0.14);
+    --text: #1A1916;
+    --text-2: #6B6960;
+    --text-3: #9E9C96;
+    --brand-yellow: #eace49;
+    --brand-yellow-light: #fdf7d8;
+    --brand-green: #7bbd91;
+    --brand-green-light: #e4f5ea;
+    --brand-orange: #e87142;
+    --brand-orange-light: #fdeee7;
+    --brand-tan: #dbc6a2;
+    --brand-tan-light: #f7f0e4;
+    --brand-blue: #6280bd;
+    --brand-blue-light: #eaeef8;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: 14px; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+  /* NAV */
+  nav { background: var(--surface); border-bottom: 0.5px solid var(--border-strong); padding: 0 2rem; display: flex; align-items: center; justify-content: space-between; height: 52px; position: sticky; top: 0; z-index: 100; }
+  .nav-brand { display: flex; align-items: center; position: relative; }
+  .nav-logo { height: 24px; width: auto; display: block; cursor: pointer; }
+
+  /* HUB NAV OVERLAY */
+  .hub-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.25); z-index: 150; opacity: 0; pointer-events: none; transition: opacity 0.2s ease; }
+  .hub-overlay.open { opacity: 1; pointer-events: all; }
+
+  .hub-nav { position: fixed; top: 50%; left: 50%; transform: translate(-50%, calc(-50% - 6px)); width: min(560px, calc(100vw - 32px)); max-height: calc(100vh - 80px); overflow-y: auto; background: var(--surface); border: 0.5px solid var(--border-strong); border-radius: 16px; z-index: 160; padding: 1.5rem 1.75rem 1.75rem; opacity: 0; pointer-events: none; transition: opacity 0.18s ease, transform 0.18s ease; box-shadow: 0 12px 40px rgba(0,0,0,0.12); }
+  .hub-nav.open { opacity: 1; pointer-events: all; transform: translate(-50%, -50%); }
+
+  .hub-nav-label { font-size: 10px; font-weight: 600; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 1rem; }
+  .hub-back-home { font-size: 11px; font-weight: 500; color: var(--text-2); text-decoration: none; padding: 4px 10px; border: 0.5px solid var(--border-strong); border-radius: 7px; background: var(--surface-2); letter-spacing: 0; text-transform: none; transition: background 0.15s, color 0.15s; white-space: nowrap; }
+  .hub-back-home:hover { background: var(--surface); color: var(--text); }
+  .hub-nav-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+
+  .hub-card { display: flex; flex-direction: column; gap: 8px; padding: 16px; border-radius: 14px; border: 1px solid var(--border); background: var(--surface); cursor: pointer; transition: background 0.12s, border-color 0.12s; text-decoration: none; position: relative; }
+  .hub-card:hover { background: var(--surface-2); border-color: var(--border-strong); }
+  .hub-card.active { background: var(--surface); border-color: var(--ink); }
+  .hub-card-icon { width: 28px; height: 28px; border-radius: 7px; display: flex; align-items: center; justify-content: center; margin-bottom: 2px; }
+  .hub-card-icon svg { width: 14px; height: 14px; }
+  .hub-card-title { font-size: 12px; font-weight: 600; color: var(--text); line-height: 1.2; }
+  .hub-card-sub { font-size: 11px; color: var(--text-3); line-height: 1.3; }
+  .nav-tabs { display: flex; gap: 0; }
+  .nav-tab { padding: 5px 12px; font-size: var(--t-caption); font-weight: 500; color: var(--text-3); cursor: pointer; text-decoration: none; line-height: 1.4; }
+  .nav-tab:hover { color: var(--text); }
+  .nav-tab.active { color: var(--text); }
+  .nav-right { display: flex; align-items: center; gap: 10px; }
+  .upload-btn { display: flex; align-items: center; gap: 6px; padding: 6px 14px; border: 0.5px solid var(--border-strong); border-radius: 8px; background: var(--surface); font-size: 12px; font-weight: 500; color: var(--text-2); cursor: pointer; transition: all 0.15s; font-family: 'DM Sans', sans-serif; }
+  .upload-btn:hover { background: var(--surface-2); color: var(--text); }
+  .upload-btn svg { width: 14px; height: 14px; }
+  .icon-btn { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border: 0.5px solid var(--border-strong); border-radius: 8px; background: var(--surface); color: var(--text-2); cursor: pointer; transition: all 0.15s; padding: 0; }
+  .icon-btn:hover { background: var(--surface-2); color: var(--text); border-color: var(--text-2); }
+  .icon-btn:active { transform: scale(0.95); }
+  .icon-btn svg { width: 15px; height: 15px; }
+  #csvInput { display: none; }
+  .daily-last-updated { font-size: 11px; color: var(--text-3); }
+
+  /* PAGES */
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* Pull the nav's centred padding in to the actual content edge (1200px),
+     so the Neighborly logo sits flush with the widest text on the page. */
+  :root { --content-max: 1200px; }
+
+  /* DASHBOARD PAGE */
+  .dashboard { padding: 2rem var(--gutter); max-width: var(--content-max); margin: 0 auto; }
+  .dash-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 1.75rem; flex-wrap: wrap; gap: 1rem; }
+  .dash-title { font-size: 22px; font-weight: 600; letter-spacing: -0.03em; color: var(--text); }
+  .dash-sub { font-size: 13px; color: var(--text-2); margin-top: 3px; }
+  .week-badge { display: inline-flex; align-items: center; gap: 6px; background: var(--brand-orange); color: #FFFFFF; font-size: 12px; font-weight: 500; padding: 4px 4px 4px 12px; border-radius: 20px; margin-top: 6px; cursor: pointer; transition: filter 0.15s; user-select: none; width: max-content; max-width: 100%; white-space: nowrap; }
+  .week-badge:hover { filter: brightness(1.08); }
+  .week-badge-text { display: flex; align-items: center; gap: 6px; }
+  .week-pick { background: rgba(255,255,255,0.18); color: #FFFFFF; font-size: 11px; font-weight: 600; font-family: 'DM Sans', sans-serif; border-radius: 12px; padding: 2px 8px; }
+
+  /* CALENDAR POPOVER */
+  .cal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.25); z-index: 200; opacity: 0; pointer-events: none; transition: opacity 0.2s ease; }
+  .cal-overlay.open { opacity: 1; pointer-events: all; }
+  .cal-pop { position: fixed; top: -9999px; left: -9999px; z-index: 210; background: var(--surface); border: 0.5px solid var(--border-strong); border-radius: 14px; padding: 14px; box-shadow: 0 16px 40px rgba(0,0,0,0.18); width: 280px; max-width: calc(100vw - 16px); opacity: 0; transform: translateY(-6px); pointer-events: none; transition: opacity 0.18s ease, transform 0.18s ease; box-sizing: border-box; }
+  .cal-pop.open { opacity: 1; transform: translateY(0); pointer-events: all; }
+  .cal-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+  .cal-title { font-size: 13px; font-weight: 600; color: var(--text); font-family: 'DM Sans', sans-serif; }
+  .cal-nav { display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; border: none; background: transparent; border-radius: 6px; cursor: pointer; color: var(--text-2); transition: background 0.12s; }
+  .cal-nav:hover:not(:disabled) { background: var(--surface-2); color: var(--text); }
+  .cal-nav:disabled { opacity: 0.25; cursor: not-allowed; }
+  .cal-nav svg { width: 14px; height: 14px; }
+  .cal-dow { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; margin-bottom: 4px; }
+  .cal-dow div { font-size: 10px; font-weight: 600; color: var(--text-3); text-align: center; padding: 4px 0; text-transform: uppercase; letter-spacing: 0.04em; }
+  .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
+  .cal-day { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; font-size: 12px; color: var(--text-3); border-radius: 7px; background: transparent; border: none; padding: 0; font-family: 'DM Sans', sans-serif; cursor: default; }
+  .cal-day.available { color: var(--text); background: var(--brand-yellow-light); font-weight: 500; cursor: pointer; transition: background 0.12s, transform 0.08s; }
+  .cal-day.available:hover { background: var(--brand-yellow); color: #1f2328; }
+  .cal-day.available:active { transform: scale(0.92); }
+  .cal-day.selected { background: var(--brand-orange) !important; color: #FFFFFF !important; font-weight: 600; }
+  .cal-day.muted { opacity: 0.35; }
+  .cal-foot { font-size: 10px; color: var(--text-3); margin-top: 10px; padding-top: 10px; border-top: 0.5px solid var(--border); line-height: 1.4; }
+  .cal-foot strong { color: var(--text-2); font-weight: 600; }
+
+  .view-toggle { display: inline-flex; background: var(--surface-2); border-radius: var(--r-pill); padding: 3px; gap: 2px; }
+  .vt-btn { padding: 5px 14px; border-radius: var(--r-pill); font-size: var(--t-caption); font-weight: 500; cursor: pointer; border: none; background: transparent; color: var(--text-2); font-family: var(--f-sans); line-height: 1.4; transition: background var(--t-base) var(--easing), color var(--t-base) var(--easing), box-shadow var(--t-base) var(--easing); }
+  .vt-btn:hover { color: var(--text); }
+  .vt-btn.active { background: var(--brand-orange); color: #fff; box-shadow: none; }
+
+  /* KPI CARDS */
+  .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 1.5rem; }
+  .kpi-card { background: var(--surface); border: 0.5px solid var(--border); border-radius: 12px; padding: 1.1rem 1.25rem; }
+  .kpi-label { font-family: var(--f-eyebrow), 'Futura PT Demi', 'Jost', sans-serif; font-size: var(--t-eyebrow); font-weight: 600; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.18em; margin-bottom: 6px; }
+  .kpi-value { font-size: 26px; font-weight: 500; letter-spacing: -0.04em; color: var(--text); font-family: var(--f-mono); line-height: 1; }
+  .kpi-change { display: flex; align-items: center; gap: 5px; margin-top: 8px; font-size: var(--t-caption); font-weight: 500; }
+  .kpi-change .chg { padding: 2px 7px; border-radius: 20px; font-size: var(--t-caption-sm); font-weight: 600; }
+  .chg.pos { background: var(--brand-green-light); color: #085041; }
+  .chg.neg { background: var(--brand-orange-light); color: #A32D2D; }
+  .chg.neu { background: var(--surface-2); color: var(--text-2); }
+  .kpi-change-label { color: var(--text-3); font-size: var(--t-caption-sm); }
+
+  /* SECTION */
+  .section-title { font-family: var(--f-eyebrow), 'Futura PT Demi', 'Jost', sans-serif; font-size: var(--t-eyebrow); font-weight: 600; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.18em; margin-bottom: 1rem; display: flex; align-items: center; gap: 8px; }
+  .section-title::after { content: ''; flex: 1; height: 0.5px; background: var(--border-strong); }
+
+  /* CHART CARDS */
+  .chart-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 1.5rem; }
+  .chart-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 1.5rem; }
+  .chart-card { background: var(--surface); border: 0.5px solid var(--border); border-radius: 12px; padding: 1.25rem; }
+  .chart-card.wide { grid-column: 1 / -1; }
+  .chart-card-title { font-size: var(--t-body-sm); font-weight: 600; color: var(--text); margin-bottom: 4px; }
+  .chart-card-sub { font-size: var(--t-caption-sm); color: var(--text-3); margin-bottom: 1rem; }
+  .chart-wrap { position: relative; }
+
+  /* METRICS TABLE */
+  .metrics-table { width: 100%; border-collapse: collapse; font-size: var(--t-body-sm); font-family: var(--f-sans); }
+  .metrics-table th { font-family: var(--f-eyebrow), 'Futura PT Demi', 'Jost', sans-serif; font-size: var(--t-eyebrow); font-weight: 600; color: var(--text-3); text-align: left; padding: 10px 12px; border-bottom: 0.5px solid var(--border-strong); white-space: nowrap; text-transform: uppercase; letter-spacing: 0.18em; }
+  .metrics-table th:not(:first-child) { text-align: right; }
+  .metrics-table td { padding: 10px 12px; border-bottom: 0.5px solid var(--border); color: var(--text); white-space: nowrap; font-family: var(--f-sans); font-size: var(--t-body-sm); font-weight: 500; }
+  .metrics-table td:not(:first-child) { text-align: right; font-family: var(--f-mono); font-size: var(--t-body-sm); font-weight: 400; }
+  .metrics-table tr:last-child td { border-bottom: none; }
+  .metrics-table tr:hover td { background: var(--surface-2); }
+  .metrics-table .cat-row td { font-family: var(--f-eyebrow), 'Futura PT Demi', 'Jost', sans-serif; font-weight: 600; color: var(--text-3); font-size: var(--t-eyebrow); text-transform: uppercase; letter-spacing: 0.18em; background: var(--surface-2); padding: 8px 12px; }
+  .metrics-table .cat-row { cursor: pointer; user-select: none; }
+  .metrics-table .cat-row:hover td { background: var(--border); }
+  .cat-chevron { display: inline-block; width: 10px; height: 10px; margin-right: 8px; vertical-align: -1px; transition: transform 0.15s ease; color: var(--text-3); }
+  .metrics-table .cat-row.open .cat-chevron { transform: rotate(90deg); }
+  .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; max-width: 100%; }
+  .table-scroll::-webkit-scrollbar { height: 6px; }
+  .table-scroll::-webkit-scrollbar-track { background: var(--surface-2); border-radius: 3px; }
+  .table-scroll::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 3px; }
+  @media (max-width: 768px) {
+    .metrics-table th:first-child, .metrics-table td:first-child {
+      position: sticky; left: 0; background: var(--surface); z-index: 1;
+      box-shadow: 1px 0 0 var(--border);
+    }
+    .metrics-table .cat-row td:first-child { background: var(--surface-2); }
+    .metrics-table tr:hover td:first-child { background: var(--surface-2); }
+
+    /* NAV — compact on mobile */
+    html, body { overflow-x: hidden; }
+    nav { padding: 0 0.75rem; gap: 4px; }
+    .nav-tab { padding: 7px 10px; font-size: 11.5px; }
+    .nav-right { gap: 6px; }
+    .nav-logo { height: 20px; }
+    .daily-last-updated { display: none; }
+    .upload-btn { padding: 6px 8px; font-size: 0; gap: 0; }
+    .upload-btn svg { width: 14px; height: 14px; }
+    .icon-btn { width: 30px; height: 30px; }
+    .dashboard { padding: 1rem !important; }
+    .dash-header { flex-direction: column; align-items: flex-start; }
+    .dash-title { font-size: 19px; }
+    .view-toggle { width: 100%; overflow-x: auto; }
+    .vt-btn { white-space: nowrap; }
+  }
+  .pct-pos { color: var(--brand-green); font-weight: 500; }
+  .pct-neg { color: var(--brand-orange); font-weight: 500; }
+  .pct-neu { color: var(--text-3); }
+
+  /* REVENUE MIX */
+  .mix-bar-wrap { margin-bottom: 6px; padding: 4px 6px; border-radius: 6px; transition: background 0.15s; cursor: default; }
+  .mix-bar-wrap:hover { background: var(--surface-2); }
+  .mix-bar-wrap:hover .mix-bar-label .mix-detail { color: var(--text); }
+  .mix-bar-label { display: flex; justify-content: space-between; align-items: baseline; font-size: var(--t-caption); color: var(--text-2); margin-bottom: 4px; gap: 8px; }
+  .mix-bar-label .mix-detail { display: inline-flex; align-items: baseline; gap: 8px; font-family: var(--f-mono); font-size: var(--t-caption-sm); color: var(--text-3); transition: color 0.15s; }
+  .mix-bar-label .mix-pct { font-size: var(--t-caption); color: var(--text); }
+  .mix-bar-label .mix-delta { font-weight: 600; padding: 1px 6px; border-radius: 100px; font-size: 10px; letter-spacing: 0.02em; }
+  .mix-bar-label .mix-delta.pct-pos { background: var(--brand-green-light); color: #085041; }
+  .mix-bar-label .mix-delta.pct-neg { background: var(--brand-orange-light); color: #a32d2d; }
+  .mix-bar-label .mix-delta.pct-neu { background: var(--surface-2); color: var(--text-3); }
+  .mix-bar-label .mix-delta-foot { font-size: 9.5px; color: var(--text-3); letter-spacing: 0.04em; }
+
+  /* Daily Channel mix — pie + side legend */
+  .channel-pie-wrap { display: grid; grid-template-columns: 200px 1fr; gap: 1rem; align-items: center; margin-top: 0.5rem; }
+  @media (max-width: 560px) { .channel-pie-wrap { grid-template-columns: 1fr; } .channel-pie-canvas { max-width: 200px; margin: 0 auto; } }
+  .channel-pie-legend { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+  .channel-pie-row { display: grid; grid-template-columns: 10px 1fr auto; align-items: center; gap: 8px; font-family: var(--f-sans); font-size: var(--t-caption); color: var(--text); }
+  .channel-pie-row .swatch { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+  .channel-pie-row .name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .channel-pie-row .val { font-family: var(--f-mono); font-size: var(--t-caption-sm); color: var(--text-3); }
+  .channel-pie-row .val strong { font-weight: 500; color: var(--text); }
+
+  /* PAID PERFORMANCE SCORECARD — dense, one-glance, no bar-chart fatigue */
+  .scorecard { display: grid; grid-template-columns: minmax(160px, 1.1fr) repeat(7, minmax(0, 1fr)); gap: 0; }
+  .scorecard .sc-h, .scorecard .sc-c { padding: 14px 14px; border-bottom: 0.5px solid var(--border); }
+  .scorecard .sc-h {
+    font-family: var(--f-eyebrow), 'Futura PT Demi', 'Jost', sans-serif;
+    font-size: var(--t-eyebrow); font-weight: 600; color: var(--text-3);
+    text-transform: uppercase; letter-spacing: 0.16em;
+    background: var(--surface-2);
+    padding-top: 11px; padding-bottom: 11px;
+    text-align: right;
+  }
+  .scorecard .sc-h.sc-h-row { text-align: left; }
+  .scorecard .sc-row-name {
+    display: flex; align-items: center; gap: 10px;
+    font-weight: 600; color: var(--text);
+  }
+  .scorecard .sc-row-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+  .scorecard .sc-row-meta { font-family: var(--f-mono); font-size: var(--t-caption-sm); color: var(--text-3); font-weight: 400; }
+  .scorecard .sc-c { text-align: right; vertical-align: top; }
+  .scorecard .sc-val { font-family: var(--f-mono); font-size: 14.5px; font-weight: 500; color: var(--ink); line-height: 1.15; }
+  .scorecard .sc-delta { font-family: var(--f-mono); font-size: 10.5px; margin-top: 4px; display: inline-block; padding: 1px 6px; border-radius: 100px; font-weight: 600; letter-spacing: 0.02em; }
+  .scorecard .sc-delta.pos { background: var(--brand-green-light); color: #085041; }
+  .scorecard .sc-delta.neg { background: var(--brand-orange-light); color: #a32d2d; }
+  .scorecard .sc-delta.neu { background: var(--surface-2); color: var(--text-3); }
+  .scorecard .sc-empty { color: var(--text-mute); font-family: var(--f-mono); font-size: 14px; }
+  .scorecard .sc-row:last-child .sc-c, .scorecard .sc-row:last-child .sc-h { border-bottom: 0; }
+  .scorecard .sc-row:hover .sc-c, .scorecard .sc-row:hover .sc-h-row { background: var(--surface-2); }
+  .scorecard .sc-row { display: contents; }
+  @media (max-width: 900px) {
+    /* Stack as card-per-platform on narrow screens */
+    .scorecard { display: flex; flex-direction: column; gap: 0; }
+    .scorecard .sc-h:not(.sc-h-row) { display: none; }
+    .scorecard .sc-row { display: grid; grid-template-columns: 1fr 1fr; padding: 14px 16px; border-bottom: 0.5px solid var(--border); gap: 10px 14px; }
+    .scorecard .sc-row:last-child { border-bottom: 0; }
+    .scorecard .sc-h-row { grid-column: 1 / -1; padding: 0; background: transparent; border-bottom: 0; }
+    .scorecard .sc-c { padding: 0; border-bottom: 0; text-align: left; }
+    .scorecard .sc-c::before { content: attr(data-label); display: block; font-family: var(--f-eyebrow); font-size: var(--t-eyebrow); font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text-3); margin-bottom: 4px; }
+    .scorecard .sc-row:hover .sc-c, .scorecard .sc-row:hover .sc-h-row { background: transparent; }
+  }
+  .mix-bar-track { height: 6px; background: var(--surface-2); border-radius: 3px; overflow: hidden; }
+  .mix-bar-fill { height: 100%; border-radius: 3px; transition: width 0.4s ease, filter 0.15s; }
+  .mix-bar-wrap:hover .mix-bar-fill { filter: brightness(0.92); }
+
+  /* DATA PAGE */
+  .data-page { padding: 2rem; max-width: 900px; margin: 0 auto; }
+  .data-header { margin-bottom: 1.5rem; }
+  .data-header h1 { font-size: 22px; font-weight: 600; letter-spacing: -0.03em; }
+  .data-header p { font-size: 13px; color: var(--text-2); margin-top: 4px; }
+  .upload-zone { border: 1.5px dashed var(--border-strong); border-radius: 12px; padding: 3rem; text-align: center; cursor: pointer; transition: all 0.15s; margin-bottom: 1.5rem; }
+  .upload-zone:hover, .upload-zone.drag { border-color: var(--brand-yellow); background: var(--brand-yellow-light); }
+  .upload-zone svg { width: 32px; height: 32px; color: var(--text-3); margin-bottom: 12px; }
+  .upload-zone h3 { font-size: 15px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+  .upload-zone p { font-size: 13px; color: var(--text-2); }
+  .upload-zone .file-hint { font-size: 11px; color: var(--text-3); margin-top: 8px; }
+  .data-preview { background: var(--surface); border: 0.5px solid var(--border); border-radius: 12px; overflow: hidden; }
+  .data-preview-header { padding: 12px 16px; border-bottom: 0.5px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+  .data-preview-header span { font-size: 13px; font-weight: 500; color: var(--text); }
+  .data-preview-header small { font-size: 11px; color: var(--text-3); }
+  .data-raw { padding: 1rem; font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text-2); overflow-x: auto; white-space: pre; line-height: 1.6; max-height: 400px; overflow-y: auto; }
+  .instructions { background: var(--surface); border: 0.5px solid var(--border); border-radius: 12px; padding: 1.25rem; margin-bottom: 1.5rem; }
+  .instructions h3 { font-size: 14px; font-weight: 600; margin-bottom: 10px; color: var(--text); }
+  .instructions ol { padding-left: 1.25rem; }
+  .instructions li { font-size: 13px; color: var(--text-2); margin-bottom: 6px; line-height: 1.5; }
+  .instructions li strong { color: var(--text); font-weight: 600; }
+  .format-tag { display: inline-block; background: var(--surface-2); color: var(--text-2); font-family: 'DM Mono', monospace; font-size: 11px; padding: 2px 6px; border-radius: 4px; }
+
+  /* EMPTY STATE */
+  .empty-state { text-align: center; padding: 4rem 2rem; color: var(--text-3); }
+  .empty-state svg { width: 40px; height: 40px; margin: 0 auto 12px; display: block; }
+  .empty-state p { font-size: 13px; }
+
+  /* STATUS BAR */
+  .status-bar { background: var(--brand-yellow); color: #fff; padding: 8px 2rem; font-size: 12px; display: none; justify-content: center; align-items: center; gap: 8px; }
+  .status-bar.show { display: flex; }
+
+  @media (max-width: 768px) {
+    .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+    .chart-grid-2, .chart-grid-3 { grid-template-columns: 1fr; }
+  }
+
+  /* DAILY PAGE */
+  .daily-empty-kpi { display: flex; align-items: center; justify-content: center; min-height: 80px; color: var(--text-3); font-size: 13px; }
+  .ptd-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 1.5rem; }
+  .ptd-card { background: var(--surface); border: 0.5px solid var(--border); border-radius: 12px; padding: 1rem 1.1rem; }
+  .ptd-label { font-family: var(--f-eyebrow), 'Futura PT Demi', 'Jost', sans-serif; font-size: 10px; font-weight: 600; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.18em; margin-bottom: 4px; }
+  .ptd-sub   { font-size: 10px; color: var(--text-3); margin-bottom: 8px; }
+  .ptd-value { font-size: 20px; font-weight: 500; letter-spacing: -0.04em; color: var(--text); font-family: var(--f-mono); line-height: 1; }
+  @media (max-width: 768px) { .ptd-grid { grid-template-columns: repeat(2, 1fr); } }
+
+  /* CONCEPT CARDS */
+  .concept-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  @media (max-width: 768px) { .concept-grid { grid-template-columns: repeat(2, 1fr); } }
+  .concept-card { background: var(--surface); border: 0.5px solid var(--border); border-radius: 12px; padding: 1rem 1.1rem 1.1rem; position: relative; overflow: hidden; transition: transform 0.15s, box-shadow 0.15s; }
+  .concept-card:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.06); }
+  .concept-card-accent { position: absolute; top: 0; left: 0; width: 4px; height: 100%; }
+  .concept-card-name { font-family: var(--f-eyebrow), 'Futura PT Demi', 'Jost', sans-serif; font-size: 11px; font-weight: 600; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.18em; margin-bottom: 6px; padding-left: 8px; }
+  .concept-card-value { font-size: 22px; font-weight: 500; letter-spacing: -0.04em; color: var(--text); font-family: var(--f-mono); line-height: 1; padding-left: 8px; }
+  .concept-card-meta { display: flex; align-items: center; gap: 8px; margin-top: 8px; padding-left: 8px; font-size: 11px; }
+  .concept-card-share { color: var(--text-2); font-family: 'DM Mono', monospace; font-weight: 500; }
+  .concept-card-share-bar { flex: 1; height: 4px; background: var(--surface-2); border-radius: 2px; overflow: hidden; }
+  .concept-card-share-fill { height: 100%; border-radius: 2px; transition: width 0.5s ease; }
+  .concept-card-vs { display: inline-block; margin-top: 6px; margin-left: 8px; font-size: 10px; font-family: 'DM Sans', sans-serif; }
+  .concept-card-vs .chg { font-size: 10px; padding: 1px 6px; }
+  .concept-card.zero { opacity: 0.55; }
+
+  /* SCROLL REVEAL ANIMATIONS */
+  .reveal { opacity: 0; transform: translateY(16px); transition: opacity 0.55s cubic-bezier(0.22, 1, 0.36, 1), transform 0.55s cubic-bezier(0.22, 1, 0.36, 1); }
+  .reveal.in { opacity: 1; transform: translateY(0); }
+  .reveal-stagger > * { opacity: 0; transform: translateY(12px); transition: opacity 0.5s cubic-bezier(0.22, 1, 0.36, 1), transform 0.5s cubic-bezier(0.22, 1, 0.36, 1); }
+  .reveal-stagger.in > *:nth-child(1) { opacity: 1; transform: translateY(0); transition-delay: 0.00s; }
+  .reveal-stagger.in > *:nth-child(2) { opacity: 1; transform: translateY(0); transition-delay: 0.06s; }
+  .reveal-stagger.in > *:nth-child(3) { opacity: 1; transform: translateY(0); transition-delay: 0.12s; }
+  .reveal-stagger.in > *:nth-child(4) { opacity: 1; transform: translateY(0); transition-delay: 0.18s; }
+  .reveal-stagger.in > *:nth-child(5) { opacity: 1; transform: translateY(0); transition-delay: 0.24s; }
+  .reveal-stagger.in > *:nth-child(6) { opacity: 1; transform: translateY(0); transition-delay: 0.30s; }
+  .reveal-stagger.in > *:nth-child(7) { opacity: 1; transform: translateY(0); transition-delay: 0.36s; }
+  .reveal-stagger.in > *:nth-child(8) { opacity: 1; transform: translateY(0); transition-delay: 0.42s; }
+  .mix-bar-fill { transform-origin: left center; }
+  @keyframes mixBarGrow { from { width: 0 !important; } }
+  .mix-bar-fill.animate { animation: mixBarGrow 0.7s cubic-bezier(0.22, 1, 0.36, 1) both; }
+  @media (prefers-reduced-motion: reduce) {
+    .reveal, .reveal-stagger > * { opacity: 1 !important; transform: none !important; transition: none !important; }
+    .mix-bar-fill.animate { animation: none !important; }
+  }
+</style>
+<link rel="stylesheet" href="theme.css">
+<style>
+  /* Page-specific tokens — loaded AFTER theme.css so they win.
+     Dashboard content is 1200px wide; pulling --content-max down to match
+     makes the fixed-banner Neighborly logo sit flush with the widest text. */
+  :root { --content-max: 1200px; }
+</style>
+<script src="chrome.js" defer></script>
+</head>
+<body>
+
+<div class="status-bar" id="statusBar">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+  <span id="statusMsg">Data loaded successfully</span>
+</div>
+
+<!-- NAV (canonical chrome from theme.css) -->
+<nav class="np-nav">
+  <a class="np-nav-brand nav-brand" id="brandMark" onclick="toggleHubNav(event)" aria-label="Open hub">
+    <img class="nav-logo" src="NeighborlyLogo.png" alt="Neighborly">
+  </a>
+
+  <div class="np-tabs nav-tabs" id="navTabsPerf">
+    <a class="np-tab nav-tab is-active active" onclick="showPage('dashboard', this)">Weekly performance</a>
+    <a class="np-tab nav-tab" onclick="showPage('alltime', this)">All time performance</a>
+  </div>
+  <div class="np-tabs nav-tabs" id="navTabsSales" style="display:none">
+    <a class="np-tab nav-tab is-active active" id="dailyNavTab" onclick="showPage('daily', this)">Daily sales</a>
+    <a class="np-tab nav-tab" id="trendsNavTab" onclick="showPage('trends', this)">Sales trends</a>
+    <a class="np-tab nav-tab" href="neighborly-pmix.html">Product mix</a>
+  </div>
+
+  <div class="np-nav-right nav-right">
+    <span class="np-nav-page-tag" id="navPageTag">Performance Marketing</span>
+    <span class="daily-last-updated" id="dailyLastUpdated"></span>
+    <button class="np-icon-btn icon-btn" id="settingsBtn" onclick="showPage('data', null)" title="Data &amp; settings" aria-label="Data and settings">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+    </button>
+    <a class="np-icon-btn" href="index.html" title="Back to home" aria-label="Back to home">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+    </a>
+    <input type="file" id="csvInput" accept=".csv" onchange="loadCSV(this)" style="display:none">
+  </div>
+</nav>
+
+<!-- HUB NAVIGATION -->
+<div class="hub-overlay" id="hubOverlay" onclick="closeHubNav()"></div>
+<div class="hub-nav" id="hubNav">
+  <div class="hub-nav-label" style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+    <span>Neighborly Marketing Hub</span>
+    <a href="index.html" class="hub-back-home">← Home</a>
+  </div>
+  <div class="hub-nav-grid">
+
+    <a class="hub-card" href="index.html">
+      <div class="hub-card-icon" style="background:#F0EEE9">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#3a3d44" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12l9-9 9 9"/><path d="M5 10v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V10"/></svg>
+      </div>
+      <div class="hub-card-title">Home</div>
+      <div class="hub-card-sub">Marketing Hub overview</div>
+    </a>
+
+    <a class="hub-card active" href="neighborly-dashboard.html">
+      <div class="hub-card-icon" style="background:#fdf7d8">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#b89a00" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      </div>
+      <div class="hub-card-title">Performance Marketing</div>
+      <div class="hub-card-sub">Weekly & all-time KPIs</div>
+    </a>
+
+    <a class="hub-card" href="neighborly-pmix.html">
+      <div class="hub-card-icon" style="background:#e3ece3">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#5a7a5a" stroke-width="2" stroke-linecap="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>
+      </div>
+      <div class="hub-card-title">Sales & Pmix</div>
+      <div class="hub-card-sub">Daily sales & product mix</div>
+    </a>
+
+    <a class="hub-card" href="neighborly-calendar.html">
+      <div class="hub-card-icon" style="background:#e4f5ea">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#2a7a4b" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      </div>
+      <div class="hub-card-title">Marketing Calendar</div>
+      <div class="hub-card-sub">Campaigns & scheduling</div>
+    </a>
+
+    <a class="hub-card" href="neighborly-assets.html">
+      <div class="hub-card-icon" style="background:#f7f0e4">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#9c7a3c" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 010 14.14M4.93 4.93a10 10 0 000 14.14M12 2v2M12 20v2M2 12h2M20 12h2"/></svg>
+      </div>
+      <div class="hub-card-title">Brand Assets</div>
+      <div class="hub-card-sub">Logos & templates</div>
+    </a>
+
+    <a class="hub-card" href="neighborly-social.html">
+      <div class="hub-card-icon" style="background:#eaeef8">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#3a59a0" stroke-width="2"><path d="M3 12h4l3-9 4 18 3-9h4"/></svg>
+      </div>
+      <div class="hub-card-title">Social</div>
+      <div class="hub-card-sub">Reach &amp; engagement</div>
+    </a>
+
+    <a class="hub-card" href="neighborly-guests.html">
+      <div class="hub-card-icon" style="background:#f0eff5">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#5a4a7a" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+      </div>
+      <div class="hub-card-title">Guest Intelligence</div>
+      <div class="hub-card-sub">Feedback & experience trends</div>
+    </a>
+
+  </div>
+</div>
+
+<!-- WEEK CALENDAR POPOVER (Dashboard) -->
+<div class="cal-overlay" id="calOverlay" onclick="closeWeekCalendar()"></div>
+<div class="cal-pop" id="calPop">
+  <div class="cal-head">
+    <button class="cal-nav" id="calPrev" onclick="calNav(-1)" aria-label="Previous month">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+    </button>
+    <div class="cal-title" id="calTitle">—</div>
+    <button class="cal-nav" id="calNext" onclick="calNav(1)" aria-label="Next month">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+    </button>
+  </div>
+  <div class="cal-dow"><div>S</div><div>M</div><div>T</div><div>W</div><div>T</div><div>F</div><div>S</div></div>
+  <div class="cal-grid" id="calGrid"></div>
+  <div class="cal-foot" id="calFoot">Select a highlighted day to view that fiscal week.</div>
+</div>
+
+<!-- DAILY CALENDAR POPOVER (Daily Sales) -->
+<div class="cal-overlay" id="dailyCalOverlay" onclick="closeDailyCalendar()"></div>
+<div class="cal-pop" id="dailyCalPop">
+  <div class="cal-head">
+    <button class="cal-nav" id="dailyCalPrev" onclick="dailyCalNav(-1)" aria-label="Previous month">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+    </button>
+    <div class="cal-title" id="dailyCalTitle">—</div>
+    <button class="cal-nav" id="dailyCalNext" onclick="dailyCalNav(1)" aria-label="Next month">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+    </button>
+  </div>
+  <div class="cal-dow"><div>S</div><div>M</div><div>T</div><div>W</div><div>T</div><div>F</div><div>S</div></div>
+  <div class="cal-grid" id="dailyCalGrid"></div>
+  <div class="cal-foot" id="dailyCalFoot">Pick a day with data to view that day's report.</div>
+</div>
+
+<!-- DASHBOARD PAGE -->
+<div class="page active" id="page-dashboard">
+  <div class="dashboard">
+    <div class="dash-header np-page-header">
+      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+        <div class="week-badge" id="weekBadge" onclick="toggleWeekCalendar(event)">
+          <span class="week-badge-text">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            Week of
+          </span>
+          <span class="week-pick" id="weekPickLabel">—</span>
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-right:4px;opacity:0.7"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="view-toggle">
+          <button class="vt-btn active" onclick="setView('weekly', this)">This week</button>
+          <button class="vt-btn" onclick="setView('trailing', this)">vs T4W avg</button>
+        </div>
+        <!-- legacy hidden select kept so any existing code paths still work -->
+        <select id="weekPicker" onchange="switchWeek(this.value)" style="display:none"></select>
+      </div>
+    </div>
+
+    <!-- TOP KPI CARDS -->
+    <div class="kpi-grid" id="kpiGrid"></div>
+
+    <!-- REVENUE BY CHANNEL -->
+    <div class="section-title">Revenue by channel</div>
+    <div class="chart-grid-2" style="margin-bottom:1.5rem">
+      <div class="chart-card">
+        <div class="chart-card-title">Revenue center breakdown</div>
+        <div class="chart-card-sub" id="revChartSub">Current week — $331,703 total</div>
+        <div class="chart-wrap" style="height:220px"><canvas id="revChart"></canvas></div>
+        <div class="chart-source">Source: Toast POS</div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-card-title">Channel mix %</div>
+        <div class="chart-card-sub">Share of total revenue by channel</div>
+        <div id="mixBars" style="margin-top:0.5rem"></div>
+        <div class="chart-source">Source: Toast POS</div>
+      </div>
+    </div>
+
+    <!-- PAID PERFORMANCE SCORECARD -->
+    <div class="section-title">Paid performance scorecard</div>
+    <div class="chart-card" style="margin-bottom:1.5rem;padding:0;overflow:hidden">
+      <div class="scorecard" id="paidScorecard"></div>
+      <div class="chart-source" style="padding:0 1.25rem 1rem">Source: Meta Ads Manager · Google Ads · Uber Eats + DoorDash Merchant Portals</div>
+    </div>
+
+    <!-- FULL METRICS TABLE -->
+    <div class="section-title">All metrics</div>
+    <div class="chart-card" style="padding:0;overflow:hidden;margin-bottom:2rem">
+      <div class="table-scroll"><table class="metrics-table" id="metricsTable"></table></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- DATA PAGE -->
+<div class="page" id="page-data">
+  <div class="data-page">
+    <div class="data-header">
+      <h1>Data</h1>
+      <p>All data is automated from Toast, Uber Eats, and DoorDash. As a backup, drop your file here.</p>
+    </div>
+
+    <div class="instructions">
+      <h3>Formulas key</h3>
+      <ol>
+        <li><strong>SPLH</strong> (Sales per Labor Hour) = Net sales ÷ Total labor hours</li>
+        <li><strong>Labor % of net</strong> = Total labor cost ÷ Net sales × 100</li>
+        <li><strong>% of net</strong> (any row) = Row value ÷ Net sales × 100</li>
+        <li><strong>CAC</strong> (Customer Acquisition Cost) = Ad spend ÷ Customers acquired</li>
+        <li><strong>ROAS</strong> (Return on Ad Spend) = Net revenue from ads ÷ Ad spend</li>
+        <li><strong>vs T4W</strong> / <strong>vs 6-wk</strong> = % change from the trailing 4-week / 6-week average</li>
+        <li><strong>Concept mix %</strong> = Concept sales ÷ Net sales × 100</li>
+        <li><strong>Beverage attachment</strong> = (Beverages + wine + beer) ÷ Net sales × 100</li>
+        <li><strong>On / Off premise %</strong> = On (or off) premise sales ÷ Net sales × 100</li>
+        <li><strong>WTD / PTD / QTD / YTD</strong> = Week / Period / Quarter / Year to date — running totals</li>
+      </ol>
+    </div>
+
+    <div class="upload-zone" id="dropZone" onclick="document.getElementById('csvInput').click()" ondragover="dragOver(event)" ondragleave="dragLeave(event)" ondrop="dropFile(event)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+      <h3>Drop your file here</h3>
+      <p>or click to browse — backup only, automation is the source of truth</p>
+      <div class="file-hint">Accepts .csv exports from Toast / Uber Eats / DoorDash</div>
+    </div>
+
+    <div class="data-preview" id="dataPreview" style="display:none">
+      <div class="data-preview-header">
+        <span id="previewFileName">weekly_kpi.csv</span>
+        <small id="previewMeta"></small>
+      </div>
+      <div class="data-raw" id="dataRaw"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── DATA ─────────────────────────────────────────────────────────────────────
+let DATA = {
+  currentWeek: 'May 13, 2026',
+  lastWeek: 'May 6, 2026',
+  revenue: {
+    total:       { t4w: 311075, lw: 331703, cw: 320188, pctT4W: 3,   pctPW: -3  },
+    dineIn:      { t4w: 130541, lw: 131962, cw: 137309, pctT4W: 5,   pctPW: 4   },
+    webPickup:   { t4w: 70122,  lw: 78713,  cw: 73003,  pctT4W: 4,   pctPW: -7  },
+    instore:     { t4w: 36773,  lw: 34322,  cw: 29206,  pctT4W: -21, pctPW: -15 },
+    delivery:    { t4w: 20448,  lw: 23436,  cw: 25346,  pctT4W: 24,  pctPW: 8   },
+    catering:    { t4w: 7717,   lw: 18808,  cw: 9060,   pctT4W: 17,  pctPW: -52 },
+    tpd:         { t4w: 38570,  lw: 36796,  cw: 38279,  pctT4W: -1,  pctPW: 4   },
+    marketplace: { t4w: 6903,   lw: 7666,   cw: 7986,   pctT4W: 16,  pctPW: 4   }
+  },
+  revMix: {
+    dineIn:      { t4w: 41.96, lw: 39.8, cw: 42.9 },
+    webPickup:   { t4w: 22.54, lw: 23.7, cw: 22.8 },
+    instore:     { t4w: 11.82, lw: 10.3, cw: 9.1  },
+    delivery:    { t4w: 6.57,  lw: 7.1,  cw: 7.9  },
+    catering:    { t4w: 2.5,   lw: 5.7,  cw: 2.8  },
+    tpd:         { t4w: 12.40, lw: 11.1, cw: 12.0 },
+    marketplace: { t4w: 2.22,  lw: 2.3,  cw: 2.5  }
+  },
+  meta: {
+    netRev:    { t4w: 10190, lw: 11010, cw: 12144, pctT4W: 19,  pctPW: 10 },
+    spend:     { t4w: 1320,  lw: 1376,  cw: 1389,  pctT4W: 5,   pctPW: 1  },
+    impressions:{t4w: 168400, lw: 174200, cw: 181600, pctT4W: 8, pctPW: 4 },
+    clicks:    { t4w: 1380,  lw: 1480,  cw: 1620,  pctT4W: 17,  pctPW: 9  },
+    cpc:       { t4w: 0.96,  lw: 0.93,  cw: 0.86,  pctT4W: -10, pctPW: -8 },
+    ctr:       { t4w: 0.82,  lw: 0.85,  cw: 0.89,  pctT4W: 9,   pctPW: 5  },
+    customers: { t4w: 282,   lw: 360,   cw: 365,   pctT4W: 30,  pctPW: 1  },
+    cac:       { t4w: 4.87,  lw: 3.82,  cw: 3.81,  pctT4W: -22, pctPW: 0  },
+    roas:      { t4w: 8.70,  lw: 9.00,  cw: 9.74,  pctT4W: 12,  pctPW: 8  }
+  },
+  google: {
+    netRev:    { t4w: 22344, lw: 23523, cw: 20499, pctT4W: -8,  pctPW: -13 },
+    spend:     { t4w: 744,   lw: 790,   cw: 812,   pctT4W: 9,   pctPW: 3   },
+    impressions:{t4w: 41200, lw: 43500, cw: 44800, pctT4W: 9,   pctPW: 3  },
+    clicks:    { t4w: 510,   lw: 510,   cw: 580,   pctT4W: 14,  pctPW: 14 },
+    cpc:       { t4w: 1.46,  lw: 1.55,  cw: 1.40,  pctT4W: -4,  pctPW: -10 },
+    ctr:       { t4w: 1.24,  lw: 1.17,  cw: 1.29,  pctT4W: 4,   pctPW: 10 },
+    customers: { t4w: 618,   lw: 625,   cw: 617,   pctT4W: 0,   pctPW: -1  },
+    cac:       { t4w: 1.00,  lw: 1.26,  cw: 1.32,  pctT4W: 8,   pctPW: 4   },
+    roas:      { t4w: 31.16, lw: 30.76, cw: 26.24, pctT4W: -16, pctPW: -15 }
+  },
+  sponsored: {
+    netRev:    { t4w: 9991,  lw: 8674,  cw: 9717,  pctT4W: -3, pctPW: 12 },
+    spend:     { t4w: 1027,  lw: 931,   cw: 941,   pctT4W: -8, pctPW: 1  },
+    impressions:{t4w: 28400, lw: 26100, cw: 27800, pctT4W: -2, pctPW: 7  },
+    clicks:    { t4w: 1840,  lw: 1690,  cw: 1810,  pctT4W: -2, pctPW: 7  },
+    cpc:       { t4w: 0.56,  lw: 0.55,  cw: 0.52,  pctT4W: -7, pctPW: -5 },
+    roas:      { t4w: 9.78,  lw: 9.32,  cw: 10.32, pctT4W: 6,  pctPW: 11 }
+  },
+  promo: {
+    netRev:    { t4w: 14826, lw: 12734, cw: 12373, pctT4W: -17, pctPW: -3  },
+    spend:     { t4w: 1114,  lw: 1061,  cw: 926,   pctT4W: -17, pctPW: -13 },
+    impressions:{t4w: 22800, lw: 19200, cw: 18400, pctT4W: -19, pctPW: -4 },
+    clicks:    { t4w: 1520,  lw: 1310,  cw: 1240,  pctT4W: -18, pctPW: -5 },
+    cpc:       { t4w: 0.73,  lw: 0.81,  cw: 0.75,  pctT4W: 2,   pctPW: -7 },
+    roas:      { t4w: 13.40, lw: 12.00, cw: 13.36, pctT4W: 0,   pctPW: 11  }
+  },
+  blendedROAS: { t4w: 13.6, lw: 13.5, cw: 13.5, pctT4W: -1, pctPW: 0 },
+  contribution: {
+    sponsored: { t4w: 3, lw: 3, cw: 3 },
+    promo:     { t4w: 5, lw: 4, cw: 4 },
+    meta:      { t4w: 3, lw: 3, cw: 4 },
+    google:    { t4w: 7, lw: 7, cw: 6 },
+    total:     { t4w: 18, lw: 17, cw: 17 }
+  }
+};
+
+let currentView = 'weekly';
+let charts = {};
+
+// ── HELPERS ──────────────────────────────────────────────────────────────────
+function fmt$(n){ if(n==null||isNaN(n))return'—'; return'$'+Math.round(n).toLocaleString(); }
+function fmtN(n){ if(n==null||isNaN(n))return'—'; return n.toLocaleString(); }
+function fmtR(n){ if(n==null||isNaN(n))return'—'; return(+n).toFixed(2)+'x'; }
+function fmtPct(n){ if(n==null||isNaN(n))return'—'; return(n>0?'+':'')+n+'%'; }
+function chgClass(n){ if(n>0)return'pos'; if(n<0)return'neg'; return'neu'; }
+function pctClass(n){ if(n>0)return'pct-pos'; if(n<0)return'pct-neg'; return'pct-neu'; }
+
+function getVal(metric, field) {
+  const d = metric;
+  if (!d) return 0;
+  if (currentView === 'weekly')   return d.cw  ?? d.t4w ?? 0;
+  if (currentView === 'trailing') return d.t4w ?? 0;
+  if (currentView === 'lastweek') return d.lw  ?? 0;
+  return d.cw ?? 0;
+}
+function getChange(metric) {
+  if (!metric) return null;
+  if (currentView === 'trailing')  return metric.pctT4W ?? null;
+  if (currentView === 'lastweek')  return metric.pctPW  ?? null;
+  return metric.pctPW ?? null;
+}
+function changeLabel() {
+  if (currentView === 'trailing')  return 'vs T4W avg';
+  if (currentView === 'lastweek')  return 'vs last week';
+  return 'vs last week';
+}
+
+// ── PAGE NAV ─────────────────────────────────────────────────────────────────
+function showPage(id, tab) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  const page = document.getElementById('page-' + id);
+  if (!page) {
+    console.error('Page not found:', id);
+    return;
+  }
+  page.classList.add('active');
+
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active', 'is-active'));
+  if (tab) tab.classList.add('active', 'is-active');
+  else {
+    // Caller didn't pass a tab (e.g. deep-link from ?p=…). Highlight by id.
+    const match = document.querySelector(`.nav-tab[onclick*="'${id}'"]`);
+    if (match) match.classList.add('active', 'is-active');
+  }
+
+  if (id === 'alltime' && typeof renderAllTime === 'function') {
+    setTimeout(renderAllTime, 50);
+  }
+  if (id === 'trends' && typeof renderTrends === 'function') {
+    setTimeout(renderTrends, 50);
+  }
+  if (id === 'daily' && typeof fetchDailyData === 'function') {
+    setTimeout(fetchDailyData, 50);
+    setTimeout(() => { if (typeof _onDailyPageEnter === 'function') _onDailyPageEnter(); }, 60);
+  }
+}
+
+/* Deep-link support: `?p=daily` switches into "Sales & Pmix" context
+   (different page tag + tab strip). `?p=alltime` is just a sub-tab of
+   the default Performance Marketing context. */
+(function _npRouteFromQuery() {
+  try {
+    const p = new URLSearchParams(location.search).get('p');
+    const perfTabs = document.getElementById('navTabsPerf');
+    const salesTabs = document.getElementById('navTabsSales');
+    const pageTag = document.getElementById('navPageTag');
+    if (p === 'daily' || p === 'trends') {
+      if (perfTabs)  perfTabs.style.display = 'none';
+      if (salesTabs) salesTabs.style.display = '';
+      if (pageTag)   pageTag.textContent = 'Sales & Pmix';
+    }
+    if (p && ['daily', 'trends', 'alltime'].includes(p)) {
+      const run = () => { if (typeof showPage === 'function') showPage(p, null); };
+      if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run);
+      else run();
+    }
+  } catch (e) {}
+})();
+
+function setView(v, btn) {
+  currentView = v;
+  document.querySelectorAll('.vt-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderDashboard();
+}
+
+// ── KPI CARDS ────────────────────────────────────────────────────────────────
+function renderKPIs() {
+  const kpis = [
+    { label: 'Total revenue',    val: fmt$(getVal(DATA.revenue.total)),    metric: DATA.revenue.total },
+    { label: 'Blended ROAS',     val: fmtR(getVal(DATA.blendedROAS)),      metric: DATA.blendedROAS },
+    { label: 'Meta ROAS',        val: fmtR(getVal(DATA.meta.roas)),        metric: DATA.meta.roas },
+    { label: 'Google ROAS',      val: fmtR(getVal(DATA.google.roas)),      metric: DATA.google.roas }
+  ];
+  const cl = changeLabel();
+  document.getElementById('kpiGrid').innerHTML = kpis.map(k => {
+    const chg = getChange(k.metric);
+    const cls = chg != null ? chgClass(chg) : 'neu';
+    return `<div class="kpi-card">
+      <div class="kpi-label">${k.label}</div>
+      <div class="kpi-value">${k.val}</div>
+      <div class="kpi-change">
+        <span class="chg ${cls}">${chg != null ? fmtPct(chg) : '—'}</span>
+        <span class="kpi-change-label">${cl}</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── REVENUE CHART ────────────────────────────────────────────────────────────
+function renderRevenueChart() {
+  const rev = DATA.revenue;
+  const labels = ['Dine in','Web Pickup','In-store Takeout','Delivery','Catering','3PD','Marketplace'];
+  const vals = [getVal(rev.dineIn), getVal(rev.webPickup), getVal(rev.instore), getVal(rev.delivery), getVal(rev.catering), getVal(rev.tpd), getVal(rev.marketplace)];
+  const colors = ['#eace49','#7bbd91','#cbc9d6','#6280bd','#dbc6a2','#888780','#e87142'];
+
+  const viewLabel = currentView === 'trailing' ? 'T4W avg' : currentView === 'lastweek' ? 'Last week' : 'Current week';
+  document.getElementById('revChartSub').textContent = `${viewLabel} — ${fmt$(getVal(rev.total))} total`;
+
+  if (charts.rev) charts.rev.destroy();
+  charts.rev = new Chart(document.getElementById('revChart'), {
+    type: 'bar',
+    data: { labels, datasets: [{ data: vals, backgroundColor: colors, borderRadius: 6, borderSkipped: false }] },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { grid: { display: false }, ticks: { font: { family: 'DM Sans', size: 11 }, color: '#9E9C96' } },
+        y: { grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { font: { family: 'DM Mono', size: 10 }, color: '#9E9C96', callback: v => '$'+Math.round(v/1000)+'k' } }
+      }
+    }
+  });
+}
+
+// ── MIX BARS ─────────────────────────────────────────────────────────────────
+function renderMixBars() {
+  const mix = DATA.revMix;
+  const items = [
+    { label: 'Dine in',          k: 'dineIn',      color: '#eace49' },
+    { label: 'Web pickup',       k: 'webPickup',   color: '#7bbd91' },
+    { label: 'In-store Takeout', k: 'instore',     color: '#cbc9d6' },
+    { label: 'Delivery',         k: 'delivery',    color: '#6280bd' },
+    { label: 'Catering',         k: 'catering',    color: '#dbc6a2' },
+    { label: '3PD',              k: 'tpd',         color: '#888780' },
+    { label: 'Marketplace',      k: 'marketplace', color: '#e87142' }
+  ];
+  document.getElementById('mixBars').innerHTML = items.map(i => {
+    const row = mix[i.k] || {};
+    const val = getVal(row);
+    const base  = (currentView === 'trailing') ? row.t4w : row.lw;
+    const delta = (row.cw != null && base != null) ? row.cw - base : null;
+    const dCls = delta == null ? 'pct-neu' : (delta > 0 ? 'pct-pos' : (delta < 0 ? 'pct-neg' : 'pct-neu'));
+    const dText = delta == null ? '—' : `${delta > 0 ? '+' : ''}${delta.toFixed(1)} pts`;
+    return `
+    <div class="mix-bar-wrap">
+      <div class="mix-bar-label">
+        <span>${i.label}</span>
+        <span class="mix-detail"><span class="mix-pct">${(+val).toFixed(1)}%</span><span class="mix-delta ${dCls}">${dText}</span><span class="mix-delta-foot">${(currentView === 'trailing') ? 'vs T4W avg' : 'vs last wk'}</span></span>
+      </div>
+      <div class="mix-bar-track"><div class="mix-bar-fill" style="width:${val}%;background:${i.color}"></div></div>
+    </div>`;
+  }).join('');
+}
+
+// ── PAID PERFORMANCE SCORECARD ───────────────────────────────────────────────
+// Replaces 5 separate bar charts with a single scannable scorecard that shows
+// spend, clicks, CPC, net revenue, CAC, ROAS, and customers per platform —
+// each cell carries a small WoW delta pill in the same sentiment palette.
+function renderScorecard() {
+  const wrap = document.getElementById('paidScorecard');
+  if (!wrap) return;
+
+  // Platform → display config
+  const platforms = [
+    { key: 'meta',      label: 'Meta',           sub: 'Facebook + Instagram Ads', color: '#eace49' },
+    { key: 'google',    label: 'Google',         sub: 'Search + Performance Max', color: '#7bbd91' },
+    { key: 'sponsored', label: '3PD Sponsored',  sub: 'Uber Eats + DoorDash',     color: '#dbc6a2' },
+    { key: 'promo',     label: '3PD Promo',      sub: 'Uber Eats + DoorDash',     color: '#cbc9d6' }
+  ];
+  // Metric → {label, getter from platform data, format fn, sentiment (does up = good?)}
+  const dash = '<span class="sc-empty">—</span>';
+  const metrics = [
+    { label: 'Spend',     k: 'spend',     fmt: fmt$,                neutral: true  },
+    { label: 'Clicks',    k: 'clicks',    fmt: fmtN,                lowerBetter: false },
+    { label: 'CPC',       k: 'cpc',       fmt: v => '$' + (+v).toFixed(2), lowerBetter: true  },
+    { label: 'Net rev',   k: 'netRev',    fmt: fmt$,                lowerBetter: false },
+    { label: 'ROAS',      k: 'roas',      fmt: v => (+v).toFixed(2) + 'x', lowerBetter: false },
+    { label: 'CAC',       k: 'cac',       fmt: v => '$' + (+v).toFixed(2), lowerBetter: true  },
+    { label: 'Customers', k: 'customers', fmt: fmtN,                lowerBetter: false }
+  ];
+
+  const headerRow = `
+    <div class="sc-row">
+      <div class="sc-h sc-h-row">Platform</div>
+      ${metrics.map(m => `<div class="sc-h">${m.label}</div>`).join('')}
+    </div>`;
+
+  const cell = (pdata, m) => {
+    const row = pdata[m.k];
+    if (!row || row.cw == null) return `<div class="sc-c" data-label="${m.label}"><div class="sc-val">${dash}</div></div>`;
+    const val = m.fmt(row.cw);
+    const pct    = getChange(row);
+    let cls = 'neu', txt = '—';
+    if (typeof pct === 'number') {
+      if (m.neutral) {
+        cls = 'neu';
+      } else {
+        const good = m.lowerBetter ? pct < 0 : pct > 0;
+        const bad  = m.lowerBetter ? pct > 0 : pct < 0;
+        cls = good ? 'pos' : (bad ? 'neg' : 'neu');
+      }
+      txt = `${pct > 0 ? '+' : ''}${pct}% ${changeLabel().replace('vs ', '')}`;
+    }
+    return `<div class="sc-c" data-label="${m.label}">
+      <div class="sc-val">${val}</div>
+      <div class="sc-delta ${cls}">${txt}</div>
+    </div>`;
+  };
+
+  const platRows = platforms.map(p => {
+    const d = DATA[p.key] || {};
+    return `<div class="sc-row">
+      <div class="sc-h sc-h-row">
+        <div class="sc-row-name"><span class="sc-row-dot" style="background:${p.color}"></span>${p.label}</div>
+        <div class="sc-row-meta">${p.sub}</div>
+      </div>
+      ${metrics.map(m => cell(d, m)).join('')}
+    </div>`;
+  }).join('');
+
+  wrap.innerHTML = headerRow + platRows;
+}
+
+// ── METRICS TABLE ─────────────────────────────────────────────────────────────
+function renderMetricsTable() {
+  const rows = [
+    { cat: '3PD sponsored listings' },
+    { label: 'Net Revenue',       t4w: fmt$(DATA.sponsored.netRev.t4w), lw: fmt$(DATA.sponsored.netRev.lw), cw: fmt$(DATA.sponsored.netRev.cw), pT4W: DATA.sponsored.netRev.pctT4W, pPW: DATA.sponsored.netRev.pctPW },
+    { label: 'Spend',             t4w: fmt$(DATA.sponsored.spend.t4w),  lw: fmt$(DATA.sponsored.spend.lw),  cw: fmt$(DATA.sponsored.spend.cw),  pT4W: DATA.sponsored.spend.pctT4W,  pPW: DATA.sponsored.spend.pctPW  },
+    { label: 'ROAS',              t4w: fmtR(DATA.sponsored.roas.t4w),   lw: fmtR(DATA.sponsored.roas.lw),   cw: fmtR(DATA.sponsored.roas.cw),   pT4W: DATA.sponsored.roas.pctT4W,   pPW: DATA.sponsored.roas.pctPW   },
+    { cat: 'Promo' },
+    { label: 'Net Revenue',       t4w: fmt$(DATA.promo.netRev.t4w), lw: fmt$(DATA.promo.netRev.lw), cw: fmt$(DATA.promo.netRev.cw), pT4W: DATA.promo.netRev.pctT4W, pPW: DATA.promo.netRev.pctPW },
+    { label: 'Spend',             t4w: fmt$(DATA.promo.spend.t4w),  lw: fmt$(DATA.promo.spend.lw),  cw: fmt$(DATA.promo.spend.cw),  pT4W: DATA.promo.spend.pctT4W,  pPW: DATA.promo.spend.pctPW  },
+    { label: 'ROAS',              t4w: fmtR(DATA.promo.roas.t4w),   lw: fmtR(DATA.promo.roas.lw),   cw: fmtR(DATA.promo.roas.cw),   pT4W: DATA.promo.roas.pctT4W,   pPW: DATA.promo.roas.pctPW   },
+    { cat: 'Meta' },
+    { label: 'Net Revenue',       t4w: fmt$(DATA.meta.netRev.t4w),    lw: fmt$(DATA.meta.netRev.lw),    cw: fmt$(DATA.meta.netRev.cw),    pT4W: DATA.meta.netRev.pctT4W,    pPW: DATA.meta.netRev.pctPW    },
+    { label: 'Ad Spend',          t4w: fmt$(DATA.meta.spend.t4w),     lw: fmt$(DATA.meta.spend.lw),     cw: fmt$(DATA.meta.spend.cw),     pT4W: DATA.meta.spend.pctT4W,     pPW: DATA.meta.spend.pctPW     },
+    { label: 'Customers Acq.',    t4w: fmtN(DATA.meta.customers.t4w), lw: fmtN(DATA.meta.customers.lw), cw: fmtN(DATA.meta.customers.cw), pT4W: DATA.meta.customers.pctT4W, pPW: DATA.meta.customers.pctPW },
+    { label: 'CAC',               t4w: fmt$(DATA.meta.cac.t4w),       lw: fmt$(DATA.meta.cac.lw),       cw: fmt$(DATA.meta.cac.cw),       pT4W: DATA.meta.cac.pctT4W,       pPW: DATA.meta.cac.pctPW       },
+    { label: 'ROAS',              t4w: fmtR(DATA.meta.roas.t4w),      lw: fmtR(DATA.meta.roas.lw),      cw: fmtR(DATA.meta.roas.cw),      pT4W: DATA.meta.roas.pctT4W,      pPW: DATA.meta.roas.pctPW      },
+    { cat: 'Google' },
+    { label: 'Net Revenue',       t4w: fmt$(DATA.google.netRev.t4w),    lw: fmt$(DATA.google.netRev.lw),    cw: fmt$(DATA.google.netRev.cw),    pT4W: DATA.google.netRev.pctT4W,    pPW: DATA.google.netRev.pctPW    },
+    { label: 'Ad Spend',          t4w: fmt$(DATA.google.spend.t4w),     lw: fmt$(DATA.google.spend.lw),     cw: fmt$(DATA.google.spend.cw),     pT4W: DATA.google.spend.pctT4W,     pPW: DATA.google.spend.pctPW     },
+    { label: 'Customers Acq.',    t4w: fmtN(DATA.google.customers.t4w), lw: fmtN(DATA.google.customers.lw), cw: fmtN(DATA.google.customers.cw), pT4W: DATA.google.customers.pctT4W, pPW: DATA.google.customers.pctPW },
+    { label: 'CAC',               t4w: fmt$(DATA.google.cac.t4w),       lw: fmt$(DATA.google.cac.lw),       cw: fmt$(DATA.google.cac.cw),       pT4W: DATA.google.cac.pctT4W,       pPW: DATA.google.cac.pctPW       },
+    { label: 'ROAS',              t4w: fmtR(DATA.google.roas.t4w),      lw: fmtR(DATA.google.roas.lw),      cw: fmtR(DATA.google.roas.cw),      pT4W: DATA.google.roas.pctT4W,      pPW: DATA.google.roas.pctPW      },
+    { cat: 'Revenue by Channel' },
+    { label: 'Total Revenue',     t4w: fmt$(DATA.revenue.total.t4w),     lw: fmt$(DATA.revenue.total.lw),     cw: fmt$(DATA.revenue.total.cw),     pT4W: DATA.revenue.total.pctT4W,     pPW: DATA.revenue.total.pctPW     },
+    { label: 'Dine In',           t4w: fmt$(DATA.revenue.dineIn.t4w),    lw: fmt$(DATA.revenue.dineIn.lw),    cw: fmt$(DATA.revenue.dineIn.cw),    pT4W: DATA.revenue.dineIn.pctT4W,    pPW: DATA.revenue.dineIn.pctPW    },
+    { label: 'Web Pickup',        t4w: fmt$(DATA.revenue.webPickup.t4w), lw: fmt$(DATA.revenue.webPickup.lw), cw: fmt$(DATA.revenue.webPickup.cw), pT4W: DATA.revenue.webPickup.pctT4W, pPW: DATA.revenue.webPickup.pctPW },
+    { label: 'In-store Takeout',  t4w: fmt$(DATA.revenue.instore.t4w),   lw: fmt$(DATA.revenue.instore.lw),   cw: fmt$(DATA.revenue.instore.cw),   pT4W: DATA.revenue.instore.pctT4W,   pPW: DATA.revenue.instore.pctPW   },
+    { label: 'Delivery',          t4w: fmt$(DATA.revenue.delivery.t4w),  lw: fmt$(DATA.revenue.delivery.lw),  cw: fmt$(DATA.revenue.delivery.cw),  pT4W: DATA.revenue.delivery.pctT4W,  pPW: DATA.revenue.delivery.pctPW  },
+    { label: 'Catering',          t4w: fmt$(DATA.revenue.catering.t4w),  lw: fmt$(DATA.revenue.catering.lw),  cw: fmt$(DATA.revenue.catering.cw),  pT4W: DATA.revenue.catering.pctT4W,  pPW: DATA.revenue.catering.pctPW  },
+    { label: '3PD',               t4w: fmt$(DATA.revenue.tpd.t4w),       lw: fmt$(DATA.revenue.tpd.lw),       cw: fmt$(DATA.revenue.tpd.cw),       pT4W: DATA.revenue.tpd.pctT4W,       pPW: DATA.revenue.tpd.pctPW       },
+    { label: 'Marketplace',       t4w: fmt$(DATA.revenue.marketplace.t4w),lw: fmt$(DATA.revenue.marketplace.lw),cw: fmt$(DATA.revenue.marketplace.cw),pT4W: DATA.revenue.marketplace.pctT4W,pPW: DATA.revenue.marketplace.pctPW }
+  ];
+
+  const cl = changeLabel();
+  let html = `<thead><tr>
+    <th>Metric</th>
+    <th>T4W avg</th>
+    <th>Last week</th>
+    <th>This week</th>
+    <th>vs T4W</th>
+    <th>${cl}</th>
+  </tr></thead><tbody>`;
+
+  let catIdx = -1;
+  let currentKey = '';
+  rows.forEach(r => {
+    if (r.cat) {
+      catIdx++;
+      currentKey = `main-${catIdx}`;
+      html += `<tr class="cat-row open" data-cat="${currentKey}" onclick="toggleCatRow('${currentKey}', this)">
+        <td colspan="6">
+          <svg class="cat-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"/></svg>${r.cat}
+        </td>
+      </tr>`;
+    } else {
+      const p4 = r.pT4W != null ? `<span class="${pctClass(r.pT4W)}">${fmtPct(r.pT4W)}</span>` : '—';
+      const ppw = r.pPW != null ? `<span class="${pctClass(r.pPW)}">${fmtPct(r.pPW)}</span>` : '—';
+      const childAttr = currentKey ? ` class="cat-child" data-cat="${currentKey}"` : '';
+      html += `<tr${childAttr}><td>${r.label}</td><td>${r.t4w}</td><td>${r.lw}</td><td style="font-weight:500">${r.cw}</td><td>${p4}</td><td>${ppw}</td></tr>`;
+    }
+  });
+  html += '</tbody>';
+  document.getElementById('metricsTable').innerHTML = html;
+}
+
+// ── FULL RENDER ───────────────────────────────────────────────────────────────
+function renderDashboard() {
+  renderKPIs();
+  renderRevenueChart();
+  renderMixBars();
+  renderScorecard();
+  renderMetricsTable();
+}
+
+// ── CSV UPLOAD ────────────────────────────────────────────────────────────────
+function loadCSV(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const text = e.target.result;
+    parseAndLoad(text, file.name);
+  };
+  reader.readAsText(file);
+}
+
+function parseCSVLine(line) {
+  const result = [];
+  let current = '';
+  let inQuotes = false;
+
+  for (let i = 0; i < line.length; i++) {
+    const char = line[i];
+    const next = line[i + 1];
+
+    if (char === '"' && inQuotes && next === '"') {
+      current += '"';
+      i++;
+    } else if (char === '"') {
+      inQuotes = !inQuotes;
+    } else if (char === ',' && !inQuotes) {
+      result.push(current);
+      current = '';
+    } else {
+      current += char;
+    }
+  }
+
+  result.push(current);
+  return result;
+}
+
+function parseAndLoad(text, filename) {
+  // Normalize line endings and parse into column arrays.
+  // Col indices in this CSV: [4]=label, [5]=T4W avg, [6]=last week, [7]=current week,
+  //                          [9]=% vs T4W, [10]=% vs prev week
+  const normalized = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+  const lines = normalized.split('\n')
+    .filter(l => l.trim() !== '')
+    .map(l => parseCSVLine(l).map(c => c.trim().replace(/^"|"$/g, '').replace(/^\$\s*/, '').replace(/,/g, '')));
+
+  function parseNum(s) {
+    if (!s || s === '' || s === '#DIV/0!') return null;
+    const n = parseFloat(s.replace(/[%$,\s]/g, ''));
+    return isNaN(n) ? null : n;
+  }
+
+  // Format "5/13/2026" → "May 13, 2026"
+  function fmtDate(raw) {
+    const p = (raw || '').split('/');
+    if (p.length !== 3) return raw;
+    const mo = ['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    return (mo[+p[0]] || p[0]) + ' ' + +p[1] + ', ' + p[2];
+  }
+
+  // ── Extract week dates: look for the rows where col[4] is "Current Week" / "Last Week"
+  //    and col[7] holds the date (H2/H3 in the spreadsheet)
+  lines.forEach(cols => {
+    const label = (cols[4] || '').trim();
+    const dateVal = (cols[7] || '').trim();
+    if (label === 'Current Week' && /\d+\/\d+\/\d+/.test(dateVal)) DATA.currentWeek = fmtDate(dateVal);
+    if (label === 'Last Week'    && /\d+\/\d+\/\d+/.test(dateVal)) DATA.lastWeek    = fmtDate(dateVal);
+  });
+  // ── Update the week picker without destroying the <select> element.
+  //    If this week is already in WEEK_HISTORY, select it.
+  //    If it's new, prepend it so it appears first (most recent).
+  (function updateWeekPicker() {
+    const sel = document.getElementById('weekPicker');
+    const weekLabel = DATA.currentWeek;
+    let existingIdx = WEEK_HISTORY.findIndex(w => w.label === weekLabel);
+    if (existingIdx === -1) {
+      // New week — save a snapshot and prepend it to WEEK_HISTORY
+      WEEK_HISTORY.unshift({ label: weekLabel, data: JSON.parse(JSON.stringify(DATA)) });
+      existingIdx = 0;
+      // Add a new <option> at the top of the <select>
+      const opt = document.createElement('option');
+      opt.value = 0;
+      opt.textContent = weekLabel;
+      sel.insertBefore(opt, sel.firstChild);
+      // Shift all existing option values up by 1
+      Array.from(sel.options).forEach((o, i) => { o.value = i; });
+    } else {
+      // Existing week — overwrite the snapshot with fresh data
+      WEEK_HISTORY[existingIdx].data = JSON.parse(JSON.stringify(DATA));
+    }
+    sel.value = existingIdx;
+  })();
+
+  // ── Build metric lookup keyed by the label in col[4].
+  //    Values come from fixed column positions — NOT from filtering/slicing,
+  //    because this CSV has duplicate period-comparison data on the right side
+  //    that breaks any slice(-6) approach.
+  //    Only store the FIRST occurrence of each label so the $ section rows
+  //    are not overwritten by the % section rows of the same channel names.
+  const metricMap = {};
+  let inPctSection = false;
+
+  lines.forEach(cols => {
+    const label = (cols[4] || '').trim();
+    if (!label) return;
+
+    // Track which section we're in
+    if (label === '% Sales by Revenue Center') { inPctSection = true;  return; }
+    if (label === '$ Sales by Revenue Center') { inPctSection = false; return; }
+
+    if (inPctSection) {
+      // Revenue mix % — update DATA.revMix directly
+      const mixKey = {
+        'Dine in': 'dineIn', 'Web Pickup': 'webPickup', 'In-store Takeout': 'instore',
+        'Delivery': 'delivery', 'Catering': 'catering', '3PD': 'tpd', 'Marketplace': 'marketplace'
+      }[label];
+      if (mixKey) {
+        const t4w = parseNum(cols[5]), lw = parseNum(cols[6]), cw = parseNum(cols[7]);
+        if (t4w !== null) DATA.revMix[mixKey].t4w = t4w;
+        if (lw  !== null) DATA.revMix[mixKey].lw  = lw;
+        if (cw  !== null) DATA.revMix[mixKey].cw  = cw;
+      }
+    } else if (!metricMap[label]) {
+      // Main metrics — read values from their fixed column positions
+      const t4w  = parseNum(cols[5]);
+      const lw   = parseNum(cols[6]);
+      const cw   = parseNum(cols[7]);
+      const pT4W = parseNum(cols[9]);
+      const pPW  = parseNum(cols[10]);
+      if (t4w !== null || lw !== null || cw !== null) {
+        metricMap[label] = { t4w, lw, cw, pctT4W: pT4W, pctPW: pPW };
+      }
+    }
+  });
+
+  // ── Map parsed metrics into DATA object
+  const map = [
+    ['Sponsored Listing Net Revenue', 'sponsored',   'netRev'],
+    ['Sponsored Listing Spend',       'sponsored',   'spend'],
+    ['Sponsored Listing ROAS',        'sponsored',   'roas'],
+    ['Promo Net Revenue',             'promo',       'netRev'],
+    ['Promo Spend',                   'promo',       'spend'],
+    ['Promo ROAS',                    'promo',       'roas'],
+    ['Net Revenue - Meta',            'meta',        'netRev'],
+    ['Ad Spend - Meta',               'meta',        'spend'],
+    ['Customers Acq. - Meta',         'meta',        'customers'],
+    ['CAC - Meta',                    'meta',        'cac'],
+    ['ROAS - Meta',                   'meta',        'roas'],
+    ['Net Revenue - Google',          'google',      'netRev'],
+    ['Ad Spend - Google',             'google',      'spend'],
+    ['Customers Acq. - Google',       'google',      'customers'],
+    ['CAC - Google',                  'google',      'cac'],
+    ['ROAS - Google',                 'google',      'roas'],
+    ['Blended ROAS',                  'blendedROAS', null],
+    ['Total Revenue',                 'revenue',     'total'],
+    ['Dine in',                       'revenue',     'dineIn'],
+    ['Web Pickup',                    'revenue',     'webPickup'],
+    ['In-store Takeout',              'revenue',     'instore'],
+    ['Delivery',                      'revenue',     'delivery'],
+    ['Catering',                      'revenue',     'catering'],
+    ['3PD',                           'revenue',     'tpd'],
+    ['Marketplace',                   'revenue',     'marketplace'],
+  ];
+
+  let mapped = 0;
+  map.forEach(([key, section, field]) => {
+    const m = metricMap[key];
+    if (!m) return;
+    mapped++;
+    // Only overwrite with non-null values to preserve existing data where CSV has blanks
+    const update = {};
+    if (m.t4w   !== null) update.t4w   = m.t4w;
+    if (m.lw    !== null) update.lw    = m.lw;
+    if (m.cw    !== null) update.cw    = m.cw;
+    if (m.pctT4W !== null) update.pctT4W = m.pctT4W;
+    if (m.pctPW  !== null) update.pctPW  = m.pctPW;
+    if (field === null) { Object.assign(DATA[section], update); }
+    else if (DATA[section]?.[field] !== undefined) { Object.assign(DATA[section][field], update); }
+  });
+
+  document.getElementById('previewFileName').textContent = filename;
+  document.getElementById('previewMeta').textContent = `${mapped} of ${map.length} metrics mapped · week of ${DATA.currentWeek}`;
+  document.getElementById('dataRaw').textContent = normalized.split('\n').slice(0, 30).join('\n');
+  document.getElementById('dataPreview').style.display = 'block';
+
+  showStatus(`Week of ${DATA.currentWeek} loaded — ${mapped} metrics updated`);
+  renderDashboard();
+}
+
+function showStatus(msg) {
+  const bar = document.getElementById('statusBar');
+  document.getElementById('statusMsg').textContent = msg;
+  bar.classList.add('show');
+  setTimeout(() => bar.classList.remove('show'), 3500);
+}
+
+// ── DRAG & DROP ───────────────────────────────────────────────────────────────
+function dragOver(e) { e.preventDefault(); document.getElementById('dropZone').classList.add('drag'); }
+function dragLeave()  { document.getElementById('dropZone').classList.remove('drag'); }
+function dropFile(e)  {
+  e.preventDefault();
+  dragLeave();
+  const file = e.dataTransfer.files[0];
+  if (!file || !file.name.endsWith('.csv')) { alert('Please drop a .csv file.'); return; }
+  const reader = new FileReader();
+  reader.onload = ev => parseAndLoad(ev.target.result, file.name);
+  reader.readAsText(file);
+}
+
+// ── WEEK PICKER ──────────────────────────────────────────────────────────────
+// Weeks derived from HIST_TOTAL — one entry per data point we have
+const WEEK_HISTORY = [
+  // Each entry: { label, data } where data mirrors the DATA shape for that week.
+  // The two most recent weeks come from the KPI tracker; earlier weeks have
+  // partial data (total revenue only) from the historical dataset.
+  {
+    label: 'May 20, 2026',
+    data: {
+      currentWeek:'May 20, 2026', lastWeek:'May 13, 2026',
+      revenue:{ total:{t4w:315498,lw:320188,cw:320917,pctT4W:2,pctPW:0}, dineIn:{t4w:133561,lw:137309,cw:139740,pctT4W:5,pctPW:2}, webPickup:{t4w:73409,lw:73003,cw:73763,pctT4W:0,pctPW:1}, instore:{t4w:32851,lw:29206,cw:26398,pctT4W:-20,pctPW:-10}, delivery:{t4w:23010,lw:25346,cw:24366,pctT4W:6,pctPW:-4}, catering:{t4w:6967,lw:9060,cw:16802,pctT4W:141,pctPW:85}, tpd:{t4w:38629,lw:38279,cw:33226,pctT4W:-14,pctPW:-13}, marketplace:{t4w:7071,lw:7986,cw:6621,pctT4W:-6,pctPW:-17} },
+      revMix:{ dineIn:{t4w:42.33,lw:42.9,cw:43.5}, webPickup:{t4w:23.27,lw:22.8,cw:23.0}, instore:{t4w:10.41,lw:9.1,cw:8.2}, delivery:{t4w:7.29,lw:7.9,cw:7.6}, catering:{t4w:2.2,lw:2.8,cw:5.2}, tpd:{t4w:12.24,lw:12.0,cw:10.4}, marketplace:{t4w:2.24,lw:2.5,cw:2.1} },
+      meta:{ netRev:{t4w:11097,lw:12144,cw:10159,pctT4W:-8,pctPW:-16}, spend:{t4w:1373,lw:1389,cw:1407,pctT4W:2,pctPW:1}, customers:{t4w:309,lw:365,cw:303,pctT4W:-2,pctPW:-17}, cac:{t4w:4.67,lw:3.81,cw:4.64,pctT4W:-1,pctPW:22}, roas:{t4w:9.08,lw:9.74,cw:8.22,pctT4W:-9,pctPW:-16} },
+      google:{ netRev:{t4w:22742,lw:20499,cw:25034,pctT4W:10,pctPW:22}, spend:{t4w:755,lw:812,cw:889,pctT4W:18,pctPW:9}, customers:{t4w:637,lw:617,cw:637,pctT4W:0,pctPW:3}, cac:{t4w:1.00,lw:1.32,cw:1.39,pctT4W:17,pctPW:6}, roas:{t4w:31.33,lw:26.24,cw:29.17,pctT4W:-7,pctPW:11} },
+      sponsored:{ netRev:{t4w:9411,lw:9717,cw:8663,pctT4W:-8,pctPW:-11}, spend:{t4w:958,lw:941,cw:905,pctT4W:-6,pctPW:-4}, roas:{t4w:9.75,lw:10.32,cw:9.58,pctT4W:-2,pctPW:-7} },
+      promo:{ netRev:{t4w:14054,lw:12373,cw:13190,pctT4W:-6,pctPW:7}, spend:{t4w:1102,lw:926,cw:1224,pctT4W:11,pctPW:32}, roas:{t4w:12.76,lw:13.36,cw:10.77,pctT4W:-16,pctPW:-19} },
+      blendedROAS:{t4w:13.7,lw:13.5,cw:12.9,pctT4W:-6,pctPW:-4},
+      contribution:{ sponsored:{t4w:3,lw:3,cw:3}, promo:{t4w:4,lw:4,cw:4}, meta:{t4w:4,lw:4,cw:3}, google:{t4w:7,lw:6,cw:8}, total:{t4w:18,lw:17,cw:18} }
+    }
+  },
+  {
+    label: 'May 13, 2026',
+    data: {
+      currentWeek:'May 13, 2026', lastWeek:'May 6, 2026',
+      revenue:{ total:{t4w:311075,lw:331703,cw:320188,pctT4W:3,pctPW:-3}, dineIn:{t4w:130541,lw:131962,cw:137309,pctT4W:5,pctPW:4}, webPickup:{t4w:70122,lw:78713,cw:73003,pctT4W:4,pctPW:-7}, instore:{t4w:36773,lw:34322,cw:29206,pctT4W:-21,pctPW:-15}, delivery:{t4w:20448,lw:23436,cw:25346,pctT4W:24,pctPW:8}, catering:{t4w:7717,lw:18808,cw:9060,pctT4W:17,pctPW:-52}, tpd:{t4w:38570,lw:36796,cw:38279,pctT4W:-1,pctPW:4}, marketplace:{t4w:6903,lw:7666,cw:7986,pctT4W:16,pctPW:4} },
+      revMix:{ dineIn:{t4w:41.96,lw:39.8,cw:42.9}, webPickup:{t4w:22.54,lw:23.7,cw:22.8}, instore:{t4w:11.82,lw:10.3,cw:9.1}, delivery:{t4w:6.57,lw:7.1,cw:7.9}, catering:{t4w:2.5,lw:5.7,cw:2.8}, tpd:{t4w:12.40,lw:11.1,cw:12.0}, marketplace:{t4w:2.22,lw:2.3,cw:2.5} },
+      meta:{ netRev:{t4w:10190,lw:11010,cw:12144,pctT4W:19,pctPW:10}, spend:{t4w:1320,lw:1376,cw:1389,pctT4W:5,pctPW:1}, customers:{t4w:282,lw:360,cw:365,pctT4W:30,pctPW:1}, cac:{t4w:4.87,lw:3.82,cw:3.81,pctT4W:-22,pctPW:0}, roas:{t4w:8.70,lw:9.00,cw:9.74,pctT4W:12,pctPW:8} },
+      google:{ netRev:{t4w:22344,lw:23523,cw:20499,pctT4W:-8,pctPW:-13}, spend:{t4w:744,lw:790,cw:812,pctT4W:9,pctPW:3}, customers:{t4w:618,lw:625,cw:617,pctT4W:0,pctPW:-1}, cac:{t4w:1.00,lw:1.26,cw:1.32,pctT4W:8,pctPW:4}, roas:{t4w:31.16,lw:30.76,cw:26.24,pctT4W:-16,pctPW:-15} },
+      sponsored:{ netRev:{t4w:9411,lw:8674,cw:9717,pctT4W:3,pctPW:12}, spend:{t4w:958,lw:931,cw:941,pctT4W:-2,pctPW:1}, roas:{t4w:9.78,lw:9.32,cw:10.32,pctT4W:6,pctPW:11} },
+      promo:{ netRev:{t4w:14826,lw:12734,cw:12373,pctT4W:-17,pctPW:-3}, spend:{t4w:1114,lw:1061,cw:926,pctT4W:-17,pctPW:-13}, roas:{t4w:13.40,lw:12.00,cw:13.36,pctT4W:0,pctPW:11} },
+      blendedROAS:{t4w:13.7,lw:13.5,cw:13.5,pctT4W:-1,pctPW:0},
+      contribution:{ sponsored:{t4w:3,lw:3,cw:3}, promo:{t4w:5,lw:4,cw:4}, meta:{t4w:3,lw:3,cw:4}, google:{t4w:7,lw:7,cw:6}, total:{t4w:18,lw:17,cw:17} }
+    }
+  },
+  {
+    label: 'May 6, 2026',
+    data: {
+      currentWeek:'May 6, 2026', lastWeek:'Apr 29, 2026',
+      revenue:{ total:{t4w:273528,lw:306920,cw:331703,pctT4W:21,pctPW:8}, dineIn:{t4w:111537,lw:132159,cw:131962,pctT4W:18,pctPW:0}, webPickup:{t4w:61872,lw:73165,cw:78713,pctT4W:27,pctPW:8}, instore:{t4w:34685,lw:32168,cw:34322,pctT4W:-1,pctPW:7}, delivery:{t4w:16678,lw:22368,cw:23436,pctT4W:41,pctPW:5}, catering:{t4w:4041,lw:0,cw:18808,pctT4W:365,pctPW:null}, tpd:{t4w:38454,lw:40228,cw:36796,pctT4W:-4,pctPW:-9}, marketplace:{t4w:6261,lw:6833,cw:7666,pctT4W:22,pctPW:12} },
+      revMix:{ dineIn:{t4w:40.78,lw:43.1,cw:39.8}, webPickup:{t4w:22.62,lw:23.8,cw:23.7}, instore:{t4w:12.68,lw:10.5,cw:10.3}, delivery:{t4w:6.10,lw:7.3,cw:7.1}, catering:{t4w:1.5,lw:0.0,cw:5.7}, tpd:{t4w:14.06,lw:13.1,cw:11.1}, marketplace:{t4w:2.29,lw:2.2,cw:2.3} },
+      meta:{ netRev:{t4w:8832,lw:11438,cw:11010,pctT4W:25,pctPW:-4}, spend:{t4w:1080,lw:1364,cw:1376,pctT4W:27,pctPW:1}, customers:{t4w:244,lw:209,cw:360,pctT4W:48,pctPW:72}, cac:{t4w:4.41,lw:6.53,cw:3.82,pctT4W:-13,pctPW:-41}, roas:{t4w:10.05,lw:9.39,cw:9.00,pctT4W:-10,pctPW:-4} },
+      google:{ netRev:{t4w:19662,lw:22788,cw:23523,pctT4W:20,pctPW:3}, spend:{t4w:686,lw:725,cw:790,pctT4W:15,pctPW:9}, customers:{t4w:548,lw:662,cw:625,pctT4W:14,pctPW:-6}, cac:{t4w:1.00,lw:1.09,cw:1.26,pctT4W:-3,pctPW:16}, roas:{t4w:29.48,lw:32.44,cw:30.76,pctT4W:4,pctPW:-5} },
+      sponsored:{ netRev:{t4w:10028,lw:10592,cw:8674,pctT4W:-14,pctPW:-18}, spend:{t4w:1028,lw:1056,cw:931,pctT4W:-9,pctPW:-12}, roas:{t4w:10.44,lw:10.03,cw:9.32,pctT4W:-11,pctPW:-7} },
+      promo:{ netRev:{t4w:14903,lw:15281,cw:12734,pctT4W:-15,pctPW:-17}, spend:{t4w:1087,lw:1197,cw:1061,pctT4W:-2,pctPW:-11}, roas:{t4w:13.82,lw:12.76,cw:12.00,pctT4W:-13,pctPW:-6} },
+      blendedROAS:{t4w:13.8,lw:13.8,cw:13.5,pctT4W:-2,pctPW:-2},
+      contribution:{ sponsored:{t4w:4,lw:3,cw:3}, promo:{t4w:5,lw:5,cw:4}, meta:{t4w:3,lw:4,cw:3}, google:{t4w:7,lw:7,cw:7}, total:{t4w:20,lw:20,cw:17} }
+    }
+  }
+];
+
+function buildWeekPicker() {
+  // Hidden legacy select still populated so switchWeek(idx) keeps working
+  const sel = document.getElementById('weekPicker');
+  if (sel) {
+    sel.innerHTML = '';
+    WEEK_HISTORY.forEach((w, i) => {
+      const opt = document.createElement('option');
+      opt.value = i;
+      opt.textContent = w.label;
+      if (i === 0) opt.selected = true;
+      sel.appendChild(opt);
+    });
+  }
+  // Update the new calendar-trigger label
+  const lbl = document.getElementById('weekPickLabel');
+  if (lbl && WEEK_HISTORY[0]) lbl.textContent = WEEK_HISTORY[0].label;
+}
+
+function switchWeek(idx) {
+  const entry = WEEK_HISTORY[+idx];
+  if (!entry) return;
+  Object.assign(DATA, JSON.parse(JSON.stringify(entry.data)));
+  const lbl = document.getElementById('weekPickLabel');
+  if (lbl) lbl.textContent = entry.label;
+  renderDashboard();
+}
+
+// ── HISTORICAL WEEK CALENDAR ─────────────────────────────────────────────────
+// Build a set of week-start dates we have data for. HIST_TOTAL stores them as
+// the week-start day. Pre-Jan 2026 the fiscal week started Monday; from Jan 7
+// 2026 onwards it starts Wednesday.
+let _calCursor = null;       // {year, monthIdx0}
+let _calSelected = null;     // 'M/D/YYYY' string
+let _calAvailable = null;    // Map<'M/D/YYYY', {revenue, label, dow}>
+function _buildCalAvailable() {
+  if (_calAvailable) return _calAvailable;
+  _calAvailable = new Map();
+  // From HIST_TOTAL (revenue-only weeks)
+  (typeof HIST_TOTAL !== 'undefined' ? HIST_TOTAL : []).forEach(p => {
+    const [m, d, y] = p.d.split('/').map(Number);
+    const dt = new Date(y, m - 1, d);
+    _calAvailable.set(p.d, { revenue: p.v, label: p.d, dow: dt.getDay(), dt, full: false });
+  });
+  // Mark which weeks have FULL data (from WEEK_HISTORY)
+  WEEK_HISTORY.forEach((w, i) => {
+    const dt = new Date(w.label + ' 00:00:00');
+    if (isNaN(dt)) return;
+    const key = `${dt.getMonth()+1}/${dt.getDate()}/${dt.getFullYear()}`;
+    const entry = _calAvailable.get(key) || { revenue: null, label: w.label, dow: dt.getDay(), dt };
+    entry.full = true;
+    entry.weekHistoryIdx = i;
+    _calAvailable.set(key, entry);
+  });
+  return _calAvailable;
+}
+
+function _pad(n) { return n < 10 ? '0' + n : '' + n; }
+function _calKey(y, m0, d) { return `${m0+1}/${d}/${y}`; }
+function _calMonthName(m0) { return ['January','February','March','April','May','June','July','August','September','October','November','December'][m0]; }
+
+function toggleWeekCalendar(e) {
+  if (e) e.stopPropagation();
+  const pop = document.getElementById('calPop');
+  if (pop.classList.contains('open')) { closeWeekCalendar(); return; }
+  openWeekCalendar();
+}
+
+function openWeekCalendar() {
+  _buildCalAvailable();
+  // Default cursor to the most recent available month
+  if (!_calCursor) {
+    const dates = Array.from(_calAvailable.values()).map(v => v.dt).sort((a,b) => b - a);
+    const latest = dates[0] || new Date();
+    _calCursor = { y: latest.getFullYear(), m0: latest.getMonth() };
+    // Default selection = most recent available week
+    _calSelected = `${latest.getMonth()+1}/${latest.getDate()}/${latest.getFullYear()}`;
+  }
+  // Position popover under the badge
+  const badge = document.getElementById('weekBadge');
+  const pop = document.getElementById('calPop');
+  const overlay = document.getElementById('calOverlay');
+  const rect = badge.getBoundingClientRect();
+  pop.style.top  = (rect.bottom + 8) + 'px';
+  pop.style.left = Math.max(8, rect.left) + 'px';
+  // Prevent overflow on small screens
+  const winW = window.innerWidth;
+  const popW = 280;
+  if (rect.left + popW > winW - 8) {
+    pop.style.left = (winW - popW - 8) + 'px';
+  }
+  renderCalendar();
+  overlay.classList.add('open');
+  pop.classList.add('open');
+}
+
+function closeWeekCalendar() {
+  document.getElementById('calPop').classList.remove('open');
+  document.getElementById('calOverlay').classList.remove('open');
+}
+
+function calNav(delta) {
+  _calCursor.m0 += delta;
+  if (_calCursor.m0 < 0)   { _calCursor.m0 = 11; _calCursor.y--; }
+  if (_calCursor.m0 > 11)  { _calCursor.m0 = 0;  _calCursor.y++; }
+  renderCalendar();
+}
+
+function renderCalendar() {
+  const { y, m0 } = _calCursor;
+  document.getElementById('calTitle').textContent = `${_calMonthName(m0)} ${y}`;
+
+  // Find min/max available dates for nav disable logic
+  const all = Array.from(_calAvailable.values()).map(v => v.dt);
+  const minDt = all.length ? new Date(Math.min(...all.map(d => +d))) : null;
+  const maxDt = all.length ? new Date(Math.max(...all.map(d => +d))) : null;
+  document.getElementById('calPrev').disabled = minDt && (y < minDt.getFullYear() || (y === minDt.getFullYear() && m0 <= minDt.getMonth()));
+  document.getElementById('calNext').disabled = maxDt && (y > maxDt.getFullYear() || (y === maxDt.getFullYear() && m0 >= maxDt.getMonth()));
+
+  const firstDow = new Date(y, m0, 1).getDay();
+  const daysInMonth = new Date(y, m0 + 1, 0).getDate();
+  const prevMonthDays = new Date(y, m0, 0).getDate();
+
+  let html = '';
+  // Leading days from previous month (muted)
+  for (let i = firstDow - 1; i >= 0; i--) {
+    html += `<button class="cal-day muted" disabled>${prevMonthDays - i}</button>`;
+  }
+  // This month
+  for (let d = 1; d <= daysInMonth; d++) {
+    const key = _calKey(y, m0, d);
+    const entry = _calAvailable.get(key);
+    const isSelected = key === _calSelected;
+    const cls = ['cal-day'];
+    if (entry) cls.push('available');
+    if (isSelected) cls.push('selected');
+    const title = entry
+      ? (entry.full
+          ? `Week of ${entry.label} — full data`
+          : `Week of ${entry.label} — total revenue only`)
+      : '';
+    html += `<button class="${cls.join(' ')}" ${entry ? `onclick="pickCalDay('${key}')"` : 'disabled'} ${title ? `title="${title}"` : ''}>${d}</button>`;
+  }
+  document.getElementById('calGrid').innerHTML = html;
+
+  // Footer hint
+  const sel = _calAvailable.get(_calSelected);
+  const foot = document.getElementById('calFoot');
+  if (sel) {
+    const dowName = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][sel.dow];
+    const kind = sel.full ? 'Full KPI data' : 'Total revenue only';
+    foot.innerHTML = `Selected: <strong>${sel.label}</strong> · ${dowName} start · ${kind}`;
+  } else {
+    foot.textContent = 'Highlighted days mark the start of a fiscal week we have data for.';
+  }
+}
+
+function pickCalDay(key) {
+  _calSelected = key;
+  const entry = _calAvailable.get(key);
+  if (!entry) return;
+  // Update label on the badge
+  const lbl = document.getElementById('weekPickLabel');
+  if (lbl) lbl.textContent = entry.label;
+  // If we have full WEEK_HISTORY data for this week → switch via existing path
+  if (entry.weekHistoryIdx != null) {
+    switchWeek(entry.weekHistoryIdx);
+  } else {
+    // Partial data — total revenue only. Show a banner-style overlay rather than
+    // silently fail. We render what we know and gray out the rest.
+    _applyPartialWeekData(entry);
+  }
+  renderCalendar();
+  setTimeout(closeWeekCalendar, 180);
+}
+
+// When user selects a historical week we only have revenue total for,
+// render the dashboard in a "limited data" mode. We update only what we
+// have and clearly flag the rest.
+function _applyPartialWeekData(entry) {
+  // Show a status bar message — non-blocking
+  if (typeof showStatus === 'function') {
+    showStatus(`Showing week of ${entry.label} — only total revenue available for this week`);
+  }
+  // Update top-level revenue total + the week labels; leave other panels alone
+  // but visually dim the dashboard so user knows the rest isn't from this week.
+  DATA.currentWeek = entry.label;
+  if (DATA.revenue && DATA.revenue.total) {
+    DATA.revenue.total = { ...DATA.revenue.total, cw: entry.revenue };
+  }
+  renderDashboard();
+  // Add a one-time visual note below the week badge
+  let note = document.getElementById('weekDataNote');
+  if (!note) {
+    note = document.createElement('div');
+    note.id = 'weekDataNote';
+    note.style.cssText = 'font-size:11px;color:var(--brand-orange);margin-top:6px;display:flex;align-items:center;gap:6px';
+    note.innerHTML = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><span></span>';
+    const badge = document.getElementById('weekBadge');
+    badge.parentNode.insertBefore(note, badge.nextSibling);
+  }
+  note.querySelector('span').textContent = `Limited data for this week — only total revenue is available. Channel breakdowns and paid digital reflect a more recent week.`;
+}
+
+// Clear the partial-data note when user picks a week with full data
+const _origSwitchWeek = switchWeek;
+switchWeek = function(idx) {
+  const note = document.getElementById('weekDataNote');
+  if (note) note.remove();
+  _origSwitchWeek(idx);
+};
+
+// Close on Escape
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && document.getElementById('calPop').classList.contains('open')) {
+    closeWeekCalendar();
+  }
+});
+
+buildWeekPicker();
+// Hydrate DATA from the freshest entry in WEEK_HISTORY so first paint
+// matches the picker's default selection (was painting the stale inline
+// seed until the user manually picked a week).
+if (WEEK_HISTORY.length) switchWeek(0); else renderDashboard();
+
+// ── HUB NAV ───────────────────────────────────────────────────────────────────
+const IS_GUEST = sessionStorage.getItem('nbly_guest') === '1';
+
+if (IS_GUEST) {
+  const logo = document.querySelector('.nav-logo');
+  if (logo) {
+    logo.removeAttribute('onclick');
+    logo.style.cursor = 'default';
+  }
+}
+
+function toggleHubNav(e) {
+  e.stopPropagation();
+  if (IS_GUEST) return;
+  const nav = document.getElementById('hubNav');
+  const overlay = document.getElementById('hubOverlay');
+  const isOpen = nav.classList.contains('open');
+  if (isOpen) {
+    nav.classList.remove('open');
+    overlay.classList.remove('open');
+  } else {
+    nav.classList.add('open');
+    overlay.classList.add('open');
+  }
+}
+
+function closeHubNav() {
+  document.getElementById('hubNav').classList.remove('open');
+  document.getElementById('hubOverlay').classList.remove('open');
+}
+
+
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeHubNav(); });
+</script>
+
+<!-- DAILY PAGE -->
+<div class="page" id="page-daily">
+  <div class="dashboard">
+    <div class="np-page-header-row reveal">
+      <div class="np-page-selectors">
+        <button class="np-date-pill" id="dailyDateBadge" type="button" onclick="toggleDailyCalendar(event)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 11h18"/></svg>
+          <span id="dailyDateLabel">—</span>
+          <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="view-toggle">
+          <button class="vt-btn" onclick="setDailyLoc('wlv',this)">Westlake Village</button>
+          <button class="vt-btn" onclick="setDailyLoc('bw',this)">Brentwood</button>
+          <button class="vt-btn active" onclick="setDailyLoc('total',this)">All Locations</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- KPI CARDS -->
+    <div class="kpi-grid reveal reveal-stagger" id="dailyKpiGrid">
+      <div class="kpi-card"><div class="daily-empty-kpi">No data loaded</div></div>
+      <div class="kpi-card"><div class="daily-empty-kpi"></div></div>
+      <div class="kpi-card"><div class="daily-empty-kpi"></div></div>
+      <div class="kpi-card"><div class="daily-empty-kpi"></div></div>
+    </div>
+
+    <!-- PERIOD-TO-DATE ROLL-UPS -->
+    <div class="section-title reveal">Fiscal calendar to date</div>
+    <div class="ptd-grid reveal reveal-stagger" id="dailyPtdGrid">
+      <div class="chart-card"><div class="daily-empty-kpi">No data loaded</div></div>
+    </div>
+
+    <!-- CHANNEL BREAKDOWN -->
+    <div class="section-title reveal">Channel breakdown</div>
+    <div class="chart-grid-2 reveal" style="margin-bottom:1.5rem">
+      <div class="chart-card">
+        <div class="chart-card-title">Sales by channel</div>
+        <div class="chart-card-sub" id="dailyChannelSub">Today's net sales by ordering channel</div>
+        <div class="chart-wrap" style="height:280px"><canvas id="dailyChannelChart"></canvas></div>
+        <div class="chart-source">Source: Toast POS · Uber Eats · DoorDash</div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-card-title">Channel mix %</div>
+        <div class="chart-card-sub">Share of today's net sales · hover for detail</div>
+        <div class="channel-pie-wrap">
+          <div class="chart-wrap channel-pie-canvas" style="height:200px"><canvas id="dailyChannelMixChart"></canvas></div>
+          <div id="dailyChannelMixLegend" class="channel-pie-legend"></div>
+        </div>
+        <div class="chart-source">Source: Toast POS · Uber Eats · DoorDash</div>
+      </div>
+    </div>
+
+    <!-- PMIX — concepts (high-level cards + chart) -->
+    <div class="section-title reveal">Breakdown by concept</div>
+    <div class="concept-grid reveal reveal-stagger" id="dailyConceptCards" style="margin-bottom:1.5rem">
+      <div class="concept-card"><div class="daily-empty-kpi">No data loaded</div></div>
+    </div>
+
+    <div class="chart-grid-2 reveal" style="margin-bottom:1.5rem">
+      <div class="chart-card">
+        <div class="chart-card-title">Sales by concept</div>
+        <div class="chart-card-sub" id="dailyPmixSub">Today's revenue by concept</div>
+        <div class="chart-wrap" style="height:280px"><canvas id="dailyPmixChart"></canvas></div>
+        <div class="chart-source">Source: Toast POS</div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-card-title">Other revenue · marketplace, catering & beverages</div>
+        <div class="chart-card-sub">Non-concept revenue streams</div>
+        <div id="dailyPmixMix" style="margin-top:0.5rem"></div>
+        <div class="chart-source">Source: Toast POS</div>
+      </div>
+    </div>
+
+    <!-- METRICS TABLE -->
+    <div class="section-title reveal">All metrics — today vs 6-week avg</div>
+    <div class="chart-card reveal" style="padding:0;overflow:hidden;margin-bottom:1.5rem">
+      <div class="table-scroll"><table class="metrics-table" id="dailyMetricsTable">
+        <tbody><tr><td colspan="5" style="padding:1.5rem;text-align:center;color:var(--text-3)">No data loaded</td></tr></tbody>
+      </table></div>
+    </div>
+
+    <!-- DISCOUNTS & COMPS — per location -->
+    <div class="section-title reveal">Discounts &amp; comps — by location</div>
+    <div class="chart-card reveal" style="padding:0;overflow:hidden;margin-bottom:1.5rem">
+      <div class="table-scroll"><table class="metrics-table" id="dailyDiscountsTable">
+        <tbody><tr><td colspan="7" style="padding:1.5rem;text-align:center;color:var(--text-3)">No data loaded</td></tr></tbody>
+      </table></div>
+    </div>
+
+    <!-- LABOR — per location -->
+    <div class="section-title reveal">Labor — by location</div>
+    <div class="chart-card reveal" style="padding:0;overflow:hidden;margin-bottom:1.5rem">
+      <div class="table-scroll"><table class="metrics-table" id="dailyLaborTable">
+        <tbody><tr><td colspan="10" style="padding:1.5rem;text-align:center;color:var(--text-3)">No data loaded</td></tr></tbody>
+      </table></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ALL TIME PERFORMANCE PAGE — paid digital only -->
+<div class="page" id="page-alltime">
+  <div class="dashboard">
+    <div class="dash-header np-page-header">
+      <div></div>
+      <div class="view-toggle">
+        <button class="vt-btn active" onclick="setATView('digital',this)">Net revenue</button>
+        <button class="vt-btn" onclick="setATView('share',this)">Channel mix</button>
+      </div>
+    </div>
+
+    <div class="section-title">Paid digital — all time</div>
+    <div class="kpi-grid" id="atKpiGrid" style="margin-bottom:1.5rem"></div>
+
+    <div class="chart-card" style="margin-bottom:1.5rem">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:var(--s-4);flex-wrap:wrap;gap:var(--s-2)">
+        <div>
+          <div class="chart-card-title" id="atChartTitle">Paid digital net revenue over time</div>
+          <div class="chart-card-sub" id="atChartSub">Meta vs Google weekly net revenue · Jan 2025 – May 2026</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:var(--s-3);font-size:var(--t-caption-sm);color:var(--text-3)">
+          <span style="display:inline-flex;align-items:center;gap:5px"><span style="width:14px;height:10px;background:#fdf7d8;border:1.5px solid #eace49;border-radius:2px;display:inline-block"></span>Meta</span>
+          <span style="display:inline-flex;align-items:center;gap:5px"><span style="width:14px;height:10px;background:#e4f5ea;border:1.5px solid #7bbd91;border-radius:2px;display:inline-block"></span>Google</span>
+        </div>
+      </div>
+      <div style="position:relative;height:320px"><canvas id="atMainChart"></canvas></div>
+      <div class="chart-source">Source: Meta Ads Manager + Google Ads · automated daily</div>
+    </div>
+
+    <div class="chart-grid-2" style="margin-bottom:1.5rem">
+      <div class="chart-card">
+        <div class="chart-card-title">Paid digital rolling average</div>
+        <div class="chart-card-sub">6-week smoothed Meta + Google net revenue</div>
+        <div style="position:relative;height:180px"><canvas id="atRollingChart"></canvas></div>
+        <div class="chart-source">Source: Meta Ads Manager + Google Ads</div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-card-title">Meta vs Google share</div>
+        <div class="chart-card-sub">% of paid digital net revenue by platform</div>
+        <div style="position:relative;height:180px"><canvas id="atMixChart"></canvas></div>
+        <div class="chart-source">Source: Meta Ads Manager + Google Ads</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- SALES TRENDS PAGE — Brentwood opening impact + sales over time -->
+<div class="page" id="page-trends">
+  <div class="dashboard">
+    <div class="dash-header np-page-header">
+      <div></div>
+      <div class="view-toggle">
+        <button class="vt-btn active" onclick="setTRView('total',this)">Total revenue</button>
+        <button class="vt-btn" onclick="setTRView('channels',this)">By channel</button>
+      </div>
+    </div>
+
+    <div class="section-title">Brentwood opening impact</div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:1.5rem">
+      <div class="chart-card" style="text-align:center">
+        <div class="kpi-label">Pre-Brentwood avg / week</div>
+        <div class="kpi-value" id="trPreAvg">—</div>
+        <div class="kpi-foot">Jan 2025 – Apr 1, 2026</div>
+      </div>
+      <div class="chart-card" style="text-align:center;border-left:3px solid var(--brand-orange);border-radius:0 var(--r-lg) var(--r-lg) 0">
+        <div class="kpi-label">Post-Brentwood avg / week</div>
+        <div class="kpi-value" id="trPostAvg">—</div>
+        <div class="kpi-foot">Apr 8, 2026 – present</div>
+      </div>
+      <div class="chart-card" style="text-align:center">
+        <div class="kpi-label">Revenue lift from opening</div>
+        <div class="kpi-value" id="trLift" style="color:var(--brand-green-deep)">—</div>
+        <div class="kpi-foot">avg uplift vs pre-opening</div>
+      </div>
+    </div>
+
+    <div class="section-title">All-time sales</div>
+    <div class="kpi-grid" id="trKpiGrid" style="margin-bottom:1.5rem"></div>
+
+    <div class="chart-card" style="margin-bottom:1.5rem">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:var(--s-4);flex-wrap:wrap;gap:var(--s-2)">
+        <div>
+          <div class="chart-card-title" id="trChartTitle">Weekly total revenue</div>
+          <div class="chart-card-sub" id="trChartSub">Jan 2025 – May 2026 · all Neighborly locations</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:var(--s-3);font-size:var(--t-caption-sm);color:var(--text-3)">
+          <span style="display:inline-flex;align-items:center;gap:5px"><span style="width:14px;height:10px;background:#fdf7d8;border:1.5px solid #eace49;border-radius:2px;display:inline-block"></span>Pre-Brentwood</span>
+          <span style="display:inline-flex;align-items:center;gap:5px"><span style="width:14px;height:10px;background:#1f2328;border-radius:2px;display:inline-block"></span>Post-opening</span>
+          <span style="display:inline-flex;align-items:center;gap:5px;background:#fdf7d8;color:#7a6b00;padding:3px 8px;border-radius:20px;font-weight:500">&#9733; Brentwood opening Apr 8, 2026</span>
+        </div>
+      </div>
+      <div style="position:relative;height:320px"><canvas id="trMainChart"></canvas></div>
+      <div class="chart-source">Source: Toast POS · automated daily</div>
+    </div>
+
+    <div class="chart-grid-2" style="margin-bottom:1.5rem">
+      <div class="chart-card">
+        <div class="chart-card-title">6-week rolling average</div>
+        <div class="chart-card-sub">Smoothed revenue trend over time</div>
+        <div style="position:relative;height:180px"><canvas id="trRollingChart"></canvas></div>
+        <div class="chart-source">Source: Toast POS</div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-card-title">Channel mix over time</div>
+        <div class="chart-card-sub">% share by revenue center (sampled)</div>
+        <div style="position:relative;height:180px"><canvas id="trMixChart"></canvas></div>
+        <div class="chart-source">Source: Toast POS</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+<script>
+const HIST_TOTAL = [{"d": "1/27/2025", "v": 77615}, {"d": "2/3/2025", "v": 79358}, {"d": "2/10/2025", "v": 81589}, {"d": "2/17/2025", "v": 95513}, {"d": "2/24/2025", "v": 99312}, {"d": "3/3/2025", "v": 93108}, {"d": "3/10/2025", "v": 101464}, {"d": "3/17/2025", "v": 109236}, {"d": "3/24/2025", "v": 104488}, {"d": "3/31/2025", "v": 105809}, {"d": "4/7/2025", "v": 104764}, {"d": "4/14/2025", "v": 99471}, {"d": "4/21/2025", "v": 102055}, {"d": "4/28/2025", "v": 105420}, {"d": "5/5/2025", "v": 112433}, {"d": "5/12/2025", "v": 104405}, {"d": "5/19/2025", "v": 123204}, {"d": "5/26/2025", "v": 133457}, {"d": "6/2/2025", "v": 136453}, {"d": "6/9/2025", "v": 128980}, {"d": "6/16/2025", "v": 131787}, {"d": "6/23/2025", "v": 130713}, {"d": "6/30/2025", "v": 114538}, {"d": "7/7/2025", "v": 127434}, {"d": "7/14/2025", "v": 134142}, {"d": "7/21/2025", "v": 134565}, {"d": "7/28/2025", "v": 146965}, {"d": "8/4/2025", "v": 143881}, {"d": "8/11/2025", "v": 149362}, {"d": "8/18/2025", "v": 142628}, {"d": "8/25/2025", "v": 136500}, {"d": "9/1/2025", "v": 132792}, {"d": "9/8/2025", "v": 140417}, {"d": "9/15/2025", "v": 131452}, {"d": "9/22/2025", "v": 136658}, {"d": "9/29/2025", "v": 144188}, {"d": "10/6/2025", "v": 143371}, {"d": "10/13/2025", "v": 139956}, {"d": "10/20/2025", "v": 143131}, {"d": "10/27/2025", "v": 154351}, {"d": "11/3/2025", "v": 149546}, {"d": "11/10/2025", "v": 124790}, {"d": "11/17/2025", "v": 122585}, {"d": "11/24/2025", "v": 121857}, {"d": "12/1/2025", "v": 146396}, {"d": "12/8/2025", "v": 157299}, {"d": "12/15/2025", "v": 161588}, {"d": "12/22/2025", "v": 122964}, {"d": "12/29/2025", "v": 176549}, {"d": "1/7/2026", "v": 156490}, {"d": "1/14/2026", "v": 162862}, {"d": "1/21/2026", "v": 159125}, {"d": "1/28/2026", "v": 174557}, {"d": "2/4/2026", "v": 161947}, {"d": "2/11/2026", "v": 152457}, {"d": "2/18/2026", "v": 165233}, {"d": "2/25/2026", "v": 174710}, {"d": "3/4/2026", "v": 167526}, {"d": "3/11/2026", "v": 173844}, {"d": "3/18/2026", "v": 173306}, {"d": "3/25/2026", "v": 143262}, {"d": "4/1/2026", "v": 164500}, {"d": "4/8/2026", "v": 212190}, {"d": "4/15/2026", "v": 339781}, {"d": "4/22/2026", "v": 348116}, {"d": "4/29/2026", "v": 351739}, {"d": "5/6/2026", "v": 374910}];
+const HIST_CHANNELS = {"dineIn": [{"d": "1/27/2025", "v": 27386}, {"d": "2/3/2025", "v": 23404}, {"d": "2/10/2025", "v": 23218}, {"d": "2/17/2025", "v": 31415}, {"d": "2/24/2025", "v": 30360}, {"d": "3/3/2025", "v": 26946}, {"d": "3/10/2025", "v": 25174}, {"d": "3/17/2025", "v": 36337}, {"d": "3/24/2025", "v": 27958}, {"d": "3/31/2025", "v": 32943}, {"d": "4/7/2025", "v": 35418}, {"d": "4/14/2025", "v": 29441}, {"d": "4/21/2025", "v": 27786}, {"d": "4/28/2025", "v": 29261}, {"d": "5/5/2025", "v": 31171}, {"d": "5/12/2025", "v": 33218}, {"d": "5/19/2025", "v": 40150}, {"d": "5/26/2025", "v": 40757}, {"d": "6/2/2025", "v": 38641}, {"d": "6/9/2025", "v": 39174}, {"d": "6/16/2025", "v": 42540}, {"d": "6/23/2025", "v": 40594}, {"d": "6/30/2025", "v": 37735}, {"d": "7/7/2025", "v": 41519}, {"d": "7/14/2025", "v": 40857}, {"d": "7/21/2025", "v": 42530}, {"d": "7/28/2025", "v": 45292}, {"d": "8/4/2025", "v": 47411}, {"d": "8/11/2025", "v": 48100}, {"d": "8/18/2025", "v": 44347}, {"d": "8/25/2025", "v": 42997}, {"d": "9/1/2025", "v": 42348}, {"d": "9/8/2025", "v": 48965}, {"d": "9/15/2025", "v": 44537}, {"d": "9/22/2025", "v": 45490}, {"d": "9/29/2025", "v": 46189}, {"d": "10/6/2025", "v": 50608}, {"d": "10/13/2025", "v": 48692}, {"d": "10/20/2025", "v": 53071}, {"d": "10/27/2025", "v": 59729}, {"d": "11/3/2025", "v": 48722}, {"d": "11/10/2025", "v": 34946}, {"d": "11/17/2025", "v": 38216}, {"d": "11/24/2025", "v": 35717}, {"d": "12/1/2025", "v": 45988}, {"d": "12/8/2025", "v": 53685}, {"d": "12/15/2025", "v": 54143}, {"d": "12/22/2025", "v": 38268}, {"d": "12/29/2025", "v": 57153}, {"d": "1/7/2026", "v": 45743}, {"d": "1/14/2026", "v": 47320}, {"d": "1/21/2026", "v": 46736}, {"d": "1/28/2026", "v": 54369}, {"d": "2/4/2026", "v": 50252}, {"d": "2/11/2026", "v": 46099}, {"d": "2/18/2026", "v": 49510}, {"d": "2/25/2026", "v": 53274}, {"d": "3/4/2026", "v": 48268}, {"d": "3/11/2026", "v": 49012}, {"d": "3/18/2026", "v": 46572}, {"d": "3/25/2026", "v": 37370}, {"d": "4/1/2026", "v": 42205}, {"d": "4/8/2026", "v": 58990}, {"d": "4/15/2026", "v": 129927}, {"d": "4/22/2026", "v": 132100}, {"d": "4/29/2026", "v": 132159}, {"d": "5/6/2026", "v": 131962}], "webPickup": [{"d": "1/27/2025", "v": 16491}, {"d": "2/3/2025", "v": 17274}, {"d": "2/10/2025", "v": 17856}, {"d": "2/17/2025", "v": 18863}, {"d": "2/24/2025", "v": 20617}, {"d": "3/3/2025", "v": 17894}, {"d": "3/10/2025", "v": 19079}, {"d": "3/17/2025", "v": 22705}, {"d": "3/24/2025", "v": 20446}, {"d": "3/31/2025", "v": 21566}, {"d": "4/7/2025", "v": 21953}, {"d": "4/14/2025", "v": 20846}, {"d": "4/21/2025", "v": 24116}, {"d": "4/28/2025", "v": 22441}, {"d": "5/5/2025", "v": 27181}, {"d": "5/12/2025", "v": 22087}, {"d": "5/19/2025", "v": 27312}, {"d": "5/26/2025", "v": 28071}, {"d": "6/2/2025", "v": 26424}, {"d": "6/9/2025", "v": 26793}, {"d": "6/16/2025", "v": 26598}, {"d": "6/23/2025", "v": 24213}, {"d": "6/30/2025", "v": 21393}, {"d": "7/7/2025", "v": 24306}, {"d": "7/14/2025", "v": 23709}, {"d": "7/21/2025", "v": 28347}, {"d": "7/28/2025", "v": 32073}, {"d": "8/4/2025", "v": 30623}, {"d": "8/11/2025", "v": 28807}, {"d": "8/18/2025", "v": 28745}, {"d": "8/25/2025", "v": 29358}, {"d": "9/1/2025", "v": 27765}, {"d": "9/8/2025", "v": 28964}, {"d": "9/15/2025", "v": 29840}, {"d": "9/22/2025", "v": 28492}, {"d": "9/29/2025", "v": 29798}, {"d": "10/6/2025", "v": 28854}, {"d": "10/13/2025", "v": 27773}, {"d": "10/20/2025", "v": 27501}, {"d": "10/27/2025", "v": 29143}, {"d": "11/3/2025", "v": 28916}, {"d": "11/10/2025", "v": 22037}, {"d": "11/17/2025", "v": 21268}, {"d": "11/24/2025", "v": 21874}, {"d": "12/1/2025", "v": 27651}, {"d": "12/8/2025", "v": 26693}, {"d": "12/15/2025", "v": 28759}, {"d": "12/22/2025", "v": 24962}, {"d": "12/29/2025", "v": 32117}, {"d": "1/7/2026", "v": 33202}, {"d": "1/14/2026", "v": 35445}, {"d": "1/21/2026", "v": 35040}, {"d": "1/28/2026", "v": 36351}, {"d": "2/4/2026", "v": 34721}, {"d": "2/11/2026", "v": 34889}, {"d": "2/18/2026", "v": 36673}, {"d": "2/25/2026", "v": 38641}, {"d": "3/4/2026", "v": 38478}, {"d": "3/11/2026", "v": 40470}, {"d": "3/18/2026", "v": 40154}, {"d": "3/25/2026", "v": 35260}, {"d": "4/1/2026", "v": 43703}, {"d": "4/8/2026", "v": 57386}, {"d": "4/15/2026", "v": 70955}, {"d": "4/22/2026", "v": 79450}, {"d": "4/29/2026", "v": 73165}, {"d": "5/6/2026", "v": 78713}], "instore": [{"d": "1/27/2025", "v": 11198}, {"d": "2/3/2025", "v": 12512}, {"d": "2/10/2025", "v": 14093}, {"d": "2/17/2025", "v": 16754}, {"d": "2/24/2025", "v": 17818}, {"d": "3/3/2025", "v": 16410}, {"d": "3/10/2025", "v": 20044}, {"d": "3/17/2025", "v": 17193}, {"d": "3/24/2025", "v": 19626}, {"d": "3/31/2025", "v": 19493}, {"d": "4/7/2025", "v": 17473}, {"d": "4/14/2025", "v": 18500}, {"d": "4/21/2025", "v": 17963}, {"d": "4/28/2025", "v": 20769}, {"d": "5/5/2025", "v": 19228}, {"d": "5/12/2025", "v": 18638}, {"d": "5/19/2025", "v": 24798}, {"d": "5/26/2025", "v": 24846}, {"d": "6/2/2025", "v": 24973}, {"d": "6/9/2025", "v": 22908}, {"d": "6/16/2025", "v": 24204}, {"d": "6/23/2025", "v": 22540}, {"d": "6/30/2025", "v": 18173}, {"d": "7/7/2025", "v": 22736}, {"d": "7/14/2025", "v": 26724}, {"d": "7/21/2025", "v": 20473}, {"d": "7/28/2025", "v": 26924}, {"d": "8/4/2025", "v": 26514}, {"d": "8/11/2025", "v": 30830}, {"d": "8/18/2025", "v": 26625}, {"d": "8/25/2025", "v": 26425}, {"d": "9/1/2025", "v": 24494}, {"d": "9/8/2025", "v": 27119}, {"d": "9/15/2025", "v": 21224}, {"d": "9/22/2025", "v": 25769}, {"d": "9/29/2025", "v": 29604}, {"d": "10/6/2025", "v": 30118}, {"d": "10/13/2025", "v": 28486}, {"d": "10/20/2025", "v": 29485}, {"d": "10/27/2025", "v": 31910}, {"d": "11/3/2025", "v": 30743}, {"d": "11/10/2025", "v": 26523}, {"d": "11/17/2025", "v": 24988}, {"d": "11/24/2025", "v": 27882}, {"d": "12/1/2025", "v": 33670}, {"d": "12/8/2025", "v": 37169}, {"d": "12/15/2025", "v": 40371}, {"d": "12/22/2025", "v": 27499}, {"d": "12/29/2025", "v": 38184}, {"d": "1/7/2026", "v": 32370}, {"d": "1/14/2026", "v": 35150}, {"d": "1/21/2026", "v": 33707}, {"d": "1/28/2026", "v": 36495}, {"d": "2/4/2026", "v": 32998}, {"d": "2/11/2026", "v": 32133}, {"d": "2/18/2026", "v": 33925}, {"d": "2/25/2026", "v": 38364}, {"d": "3/4/2026", "v": 37584}, {"d": "3/11/2026", "v": 34349}, {"d": "3/18/2026", "v": 32115}, {"d": "3/25/2026", "v": 30250}, {"d": "4/1/2026", "v": 30239}, {"d": "4/8/2026", "v": 36070}, {"d": "4/15/2026", "v": 37061}, {"d": "4/22/2026", "v": 33508}, {"d": "4/29/2026", "v": 32168}, {"d": "5/6/2026", "v": 34322}], "delivery": [{"d": "1/27/2025", "v": 2307}, {"d": "2/3/2025", "v": 1955}, {"d": "2/10/2025", "v": 1959}, {"d": "2/17/2025", "v": 1893}, {"d": "2/24/2025", "v": 1460}, {"d": "3/3/2025", "v": 2030}, {"d": "3/10/2025", "v": 1722}, {"d": "3/17/2025", "v": 1711}, {"d": "3/24/2025", "v": 1660}, {"d": "3/31/2025", "v": 1170}, {"d": "4/7/2025", "v": 1530}, {"d": "4/14/2025", "v": 1175}, {"d": "4/21/2025", "v": 1514}, {"d": "4/28/2025", "v": 1504}, {"d": "5/5/2025", "v": 1354}, {"d": "5/12/2025", "v": 1236}, {"d": "5/19/2025", "v": 1864}, {"d": "5/26/2025", "v": 1738}, {"d": "6/2/2025", "v": 1766}, {"d": "6/9/2025", "v": 1987}, {"d": "6/16/2025", "v": 1410}, {"d": "6/23/2025", "v": 1477}, {"d": "6/30/2025", "v": 1762}, {"d": "7/7/2025", "v": 1659}, {"d": "7/14/2025", "v": 1354}, {"d": "7/21/2025", "v": 1200}, {"d": "7/28/2025", "v": 1291}, {"d": "8/4/2025", "v": 1519}, {"d": "8/11/2025", "v": 1175}, {"d": "8/18/2025", "v": 1617}, {"d": "8/25/2025", "v": 1483}, {"d": "9/1/2025", "v": 1355}, {"d": "9/8/2025", "v": 1710}, {"d": "9/15/2025", "v": 1834}, {"d": "9/22/2025", "v": 1867}, {"d": "9/29/2025", "v": 1747}, {"d": "10/6/2025", "v": 1673}, {"d": "10/13/2025", "v": 1593}, {"d": "10/20/2025", "v": 1500}, {"d": "10/27/2025", "v": 1576}, {"d": "11/3/2025", "v": 1892}, {"d": "11/10/2025", "v": 1319}, {"d": "11/17/2025", "v": 1261}, {"d": "11/24/2025", "v": 2518}, {"d": "12/1/2025", "v": 2249}, {"d": "12/8/2025", "v": 2207}, {"d": "12/15/2025", "v": 2398}, {"d": "12/22/2025", "v": 4562}, {"d": "12/29/2025", "v": 3535}, {"d": "1/7/2026", "v": 6549}, {"d": "1/14/2026", "v": 5267}, {"d": "1/21/2026", "v": 3987}, {"d": "1/28/2026", "v": 4659}, {"d": "2/4/2026", "v": 5340}, {"d": "2/11/2026", "v": 4932}, {"d": "2/18/2026", "v": 5014}, {"d": "2/25/2026", "v": 4833}, {"d": "3/4/2026", "v": 5395}, {"d": "3/11/2026", "v": 5877}, {"d": "3/18/2026", "v": 6420}, {"d": "3/25/2026", "v": 7226}, {"d": "4/1/2026", "v": 8091}, {"d": "4/8/2026", "v": 11573}, {"d": "4/15/2026", "v": 20549}, {"d": "4/22/2026", "v": 23200}, {"d": "4/29/2026", "v": 22368}, {"d": "5/6/2026", "v": 23436}], "tpd": [{"d": "1/27/2025", "v": 12381}, {"d": "2/3/2025", "v": 11267}, {"d": "2/10/2025", "v": 10456}, {"d": "2/17/2025", "v": 12136}, {"d": "2/24/2025", "v": 15468}, {"d": "3/3/2025", "v": 14730}, {"d": "3/10/2025", "v": 14491}, {"d": "3/17/2025", "v": 16591}, {"d": "3/24/2025", "v": 17266}, {"d": "3/31/2025", "v": 16148}, {"d": "4/7/2025", "v": 15610}, {"d": "4/14/2025", "v": 16346}, {"d": "4/21/2025", "v": 17434}, {"d": "4/28/2025", "v": 15818}, {"d": "5/5/2025", "v": 16857}, {"d": "5/12/2025", "v": 17107}, {"d": "5/19/2025", "v": 17690}, {"d": "5/26/2025", "v": 21177}, {"d": "6/2/2025", "v": 22588}, {"d": "6/9/2025", "v": 21309}, {"d": "6/16/2025", "v": 22437}, {"d": "6/23/2025", "v": 23804}, {"d": "6/30/2025", "v": 21125}, {"d": "7/7/2025", "v": 24311}, {"d": "7/14/2025", "v": 26483}, {"d": "7/21/2025", "v": 28239}, {"d": "7/28/2025", "v": 27705}, {"d": "8/4/2025", "v": 27457}, {"d": "8/11/2025", "v": 27899}, {"d": "8/18/2025", "v": 28321}, {"d": "8/25/2025", "v": 25345}, {"d": "9/1/2025", "v": 25717}, {"d": "9/8/2025", "v": 25190}, {"d": "9/15/2025", "v": 22600}, {"d": "9/22/2025", "v": 23371}, {"d": "9/29/2025", "v": 23420}, {"d": "10/6/2025", "v": 22648}, {"d": "10/13/2025", "v": 23910}, {"d": "10/20/2025", "v": 24228}, {"d": "10/27/2025", "v": 25986}, {"d": "11/3/2025", "v": 25960}, {"d": "11/10/2025", "v": 25396}, {"d": "11/17/2025", "v": 24960}, {"d": "11/24/2025", "v": 26976}, {"d": "12/1/2025", "v": 29443}, {"d": "12/8/2025", "v": 27917}, {"d": "12/15/2025", "v": 28338}, {"d": "12/22/2025", "v": 23110}, {"d": "12/29/2025", "v": 33712}, {"d": "1/7/2026", "v": 30269}, {"d": "1/14/2026", "v": 30568}, {"d": "1/21/2026", "v": 31998}, {"d": "1/28/2026", "v": 30242}, {"d": "2/4/2026", "v": 28814}, {"d": "2/11/2026", "v": 27124}, {"d": "2/18/2026", "v": 31947}, {"d": "2/25/2026", "v": 32263}, {"d": "3/4/2026", "v": 31517}, {"d": "3/11/2026", "v": 33324}, {"d": "3/18/2026", "v": 37617}, {"d": "3/25/2026", "v": 28997}, {"d": "4/1/2026", "v": 37982}, {"d": "4/8/2026", "v": 33735}, {"d": "4/15/2026", "v": 35787}, {"d": "4/22/2026", "v": 42146}, {"d": "4/29/2026", "v": 40228}, {"d": "5/6/2026", "v": 36796}], "marketplace": [{"d": "1/27/2025", "v": 3851}, {"d": "2/3/2025", "v": 5991}, {"d": "2/10/2025", "v": 4007}, {"d": "2/17/2025", "v": 4474}, {"d": "2/24/2025", "v": 3590}, {"d": "3/3/2025", "v": 4561}, {"d": "3/10/2025", "v": 3608}, {"d": "3/17/2025", "v": 4699}, {"d": "3/24/2025", "v": 3847}, {"d": "3/31/2025", "v": 4289}, {"d": "4/7/2025", "v": 3688}, {"d": "4/14/2025", "v": 3163}, {"d": "4/21/2025", "v": 3220}, {"d": "4/28/2025", "v": 3052}, {"d": "5/5/2025", "v": 6641}, {"d": "5/12/2025", "v": 4272}, {"d": "5/19/2025", "v": 4462}, {"d": "5/26/2025", "v": 4325}, {"d": "6/2/2025", "v": 4609}, {"d": "6/9/2025", "v": 4542}, {"d": "6/16/2025", "v": 4148}, {"d": "6/23/2025", "v": 4130}, {"d": "6/30/2025", "v": 4349}, {"d": "7/7/2025", "v": 4646}, {"d": "7/14/2025", "v": 5014}, {"d": "7/21/2025", "v": 3776}, {"d": "7/28/2025", "v": 4285}, {"d": "8/4/2025", "v": 4200}, {"d": "8/11/2025", "v": 4451}, {"d": "8/18/2025", "v": 4823}, {"d": "8/25/2025", "v": 4161}, {"d": "9/1/2025", "v": 3614}, {"d": "9/8/2025", "v": 5054}, {"d": "9/15/2025", "v": 1417}, {"d": "9/22/2025", "v": 5281}, {"d": "9/29/2025", "v": 5809}, {"d": "10/6/2025", "v": 5073}, {"d": "10/13/2025", "v": 5502}, {"d": "10/20/2025", "v": 5783}, {"d": "10/27/2025", "v": 6008}, {"d": "11/3/2025", "v": 6494}, {"d": "11/10/2025", "v": 4569}, {"d": "11/17/2025", "v": 5236}, {"d": "11/24/2025", "v": 6437}, {"d": "12/1/2025", "v": 5159}, {"d": "12/8/2025", "v": 5522}, {"d": "12/15/2025", "v": 3797}, {"d": "12/22/2025", "v": 5050}, {"d": "12/29/2025", "v": 4831}, {"d": "1/7/2026", "v": 4071}, {"d": "1/14/2026", "v": 5367}, {"d": "1/21/2026", "v": 5150}, {"d": "1/28/2026", "v": 5158}, {"d": "2/4/2026", "v": 3823}, {"d": "2/11/2026", "v": 5555}, {"d": "2/18/2026", "v": 4935}, {"d": "2/25/2026", "v": 3061}, {"d": "3/4/2026", "v": 5267}, {"d": "3/11/2026", "v": 4765}, {"d": "3/18/2026", "v": 4804}, {"d": "3/25/2026", "v": 5227}, {"d": "4/1/2026", "v": 7409}, {"d": "4/8/2026", "v": 6474}, {"d": "4/15/2026", "v": 6286}, {"d": "4/22/2026", "v": 7012}, {"d": "4/29/2026", "v": 6833}, {"d": "5/6/2026", "v": 7666}]};
+const HIST_DIGITAL = {"meta": [{"d": "1/27/2025", "v": 2201}, {"d": "2/3/2025", "v": 3010}, {"d": "2/10/2025", "v": 3084}, {"d": "2/17/2025", "v": 2429}, {"d": "2/24/2025", "v": 2199}, {"d": "3/3/2025", "v": 3017}, {"d": "3/10/2025", "v": 3356}, {"d": "3/17/2025", "v": 4042}, {"d": "3/24/2025", "v": 3322}, {"d": "3/31/2025", "v": 4164}, {"d": "4/7/2025", "v": 3312}, {"d": "4/14/2025", "v": 4026}, {"d": "4/21/2025", "v": 5214}, {"d": "4/28/2025", "v": 3661}, {"d": "5/5/2025", "v": 4479}, {"d": "5/12/2025", "v": 3812}, {"d": "5/19/2025", "v": 3646}, {"d": "5/26/2025", "v": 4278}, {"d": "6/2/2025", "v": 5359}, {"d": "6/9/2025", "v": 4415}, {"d": "6/16/2025", "v": 4156}, {"d": "6/23/2025", "v": 3043}, {"d": "6/30/2025", "v": 4633}, {"d": "7/7/2025", "v": 3457}, {"d": "7/14/2025", "v": 5010}, {"d": "7/21/2025", "v": 5108}, {"d": "7/28/2025", "v": 4222}, {"d": "8/4/2025", "v": 5256}, {"d": "8/11/2025", "v": 5426}, {"d": "8/18/2025", "v": 5785}, {"d": "8/25/2025", "v": 5790}, {"d": "9/1/2025", "v": 5738}, {"d": "9/8/2025", "v": 4899}, {"d": "9/15/2025", "v": 6258}, {"d": "9/22/2025", "v": 5060}, {"d": "9/29/2025", "v": 6895}, {"d": "10/6/2025", "v": 5557}, {"d": "10/13/2025", "v": 6931}, {"d": "10/20/2025", "v": 6204}, {"d": "10/27/2025", "v": 6103}, {"d": "11/3/2025", "v": 7405}, {"d": "11/10/2025", "v": 6688}, {"d": "11/17/2025", "v": 6122}, {"d": "11/24/2025", "v": 6601}, {"d": "12/1/2025", "v": 8235}, {"d": "12/8/2025", "v": 8285}, {"d": "12/15/2025", "v": 8010}, {"d": "12/22/2025", "v": 6635}, {"d": "12/29/2025", "v": 7960}, {"d": "1/7/2026", "v": 8076}, {"d": "1/14/2026", "v": 7040}, {"d": "1/21/2026", "v": 7901}, {"d": "1/28/2026", "v": 9102}, {"d": "2/4/2026", "v": 7689}, {"d": "2/11/2026", "v": 8454}, {"d": "2/18/2026", "v": 8251}, {"d": "2/25/2026", "v": 8420}, {"d": "3/4/2026", "v": 8681}, {"d": "3/11/2026", "v": 8837}, {"d": "3/18/2026", "v": 8662}, {"d": "3/25/2026", "v": 7650}, {"d": "4/1/2026", "v": 9156}, {"d": "4/8/2026", "v": 11984}, {"d": "4/15/2026", "v": 12918}, {"d": "4/22/2026", "v": 10585}, {"d": "4/29/2026", "v": 11438}, {"d": "5/6/2026", "v": 11010}], "google": [{"d": "1/27/2025", "v": 3412}, {"d": "2/3/2025", "v": 3650}, {"d": "2/10/2025", "v": 3701}, {"d": "2/17/2025", "v": 4007}, {"d": "2/24/2025", "v": 4096}, {"d": "3/3/2025", "v": 3928}, {"d": "3/10/2025", "v": 4410}, {"d": "3/17/2025", "v": 4753}, {"d": "3/24/2025", "v": 4028}, {"d": "3/31/2025", "v": 5051}, {"d": "4/7/2025", "v": 5046}, {"d": "4/14/2025", "v": 4570}, {"d": "4/21/2025", "v": 4361}, {"d": "4/28/2025", "v": 5588}, {"d": "5/5/2025", "v": 5392}, {"d": "5/12/2025", "v": 6055}, {"d": "5/19/2025", "v": 5428}, {"d": "5/26/2025", "v": 6827}, {"d": "6/2/2025", "v": 6581}, {"d": "6/9/2025", "v": 5884}, {"d": "6/16/2025", "v": 6155}, {"d": "6/23/2025", "v": 6948}, {"d": "6/30/2025", "v": 5791}, {"d": "7/7/2025", "v": 6383}, {"d": "7/14/2025", "v": 7145}, {"d": "7/21/2025", "v": 6750}, {"d": "7/28/2025", "v": 6621}, {"d": "8/4/2025", "v": 6700}, {"d": "8/11/2025", "v": 7984}, {"d": "8/18/2025", "v": 6709}, {"d": "8/25/2025", "v": 7229}, {"d": "9/1/2025", "v": 8162}, {"d": "9/8/2025", "v": 7324}, {"d": "9/15/2025", "v": 7914}, {"d": "9/22/2025", "v": 7345}, {"d": "9/29/2025", "v": 8631}, {"d": "10/6/2025", "v": 8808}, {"d": "10/13/2025", "v": 8211}, {"d": "10/20/2025", "v": 7590}, {"d": "10/27/2025", "v": 8021}, {"d": "11/3/2025", "v": 8910}, {"d": "11/10/2025", "v": 7799}, {"d": "11/17/2025", "v": 8152}, {"d": "11/24/2025", "v": 8337}, {"d": "12/1/2025", "v": 8387}, {"d": "12/8/2025", "v": 9084}, {"d": "12/15/2025", "v": 9970}, {"d": "12/22/2025", "v": 7217}, {"d": "12/29/2025", "v": 10162}, {"d": "1/7/2026", "v": 9979}, {"d": "1/14/2026", "v": 8482}, {"d": "1/21/2026", "v": 9163}, {"d": "1/28/2026", "v": 10294}, {"d": "2/4/2026", "v": 9917}, {"d": "2/11/2026", "v": 9257}, {"d": "2/18/2026", "v": 10430}, {"d": "2/25/2026", "v": 9851}, {"d": "3/4/2026", "v": 9785}, {"d": "3/11/2026", "v": 10323}, {"d": "3/18/2026", "v": 11024}, {"d": "3/25/2026", "v": 9432}, {"d": "4/1/2026", "v": 10206}, {"d": "4/8/2026", "v": 12795}, {"d": "4/15/2026", "v": 18909}, {"d": "4/22/2026", "v": 24156}, {"d": "4/29/2026", "v": 22788}, {"d": "5/6/2026", "v": 23523}]};
+const BRENTWOOD_IDX = 62;
+
+// Shared helpers
+const _MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+function _fmtWeekShort(s){ const [m,d,y]=s.split('/').map(Number); return `${_MONTHS[m-1]} ${d}, ${y}`; }
+function _kpiCard(label,val,sub){
+  return `<div class="kpi-card"><div class="kpi-label">${label}</div><div class="kpi-value">${val}</div><div class="kpi-foot">${sub}</div></div>`;
+}
+
+// ═════════════════════════════════════════════════════════════════════════
+// ALL TIME PERFORMANCE — paid digital only
+// ═════════════════════════════════════════════════════════════════════════
+let atView = 'digital';
+let atCharts = {};
+
+function setATView(v, btn) {
+  atView = v;
+  document.querySelectorAll('#page-alltime .vt-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderAllTime();
+}
+
+function renderATKPIs() {
+  const meta = HIST_DIGITAL.meta || [];
+  const google = HIST_DIGITAL.google || [];
+  const total = meta.map((m,i)=>({d:m.d, v:m.v + (google[i]?.v||0)}));
+  if (!total.length) { document.getElementById('atKpiGrid').innerHTML = ''; return; }
+
+  const ttmCount = Math.min(52, total.length);
+  const ttm = total.slice(-ttmCount).reduce((s,x)=>s+x.v,0);
+  const ttmLabel = ttmCount === 52 ? '52-week paid revenue' : `${ttmCount}-week paid revenue`;
+
+  const topWeek = total.reduce((best, x) => x.v > best.v ? x : best, total[0]);
+  const metaTtm = meta.slice(-ttmCount).reduce((s,x)=>s+x.v,0);
+  const googleTtm = google.slice(-ttmCount).reduce((s,x)=>s+x.v,0);
+  const latest = total[total.length-1];
+
+  document.getElementById('atKpiGrid').innerHTML = [
+    _kpiCard(ttmLabel,           '$'+ttm.toLocaleString(),       'Meta + Google · trailing 12 mo'),
+    _kpiCard('Meta share',       Math.round(metaTtm/ttm*100)+'%','TTM Meta net revenue share'),
+    _kpiCard('Google share',     Math.round(googleTtm/ttm*100)+'%','TTM Google net revenue share'),
+    _kpiCard('Top paid week',    '$'+topWeek.v.toLocaleString(), 'Week of ' + _fmtWeekShort(topWeek.d))
+  ].join('');
+}
+
+function renderATMain() {
+  const allDates = HIST_TOTAL.map(x=>x.d);
+  if (atCharts.main) atCharts.main.destroy();
+
+  document.getElementById('atChartTitle').textContent =
+    atView === 'share' ? 'Meta vs Google share over time' : 'Paid digital net revenue over time';
+  document.getElementById('atChartSub').textContent =
+    atView === 'share' ? '% share of paid digital net revenue by platform · Jan 2025 – May 2026'
+                       : 'Meta vs Google weekly net revenue · Jan 2025 – May 2026';
+
+  if (atView === 'share') {
+    const meta = HIST_DIGITAL.meta || [];
+    const google = HIST_DIGITAL.google || [];
+    const sample = allDates.filter((_,i)=>i%4===0);
+    const metaLk = {}; meta.forEach(p=>{metaLk[p.d]=p.v;});
+    const googleLk = {}; google.forEach(p=>{googleLk[p.d]=p.v;});
+    const metaShare = sample.map(d=>{ const t=(metaLk[d]||0)+(googleLk[d]||0); return t?Math.round((metaLk[d]||0)/t*100):null; });
+    const googleShare = sample.map((_,i)=>metaShare[i]==null?null:100-metaShare[i]);
+    atCharts.main = new Chart(document.getElementById('atMainChart'), {
+      type:'bar',
+      data:{labels:sample, datasets:[
+        {label:'Meta',  data:metaShare,  backgroundColor:'#eace49', stack:'p', borderRadius:2},
+        {label:'Google',data:googleShare,backgroundColor:'#7bbd91', stack:'p', borderRadius:2}
+      ]},
+      options:{responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{position:'bottom',labels:{font:{family:'DM Sans',size:11},boxWidth:10,padding:10}}},
+        scales:{
+          x:{stacked:true,grid:{display:false},ticks:{font:{family:'DM Sans',size:9},color:'#9E9C96',maxTicksLimit:14,maxRotation:45}},
+          y:{stacked:true,max:100,grid:{color:'rgba(0,0,0,0.04)'},ticks:{font:{family:'DM Mono',size:10},color:'#9E9C96',callback:v=>v+'%'}}
+        }
+      }
+    });
+  } else {
+    atCharts.main = new Chart(document.getElementById('atMainChart'), {
+      type:'line',data:{labels:allDates,datasets:[
+        {label:'Meta',  data:(HIST_DIGITAL.meta  ||[]).map(x=>x.v), borderColor:'#eace49', backgroundColor:'rgba(234,206,73,0.10)', tension:0.3, pointRadius:0, borderWidth:2, fill:true},
+        {label:'Google',data:(HIST_DIGITAL.google||[]).map(x=>x.v), borderColor:'#7bbd91', backgroundColor:'rgba(123,189,145,0.10)', tension:0.3, pointRadius:0, borderWidth:2, fill:true}
+      ]},
+      options:{responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{display:false}},
+        scales:{
+          x:{grid:{display:false},ticks:{font:{family:'DM Sans',size:9},color:'#9E9C96',maxTicksLimit:14,maxRotation:45}},
+          y:{grid:{color:'rgba(0,0,0,0.04)'},ticks:{font:{family:'DM Mono',size:10},color:'#9E9C96',callback:v=>'$'+Math.round(v/1000)+'k'}}
+        }
+      }
+    });
+  }
+}
+
+function renderATRolling() {
+  const meta = HIST_DIGITAL.meta || [];
+  const google = HIST_DIGITAL.google || [];
+  const series = meta.map((m,i)=>m.v + (google[i]?.v||0));
+  const rolling = series.map((_,i)=>{ const a=series.slice(Math.max(0,i-5),i+1); return Math.round(a.reduce((s,x)=>s+x,0)/a.length); });
+  if(atCharts.rolling) atCharts.rolling.destroy();
+  atCharts.rolling = new Chart(document.getElementById('atRollingChart'),{
+    type:'line',data:{labels:meta.map(x=>x.d),datasets:[{data:rolling,borderColor:'#b89a00',backgroundColor:'#fdf7d8',fill:true,tension:0.35,pointRadius:0,borderWidth:2}]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false}},
+      scales:{
+        x:{grid:{display:false},ticks:{display:false}},
+        y:{grid:{color:'rgba(0,0,0,0.04)'},ticks:{font:{family:'DM Mono',size:9},color:'#9E9C96',callback:v=>'$'+Math.round(v/1000)+'k'}}
+      }
+    }
+  });
+}
+
+function renderATMix() {
+  const meta = HIST_DIGITAL.meta || [];
+  const google = HIST_DIGITAL.google || [];
+  const sample = meta.map(x=>x.d).filter((_,i)=>i%4===0);
+  const metaLk = {}; meta.forEach(p=>{metaLk[p.d]=p.v;});
+  const googleLk = {}; google.forEach(p=>{googleLk[p.d]=p.v;});
+  const metaShare = sample.map(d=>{ const t=(metaLk[d]||0)+(googleLk[d]||0); return t?Math.round((metaLk[d]||0)/t*100):null; });
+  const googleShare = sample.map((_,i)=>metaShare[i]==null?null:100-metaShare[i]);
+  if(atCharts.mix) atCharts.mix.destroy();
+  atCharts.mix = new Chart(document.getElementById('atMixChart'),{
+    type:'bar',
+    data:{labels:sample,datasets:[
+      {label:'Meta',  data:metaShare,  backgroundColor:'#eace49', stack:'p'},
+      {label:'Google',data:googleShare,backgroundColor:'#7bbd91', stack:'p'}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{position:'bottom',labels:{font:{family:'DM Sans',size:10},boxWidth:8,padding:8}}},
+      scales:{
+        x:{stacked:true,grid:{display:false},ticks:{font:{family:'DM Sans',size:9},color:'#9E9C96',maxTicksLimit:8,maxRotation:30}},
+        y:{stacked:true,max:100,grid:{color:'rgba(0,0,0,0.04)'},ticks:{font:{family:'DM Mono',size:9},color:'#9E9C96',callback:v=>v+'%'}}
+      }
+    }
+  });
+}
+
+function renderAllTime() {
+  renderATKPIs();
+  renderATMain();
+  setTimeout(renderATRolling, 30);
+  setTimeout(renderATMix, 60);
+}
+
+// ═════════════════════════════════════════════════════════════════════════
+// SALES TRENDS — Brentwood opening impact + total revenue + channels
+// ═════════════════════════════════════════════════════════════════════════
+let trView = 'total';
+let trCharts = {};
+
+function setTRView(v, btn) {
+  trView = v;
+  document.querySelectorAll('#page-trends .vt-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderTrends();
+}
+
+function renderTRKPIs() {
+  const total = HIST_TOTAL;
+  const pre = total.slice(0, BRENTWOOD_IDX);
+  const post = total.slice(BRENTWOOD_IDX);
+  const preAvg = Math.round(pre.reduce((s,x)=>s+x.v,0)/pre.length);
+  const postAvg = Math.round(post.reduce((s,x)=>s+x.v,0)/post.length);
+  const lift = Math.round(((postAvg-preAvg)/preAvg)*100);
+
+  const topWeek = total.reduce((best, x) => x.v > best.v ? x : best, total[0]);
+  const ttmCount = Math.min(52, total.length);
+  const ttm = total.slice(-ttmCount).reduce((s,x)=>s+x.v,0);
+  const ttmLabel = ttmCount === 52 ? '52-week trailing revenue' : `${ttmCount}-week trailing revenue`;
+  const growth = Math.round(((total[total.length-1].v - total[0].v)/total[0].v)*100);
+  const latest = total[total.length-1];
+
+  document.getElementById('trPreAvg').textContent = '$'+preAvg.toLocaleString();
+  document.getElementById('trPostAvg').textContent = '$'+postAvg.toLocaleString();
+  document.getElementById('trLift').textContent = '+'+lift+'%';
+  document.getElementById('trKpiGrid').innerHTML = [
+    _kpiCard('Top sales week',           '$'+topWeek.v.toLocaleString(), 'Week of ' + _fmtWeekShort(topWeek.d)),
+    _kpiCard(ttmLabel,                   '$'+ttm.toLocaleString(),       'Trailing twelve months'),
+    _kpiCard('Growth since first week',  '+'+growth+'%',                 'Jan 2025 → present'),
+    _kpiCard('Latest week',              '$'+latest.v.toLocaleString(),  'Week of ' + _fmtWeekShort(latest.d))
+  ].join('');
+}
+
+function renderTRMain() {
+  document.getElementById('trChartTitle').textContent =
+    trView==='total' ? 'Weekly total revenue' : 'Revenue by channel — stacked weekly';
+  document.getElementById('trChartSub').textContent =
+    trView==='total' ? 'Jan 2025 – May 2026 · all Neighborly locations'
+                     : 'All channels · Brentwood opening Apr 8, 2026';
+
+  const allDates = HIST_TOTAL.map(x=>x.d);
+  if (trCharts.main) trCharts.main.destroy();
+
+  if (trView === 'total') {
+    const vals = HIST_TOTAL.map(x=>x.v);
+    trCharts.main = new Chart(document.getElementById('trMainChart'), {
+      type:'bar',
+      data:{labels:allDates, datasets:[
+        {label:'Pre-Brentwood', data:vals.map((v,i)=>i<BRENTWOOD_IDX?v:null), backgroundColor:'#fdf7d8', borderColor:'#eace49', borderWidth:1.5, borderRadius:3, barPercentage:0.85},
+        {label:'Post-Brentwood',data:vals.map((v,i)=>i>=BRENTWOOD_IDX?v:null),backgroundColor:'#1f2328',borderColor:'#1f2328',borderWidth:1,borderRadius:3,barPercentage:0.85}
+      ]},
+      options:{responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{display:false}},
+        scales:{
+          x:{grid:{display:false},ticks:{font:{family:'DM Sans',size:9},color:'#9E9C96',maxTicksLimit:14,maxRotation:45}},
+          y:{grid:{color:'rgba(0,0,0,0.04)'},ticks:{font:{family:'DM Mono',size:10},color:'#9E9C96',callback:v=>'$'+Math.round(v/1000)+'k'}}
+        }
+      }
+    });
+  } else {
+    const keys=['dineIn','webPickup','instore','delivery','tpd','marketplace'];
+    const lbls=['Dine in','Web pickup','In-store Takeout','Delivery','3PD','Marketplace'];
+    const cols=['#eace49','#7bbd91','#cbc9d6','#6280bd','#dbc6a2','#e87142'];
+    const datasets = keys.map((k,i)=>{
+      const lk={};(HIST_CHANNELS[k]||[]).forEach(p=>{lk[p.d]=p.v;});
+      return {label:lbls[i],data:allDates.map(d=>lk[d]||null),backgroundColor:cols[i],borderColor:cols[i],borderWidth:0.5,borderRadius:2,stack:'s',barPercentage:0.85};
+    });
+    trCharts.main = new Chart(document.getElementById('trMainChart'), {
+      type:'bar',data:{labels:allDates,datasets},
+      options:{responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{position:'bottom',labels:{font:{family:'DM Sans',size:11},boxWidth:10,padding:10}}},
+        scales:{
+          x:{stacked:true,grid:{display:false},ticks:{font:{family:'DM Sans',size:9},color:'#9E9C96',maxTicksLimit:14,maxRotation:45}},
+          y:{stacked:true,grid:{color:'rgba(0,0,0,0.04)'},ticks:{font:{family:'DM Mono',size:10},color:'#9E9C96',callback:v=>'$'+Math.round(v/1000)+'k'}}
+        }
+      }
+    });
+  }
+}
+
+function renderTRRolling() {
+  const rolling = HIST_TOTAL.map((p,i)=>{
+    const start=Math.max(0,i-5); const arr=HIST_TOTAL.slice(start,i+1);
+    return Math.round(arr.reduce((s,x)=>s+x.v,0)/arr.length);
+  });
+  if(trCharts.rolling) trCharts.rolling.destroy();
+  trCharts.rolling = new Chart(document.getElementById('trRollingChart'),{
+    type:'line',data:{labels:HIST_TOTAL.map(x=>x.d),datasets:[{data:rolling,borderColor:'#1f2328',backgroundColor:'#fdf7d8',fill:true,tension:0.35,pointRadius:0,borderWidth:2}]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false}},
+      scales:{
+        x:{grid:{display:false},ticks:{display:false}},
+        y:{grid:{color:'rgba(0,0,0,0.04)'},ticks:{font:{family:'DM Mono',size:9},color:'#9E9C96',callback:v=>'$'+Math.round(v/1000)+'k'}}
+      }
+    }
+  });
+}
+
+function renderTRMix() {
+  const keys=['dineIn','webPickup','instore','delivery','tpd'];
+  const lbls=['Dine in','Web','In-store Takeout','Delivery','3PD'];
+  const cols=['#eace49','#7bbd91','#cbc9d6','#6280bd','#dbc6a2'];
+  const allDates=HIST_TOTAL.map(x=>x.d);
+  const sample=allDates.filter((_,i)=>i%4===0);
+  const totLk={};HIST_TOTAL.forEach(p=>{totLk[p.d]=p.v;});
+  const datasets=keys.map((k,i)=>{
+    const lk={};(HIST_CHANNELS[k]||[]).forEach(p=>{lk[p.d]=p.v;});
+    return {label:lbls[i],data:sample.map(d=>totLk[d]?Math.round((lk[d]||0)/totLk[d]*100):null),backgroundColor:cols[i],stack:'m'};
+  });
+  if(trCharts.mix) trCharts.mix.destroy();
+  trCharts.mix = new Chart(document.getElementById('trMixChart'),{
+    type:'bar',data:{labels:sample,datasets},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{position:'bottom',labels:{font:{family:'DM Sans',size:10},boxWidth:8,padding:8}}},
+      scales:{
+        x:{stacked:true,grid:{display:false},ticks:{font:{family:'DM Sans',size:9},color:'#9E9C96',maxTicksLimit:8,maxRotation:30}},
+        y:{stacked:true,max:100,grid:{color:'rgba(0,0,0,0.04)'},ticks:{font:{family:'DM Mono',size:9},color:'#9E9C96',callback:v=>v+'%'}}
+      }
+    }
+  });
+}
+
+function renderTrends() {
+  renderTRKPIs();
+  renderTRMain();
+  setTimeout(renderTRRolling, 30);
+  setTimeout(renderTRMix, 60);
+}
+</script>
+
+<script>
+// ── Reveal-on-scroll ──────────────────────────────────────────────────────────
+let _revealObs = null;
+function _initReveals() {
+  if (_revealObs || !('IntersectionObserver' in window)) {
+    // Fallback for old browsers — just show everything
+    if (!('IntersectionObserver' in window)) {
+      document.querySelectorAll('#page-daily .reveal').forEach(el => el.classList.add('in'));
+    }
+    return;
+  }
+  _revealObs = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('in');
+        _revealObs.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+}
+function _observeReveals() {
+  _initReveals();
+  if (!_revealObs) return;
+  document.querySelectorAll('#page-daily .reveal:not(.in)').forEach(el => _revealObs.observe(el));
+}
+function _resetReveals() {
+  // Called when the Daily page becomes visible — replay the animation
+  document.querySelectorAll('#page-daily .reveal').forEach(el => el.classList.remove('in'));
+  // For elements already in viewport, mark them in on next frame so the transition plays
+  requestAnimationFrame(() => requestAnimationFrame(_observeReveals));
+}
+
+// Auto-observe whenever the Daily page becomes active
+function _onDailyPageEnter() {
+  _resetReveals();
+}
+
+// ── DAILY PAGE ────────────────────────────────────────────────────────────────
+// Point this at your automation endpoint (Apps Script Web App, Lambda, etc.)
+// Expected JSON shape — designed to map 1:1 with the Toast DSS PDF:
+//
+// {
+//   "generated": "2026-05-21T18:00:00-07:00",   // ISO timestamp
+//   "date": "Thursday 05/21/26",                 // display date
+//   "wlv":   { ...locationBlock },               // Westlake Village
+//   "bw":    { ...locationBlock },               // Brentwood
+//   "total": { ...locationBlock }                // Combined (optional — auto-computed if absent)
+// }
+//
+// locationBlock = {
+//   today: {
+//     netSales, checkCount, avgCheck,
+//     lunchSales, lunchPct, dinnerSales, dinnerPct,
+//     onPremise, onPremisePct, offPremise, offPremisePct,
+//     channels: { dineIn, marketplace, kioskTakeOut, webDelivery, webTakeOut,
+//                 curbside, thirdParty, catering },              // dollar amounts
+//     pmix:     { whatsGabyCooking, miniKabob, socialMonk, mixtape,
+//                 palermoPizzaClub, neighborlyCookies, marketplace,
+//                 catering, beverages, wine, beer },             // dollar amounts
+//     discounts: { compCatering, compFood, compService, compPromo, compMarketing,
+//                  compFoodReview, compManager, compEmployee, compMisc },
+//     labor: { splh, bohHours, bohCost, fohHours, fohCost,
+//              trainingHours, trainingCost, totalHours, totalCost, laborPct }
+//   },
+//   ptd: {
+//     wtd: { netSales, label: "W20" },
+//     ptd: { netSales, label: "P5" },
+//     qtd: { netSales, label: "Q2" },
+//     ytd: { netSales, label: "FY26" }
+//   },
+//   sixWeekAvg: {
+//     netSales, checkCount, avgCheck,
+//     lunchPct, dinnerPct, onPremisePct, offPremisePct,
+//     marketplacePct, cateringPct,
+//     whatsGabyCookingPct, miniKabobPct, palermoPizzaClubPct, mixtapePct,
+//     beverageAttachmentPct
+//     // 6-wk avg is provided in PDF page 3 — these are the fields shown there
+//   }
+// }
+
+const DAILY_API_URL = '/daily-data.json';
+
+const DAILY = { wlv: null, bw: null, total: null };
+const DAILY_PREV = { wlv: null, bw: null, total: null, date: null };
+let DAILY_META = { date: '', generated: '' };
+const _dailyCharts = {};
+let dailyLoc = 'total';
+let _dailyFetching = false;
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+function _pct(a, b)     { return b ? (a - b) / Math.abs(b) * 100 : 0; }
+function _ptsDelta(a,b) { return (a||0) - (b||0); }
+function _fmtPct(v)     { return (v >= 0 ? '+' : '') + v.toFixed(1) + '%'; }
+function _fmtPts(v)     { return (v >= 0 ? '+' : '') + v.toFixed(1) + ' pts'; }
+function _fmtDollar(v)  { return '$' + (+v).toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2}); }
+function _fmtDollarRound(v) { return '$' + Math.round(+v).toLocaleString(); }
+function _fmtK(v)       { v = +v; return '$' + (v >= 1000 ? Math.round(v/1000) + 'k' : Math.round(v)); }
+function _fmtInt(v)     { return Math.round(+v).toLocaleString(); }
+function _fmtMix(v)     { return (+v).toFixed(1) + '%'; }
+function _sum(...vals)  { return vals.reduce((a,b) => a + (+b || 0), 0); }
+
+// ── Compute Total when API doesn't supply one ────────────────────────────────
+function _computeTotal(wlv, bw) {
+  if (!wlv || !bw) return null;
+  const sumObj = (oA, oB, keys) => {
+    const out = {};
+    keys.forEach(k => out[k] = (+oA[k] || 0) + (+oB[k] || 0));
+    return out;
+  };
+  const tA = wlv.today, tB = bw.today;
+  const channelKeys = Object.keys(tA.channels || {});
+  const pmixKeys    = Object.keys(tA.pmix     || {});
+  const compKeys    = Object.keys(tA.discounts|| {});
+
+  const netSales   = _sum(tA.netSales,   tB.netSales);
+  const checkCount = _sum(tA.checkCount, tB.checkCount);
+  const lunchSales  = _sum(tA.lunchSales,  tB.lunchSales);
+  const dinnerSales = _sum(tA.dinnerSales, tB.dinnerSales);
+  const onPremise  = _sum(tA.onPremise,  tB.onPremise);
+  const offPremise = _sum(tA.offPremise, tB.offPremise);
+  const labor = {
+    bohHours:      _sum(tA.labor?.bohHours,      tB.labor?.bohHours),
+    bohCost:       _sum(tA.labor?.bohCost,       tB.labor?.bohCost),
+    fohHours:      _sum(tA.labor?.fohHours,      tB.labor?.fohHours),
+    fohCost:       _sum(tA.labor?.fohCost,       tB.labor?.fohCost),
+    trainingHours: _sum(tA.labor?.trainingHours, tB.labor?.trainingHours),
+    trainingCost:  _sum(tA.labor?.trainingCost,  tB.labor?.trainingCost),
+    totalHours:    _sum(tA.labor?.totalHours,    tB.labor?.totalHours),
+    totalCost:     _sum(tA.labor?.totalCost,     tB.labor?.totalCost)
+  };
+  labor.splh     = labor.totalHours ? netSales / labor.totalHours : 0;
+  labor.laborPct = netSales ? labor.totalCost / netSales * 100 : 0;
+
+  const today = {
+    netSales, checkCount,
+    avgCheck: checkCount ? netSales / checkCount : 0,
+    lunchSales,  lunchPct:  netSales ? lunchSales/netSales*100  : 0,
+    dinnerSales, dinnerPct: netSales ? dinnerSales/netSales*100 : 0,
+    onPremise,   onPremisePct:  netSales ? onPremise/netSales*100  : 0,
+    offPremise,  offPremisePct: netSales ? offPremise/netSales*100 : 0,
+    channels:  sumObj(tA.channels  || {}, tB.channels  || {}, channelKeys),
+    pmix:      sumObj(tA.pmix      || {}, tB.pmix      || {}, pmixKeys),
+    discounts: sumObj(tA.discounts || {}, tB.discounts || {}, compKeys),
+    labor
+  };
+
+  // PTD — sum dollars across locations
+  const ptd = {};
+  ['wtd','ptd','qtd','ytd'].forEach(k => {
+    if (wlv.ptd?.[k] || bw.ptd?.[k]) {
+      ptd[k] = {
+        netSales: _sum(wlv.ptd?.[k]?.netSales, bw.ptd?.[k]?.netSales),
+        label:    wlv.ptd?.[k]?.label || bw.ptd?.[k]?.label || ''
+      };
+    }
+  });
+
+  // 6-week avg — weight by netSales when available, else simple sum for $ fields
+  const swA = wlv.sixWeekAvg || {}, swB = bw.sixWeekAvg || {};
+  const sumNet = (+swA.netSales || 0) + (+swB.netSales || 0);
+  const wAvg = (kA, kB, nA, nB) => (nA + nB) ? ((+kA||0)*nA + (+kB||0)*nB) / (nA + nB) : 0;
+  const sixWeekAvg = {
+    netSales:   sumNet,
+    checkCount: _sum(swA.checkCount, swB.checkCount),
+    avgCheck:   (swA.checkCount + swB.checkCount)
+                  ? sumNet / ((+swA.checkCount || 0) + (+swB.checkCount || 0))
+                  : 0
+  };
+  // mix % fields → weight by net sales
+  ['lunchPct','dinnerPct','onPremisePct','offPremisePct','marketplacePct','cateringPct',
+   'whatsGabyCookingPct','miniKabobPct','palermoPizzaClubPct','mixtapePct','beverageAttachmentPct']
+    .forEach(k => { sixWeekAvg[k] = wAvg(swA[k], swB[k], +swA.netSales||0, +swB.netSales||0); });
+
+  return { today, ptd, sixWeekAvg };
+}
+
+// ── Fetch ─────────────────────────────────────────────────────────────────────
+async function fetchDailyData() {
+  if (_dailyFetching) return;
+  _dailyFetching = true;
+  const btn = document.getElementById('refreshBtn');
+  const ts  = document.getElementById('dailyLastUpdated');
+  if (btn) { btn.textContent = 'Refreshing…'; btn.disabled = true; }
+  try {
+    const res = await fetch(DAILY_API_URL, { cache: 'no-store' });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const json = await res.json();
+    _applyDailyJson(json);
+    if (ts && DAILY_META.generated) {
+      const d = new Date(DAILY_META.generated);
+      ts.textContent = 'Updated ' + d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+    }
+    // Also refresh the archive index for the calendar picker, then
+    // pull yesterday's archive so the table can show vs-yesterday deltas.
+    fetchDailyIndex().then(() => {
+      const cur = _dateKeyFromLabel(DAILY_META.date) || DAILY_INDEX?.latest;
+      if (cur) _loadDailyPrev(cur);
+    });
+  } catch (e) {
+    if (ts) ts.textContent = 'Could not load data';
+  } finally {
+    _dailyFetching = false;
+    if (btn) { btn.textContent = 'Refresh'; btn.disabled = false; }
+    renderDailyDashboard();
+  }
+}
+
+// Parse "Friday 05/22/26" → "2026-05-22"
+function _dateKeyFromLabel(label) {
+  if (!label) return null;
+  const m = label.match(/(\d{1,2})\/(\d{1,2})\/(\d{2,4})/);
+  if (!m) return null;
+  const yr = m[3].length === 2 ? '20' + m[3] : m[3];
+  return `${yr}-${m[1].padStart(2,'0')}-${m[2].padStart(2,'0')}`;
+}
+
+function _applyDailyJson(json) {
+  DAILY.wlv   = json.wlv   || null;
+  DAILY.bw    = json.bw    || null;
+  DAILY.total = json.total || _computeTotal(DAILY.wlv, DAILY.bw);
+  DAILY_META.date      = json.date      || '';
+  DAILY_META.generated = json.generated || '';
+  // Update the date badge label
+  const lbl = document.getElementById('dailyDateLabel');
+  if (lbl) lbl.textContent = _shortDate(DAILY_META.date);
+}
+
+// Convert "Thursday 05/21/26" → "May 21, 2026"
+function _shortDate(label) {
+  if (!label) return '—';
+  const m = label.match(/(\d{1,2})\/(\d{1,2})\/(\d{2,4})/);
+  if (!m) return label;
+  const mo = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][parseInt(m[1])-1];
+  const yr = m[3].length === 2 ? '20' + m[3] : m[3];
+  return `${mo} ${parseInt(m[2])}, ${yr}`;
+}
+
+// ── DAILY HISTORICAL CALENDAR ─────────────────────────────────────────────────
+const DAILY_ARCHIVE_INDEX_URL = '/daily-data-index.json';
+const DAILY_ARCHIVE_PATH = '/daily-data-archive';
+let DAILY_INDEX = null;          // { dates: [{date, dateLabel, ...}], latest, count }
+let _dailyCalCursor = null;      // { y, m0 }
+let _dailyCalSelected = null;    // 'YYYY-MM-DD'
+
+async function fetchDailyIndex() {
+  try {
+    const res = await fetch(DAILY_ARCHIVE_INDEX_URL, { cache: 'no-store' });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    DAILY_INDEX = await res.json();
+    if (DAILY_INDEX && DAILY_INDEX.latest) {
+      _dailyCalSelected = DAILY_INDEX.latest;
+    }
+  } catch (e) {
+    // No archive yet — fine, calendar will show empty
+    DAILY_INDEX = { dates: [], count: 0 };
+  }
+}
+
+// Load the archive file immediately before currentDateKey (YYYY-MM-DD) so the
+// metrics table can compute "vs yesterday". Re-renders when done.
+async function _loadDailyPrev(currentDateKey) {
+  DAILY_PREV.wlv = DAILY_PREV.bw = DAILY_PREV.total = null;
+  DAILY_PREV.date = null;
+  if (!DAILY_INDEX) await fetchDailyIndex();
+  const allDates = (DAILY_INDEX?.dates || []).map(d => d.date).sort();
+  let prevDate = null;
+  for (const d of allDates) {
+    if (d < currentDateKey) prevDate = d;
+  }
+  if (!prevDate) { if (typeof renderDailyTable === 'function') renderDailyTable(DAILY[dailyLoc]); return; }
+  try {
+    const res = await fetch(`${DAILY_ARCHIVE_PATH}/${prevDate}.json`, { cache: 'no-store' });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const json = await res.json();
+    DAILY_PREV.wlv   = json.wlv   || null;
+    DAILY_PREV.bw    = json.bw    || null;
+    DAILY_PREV.total = json.total || _computeTotal(DAILY_PREV.wlv, DAILY_PREV.bw);
+    DAILY_PREV.date  = prevDate;
+  } catch (e) {
+    DAILY_PREV.wlv = DAILY_PREV.bw = DAILY_PREV.total = null;
+    DAILY_PREV.date = null;
+  }
+  renderDailyTable(DAILY[dailyLoc]);
+}
+
+function toggleDailyCalendar(e) {
+  if (e) e.stopPropagation();
+  const pop = document.getElementById('dailyCalPop');
+  if (pop.classList.contains('open')) { closeDailyCalendar(); return; }
+  openDailyCalendar();
+}
+
+function openDailyCalendar() {
+  if (!DAILY_INDEX) { fetchDailyIndex().then(() => openDailyCalendar()); return; }
+  // Initialize cursor to month of selected date (or latest)
+  if (!_dailyCalCursor) {
+    const seed = _dailyCalSelected || DAILY_INDEX.latest;
+    if (seed) {
+      const [y, m, d] = seed.split('-').map(Number);
+      _dailyCalCursor = { y, m0: m - 1 };
+    } else {
+      const now = new Date();
+      _dailyCalCursor = { y: now.getFullYear(), m0: now.getMonth() };
+    }
+  }
+  const badge = document.getElementById('dailyDateBadge');
+  const pop = document.getElementById('dailyCalPop');
+  const overlay = document.getElementById('dailyCalOverlay');
+  const rect = badge.getBoundingClientRect();
+  pop.style.top  = (rect.bottom + 8) + 'px';
+  pop.style.left = Math.max(8, rect.left) + 'px';
+  const winW = window.innerWidth;
+  const popW = 280;
+  if (rect.left + popW > winW - 8) {
+    pop.style.left = (winW - popW - 8) + 'px';
+  }
+  renderDailyCalendar();
+  overlay.classList.add('open');
+  pop.classList.add('open');
+}
+
+function closeDailyCalendar() {
+  document.getElementById('dailyCalPop').classList.remove('open');
+  document.getElementById('dailyCalOverlay').classList.remove('open');
+}
+
+function dailyCalNav(delta) {
+  _dailyCalCursor.m0 += delta;
+  if (_dailyCalCursor.m0 < 0)  { _dailyCalCursor.m0 = 11; _dailyCalCursor.y--; }
+  if (_dailyCalCursor.m0 > 11) { _dailyCalCursor.m0 = 0;  _dailyCalCursor.y++; }
+  renderDailyCalendar();
+}
+
+function renderDailyCalendar() {
+  const { y, m0 } = _dailyCalCursor;
+  const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  document.getElementById('dailyCalTitle').textContent = `${monthNames[m0]} ${y}`;
+
+  // Compute available-date set
+  const available = new Set((DAILY_INDEX?.dates || []).map(d => d.date));
+  const labelsByDate = {};
+  (DAILY_INDEX?.dates || []).forEach(d => { labelsByDate[d.date] = d; });
+
+  // Disable nav arrows past data range
+  const allDates = Array.from(available).sort();
+  const minDate = allDates[0];
+  const maxDate = allDates[allDates.length - 1];
+  document.getElementById('dailyCalPrev').disabled = minDate && (
+    y < parseInt(minDate.slice(0,4)) ||
+    (y === parseInt(minDate.slice(0,4)) && m0 <= parseInt(minDate.slice(5,7)) - 1)
+  );
+  document.getElementById('dailyCalNext').disabled = maxDate && (
+    y > parseInt(maxDate.slice(0,4)) ||
+    (y === parseInt(maxDate.slice(0,4)) && m0 >= parseInt(maxDate.slice(5,7)) - 1)
+  );
+
+  const firstDow = new Date(y, m0, 1).getDay();
+  const daysInMonth = new Date(y, m0 + 1, 0).getDate();
+  const prevMonthDays = new Date(y, m0, 0).getDate();
+
+  let html = '';
+  for (let i = firstDow - 1; i >= 0; i--) {
+    html += `<button class="cal-day muted" disabled>${prevMonthDays - i}</button>`;
+  }
+  for (let d = 1; d <= daysInMonth; d++) {
+    const key = `${y}-${String(m0+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const entry = labelsByDate[key];
+    const isSelected = key === _dailyCalSelected;
+    const cls = ['cal-day'];
+    if (entry) cls.push('available');
+    if (isSelected) cls.push('selected');
+    const title = entry ? entry.dateLabel : '';
+    html += `<button class="${cls.join(' ')}" ${entry ? `onclick="pickDailyDate('${key}')"` : 'disabled'} ${title ? `title="${title}"` : ''}>${d}</button>`;
+  }
+  document.getElementById('dailyCalGrid').innerHTML = html;
+
+  // Footer message
+  const sel = labelsByDate[_dailyCalSelected];
+  const foot = document.getElementById('dailyCalFoot');
+  if (sel) {
+    const net = sel.netSales?.total || 0;
+    foot.innerHTML = `Selected: <strong>${sel.dateLabel}</strong> · $${net.toLocaleString(undefined,{maximumFractionDigits:0})} total`;
+  } else if ((DAILY_INDEX?.dates || []).length === 0) {
+    foot.textContent = 'No history yet — daily archive starts building from your next sync.';
+  } else {
+    foot.textContent = 'Pick a day with data to view that day\'s report.';
+  }
+}
+
+async function pickDailyDate(dateKey) {
+  _dailyCalSelected = dateKey;
+  try {
+    const res = await fetch(`${DAILY_ARCHIVE_PATH}/${dateKey}.json`, { cache: 'no-store' });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const json = await res.json();
+    _applyDailyJson(json);
+    renderDailyDashboard();
+    renderDailyCalendar();
+    _loadDailyPrev(dateKey);
+  } catch (e) {
+    const foot = document.getElementById('dailyCalFoot');
+    if (foot) foot.innerHTML = `<span style="color:var(--brand-orange)">Couldn't load ${dateKey}</span>`;
+  }
+  setTimeout(closeDailyCalendar, 250);
+}
+
+// Close on Escape (daily calendar)
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && document.getElementById('dailyCalPop')?.classList.contains('open')) {
+    closeDailyCalendar();
+  }
+});
+
+// ── Location toggle ───────────────────────────────────────────────────────────
+function setDailyLoc(loc, btn) {
+  dailyLoc = loc;
+  document.querySelectorAll('#page-daily .vt-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  renderDailyDashboard();
+}
+
+// ── Master render ─────────────────────────────────────────────────────────────
+function renderDailyDashboard() {
+  const data = DAILY[dailyLoc];
+  const locName = dailyLoc === 'wlv' ? 'Westlake Village'
+                : dailyLoc === 'bw'  ? 'Brentwood'
+                : 'All Locations';
+  const sub = document.getElementById('dailyDateSub');
+  if (sub) sub.textContent = data
+    ? `${DAILY_META.date || 'Today'}  ·  ${locName}`
+    : 'No data — click Refresh';
+  renderDailyKPIs(data);
+  renderDailyPTD(data);
+  renderDailyChannels(data);
+  renderDailyPmix(data);
+  renderDailyTable(data);
+  renderDailyDiscountsTable();
+  renderDailyLaborTable();
+  // Re-trigger reveal observation in case Daily page was already visible
+  if (typeof _observeReveals === 'function') {
+    requestAnimationFrame(_observeReveals);
+  }
+}
+
+// ── KPI cards ─────────────────────────────────────────────────────────────────
+function renderDailyKPIs(data) {
+  const grid = document.getElementById('dailyKpiGrid');
+  if (!grid) return;
+  if (!data) {
+    grid.innerHTML = '<div class="kpi-card"><div class="daily-empty-kpi">No data — click Refresh</div></div><div class="kpi-card"></div><div class="kpi-card"></div><div class="kpi-card"></div>';
+    return;
+  }
+  const t = data.today, s = data.sixWeekAvg || {};
+  const offPct = t.offPremisePct || 0;
+  const offAvg = s.offPremisePct || (100 - (s.onPremisePct || 0));
+  const kpis = [
+    { label: 'Net sales',     val: _fmtDollarRound(t.netSales),  chg: _pct(t.netSales,   s.netSales),  good: t.netSales   >= (s.netSales || 0)   },
+    { label: 'Check count',   val: _fmtInt(t.checkCount),         chg: _pct(t.checkCount, s.checkCount),good: t.checkCount >= (s.checkCount || 0) },
+    { label: 'Avg check',     val: '$' + (+t.avgCheck).toFixed(2),chg: _pct(t.avgCheck,   s.avgCheck),  good: t.avgCheck   >= (s.avgCheck || 0)   },
+    { label: 'Off premise %', val: _fmtMix(offPct),               chg: _ptsDelta(offPct,  offAvg),      good: true,                         isPts: true }
+  ];
+  grid.innerHTML = kpis.map(k =>
+    `<div class="kpi-card">
+      <div class="kpi-label">${k.label}</div>
+      <div class="kpi-value" style="font-size:22px">${k.val}</div>
+      <div class="kpi-change"><span class="chg ${k.good ? 'pos' : 'neg'}">${k.isPts ? _fmtPts(k.chg) : _fmtPct(k.chg)}</span><span class="kpi-change-label">vs 6-week avg</span></div>
+    </div>`
+  ).join('');
+}
+
+// ── Period-to-date roll-ups ───────────────────────────────────────────────────
+function renderDailyPTD(data) {
+  const grid = document.getElementById('dailyPtdGrid');
+  if (!grid) return;
+  if (!data || !data.ptd) {
+    grid.innerHTML = '<div class="chart-card" style="grid-column:1/-1"><div class="daily-empty-kpi">No data</div></div>';
+    return;
+  }
+  // Convert a Toast period code (W20, P5, Q2, FY26) into finance-friendly text
+  const _fmtFiscal = (code, kind) => {
+    if (!code) return '';
+    const m = String(code).match(/^([A-Za-z]+)(\d+)$/);
+    if (!m) return code;
+    const [_, prefix, num] = m;
+    const p = prefix.toUpperCase();
+    if (p === 'W')  return `Fiscal week ${+num}`;
+    if (p === 'P')  return `Fiscal period ${+num}`;
+    if (p === 'Q')  return `Fiscal quarter ${+num}`;
+    if (p === 'FY') return `Fiscal year 20${num.length === 2 ? num : num.slice(-2)}`;
+    return code;
+  };
+  const p = data.ptd;
+  const cards = [
+    { key: 'wtd', label: 'Week to date',    sub: _fmtFiscal(p.wtd?.label, 'W') },
+    { key: 'ptd', label: 'Period to date',  sub: _fmtFiscal(p.ptd?.label, 'P') },
+    { key: 'qtd', label: 'Quarter to date', sub: _fmtFiscal(p.qtd?.label, 'Q') },
+    { key: 'ytd', label: 'Year to date',    sub: _fmtFiscal(p.ytd?.label, 'FY')}
+  ];
+  grid.innerHTML = cards.map(c => {
+    const v = p[c.key]?.netSales;
+    return `<div class="ptd-card">
+      <div class="ptd-label">${c.label}</div>
+      <div class="ptd-sub">${c.sub}</div>
+      <div class="ptd-value">${v != null ? _fmtDollarRound(v) : '—'}</div>
+    </div>`;
+  }).join('');
+}
+
+// ── Channel breakdown chart + mix ─────────────────────────────────────────────
+const CHANNEL_LABELS = {
+  dineIn:        'Dine In',
+  marketplace:   'Marketplace',
+  kioskTakeOut:  'Kiosk Take Out',
+  webDelivery:   'Web Delivery',
+  webTakeOut:    'Web Take Out',
+  curbside:      'Curbside Pick Up',
+  thirdParty:    '3rd Party Delivery',
+  catering:      'Catering'
+};
+const CHANNEL_COLORS = ['#1f2328','#e87142','#eace49','#7bbd91','#6280bd','#dbc6a2','#a35bbf','#5fa9b8'];
+
+function renderDailyChannels(data) {
+  const canvas = document.getElementById('dailyChannelChart');
+  const pieCanvas = document.getElementById('dailyChannelMixChart');
+  const legendEl = document.getElementById('dailyChannelMixLegend');
+  if (!canvas || !pieCanvas || !legendEl) return;
+  if (_dailyCharts.channel)    { try { _dailyCharts.channel.destroy(); } catch(e){} }
+  if (_dailyCharts.channelPie) { try { _dailyCharts.channelPie.destroy(); } catch(e){} }
+  if (!data) { legendEl.innerHTML = '<div class="daily-empty-kpi">No data</div>'; return; }
+
+  const ch = data.today.channels || {};
+  const keys = Object.keys(CHANNEL_LABELS).filter(k => (ch[k] || 0) > 0);
+  const total = keys.reduce((a,k) => a + (+ch[k] || 0), 0) || 1;
+  const subEl = document.getElementById('dailyChannelSub');
+  if (subEl) subEl.textContent = `Today — ${_fmtDollarRound(total)} total`;
+
+  _dailyCharts.channel = new Chart(canvas, {
+    type: 'bar',
+    data: {
+      labels: keys.map(k => CHANNEL_LABELS[k]),
+      datasets: [{
+        data: keys.map(k => +ch[k] || 0),
+        backgroundColor: keys.map((_,i) => CHANNEL_COLORS[i % CHANNEL_COLORS.length]),
+        hoverBackgroundColor: keys.map((_,i) => CHANNEL_COLORS[i % CHANNEL_COLORS.length]),
+        hoverBorderColor: '#1A1916',
+        hoverBorderWidth: 1.5,
+        borderRadius: 4, barPercentage: 0.7
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true, maintainAspectRatio: false,
+      animation: { duration: 700, easing: 'easeOutQuart' },
+      interaction: { intersect: false, mode: 'nearest', axis: 'y' },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          enabled: true,
+          backgroundColor: '#1f2328', titleColor: '#fff', bodyColor: '#fff',
+          padding: 10, cornerRadius: 6,
+          titleFont: { family: 'DM Sans', size: 12, weight: '600' },
+          bodyFont:  { family: 'DM Mono', size: 12 },
+          displayColors: false,
+          callbacks: {
+            title: ctx => ctx[0].label,
+            label: ctx => [_fmtDollarRound(ctx.parsed.x), (ctx.parsed.x/total*100).toFixed(1) + '% of net']
+          }
+        }
+      },
+      scales: {
+        x: { grid: { color:'rgba(0,0,0,0.04)' }, ticks: { font:{family:'DM Mono',size:10}, color:'#9E9C96', callback: v => '$' + (v>=1000 ? Math.round(v/1000)+'k' : v) } },
+        y: { grid: { display: false }, ticks: { font:{family:'DM Sans',size:11}, color:'#1A1916' } }
+      }
+    }
+  });
+
+  // Channel mix % — pie chart with side legend
+  const sorted = keys.map((k, i) => ({ k, v: +ch[k] || 0, color: CHANNEL_COLORS[i % CHANNEL_COLORS.length] }))
+                     .sort((a, b) => b.v - a.v);
+  _dailyCharts.channelPie = new Chart(pieCanvas, {
+    type: 'doughnut',
+    data: {
+      labels: sorted.map(r => CHANNEL_LABELS[r.k]),
+      datasets: [{
+        data: sorted.map(r => r.v),
+        backgroundColor: sorted.map(r => r.color),
+        hoverBackgroundColor: sorted.map(r => r.color),
+        borderColor: '#fff',
+        borderWidth: 1.5,
+        hoverOffset: 6
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      cutout: '58%',
+      animation: { duration: 700, easing: 'easeOutQuart' },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#1f2328', titleColor: '#fff', bodyColor: '#fff',
+          padding: 10, cornerRadius: 6, displayColors: false,
+          titleFont: { family: 'DM Sans', size: 12, weight: '600' },
+          bodyFont:  { family: 'DM Mono', size: 12 },
+          callbacks: {
+            title: ctx => ctx[0].label,
+            label: ctx => [_fmtDollarRound(ctx.parsed), (ctx.parsed/total*100).toFixed(1) + '% of net']
+          }
+        }
+      }
+    }
+  });
+  legendEl.innerHTML = sorted.map(r => {
+    const pct = r.v / total * 100;
+    return `<div class="channel-pie-row" title="${CHANNEL_LABELS[r.k]}: ${_fmtDollarRound(r.v)} (${pct.toFixed(1)}% of net)">
+      <span class="swatch" style="background:${r.color}"></span>
+      <span class="name">${CHANNEL_LABELS[r.k]}</span>
+      <span class="val"><strong>${pct.toFixed(1)}%</strong> &middot; ${_fmtDollarRound(r.v)}</span>
+    </div>`;
+  }).join('');
+}
+
+// ── PMIX (concepts) ───────────────────────────────────────────────────────────
+const PMIX_LABELS = {
+  whatsGabyCooking:   "What's Gaby Cooking",
+  miniKabob:          'Mini Kabob',
+  socialMonk:         'Social Monk',
+  mixtape:            'Mixtape',
+  palermoPizzaClub:   'Palermo Pizza Club',
+  neighborlyCookies:  'Neighborly Cookies',
+  marketplace:        'Marketplace',
+  catering:           'Catering',
+  beverages:          'Beverages',
+  wine:               'Wine',
+  beer:               'Beer'
+};
+const PMIX_COLORS = ['#eace49','#e87142','#7bbd91','#6280bd','#dbc6a2','#a35bbf','#5fa9b8','#d99a3e','#88a07a','#b5654e','#cbc9d6'];
+
+// Core restaurant concepts vs other revenue streams
+const CONCEPT_KEYS = ['whatsGabyCooking','miniKabob','socialMonk','mixtape','palermoPizzaClub','neighborlyCookies'];
+const OTHER_KEYS   = ['marketplace','catering','beverages','wine','beer'];
+const CONCEPT_COLOR = {
+  whatsGabyCooking:  '#eace49',  // brand yellow
+  miniKabob:         '#e87142',  // brand orange
+  socialMonk:        '#7bbd91',  // green
+  mixtape:           '#6280bd',  // blue
+  palermoPizzaClub:  '#dbc6a2',  // tan
+  neighborlyCookies: '#a35bbf'   // purple
+};
+const CONCEPT_6WK_KEY = {
+  whatsGabyCooking:  'whatsGabyCookingPct',
+  miniKabob:         'miniKabobPct',
+  palermoPizzaClub:  'palermoPizzaClubPct',
+  mixtape:           'mixtapePct'
+  // socialMonk and cookies have no 6wk benchmark
+};
+
+function renderDailyPmix(data) {
+  const canvas = document.getElementById('dailyPmixChart');
+  const mixWrap = document.getElementById('dailyPmixMix');
+  const cardWrap = document.getElementById('dailyConceptCards');
+  if (!canvas || !mixWrap || !cardWrap) return;
+  if (_dailyCharts.pmix) { try { _dailyCharts.pmix.destroy(); } catch(e){} }
+  if (!data) {
+    cardWrap.innerHTML = '<div class="concept-card"><div class="daily-empty-kpi">No data</div></div>';
+    mixWrap.innerHTML = '<div class="daily-empty-kpi">No data</div>';
+    return;
+  }
+
+  const pm = data.today.pmix || {};
+  const sw = data.sixWeekAvg || {};
+  const netSales = data.today.netSales || 0;
+
+  // ── CONCEPT CARDS — the 6 restaurant concepts ─────────────────────────
+  const conceptTotal = CONCEPT_KEYS.reduce((a,k) => a + (+pm[k] || 0), 0) || 1;
+  cardWrap.innerHTML = CONCEPT_KEYS.map(k => {
+    const val = +pm[k] || 0;
+    const sharePct = val/conceptTotal*100;
+    const color = CONCEPT_COLOR[k];
+    const isZero = val < 0.01;
+    // Compare today's share-of-net to 6-week avg share-of-net
+    const todayShareOfNet = netSales ? val/netSales*100 : 0;
+    const sixWkShareOfNet = sw[CONCEPT_6WK_KEY[k]] || null;
+    let vsHtml = '';
+    if (sixWkShareOfNet != null) {
+      const delta = todayShareOfNet - sixWkShareOfNet;
+      const good = delta >= 0;
+      vsHtml = `<div class="concept-card-vs"><span class="chg ${good?'pos':'neg'}">${good?'+':''}${delta.toFixed(1)} pts</span> vs 6-wk</div>`;
+    }
+    return `<div class="concept-card${isZero?' zero':''}">
+      <div class="concept-card-accent" style="background:${color}"></div>
+      <div class="concept-card-name">${PMIX_LABELS[k]}</div>
+      <div class="concept-card-value">${_fmtDollarRound(val)}</div>
+      <div class="concept-card-meta">
+        <div class="concept-card-share">${sharePct.toFixed(1)}%</div>
+        <div class="concept-card-share-bar"><div class="concept-card-share-fill" style="width:${Math.min(sharePct,100)}%;background:${color}"></div></div>
+      </div>
+      ${vsHtml}
+    </div>`;
+  }).join('');
+
+  // ── BAR CHART — concepts only (cleaner without the other revenue mixed in) ──
+  const chartKeys = CONCEPT_KEYS.filter(k => (pm[k] || 0) > 0);
+  const subEl = document.getElementById('dailyPmixSub');
+  if (subEl) subEl.textContent = `Today — ${_fmtDollarRound(conceptTotal)} across concepts`;
+
+  _dailyCharts.pmix = new Chart(canvas, {
+    type: 'bar',
+    data: {
+      labels: chartKeys.map(k => PMIX_LABELS[k]),
+      datasets: [{
+        data: chartKeys.map(k => +pm[k] || 0),
+        backgroundColor: chartKeys.map(k => CONCEPT_COLOR[k]),
+        hoverBackgroundColor: chartKeys.map(k => CONCEPT_COLOR[k]),
+        hoverBorderColor: '#1A1916',
+        hoverBorderWidth: 1.5,
+        borderRadius: 4, barPercentage: 0.7
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true, maintainAspectRatio: false,
+      animation: { duration: 700, easing: 'easeOutQuart' },
+      interaction: { intersect: false, mode: 'nearest', axis: 'y' },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          enabled: true,
+          backgroundColor: '#1f2328', titleColor: '#fff', bodyColor: '#fff',
+          padding: 10, cornerRadius: 6,
+          titleFont: { family: 'DM Sans', size: 12, weight: '600' },
+          bodyFont:  { family: 'DM Mono', size: 12 },
+          displayColors: false,
+          callbacks: {
+            title: ctx => ctx[0].label,
+            label: ctx => [_fmtDollarRound(ctx.parsed.x), (ctx.parsed.x/conceptTotal*100).toFixed(1) + '% of concepts']
+          }
+        }
+      },
+      scales: {
+        x: { grid: { color:'rgba(0,0,0,0.04)' }, ticks: { font:{family:'DM Mono',size:10}, color:'#9E9C96', callback: v => '$' + (v>=1000 ? Math.round(v/1000)+'k' : v) } },
+        y: { grid: { display: false }, ticks: { font:{family:'DM Sans',size:11}, color:'#1A1916' } }
+      }
+    }
+  });
+
+  // ── OTHER REVENUE — Marketplace, Catering, Beverages, Wine, Beer ──────
+  const otherTotal = OTHER_KEYS.reduce((a,k) => a + (+pm[k] || 0), 0) || 1;
+  const otherKeys = OTHER_KEYS.filter(k => (pm[k] || 0) > 0);
+  if (otherKeys.length === 0) {
+    mixWrap.innerHTML = '<div style="color:var(--text-3);font-size:12px;padding:0.5rem 0">No non-concept revenue today.</div>';
+  } else {
+    const OTHER_COLORS = { marketplace:'#5fa9b8', catering:'#d99a3e', beverages:'#88a07a', wine:'#b5654e', beer:'#cbc9d6' };
+    mixWrap.innerHTML = otherKeys
+      .map(k => ({ k, v: +pm[k]||0 }))
+      .sort((a,b) => b.v - a.v)
+      .map(row => {
+        const pct = row.v/otherTotal*100;
+        const color = OTHER_COLORS[row.k] || '#999';
+        return `<div class="mix-bar-wrap" title="${PMIX_LABELS[row.k]}: ${_fmtDollarRound(row.v)} (${pct.toFixed(1)}% of other)">
+          <div class="mix-bar-label"><span>${PMIX_LABELS[row.k]}</span><span class="mix-detail">${_fmtDollarRound(row.v)} &middot; ${pct.toFixed(1)}%</span></div>
+          <div class="mix-bar-track"><div class="mix-bar-fill animate" style="width:${pct.toFixed(2)}%;background:${color}"></div></div>
+        </div>`;
+      }).join('');
+  }
+}
+
+// ── Metrics table ─────────────────────────────────────────────────────────────
+function renderDailyTable(data) {
+  const tbl = document.getElementById('dailyMetricsTable');
+  if (!tbl) return;
+  if (!data) { tbl.innerHTML = '<tbody><tr><td colspan="5" style="padding:1.5rem;text-align:center;color:var(--text-3)">No data — click Refresh</td></tr></tbody>'; return; }
+  const t = data.today, s = data.sixWeekAvg || {};
+  const N  = t.netSales || 0;
+  const sN = s.netSales || 0;
+  const y  = DAILY_PREV[dailyLoc]?.today;   // yesterday's data for the current location toggle
+
+  const $  = v => _fmtDollar(v || 0);
+  const $$ = v => '$' + (+(v||0)).toFixed(2);
+  const I  = v => _fmtInt(v || 0);
+  const Pf = v => v != null ? _fmtMix(v) : '—';
+  const sixDol = pct => sN > 0 ? $(sN * (pct || 0) / 100) : '—';
+  const vsY = (tv, yv) => {
+    if (yv == null || yv === 0 || tv == null) return null;
+    return (tv - yv) / yv * 100;
+  };
+  const vsYCell = p => {
+    if (p == null) return '<span style="color:var(--text-3);font-size:11px">—</span>';
+    return `<span class="chg ${p >= 0 ? 'pos' : 'neg'}" style="font-size:10px">${_fmtPct(p)}</span>`;
+  };
+  const CH_LBL = {
+    dineIn:'Dine In', marketplace:'Marketplace', kioskTakeOut:'Kiosk Take Out',
+    webDelivery:'Web Delivery', webTakeOut:'Web Take Out', curbside:'Curbside Pick Up',
+    thirdParty:'3rd Party Delivery', catering:'Catering'
+  };
+  const CH_6WK = { marketplace: s.marketplacePct, catering: s.cateringPct };
+  const ch = t.channels || {};
+  const channelRows = Object.keys(CH_LBL)
+    .filter(k => (ch[k] || 0) > 0)
+    .map(k => ({
+      lbl: CH_LBL[k],
+      today: $(ch[k]),
+      sixWeek: CH_6WK[k] != null ? sixDol(CH_6WK[k]) : '—',
+      pctNet: Pf(N ? (ch[k]||0)/N*100 : null),
+      vsY: vsY(ch[k], y?.channels?.[k])
+    }));
+
+  const sections = [
+    { cat: 'Revenue', rows: [
+      { lbl: 'Net sales',   today: $(t.netSales),   sixWeek: $(s.netSales),   pctNet: '100.0%', vsY: vsY(t.netSales,   y?.netSales) },
+      { lbl: 'Check count', today: I(t.checkCount), sixWeek: I(s.checkCount), pctNet: '—',      vsY: vsY(t.checkCount, y?.checkCount) },
+      { lbl: 'Avg check',   today: $$(t.avgCheck),  sixWeek: $$(s.avgCheck),  pctNet: '—',      vsY: vsY(t.avgCheck,   y?.avgCheck) }
+    ]},
+    { cat: 'Daypart mix', rows: [
+      { lbl: 'Lunch sales',  today: $(t.lunchSales),  sixWeek: sixDol(s.lunchPct),  pctNet: Pf(t.lunchPct),  vsY: vsY(t.lunchSales,  y?.lunchSales) },
+      { lbl: 'Dinner sales', today: $(t.dinnerSales), sixWeek: sixDol(s.dinnerPct), pctNet: Pf(t.dinnerPct), vsY: vsY(t.dinnerSales, y?.dinnerSales) }
+    ]},
+    { cat: 'On / Off premise', rows: [
+      { lbl: 'On premise sales',  today: $(t.onPremise),  sixWeek: sixDol(s.onPremisePct),  pctNet: Pf(t.onPremisePct),  vsY: vsY(t.onPremise,  y?.onPremise) },
+      { lbl: 'Off premise sales', today: $(t.offPremise), sixWeek: sixDol(s.offPremisePct), pctNet: Pf(t.offPremisePct), vsY: vsY(t.offPremise, y?.offPremise) }
+    ]},
+    { cat: 'Channels — full breakdown', rows: channelRows },
+    { cat: 'Concept mix', rows: [
+      { lbl: "What's Gaby Cooking",  today: $(t.pmix?.whatsGabyCooking),  sixWeek: sixDol(s.whatsGabyCookingPct), pctNet: Pf(N ? (t.pmix?.whatsGabyCooking||0)/N*100 : null), vsY: vsY(t.pmix?.whatsGabyCooking,  y?.pmix?.whatsGabyCooking) },
+      { lbl: 'Mini Kabob',           today: $(t.pmix?.miniKabob),         sixWeek: sixDol(s.miniKabobPct),        pctNet: Pf(N ? (t.pmix?.miniKabob||0)/N*100         : null), vsY: vsY(t.pmix?.miniKabob,         y?.pmix?.miniKabob) },
+      { lbl: 'Palermo Pizza Club',   today: $(t.pmix?.palermoPizzaClub),  sixWeek: sixDol(s.palermoPizzaClubPct), pctNet: Pf(N ? (t.pmix?.palermoPizzaClub||0)/N*100  : null), vsY: vsY(t.pmix?.palermoPizzaClub,  y?.pmix?.palermoPizzaClub) },
+      { lbl: 'Mixtape',              today: $(t.pmix?.mixtape),           sixWeek: sixDol(s.mixtapePct),          pctNet: Pf(N ? (t.pmix?.mixtape||0)/N*100           : null), vsY: vsY(t.pmix?.mixtape,           y?.pmix?.mixtape) },
+      { lbl: 'Marketplace',          today: $(t.pmix?.marketplace),       sixWeek: sixDol(s.marketplacePct),      pctNet: Pf(N ? (t.pmix?.marketplace||0)/N*100       : null), vsY: vsY(t.pmix?.marketplace,       y?.pmix?.marketplace) },
+      { lbl: 'Catering',             today: $(t.pmix?.catering),          sixWeek: sixDol(s.cateringPct),         pctNet: Pf(N ? (t.pmix?.catering||0)/N*100          : null), vsY: vsY(t.pmix?.catering,          y?.pmix?.catering) }
+    ]}
+  ];
+
+  let html = `<thead><tr><th>Metric</th><th>Today</th><th>6-week avg</th><th>% of net</th><th>vs yesterday</th></tr></thead><tbody>`;
+  sections.forEach((sec, idx) => {
+    const catKey = `daily-${idx}`;
+    html += `<tr class="cat-row open" data-cat="${catKey}" onclick="toggleCatRow('${catKey}', this)">
+      <td colspan="5">
+        <svg class="cat-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"/></svg>${sec.cat}
+      </td>
+    </tr>`;
+    sec.rows.forEach(r => {
+      html += `<tr class="cat-child" data-cat="${catKey}">
+        <td style="font-weight:500">${r.lbl}</td>
+        <td>${r.today}</td>
+        <td style="color:var(--text-3)">${r.sixWeek}</td>
+        <td style="color:var(--text-3)">${r.pctNet}</td>
+        <td>${vsYCell(r.vsY)}</td>
+      </tr>`;
+    });
+  });
+  html += '</tbody>';
+  tbl.innerHTML = html;
+}
+
+// ── Daily Discounts & Comps — per-location table ─────────────────────────────
+function renderDailyDiscountsTable() {
+  const tbl = document.getElementById('dailyDiscountsTable');
+  if (!tbl) return;
+  const wlv = DAILY.wlv?.today, bw = DAILY.bw?.today, tot = DAILY.total?.today;
+  if (!wlv && !bw) { tbl.innerHTML = '<tbody><tr><td colspan="7" style="padding:1.5rem;text-align:center;color:var(--text-3)">No data — click Refresh</td></tr></tbody>'; return; }
+  const cats = [
+    ['Comp catering',      'compCatering'],
+    ['Comp food',          'compFood'],
+    ['Comp promo',         'compPromo'],
+    ['Comp marketing',     'compMarketing'],
+    ['Comp manager',       'compManager'],
+    ['Comp miscellaneous', 'compMisc']
+  ];
+  const cell = (loc, key) => {
+    const v = loc?.discounts?.[key];
+    const n = loc?.netSales || 0;
+    if (v == null) return ['—', '—'];
+    return [_fmtDollar(v), n > 0 ? _fmtMix(v / n * 100) : '—'];
+  };
+  let html = `<thead>
+    <tr>
+      <th rowspan="2" style="vertical-align:bottom">Category</th>
+      <th colspan="2" style="text-align:center;border-bottom:0.5px solid var(--border)">Westlake Village</th>
+      <th colspan="2" style="text-align:center;border-bottom:0.5px solid var(--border)">Brentwood</th>
+      <th colspan="2" style="text-align:center;border-bottom:0.5px solid var(--border)">Total</th>
+    </tr>
+    <tr>
+      <th>Sales</th><th>% of net</th>
+      <th>Sales</th><th>% of net</th>
+      <th>Sales</th><th>% of net</th>
+    </tr>
+  </thead><tbody>`;
+  cats.forEach(([lbl, key]) => {
+    const [w$, wP] = cell(wlv, key);
+    const [b$, bP] = cell(bw,  key);
+    const [t$, tP] = cell(tot, key);
+    html += `<tr>
+      <td style="font-weight:500">${lbl}</td>
+      <td>${w$}</td><td style="color:var(--text-3)">${wP}</td>
+      <td>${b$}</td><td style="color:var(--text-3)">${bP}</td>
+      <td>${t$}</td><td style="color:var(--text-3)">${tP}</td>
+    </tr>`;
+  });
+  html += '</tbody>';
+  tbl.innerHTML = html;
+}
+
+// ── Daily Labor — per-location table ──────────────────────────────────────────
+function renderDailyLaborTable() {
+  const tbl = document.getElementById('dailyLaborTable');
+  if (!tbl) return;
+  const wlv = DAILY.wlv?.today, bw = DAILY.bw?.today, tot = DAILY.total?.today;
+  if (!wlv && !bw) { tbl.innerHTML = '<tbody><tr><td colspan="10" style="padding:1.5rem;text-align:center;color:var(--text-3)">No data — click Refresh</td></tr></tbody>'; return; }
+  const rows = [
+    { lbl: 'SPLH',         hrs: null,           cost: l => l?.splh,           pct: null, costFmt: v => '$' + (+(v||0)).toFixed(2) },
+    { lbl: 'Total BOH',    hrs: l => l?.bohHours,      cost: l => l?.bohCost,      pct: 'derived' },
+    { lbl: 'Total FOH',    hrs: l => l?.fohHours,      cost: l => l?.fohCost,      pct: 'derived' },
+    { lbl: 'Training',     hrs: l => l?.trainingHours, cost: l => l?.trainingCost, pct: 'derived' },
+    { lbl: 'Total labor',  hrs: l => l?.totalHours,    cost: l => l?.totalCost,    pct: l => l?.laborPct, isTotal: true }
+  ];
+  const cell = (loc, row) => {
+    const l = loc?.labor;
+    const n = loc?.netSales || 0;
+    const h = row.hrs ? row.hrs(l) : null;
+    const c = row.cost ? row.cost(l) : null;
+    let p;
+    if (row.pct === 'derived') p = (n > 0 && c != null) ? c / n * 100 : null;
+    else if (typeof row.pct === 'function') p = row.pct(l);
+    else p = null;
+    const costFmt = row.costFmt || _fmtDollar;
+    return [
+      h != null ? (+h).toFixed(1) : '—',
+      c != null ? costFmt(c) : '—',
+      p != null ? _fmtMix(p) : '—'
+    ];
+  };
+  let html = `<thead>
+    <tr>
+      <th rowspan="2" style="vertical-align:bottom">Metric</th>
+      <th colspan="3" style="text-align:center;border-bottom:0.5px solid var(--border)">Westlake Village</th>
+      <th colspan="3" style="text-align:center;border-bottom:0.5px solid var(--border)">Brentwood</th>
+      <th colspan="3" style="text-align:center;border-bottom:0.5px solid var(--border)">Total</th>
+    </tr>
+    <tr>
+      <th>Hours</th><th>Cost</th><th>% of net</th>
+      <th>Hours</th><th>Cost</th><th>% of net</th>
+      <th>Hours</th><th>Cost</th><th>% of net</th>
+    </tr>
+  </thead><tbody>`;
+  rows.forEach(r => {
+    const [wH, wC, wP] = cell(wlv, r);
+    const [bH, bC, bP] = cell(bw,  r);
+    const [tH, tC, tP] = cell(tot, r);
+    const wt = r.isTotal ? 'font-weight:600' : 'font-weight:500';
+    html += `<tr>
+      <td style="${wt}">${r.lbl}</td>
+      <td>${wH}</td><td>${wC}</td><td style="color:var(--text-3)">${wP}</td>
+      <td>${bH}</td><td>${bC}</td><td style="color:var(--text-3)">${bP}</td>
+      <td>${tH}</td><td>${tC}</td><td style="color:var(--text-3)">${tP}</td>
+    </tr>`;
+  });
+  html += '</tbody>';
+  tbl.innerHTML = html;
+}
+
+function toggleCatRow(key, el) {
+  const isOpen = el.classList.toggle('open');
+  el.closest('table').querySelectorAll(`tr.cat-child[data-cat="${key}"]`).forEach(r => {
+    r.style.display = isOpen ? '' : 'none';
+  });
+}
+</script>
+
+<footer class="np-foot"><span class="track-trim">Neighbors Only Portal</span></footer>
+</body>
+</html>
