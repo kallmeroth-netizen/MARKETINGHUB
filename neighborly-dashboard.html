@@ -76,8 +76,12 @@
   .page { display: none; }
   .page.active { display: block; }
 
+  /* Pull the nav's centred padding in to the actual content edge (1200px),
+     so the Neighborly logo sits flush with the widest text on the page. */
+  :root { --content-max: 1200px; }
+
   /* DASHBOARD PAGE */
-  .dashboard { padding: 2rem; max-width: 1200px; margin: 0 auto; }
+  .dashboard { padding: 2rem var(--gutter); max-width: var(--content-max); margin: 0 auto; }
   .dash-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 1.75rem; flex-wrap: wrap; gap: 1rem; }
   .dash-title { font-size: 22px; font-weight: 600; letter-spacing: -0.03em; color: var(--text); }
   .dash-sub { font-size: 13px; color: var(--text-2); margin-top: 3px; }
@@ -333,6 +337,12 @@
   }
 </style>
 <link rel="stylesheet" href="theme.css">
+<style>
+  /* Page-specific tokens — loaded AFTER theme.css so they win.
+     Dashboard content is 1200px wide; pulling --content-max down to match
+     makes the fixed-banner Neighborly logo sit flush with the widest text. */
+  :root { --content-max: 1200px; }
+</style>
 <script src="chrome.js" defer></script>
 </head>
 <body>
@@ -417,7 +427,7 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="#9c7a3c" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 010 14.14M4.93 4.93a10 10 0 000 14.14M12 2v2M12 20v2M2 12h2M20 12h2"/></svg>
       </div>
       <div class="hub-card-title">Brand Assets</div>
-      <div class="hub-card-sub">Logos, fonts & templates</div>
+      <div class="hub-card-sub">Logos & templates</div>
     </a>
 
     <a class="hub-card" href="neighborly-social.html">

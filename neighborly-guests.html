@@ -102,7 +102,10 @@ nav{background:var(--surface);border-bottom:.5px solid var(--border-strong);padd
 #calApplyBtn:hover{filter:brightness(1.08);background:var(--brand-orange);color:#fff}
 
 /* PAGE HEADER — matches the dashboard's .dash-header pattern: title + date controls on the left, location toggle on the right */
-.guest-header{max-width:1200px;margin:0 auto;padding:1.5rem 1.5rem 0;display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;flex-wrap:wrap}
+/* Lock content width + horizontal padding to the same tokens the fixed
+   banner uses, so the Neighborly logo sits flush with the widest text. */
+:root{--content-max:1200px}
+.guest-header{max-width:var(--content-max);margin:0 auto;padding:1.5rem var(--gutter) 0;display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;flex-wrap:wrap}
 .guest-header-left{display:flex;flex-direction:column;gap:8px;min-width:0;flex:1 1 auto}
 .guest-title{font-size:22px;font-weight:600;letter-spacing:-0.03em;color:var(--text);line-height:1.15}
 .guest-sub{font-size:13px;color:var(--text2)}
@@ -148,7 +151,7 @@ nav{background:var(--surface);border-bottom:.5px solid var(--border-strong);padd
 .nav-back:hover{background:var(--surface-2)}
 
 /* PAGES */
-.page{display:none;padding:1.5rem;max-width:1200px;margin:0 auto}
+.page{display:none;padding:1.5rem var(--gutter);max-width:var(--content-max);margin:0 auto}
 .page.active{display:block}
 
 /* SECTION */
@@ -477,6 +480,12 @@ nav{background:var(--surface);border-bottom:.5px solid var(--border-strong);padd
 
 </style>
 <link rel="stylesheet" href="theme.css">
+<style>
+  /* Loaded AFTER theme.css so the override sticks. Guests pages render at
+     1200px content width — match the banner padding to that edge so the
+     Neighborly logo sits flush with the widest text. */
+  :root { --content-max: 1200px; }
+</style>
 <script src="chrome.js" defer></script>
 </head>
 <body>
@@ -528,37 +537,10 @@ nav{background:var(--surface);border-bottom:.5px solid var(--border-strong);padd
 <input type="hidden" id="drFrom">
 <input type="hidden" id="drTo">
 
-<!-- CALENDAR POPOVER -->
-<div class="cal-overlay" id="calOverlay" onclick="closeCalendar()"></div>
-<div class="cal-pop" id="calPop">
-  <div class="cal-head">
-    <button class="cal-nav" onclick="calNav(-1)" aria-label="Previous month">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
-    </button>
-    <div class="cal-title" id="calTitle">—</div>
-    <button class="cal-nav" onclick="calNav(1)" aria-label="Next month">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
-    </button>
-  </div>
-  <div class="cal-dow"><div>S</div><div>M</div><div>T</div><div>W</div><div>T</div><div>F</div><div>S</div></div>
-  <div class="cal-grid" id="calGrid"></div>
-  <div class="cal-foot" id="calFoot">Click a day to start range · click again to set end date</div>
-  <div style="display:flex;gap:6px;margin-top:10px">
-    <button class="cal-action" onclick="calClear()">All time</button>
-    <button class="cal-action" onclick="calApply()" id="calApplyBtn">Apply</button>
-  </div>
-</div>
-
 <!-- PAGE HEADER — matches the dashboard's dash-header pattern -->
 <header class="np-page-header guest-header">
   <div class="np-page-header-main guest-header-left">
     <div class="guest-header-controls">
-      <button type="button" class="date-pill" id="datePill" onclick="openCalendar(event)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-        <span class="date-pill-label" id="datePillLabel">All time</span>
-        <span class="date-pill-badge" id="datePillBadge" style="display:none"></span>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="12" height="12" style="margin-left:2px"><polyline points="6 9 12 15 18 9"/></svg>
-      </button>
       <div class="date-preset-group">
         <button type="button" class="dp-btn active" onclick="setDatePreset('all',this)">All time</button>
         <button type="button" class="dp-btn" onclick="setDatePreset('week',this)">This week</button>
@@ -639,7 +621,7 @@ nav{background:var(--surface);border-bottom:.5px solid var(--border-strong);padd
         </svg>
       </div>
       <div class="hub-card-title">Brand Assets</div>
-      <div class="hub-card-sub">Logos, fonts &amp; templates</div>
+      <div class="hub-card-sub">Logos &amp; templates</div>
     </a>
 
     <!-- 4. Social -->
@@ -1459,6 +1441,32 @@ function renderOverview(){
     +'</div>';
 
   // ── WORST PERFORMING (top complaints with WoW delta) ──────────
+  // Small line-icon set (Feather/Lucide style, 14×14, stroke 1.8) keyed by
+  // theme id so the rows read like clean glyphs instead of emoji noise.
+  var THEME_SVG = {
+    app:      '<polyline points="6 9 6 2 18 2 18 9"/>',                                                                                              // (placeholder, overridden below)
+  };
+  THEME_SVG = {
+    app:       '<rect x="7" y="2" width="10" height="20" rx="2"/><line x1="11" y1="18" x2="13" y2="18"/>',
+    accuracy:  '<path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/>',
+    wait:      '<circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/>',
+    pickup:    '<path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>',
+    cold:      '<line x1="12" y1="2" x2="12" y2="22"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="5" y1="5" x2="19" y2="19"/><line x1="19" y1="5" x2="5" y2="19"/>',
+    soggy:     '<path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/>',
+    chickenQ:  '<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>',
+    portion:   '<line x1="12" y1="2" x2="12" y2="22"/><path d="M4 7h16"/><path d="M7 7l-3 7a4 4 0 0 0 6 0z"/><path d="M17 7l-3 7a4 4 0 0 0 6 0z"/>',
+    team:      '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
+    foodLove:  '<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>',
+    variety:   '<path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/>',
+    recovery:  '<path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>',
+    loyal:     '<path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>'
+  };
+  function themeIconSvg(id, isWin){
+    var paths = THEME_SVG[id] || '<circle cx="12" cy="12" r="9"/>';
+    var color = isWin ? 'var(--gd)' : 'var(--rd)';
+    return '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="color:'+color+'">'+paths+'</svg>';
+  }
+
   function themeRow(t, isWin){
     var deltaText = '';
     if(prv.n > 0){
@@ -1471,7 +1479,7 @@ function renderOverview(){
     }
     var bg = isWin?'var(--gl)':'var(--rl)';
     return '<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);cursor:pointer" onclick="openOvDrawer(\''+t.id+'\','+(isWin?'true':'false')+')">'
-      +'<div style="width:32px;height:32px;border-radius:8px;background:'+bg+';display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0">'+t.icon+'</div>'
+      +'<div style="width:24px;height:24px;border-radius:6px;background:'+bg+';display:flex;align-items:center;justify-content:center;flex-shrink:0">'+themeIconSvg(t.id, isWin)+'</div>'
       +'<div style="flex:1;min-width:0">'
         +'<div style="font-size:12.5px;font-weight:600;color:var(--text)">'+t.name+'</div>'
         +'<div style="font-size:10.5px;color:var(--text3);margin-top:1px">'+t.n+' mentions · avg rating '+rateScaleTo5(t.avg)+'/5 · '+t.cat+'</div>'
