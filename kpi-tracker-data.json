@@ -1,0 +1,2998 @@
+{
+  "source": "Neighborly Marketing KPI Tracker \u2014 Weekly Summary",
+  "lastUpdated": "2026-05-20",
+  "fiscalCalendar": "13\u00d74-week periods (Wednesday-start weeks)",
+  "fields": {
+    "revenue": [
+      "total",
+      "dineIn",
+      "webPickup",
+      "instore",
+      "delivery",
+      "catering",
+      "tpd",
+      "marketplace"
+    ],
+    "meta": [
+      "netRev",
+      "spend",
+      "roas",
+      "cac",
+      "customers"
+    ],
+    "google": [
+      "netRev",
+      "spend",
+      "roas",
+      "cac",
+      "customers"
+    ],
+    "sponsored": [
+      "netRev",
+      "spend",
+      "roas"
+    ],
+    "promo": [
+      "netRev",
+      "spend",
+      "roas"
+    ],
+    "influencer": [
+      "posts",
+      "reach"
+    ]
+  },
+  "note": "Mirrors the metrics in the source KPI tracker. Fields not in the tracker (impressions, clicks, CPC, CTR, channel mix %, contribution %) are intentionally omitted.",
+  "weeks": [
+    {
+      "date": "2024-12-30",
+      "displayDate": "Dec 30, 2024",
+      "fiscalLabel": "Click to expand Y1",
+      "revenue": {},
+      "meta": {},
+      "google": {
+        "roas": 0.0,
+        "customers": 0.0
+      },
+      "sponsored": {
+        "roas": 0.0
+      },
+      "promo": {},
+      "influencer": {
+        "posts": 0.0,
+        "reach": 0.0
+      }
+    },
+    {
+      "date": "2025-01-06",
+      "displayDate": "Jan 6, 2025",
+      "fiscalLabel": "P1 '25",
+      "revenue": {},
+      "meta": {},
+      "google": {
+        "roas": 0.0,
+        "customers": 0.0
+      },
+      "sponsored": {
+        "roas": 0.0
+      },
+      "promo": {},
+      "influencer": {
+        "posts": 0.0,
+        "reach": 0.0
+      }
+    },
+    {
+      "date": "2025-01-13",
+      "displayDate": "Jan 13, 2025",
+      "fiscalLabel": "P1 '25",
+      "revenue": {},
+      "meta": {},
+      "google": {
+        "roas": 0.0,
+        "customers": 0.0
+      },
+      "sponsored": {
+        "roas": 0.0
+      },
+      "promo": {},
+      "influencer": {
+        "posts": 0.0,
+        "reach": 0.0
+      }
+    },
+    {
+      "date": "2025-01-20",
+      "displayDate": "Jan 20, 2025",
+      "fiscalLabel": "P1 '25",
+      "revenue": {},
+      "meta": {},
+      "google": {
+        "roas": 0.0,
+        "customers": 0.0
+      },
+      "sponsored": {
+        "roas": 0.0
+      },
+      "promo": {},
+      "influencer": {
+        "posts": 0.0,
+        "reach": 0.0
+      }
+    },
+    {
+      "date": "2025-01-27",
+      "displayDate": "Jan 27, 2025",
+      "fiscalLabel": "P1 '25",
+      "revenue": {
+        "total": 73203.0,
+        "dineIn": 27386.0,
+        "webPickup": 15176.0,
+        "instore": 14664.0,
+        "delivery": 3216.0,
+        "tpd": 8035.0,
+        "marketplace": 4727.0
+      },
+      "meta": {},
+      "google": {
+        "roas": 9.16,
+        "netRev": 2627.0,
+        "spend": 322.0,
+        "cac": 4.57,
+        "customers": 70.5
+      },
+      "sponsored": {
+        "netRev": 1784.0,
+        "spend": 462.0,
+        "roas": 3.86
+      },
+      "promo": {
+        "netRev": 7666.0,
+        "spend": 1069.0,
+        "roas": 7.17
+      },
+      "influencer": {
+        "reach": 0.0
+      }
+    },
+    {
+      "date": "2025-02-03",
+      "displayDate": "Feb 3, 2025",
+      "fiscalLabel": "P2 '25",
+      "revenue": {
+        "total": 69099.0,
+        "dineIn": 23404.0,
+        "webPickup": 16312.0,
+        "instore": 12353.0,
+        "delivery": 2929.0,
+        "tpd": 10264.0,
+        "marketplace": 3837.0
+      },
+      "meta": {},
+      "google": {
+        "roas": 7.79,
+        "netRev": 5269.0,
+        "spend": 776.0,
+        "cac": 4.76,
+        "customers": 163.0
+      },
+      "sponsored": {
+        "netRev": 4990.0,
+        "spend": 869.0,
+        "roas": 5.74
+      },
+      "promo": {
+        "netRev": 8173.0,
+        "spend": 1196.0,
+        "roas": 6.83
+      },
+      "influencer": {
+        "posts": 19.0,
+        "reach": 2013796.0
+      }
+    },
+    {
+      "date": "2025-02-10",
+      "displayDate": "Feb 10, 2025",
+      "fiscalLabel": "P2 '25",
+      "revenue": {
+        "total": 71460.0,
+        "dineIn": 23218.0,
+        "webPickup": 15368.0,
+        "instore": 12495.0,
+        "delivery": 3248.0,
+        "tpd": 12387.0,
+        "marketplace": 4745.0
+      },
+      "meta": {
+        "roas": 6.0,
+        "netRev": 1243.0,
+        "spend": 272.0,
+        "cac": 6.81,
+        "customers": 40.0
+      },
+      "google": {
+        "roas": 6.7,
+        "netRev": 4002.0,
+        "spend": 702.0,
+        "cac": 4.95,
+        "customers": 142.0
+      },
+      "sponsored": {
+        "netRev": 4883.0,
+        "spend": 779.0,
+        "roas": 6.27
+      },
+      "promo": {
+        "netRev": 9211.0,
+        "spend": 1357.0,
+        "roas": 6.79
+      },
+      "influencer": {
+        "posts": 3.0,
+        "reach": 191600.0
+      }
+    },
+    {
+      "date": "2025-02-17",
+      "displayDate": "Feb 17, 2025",
+      "fiscalLabel": "P2 '25",
+      "revenue": {
+        "total": 82892.0,
+        "dineIn": 31415.0,
+        "webPickup": 16374.0,
+        "instore": 13225.0,
+        "delivery": 3178.0,
+        "tpd": 14529.0,
+        "marketplace": 4170.0
+      },
+      "meta": {
+        "roas": 7.0,
+        "netRev": 3280.0,
+        "spend": 561.0,
+        "cac": 5.73,
+        "customers": 98.0
+      },
+      "google": {
+        "roas": 6.09,
+        "netRev": 5018.0,
+        "spend": 986.0,
+        "cac": 6.01,
+        "customers": 164.0
+      },
+      "sponsored": {
+        "netRev": 4324.0,
+        "spend": 760.0,
+        "roas": 5.69
+      },
+      "promo": {
+        "netRev": 10050.0,
+        "spend": 1548.0,
+        "roas": 6.49
+      },
+      "influencer": {
+        "posts": 6.0,
+        "reach": 1390717.0
+      }
+    },
+    {
+      "date": "2025-02-24",
+      "displayDate": "Feb 24, 2025",
+      "fiscalLabel": "P2 '25",
+      "revenue": {
+        "total": 86327.0,
+        "dineIn": 30360.0,
+        "webPickup": 17205.0,
+        "instore": 12419.0,
+        "delivery": 3620.0,
+        "tpd": 18394.0,
+        "marketplace": 4330.0
+      },
+      "meta": {
+        "roas": 5.0,
+        "netRev": 2860.0,
+        "spend": 776.0,
+        "cac": 7.84,
+        "customers": 99.0
+      },
+      "google": {
+        "roas": 7.65,
+        "netRev": 5020.0,
+        "spend": 755.0,
+        "cac": 4.65,
+        "customers": 162.4
+      },
+      "sponsored": {
+        "netRev": 5104.0,
+        "spend": 790.0,
+        "roas": 6.46
+      },
+      "promo": {
+        "netRev": 10374.0,
+        "spend": 1317.0,
+        "roas": 7.88
+      },
+      "influencer": {
+        "posts": 7.0,
+        "reach": 1070923.0
+      }
+    },
+    {
+      "date": "2025-03-03",
+      "displayDate": "Mar 3, 2025",
+      "fiscalLabel": "P3 '25",
+      "revenue": {
+        "total": 80630.0,
+        "dineIn": 26946.0,
+        "webPickup": 15358.0,
+        "instore": 13577.0,
+        "delivery": 3596.0,
+        "tpd": 16438.0,
+        "marketplace": 4715.0
+      },
+      "meta": {
+        "roas": 4.0,
+        "netRev": 4249.0,
+        "spend": 1290.0,
+        "cac": 8.72,
+        "customers": 148.0
+      },
+      "google": {
+        "roas": 9.0,
+        "netRev": 4474.0,
+        "spend": 559.0,
+        "cac": 3.65,
+        "customers": 153.2
+      },
+      "sponsored": {
+        "netRev": 3755.0,
+        "spend": 612.0,
+        "roas": 6.14
+      },
+      "promo": {
+        "netRev": 8725.0,
+        "spend": 1078.0,
+        "roas": 8.09
+      },
+      "influencer": {
+        "posts": 11.0,
+        "reach": 1460500.0
+      }
+    },
+    {
+      "date": "2025-03-10",
+      "displayDate": "Mar 10, 2025",
+      "fiscalLabel": "P3 '25",
+      "revenue": {
+        "total": 85710.0,
+        "dineIn": 25174.0,
+        "webPickup": 17336.0,
+        "instore": 17870.0,
+        "delivery": 2310.0,
+        "tpd": 17959.0,
+        "marketplace": 5060.0
+      },
+      "meta": {
+        "roas": 4.0,
+        "netRev": 4180.0,
+        "spend": 1417.0,
+        "cac": 11.34,
+        "customers": 125.0
+      },
+      "google": {
+        "roas": 8.68,
+        "netRev": 6131.0,
+        "spend": 798.0,
+        "cac": 4.53,
+        "customers": 176.0
+      },
+      "sponsored": {
+        "netRev": 5444.0,
+        "spend": 656.0,
+        "roas": 8.3
+      },
+      "promo": {
+        "netRev": 10200.0,
+        "spend": 1195.0,
+        "roas": 8.54
+      },
+      "influencer": {
+        "posts": 8.0,
+        "reach": 411400.0
+      }
+    },
+    {
+      "date": "2025-03-17",
+      "displayDate": "Mar 17, 2025",
+      "fiscalLabel": "P3 '25",
+      "revenue": {
+        "total": 97171.0,
+        "dineIn": 36337.0,
+        "webPickup": 16492.0,
+        "instore": 14676.0,
+        "delivery": 3823.0,
+        "tpd": 19002.0,
+        "marketplace": 6841.0
+      },
+      "meta": {
+        "roas": 3.0,
+        "netRev": 2645.0,
+        "spend": 1280.0,
+        "cac": 12.54,
+        "customers": 102.0
+      },
+      "google": {
+        "roas": 9.41,
+        "netRev": 4849.0,
+        "spend": 577.0,
+        "cac": 4.12,
+        "customers": 140.0
+      },
+      "sponsored": {
+        "netRev": 4571.0,
+        "spend": 663.0,
+        "roas": 6.9
+      },
+      "promo": {
+        "netRev": 11110.0,
+        "spend": 1368.0,
+        "roas": 8.12
+      },
+      "influencer": {
+        "posts": 10.0,
+        "reach": 339700.0
+      }
+    },
+    {
+      "date": "2025-03-24",
+      "displayDate": "Mar 24, 2025",
+      "fiscalLabel": "P3 '25",
+      "revenue": {
+        "total": 91244.0,
+        "dineIn": 27958.0,
+        "webPickup": 17475.0,
+        "instore": 16787.0,
+        "delivery": 3704.0,
+        "tpd": 20408.0,
+        "marketplace": 4912.0
+      },
+      "meta": {
+        "roas": 3.0,
+        "netRev": 2480.0,
+        "spend": 1265.0,
+        "cac": 11.61,
+        "customers": 109.0
+      },
+      "google": {
+        "roas": 10.53,
+        "netRev": 5448.0,
+        "spend": 572.0,
+        "cac": 3.77,
+        "customers": 151.7
+      },
+      "sponsored": {
+        "netRev": 5316.0,
+        "spend": 699.0,
+        "roas": 7.6
+      },
+      "promo": {
+        "netRev": 12431.0,
+        "spend": 1400.0,
+        "roas": 8.88
+      },
+      "influencer": {
+        "posts": 6.0,
+        "reach": 403300.0
+      }
+    },
+    {
+      "date": "2025-03-31",
+      "displayDate": "Mar 31, 2025",
+      "fiscalLabel": "P3 '25",
+      "revenue": {
+        "total": 91806.0,
+        "dineIn": 32943.0,
+        "webPickup": 18245.0,
+        "instore": 12788.0,
+        "delivery": 3370.0,
+        "tpd": 19248.0,
+        "marketplace": 5212.0
+      },
+      "meta": {
+        "roas": 6.0,
+        "netRev": 4186.0,
+        "spend": 834.0,
+        "cac": 6.47,
+        "customers": 129.0
+      },
+      "google": {
+        "roas": 12.33,
+        "netRev": 4819.0,
+        "spend": 425.0,
+        "cac": 2.96,
+        "customers": 143.5
+      },
+      "sponsored": {
+        "netRev": 4998.0,
+        "spend": 663.0,
+        "roas": 7.53
+      },
+      "promo": {
+        "netRev": 11579.0,
+        "spend": 1587.0,
+        "roas": 7.3
+      },
+      "influencer": {
+        "posts": 8.0,
+        "reach": 1422000.0
+      }
+    },
+    {
+      "date": "2025-04-07",
+      "displayDate": "Apr 7, 2025",
+      "fiscalLabel": "P4 '25",
+      "revenue": {
+        "total": 90063.0,
+        "dineIn": 35418.0,
+        "webPickup": 18077.0,
+        "instore": 12533.0,
+        "delivery": 3463.0,
+        "tpd": 20572.0
+      },
+      "meta": {
+        "roas": 5.0,
+        "netRev": 5109.0,
+        "spend": 1256.0,
+        "cac": 7.43,
+        "customers": 169.0
+      },
+      "google": {
+        "roas": 9.51,
+        "netRev": 4079.0,
+        "spend": 479.0,
+        "cac": 3.98,
+        "customers": 120.4
+      },
+      "sponsored": {
+        "netRev": 5513.0,
+        "spend": 632.0,
+        "roas": 8.72
+      },
+      "promo": {
+        "netRev": 9820.0,
+        "spend": 1390.0,
+        "roas": 7.07
+      },
+      "influencer": {
+        "posts": 11.0,
+        "reach": 1378000.0
+      }
+    },
+    {
+      "date": "2025-04-14",
+      "displayDate": "Apr 14, 2025",
+      "fiscalLabel": "P4 '25",
+      "revenue": {
+        "total": 85617.0,
+        "dineIn": 29441.0,
+        "webPickup": 16166.0,
+        "instore": 12050.0,
+        "delivery": 3244.0,
+        "tpd": 18436.0,
+        "marketplace": 6281.0
+      },
+      "meta": {
+        "roas": 4.0,
+        "netRev": 4051.0,
+        "spend": 1256.0,
+        "cac": 9.03,
+        "customers": 139.0
+      },
+      "google": {
+        "roas": 7.88,
+        "netRev": 4803.0,
+        "spend": 699.0,
+        "cac": 4.66,
+        "customers": 149.8
+      },
+      "sponsored": {
+        "netRev": 4999.0,
+        "spend": 760.0,
+        "roas": 6.58
+      },
+      "promo": {
+        "netRev": 9728.0,
+        "spend": 934.0,
+        "roas": 10.41
+      },
+      "influencer": {
+        "posts": 9.0,
+        "reach": 628000.0
+      }
+    },
+    {
+      "date": "2025-04-21",
+      "displayDate": "Apr 21, 2025",
+      "fiscalLabel": "P4 '25",
+      "revenue": {
+        "total": 87396.0,
+        "dineIn": 27786.0,
+        "webPickup": 17086.0,
+        "instore": 14705.0,
+        "delivery": 4278.0,
+        "tpd": 18926.0,
+        "marketplace": 4615.0
+      },
+      "meta": {
+        "roas": 5.0,
+        "netRev": 4091.0,
+        "spend": 1146.0,
+        "cac": 8.81,
+        "customers": 130.0
+      },
+      "google": {
+        "roas": 7.45,
+        "netRev": 4559.0,
+        "spend": 707.0,
+        "cac": 5.7,
+        "customers": 124.0
+      },
+      "sponsored": {
+        "netRev": 6009.0,
+        "spend": 834.0,
+        "roas": 7.2
+      },
+      "promo": {
+        "netRev": 9266.0,
+        "spend": 1123.0,
+        "roas": 8.25
+      },
+      "influencer": {
+        "posts": 10.0,
+        "reach": 1992000.0
+      }
+    },
+    {
+      "date": "2025-04-28",
+      "displayDate": "Apr 28, 2025",
+      "fiscalLabel": "P4 '25",
+      "revenue": {
+        "total": 91112.0,
+        "dineIn": 29261.0,
+        "webPickup": 16227.0,
+        "instore": 14043.0,
+        "delivery": 4247.0,
+        "tpd": 22160.0,
+        "marketplace": 5174.0
+      },
+      "meta": {
+        "roas": 4.0,
+        "netRev": 3627.0,
+        "spend": 1181.0,
+        "cac": 9.93,
+        "customers": 119.0
+      },
+      "google": {
+        "roas": 9.89,
+        "netRev": 4216.0,
+        "spend": 474.0,
+        "cac": 3.59,
+        "customers": 132.0
+      },
+      "sponsored": {
+        "netRev": 6465.0,
+        "spend": 784.0,
+        "roas": 8.25
+      },
+      "promo": {
+        "netRev": 10985.0,
+        "spend": 1388.0,
+        "roas": 7.91
+      },
+      "influencer": {
+        "posts": 7.0,
+        "reach": 1491400.0
+      }
+    },
+    {
+      "date": "2025-05-05",
+      "displayDate": "May 5, 2025",
+      "fiscalLabel": "P5 '25",
+      "revenue": {
+        "total": 97381.0,
+        "dineIn": 31171.0,
+        "webPickup": 20604.0,
+        "instore": 12128.0,
+        "delivery": 4710.0,
+        "tpd": 22275.0,
+        "marketplace": 6493.0
+      },
+      "meta": {
+        "roas": 6.0,
+        "netRev": 4518.0,
+        "spend": 863.0,
+        "cac": 5.79,
+        "customers": 149.0
+      },
+      "google": {
+        "roas": 10.55,
+        "netRev": 4409.0,
+        "spend": 462.0,
+        "cac": 3.38,
+        "customers": 136.4
+      },
+      "sponsored": {
+        "netRev": 6125.0,
+        "spend": 822.0,
+        "roas": 7.45
+      },
+      "promo": {
+        "netRev": 7815.0,
+        "spend": 1340.0,
+        "roas": 5.83
+      },
+      "influencer": {
+        "posts": 9.0,
+        "reach": 1208502.0
+      }
+    },
+    {
+      "date": "2025-05-12",
+      "displayDate": "May 12, 2025",
+      "fiscalLabel": "P5 '25",
+      "revenue": {
+        "total": 92706.0,
+        "dineIn": 33218.0,
+        "webPickup": 18571.0,
+        "instore": 13237.0,
+        "delivery": 3964.0,
+        "tpd": 17971.0,
+        "marketplace": 5746.0
+      },
+      "meta": {
+        "roas": 6.0,
+        "netRev": 3641.0,
+        "spend": 733.0,
+        "cac": 5.24,
+        "customers": 140.0
+      },
+      "google": {
+        "roas": 11.45,
+        "netRev": 4560.0,
+        "spend": 437.0,
+        "cac": 3.21,
+        "customers": 136.1
+      },
+      "sponsored": {
+        "netRev": 3497.0,
+        "spend": 673.0,
+        "roas": 5.2
+      },
+      "promo": {
+        "netRev": 8531.0,
+        "spend": 888.0,
+        "roas": 9.61
+      },
+      "influencer": {
+        "posts": 8.0,
+        "reach": 1237100.0
+      }
+    },
+    {
+      "date": "2025-05-19",
+      "displayDate": "May 19, 2025",
+      "fiscalLabel": "P5 '25",
+      "revenue": {
+        "total": 107791.0,
+        "dineIn": 40150.0,
+        "webPickup": 20989.0,
+        "instore": 13880.0,
+        "delivery": 4017.0,
+        "tpd": 21847.0,
+        "marketplace": 6907.0
+      },
+      "meta": {
+        "roas": 7.0,
+        "netRev": 5710.0,
+        "spend": 903.0,
+        "cac": 5.28,
+        "customers": 171.0
+      },
+      "google": {
+        "roas": 9.17,
+        "netRev": 4111.0,
+        "spend": 503.0,
+        "cac": 3.9,
+        "customers": 129.0
+      },
+      "sponsored": {
+        "netRev": 5593.0,
+        "spend": 783.0,
+        "roas": 7.14
+      },
+      "promo": {
+        "netRev": 11137.0,
+        "spend": 1124.0,
+        "roas": 9.91
+      },
+      "influencer": {
+        "posts": 14.0,
+        "reach": 5669505.0
+      }
+    },
+    {
+      "date": "2025-05-26",
+      "displayDate": "May 26, 2025",
+      "fiscalLabel": "P5 '25",
+      "revenue": {
+        "total": 115490.0,
+        "dineIn": 40757.0,
+        "webPickup": 21903.0,
+        "instore": 14257.0,
+        "delivery": 5062.0,
+        "tpd": 27165.0,
+        "marketplace": 6347.0
+      },
+      "meta": {
+        "roas": 7.0,
+        "netRev": 5255.0,
+        "spend": 916.0,
+        "cac": 5.66,
+        "customers": 162.0
+      },
+      "google": {
+        "roas": 12.4,
+        "netRev": 5565.0,
+        "spend": 488.0,
+        "cac": 3.15,
+        "customers": 154.8
+      },
+      "sponsored": {
+        "netRev": 7146.0,
+        "spend": 872.0,
+        "roas": 8.2
+      },
+      "promo": {
+        "netRev": 13275.0,
+        "spend": 1325.0,
+        "roas": 10.02
+      },
+      "influencer": {
+        "posts": 13.0,
+        "reach": 4945200.0
+      }
+    },
+    {
+      "date": "2025-06-02",
+      "displayDate": "Jun 2, 2025",
+      "fiscalLabel": "P6 '25",
+      "revenue": {
+        "total": 115831.0,
+        "dineIn": 38641.0,
+        "webPickup": 23395.0,
+        "instore": 14854.0,
+        "delivery": 6533.0,
+        "tpd": 27330.0,
+        "marketplace": 5077.0
+      },
+      "meta": {
+        "roas": 9.0,
+        "netRev": 6161.0,
+        "spend": 773.0,
+        "cac": 4.16,
+        "customers": 186.0
+      },
+      "google": {
+        "roas": 14.78,
+        "netRev": 6514.0,
+        "spend": 473.0,
+        "cac": 2.61,
+        "customers": 180.9
+      },
+      "sponsored": {
+        "netRev": 7948.0,
+        "spend": 820.0,
+        "roas": 9.69
+      },
+      "promo": {
+        "netRev": 12182.0,
+        "spend": 1119.0,
+        "roas": 10.89
+      },
+      "influencer": {
+        "posts": 10.0,
+        "reach": 17412000.0
+      }
+    },
+    {
+      "date": "2025-06-09",
+      "displayDate": "Jun 9, 2025",
+      "fiscalLabel": "P6 '25",
+      "revenue": {
+        "total": 112791.0,
+        "dineIn": 39174.0,
+        "webPickup": 21505.0,
+        "instore": 14573.0,
+        "delivery": 4384.0,
+        "tpd": 26775.0,
+        "marketplace": 6379.0
+      },
+      "meta": {
+        "roas": 8.0,
+        "netRev": 4781.0,
+        "spend": 708.0,
+        "cac": 4.37,
+        "customers": 162.0
+      },
+      "google": {
+        "roas": 13.05,
+        "netRev": 4931.0,
+        "spend": 409.0,
+        "cac": 2.69,
+        "customers": 152.1
+      },
+      "sponsored": {
+        "netRev": 6478.0,
+        "spend": 824.0,
+        "roas": 7.87
+      },
+      "promo": {
+        "netRev": 9985.0,
+        "spend": 945.0,
+        "roas": 10.57
+      },
+      "influencer": {
+        "posts": 8.0,
+        "reach": 306700.0
+      }
+    },
+    {
+      "date": "2025-06-16",
+      "displayDate": "Jun 16, 2025",
+      "fiscalLabel": "P6 '25",
+      "revenue": {
+        "total": 113893.0,
+        "dineIn": 42540.0,
+        "webPickup": 21822.0,
+        "instore": 13847.0,
+        "delivery": 4641.0,
+        "tpd": 25992.0,
+        "marketplace": 5051.0
+      },
+      "meta": {
+        "roas": 10.0,
+        "netRev": 5617.0,
+        "spend": 640.0,
+        "cac": 3.68,
+        "customers": 174.0
+      },
+      "google": {
+        "roas": 12.0,
+        "netRev": 4667.0,
+        "spend": 424.0,
+        "cac": 2.79,
+        "customers": 152.4
+      },
+      "sponsored": {
+        "netRev": 7610.0,
+        "spend": 939.0,
+        "roas": 8.1
+      },
+      "promo": {
+        "netRev": 10737.0,
+        "spend": 958.0,
+        "roas": 11.21
+      },
+      "influencer": {
+        "posts": 9.0,
+        "reach": 4532000.0
+      }
+    },
+    {
+      "date": "2025-06-23",
+      "displayDate": "Jun 23, 2025",
+      "fiscalLabel": "P6 '25",
+      "revenue": {
+        "total": 112310.0,
+        "dineIn": 40594.0,
+        "webPickup": 20377.0,
+        "instore": 14377.0,
+        "delivery": 5301.0,
+        "tpd": 26640.0,
+        "marketplace": 5020.0
+      },
+      "meta": {
+        "roas": 12.0,
+        "netRev": 5963.0,
+        "spend": 534.0,
+        "cac": 3.36,
+        "customers": 159.0
+      },
+      "google": {
+        "roas": 12.49,
+        "netRev": 4647.0,
+        "spend": 405.0,
+        "cac": 2.67,
+        "customers": 151.7
+      },
+      "sponsored": {
+        "netRev": 7794.0,
+        "spend": 946.0,
+        "roas": 8.23
+      },
+      "promo": {
+        "netRev": 7973.0,
+        "spend": 887.0,
+        "roas": 8.99
+      },
+      "influencer": {
+        "posts": 10.0,
+        "reach": 4676929.0
+      }
+    },
+    {
+      "date": "2025-06-30",
+      "displayDate": "Jun 30, 2025",
+      "fiscalLabel": "P6 '25",
+      "revenue": {
+        "total": 99785.0,
+        "dineIn": 37735.0,
+        "webPickup": 19454.0,
+        "instore": 12089.0,
+        "delivery": 3857.0,
+        "tpd": 21179.0,
+        "marketplace": 5471.0
+      },
+      "meta": {
+        "roas": 11.0,
+        "netRev": 4785.0,
+        "spend": 488.0,
+        "cac": 3.78,
+        "customers": 129.0
+      },
+      "google": {
+        "roas": 8.43,
+        "netRev": 3162.0,
+        "spend": 425.0,
+        "cac": 3.73,
+        "customers": 114.1
+      },
+      "sponsored": {
+        "netRev": 6806.0,
+        "spend": 841.0,
+        "roas": 8.09
+      },
+      "promo": {
+        "netRev": 8985.0,
+        "spend": 884.0,
+        "roas": 10.16
+      },
+      "influencer": {
+        "posts": 8.0,
+        "reach": 1684100.0
+      }
+    },
+    {
+      "date": "2025-07-07",
+      "displayDate": "Jul 7, 2025",
+      "fiscalLabel": "P7 '25",
+      "revenue": {
+        "total": 112001.0,
+        "dineIn": 41893.0,
+        "webPickup": 21098.0,
+        "instore": 12950.0,
+        "delivery": 3633.0,
+        "tpd": 26817.0,
+        "marketplace": 5609.0
+      },
+      "meta": {
+        "roas": 5.0,
+        "netRev": 3127.0,
+        "spend": 734.0,
+        "cac": 6.16,
+        "customers": 119.0
+      },
+      "google": {
+        "roas": 13.36,
+        "netRev": 5145.0,
+        "spend": 416.0,
+        "cac": 2.57,
+        "customers": 162.2
+      },
+      "sponsored": {
+        "netRev": 7162.0,
+        "spend": 787.0,
+        "roas": 9.1
+      },
+      "promo": {
+        "netRev": 11019.0,
+        "spend": 942.0,
+        "roas": 11.69
+      },
+      "influencer": {
+        "posts": 10.0,
+        "reach": 6956795.0
+      }
+    },
+    {
+      "date": "2025-07-14",
+      "displayDate": "Jul 14, 2025",
+      "fiscalLabel": "P7 '25",
+      "revenue": {
+        "total": 113722.0,
+        "dineIn": 42670.0,
+        "webPickup": 22072.0,
+        "instore": 15015.0,
+        "delivery": 3933.0,
+        "tpd": 26160.0,
+        "marketplace": 3873.0
+      },
+      "meta": {
+        "roas": 9.0,
+        "netRev": 4298.0,
+        "spend": 571.0,
+        "cac": 4.14,
+        "customers": 138.0
+      },
+      "google": {
+        "roas": 15.61,
+        "netRev": 6118.0,
+        "spend": 419.0,
+        "cac": 2.43,
+        "customers": 172.0
+      },
+      "sponsored": {
+        "netRev": 10003.0,
+        "spend": 928.0,
+        "roas": 10.78
+      },
+      "promo": {
+        "netRev": 6856.0,
+        "spend": 253.0,
+        "roas": 27.08
+      },
+      "influencer": {
+        "posts": 7.0,
+        "reach": 1464200.0
+      }
+    },
+    {
+      "date": "2025-07-21",
+      "displayDate": "Jul 21, 2025",
+      "fiscalLabel": "P7 '25",
+      "revenue": {
+        "total": 115260.0,
+        "dineIn": 42696.0,
+        "webPickup": 21195.0,
+        "instore": 14989.0,
+        "delivery": 3983.0,
+        "tpd": 27645.0,
+        "marketplace": 4752.0
+      },
+      "meta": {
+        "roas": 9.0,
+        "netRev": 4283.0,
+        "spend": 553.0,
+        "cac": 4.06,
+        "customers": 136.0
+      },
+      "google": {
+        "roas": 14.56,
+        "netRev": 5566.0,
+        "spend": 411.0,
+        "cac": 2.38,
+        "customers": 172.2
+      },
+      "sponsored": {
+        "netRev": 9456.0,
+        "spend": 1017.0,
+        "roas": 9.3
+      },
+      "promo": {
+        "netRev": 8032.0,
+        "spend": 413.0,
+        "roas": 19.46
+      },
+      "influencer": {
+        "posts": 8.0,
+        "reach": 1218126.0
+      }
+    },
+    {
+      "date": "2025-07-28",
+      "displayDate": "Jul 28, 2025",
+      "fiscalLabel": "P7 '25",
+      "revenue": {
+        "total": 125749.0,
+        "dineIn": 45370.0,
+        "webPickup": 21920.0,
+        "instore": 17232.0,
+        "delivery": 6098.0,
+        "catering": 2827.0,
+        "tpd": 28779.0,
+        "marketplace": 3523.0
+      },
+      "meta": {
+        "roas": 10.0,
+        "netRev": 5140.0,
+        "spend": 558.0,
+        "cac": 3.58,
+        "customers": 156.0
+      },
+      "google": {
+        "roas": 14.3,
+        "netRev": 5208.0,
+        "spend": 392.0,
+        "cac": 2.53,
+        "customers": 155.0
+      },
+      "sponsored": {
+        "netRev": 10868.0,
+        "spend": 1171.0,
+        "roas": 9.28
+      },
+      "promo": {
+        "netRev": 16101.0,
+        "spend": 1594.0,
+        "roas": 10.1
+      },
+      "influencer": {
+        "posts": 8.0,
+        "reach": 610700.0
+      }
+    },
+    {
+      "date": "2025-08-04",
+      "displayDate": "Aug 4, 2025",
+      "fiscalLabel": "P8 '25",
+      "revenue": {
+        "total": 121213.0,
+        "dineIn": 43343.0,
+        "webPickup": 21334.0,
+        "instore": 16875.0,
+        "delivery": 5194.0,
+        "catering": 1227.0,
+        "tpd": 29726.0,
+        "marketplace": 3514.0
+      },
+      "meta": {
+        "roas": 9.0,
+        "netRev": 4580.0,
+        "spend": 566.0,
+        "cac": 3.68,
+        "customers": 154.0
+      },
+      "google": {
+        "roas": 15.57,
+        "netRev": 6142.0,
+        "spend": 421.0,
+        "cac": 2.36,
+        "customers": 178.6
+      },
+      "sponsored": {
+        "netRev": 11946.0,
+        "spend": 1189.0,
+        "roas": 10.04
+      },
+      "promo": {
+        "netRev": 15533.0,
+        "spend": 1067.0,
+        "roas": 14.56
+      },
+      "influencer": {
+        "posts": 7.0,
+        "reach": 1239300.0
+      }
+    },
+    {
+      "date": "2025-08-11",
+      "displayDate": "Aug 11, 2025",
+      "fiscalLabel": "P8 '25",
+      "revenue": {
+        "total": 124102.0,
+        "dineIn": 43940.0,
+        "webPickup": 22059.0,
+        "instore": 15608.0,
+        "delivery": 5644.0,
+        "catering": 939.0,
+        "tpd": 31123.0,
+        "marketplace": 4790.0
+      },
+      "meta": {
+        "roas": 12.0,
+        "netRev": 5920.0,
+        "spend": 564.0,
+        "cac": 3.55,
+        "customers": 159.0
+      },
+      "google": {
+        "roas": 16.45,
+        "netRev": 6419.0,
+        "spend": 416.0,
+        "cac": 2.37,
+        "customers": 175.4
+      },
+      "sponsored": {
+        "netRev": 12920.0,
+        "spend": 1159.0,
+        "roas": 11.15
+      },
+      "promo": {
+        "netRev": 12340.0,
+        "spend": 875.0,
+        "roas": 14.1
+      },
+      "influencer": {
+        "posts": 12.0,
+        "reach": 5014744.0
+      }
+    },
+    {
+      "date": "2025-08-18",
+      "displayDate": "Aug 18, 2025",
+      "fiscalLabel": "P8 '25",
+      "revenue": {
+        "total": 121229.0,
+        "dineIn": 40831.0,
+        "webPickup": 23337.0,
+        "instore": 14453.0,
+        "delivery": 4336.0,
+        "catering": 3592.0,
+        "tpd": 29926.0,
+        "marketplace": 4754.0
+      },
+      "meta": {
+        "roas": 11.0,
+        "netRev": 5372.0,
+        "spend": 564.0,
+        "cac": 3.3,
+        "customers": 171.0
+      },
+      "google": {
+        "roas": 12.32,
+        "netRev": 4942.0,
+        "spend": 437.0,
+        "cac": 2.82,
+        "customers": 154.8
+      },
+      "sponsored": {
+        "netRev": 11085.0,
+        "spend": 1239.0,
+        "roas": 8.95
+      },
+      "promo": {
+        "netRev": 12685.0,
+        "spend": 916.0,
+        "roas": 13.85
+      },
+      "influencer": {
+        "posts": 9.0,
+        "reach": 4417295.0
+      }
+    },
+    {
+      "date": "2025-08-25",
+      "displayDate": "Aug 25, 2025",
+      "fiscalLabel": "P8 '25",
+      "revenue": {
+        "total": 118142.0,
+        "dineIn": 41125.0,
+        "webPickup": 22335.0,
+        "instore": 13484.0,
+        "delivery": 4793.0,
+        "catering": 3190.0,
+        "tpd": 27390.0,
+        "marketplace": 5824.0
+      },
+      "meta": {
+        "roas": 9.0,
+        "netRev": 4354.0,
+        "spend": 556.0,
+        "cac": 4.03,
+        "customers": 138.0
+      },
+      "google": {
+        "roas": 8.84,
+        "netRev": 3951.0,
+        "spend": 504.0,
+        "cac": 3.77,
+        "customers": 133.8
+      },
+      "sponsored": {
+        "netRev": 10054.0,
+        "spend": 1031.0,
+        "roas": 9.76
+      },
+      "promo": {
+        "netRev": 11264.0,
+        "spend": 985.0,
+        "roas": 11.43
+      },
+      "influencer": {
+        "posts": 11.0,
+        "reach": 2291800.0
+      }
+    },
+    {
+      "date": "2025-09-01",
+      "displayDate": "Sep 1, 2025",
+      "fiscalLabel": "P9 '25",
+      "revenue": {
+        "total": 115248.0,
+        "dineIn": 38252.0,
+        "webPickup": 21283.0,
+        "instore": 12010.0,
+        "delivery": 4925.0,
+        "catering": 4433.0,
+        "tpd": 29321.0,
+        "marketplace": 5025.0
+      },
+      "meta": {
+        "roas": 9.0,
+        "netRev": 4596.0,
+        "spend": 550.0,
+        "cac": 4.05,
+        "customers": 136.0
+      },
+      "google": {
+        "roas": 7.99,
+        "netRev": 4387.0,
+        "spend": 627.0,
+        "cac": 4.38,
+        "customers": 143.3
+      },
+      "sponsored": {
+        "netRev": 8560.0,
+        "spend": 671.0,
+        "roas": 12.75
+      },
+      "promo": {
+        "netRev": 12601.0,
+        "spend": 944.0,
+        "roas": 13.35
+      },
+      "influencer": {
+        "posts": 6.0,
+        "reach": 2070000.0
+      }
+    },
+    {
+      "date": "2025-09-08",
+      "displayDate": "Sep 8, 2025",
+      "fiscalLabel": "P9 '25",
+      "revenue": {
+        "total": 121531.0,
+        "dineIn": 41420.0,
+        "webPickup": 24233.0,
+        "instore": 14379.0,
+        "delivery": 4829.0,
+        "catering": 4054.0,
+        "tpd": 27561.0,
+        "marketplace": 5055.0
+      },
+      "meta": {
+        "roas": 13.0,
+        "netRev": 6633.0,
+        "spend": 570.0,
+        "cac": 3.1,
+        "customers": 184.0
+      },
+      "google": {
+        "roas": 8.23,
+        "netRev": 4784.0,
+        "spend": 661.0,
+        "cac": 3.99,
+        "customers": 165.9
+      },
+      "sponsored": {
+        "netRev": 7469.0,
+        "spend": 634.0,
+        "roas": 11.78
+      },
+      "promo": {
+        "netRev": 10726.0,
+        "spend": 827.0,
+        "roas": 12.96
+      },
+      "influencer": {
+        "posts": 9.0,
+        "reach": 552100.0
+      }
+    },
+    {
+      "date": "2025-09-15",
+      "displayDate": "Sep 15, 2025",
+      "fiscalLabel": "P9 '25",
+      "revenue": {
+        "total": 115440.0,
+        "dineIn": 39604.0,
+        "webPickup": 20504.0,
+        "instore": 13075.0,
+        "delivery": 5865.0,
+        "catering": 3751.0,
+        "tpd": 28290.0,
+        "marketplace": 4351.0
+      },
+      "meta": {
+        "roas": 8.0,
+        "netRev": 3903.0,
+        "spend": 562.0,
+        "cac": 4.1,
+        "customers": 137.0
+      },
+      "google": {
+        "roas": 8.67,
+        "netRev": 4160.0,
+        "spend": 543.0,
+        "cac": 4.02,
+        "customers": 135.0
+      },
+      "sponsored": {
+        "netRev": 7949.0,
+        "spend": 698.0,
+        "roas": 11.38
+      },
+      "promo": {
+        "netRev": 12323.0,
+        "spend": 924.0,
+        "roas": 13.33
+      },
+      "influencer": {
+        "posts": 5.0,
+        "reach": 197400.0
+      }
+    },
+    {
+      "date": "2025-09-22",
+      "displayDate": "Sep 22, 2025",
+      "fiscalLabel": "P9 '25",
+      "revenue": {
+        "total": 118638.0,
+        "dineIn": 42352.0,
+        "webPickup": 21349.0,
+        "instore": 13049.0,
+        "delivery": 5244.0,
+        "catering": 2463.0,
+        "tpd": 29489.0,
+        "marketplace": 4693.0
+      },
+      "meta": {
+        "roas": 7.0,
+        "netRev": 4408.0,
+        "spend": 686.0,
+        "cac": 4.26,
+        "customers": 161.0
+      },
+      "google": {
+        "roas": 11.75,
+        "netRev": 5684.0,
+        "spend": 529.0,
+        "cac": 3.07,
+        "customers": 172.2
+      },
+      "sponsored": {
+        "netRev": 7927.0,
+        "spend": 729.0,
+        "roas": 10.87
+      },
+      "promo": {
+        "netRev": 12803.0,
+        "spend": 947.0,
+        "roas": 13.51
+      },
+      "influencer": {
+        "posts": 12.0,
+        "reach": 1406000.0
+      }
+    },
+    {
+      "date": "2025-09-29",
+      "displayDate": "Sep 29, 2025",
+      "fiscalLabel": "P9 '25",
+      "revenue": {
+        "total": 124726.0,
+        "dineIn": 42049.0,
+        "webPickup": 24023.0,
+        "instore": 12258.0,
+        "delivery": 5283.0,
+        "catering": 8108.0,
+        "tpd": 29146.0,
+        "marketplace": 3859.0
+      },
+      "meta": {
+        "roas": 7.0,
+        "netRev": 4970.0,
+        "spend": 788.0,
+        "cac": 4.84,
+        "customers": 163.0
+      },
+      "google": {
+        "roas": 11.78,
+        "netRev": 6061.0,
+        "spend": 562.0,
+        "cac": 3.37,
+        "customers": 166.8
+      },
+      "sponsored": {
+        "netRev": 8431.0,
+        "spend": 702.0,
+        "roas": 12.01
+      },
+      "promo": {
+        "netRev": 16131.0,
+        "spend": 1021.0,
+        "roas": 15.8
+      },
+      "influencer": {
+        "posts": 8.0,
+        "reach": 1326300.0
+      }
+    },
+    {
+      "date": "2025-10-06",
+      "displayDate": "Oct 6, 2025",
+      "fiscalLabel": "P10 '25",
+      "revenue": {
+        "total": 123228.0,
+        "dineIn": 40318.0,
+        "webPickup": 23349.0,
+        "instore": 12741.0,
+        "delivery": 6384.0,
+        "catering": 6216.0,
+        "tpd": 29326.0,
+        "marketplace": 4893.0
+      },
+      "meta": {
+        "roas": 10.0,
+        "netRev": 5194.0,
+        "spend": 560.0,
+        "cac": 3.76,
+        "customers": 149.0
+      },
+      "google": {
+        "roas": 14.51,
+        "netRev": 6321.0,
+        "spend": 468.0,
+        "cac": 2.43,
+        "customers": 192.8
+      },
+      "sponsored": {
+        "netRev": 8629.0,
+        "spend": 667.0,
+        "roas": 12.94
+      },
+      "promo": {
+        "netRev": 10993.0,
+        "spend": 963.0,
+        "roas": 11.41
+      },
+      "influencer": {
+        "posts": 6.0,
+        "reach": 1562900.0
+      }
+    },
+    {
+      "date": "2025-10-13",
+      "displayDate": "Oct 13, 2025",
+      "fiscalLabel": "P10 '25",
+      "revenue": {
+        "total": 118749.0,
+        "dineIn": 35806.0,
+        "webPickup": 22572.0,
+        "instore": 12979.0,
+        "delivery": 6841.0,
+        "catering": 3385.0,
+        "tpd": 32560.0,
+        "marketplace": 4606.0
+      },
+      "meta": {
+        "roas": 10.0,
+        "netRev": 5161.0,
+        "spend": 556.0,
+        "cac": 3.86,
+        "customers": 144.0
+      },
+      "google": {
+        "roas": 17.73,
+        "netRev": 6357.0,
+        "spend": 380.0,
+        "cac": 2.06,
+        "customers": 184.1
+      },
+      "sponsored": {
+        "netRev": 9689.0,
+        "spend": 728.0,
+        "roas": 13.32
+      },
+      "promo": {
+        "netRev": 12213.0,
+        "spend": 1078.0,
+        "roas": 11.33
+      },
+      "influencer": {
+        "posts": 5.0,
+        "reach": 261000.0
+      }
+    },
+    {
+      "date": "2025-10-20",
+      "displayDate": "Oct 20, 2025",
+      "fiscalLabel": "P10 '25",
+      "revenue": {
+        "total": 123795.0,
+        "dineIn": 37223.0,
+        "webPickup": 24568.0,
+        "instore": 14440.0,
+        "delivery": 5158.0,
+        "catering": 8741.0,
+        "tpd": 28544.0,
+        "marketplace": 5120.0
+      },
+      "meta": {
+        "roas": 9.0,
+        "netRev": 4474.0,
+        "spend": 561.0,
+        "cac": 4.04,
+        "customers": 139.0
+      },
+      "google": {
+        "roas": 15.56,
+        "netRev": 5700.0,
+        "spend": 391.0,
+        "cac": 2.39,
+        "customers": 163.9
+      },
+      "sponsored": {
+        "netRev": 9163.0,
+        "spend": 659.0,
+        "roas": 13.9
+      },
+      "promo": {
+        "netRev": 12505.0,
+        "spend": 1149.0,
+        "roas": 10.89
+      },
+      "influencer": {
+        "posts": 4.0,
+        "reach": 1368000.0
+      }
+    },
+    {
+      "date": "2025-10-27",
+      "displayDate": "Oct 27, 2025",
+      "fiscalLabel": "P10 '25",
+      "revenue": {
+        "total": 129607.0,
+        "dineIn": 36043.0,
+        "webPickup": 27403.0,
+        "instore": 13794.0,
+        "delivery": 6767.0,
+        "catering": 7649.0,
+        "tpd": 33222.0,
+        "marketplace": 4728.0
+      },
+      "meta": {
+        "roas": 12.0,
+        "netRev": 5909.0,
+        "spend": 560.0,
+        "cac": 3.13,
+        "customers": 179.0
+      },
+      "google": {
+        "roas": 20.01,
+        "netRev": 7239.0,
+        "spend": 381.0,
+        "cac": 1.85,
+        "customers": 205.6
+      },
+      "sponsored": {
+        "netRev": 11597.0,
+        "spend": 793.0,
+        "roas": 14.62
+      },
+      "promo": {
+        "netRev": 14238.0,
+        "spend": 1249.0,
+        "roas": 11.4
+      },
+      "influencer": {
+        "posts": 7.0,
+        "reach": 432000.0
+      }
+    },
+    {
+      "date": "2025-11-03",
+      "displayDate": "Nov 3, 2025",
+      "fiscalLabel": "P11 '25",
+      "revenue": {
+        "total": 127763.0,
+        "dineIn": 39734.0,
+        "webPickup": 25322.0,
+        "instore": 14422.0,
+        "delivery": 6044.0,
+        "catering": 7663.0,
+        "tpd": 30524.0,
+        "marketplace": 4055.0
+      },
+      "meta": {
+        "roas": 10.0,
+        "netRev": 5260.0,
+        "spend": 557.0,
+        "cac": 3.61,
+        "customers": 154.0
+      },
+      "google": {
+        "roas": 19.5,
+        "netRev": 7903.0,
+        "spend": 427.0,
+        "cac": 1.95,
+        "customers": 219.2
+      },
+      "sponsored": {
+        "netRev": 8619.0,
+        "spend": 634.0,
+        "roas": 13.6
+      },
+      "promo": {
+        "netRev": 11402.0,
+        "spend": 901.0,
+        "roas": 12.65
+      },
+      "influencer": {
+        "posts": 7.0,
+        "reach": 1115500.0
+      }
+    },
+    {
+      "date": "2025-11-10",
+      "displayDate": "Nov 10, 2025",
+      "fiscalLabel": "P11 '25",
+      "revenue": {
+        "total": 103786.0,
+        "dineIn": 25447.0,
+        "webPickup": 24197.0,
+        "instore": 12448.0,
+        "delivery": 4614.0,
+        "catering": 3670.0,
+        "tpd": 29325.0,
+        "marketplace": 4085.0
+      },
+      "meta": {
+        "roas": 9.0,
+        "netRev": 4933.0,
+        "spend": 582.0,
+        "cac": 3.96,
+        "customers": 147.0
+      },
+      "google": {
+        "roas": 17.91,
+        "netRev": 7893.0,
+        "spend": 467.0,
+        "cac": 2.17,
+        "customers": 215.0
+      },
+      "sponsored": {
+        "netRev": 8178.0,
+        "spend": 625.0,
+        "roas": 13.08
+      },
+      "promo": {
+        "netRev": 10182.0,
+        "spend": 999.0,
+        "roas": 10.19
+      },
+      "influencer": {
+        "posts": 5.0,
+        "reach": 169200.0
+      }
+    },
+    {
+      "date": "2025-11-17",
+      "displayDate": "Nov 17, 2025",
+      "fiscalLabel": "P11 '25",
+      "revenue": {
+        "total": 103411.0,
+        "dineIn": 28730.0,
+        "webPickup": 22558.0,
+        "instore": 13178.0,
+        "delivery": 5283.0,
+        "catering": 3404.0,
+        "tpd": 26794.0,
+        "marketplace": 3465.0
+      },
+      "meta": {
+        "roas": 9.0,
+        "netRev": 4726.0,
+        "spend": 560.0,
+        "cac": 4.21,
+        "customers": 133.0
+      },
+      "google": {
+        "roas": 17.66,
+        "netRev": 6636.0,
+        "spend": 398.0,
+        "cac": 1.94,
+        "customers": 205.1
+      },
+      "sponsored": {
+        "netRev": 7811.0,
+        "spend": 683.0,
+        "roas": 11.44
+      },
+      "promo": {
+        "netRev": 9331.0,
+        "spend": 873.0,
+        "roas": 10.69
+      },
+      "influencer": {
+        "posts": 5.0,
+        "reach": 64000000.0
+      }
+    },
+    {
+      "date": "2025-11-24",
+      "displayDate": "Nov 24, 2025",
+      "fiscalLabel": "P11 '25",
+      "revenue": {
+        "total": 106066.0,
+        "dineIn": 38937.0,
+        "webPickup": 22242.0,
+        "instore": 10764.0,
+        "delivery": 4317.0,
+        "catering": 757.0,
+        "tpd": 25098.0,
+        "marketplace": 3950.0
+      },
+      "meta": {
+        "roas": 8.0,
+        "netRev": 3963.0,
+        "spend": 590.0,
+        "cac": 5.36,
+        "customers": 110.0
+      },
+      "google": {
+        "roas": 12.37,
+        "netRev": 4619.0,
+        "spend": 406.0,
+        "cac": 3.23,
+        "customers": 125.8
+      },
+      "sponsored": {
+        "netRev": 7210.0,
+        "spend": 662.0,
+        "roas": 10.89
+      },
+      "promo": {
+        "netRev": 10064.0,
+        "spend": 933.0,
+        "roas": 10.79
+      },
+      "influencer": {
+        "posts": 5.0,
+        "reach": 1060000.0
+      }
+    },
+    {
+      "date": "2025-12-01",
+      "displayDate": "Dec 1, 2025",
+      "fiscalLabel": "P12 '25",
+      "revenue": {
+        "total": 128595.0,
+        "dineIn": 38245.0,
+        "webPickup": 27056.0,
+        "instore": 14171.0,
+        "delivery": 6070.0,
+        "catering": 6338.0,
+        "tpd": 33032.0,
+        "marketplace": 3684.0
+      },
+      "meta": {
+        "roas": 6.0,
+        "netRev": 3112.0,
+        "spend": 628.0,
+        "cac": 5.46,
+        "customers": 115.0
+      },
+      "google": {
+        "roas": 19.12,
+        "netRev": 6414.0,
+        "spend": 354.0,
+        "cac": 2.04,
+        "customers": 173.4
+      },
+      "sponsored": {
+        "netRev": 8274.0,
+        "spend": 684.0,
+        "roas": 12.1
+      },
+      "promo": {
+        "netRev": 13285.0,
+        "spend": 1127.0,
+        "roas": 11.79
+      },
+      "influencer": {
+        "posts": 4.0,
+        "reach": 193500.0
+      }
+    },
+    {
+      "date": "2025-12-08",
+      "displayDate": "Dec 8, 2025",
+      "fiscalLabel": "P12 '25",
+      "revenue": {
+        "total": 130948.0,
+        "dineIn": 39990.0,
+        "webPickup": 28386.0,
+        "instore": 15798.0,
+        "delivery": 5709.0,
+        "catering": 5675.0,
+        "tpd": 31212.0,
+        "marketplace": 4177.0
+      },
+      "meta": {
+        "roas": 9.0,
+        "netRev": 4440.0,
+        "spend": 557.0,
+        "cac": 4.76,
+        "customers": 117.0
+      },
+      "google": {
+        "roas": 37.21,
+        "netRev": 8329.0,
+        "spend": 230.0,
+        "cac": 1.05,
+        "customers": 218.7
+      },
+      "sponsored": {
+        "netRev": 13583.0,
+        "spend": 883.0,
+        "roas": 15.39
+      },
+      "promo": {
+        "netRev": 8589.0,
+        "spend": 867.0,
+        "roas": 9.91
+      },
+      "influencer": {}
+    },
+    {
+      "date": "2025-12-15",
+      "displayDate": "Dec 15, 2025",
+      "fiscalLabel": "P12 '25",
+      "revenue": {
+        "total": 137567.0,
+        "dineIn": 40121.0,
+        "webPickup": 30145.0,
+        "instore": 14573.0,
+        "delivery": 5944.0,
+        "catering": 6373.0,
+        "tpd": 35437.0,
+        "marketplace": 4974.0
+      },
+      "meta": {
+        "roas": 8.0,
+        "netRev": 4522.0,
+        "spend": 635.0,
+        "cac": 5.08,
+        "customers": 125.0
+      },
+      "google": {
+        "roas": 27.52,
+        "netRev": 9970.0,
+        "spend": 376.0,
+        "cac": 1.36,
+        "customers": 277.2
+      },
+      "sponsored": {
+        "netRev": 9529.0,
+        "spend": 636.0,
+        "roas": 14.99
+      },
+      "promo": {
+        "netRev": 11873.0,
+        "spend": 938.0,
+        "roas": 12.66
+      },
+      "influencer": {}
+    },
+    {
+      "date": "2025-12-22",
+      "displayDate": "Dec 22, 2025",
+      "fiscalLabel": "P12 '25",
+      "revenue": {
+        "total": 104666.0,
+        "dineIn": 29573.0,
+        "webPickup": 22408.0,
+        "instore": 13909.0,
+        "delivery": 4814.0,
+        "catering": 960.0,
+        "tpd": 24598.0,
+        "marketplace": 8403.0
+      },
+      "meta": {
+        "roas": 7.0,
+        "netRev": 2649.0,
+        "spend": 417.0,
+        "cac": 6.13,
+        "customers": 68.0
+      },
+      "google": {
+        "roas": 21.06,
+        "netRev": 7217.0,
+        "spend": 360.0,
+        "cac": 2.03,
+        "customers": 176.8
+      },
+      "sponsored": {
+        "netRev": 8433.0,
+        "spend": 653.0,
+        "roas": 12.92
+      },
+      "promo": {
+        "netRev": 10945.0,
+        "spend": 856.0,
+        "roas": 12.79
+      },
+      "influencer": {
+        "posts": 4.0,
+        "reach": 159000.0
+      }
+    },
+    {
+      "date": "2025-12-29",
+      "displayDate": "Dec 29, 2025",
+      "fiscalLabel": "P12 '25",
+      "revenue": {
+        "total": 147237.0,
+        "dineIn": 39333.0,
+        "webPickup": 31703.0,
+        "instore": 17259.0,
+        "delivery": 7751.0,
+        "catering": 4687.0,
+        "tpd": 38739.0,
+        "marketplace": 7765.0
+      },
+      "meta": {
+        "roas": 11.0,
+        "netRev": 5487.0,
+        "spend": 571.0,
+        "cac": 3.81,
+        "customers": 150.0
+      },
+      "google": {
+        "roas": 19.57,
+        "netRev": 10162.0,
+        "spend": 547.0,
+        "cac": 2.18,
+        "customers": 250.9
+      },
+      "sponsored": {
+        "netRev": 13663.0,
+        "spend": 919.0,
+        "roas": 14.87
+      },
+      "promo": {
+        "netRev": 16779.0,
+        "spend": 1484.0,
+        "roas": 11.31
+      },
+      "influencer": {
+        "posts": 5.0,
+        "reach": 133000.0
+      }
+    },
+    {
+      "date": "2026-01-07",
+      "displayDate": "Jan 7, 2026",
+      "fiscalLabel": "P1 '26",
+      "revenue": {
+        "total": 130437.0,
+        "dineIn": 36948.0,
+        "webPickup": 28566.0,
+        "instore": 15353.0,
+        "delivery": 7577.0,
+        "catering": 3558.0,
+        "tpd": 33529.0,
+        "marketplace": 4907.0
+      },
+      "meta": {
+        "roas": 11.0,
+        "netRev": 5196.0,
+        "spend": 522.0,
+        "cac": 3.41,
+        "customers": 153.0
+      },
+      "google": {
+        "roas": 26.15,
+        "netRev": 9979.0,
+        "spend": 397.0,
+        "cac": 1.49,
+        "customers": 266.36
+      },
+      "sponsored": {
+        "netRev": 10877.0,
+        "spend": 767.0,
+        "roas": 14.18
+      },
+      "promo": {
+        "netRev": 13431.0,
+        "spend": 1072.0,
+        "roas": 12.53
+      },
+      "influencer": {
+        "posts": 6.0,
+        "reach": 162500.0
+      }
+    },
+    {
+      "date": "2026-01-14",
+      "displayDate": "Jan 14, 2026",
+      "fiscalLabel": "P1 '26",
+      "revenue": {
+        "total": 139641.0,
+        "dineIn": 45266.0,
+        "webPickup": 27322.0,
+        "instore": 14297.0,
+        "delivery": 7042.0,
+        "catering": 5477.0,
+        "tpd": 34288.0,
+        "marketplace": 5948.0
+      },
+      "meta": {
+        "roas": 10.0,
+        "netRev": 4361.0,
+        "spend": 500.0,
+        "cac": 4.1,
+        "customers": 122.0
+      },
+      "google": {
+        "roas": 31.94,
+        "netRev": 8482.0,
+        "spend": 274.0,
+        "cac": 1.17,
+        "customers": 235.3
+      },
+      "sponsored": {
+        "netRev": 10379.0,
+        "spend": 633.0,
+        "roas": 16.39
+      },
+      "promo": {
+        "netRev": 12794.0,
+        "spend": 969.0,
+        "roas": 13.21
+      },
+      "influencer": {
+        "posts": 4.0,
+        "reach": 1146000.0
+      }
+    },
+    {
+      "date": "2026-01-21",
+      "displayDate": "Jan 21, 2026",
+      "fiscalLabel": "P1 '26",
+      "revenue": {
+        "total": 135692.0,
+        "dineIn": 38298.0,
+        "webPickup": 29892.0,
+        "instore": 14362.0,
+        "delivery": 7638.0,
+        "catering": 3693.0,
+        "tpd": 37068.0,
+        "marketplace": 4741.0
+      },
+      "meta": {
+        "roas": 10.0,
+        "netRev": 4526.0,
+        "spend": 517.0,
+        "cac": 4.07,
+        "customers": 127.0
+      },
+      "google": {
+        "roas": 23.94,
+        "netRev": 9163.0,
+        "spend": 399.0,
+        "cac": 1.62,
+        "customers": 247.2
+      },
+      "sponsored": {
+        "netRev": 9744.0,
+        "spend": 685.0,
+        "roas": 14.23
+      },
+      "promo": {
+        "netRev": 13048.0,
+        "spend": 1042.0,
+        "roas": 12.52
+      },
+      "influencer": {
+        "posts": 6.0,
+        "reach": 169000.0
+      }
+    },
+    {
+      "date": "2026-01-28",
+      "displayDate": "Jan 28, 2026",
+      "fiscalLabel": "P1 '26",
+      "revenue": {
+        "total": 148895.0,
+        "dineIn": 41208.0,
+        "webPickup": 31789.0,
+        "instore": 15917.0,
+        "delivery": 7689.0,
+        "catering": 8756.0,
+        "tpd": 38261.0,
+        "marketplace": 5276.0
+      },
+      "meta": {
+        "roas": 10.0,
+        "netRev": 4540.0,
+        "spend": 512.0,
+        "cac": 3.94,
+        "customers": 130.0
+      },
+      "google": {
+        "roas": 24.65,
+        "netRev": 10294.0,
+        "spend": 435.0,
+        "cac": 1.6,
+        "customers": 271.9
+      },
+      "sponsored": {
+        "netRev": 10827.0,
+        "spend": 708.0,
+        "roas": 15.3
+      },
+      "promo": {
+        "netRev": 13768.0,
+        "spend": 996.0,
+        "roas": 13.83
+      },
+      "influencer": {}
+    },
+    {
+      "date": "2026-02-04",
+      "displayDate": "Feb 4, 2026",
+      "fiscalLabel": "P2 '26",
+      "revenue": {
+        "total": 139865.0,
+        "dineIn": 36843.0,
+        "webPickup": 29280.0,
+        "instore": 14910.0,
+        "delivery": 6750.0,
+        "catering": 9852.0,
+        "tpd": 37556.0,
+        "marketplace": 4674.0
+      },
+      "meta": {
+        "roas": 8.0,
+        "netRev": 3877.0,
+        "spend": 521.0,
+        "cac": 4.38,
+        "customers": 119.0
+      },
+      "google": {
+        "roas": 26.73,
+        "netRev": 9917.0,
+        "spend": 385.0,
+        "cac": 1.38,
+        "customers": 279.3
+      },
+      "sponsored": {
+        "netRev": 8288.0,
+        "spend": 639.0,
+        "roas": 12.97
+      },
+      "promo": {
+        "netRev": 11910.0,
+        "spend": 1064.0,
+        "roas": 11.2
+      },
+      "influencer": {
+        "posts": 4.0,
+        "reach": 73000.0
+      }
+    },
+    {
+      "date": "2026-02-11",
+      "displayDate": "Feb 11, 2026",
+      "fiscalLabel": "P2 '26",
+      "revenue": {
+        "total": 128524.0,
+        "dineIn": 34915.0,
+        "webPickup": 29449.0,
+        "instore": 13962.0,
+        "delivery": 6920.0,
+        "catering": 4149.0,
+        "tpd": 33738.0,
+        "marketplace": 5392.0
+      },
+      "meta": {
+        "roas": 9.0,
+        "netRev": 4919.0,
+        "spend": 598.0,
+        "cac": 4.21,
+        "customers": 142.0
+      },
+      "google": {
+        "roas": 20.03,
+        "netRev": 9257.0,
+        "spend": 486.0,
+        "cac": 1.93,
+        "customers": 252.4
+      },
+      "sponsored": {
+        "netRev": 9756.0,
+        "spend": 653.0,
+        "roas": 14.94
+      },
+      "promo": {
+        "netRev": 13119.0,
+        "spend": 1182.0,
+        "roas": 11.1
+      },
+      "influencer": {
+        "posts": 4.0,
+        "reach": 136000.0
+      }
+    },
+    {
+      "date": "2026-02-18",
+      "displayDate": "Feb 18, 2026",
+      "fiscalLabel": "P2 '26",
+      "revenue": {
+        "total": 139634.0,
+        "dineIn": 37248.0,
+        "webPickup": 31923.0,
+        "instore": 17799.0,
+        "delivery": 7485.0,
+        "catering": 4245.0,
+        "tpd": 36245.0,
+        "marketplace": 4688.0
+      },
+      "meta": {
+        "roas": 9.0,
+        "netRev": 4223.0,
+        "spend": 536.0,
+        "cac": 3.94,
+        "customers": 136.0
+      },
+      "google": {
+        "roas": 27.11,
+        "netRev": 10430.0,
+        "spend": 399.0,
+        "cac": 1.38,
+        "customers": 289.3
+      },
+      "sponsored": {
+        "netRev": 10947.0,
+        "spend": 759.0,
+        "roas": 14.42
+      },
+      "promo": {
+        "netRev": 13494.0,
+        "spend": 1097.0,
+        "roas": 12.31
+      },
+      "influencer": {}
+    },
+    {
+      "date": "2026-02-25",
+      "displayDate": "Feb 25, 2026",
+      "fiscalLabel": "P2 '26",
+      "revenue": {
+        "total": 150768.0,
+        "dineIn": 43677.0,
+        "webPickup": 32604.0,
+        "instore": 16567.0,
+        "delivery": 7290.0,
+        "catering": 7164.0,
+        "tpd": 39008.0,
+        "marketplace": 4458.0
+      },
+      "meta": {
+        "roas": 8.0,
+        "netRev": 3657.0,
+        "spend": 532.0,
+        "cac": 4.33,
+        "customers": 123.0
+      },
+      "google": {
+        "roas": 22.42,
+        "netRev": 9851.0,
+        "spend": 460.0,
+        "cac": 1.64,
+        "customers": 280.4
+      },
+      "sponsored": {
+        "netRev": 10434.0,
+        "spend": 718.0,
+        "roas": 14.53
+      },
+      "promo": {
+        "netRev": 15070.0,
+        "spend": 1271.0,
+        "roas": 11.86
+      },
+      "influencer": {}
+    },
+    {
+      "date": "2026-03-04",
+      "displayDate": "Mar 4, 2026",
+      "fiscalLabel": "P3 '26",
+      "revenue": {
+        "total": 146280.0,
+        "dineIn": 45219.0,
+        "webPickup": 33794.0,
+        "instore": 16077.0,
+        "delivery": 6064.0,
+        "catering": 5071.0,
+        "tpd": 35289.0,
+        "marketplace": 4764.0
+      },
+      "meta": {
+        "roas": 7.0,
+        "netRev": 2860.0,
+        "spend": 474.0,
+        "cac": 6.0,
+        "customers": 79.0
+      },
+      "google": {
+        "roas": 31.68,
+        "netRev": 9785.0,
+        "spend": 319.0,
+        "cac": 1.22,
+        "customers": 261.2
+      },
+      "sponsored": {
+        "netRev": 8603.0,
+        "spend": 727.0,
+        "roas": 11.84
+      },
+      "promo": {
+        "netRev": 12262.0,
+        "spend": 1064.0,
+        "roas": 11.53
+      },
+      "influencer": {}
+    },
+    {
+      "date": "2026-03-11",
+      "displayDate": "Mar 11, 2026",
+      "fiscalLabel": "P3 '26",
+      "revenue": {
+        "total": 147435.0,
+        "dineIn": 43246.0,
+        "webPickup": 31201.0,
+        "instore": 16829.0,
+        "delivery": 8995.0,
+        "catering": 3988.0,
+        "tpd": 38085.0,
+        "marketplace": 5092.0
+      },
+      "meta": {
+        "roas": 8.0,
+        "netRev": 4120.0,
+        "spend": 608.0,
+        "cac": 5.57,
+        "customers": 109.0
+      },
+      "google": {
+        "roas": 28.41,
+        "netRev": 10323.0,
+        "spend": 377.0,
+        "cac": 1.3,
+        "customers": 289.7
+      },
+      "sponsored": {
+        "netRev": 11965.0,
+        "spend": 585.0,
+        "roas": 20.45
+      },
+      "promo": {
+        "netRev": 11757.0,
+        "spend": 940.0,
+        "roas": 12.5
+      },
+      "influencer": {}
+    },
+    {
+      "date": "2026-03-18",
+      "displayDate": "Mar 18, 2026",
+      "fiscalLabel": "P3 '26",
+      "revenue": {
+        "total": 149647.0,
+        "dineIn": 45659.0,
+        "webPickup": 31201.0,
+        "instore": 16033.0,
+        "delivery": 6096.0,
+        "catering": 7790.0,
+        "tpd": 38953.0,
+        "marketplace": 3916.0
+      },
+      "meta": {
+        "roas": 4.0,
+        "netRev": 1749.0,
+        "spend": 518.0,
+        "cac": 7.74,
+        "customers": 67.0
+      },
+      "google": {
+        "roas": 32.11,
+        "netRev": 11024.0,
+        "spend": 354.0,
+        "cac": 1.16,
+        "customers": 304.7
+      },
+      "sponsored": {
+        "netRev": 10885.0,
+        "spend": 684.0,
+        "roas": 15.91
+      },
+      "promo": {
+        "netRev": 12548.0,
+        "spend": 821.0,
+        "roas": 15.28
+      },
+      "influencer": {}
+    },
+    {
+      "date": "2026-03-25",
+      "displayDate": "Mar 25, 2026",
+      "fiscalLabel": "P3 '26",
+      "revenue": {
+        "total": 116369.0,
+        "dineIn": 14678.0,
+        "webPickup": 32355.0,
+        "instore": 15174.0,
+        "delivery": 6010.0,
+        "catering": 8637.0,
+        "tpd": 35302.0,
+        "marketplace": 4215.0
+      },
+      "meta": {
+        "roas": 9.0,
+        "netRev": 3487.0,
+        "spend": 417.0,
+        "cac": 4.21,
+        "customers": 99.0
+      },
+      "google": {
+        "roas": 22.81,
+        "netRev": 9432.0,
+        "spend": 432.0,
+        "cac": 1.64,
+        "customers": 263.4
+      },
+      "sponsored": {
+        "netRev": 13972.0,
+        "spend": 885.0,
+        "roas": 15.79
+      },
+      "promo": {
+        "netRev": 10946.0,
+        "spend": 934.0,
+        "roas": 11.72
+      },
+      "influencer": {}
+    },
+    {
+      "date": "2026-04-01",
+      "displayDate": "Apr 1, 2026",
+      "fiscalLabel": "P3 '26",
+      "revenue": {
+        "total": 135458.0,
+        "dineIn": 42198.0,
+        "webPickup": 30421.0,
+        "instore": 14346.0,
+        "delivery": 5692.0,
+        "catering": 6167.0,
+        "tpd": 32977.0,
+        "marketplace": 3659.0
+      },
+      "meta": {
+        "roas": 14.0,
+        "netRev": 5521.0,
+        "spend": 415.0,
+        "cac": 2.94,
+        "customers": 141.0
+      },
+      "google": {
+        "roas": 29.4,
+        "netRev": 10206.0,
+        "spend": 359.0,
+        "cac": 1.37,
+        "customers": 262.1
+      },
+      "sponsored": {
+        "netRev": 13313.0,
+        "spend": 998.0,
+        "roas": 13.34
+      },
+      "promo": {
+        "netRev": 11838.0,
+        "spend": 927.0,
+        "roas": 12.77
+      },
+      "influencer": {}
+    },
+    {
+      "date": "2026-04-08",
+      "displayDate": "Apr 8, 2026",
+      "fiscalLabel": "P4 '26",
+      "revenue": {
+        "total": 181513.0,
+        "dineIn": 55947.0,
+        "webPickup": 45712.0,
+        "instore": 25968.0,
+        "delivery": 8356.0,
+        "catering": 4101.0,
+        "tpd": 36333.0,
+        "marketplace": 5095.0
+      },
+      "meta": {
+        "roas": 14.0,
+        "netRev": 5581.0,
+        "spend": 417.0,
+        "cac": 2.0,
+        "customers": 208.0
+      },
+      "google": {
+        "roas": 24.06,
+        "netRev": 12795.0,
+        "spend": 555.0,
+        "cac": 1.6,
+        "customers": 347.6
+      },
+      "sponsored": {
+        "netRev": 12302.0,
+        "spend": 1026.0,
+        "roas": 12.0
+      },
+      "promo": {
+        "netRev": 13044.0,
+        "spend": 954.0,
+        "roas": 13.67
+      },
+      "influencer": {}
+    },
+    {
+      "date": "2026-04-15",
+      "displayDate": "Apr 15, 2026",
+      "fiscalLabel": "P4 '26",
+      "revenue": {
+        "total": 302496.0,
+        "dineIn": 125229.0,
+        "webPickup": 59854.0,
+        "instore": 44895.0,
+        "delivery": 15097.0,
+        "catering": 12062.0,
+        "tpd": 38042.0,
+        "marketplace": 7316.0
+      },
+      "meta": {
+        "roas": 8.0,
+        "netRev": 8513.0,
+        "spend": 1177.0,
+        "cac": 4.6,
+        "customers": 256.0
+      },
+      "google": {
+        "roas": 25.55,
+        "netRev": 18909.0,
+        "spend": 770.0,
+        "cac": 1.43,
+        "customers": 539.0
+      },
+      "sponsored": {
+        "netRev": 9864.0,
+        "spend": 945.0,
+        "roas": 10.44
+      },
+      "promo": {
+        "netRev": 15462.0,
+        "spend": 971.0,
+        "roas": 15.93
+      },
+      "influencer": {}
+    },
+    {
+      "date": "2026-04-22",
+      "displayDate": "Apr 22, 2026",
+      "fiscalLabel": "P4 '26",
+      "revenue": {
+        "total": 303181.0,
+        "dineIn": 132813.0,
+        "webPickup": 68757.0,
+        "instore": 35707.0,
+        "delivery": 20891.0,
+        "tpd": 39214.0,
+        "marketplace": 5799.0
+      },
+      "meta": {
+        "roas": 8.0,
+        "netRev": 9797.0,
+        "spend": 1364.0,
+        "cac": 4.52,
+        "customers": 302.0
+      },
+      "google": {
+        "roas": 35.88,
+        "netRev": 24156.0,
+        "spend": 692.0,
+        "cac": 1.07,
+        "customers": 645.1
+      },
+      "sponsored": {
+        "netRev": 10982.0,
+        "spend": 1179.0,
+        "roas": 9.31
+      },
+      "promo": {
+        "netRev": 15826.0,
+        "spend": 1225.0,
+        "roas": 12.92
+      },
+      "influencer": {}
+    },
+    {
+      "date": "2026-04-29",
+      "displayDate": "Apr 29, 2026",
+      "fiscalLabel": "P4 '26",
+      "revenue": {
+        "total": 306920.0,
+        "dineIn": 132159.0,
+        "webPickup": 73165.0,
+        "instore": 32168.0,
+        "delivery": 22368.0,
+        "tpd": 40228.0,
+        "marketplace": 6833.0
+      },
+      "meta": {
+        "roas": 9.0,
+        "netRev": 11438.0,
+        "spend": 1364.0,
+        "cac": 6.53,
+        "customers": 209.0
+      },
+      "google": {
+        "roas": 32.44,
+        "netRev": 22788.0,
+        "spend": 725.0,
+        "cac": 1.09,
+        "customers": 662.2
+      },
+      "sponsored": {
+        "netRev": 10592.0,
+        "spend": 1056.0,
+        "roas": 10.03
+      },
+      "promo": {
+        "netRev": 15281.0,
+        "spend": 1197.0,
+        "roas": 12.76
+      },
+      "influencer": {}
+    },
+    {
+      "date": "2026-05-06",
+      "displayDate": "May 6, 2026",
+      "fiscalLabel": "P5 '26",
+      "revenue": {
+        "total": 331703.0,
+        "dineIn": 131962.0,
+        "webPickup": 78713.0,
+        "instore": 34322.0,
+        "delivery": 23436.0,
+        "catering": 18808.0,
+        "tpd": 36796.0,
+        "marketplace": 7666.0
+      },
+      "meta": {
+        "roas": 9.0,
+        "netRev": 11010.0,
+        "spend": 1376.0,
+        "cac": 3.82,
+        "customers": 360.0
+      },
+      "google": {
+        "roas": 30.76,
+        "netRev": 23523.0,
+        "spend": 790.0,
+        "cac": 1.26,
+        "customers": 625.2
+      },
+      "sponsored": {
+        "netRev": 8674.0,
+        "spend": 931.0,
+        "roas": 9.32
+      },
+      "promo": {
+        "netRev": 12734.0,
+        "spend": 1061.0,
+        "roas": 12.0
+      },
+      "influencer": {}
+    },
+    {
+      "date": "2026-05-13",
+      "displayDate": "May 13, 2026",
+      "fiscalLabel": "P5 '26",
+      "revenue": {
+        "total": 320188.0,
+        "dineIn": 137309.0,
+        "webPickup": 73003.0,
+        "instore": 29206.0,
+        "delivery": 25346.0,
+        "catering": 9060.0,
+        "tpd": 38279.0,
+        "marketplace": 7986.0
+      },
+      "meta": {
+        "roas": 10.0,
+        "netRev": 12144.0,
+        "spend": 1389.0,
+        "cac": 3.81,
+        "customers": 365.0
+      },
+      "google": {
+        "roas": 26.24,
+        "netRev": 20499.0,
+        "spend": 812.0,
+        "cac": 1.32,
+        "customers": 616.8
+      },
+      "sponsored": {
+        "netRev": 9717.0,
+        "spend": 941.0,
+        "roas": 10.32
+      },
+      "promo": {
+        "netRev": 12373.0,
+        "spend": 926.0,
+        "roas": 13.36
+      },
+      "influencer": {}
+    },
+    {
+      "date": "2026-05-20",
+      "displayDate": "May 20, 2026",
+      "fiscalLabel": "P5 '26",
+      "revenue": {
+        "total": 320917.0,
+        "dineIn": 139740.0,
+        "webPickup": 73763.0,
+        "instore": 26398.0,
+        "delivery": 24366.0,
+        "catering": 16802.0,
+        "tpd": 33226.0,
+        "marketplace": 6621.0
+      },
+      "meta": {
+        "roas": 8.0,
+        "netRev": 10159.0,
+        "spend": 1407.0,
+        "cac": 4.64,
+        "customers": 303.0
+      },
+      "google": {
+        "roas": 29.17,
+        "netRev": 25034.0,
+        "spend": 889.0,
+        "cac": 1.39,
+        "customers": 637.5
+      },
+      "sponsored": {
+        "netRev": 8663.0,
+        "spend": 905.0,
+        "roas": 9.58
+      },
+      "promo": {
+        "netRev": 13190.0,
+        "spend": 1224.0,
+        "roas": 10.77
+      },
+      "influencer": {}
+    }
+  ]
+}

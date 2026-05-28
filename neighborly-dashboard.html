@@ -513,7 +513,7 @@
     <div class="chart-grid-2" style="margin-bottom:1.5rem">
       <div class="chart-card">
         <div class="chart-card-title">Revenue center breakdown</div>
-        <div class="chart-card-sub" id="revChartSub">Current week — $331,703 total</div>
+        <div class="chart-card-sub" id="revChartSub">Current week — $320,917 total</div>
         <div class="chart-wrap" style="height:220px"><canvas id="revChart"></canvas></div>
         <div class="chart-source">Source: Toast POS</div>
       </div>
@@ -585,72 +585,75 @@
 <script>
 // ── DATA ─────────────────────────────────────────────────────────────────────
 let DATA = {
-  currentWeek: 'May 13, 2026',
-  lastWeek: 'May 6, 2026',
+  // Source: kpi-tracker-data.json (week ending 2026-05-20). Only fields the
+  // KPI tracker provides are updated here; impressions / clicks / CPC / CTR
+  // are kept at their prior values because the tracker doesn't carry them.
+  currentWeek: 'May 20, 2026',
+  lastWeek: 'May 13, 2026',
   revenue: {
-    total:       { t4w: 311075, lw: 331703, cw: 320188, pctT4W: 3,   pctPW: -3  },
-    dineIn:      { t4w: 130541, lw: 131962, cw: 137309, pctT4W: 5,   pctPW: 4   },
-    webPickup:   { t4w: 70122,  lw: 78713,  cw: 73003,  pctT4W: 4,   pctPW: -7  },
-    instore:     { t4w: 36773,  lw: 34322,  cw: 29206,  pctT4W: -21, pctPW: -15 },
-    delivery:    { t4w: 20448,  lw: 23436,  cw: 25346,  pctT4W: 24,  pctPW: 8   },
-    catering:    { t4w: 7717,   lw: 18808,  cw: 9060,   pctT4W: 17,  pctPW: -52 },
-    tpd:         { t4w: 38570,  lw: 36796,  cw: 38279,  pctT4W: -1,  pctPW: 4   },
-    marketplace: { t4w: 6903,   lw: 7666,   cw: 7986,   pctT4W: 16,  pctPW: 4   }
+    total:       { t4w: 319932, lw: 320188, cw: 320917, pctT4W: 0,   pctPW: 0   },
+    dineIn:      { t4w: 135292, lw: 137309, cw: 139740, pctT4W: 3,   pctPW: 2   },
+    webPickup:   { t4w: 74661,  lw: 73003,  cw: 73763,  pctT4W: -1,  pctPW: 1   },
+    instore:     { t4w: 30524,  lw: 29206,  cw: 26398,  pctT4W: -14, pctPW: -10 },
+    delivery:    { t4w: 23879,  lw: 25346,  cw: 24366,  pctT4W: 2,   pctPW: -4  },
+    catering:    { t4w: 14890,  lw: 9060,   cw: 16802,  pctT4W: 13,  pctPW: 85  },
+    tpd:         { t4w: 37132,  lw: 38279,  cw: 33226,  pctT4W: -11, pctPW: -13 },
+    marketplace: { t4w: 7276,   lw: 7986,   cw: 6621,   pctT4W: -9,  pctPW: -17 }
   },
   revMix: {
-    dineIn:      { t4w: 41.96, lw: 39.8, cw: 42.9 },
-    webPickup:   { t4w: 22.54, lw: 23.7, cw: 22.8 },
-    instore:     { t4w: 11.82, lw: 10.3, cw: 9.1  },
-    delivery:    { t4w: 6.57,  lw: 7.1,  cw: 7.9  },
-    catering:    { t4w: 2.5,   lw: 5.7,  cw: 2.8  },
-    tpd:         { t4w: 12.40, lw: 11.1, cw: 12.0 },
-    marketplace: { t4w: 2.22,  lw: 2.3,  cw: 2.5  }
+    dineIn:      { t4w: 42.32, lw: 42.88, cw: 43.54 },
+    webPickup:   { t4w: 23.34, lw: 22.80, cw: 22.99 },
+    instore:     { t4w: 9.54,  lw: 9.12,  cw: 8.23  },
+    delivery:    { t4w: 7.47,  lw: 7.92,  cw: 7.59  },
+    catering:    { t4w: 3.43,  lw: 2.83,  cw: 5.24  },
+    tpd:         { t4w: 11.63, lw: 11.96, cw: 10.35 },
+    marketplace: { t4w: 2.27,  lw: 2.49,  cw: 2.06  }
   },
   meta: {
-    netRev:    { t4w: 10190, lw: 11010, cw: 12144, pctT4W: 19,  pctPW: 10 },
-    spend:     { t4w: 1320,  lw: 1376,  cw: 1389,  pctT4W: 5,   pctPW: 1  },
+    netRev:    { t4w: 11188, lw: 12144, cw: 10159, pctT4W: -9, pctPW: -16 },
+    spend:     { t4w: 1384,  lw: 1389,  cw: 1407,  pctT4W: 2,  pctPW: 1   },
     impressions:{t4w: 168400, lw: 174200, cw: 181600, pctT4W: 8, pctPW: 4 },
     clicks:    { t4w: 1380,  lw: 1480,  cw: 1620,  pctT4W: 17,  pctPW: 9  },
     cpc:       { t4w: 0.96,  lw: 0.93,  cw: 0.86,  pctT4W: -10, pctPW: -8 },
     ctr:       { t4w: 0.82,  lw: 0.85,  cw: 0.89,  pctT4W: 9,   pctPW: 5  },
-    customers: { t4w: 282,   lw: 360,   cw: 365,   pctT4W: 30,  pctPW: 1  },
-    cac:       { t4w: 4.87,  lw: 3.82,  cw: 3.81,  pctT4W: -22, pctPW: 0  },
-    roas:      { t4w: 8.70,  lw: 9.00,  cw: 9.74,  pctT4W: 12,  pctPW: 8  }
+    customers: { t4w: 309,   lw: 365,   cw: 303,   pctT4W: -2,  pctPW: -17 },
+    cac:       { t4w: 4.70,  lw: 3.81,  cw: 4.64,  pctT4W: -1,  pctPW: 22  },
+    roas:      { t4w: 9.00,  lw: 10.00, cw: 8.00,  pctT4W: -11, pctPW: -20 }
   },
   google: {
-    netRev:    { t4w: 22344, lw: 23523, cw: 20499, pctT4W: -8,  pctPW: -13 },
-    spend:     { t4w: 744,   lw: 790,   cw: 812,   pctT4W: 9,   pctPW: 3   },
+    netRev:    { t4w: 22961, lw: 20499, cw: 25034, pctT4W: 9,   pctPW: 22  },
+    spend:     { t4w: 804,   lw: 812,   cw: 889,   pctT4W: 11,  pctPW: 9   },
     impressions:{t4w: 41200, lw: 43500, cw: 44800, pctT4W: 9,   pctPW: 3  },
     clicks:    { t4w: 510,   lw: 510,   cw: 580,   pctT4W: 14,  pctPW: 14 },
     cpc:       { t4w: 1.46,  lw: 1.55,  cw: 1.40,  pctT4W: -4,  pctPW: -10 },
     ctr:       { t4w: 1.24,  lw: 1.17,  cw: 1.29,  pctT4W: 4,   pctPW: 10 },
-    customers: { t4w: 618,   lw: 625,   cw: 617,   pctT4W: 0,   pctPW: -1  },
-    cac:       { t4w: 1.00,  lw: 1.26,  cw: 1.32,  pctT4W: 8,   pctPW: 4   },
-    roas:      { t4w: 31.16, lw: 30.76, cw: 26.24, pctT4W: -16, pctPW: -15 }
+    customers: { t4w: 635,   lw: 617,   cw: 638,   pctT4W: 0,   pctPW: 3   },
+    cac:       { t4w: 1.26,  lw: 1.32,  cw: 1.39,  pctT4W: 10,  pctPW: 5   },
+    roas:      { t4w: 29.65, lw: 26.24, cw: 29.17, pctT4W: -2,  pctPW: 11  }
   },
   sponsored: {
-    netRev:    { t4w: 9991,  lw: 8674,  cw: 9717,  pctT4W: -3, pctPW: 12 },
-    spend:     { t4w: 1027,  lw: 931,   cw: 941,   pctT4W: -8, pctPW: 1  },
+    netRev:    { t4w: 9412,  lw: 9717,  cw: 8663,  pctT4W: -8, pctPW: -11 },
+    spend:     { t4w: 958,   lw: 941,   cw: 905,   pctT4W: -6, pctPW: -4  },
     impressions:{t4w: 28400, lw: 26100, cw: 27800, pctT4W: -2, pctPW: 7  },
     clicks:    { t4w: 1840,  lw: 1690,  cw: 1810,  pctT4W: -2, pctPW: 7  },
     cpc:       { t4w: 0.56,  lw: 0.55,  cw: 0.52,  pctT4W: -7, pctPW: -5 },
-    roas:      { t4w: 9.78,  lw: 9.32,  cw: 10.32, pctT4W: 6,  pctPW: 11 }
+    roas:      { t4w: 9.81,  lw: 10.32, cw: 9.58,  pctT4W: -2, pctPW: -7  }
   },
   promo: {
-    netRev:    { t4w: 14826, lw: 12734, cw: 12373, pctT4W: -17, pctPW: -3  },
-    spend:     { t4w: 1114,  lw: 1061,  cw: 926,   pctT4W: -17, pctPW: -13 },
+    netRev:    { t4w: 13394, lw: 12373, cw: 13190, pctT4W: -2,  pctPW: 7   },
+    spend:     { t4w: 1102,  lw: 926,   cw: 1224,  pctT4W: 11,  pctPW: 32  },
     impressions:{t4w: 22800, lw: 19200, cw: 18400, pctT4W: -19, pctPW: -4 },
     clicks:    { t4w: 1520,  lw: 1310,  cw: 1240,  pctT4W: -18, pctPW: -5 },
     cpc:       { t4w: 0.73,  lw: 0.81,  cw: 0.75,  pctT4W: 2,   pctPW: -7 },
-    roas:      { t4w: 13.40, lw: 12.00, cw: 13.36, pctT4W: 0,   pctPW: 11  }
+    roas:      { t4w: 12.22, lw: 13.36, cw: 10.77, pctT4W: -12, pctPW: -19 }
   },
-  blendedROAS: { t4w: 13.6, lw: 13.5, cw: 13.5, pctT4W: -1, pctPW: 0 },
+  blendedROAS: { t4w: 13.41, lw: 13.45, cw: 12.89, pctT4W: -4, pctPW: -4 },
   contribution: {
     sponsored: { t4w: 3, lw: 3, cw: 3 },
-    promo:     { t4w: 5, lw: 4, cw: 4 },
-    meta:      { t4w: 3, lw: 3, cw: 4 },
-    google:    { t4w: 7, lw: 7, cw: 6 },
-    total:     { t4w: 18, lw: 17, cw: 17 }
+    promo:     { t4w: 4, lw: 4, cw: 4 },
+    meta:      { t4w: 4, lw: 4, cw: 3 },
+    google:    { t4w: 7, lw: 6, cw: 8 },
+    total:     { t4w: 18, lw: 17, cw: 18 }
   }
 };
 
@@ -1179,8 +1182,22 @@ function dropFile(e)  {
 // Weeks derived from HIST_TOTAL — one entry per data point we have
 const WEEK_HISTORY = [
   // Each entry: { label, data } where data mirrors the DATA shape for that week.
-  // The two most recent weeks come from the KPI tracker; earlier weeks have
+  // The most recent weeks come from kpi-tracker-data.json; earlier weeks have
   // partial data (total revenue only) from the historical dataset.
+  {
+    label: 'May 20, 2026',
+    data: {
+      currentWeek:'May 20, 2026', lastWeek:'May 13, 2026',
+      revenue:{ total:{t4w:319932,lw:320188,cw:320917,pctT4W:0,pctPW:0}, dineIn:{t4w:135292,lw:137309,cw:139740,pctT4W:3,pctPW:2}, webPickup:{t4w:74661,lw:73003,cw:73763,pctT4W:-1,pctPW:1}, instore:{t4w:30524,lw:29206,cw:26398,pctT4W:-14,pctPW:-10}, delivery:{t4w:23879,lw:25346,cw:24366,pctT4W:2,pctPW:-4}, catering:{t4w:14890,lw:9060,cw:16802,pctT4W:13,pctPW:85}, tpd:{t4w:37132,lw:38279,cw:33226,pctT4W:-11,pctPW:-13}, marketplace:{t4w:7276,lw:7986,cw:6621,pctT4W:-9,pctPW:-17} },
+      revMix:{ dineIn:{t4w:42.32,lw:42.88,cw:43.54}, webPickup:{t4w:23.34,lw:22.80,cw:22.99}, instore:{t4w:9.54,lw:9.12,cw:8.23}, delivery:{t4w:7.47,lw:7.92,cw:7.59}, catering:{t4w:3.43,lw:2.83,cw:5.24}, tpd:{t4w:11.63,lw:11.96,cw:10.35}, marketplace:{t4w:2.27,lw:2.49,cw:2.06} },
+      meta:{ netRev:{t4w:11188,lw:12144,cw:10159,pctT4W:-9,pctPW:-16}, spend:{t4w:1384,lw:1389,cw:1407,pctT4W:2,pctPW:1}, customers:{t4w:309,lw:365,cw:303,pctT4W:-2,pctPW:-17}, cac:{t4w:4.70,lw:3.81,cw:4.64,pctT4W:-1,pctPW:22}, roas:{t4w:9.00,lw:10.00,cw:8.00,pctT4W:-11,pctPW:-20} },
+      google:{ netRev:{t4w:22961,lw:20499,cw:25034,pctT4W:9,pctPW:22}, spend:{t4w:804,lw:812,cw:889,pctT4W:11,pctPW:9}, customers:{t4w:635,lw:617,cw:638,pctT4W:0,pctPW:3}, cac:{t4w:1.26,lw:1.32,cw:1.39,pctT4W:10,pctPW:5}, roas:{t4w:29.65,lw:26.24,cw:29.17,pctT4W:-2,pctPW:11} },
+      sponsored:{ netRev:{t4w:9412,lw:9717,cw:8663,pctT4W:-8,pctPW:-11}, spend:{t4w:958,lw:941,cw:905,pctT4W:-6,pctPW:-4}, roas:{t4w:9.81,lw:10.32,cw:9.58,pctT4W:-2,pctPW:-7} },
+      promo:{ netRev:{t4w:13394,lw:12373,cw:13190,pctT4W:-2,pctPW:7}, spend:{t4w:1102,lw:926,cw:1224,pctT4W:11,pctPW:32}, roas:{t4w:12.22,lw:13.36,cw:10.77,pctT4W:-12,pctPW:-19} },
+      blendedROAS:{t4w:13.41,lw:13.45,cw:12.89,pctT4W:-4,pctPW:-4},
+      contribution:{ sponsored:{t4w:3,lw:3,cw:3}, promo:{t4w:4,lw:4,cw:4}, meta:{t4w:4,lw:4,cw:3}, google:{t4w:7,lw:6,cw:8}, total:{t4w:18,lw:17,cw:18} }
+    }
+  },
   {
     label: 'May 13, 2026',
     data: {
