@@ -428,7 +428,7 @@
   }
   .swatch:hover .swatch-copy { opacity: 1; transform: translateY(0); }
 
-  /* ===== TYPOGRAPHY — Fonts now specimen =====
+  /* ===== TYPOGRAPHY — Fonts specimen =====
      Four horizontal slots (eyebrow / headline / CTA / footer) stacked
      inside one orange card. Each slot is a 2-col row: the live
      creative on the left, the font name in the same slot on the right.
@@ -464,12 +464,9 @@
     background: rgba(255,255,255,0.22);
     justify-self: center;
   }
+  /* Keep the desktop two-column specimen layout on phone */
   @media (max-width: 820px) {
-    .specimen-row {
-      grid-template-columns: 1fr; column-gap: 0; row-gap: var(--s-4);
-      padding: var(--s-5) 0;
-    }
-    .specimen-row::after { display: none; }
+    .specimen-row { column-gap: var(--s-4); padding: var(--s-5) 0; }
   }
 
   .specimen-cell {
@@ -483,10 +480,7 @@
     justify-content: flex-start;
     text-align: left;
   }
-  @media (max-width: 820px) {
-    .specimen-cell.specimen-live,
-    .specimen-cell.specimen-label { grid-column: 1 / -1; }
-  }
+  /* specimen cells keep their desktop column placement on phone */
 
   /* Eyebrow — Futura PT Demi, slightly tracked caps */
   .specimen-eyebrow {
@@ -620,12 +614,7 @@
     letter-spacing: 0.01em;
   }
 
-  @media (max-width: 820px) {
-    .spec-card { max-width: 100%; text-align: center; align-items: center; }
-    .spec-stack { max-width: 100%; align-items: center; }
-    .spec-name { width: 100%; text-align: center; }
-    .spec-meta { align-items: center; text-align: center; }
-  }
+  /* spec card keeps its desktop left-aligned layout on phone */
 
   /* ===== PHOTOGRAPHY ===== */
   .photo {
@@ -759,7 +748,7 @@
   <div class="np-tabs" id="brandTabs">
     <a class="np-tab" href="#logos">Logos</a>
     <a class="np-tab" href="#palette">Palette</a>
-    <a class="np-tab" href="#in-use">Fonts now</a>
+    <a class="np-tab" href="#in-use">Fonts</a>
     <a class="np-tab" href="#photography">Photography</a>
     <a class="np-tab" href="#downloads">Downloads</a>
   </div>
@@ -954,18 +943,18 @@
       <div class="foundation">
         <div class="found-card">
           <div class="eyebrow">Mission</div>
-          <h4>Great food, gathered under one roof.</h4>
-          <p>We bring together independent kitchens and thoughtful menus so every meal feels like a little more than everyday, without having to choose just one craving.</p>
+          <h4>More than a place to eat.</h4>
+          <p>Deeply rooted in community, Neighborly is a place to belong — a space that welcomes you in and reflects the beauty of each neighborhood we call home.</p>
         </div>
         <div class="found-card">
           <div class="eyebrow">Promise</div>
-          <h4>Eat what you love, together.</h4>
-          <p>One order, many menus. Everyone gets exactly what they are in the mood for, all around the same table.</p>
+          <h4>Come often. Stay a while.</h4>
+          <p>Dine in, pickup, delivery, and catering — however you gather, there's always a seat saved for you.</p>
         </div>
         <div class="found-card">
           <div class="eyebrow">Feeling</div>
-          <h4>Warm. Thoughtful. Easy.</h4>
-          <p>Like a good neighbor: familiar, generous, and always there when you need something delicious.</p>
+          <h4>Be neighborly.</h4>
+          <p>There's no place like Neighborly.</p>
         </div>
       </div>
     </div>
@@ -1028,7 +1017,7 @@
   <!-- FONTS NOW — paired specimen showing the typefaces working together -->
   <section class="row reveal" id="in-use">
     <div class="row-head">
-      <h2 class="row-title">Fonts now</h2>
+      <h2 class="row-title">Fonts</h2>
     </div>
     <div>
       <div class="specimen">
