@@ -428,7 +428,7 @@
   }
   .swatch:hover .swatch-copy { opacity: 1; transform: translateY(0); }
 
-  /* ===== TYPOGRAPHY — Fonts now specimen =====
+  /* ===== TYPOGRAPHY — Fonts specimen =====
      Four horizontal slots (eyebrow / headline / CTA / footer) stacked
      inside one orange card. Each slot is a 2-col row: the live
      creative on the left, the font name in the same slot on the right.
@@ -464,12 +464,9 @@
     background: rgba(255,255,255,0.22);
     justify-self: center;
   }
+  /* Keep the desktop two-column specimen layout on phone */
   @media (max-width: 820px) {
-    .specimen-row {
-      grid-template-columns: 1fr; column-gap: 0; row-gap: var(--s-4);
-      padding: var(--s-5) 0;
-    }
-    .specimen-row::after { display: none; }
+    .specimen-row { column-gap: var(--s-4); padding: var(--s-5) 0; }
   }
 
   .specimen-cell {
@@ -483,10 +480,7 @@
     justify-content: flex-start;
     text-align: left;
   }
-  @media (max-width: 820px) {
-    .specimen-cell.specimen-live,
-    .specimen-cell.specimen-label { grid-column: 1 / -1; }
-  }
+  /* specimen cells keep their desktop column placement on phone */
 
   /* Eyebrow — Futura PT Demi, slightly tracked caps */
   .specimen-eyebrow {
@@ -620,12 +614,7 @@
     letter-spacing: 0.01em;
   }
 
-  @media (max-width: 820px) {
-    .spec-card { max-width: 100%; text-align: center; align-items: center; }
-    .spec-stack { max-width: 100%; align-items: center; }
-    .spec-name { width: 100%; text-align: center; }
-    .spec-meta { align-items: center; text-align: center; }
-  }
+  /* spec card keeps its desktop left-aligned layout on phone */
 
   /* ===== PHOTOGRAPHY ===== */
   .photo {
@@ -759,7 +748,7 @@
   <div class="np-tabs" id="brandTabs">
     <a class="np-tab" href="#logos">Logos</a>
     <a class="np-tab" href="#palette">Palette</a>
-    <a class="np-tab" href="#in-use">Fonts now</a>
+    <a class="np-tab" href="#in-use">Fonts</a>
     <a class="np-tab" href="#photography">Photography</a>
     <a class="np-tab" href="#downloads">Downloads</a>
   </div>
@@ -1028,7 +1017,7 @@
   <!-- FONTS NOW — paired specimen showing the typefaces working together -->
   <section class="row reveal" id="in-use">
     <div class="row-head">
-      <h2 class="row-title">Fonts now</h2>
+      <h2 class="row-title">Fonts</h2>
     </div>
     <div>
       <div class="specimen">
