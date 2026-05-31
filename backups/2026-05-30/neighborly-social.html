@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Social — Neighborly</title>
+
+<link rel="manifest" href="/manifest.json">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta name="theme-color" content="#e87142">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png">
+
+<link rel="stylesheet" href="theme.css">
+<script src="chrome.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+
+<style>
+  /* KPI grid */
+  .soc-kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--s-3); margin-bottom: var(--s-5); }
+  @media (max-width: 900px) { .soc-kpis { grid-template-columns: 1fr 1fr; } }
+  .kpi-delta { display: inline-flex; align-items: center; gap: 4px; font-family: var(--f-mono); font-weight: 600; font-size: var(--t-caption-sm); }
+  .kpi-delta.pos { color: var(--brand-green-deep); }
+  .kpi-delta.neg { color: var(--brand-orange-deep); }
+  .kpi-delta.flat { color: var(--text-3); }
+
+  /* Trend chart */
+  .trend-card { padding: var(--s-5); margin-bottom: var(--s-4); }
+  .trend-toolbar { display: flex; flex-wrap: wrap; gap: 6px; margin-top: var(--s-3); margin-bottom: var(--s-4); }
+  .trend-toolbar .np-toggle button { padding: 5px 11px; font-size: var(--t-caption); }
+  .trend-canvas { height: 320px; }
+
+  /* Audience */
+  .aud-grid { display: grid; grid-template-columns: 1.1fr 1fr 1fr; gap: var(--s-3); margin-bottom: var(--s-4); }
+  @media (max-width: 900px) { .aud-grid { grid-template-columns: 1fr; } }
+
+  .geo-row { display: grid; grid-template-columns: minmax(0, 1fr) 56px; gap: 10px; align-items: center; padding: 6px 0; }
+  .geo-name { font-size: var(--t-body-sm); color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .geo-name .geo-bar { height: 5px; border-radius: var(--r-pill); background: var(--surface-2); margin-top: 5px; overflow: hidden; }
+  .geo-name .geo-fill { height: 100%; border-radius: var(--r-pill); transition: width .5s var(--easing); }
+  .geo-pct { font-family: var(--f-mono); font-size: var(--t-caption); color: var(--text-3); text-align: right; }
+
+  /* Age & gender pyramid */
+  .ag-row { display: grid; grid-template-columns: 1fr 56px 1fr; gap: 8px; align-items: center; padding: 6px 0; }
+  .ag-bucket { font-family: var(--f-mono); font-size: var(--t-caption); color: var(--text-3); text-align: center; }
+  .ag-bar { height: 14px; border-radius: var(--r-pill); background: var(--surface-2); display: flex; overflow: hidden; }
+  .ag-bar.w { justify-content: flex-end; }
+  .ag-fill { height: 100%; transition: width .5s var(--easing); }
+  .ag-fill.w { background: var(--brand-orange); border-radius: var(--r-pill); }
+  .ag-fill.m { background: var(--brand-blue);   border-radius: var(--r-pill); }
+  .ag-legend { display: flex; gap: 16px; font-family: var(--f-eyebrow); font-weight: 600; font-size: var(--t-eyebrow); letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-3); margin-bottom: 6px; }
+  .ag-legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .ag-legend .swatch { width: 10px; height: 10px; border-radius: 50%; }
+
+  /* Insight callouts */
+  .insights { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: var(--s-3); margin-top: var(--s-3); }
+  .insight {
+    background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg);
+    padding: var(--s-4); position: relative;
+  }
+  .insight-eyebrow { font-family: var(--f-eyebrow); font-weight: 600; font-size: var(--t-eyebrow); letter-spacing: 0.18em; text-transform: uppercase; color: var(--text-3); margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+  .insight-eyebrow .dot { width: 8px; height: 8px; border-radius: 50%; }
+  .insight-title { font-size: var(--t-card-title); font-weight: 600; color: var(--text); margin-bottom: 6px; line-height: 1.3; }
+  .insight-copy { font-size: var(--t-body-sm); color: var(--text-2); line-height: 1.5; }
+
+  /* Format donut */
+  .format-card { padding: var(--s-5); display: flex; align-items: center; gap: var(--s-5); }
+  .format-donut { width: 180px; height: 180px; position: relative; flex-shrink: 0; }
+  .format-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  .format-center-num { font-family: var(--f-mono); font-size: 22px; font-weight: 500; color: var(--ink); }
+  .format-center-label { font-family: var(--f-eyebrow); font-weight: 600; font-size: 9.5px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-3); }
+  .format-rows { flex: 1; }
+  @media (max-width: 600px) { .format-card { flex-direction: column; } }
+</style>
+</head>
+<body>
+
+<nav class="np-nav">
+  <a class="np-nav-brand" onclick="toggleHubNav(event)" aria-label="Open hub">
+    <img src="NeighborlyLogo.png" alt="Neighborly">
+    <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+  </a>
+  <div class="np-tabs">
+    <a class="np-tab is-active" data-tab="overview">Overview</a>
+    <a class="np-tab" data-tab="audience">Audience</a>
+    <a class="np-tab" data-tab="content">Content</a>
+  </div>
+  <div class="np-nav-right">
+    <span class="np-nav-page-tag">Social Breakdown</span>
+    <button class="np-icon-btn" title="Settings" aria-label="Settings" onclick="void(0)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg></button>
+    <a class="np-icon-btn" href="index.html" title="Back to home" aria-label="Back to home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></a>
+  </div>
+</nav>
+
+<div class="np-hub-overlay" aria-hidden="true"></div>
+<div class="np-hub" role="dialog" aria-label="Marketing Hub">
+  <div class="np-hub-label"><span>Neighborly Marketing Hub</span><a href="index.html" class="np-hub-back-home">&larr; Home</a></div>
+  <div class="np-hub-grid">
+    <a class="np-hub-card" href="index.html"><div class="np-hub-card-ico" style="background:var(--surface-2)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--text)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12l9-9 9 9"/><path d="M5 10v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V10"/></svg></div><div class="np-hub-card-title">Home</div><div class="np-hub-card-sub">Marketing Hub overview</div></a>
+    <a class="np-hub-card" href="neighborly-dashboard.html"><div class="np-hub-card-ico" style="background:var(--brand-yellow-light)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--brand-yellow-deep)" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></div><div class="np-hub-card-title">Performance Marketing</div><div class="np-hub-card-sub">Weekly &amp; all-time KPIs</div></a>
+    <a class="np-hub-card" href="neighborly-pmix.html"><div class="np-hub-card-ico" style="background:#e3ece3"><svg viewBox="0 0 24 24" fill="none" stroke="#5a7a5a" stroke-width="2" stroke-linecap="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></div><div class="np-hub-card-title">Sales &amp; Pmix</div><div class="np-hub-card-sub">Daily sales &amp; product mix</div></a>
+    <a class="np-hub-card" href="neighborly-calendar.html"><div class="np-hub-card-ico" style="background:var(--brand-green-light)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--brand-green-deep)" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div><div class="np-hub-card-title">Marketing Calendar</div><div class="np-hub-card-sub">Campaigns &amp; scheduling</div></a>
+    <a class="np-hub-card" href="neighborly-assets.html"><div class="np-hub-card-ico" style="background:var(--brand-tan-light)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--brand-tan-deep)" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 010 14.14M4.93 4.93a10 10 0 000 14.14M12 2v2M12 20v2M2 12h2M20 12h2"/></svg></div><div class="np-hub-card-title">Brand Guidelines</div><div class="np-hub-card-sub">Logos &amp; templates</div></a>
+    <a class="np-hub-card is-active" href="neighborly-social.html"><div class="np-hub-card-ico" style="background:var(--brand-blue-light)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--brand-blue-deep)" stroke-width="2"><path d="M3 12h4l3-9 4 18 3-9h4"/></svg></div><div class="np-hub-card-title">Social</div><div class="np-hub-card-sub">Reach &amp; engagement</div></a>
+    <a class="np-hub-card" href="neighborly-guests.html"><div class="np-hub-card-ico" style="background:var(--brand-lavender-light)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--brand-lavender-deep)" stroke-width="2"><circle cx="9" cy="8" r="4"/><path d="M2 21a7 7 0 0 1 14 0"/><path d="M16 3.5a4 4 0 0 1 0 8M22 21a7 7 0 0 0-5-6.7"/></svg></div><div class="np-hub-card-title">Guest Intelligence</div><div class="np-hub-card-sub">Feedback &amp; experience trends</div></a>
+  </div>
+</div>
+
+<main class="np-main">
+
+  <div class="np-page-header-row">
+    <header class="np-page-header">
+    </header>
+    <div class="np-page-selectors">
+      <button class="np-date-pill" id="dateRangeBtn" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 11h18"/></svg>
+        <span id="dateRangeLabel">Last 28 days</span>
+        <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Date range popover -->
+  <div id="dateRangeMenu" style="display:none; position:absolute; z-index:80; background:#fff; border:1px solid var(--line); border-radius:12px; box-shadow:var(--shadow-md); padding:6px; min-width:160px;">
+    <button class="dr-opt" data-range="7"  style="display:block; width:100%; text-align:left; padding:8px 12px; border:none; background:none; border-radius:8px; font-size:13px; cursor:pointer;">Last 7 days</button>
+    <button class="dr-opt" data-range="28" style="display:block; width:100%; text-align:left; padding:8px 12px; border:none; background:none; border-radius:8px; font-size:13px; cursor:pointer; background:var(--surface-2);">Last 28 days</button>
+    <button class="dr-opt" data-range="90" style="display:block; width:100%; text-align:left; padding:8px 12px; border:none; background:none; border-radius:8px; font-size:13px; cursor:pointer;">Last 90 days</button>
+    <button class="dr-opt" data-range="365" style="display:block; width:100%; text-align:left; padding:8px 12px; border:none; background:none; border-radius:8px; font-size:13px; cursor:pointer;">Last year</button>
+    <button class="dr-opt" data-range="0"   style="display:block; width:100%; text-align:left; padding:8px 12px; border:none; background:none; border-radius:8px; font-size:13px; cursor:pointer;">All time</button>
+  </div>
+
+  <!-- KPI HERO -->
+  <div class="soc-kpis tab-pane" data-pane="overview">
+    <div class="np-kpi">
+      <div class="np-kpi-label" id="kpiViewsLabel">Views (28d)</div>
+      <div class="np-kpi-value" id="kpiViews">—</div>
+      <div class="np-kpi-sub"><span id="kpiViewsDelta" class="kpi-delta flat">—</span> <span class="kpi-period">&nbsp;vs prior 28d</span></div>
+    </div>
+    <div class="np-kpi">
+      <div class="np-kpi-label" id="kpiReachLabel">Reach (28d)</div>
+      <div class="np-kpi-value" id="kpiReach">—</div>
+      <div class="np-kpi-sub"><span id="kpiReachDelta" class="kpi-delta flat">—</span> <span class="kpi-period">&nbsp;vs prior 28d</span></div>
+    </div>
+    <div class="np-kpi">
+      <div class="np-kpi-label" id="kpiFollowsLabel">New follows (28d)</div>
+      <div class="np-kpi-value" id="kpiFollows">—</div>
+      <div class="np-kpi-sub"><span id="kpiFollowsDelta" class="kpi-delta flat">—</span> <span class="kpi-period">&nbsp;vs prior 28d</span></div>
+    </div>
+    <div class="np-kpi">
+      <div class="np-kpi-label">Engagement rate</div>
+      <div class="np-kpi-value" id="kpiEng">—</div>
+      <div class="np-kpi-sub">interactions ÷ reach</div>
+    </div>
+  </div>
+
+  <!-- TREND CHART -->
+  <section class="np-card trend-card tab-pane" data-pane="overview">
+    <div class="np-card-title">Performance over time</div>
+    <div class="np-card-sub">Daily totals · pick metric + window</div>
+    <div class="trend-toolbar">
+      <div class="np-toggle" id="metricToggle">
+        <button class="is-active" data-metric="views">Views</button>
+        <button data-metric="reach">Reach</button>
+        <button data-metric="interactions">Interactions</button>
+        <button data-metric="clicks">Link clicks</button>
+        <button data-metric="follows">Follows</button>
+        <button data-metric="visits">Visits</button>
+      </div>
+      <div class="np-toggle" id="rangeToggle" style="margin-left:auto">
+        <button data-range="7">7d</button>
+        <button class="is-active" data-range="28">28d</button>
+        <button data-range="90">90d</button>
+        <button data-range="365">1y</button>
+        <button data-range="0">All</button>
+      </div>
+    </div>
+    <div class="trend-canvas"><canvas id="trendChart"></canvas></div>
+  </section>
+
+  <!-- INSIGHTS (growth marketer takeaways) -->
+  <section class="np-card tab-pane" data-pane="overview" style="margin-bottom:var(--s-4)">
+    <div class="np-card-title">Growth insights</div>
+    <div class="np-card-sub">Signals from the current window.</div>
+    <div class="insights" id="insights"></div>
+  </section>
+
+  <!-- AUDIENCE -->
+  <div class="aud-grid tab-pane" data-pane="audience">
+    <section class="np-card">
+      <div class="np-card-title">Top cities</div>
+      <div class="np-card-sub">Share of audience</div>
+      <div id="citiesList" style="margin-top:var(--s-3)"></div>
+    </section>
+    <section class="np-card">
+      <div class="np-card-title">Age &amp; gender</div>
+      <div class="np-card-sub">Audience composition (%)</div>
+      <div class="ag-legend" style="margin-top:var(--s-3)">
+        <span><span class="swatch" style="background:var(--brand-orange)"></span>Women</span>
+        <span><span class="swatch" style="background:var(--brand-blue)"></span>Men</span>
+      </div>
+      <div id="ageList"></div>
+    </section>
+    <section class="np-card">
+      <div class="np-card-title">Top countries</div>
+      <div class="np-card-sub">Reach share</div>
+      <div id="countriesList" style="margin-top:var(--s-3)"></div>
+    </section>
+  </div>
+
+  <!-- CONTENT FORMAT MIX -->
+  <section class="np-card format-card tab-pane" data-pane="content">
+    <div class="format-donut"><canvas id="formatDonut"></canvas>
+      <div class="format-center">
+        <span class="format-center-num" id="formatTotal">—</span>
+        <span class="format-center-label">Pieces published</span>
+      </div>
+    </div>
+    <div class="format-rows" id="formatRows">
+      <div class="np-card-title">Content format split</div>
+      <div class="np-card-sub">Stories vs feed Posts over the export window</div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="np-foot"><span class="track-trim">Neighbors Only Portal</span></footer>
+
+<script>
+  const fmtN = n => n == null ? '—' : Math.round(n).toLocaleString();
+  const fmtPct = n => n == null ? '—' : (n >= 0 ? '+' : '') + n.toFixed(1) + '%';
+  const fmt2 = n => n == null ? '—' : n.toFixed(2) + '%';
+
+  let DATA = null;
+  let currentMetric = 'views';
+  let currentRange  = 28;
+  let trendChart, formatChart;
+
+  const METRIC_META = {
+    views:        { label: 'Views',         color: '#eace49' },
+    reach:        { label: 'Reach',         color: '#7bbd91' },
+    interactions: { label: 'Interactions',  color: '#e87142' },
+    clicks:       { label: 'Link clicks',   color: '#6280bd' },
+    follows:      { label: 'New follows',   color: '#cbc9d6' },
+    visits:       { label: 'Profile visits',color: '#dbc6a2' },
+  };
+
+  async function loadSocial() {
+    try {
+      const r = await fetch('social-data.json', { cache: 'no-store' });
+      DATA = await r.json();
+      render();
+    } catch (e) { console.error('social load failed', e); }
+  }
+
+  function setDelta(el, val) {
+    if (val == null) { el.textContent = '—'; el.className = 'kpi-delta flat'; return; }
+    el.textContent = fmtPct(val);
+    el.className = 'kpi-delta ' + (val > 0.5 ? 'pos' : val < -0.5 ? 'neg' : 'flat');
+  }
+
+  function render() {
+    if (!DATA) return;
+    const s = DATA.summary;
+
+    // KPIs
+    document.getElementById('kpiViews').textContent   = fmtN(s.views_28d);
+    setDelta(document.getElementById('kpiViewsDelta'), s.views_growth_28d);
+    document.getElementById('kpiReach').textContent   = fmtN(s.reach_28d);
+    setDelta(document.getElementById('kpiReachDelta'), s.reach_growth);
+    document.getElementById('kpiFollows').textContent = fmtN(s.follows_28d);
+    setDelta(document.getElementById('kpiFollowsDelta'), s.follows_growth);
+    document.getElementById('kpiEng').textContent     = fmt2((s.interactions_28d / s.reach_28d) * 100);
+
+    renderTrend();
+    renderInsights();
+    renderAudience();
+    renderFormats();
+  }
+
+  function renderTrend() {
+    const series = DATA.trends[currentMetric] || [];
+    const slice = currentRange > 0 ? series.slice(-currentRange) : series;
+    const meta  = METRIC_META[currentMetric];
+    const ctx   = document.getElementById('trendChart');
+    if (trendChart) trendChart.destroy();
+    trendChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: slice.map(s => s.date),
+        datasets: [{
+          label: meta.label,
+          data:  slice.map(s => s.value),
+          borderColor: meta.color,
+          backgroundColor: meta.color + '33',
+          tension: 0.25,
+          pointRadius: slice.length > 90 ? 0 : 3,
+          pointHoverRadius: 4,
+          fill: true,
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        animation: { duration: 600, easing: 'easeOutQuart' },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: '#1f2328', titleColor: '#fff', bodyColor: '#fff',
+            padding: 10, cornerRadius: 6,
+            titleFont: { family: 'DM Sans', size: 12, weight: '600' },
+            bodyFont: { family: 'DM Mono', size: 12 },
+            callbacks: { label: c => ` ${meta.label}: ${fmtN(c.parsed.y)}` }
+          }
+        },
+        scales: {
+          x: { ticks: { color: '#7a7770', maxTicksLimit: 8, autoSkip: true }, grid: { display: false } },
+          y: { ticks: { color: '#7a7770', callback: v => v >= 1000 ? (v/1000).toFixed(0) + 'k' : v }, grid: { color: 'rgba(31,35,40,0.06)' }, beginAtZero: true }
+        }
+      }
+    });
+  }
+
+  function renderInsights() {
+    const s = DATA.summary;
+    const peakViews = s.peak_views || {};
+    const cards = [];
+
+    // 1) Frequency
+    const freq = s.frequency_28d;
+    cards.push({
+      color: '#eace49',
+      eyebrow: 'Frequency',
+      title: `${freq || '—'}× avg impressions per reach`,
+      copy: freq > 5 ? 'Over-serving. Diversify reach.'
+          : freq < 2 ? 'Under-frequency. Retarget warm audience.'
+          : `Target band: 2–4. ${freq}× — in range.`
+    });
+
+    // 2) Conversion
+    const conv = s.follow_conv_28d;
+    cards.push({
+      color: '#7bbd91',
+      eyebrow: 'Follow conv.',
+      title: `${conv}% visit→follow`,
+      copy: `${fmtN(s.follows_28d)} follows / ${fmtN(s.visits_28d)} visits. Benchmark 5–10%. ${conv > 10 ? 'Above benchmark.' : conv > 5 ? 'In range.' : 'Below — bio + grid need work.'}`
+    });
+
+    // 3) Engagement quality
+    const ipr = s.inter_per_reach;
+    cards.push({
+      color: '#e87142',
+      eyebrow: 'Engagement',
+      title: `${ipr}% interactions / reach`,
+      copy: `${fmtN(s.interactions_28d)} on ${fmtN(s.reach_28d)}. >2% strong · 1–2% healthy · <1% weak.`
+    });
+
+    // 4) Peak / viral moment
+    const peakMult = peakViews.value / (s.views_28d / 28);
+    cards.push({
+      color: '#6280bd',
+      eyebrow: 'Peak day',
+      title: `${peakViews.date} · ${fmtN(peakViews.value)} views`,
+      copy: `${peakMult.toFixed(1)}× daily avg. Replicate the hook.`
+    });
+
+    // 5) Growth direction
+    const dir = s.views_growth_28d;
+    cards.push({
+      color: dir > 0 ? '#7bbd91' : '#e87142',
+      eyebrow: 'Trend',
+      title: `Views ${dir > 0 ? '+' : ''}${dir.toFixed(1)}% vs prior 28d`,
+      copy: dir > 0 ? 'Boost top performers, hold cadence.' : 'Rotate hooks — story volume likely down.'
+    });
+
+    // 6) Geo focus
+    const topCity = DATA.audience.cities && DATA.audience.cities[0];
+    if (topCity) {
+      cards.push({
+        color: '#cbc9d6',
+        eyebrow: 'Geo concentration',
+        title: `${topCity.pct}% in ${topCity.name}`,
+        copy: 'Hyperlocal audience. Lean into UGC and in-store events.'
+      });
+    }
+
+    document.getElementById('insights').innerHTML = cards.map(c => `
+      <div class="insight">
+        <div class="insight-eyebrow"><span class="dot" style="background:${c.color}"></span>${c.eyebrow}</div>
+        <div class="insight-title">${c.title}</div>
+        <div class="insight-copy">${c.copy}</div>
+      </div>
+    `).join('');
+  }
+
+  function renderAudience() {
+    // Cities
+    const cities = DATA.audience.cities || [];
+    const cityMax = Math.max(...cities.map(c => c.pct), 1);
+    document.getElementById('citiesList').innerHTML = cities.map(c => `
+      <div class="geo-row">
+        <div>
+          <div class="geo-name">${c.name}</div>
+          <div class="geo-bar"><div class="geo-fill" style="width:${(c.pct/cityMax*100).toFixed(1)}%; background:var(--brand-orange)"></div></div>
+        </div>
+        <div class="geo-pct">${c.pct}%</div>
+      </div>
+    `).join('');
+
+    // Countries
+    const countries = DATA.audience.countries || [];
+    const cMax = Math.max(...countries.map(c => c.pct), 1);
+    document.getElementById('countriesList').innerHTML = countries.map(c => `
+      <div class="geo-row">
+        <div>
+          <div class="geo-name">${c.name}</div>
+          <div class="geo-bar"><div class="geo-fill" style="width:${(c.pct/cMax*100).toFixed(1)}%; background:var(--brand-blue)"></div></div>
+        </div>
+        <div class="geo-pct">${c.pct}%</div>
+      </div>
+    `).join('');
+
+    // Age & gender pyramid
+    const ag = DATA.audience.age_gender || [];
+    const maxSide = Math.max(...ag.flatMap(a => [a.women, a.men]), 1);
+    document.getElementById('ageList').innerHTML = ag.map(a => `
+      <div class="ag-row">
+        <div class="ag-bar w"><div class="ag-fill w" style="width:${(a.women/maxSide*100).toFixed(1)}%"></div></div>
+        <div class="ag-bucket">${a.bucket}</div>
+        <div class="ag-bar"><div class="ag-fill m" style="width:${(a.men/maxSide*100).toFixed(1)}%"></div></div>
+      </div>
+    `).join('');
+  }
+
+  function renderFormats() {
+    const formats = DATA.formats || [];
+    const total = formats.reduce((s, f) => s + f.count, 0);
+    document.getElementById('formatTotal').textContent = fmtN(total);
+
+    if (formatChart) formatChart.destroy();
+    formatChart = new Chart(document.getElementById('formatDonut'), {
+      type: 'doughnut',
+      data: {
+        labels: formats.map(f => f.format),
+        datasets: [{
+          data: formats.map(f => f.count),
+          backgroundColor: ['#e87142', '#6280bd'],
+          borderColor: '#fff', borderWidth: 2, hoverOffset: 6,
+        }]
+      },
+      options: {
+        cutout: '64%', responsive: true, maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: '#1f2328', titleColor: '#fff', bodyColor: '#fff', padding: 10, cornerRadius: 6,
+            callbacks: { label: c => ` ${c.parsed} (${(c.parsed/total*100).toFixed(1)}%)` }
+          }
+        }
+      }
+    });
+
+    document.getElementById('formatRows').innerHTML = `
+      <div class="np-card-title">Content format split</div>
+      <div class="np-card-sub">${formats[0].format} vs ${formats[1].format} over the export window</div>
+      <div style="margin-top:var(--s-4); display:flex; gap:var(--s-5); flex-wrap:wrap;">
+        ${formats.map((f, i) => `
+          <div>
+            <div class="insight-eyebrow"><span class="dot" style="background:${['#e87142','#6280bd'][i]}"></span>${f.format}</div>
+            <div style="font-family:var(--f-mono); font-size:22px; font-weight:500; color:var(--ink); line-height:1;">${fmtN(f.count)}</div>
+            <div class="np-kpi-sub">${(f.count/total*100).toFixed(1)}% of output</div>
+          </div>
+        `).join('')}
+      </div>
+      <div class="insight-copy" style="margin-top:var(--s-4)">
+        ${formats[0].count > formats[1].count * 2
+          ? 'Stories-heavy. Add reels to grow reach.'
+          : 'Balanced. Hold the mix.'}
+      </div>
+    `;
+  }
+
+  /* Toggle wiring */
+  document.querySelectorAll('#metricToggle button').forEach(b => {
+    b.addEventListener('click', () => {
+      currentMetric = b.dataset.metric;
+      document.querySelectorAll('#metricToggle button').forEach(x => x.classList.toggle('is-active', x === b));
+      renderTrend();
+    });
+  });
+  document.querySelectorAll('#rangeToggle button').forEach(b => {
+    b.addEventListener('click', () => {
+      currentRange = parseInt(b.dataset.range);
+      document.querySelectorAll('#rangeToggle button').forEach(x => x.classList.toggle('is-active', x === b));
+      renderTrend();
+    });
+  });
+
+  /* ============ Tab switching ============ */
+  function showPane(pane) {
+    document.querySelectorAll('.np-tab').forEach(t => t.classList.toggle('is-active', t.dataset.tab === pane));
+    document.querySelectorAll('.tab-pane').forEach(el => {
+      el.style.display = (el.dataset.pane === pane) ? '' : 'none';
+    });
+    // Charts need a redraw after becoming visible
+    if (pane === 'overview' && DATA) renderTrend();
+    if (pane === 'content'  && DATA) renderFormats();
+  }
+  document.querySelectorAll('.np-tab').forEach(t => {
+    t.style.cursor = 'pointer';
+    t.addEventListener('click', e => { e.preventDefault(); showPane(t.dataset.tab); });
+  });
+
+  /* ============ Global date range picker ============ */
+  const RANGE_LABEL = { 7: 'Last 7 days', 28: 'Last 28 days', 90: 'Last 90 days', 365: 'Last year', 0: 'All time' };
+  let globalRange = 28;
+
+  function applyGlobalRange(range) {
+    globalRange = range;
+    document.getElementById('dateRangeLabel').textContent = RANGE_LABEL[range];
+    document.querySelectorAll('.dr-opt').forEach(b => {
+      b.style.background = parseInt(b.dataset.range) === range ? 'var(--surface-2)' : 'none';
+    });
+    // Sync trend chart to the same range
+    currentRange = range;
+    document.querySelectorAll('#rangeToggle button').forEach(x => x.classList.toggle('is-active', parseInt(x.dataset.range) === range));
+    // Re-render KPIs against the new range
+    if (DATA) {
+      renderKpisForRange(range);
+      renderTrend();
+    }
+  }
+
+  function renderKpisForRange(range) {
+    if (!DATA) return;
+    const s = DATA.summary;
+    const periodTxt = range === 0 ? 'all time' : `last ${range} days`;
+    document.querySelectorAll('.kpi-period').forEach(el => el.textContent = ' vs prior period');
+
+    // Compute totals from the trend series for arbitrary ranges (since
+    // the summary only carries 28d + all-time precomputed totals).
+    function rangeTotal(metric) {
+      const series = (DATA.trends && DATA.trends[metric]) || [];
+      const slice = range > 0 ? series.slice(-range) : series;
+      return slice.reduce((a, b) => a + (b.value || 0), 0);
+    }
+    function rangePrior(metric) {
+      const series = (DATA.trends && DATA.trends[metric]) || [];
+      if (range === 0) return null;
+      const prior = series.slice(-range * 2, -range);
+      return prior.reduce((a, b) => a + (b.value || 0), 0);
+    }
+    function delta(curr, prior) {
+      if (!prior || prior === 0) return null;
+      return ((curr - prior) / prior) * 100;
+    }
+
+    const views = rangeTotal('views');
+    const reach = rangeTotal('reach');
+    const follows = rangeTotal('follows');
+    const inter = rangeTotal('interactions');
+
+    document.getElementById('kpiViewsLabel').textContent   = `Views (${range === 0 ? 'all time' : range + 'd'})`;
+    document.getElementById('kpiReachLabel').textContent   = `Reach (${range === 0 ? 'all time' : range + 'd'})`;
+    document.getElementById('kpiFollowsLabel').textContent = `New follows (${range === 0 ? 'all time' : range + 'd'})`;
+
+    document.getElementById('kpiViews').textContent   = fmtN(views);
+    document.getElementById('kpiReach').textContent   = fmtN(reach);
+    document.getElementById('kpiFollows').textContent = fmtN(follows);
+    document.getElementById('kpiEng').textContent     = reach ? fmt2((inter / reach) * 100) : '—';
+
+    if (range === 0) {
+      ['kpiViewsDelta','kpiReachDelta','kpiFollowsDelta'].forEach(id => {
+        const el = document.getElementById(id);
+        el.textContent = '—'; el.className = 'kpi-delta flat';
+      });
+      document.querySelectorAll('.kpi-period').forEach(el => el.textContent = '');
+    } else {
+      setDelta(document.getElementById('kpiViewsDelta'),   delta(views,   rangePrior('views')));
+      setDelta(document.getElementById('kpiReachDelta'),   delta(reach,   rangePrior('reach')));
+      setDelta(document.getElementById('kpiFollowsDelta'), delta(follows, rangePrior('follows')));
+    }
+  }
+
+  const dateBtn  = document.getElementById('dateRangeBtn');
+  const dateMenu = document.getElementById('dateRangeMenu');
+  dateBtn.addEventListener('click', e => {
+    e.stopPropagation();
+    const r = dateBtn.getBoundingClientRect();
+    dateMenu.style.top  = (window.scrollY + r.bottom + 6) + 'px';
+    dateMenu.style.left = (window.scrollX + r.right - 180) + 'px';
+    dateMenu.style.display = dateMenu.style.display === 'block' ? 'none' : 'block';
+  });
+  document.addEventListener('click', e => {
+    if (!dateMenu.contains(e.target) && e.target !== dateBtn) dateMenu.style.display = 'none';
+  });
+  document.querySelectorAll('.dr-opt').forEach(b => {
+    b.addEventListener('click', () => {
+      applyGlobalRange(parseInt(b.dataset.range));
+      dateMenu.style.display = 'none';
+    });
+  });
+
+  /* Patch render() so KPIs use the global range */
+  const _origRender = render;
+  render = function() {
+    _origRender();
+    if (DATA) renderKpisForRange(globalRange);
+  };
+
+  // Default pane = overview
+  showPane('overview');
+
+  loadSocial();
+</script>
+
+</body>
+</html>
