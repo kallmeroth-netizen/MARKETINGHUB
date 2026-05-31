@@ -9,6 +9,13 @@
 <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
 <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
 <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+  <script>
+    const __fbApp = firebase.initializeApp({apiKey:"AIzaSyAiHIQuw3eiyY305sDqc_CoV_MoEG9CQpw",authDomain:"neighborly-hub-53e4b.firebaseapp.com",databaseURL:"https://neighborly-hub-53e4b-default-rtdb.firebaseio.com",projectId:"neighborly-hub-53e4b",storageBucket:"neighborly-hub-53e4b.firebasestorage.app",messagingSenderId:"847761939455",appId:"1:847761939455:web:d0d5dbe1795bb4f05f25ca"});
+    const __fbDb = firebase.database();
+  </script>
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -471,9 +478,10 @@ const DEFAULT_THEMES = {
 };
 
 // ── STORAGE ───────────────────────────────────────────────────────────────────
-const NS = 'nbly_cal3_';
-const rd = k => { try { const v = localStorage.getItem(NS+k); return v ? JSON.parse(v) : null; } catch(e) { return null; } };
-const wr = (k, v) => { try { localStorage.setItem(NS+k, JSON.stringify(v)); } catch(e) {} };
+        const STORAGE_KEY = 'nbly_cal3_events';
+        const __calRef = __fbDb.ref('marketing-calendar');
+        const loadEvents = () => { try { return JSON.parse(localStorage.getItem(STORAGE_KEY)||'null'); } catch(e) { return null; } };
+        const saveToCloud = (data) => __calRef.set(data);
 
 // ── HELPERS ───────────────────────────────────────────────────────────────────
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,6);
@@ -856,6 +864,18 @@ function NeighborlyCalendar() {
   const [events,    setEvents]    = useState(() => rd('events')  || SAMPLE_EVENTS);
   const [goals,     setGoals]     = useState(() => rd('goals')   || {});
   const [themes,    setThemes]    = useState(() => rd('themes')  || JSON.parse(JSON.stringify(DEFAULT_THEMES)));
+        // Firebase real-time sync
+        React.useEffect(() => {
+          const unsub = __calRef.on('value', snap => {
+            const data = snap.val();
+            if (data) {
+              if (data.events) setEvents(data.events);
+              if (data.goals) setGoals(data.goals);
+              if (data.themes) setThemes(data.themes);
+            }
+          });
+          return () => __calRef.off('value', unsub);
+        }, []);
   // Auto-land on the current real month
   const [curDate,   setCurDate]   = useState(() => { const n = new Date(); return new Date(n.getFullYear(), n.getMonth(), 1); });
   const [mode,      setMode]      = useState('edit');
@@ -875,9 +895,12 @@ function NeighborlyCalendar() {
   const yr = curDate.getFullYear(), mo = curDate.getMonth();
   const mKey = mkKey(curDate);
 
-  const saveEvents = useCallback(evts => { setEvents(evts); wr('events',evts); }, []);
-  const saveGoals  = useCallback(g    => { setGoals(g);  wr('goals',g);  }, []);
-  const saveThemes = useCallback(t    => { setThemes(t); wr('themes',t); }, []);
+          const saveEvents = React.useCallback((evts, goals, themes) => {
+          setEvents(evts);
+          setGoals(goals);
+          setThemes(themes);
+          saveToCloud({events: evts || [], goals: goals || [], themes: themes || []});
+        }, []);
 
   const theme      = themes[mo] || DEFAULT_THEMES[mo] || {};
   const monthGoals = goals[mKey] || [false,false,false];
