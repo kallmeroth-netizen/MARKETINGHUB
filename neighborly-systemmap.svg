@@ -1,205 +1,233 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1500 1120" font-family="Segoe UI, Helvetica, Arial, sans-serif">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1500 1180" font-family="Segoe UI, Helvetica, Arial, sans-serif">
   <defs>
-    <marker id="aTeal" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0 0L9 4.5L0 9z" fill="#2f6f6a"/></marker>
+    <marker id="aTeal"   markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0 0L9 4.5L0 9z" fill="#2f6f6a"/></marker>
     <marker id="aOrange" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0 0L9 4.5L0 9z" fill="#e87142"/></marker>
-    <marker id="aLav" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0 0L9 4.5L0 9z" fill="#5a4a7a"/></marker>
-    <marker id="aRed" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0 0L9 4.5L0 9z" fill="#c0392b"/></marker>
-    <marker id="aInk" markerWidth="10" markerHeight="10" refX="7" refY="5" orient="auto"><path d="M0 0L10 5L0 10z" fill="#1f2328"/></marker>
-    <marker id="aGrey" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0 0L9 4.5L0 9z" fill="#9aa0a6"/></marker>
+    <marker id="aBlue"   markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0 0L9 4.5L0 9z" fill="#2d4480"/></marker>
+    <marker id="aLav"    markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0 0L9 4.5L0 9z" fill="#5a4a7a"/></marker>
+    <marker id="aRed"    markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0 0L9 4.5L0 9z" fill="#c0392b"/></marker>
+    <marker id="aGreen"  markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0 0L9 4.5L0 9z" fill="#2a7a4b"/></marker>
+    <marker id="aInk"    markerWidth="10" markerHeight="10" refX="7" refY="5" orient="auto"><path d="M0 0L10 5L0 10z" fill="#1f2328"/></marker>
+    <marker id="aGrey"   markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0 0L9 4.5L0 9z" fill="#9aa0a6"/></marker>
   </defs>
 
-  <rect x="0" y="0" width="1500" height="1120" fill="#faf7f2"/>
+  <rect x="0" y="0" width="1500" height="1180" fill="#faf7f2"/>
 
-  <!-- ===== Title ===== -->
-  <text x="40" y="42" font-size="26" font-weight="700" fill="#1f2328">Neighborly — Portals &amp; Data System Map</text>
-  <text x="40" y="66" font-size="14" fill="#6b7178">What feeds what: data sources &#8594; data layer &#8594; front door &#8594; portal pages. Hand-off for the tech team.</text>
+  <!-- Title -->
+  <text x="40" y="42" font-size="26" font-weight="700" fill="#1f2328">Neighborly — How data flows to each page</text>
+  <text x="40" y="66" font-size="14" fill="#6b7178">Read left to right. Each page is fed from one place. The goal: every flow runs automatically. Colours = where it comes from; tags = whether it's automated yet.</text>
 
-  <!-- ===== Lane headers ===== -->
-  <text x="40"  y="100" font-size="13" font-weight="700" letter-spacing="1.5" fill="#8a8f96">DATA SOURCES (INPUTS)</text>
-  <text x="395" y="100" font-size="13" font-weight="700" letter-spacing="1.5" fill="#8a8f96">DATA LAYER</text>
-  <text x="695" y="100" font-size="13" font-weight="700" letter-spacing="1.5" fill="#8a8f96">FRONT DOOR</text>
-  <text x="955" y="100" font-size="13" font-weight="700" letter-spacing="1.5" fill="#8a8f96">PORTALS &amp; PAGES</text>
+  <!-- Lane headers -->
+  <text x="40"  y="100" font-size="13" font-weight="700" letter-spacing="1.2" fill="#8a8f96">WHERE DATA COMES FROM</text>
+  <text x="395" y="100" font-size="13" font-weight="700" letter-spacing="1.2" fill="#8a8f96">WHERE IT'S STORED</text>
+  <text x="685" y="100" font-size="13" font-weight="700" letter-spacing="1.2" fill="#8a8f96">LOGIN</text>
+  <text x="935" y="100" font-size="13" font-weight="700" letter-spacing="1.2" fill="#8a8f96">THE PAGES PEOPLE SEE</text>
 
-  <!-- ============ DATA SOURCES ============ -->
+  <!-- ============ SOURCES ============ -->
   <!-- S1 Email Flash -->
-  <rect x="40" y="110" width="300" height="160" rx="12" fill="#e3efec" stroke="#2f6f6a" stroke-width="1.5"/>
-  <text x="58" y="136" font-size="15" font-weight="700" fill="#1f4e49">① Daily Sales Email Flash</text>
-  <text x="58" y="156" font-size="11.5" fill="#3a6b65" font-style="italic">You forward it daily &#8594; parsed into the data layer</text>
-  <text x="58" y="180" font-size="12" fill="#2a2f34">• Net sales · avg check · check count</text>
-  <text x="58" y="198" font-size="12" fill="#2a2f34">• Labor: FOH/BOH hrs + cost, SPLH, labor %</text>
-  <text x="58" y="216" font-size="12" fill="#2a2f34">• Comps by reason (9 types)</text>
-  <text x="58" y="234" font-size="12" fill="#2a2f34">• PMIX by category · dayparts · channels</text>
-  <text x="58" y="252" font-size="12" fill="#2a2f34">• Per location · WTD/PTD/QTD/YTD · 6-wk avg</text>
+  <rect x="40" y="112" width="300" height="134" rx="11" fill="#e3efec" stroke="#2f6f6a" stroke-width="1.5"/>
+  <text x="56" y="135" font-size="14.5" font-weight="700" fill="#1f4e49">Daily Sales email</text>
+  <text x="56" y="153" font-size="11" fill="#3a6b65">You forward it each morning; it's read in automatically.</text>
+  <text x="56" y="174" font-size="11.5" fill="#2a2f34">Sales, average check, labor hours &amp; cost, sales-per-</text>
+  <text x="56" y="190" font-size="11.5" fill="#2a2f34">labor-hour, labor %, comps, product mix, dayparts —</text>
+  <text x="56" y="206" font-size="11.5" fill="#2a2f34">by location, for day / week / period / quarter / year.</text>
+  <circle cx="62" cy="228" r="5" fill="#2a7a4b"/><text x="74" y="232" font-size="11" font-weight="700" fill="#2a7a4b">Automated daily</text>
 
   <!-- S2 KPI Tracker -->
-  <rect x="40" y="288" width="300" height="92" rx="12" fill="#fdeee7" stroke="#e87142" stroke-width="1.5"/>
-  <text x="58" y="314" font-size="15" font-weight="700" fill="#a3431f">② KPI Tracker</text>
-  <text x="58" y="336" font-size="12" fill="#2a2f34">• Marketing KPIs</text>
-  <text x="58" y="356" font-size="12" fill="#2a2f34">• Campaigns · channels · ROAS · leaderboard</text>
+  <rect x="40" y="258" width="300" height="86" rx="11" fill="#fdeee7" stroke="#e87142" stroke-width="1.5"/>
+  <text x="56" y="281" font-size="14.5" font-weight="700" fill="#a3431f">KPI Tracker</text>
+  <text x="56" y="301" font-size="11.5" fill="#2a2f34">Marketing numbers: campaigns, channels,</text>
+  <text x="56" y="317" font-size="11.5" fill="#2a2f34">return on ad spend, leaderboard.</text>
+  <circle cx="62" cy="334" r="5" fill="#b8860b"/><text x="74" y="338" font-size="11" font-weight="700" fill="#8a6508">Set up the auto-sync</text>
 
-  <!-- S3 Ovation -->
-  <rect x="40" y="398" width="300" height="92" rx="12" fill="#f0eff5" stroke="#5a4a7a" stroke-width="1.5"/>
-  <text x="58" y="424" font-size="15" font-weight="700" fill="#473860">③ Ovation upload</text>
-  <text x="58" y="446" font-size="12" fill="#2a2f34">• Guest feedback</text>
-  <text x="58" y="466" font-size="12" fill="#2a2f34">• Ratings · sentiment · reviews</text>
+  <!-- S3 Meta export -->
+  <rect x="40" y="356" width="300" height="78" rx="11" fill="#eaeef8" stroke="#2d4480" stroke-width="1.5"/>
+  <text x="56" y="379" font-size="14.5" font-weight="700" fill="#243a6b">Meta export</text>
+  <text x="56" y="399" font-size="11.5" fill="#2a2f34">Facebook / Instagram: reach, engagement,</text>
+  <text x="56" y="415" font-size="11.5" fill="#2a2f34">followers.</text>
+  <circle cx="62" cy="428" r="5" fill="#b8860b"/><text x="74" y="432" font-size="11" font-weight="700" fill="#8a6508">Manual export today — automate</text>
 
-  <!-- S4 Toast POS (Phase 2) -->
-  <rect x="40" y="508" width="300" height="130" rx="12" fill="#fbeae8" stroke="#c0392b" stroke-width="1.5" stroke-dasharray="6 4"/>
-  <text x="58" y="534" font-size="15" font-weight="700" fill="#9c2b1e">④ Toast POS upload</text>
-  <text x="58" y="554" font-size="11.5" fill="#9c2b1e" font-style="italic">Detail the flash does NOT carry — Phase 2 feed</text>
-  <text x="58" y="578" font-size="12" fill="#2a2f34">• Timeclock: OT, hours before open / after close</text>
-  <text x="58" y="596" font-size="12" fill="#2a2f34">• By-job (server, line, host, …)</text>
-  <text x="58" y="614" font-size="12" fill="#2a2f34">• Item-level comps · item-level PMIX</text>
+  <!-- S4 Ovation -->
+  <rect x="40" y="446" width="300" height="74" rx="11" fill="#f0eff5" stroke="#5a4a7a" stroke-width="1.5"/>
+  <text x="56" y="469" font-size="14.5" font-weight="700" fill="#473860">Ovation</text>
+  <text x="56" y="489" font-size="11.5" fill="#2a2f34">Guest feedback: ratings, sentiment, reviews.</text>
+  <circle cx="62" cy="506" r="5" fill="#b8860b"/><text x="74" y="510" font-size="11" font-weight="700" fill="#8a6508">Manual upload today — automate</text>
 
-  <!-- ============ DATA LAYER ============ -->
-  <rect x="395" y="110" width="250" height="528" rx="12" fill="#ffffff" stroke="#d9d5cc" stroke-width="1.5"/>
-  <text x="412" y="134" font-size="14" font-weight="700" fill="#1f2328">JSON in repo</text>
-  <text x="412" y="150" font-size="11" fill="#8a8f96">single source of truth · refreshed daily</text>
+  <!-- S5 Toast POS -->
+  <rect x="40" y="532" width="300" height="104" rx="11" fill="#fbeae8" stroke="#c0392b" stroke-width="1.5"/>
+  <text x="56" y="555" font-size="14.5" font-weight="700" fill="#9c2b1e">Toast (POS)</text>
+  <text x="56" y="575" font-size="11.5" fill="#2a2f34">Product mix (item by item). Labor detail:</text>
+  <text x="56" y="591" font-size="11.5" fill="#2a2f34">overtime, by job, hours before open / after</text>
+  <text x="56" y="607" font-size="11.5" fill="#2a2f34">close. Item-level comps.</text>
+  <circle cx="62" cy="626" r="5" fill="#b8860b"/><text x="74" y="630" font-size="11" font-weight="700" fill="#8a6508">Manual upload today — automate</text>
 
-  <rect x="412" y="166" width="216" height="100" rx="9" fill="#f4f1ea" stroke="#e3e0d8"/>
-  <text x="426" y="188" font-size="12.5" font-weight="700" fill="#2f6f6a">daily-data.json</text>
-  <text x="426" y="208" font-size="11" fill="#2a2f34">sales + labor + comps</text>
-  <text x="426" y="224" font-size="11" fill="#2a2f34">+ pmix + rollups</text>
-  <text x="426" y="240" font-size="11" fill="#2a2f34">per location (wlv / bw / total)</text>
-  <text x="426" y="256" font-size="11" fill="#8a8f96">← Email Flash</text>
+  <!-- S6 Calendar entries + DB -->
+  <rect x="40" y="648" width="300" height="110" rx="11" fill="#e4f5ea" stroke="#2a7a4b" stroke-width="1.5"/>
+  <text x="56" y="671" font-size="14.5" font-weight="700" fill="#1f6b41">Calendar entries</text>
+  <text x="56" y="691" font-size="11.5" fill="#2a2f34">Events typed into the calendar page.</text>
+  <text x="56" y="709" font-size="11.5" fill="#9c2b1e">Today they save on one device only — not shared.</text>
+  <text x="56" y="725" font-size="11.5" fill="#2a2f34">Need a shared database so events sync across</text>
+  <text x="56" y="741" font-size="11.5" fill="#2a2f34">devices and feed the calendar subscription (.ics).</text>
 
-  <rect x="412" y="278" width="216" height="60" rx="9" fill="#f4f1ea" stroke="#e3e0d8"/>
-  <text x="426" y="300" font-size="12.5" font-weight="700" fill="#1f2328">daily-data-index + archives</text>
-  <text x="426" y="320" font-size="11" fill="#2a2f34">history (day-by-day snapshots)</text>
+  <!-- ============ STORAGE ============ -->
+  <rect x="395" y="112" width="240" height="646" rx="11" fill="#ffffff" stroke="#d9d5cc" stroke-width="1.5"/>
+  <text x="411" y="135" font-size="13.5" font-weight="700" fill="#1f2328">Data files / database</text>
+  <text x="411" y="151" font-size="10.5" fill="#8a8f96">the pages read from here</text>
 
-  <rect x="412" y="350" width="216" height="60" rx="9" fill="#f4f1ea" stroke="#e3e0d8"/>
-  <text x="426" y="372" font-size="12.5" font-weight="700" fill="#5a4a7a">guests data</text>
-  <text x="426" y="392" font-size="11" fill="#2a2f34">← Ovation feedback</text>
+  <rect x="411" y="162" width="208" height="60" rx="8" fill="#f4f1ea" stroke="#e3e0d8"/>
+  <circle cx="424" cy="180" r="5" fill="#2f6f6a"/><text x="436" y="184" font-size="12" font-weight="700" fill="#1f2328">Sales &amp; labor data</text>
+  <text x="424" y="204" font-size="10.5" fill="#6b7178">updated daily from the email</text>
 
-  <rect x="412" y="422" width="216" height="60" rx="9" fill="#f4f1ea" stroke="#e3e0d8"/>
-  <text x="426" y="444" font-size="12.5" font-weight="700" fill="#e87142">marketing / KPI fields</text>
-  <text x="426" y="464" font-size="11" fill="#2a2f34">← KPI Tracker</text>
+  <rect x="411" y="230" width="208" height="46" rx="8" fill="#f4f1ea" stroke="#e3e0d8"/>
+  <circle cx="424" cy="248" r="5" fill="#2f6f6a"/><text x="436" y="252" font-size="12" font-weight="700" fill="#1f2328">History (past days)</text>
 
-  <rect x="412" y="494" width="216" height="58" rx="9" fill="#fff6f4" stroke="#e6c4bd" stroke-dasharray="5 4"/>
-  <text x="426" y="516" font-size="12.5" font-weight="700" fill="#c0392b">labor-detail.json  (new)</text>
-  <text x="426" y="536" font-size="11" fill="#2a2f34">← Toast (Phase 2)</text>
+  <rect x="411" y="284" width="208" height="46" rx="8" fill="#f4f1ea" stroke="#e3e0d8"/>
+  <circle cx="424" cy="302" r="5" fill="#e87142"/><text x="436" y="306" font-size="12" font-weight="700" fill="#1f2328">Marketing data</text>
 
-  <!-- ============ FRONT DOOR ============ -->
-  <rect x="695" y="200" width="210" height="240" rx="12" fill="#ffffff" stroke="#1f2328" stroke-width="1.5"/>
-  <text x="712" y="226" font-size="14" font-weight="700" fill="#1f2328">index.html</text>
-  <text x="712" y="244" font-size="11" fill="#8a8f96">cosmetic passcode gate</text>
+  <rect x="411" y="338" width="208" height="46" rx="8" fill="#f4f1ea" stroke="#e3e0d8"/>
+  <circle cx="424" cy="356" r="5" fill="#2d4480"/><text x="436" y="360" font-size="12" font-weight="700" fill="#1f2328">Social data</text>
 
-  <rect x="712" y="258" width="176" height="44" rx="8" fill="#fdeee7"/>
-  <circle cx="728" cy="280" r="6" fill="#e87142"/>
-  <text x="742" y="276" font-size="12.5" font-weight="700" fill="#1f2328">Team</text>
-  <text x="742" y="292" font-size="11" fill="#6b7178">neighborly</text>
+  <rect x="411" y="392" width="208" height="46" rx="8" fill="#f4f1ea" stroke="#e3e0d8"/>
+  <circle cx="424" cy="410" r="5" fill="#5a4a7a"/><text x="436" y="414" font-size="12" font-weight="700" fill="#1f2328">Guest data</text>
 
-  <rect x="712" y="310" width="176" height="44" rx="8" fill="#eeedf1"/>
-  <circle cx="728" cy="332" r="6" fill="#9aa0a6"/>
-  <text x="742" y="328" font-size="12.5" font-weight="700" fill="#1f2328">Guest</text>
-  <text x="742" y="344" font-size="11" fill="#6b7178">neighborsonly</text>
+  <rect x="411" y="446" width="208" height="60" rx="8" fill="#f4f1ea" stroke="#e3e0d8"/>
+  <circle cx="424" cy="464" r="5" fill="#c0392b"/><text x="436" y="468" font-size="12" font-weight="700" fill="#1f2328">Product mix + labor detail</text>
+  <text x="424" y="490" font-size="10.5" fill="#6b7178">from Toast</text>
 
-  <rect x="712" y="362" width="176" height="44" rx="8" fill="#e3efec"/>
-  <circle cx="728" cy="384" r="6" fill="#2f6f6a"/>
-  <text x="742" y="380" font-size="12.5" font-weight="700" fill="#1f2328">Ops</text>
-  <text x="742" y="396" font-size="11" fill="#6b7178">neighborlyops</text>
+  <rect x="411" y="514" width="208" height="64" rx="8" fill="#fff6f4" stroke="#e6c4bd" stroke-dasharray="5 4"/>
+  <circle cx="424" cy="532" r="5" fill="#2a7a4b"/><text x="436" y="536" font-size="12" font-weight="700" fill="#9c2b1e">Calendar database</text>
+  <text x="424" y="558" font-size="10.5" fill="#9c2b1e">NEW — needs to be built</text>
 
-  <!-- ============ PORTALS & PAGES ============ -->
-  <!-- Marketing Hub -->
-  <rect x="955" y="110" width="505" height="54" rx="10" fill="#e87142"/>
-  <text x="975" y="137" font-size="16" font-weight="700" fill="#ffffff">MARKETING HUB</text>
-  <text x="975" y="154" font-size="11.5" fill="#fdeee7">Team / Guest · unchanged</text>
+  <!-- ============ LOGIN ============ -->
+  <rect x="685" y="232" width="200" height="232" rx="11" fill="#ffffff" stroke="#1f2328" stroke-width="1.5"/>
+  <text x="701" y="257" font-size="13.5" font-weight="700" fill="#1f2328">Front door</text>
+  <text x="701" y="273" font-size="10.5" fill="#8a8f96">one password per group</text>
 
-  <!-- mkt cards: col A x955 w245, col B x1215 w245 -->
+  <rect x="701" y="286" width="168" height="44" rx="8" fill="#fdeee7"/>
+  <circle cx="717" cy="308" r="6" fill="#e87142"/><text x="731" y="304" font-size="12.5" font-weight="700" fill="#1f2328">Team</text>
+  <text x="731" y="320" font-size="10.5" fill="#6b7178">neighborly</text>
+
+  <rect x="701" y="338" width="168" height="44" rx="8" fill="#eeedf1"/>
+  <circle cx="717" cy="360" r="6" fill="#9aa0a6"/><text x="731" y="356" font-size="12.5" font-weight="700" fill="#1f2328">Guest</text>
+  <text x="731" y="372" font-size="10.5" fill="#6b7178">neighborsonly</text>
+
+  <rect x="701" y="390" width="168" height="44" rx="8" fill="#e3efec"/>
+  <circle cx="717" cy="412" r="6" fill="#2f6f6a"/><text x="731" y="408" font-size="12.5" font-weight="700" fill="#1f2328">Ops</text>
+  <text x="731" y="424" font-size="10.5" fill="#6b7178">neighborlyops</text>
+
+  <!-- ============ PAGES ============ -->
+  <!-- Marketing -->
+  <rect x="935" y="112" width="525" height="52" rx="10" fill="#e87142"/>
+  <text x="955" y="138" font-size="16" font-weight="700" fill="#ffffff">MARKETING HUB</text>
+  <text x="955" y="155" font-size="11" fill="#fdeee7">Team / Guest login</text>
+
+  <!-- col A x935 w255 ; col B x1205 w255 ; rows h94 -->
   <!-- r1 -->
-  <rect x="955" y="178" width="245" height="82" rx="9" fill="#ffffff" stroke="#e3e0d8"/>
-  <text x="971" y="202" font-size="13" font-weight="700" fill="#1f2328">Performance Marketing</text>
-  <text x="971" y="220" font-size="10.5" fill="#6b7178">neighborly-dashboard.html</text>
-  <circle cx="976" cy="240" r="5" fill="#e87142"/><circle cx="992" cy="240" r="5" fill="#2f6f6a"/>
-  <text x="1004" y="244" font-size="10.5" fill="#2a2f34">KPI + Flash</text>
+  <rect x="935" y="178" width="255" height="94" rx="9" fill="#ffffff" stroke="#e3e0d8"/>
+  <text x="951" y="201" font-size="13" font-weight="700" fill="#1f2328">Performance Marketing</text>
+  <text x="951" y="218" font-size="10" fill="#8a8f96">neighborly-dashboard.html</text>
+  <circle cx="956" cy="238" r="5" fill="#e87142"/><text x="968" y="242" font-size="11" fill="#2a2f34">Fed by KPI Tracker</text>
+  <circle cx="956" cy="258" r="4.5" fill="#b8860b"/><text x="968" y="262" font-size="10.5" font-weight="700" fill="#8a6508">Set up auto-sync</text>
 
-  <rect x="1215" y="178" width="245" height="82" rx="9" fill="#ffffff" stroke="#e3e0d8"/>
-  <text x="1231" y="202" font-size="13" font-weight="700" fill="#1f2328">Brand Assets</text>
-  <text x="1231" y="220" font-size="10.5" fill="#6b7178">neighborly-assets.html</text>
-  <circle cx="1236" cy="240" r="5" fill="#9aa0a6"/>
-  <text x="1248" y="244" font-size="10.5" fill="#2a2f34">static (no live feed)</text>
+  <rect x="1205" y="178" width="255" height="94" rx="9" fill="#ffffff" stroke="#e3e0d8"/>
+  <text x="1221" y="201" font-size="13" font-weight="700" fill="#1f2328">Brand Assets</text>
+  <text x="1221" y="218" font-size="10" fill="#8a8f96">neighborly-assets.html</text>
+  <circle cx="1226" cy="238" r="5" fill="#9aa0a6"/><text x="1238" y="242" font-size="11" fill="#2a2f34">Static — no live feed</text>
+  <circle cx="1226" cy="258" r="4.5" fill="#9aa0a6"/><text x="1238" y="262" font-size="10.5" font-weight="700" fill="#6b7178">Nothing to automate</text>
 
   <!-- r2 -->
-  <rect x="955" y="272" width="245" height="82" rx="9" fill="#ffffff" stroke="#e3e0d8"/>
-  <text x="971" y="296" font-size="13" font-weight="700" fill="#1f2328">Sales &amp; Pmix</text>
-  <text x="971" y="314" font-size="10.5" fill="#6b7178">neighborly-pmix.html</text>
-  <circle cx="976" cy="334" r="5" fill="#2f6f6a"/>
-  <text x="988" y="338" font-size="10.5" fill="#2a2f34">Flash</text>
+  <rect x="935" y="284" width="255" height="94" rx="9" fill="#ffffff" stroke="#e3e0d8"/>
+  <text x="951" y="307" font-size="13" font-weight="700" fill="#1f2328">Sales &amp; Pmix</text>
+  <text x="951" y="324" font-size="10" fill="#8a8f96">neighborly-pmix.html</text>
+  <circle cx="956" cy="344" r="5" fill="#2f6f6a"/><circle cx="971" cy="344" r="5" fill="#c0392b"/><text x="983" y="348" font-size="11" fill="#2a2f34">Sales: email · Mix: Toast</text>
+  <circle cx="956" cy="364" r="4.5" fill="#b8860b"/><text x="968" y="368" font-size="10.5" font-weight="700" fill="#8a6508">Email auto · Toast manual</text>
 
-  <rect x="1215" y="272" width="245" height="82" rx="9" fill="#ffffff" stroke="#e3e0d8"/>
-  <text x="1231" y="296" font-size="13" font-weight="700" fill="#1f2328">Social</text>
-  <text x="1231" y="314" font-size="10.5" fill="#6b7178">neighborly-social.html</text>
-  <circle cx="1236" cy="334" r="5" fill="#e87142"/>
-  <text x="1248" y="338" font-size="10.5" fill="#2a2f34">KPI (coming soon)</text>
+  <rect x="1205" y="284" width="255" height="94" rx="9" fill="#ffffff" stroke="#e3e0d8"/>
+  <text x="1221" y="307" font-size="13" font-weight="700" fill="#1f2328">Social</text>
+  <text x="1221" y="324" font-size="10" fill="#8a8f96">neighborly-social.html</text>
+  <circle cx="1226" cy="344" r="5" fill="#2d4480"/><text x="1238" y="348" font-size="11" fill="#2a2f34">Fed by Meta export</text>
+  <circle cx="1226" cy="364" r="4.5" fill="#b8860b"/><text x="1238" y="368" font-size="10.5" font-weight="700" fill="#8a6508">Manual export — automate</text>
 
   <!-- r3 -->
-  <rect x="955" y="366" width="245" height="82" rx="9" fill="#ffffff" stroke="#e3e0d8"/>
-  <text x="971" y="390" font-size="13" font-weight="700" fill="#1f2328">Marketing Calendar</text>
-  <text x="971" y="408" font-size="10.5" fill="#6b7178">neighborly-calendar.html</text>
-  <circle cx="976" cy="428" r="5" fill="#e87142"/>
-  <text x="988" y="432" font-size="10.5" fill="#2a2f34">KPI / manual</text>
+  <rect x="935" y="390" width="255" height="94" rx="9" fill="#ffffff" stroke="#e3a39a"/>
+  <text x="951" y="413" font-size="13" font-weight="700" fill="#1f2328">Marketing Calendar</text>
+  <text x="951" y="430" font-size="10" fill="#8a8f96">neighborly-calendar.html</text>
+  <circle cx="956" cy="450" r="5" fill="#2a7a4b"/><text x="968" y="454" font-size="11" fill="#2a2f34">Needs a shared calendar database</text>
+  <circle cx="956" cy="470" r="4.5" fill="#c0392b"/><text x="968" y="474" font-size="10.5" font-weight="700" fill="#9c2b1e">Build database to sync + .ics</text>
 
-  <rect x="1215" y="366" width="245" height="82" rx="9" fill="#ffffff" stroke="#e3e0d8"/>
-  <text x="1231" y="390" font-size="13" font-weight="700" fill="#1f2328">Guest Intelligence</text>
-  <text x="1231" y="408" font-size="10.5" fill="#6b7178">neighborly-guests.html</text>
-  <circle cx="1236" cy="428" r="5" fill="#5a4a7a"/>
-  <text x="1248" y="432" font-size="10.5" fill="#2a2f34">Ovation</text>
+  <rect x="1205" y="390" width="255" height="94" rx="9" fill="#ffffff" stroke="#e3e0d8"/>
+  <text x="1221" y="413" font-size="13" font-weight="700" fill="#1f2328">Guest Intelligence</text>
+  <text x="1221" y="430" font-size="10" fill="#8a8f96">neighborly-guests.html</text>
+  <circle cx="1226" cy="450" r="5" fill="#5a4a7a"/><text x="1238" y="454" font-size="11" fill="#2a2f34">Fed by Ovation</text>
+  <circle cx="1226" cy="470" r="4.5" fill="#b8860b"/><text x="1238" y="474" font-size="10.5" font-weight="700" fill="#8a6508">Manual upload — automate</text>
 
-  <!-- Operations Hub -->
-  <rect x="955" y="500" width="505" height="54" rx="10" fill="#2f6f6a"/>
-  <text x="975" y="527" font-size="16" font-weight="700" fill="#ffffff">OPERATIONS HUB</text>
-  <text x="975" y="544" font-size="11.5" fill="#e3efec">Ops · proposed name: “Operations Flash”</text>
+  <!-- Operations -->
+  <rect x="935" y="512" width="525" height="52" rx="10" fill="#2f6f6a"/>
+  <text x="955" y="538" font-size="16" font-weight="700" fill="#ffffff">OPERATIONS HUB</text>
+  <text x="955" y="555" font-size="11" fill="#e3efec">Ops login · proposed name: “Operations Flash”</text>
 
-  <!-- ops cards stacked x955 w505 -->
-  <rect x="955" y="568" width="505" height="80" rx="9" fill="#ffffff" stroke="#cfe0dc"/>
-  <text x="971" y="592" font-size="13.5" font-weight="700" fill="#1f2328">Sales &amp; Forecasting</text>
-  <text x="971" y="610" font-size="10.5" fill="#6b7178">neighborly-sales.html</text>
-  <circle cx="976" cy="632" r="5" fill="#2f6f6a"/>
-  <text x="988" y="636" font-size="11" fill="#2a2f34">Flash — actual + rollups + restaurant/catering; forecast = 6-wk-avg proxy (→ real budget)</text>
+  <rect x="935" y="578" width="525" height="84" rx="9" fill="#ffffff" stroke="#cfe0dc"/>
+  <text x="951" y="601" font-size="13.5" font-weight="700" fill="#1f2328">Sales &amp; Forecasting</text>
+  <text x="951" y="618" font-size="10" fill="#8a8f96">neighborly-sales.html</text>
+  <circle cx="956" cy="638" r="5" fill="#2f6f6a"/><text x="968" y="642" font-size="11" fill="#2a2f34">Fed by the daily email — restaurant/catering, day→year. Forecast uses 6-week average until a budget is added.</text>
+  <circle cx="1396" cy="592" r="5" fill="#2a7a4b"/><text x="1408" y="596" font-size="10.5" font-weight="700" fill="#2a7a4b">Auto</text>
 
-  <rect x="955" y="662" width="505" height="80" rx="9" fill="#ffffff" stroke="#cfe0dc"/>
-  <text x="971" y="686" font-size="13.5" font-weight="700" fill="#1f2328">Labor &amp; SPLH</text>
-  <text x="971" y="704" font-size="10.5" fill="#6b7178">neighborly-labor.html</text>
-  <circle cx="976" cy="726" r="5" fill="#2f6f6a"/><circle cx="992" cy="726" r="5" fill="#c0392b"/>
-  <text x="1004" y="730" font-size="11" fill="#2a2f34">Flash (SPLH, hrs, labor%, FOH/BOH) + Toast (OT, by-job, before/after) — Phase 2</text>
+  <rect x="935" y="674" width="525" height="84" rx="9" fill="#ffffff" stroke="#cfe0dc"/>
+  <text x="951" y="697" font-size="13.5" font-weight="700" fill="#1f2328">Labor &amp; SPLH</text>
+  <text x="951" y="714" font-size="10" fill="#8a8f96">neighborly-labor.html</text>
+  <circle cx="956" cy="734" r="5" fill="#2f6f6a"/><circle cx="971" cy="734" r="5" fill="#c0392b"/><text x="983" y="738" font-size="11" fill="#2a2f34">Totals from email (SPLH, hours, labor %) · overtime, by-job, before/after from Toast</text>
+  <circle cx="1396" cy="688" r="5" fill="#b8860b"/><text x="1408" y="692" font-size="10.5" font-weight="700" fill="#8a6508">Mixed</text>
 
-  <rect x="955" y="756" width="505" height="80" rx="9" fill="#ffffff" stroke="#cfe0dc"/>
-  <text x="971" y="780" font-size="13.5" font-weight="700" fill="#1f2328">Product Mix · Ops</text>
-  <text x="971" y="798" font-size="10.5" fill="#6b7178">neighborly-pmixops.html</text>
-  <circle cx="976" cy="820" r="5" fill="#2f6f6a"/><circle cx="992" cy="820" r="5" fill="#c0392b"/>
-  <text x="1004" y="824" font-size="11" fill="#2a2f34">Flash (by category) + Toast (item-level) · computed once, Marketing links here</text>
+  <rect x="935" y="770" width="525" height="84" rx="9" fill="#ffffff" stroke="#cfe0dc"/>
+  <text x="951" y="793" font-size="13.5" font-weight="700" fill="#1f2328">Product Mix · Ops</text>
+  <text x="951" y="810" font-size="10" fill="#8a8f96">neighborly-pmixops.html</text>
+  <circle cx="956" cy="830" r="5" fill="#c0392b"/><text x="968" y="834" font-size="11" fill="#2a2f34">Fed by Toast (item-level). Calculated once here; the Marketing page links to it — no double work.</text>
+  <circle cx="1396" cy="784" r="5" fill="#b8860b"/><text x="1408" y="788" font-size="10.5" font-weight="700" fill="#8a6508">Manual</text>
 
   <!-- ============ CONNECTORS ============ -->
-  <!-- sources -> data layer -->
-  <line x1="340" y1="190" x2="393" y2="200" stroke="#2f6f6a" stroke-width="2.2" marker-end="url(#aTeal)"/>
-  <line x1="340" y1="334" x2="393" y2="300" stroke="#e87142" stroke-width="2.2" marker-end="url(#aOrange)"/>
-  <line x1="340" y1="444" x2="393" y2="372" stroke="#5a4a7a" stroke-width="2.2" marker-end="url(#aLav)"/>
-  <line x1="340" y1="560" x2="393" y2="510" stroke="#c0392b" stroke-width="2.2" stroke-dasharray="6 4" marker-end="url(#aRed)"/>
+  <line x1="340" y1="180" x2="409" y2="186" stroke="#2f6f6a" stroke-width="2.2" marker-end="url(#aTeal)"/>
+  <line x1="340" y1="300" x2="409" y2="304" stroke="#e87142" stroke-width="2.2" marker-end="url(#aOrange)"/>
+  <line x1="340" y1="392" x2="409" y2="358" stroke="#2d4480" stroke-width="2.2" stroke-dasharray="6 4" marker-end="url(#aBlue)"/>
+  <line x1="340" y1="482" x2="409" y2="410" stroke="#5a4a7a" stroke-width="2.2" stroke-dasharray="6 4" marker-end="url(#aLav)"/>
+  <line x1="340" y1="582" x2="409" y2="470" stroke="#c0392b" stroke-width="2.2" stroke-dasharray="6 4" marker-end="url(#aRed)"/>
+  <line x1="340" y1="700" x2="409" y2="540" stroke="#2a7a4b" stroke-width="2.2" stroke-dasharray="6 4" marker-end="url(#aGreen)"/>
 
-  <!-- data layer -> front door -->
-  <line x1="645" y1="330" x2="693" y2="320" stroke="#1f2328" stroke-width="2.4" marker-end="url(#aInk)"/>
+  <line x1="635" y1="340" x2="683" y2="330" stroke="#1f2328" stroke-width="2.4" marker-end="url(#aInk)"/>
 
-  <!-- front door -> portals -->
-  <path d="M888 280 C 925 250, 930 160, 953 145" fill="none" stroke="#e87142" stroke-width="2" marker-end="url(#aOrange)"/>
-  <path d="M888 332 C 928 320, 930 200, 953 200" fill="none" stroke="#9aa0a6" stroke-width="2" marker-end="url(#aGrey)"/>
-  <path d="M888 384 C 928 430, 930 520, 953 527" fill="none" stroke="#2f6f6a" stroke-width="2.4" marker-end="url(#aTeal)"/>
+  <path d="M885 308 C 915 270, 920 165, 933 150" fill="none" stroke="#e87142" stroke-width="2" marker-end="url(#aOrange)"/>
+  <path d="M885 360 C 918 350, 920 200, 933 205" fill="none" stroke="#9aa0a6" stroke-width="2" marker-end="url(#aGrey)"/>
+  <path d="M885 412 C 918 450, 920 530, 933 539" fill="none" stroke="#2f6f6a" stroke-width="2.4" marker-end="url(#aTeal)"/>
 
-  <!-- ============ LEGEND ============ -->
-  <rect x="40" y="700" width="600" height="170" rx="12" fill="#ffffff" stroke="#d9d5cc"/>
-  <text x="60" y="728" font-size="14" font-weight="700" fill="#1f2328">Legend — colour = data source</text>
-  <circle cx="68" cy="752" r="6" fill="#2f6f6a"/><text x="82" y="757" font-size="12.5" fill="#2a2f34">Daily Sales Email Flash (sales + labor + comps + pmix)</text>
-  <circle cx="68" cy="778" r="6" fill="#e87142"/><text x="82" y="783" font-size="12.5" fill="#2a2f34">KPI Tracker (marketing / campaigns / ROAS)</text>
-  <circle cx="68" cy="804" r="6" fill="#5a4a7a"/><text x="82" y="809" font-size="12.5" fill="#2a2f34">Ovation (guest feedback / sentiment)</text>
-  <circle cx="68" cy="830" r="6" fill="#c0392b"/><text x="82" y="835" font-size="12.5" fill="#2a2f34">Toast POS — Phase 2 feed (dashed): OT, by-job, before/after, item-level</text>
-  <line x1="60" y1="852" x2="96" y2="852" stroke="#c0392b" stroke-width="2.2" stroke-dasharray="6 4"/>
-  <text x="104" y="857" font-size="11.5" fill="#6b7178">dashed = not in the email flash; needs a new Toast/timeclock export</text>
+  <!-- ============ BOTTOM: status key + checklist ============ -->
+  <rect x="40" y="800" width="360" height="338" rx="12" fill="#ffffff" stroke="#d9d5cc"/>
+  <text x="60" y="828" font-size="14" font-weight="700" fill="#1f2328">Colour = where it comes from</text>
+  <circle cx="68" cy="852" r="6" fill="#2f6f6a"/><text x="82" y="857" font-size="12" fill="#2a2f34">Daily Sales email (sales + labor)</text>
+  <circle cx="68" cy="876" r="6" fill="#e87142"/><text x="82" y="881" font-size="12" fill="#2a2f34">KPI Tracker (marketing)</text>
+  <circle cx="68" cy="900" r="6" fill="#2d4480"/><text x="82" y="905" font-size="12" fill="#2a2f34">Meta export (social)</text>
+  <circle cx="68" cy="924" r="6" fill="#5a4a7a"/><text x="82" y="929" font-size="12" fill="#2a2f34">Ovation (guest feedback)</text>
+  <circle cx="68" cy="948" r="6" fill="#c0392b"/><text x="82" y="953" font-size="12" fill="#2a2f34">Toast / POS (product mix + labor detail)</text>
+  <circle cx="68" cy="972" r="6" fill="#2a7a4b"/><text x="82" y="977" font-size="12" fill="#2a2f34">Calendar database (to build)</text>
 
-  <!-- Phasing note -->
-  <rect x="660" y="700" width="800" height="170" rx="12" fill="#eef5f3" stroke="#bcd8d2"/>
-  <text x="682" y="728" font-size="14" font-weight="700" fill="#1f4e49">Build phasing</text>
-  <text x="682" y="752" font-size="12.5" fill="#234"><tspan font-weight="700">Phase 1 — no new data.</tspan> Drive Ops “Operations Flash” from daily-data.json you already get:</text>
-  <text x="700" y="772" font-size="12" fill="#2a2f34">sales fcst(6-wk proxy) vs actual · SPLH &amp; hours (total + FOH/BOH) · labor % · comps by reason · PMIX · all day→year rollups · per location.</text>
-  <text x="682" y="800" font-size="12.5" fill="#234"><tspan font-weight="700">Phase 2 — add ONE Toast/timeclock feed.</tspan> Unlocks the rest:</text>
-  <text x="700" y="820" font-size="12" fill="#2a2f34">OT hours &amp; OT % · hours before open / after close · by-job granularity · item-level comps &amp; PMIX · a true budget/forecast number.</text>
-  <text x="682" y="850" font-size="11.5" fill="#3a6b65" font-style="italic">Same data layer feeds both Marketing and Ops — one source of truth, two faces.</text>
+  <text x="60" y="1010" font-size="14" font-weight="700" fill="#1f2328">Tag = is the flow automated?</text>
+  <circle cx="68" cy="1034" r="6" fill="#2a7a4b"/><text x="82" y="1039" font-size="12" fill="#2a2f34"><tspan font-weight="700">Automated</tspan> — lands on its own</text>
+  <circle cx="68" cy="1058" r="6" fill="#b8860b"/><text x="82" y="1063" font-size="12" fill="#2a2f34"><tspan font-weight="700">Manual today</tspan> — goal is to automate</text>
+  <circle cx="68" cy="1082" r="6" fill="#c0392b"/><text x="82" y="1087" font-size="12" fill="#2a2f34"><tspan font-weight="700">Not built</tspan> — needs a database / new feed</text>
+  <circle cx="68" cy="1106" r="6" fill="#9aa0a6"/><text x="82" y="1111" font-size="12" fill="#2a2f34"><tspan font-weight="700">Static</tspan> — no feed needed</text>
+
+  <!-- checklist -->
+  <rect x="420" y="800" width="1040" height="338" rx="12" fill="#eef5f3" stroke="#bcd8d2"/>
+  <text x="442" y="828" font-size="15" font-weight="700" fill="#1f4e49">Automation checklist — for the tech team</text>
+  <text x="442" y="848" font-size="11.5" fill="#3a6b65" font-style="italic">The job: make each page's flow run by itself. One source feeds both portals where it overlaps — build it once.</text>
+
+  <circle cx="452" cy="876" r="6" fill="#2a7a4b"/><text x="466" y="881" font-size="12.5" fill="#234"><tspan font-weight="700">Daily Sales email → Sales &amp; labor data:</tspan> already automatic (depends on the email being forwarded each day).</text>
+  <rect x="446" y="900" width="13" height="13" rx="3" fill="#fff" stroke="#8a6508"/><text x="466" y="911" font-size="12.5" fill="#234"><tspan font-weight="700">KPI Tracker → Performance Marketing:</tspan> set up the automatic sync.</text>
+  <rect x="446" y="926" width="13" height="13" rx="3" fill="#fff" stroke="#8a6508"/><text x="466" y="937" font-size="12.5" fill="#234"><tspan font-weight="700">Meta export → Social:</tspan> automate the Facebook/Instagram pull.</text>
+  <rect x="446" y="952" width="13" height="13" rx="3" fill="#fff" stroke="#8a6508"/><text x="466" y="963" font-size="12.5" fill="#234"><tspan font-weight="700">Ovation → Guest Intelligence:</tspan> automate the feedback upload.</text>
+  <rect x="446" y="978" width="13" height="13" rx="3" fill="#fff" stroke="#8a6508"/><text x="466" y="989" font-size="12.5" fill="#234"><tspan font-weight="700">Toast → Product Mix + Labor detail:</tspan> automate the POS export (feeds both the Marketing and Ops mix pages, plus overtime / by-job / before-after).</text>
+  <rect x="446" y="1004" width="13" height="13" rx="3" fill="#fff" stroke="#9c2b1e"/><text x="466" y="1015" font-size="12.5" fill="#234"><tspan font-weight="700" fill="#9c2b1e">Marketing Calendar → build a shared database:</tspan> so events sync across devices instead of saving on one, and feed the .ics subscription.</text>
+
+  <line x1="442" y1="1036" x2="1438" y2="1036" stroke="#bcd8d2"/>
+  <text x="442" y="1062" font-size="12.5" font-weight="700" fill="#1f4e49">Two questions to confirm:</text>
+  <text x="442" y="1082" font-size="12" fill="#234">1) How does each source connect — does it offer an automatic feed (API), or is it an export/upload we schedule?</text>
+  <text x="442" y="1102" font-size="12" fill="#234">2) Where should the shared data + calendar database live (which service), and who owns the daily refresh if the email isn't forwarded?</text>
+  <text x="442" y="1124" font-size="11.5" fill="#3a6b65" font-style="italic">Same data feeds Marketing and Ops — one source of truth, shown two ways.</text>
 </svg>
