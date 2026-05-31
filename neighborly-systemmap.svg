@@ -1,0 +1,205 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1500 1120" font-family="Segoe UI, Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="aTeal" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0 0L9 4.5L0 9z" fill="#2f6f6a"/></marker>
+    <marker id="aOrange" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0 0L9 4.5L0 9z" fill="#e87142"/></marker>
+    <marker id="aLav" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0 0L9 4.5L0 9z" fill="#5a4a7a"/></marker>
+    <marker id="aRed" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0 0L9 4.5L0 9z" fill="#c0392b"/></marker>
+    <marker id="aInk" markerWidth="10" markerHeight="10" refX="7" refY="5" orient="auto"><path d="M0 0L10 5L0 10z" fill="#1f2328"/></marker>
+    <marker id="aGrey" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0 0L9 4.5L0 9z" fill="#9aa0a6"/></marker>
+  </defs>
+
+  <rect x="0" y="0" width="1500" height="1120" fill="#faf7f2"/>
+
+  <!-- ===== Title ===== -->
+  <text x="40" y="42" font-size="26" font-weight="700" fill="#1f2328">Neighborly — Portals &amp; Data System Map</text>
+  <text x="40" y="66" font-size="14" fill="#6b7178">What feeds what: data sources &#8594; data layer &#8594; front door &#8594; portal pages. Hand-off for the tech team.</text>
+
+  <!-- ===== Lane headers ===== -->
+  <text x="40"  y="100" font-size="13" font-weight="700" letter-spacing="1.5" fill="#8a8f96">DATA SOURCES (INPUTS)</text>
+  <text x="395" y="100" font-size="13" font-weight="700" letter-spacing="1.5" fill="#8a8f96">DATA LAYER</text>
+  <text x="695" y="100" font-size="13" font-weight="700" letter-spacing="1.5" fill="#8a8f96">FRONT DOOR</text>
+  <text x="955" y="100" font-size="13" font-weight="700" letter-spacing="1.5" fill="#8a8f96">PORTALS &amp; PAGES</text>
+
+  <!-- ============ DATA SOURCES ============ -->
+  <!-- S1 Email Flash -->
+  <rect x="40" y="110" width="300" height="160" rx="12" fill="#e3efec" stroke="#2f6f6a" stroke-width="1.5"/>
+  <text x="58" y="136" font-size="15" font-weight="700" fill="#1f4e49">① Daily Sales Email Flash</text>
+  <text x="58" y="156" font-size="11.5" fill="#3a6b65" font-style="italic">You forward it daily &#8594; parsed into the data layer</text>
+  <text x="58" y="180" font-size="12" fill="#2a2f34">• Net sales · avg check · check count</text>
+  <text x="58" y="198" font-size="12" fill="#2a2f34">• Labor: FOH/BOH hrs + cost, SPLH, labor %</text>
+  <text x="58" y="216" font-size="12" fill="#2a2f34">• Comps by reason (9 types)</text>
+  <text x="58" y="234" font-size="12" fill="#2a2f34">• PMIX by category · dayparts · channels</text>
+  <text x="58" y="252" font-size="12" fill="#2a2f34">• Per location · WTD/PTD/QTD/YTD · 6-wk avg</text>
+
+  <!-- S2 KPI Tracker -->
+  <rect x="40" y="288" width="300" height="92" rx="12" fill="#fdeee7" stroke="#e87142" stroke-width="1.5"/>
+  <text x="58" y="314" font-size="15" font-weight="700" fill="#a3431f">② KPI Tracker</text>
+  <text x="58" y="336" font-size="12" fill="#2a2f34">• Marketing KPIs</text>
+  <text x="58" y="356" font-size="12" fill="#2a2f34">• Campaigns · channels · ROAS · leaderboard</text>
+
+  <!-- S3 Ovation -->
+  <rect x="40" y="398" width="300" height="92" rx="12" fill="#f0eff5" stroke="#5a4a7a" stroke-width="1.5"/>
+  <text x="58" y="424" font-size="15" font-weight="700" fill="#473860">③ Ovation upload</text>
+  <text x="58" y="446" font-size="12" fill="#2a2f34">• Guest feedback</text>
+  <text x="58" y="466" font-size="12" fill="#2a2f34">• Ratings · sentiment · reviews</text>
+
+  <!-- S4 Toast POS (Phase 2) -->
+  <rect x="40" y="508" width="300" height="130" rx="12" fill="#fbeae8" stroke="#c0392b" stroke-width="1.5" stroke-dasharray="6 4"/>
+  <text x="58" y="534" font-size="15" font-weight="700" fill="#9c2b1e">④ Toast POS upload</text>
+  <text x="58" y="554" font-size="11.5" fill="#9c2b1e" font-style="italic">Detail the flash does NOT carry — Phase 2 feed</text>
+  <text x="58" y="578" font-size="12" fill="#2a2f34">• Timeclock: OT, hours before open / after close</text>
+  <text x="58" y="596" font-size="12" fill="#2a2f34">• By-job (server, line, host, …)</text>
+  <text x="58" y="614" font-size="12" fill="#2a2f34">• Item-level comps · item-level PMIX</text>
+
+  <!-- ============ DATA LAYER ============ -->
+  <rect x="395" y="110" width="250" height="528" rx="12" fill="#ffffff" stroke="#d9d5cc" stroke-width="1.5"/>
+  <text x="412" y="134" font-size="14" font-weight="700" fill="#1f2328">JSON in repo</text>
+  <text x="412" y="150" font-size="11" fill="#8a8f96">single source of truth · refreshed daily</text>
+
+  <rect x="412" y="166" width="216" height="100" rx="9" fill="#f4f1ea" stroke="#e3e0d8"/>
+  <text x="426" y="188" font-size="12.5" font-weight="700" fill="#2f6f6a">daily-data.json</text>
+  <text x="426" y="208" font-size="11" fill="#2a2f34">sales + labor + comps</text>
+  <text x="426" y="224" font-size="11" fill="#2a2f34">+ pmix + rollups</text>
+  <text x="426" y="240" font-size="11" fill="#2a2f34">per location (wlv / bw / total)</text>
+  <text x="426" y="256" font-size="11" fill="#8a8f96">← Email Flash</text>
+
+  <rect x="412" y="278" width="216" height="60" rx="9" fill="#f4f1ea" stroke="#e3e0d8"/>
+  <text x="426" y="300" font-size="12.5" font-weight="700" fill="#1f2328">daily-data-index + archives</text>
+  <text x="426" y="320" font-size="11" fill="#2a2f34">history (day-by-day snapshots)</text>
+
+  <rect x="412" y="350" width="216" height="60" rx="9" fill="#f4f1ea" stroke="#e3e0d8"/>
+  <text x="426" y="372" font-size="12.5" font-weight="700" fill="#5a4a7a">guests data</text>
+  <text x="426" y="392" font-size="11" fill="#2a2f34">← Ovation feedback</text>
+
+  <rect x="412" y="422" width="216" height="60" rx="9" fill="#f4f1ea" stroke="#e3e0d8"/>
+  <text x="426" y="444" font-size="12.5" font-weight="700" fill="#e87142">marketing / KPI fields</text>
+  <text x="426" y="464" font-size="11" fill="#2a2f34">← KPI Tracker</text>
+
+  <rect x="412" y="494" width="216" height="58" rx="9" fill="#fff6f4" stroke="#e6c4bd" stroke-dasharray="5 4"/>
+  <text x="426" y="516" font-size="12.5" font-weight="700" fill="#c0392b">labor-detail.json  (new)</text>
+  <text x="426" y="536" font-size="11" fill="#2a2f34">← Toast (Phase 2)</text>
+
+  <!-- ============ FRONT DOOR ============ -->
+  <rect x="695" y="200" width="210" height="240" rx="12" fill="#ffffff" stroke="#1f2328" stroke-width="1.5"/>
+  <text x="712" y="226" font-size="14" font-weight="700" fill="#1f2328">index.html</text>
+  <text x="712" y="244" font-size="11" fill="#8a8f96">cosmetic passcode gate</text>
+
+  <rect x="712" y="258" width="176" height="44" rx="8" fill="#fdeee7"/>
+  <circle cx="728" cy="280" r="6" fill="#e87142"/>
+  <text x="742" y="276" font-size="12.5" font-weight="700" fill="#1f2328">Team</text>
+  <text x="742" y="292" font-size="11" fill="#6b7178">neighborly</text>
+
+  <rect x="712" y="310" width="176" height="44" rx="8" fill="#eeedf1"/>
+  <circle cx="728" cy="332" r="6" fill="#9aa0a6"/>
+  <text x="742" y="328" font-size="12.5" font-weight="700" fill="#1f2328">Guest</text>
+  <text x="742" y="344" font-size="11" fill="#6b7178">neighborsonly</text>
+
+  <rect x="712" y="362" width="176" height="44" rx="8" fill="#e3efec"/>
+  <circle cx="728" cy="384" r="6" fill="#2f6f6a"/>
+  <text x="742" y="380" font-size="12.5" font-weight="700" fill="#1f2328">Ops</text>
+  <text x="742" y="396" font-size="11" fill="#6b7178">neighborlyops</text>
+
+  <!-- ============ PORTALS & PAGES ============ -->
+  <!-- Marketing Hub -->
+  <rect x="955" y="110" width="505" height="54" rx="10" fill="#e87142"/>
+  <text x="975" y="137" font-size="16" font-weight="700" fill="#ffffff">MARKETING HUB</text>
+  <text x="975" y="154" font-size="11.5" fill="#fdeee7">Team / Guest · unchanged</text>
+
+  <!-- mkt cards: col A x955 w245, col B x1215 w245 -->
+  <!-- r1 -->
+  <rect x="955" y="178" width="245" height="82" rx="9" fill="#ffffff" stroke="#e3e0d8"/>
+  <text x="971" y="202" font-size="13" font-weight="700" fill="#1f2328">Performance Marketing</text>
+  <text x="971" y="220" font-size="10.5" fill="#6b7178">neighborly-dashboard.html</text>
+  <circle cx="976" cy="240" r="5" fill="#e87142"/><circle cx="992" cy="240" r="5" fill="#2f6f6a"/>
+  <text x="1004" y="244" font-size="10.5" fill="#2a2f34">KPI + Flash</text>
+
+  <rect x="1215" y="178" width="245" height="82" rx="9" fill="#ffffff" stroke="#e3e0d8"/>
+  <text x="1231" y="202" font-size="13" font-weight="700" fill="#1f2328">Brand Assets</text>
+  <text x="1231" y="220" font-size="10.5" fill="#6b7178">neighborly-assets.html</text>
+  <circle cx="1236" cy="240" r="5" fill="#9aa0a6"/>
+  <text x="1248" y="244" font-size="10.5" fill="#2a2f34">static (no live feed)</text>
+
+  <!-- r2 -->
+  <rect x="955" y="272" width="245" height="82" rx="9" fill="#ffffff" stroke="#e3e0d8"/>
+  <text x="971" y="296" font-size="13" font-weight="700" fill="#1f2328">Sales &amp; Pmix</text>
+  <text x="971" y="314" font-size="10.5" fill="#6b7178">neighborly-pmix.html</text>
+  <circle cx="976" cy="334" r="5" fill="#2f6f6a"/>
+  <text x="988" y="338" font-size="10.5" fill="#2a2f34">Flash</text>
+
+  <rect x="1215" y="272" width="245" height="82" rx="9" fill="#ffffff" stroke="#e3e0d8"/>
+  <text x="1231" y="296" font-size="13" font-weight="700" fill="#1f2328">Social</text>
+  <text x="1231" y="314" font-size="10.5" fill="#6b7178">neighborly-social.html</text>
+  <circle cx="1236" cy="334" r="5" fill="#e87142"/>
+  <text x="1248" y="338" font-size="10.5" fill="#2a2f34">KPI (coming soon)</text>
+
+  <!-- r3 -->
+  <rect x="955" y="366" width="245" height="82" rx="9" fill="#ffffff" stroke="#e3e0d8"/>
+  <text x="971" y="390" font-size="13" font-weight="700" fill="#1f2328">Marketing Calendar</text>
+  <text x="971" y="408" font-size="10.5" fill="#6b7178">neighborly-calendar.html</text>
+  <circle cx="976" cy="428" r="5" fill="#e87142"/>
+  <text x="988" y="432" font-size="10.5" fill="#2a2f34">KPI / manual</text>
+
+  <rect x="1215" y="366" width="245" height="82" rx="9" fill="#ffffff" stroke="#e3e0d8"/>
+  <text x="1231" y="390" font-size="13" font-weight="700" fill="#1f2328">Guest Intelligence</text>
+  <text x="1231" y="408" font-size="10.5" fill="#6b7178">neighborly-guests.html</text>
+  <circle cx="1236" cy="428" r="5" fill="#5a4a7a"/>
+  <text x="1248" y="432" font-size="10.5" fill="#2a2f34">Ovation</text>
+
+  <!-- Operations Hub -->
+  <rect x="955" y="500" width="505" height="54" rx="10" fill="#2f6f6a"/>
+  <text x="975" y="527" font-size="16" font-weight="700" fill="#ffffff">OPERATIONS HUB</text>
+  <text x="975" y="544" font-size="11.5" fill="#e3efec">Ops · proposed name: “Operations Flash”</text>
+
+  <!-- ops cards stacked x955 w505 -->
+  <rect x="955" y="568" width="505" height="80" rx="9" fill="#ffffff" stroke="#cfe0dc"/>
+  <text x="971" y="592" font-size="13.5" font-weight="700" fill="#1f2328">Sales &amp; Forecasting</text>
+  <text x="971" y="610" font-size="10.5" fill="#6b7178">neighborly-sales.html</text>
+  <circle cx="976" cy="632" r="5" fill="#2f6f6a"/>
+  <text x="988" y="636" font-size="11" fill="#2a2f34">Flash — actual + rollups + restaurant/catering; forecast = 6-wk-avg proxy (→ real budget)</text>
+
+  <rect x="955" y="662" width="505" height="80" rx="9" fill="#ffffff" stroke="#cfe0dc"/>
+  <text x="971" y="686" font-size="13.5" font-weight="700" fill="#1f2328">Labor &amp; SPLH</text>
+  <text x="971" y="704" font-size="10.5" fill="#6b7178">neighborly-labor.html</text>
+  <circle cx="976" cy="726" r="5" fill="#2f6f6a"/><circle cx="992" cy="726" r="5" fill="#c0392b"/>
+  <text x="1004" y="730" font-size="11" fill="#2a2f34">Flash (SPLH, hrs, labor%, FOH/BOH) + Toast (OT, by-job, before/after) — Phase 2</text>
+
+  <rect x="955" y="756" width="505" height="80" rx="9" fill="#ffffff" stroke="#cfe0dc"/>
+  <text x="971" y="780" font-size="13.5" font-weight="700" fill="#1f2328">Product Mix · Ops</text>
+  <text x="971" y="798" font-size="10.5" fill="#6b7178">neighborly-pmixops.html</text>
+  <circle cx="976" cy="820" r="5" fill="#2f6f6a"/><circle cx="992" cy="820" r="5" fill="#c0392b"/>
+  <text x="1004" y="824" font-size="11" fill="#2a2f34">Flash (by category) + Toast (item-level) · computed once, Marketing links here</text>
+
+  <!-- ============ CONNECTORS ============ -->
+  <!-- sources -> data layer -->
+  <line x1="340" y1="190" x2="393" y2="200" stroke="#2f6f6a" stroke-width="2.2" marker-end="url(#aTeal)"/>
+  <line x1="340" y1="334" x2="393" y2="300" stroke="#e87142" stroke-width="2.2" marker-end="url(#aOrange)"/>
+  <line x1="340" y1="444" x2="393" y2="372" stroke="#5a4a7a" stroke-width="2.2" marker-end="url(#aLav)"/>
+  <line x1="340" y1="560" x2="393" y2="510" stroke="#c0392b" stroke-width="2.2" stroke-dasharray="6 4" marker-end="url(#aRed)"/>
+
+  <!-- data layer -> front door -->
+  <line x1="645" y1="330" x2="693" y2="320" stroke="#1f2328" stroke-width="2.4" marker-end="url(#aInk)"/>
+
+  <!-- front door -> portals -->
+  <path d="M888 280 C 925 250, 930 160, 953 145" fill="none" stroke="#e87142" stroke-width="2" marker-end="url(#aOrange)"/>
+  <path d="M888 332 C 928 320, 930 200, 953 200" fill="none" stroke="#9aa0a6" stroke-width="2" marker-end="url(#aGrey)"/>
+  <path d="M888 384 C 928 430, 930 520, 953 527" fill="none" stroke="#2f6f6a" stroke-width="2.4" marker-end="url(#aTeal)"/>
+
+  <!-- ============ LEGEND ============ -->
+  <rect x="40" y="700" width="600" height="170" rx="12" fill="#ffffff" stroke="#d9d5cc"/>
+  <text x="60" y="728" font-size="14" font-weight="700" fill="#1f2328">Legend — colour = data source</text>
+  <circle cx="68" cy="752" r="6" fill="#2f6f6a"/><text x="82" y="757" font-size="12.5" fill="#2a2f34">Daily Sales Email Flash (sales + labor + comps + pmix)</text>
+  <circle cx="68" cy="778" r="6" fill="#e87142"/><text x="82" y="783" font-size="12.5" fill="#2a2f34">KPI Tracker (marketing / campaigns / ROAS)</text>
+  <circle cx="68" cy="804" r="6" fill="#5a4a7a"/><text x="82" y="809" font-size="12.5" fill="#2a2f34">Ovation (guest feedback / sentiment)</text>
+  <circle cx="68" cy="830" r="6" fill="#c0392b"/><text x="82" y="835" font-size="12.5" fill="#2a2f34">Toast POS — Phase 2 feed (dashed): OT, by-job, before/after, item-level</text>
+  <line x1="60" y1="852" x2="96" y2="852" stroke="#c0392b" stroke-width="2.2" stroke-dasharray="6 4"/>
+  <text x="104" y="857" font-size="11.5" fill="#6b7178">dashed = not in the email flash; needs a new Toast/timeclock export</text>
+
+  <!-- Phasing note -->
+  <rect x="660" y="700" width="800" height="170" rx="12" fill="#eef5f3" stroke="#bcd8d2"/>
+  <text x="682" y="728" font-size="14" font-weight="700" fill="#1f4e49">Build phasing</text>
+  <text x="682" y="752" font-size="12.5" fill="#234"><tspan font-weight="700">Phase 1 — no new data.</tspan> Drive Ops “Operations Flash” from daily-data.json you already get:</text>
+  <text x="700" y="772" font-size="12" fill="#2a2f34">sales fcst(6-wk proxy) vs actual · SPLH &amp; hours (total + FOH/BOH) · labor % · comps by reason · PMIX · all day→year rollups · per location.</text>
+  <text x="682" y="800" font-size="12.5" fill="#234"><tspan font-weight="700">Phase 2 — add ONE Toast/timeclock feed.</tspan> Unlocks the rest:</text>
+  <text x="700" y="820" font-size="12" fill="#2a2f34">OT hours &amp; OT % · hours before open / after close · by-job granularity · item-level comps &amp; PMIX · a true budget/forecast number.</text>
+  <text x="682" y="850" font-size="11.5" fill="#3a6b65" font-style="italic">Same data layer feeds both Marketing and Ops — one source of truth, two faces.</text>
+</svg>
