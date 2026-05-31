@@ -13,8 +13,11 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
   <script>
-    const __fbApp = firebase.initializeApp({apiKey:"AIzaSyAiHIQuw3eiyY305sDqc_CoV_MoEG9CQpw",authDomain:"neighborly-hub-53e4b.firebaseapp.com",databaseURL:"https://neighborly-hub-53e4b-default-rtdb.firebaseio.com",projectId:"neighborly-hub-53e4b",storageBucket:"neighborly-hub-53e4b.firebasestorage.app",messagingSenderId:"847761939455",appId:"1:847761939455:web:d0d5dbe1795bb4f05f25ca"});
-    const __fbDb = firebase.database();
+    var __fbDb = null;
+    try {
+      firebase.initializeApp({apiKey:"AIzaSyAiHIQuw3eiyY305sDqc_CoV_MoEG9CQpw",authDomain:"neighborly-hub-53e4b.firebaseapp.com",databaseURL:"https://neighborly-hub-53e4b-default-rtdb.firebaseio.com",projectId:"neighborly-hub-53e4b",storageBucket:"neighborly-hub-53e4b.firebasestorage.app",messagingSenderId:"847761939455",appId:"1:847761939455:web:d0d5dbe1795bb4f05f25ca"});
+      __fbDb = firebase.database();
+    } catch (e) { console.warn('Firebase unavailable — calendar falling back to local storage only.', e); }
   </script>
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -478,10 +481,12 @@ const DEFAULT_THEMES = {
 };
 
 // ── STORAGE ───────────────────────────────────────────────────────────────────
-        const STORAGE_KEY = 'nbly_cal3_events';
-        const __calRef = __fbDb.ref('marketing-calendar');
-        const loadEvents = () => { try { return JSON.parse(localStorage.getItem(STORAGE_KEY)||'null'); } catch(e) { return null; } };
-        const saveToCloud = (data) => __calRef.set(data);
+        const STORAGE_KEY = 'nbly_cal3_state';
+        const __calRef = __fbDb ? __fbDb.ref('marketing-calendar') : null;
+        // Local cache so the calendar always loads + persists, even if Firebase is unavailable.
+        const rd = (key) => { try { const s = JSON.parse(localStorage.getItem(STORAGE_KEY)||'null'); return s ? s[key] : null; } catch(e) { return null; } };
+        const wr = (data) => { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch(e) {} };
+        const saveToCloud = (data) => { wr(data); if (__calRef) { try { __calRef.set(data); } catch(e) {} } };
 
 // ── HELPERS ───────────────────────────────────────────────────────────────────
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,6);
@@ -866,6 +871,7 @@ function NeighborlyCalendar() {
   const [themes,    setThemes]    = useState(() => rd('themes')  || JSON.parse(JSON.stringify(DEFAULT_THEMES)));
         // Firebase real-time sync
         React.useEffect(() => {
+          if (!__calRef) return;
           const unsub = __calRef.on('value', snap => {
             const data = snap.val();
             if (data) {
