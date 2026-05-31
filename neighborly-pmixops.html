@@ -7,7 +7,7 @@
 
 <link rel="manifest" href="/manifest.json">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-<meta name="theme-color" content="#2f6f6a">
+<meta name="theme-color" content="#2a7a4b">
 <link rel="icon" href="/favicon.ico" sizes="any">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png">
@@ -17,7 +17,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 
 <style>
-  :root { --ops:#2f6f6a; --ops-deep:#1f4e49; --ops-light:#e3efec; }
+  :root { --ops:#2a7a4b; --ops-deep:#1e5a37; --ops-light:#e4f5ea; }
   .np-nav-page-tag.ops { background:var(--ops-light); color:var(--ops-deep); }
 
   .wf-banner { display:flex; align-items:flex-start; gap:12px; background:var(--ops-light);
@@ -50,11 +50,6 @@
   <a class="np-nav-brand" onclick="toggleHubNav(event)" aria-label="Open hub">
     <img src="NeighborlyLogo.png" alt="Neighborly">
   </a>
-  <div class="np-tabs">
-    <a class="np-tab" href="neighborly-sales.html">Sales &amp; Forecasting</a>
-    <a class="np-tab" href="neighborly-labor.html">Labor &amp; SPLH</a>
-    <a class="np-tab is-active">Product Mix</a>
-  </div>
   <div class="np-nav-right">
     <span class="np-nav-page-tag ops">Operations</span>
     <a class="np-icon-btn" href="index.html" title="Back to home" aria-label="Back to home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></a>
@@ -148,7 +143,7 @@ function render(){
   document.getElementById('kpiAttach').textContent='61%';
   draw(t);
 }
-var PAL=['#2f6f6a','#e87142','#b89a00','#5a4a7a','#2a7a4b','#2d4480'];
+var PAL=['#2a7a4b','#e87142','#b89a00','#5a4a7a','#7bbd91','#2d4480'];
 function draw(t){
   if(mixChart)mixChart.destroy();
   mixChart=new Chart(document.getElementById('mixChart'),{ type:'doughnut',
@@ -158,7 +153,7 @@ function draw(t){
   if(itemChart)itemChart.destroy();
   var scale=t.f;
   itemChart=new Chart(document.getElementById('itemChart'),{ type:'bar',
-    data:{labels:ITEMS.map(function(x){return x[0];}),datasets:[{data:ITEMS.map(function(x){return x[1]*scale;}),backgroundColor:'rgba(47,111,106,0.82)',borderRadius:4}]},
+    data:{labels:ITEMS.map(function(x){return x[0];}),datasets:[{data:ITEMS.map(function(x){return x[1]*scale;}),backgroundColor:'rgba(42,122,75,0.82)',borderRadius:4}]},
     options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',
       plugins:{legend:{display:false}},
       scales:{x:{grid:{color:'rgba(31,35,40,0.06)'},ticks:{font:{family:'DM Mono',size:10}}},y:{grid:{display:false},ticks:{font:{family:'DM Sans',size:11}}}}} });

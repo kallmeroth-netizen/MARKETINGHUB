@@ -7,7 +7,7 @@
 
 <link rel="manifest" href="/manifest.json">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-<meta name="theme-color" content="#2f6f6a">
+<meta name="theme-color" content="#2a7a4b">
 <link rel="icon" href="/favicon.ico" sizes="any">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png">
@@ -19,9 +19,9 @@
 <style>
   /* ===== Ops accent (page-scoped, does not touch shared marketing theme) ===== */
   :root {
-    --ops:        #2f6f6a;
-    --ops-deep:   #1f4e49;
-    --ops-light:  #e3efec;
+    --ops:        #2a7a4b;
+    --ops-deep:   #1e5a37;
+    --ops-light:  #e4f5ea;
   }
   .np-nav-page-tag.ops { background: var(--ops-light); color: var(--ops-deep); }
 
@@ -61,11 +61,6 @@
   <a class="np-nav-brand" onclick="toggleHubNav(event)" aria-label="Open hub">
     <img src="NeighborlyLogo.png" alt="Neighborly">
   </a>
-  <div class="np-tabs">
-    <a class="np-tab is-active">Sales &amp; Forecasting</a>
-    <a class="np-tab" href="neighborly-labor.html">Labor &amp; SPLH</a>
-    <a class="np-tab" href="neighborly-pmixops.html">Product Mix</a>
-  </div>
   <div class="np-nav-right">
     <span class="np-nav-page-tag ops">Operations</span>
     <a class="np-icon-btn" href="index.html" title="Back to home" aria-label="Back to home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></a>
@@ -254,7 +249,7 @@ function render(){
   drawComp();
 }
 
-var GRID = 'rgba(31,35,40,0.06)', INK = '#1f2328', OPS = '#2f6f6a';
+var GRID = 'rgba(31,35,40,0.06)', INK = '#1f2328', OPS = '#2a7a4b';
 function baseOpts(){
   return {
     responsive:true, maintainAspectRatio:false,
@@ -272,7 +267,7 @@ function drawForecast(d){
   fcChart = new Chart(ctx, {
     type:'bar',
     data:{ labels:d.pts, datasets:[
-      { label:'Actual', data:d.actual, backgroundColor:'rgba(47,111,106,0.85)', borderRadius:4, order:2 },
+      { label:'Actual', data:d.actual, backgroundColor:'rgba(42,122,75,0.85)', borderRadius:4, order:2 },
       { label:'Forecast', data:d.forecast, type:'line', borderColor:'#e87142', backgroundColor:'#e87142', borderWidth:2, tension:0.35, pointRadius:3, order:1 }
     ]},
     options: baseOpts()
@@ -286,7 +281,7 @@ function drawCheck(d){
   checkChart = new Chart(ctx, {
     type:'line',
     data:{ labels:d.pts, datasets:[
-      { label:'Avg check', data:d.checks, borderColor:OPS, backgroundColor:'rgba(47,111,106,0.10)', fill:true, tension:0.35, pointRadius:2, borderWidth:2 }
+      { label:'Avg check', data:d.checks, borderColor:OPS, backgroundColor:'rgba(42,122,75,0.10)', fill:true, tension:0.35, pointRadius:2, borderWidth:2 }
     ]},
     options:o
   });
@@ -310,7 +305,7 @@ function drawComp(){
   o.scales.x.grid = {color:GRID}; o.scales.y.grid = {display:false};
   compChart = new Chart(ctx, {
     type:'bar',
-    data:{ labels:c.labels, datasets:[{ data:c.vals, backgroundColor:'rgba(47,111,106,0.8)', borderRadius:4 }]},
+    data:{ labels:c.labels, datasets:[{ data:c.vals, backgroundColor:'rgba(42,122,75,0.8)', borderRadius:4 }]},
     options:o
   });
 }

@@ -457,9 +457,9 @@
   .t-guests:hover { background: var(--lav); border-color: var(--lav); }
   .t-guests:hover .tile-ico { background: rgba(31,35,40,0.10); }
   /* Operations Hub tiles (third door) */
-  .t-ops { border-color: rgba(47,111,106,0.45); }
-  .t-ops:hover { background: #2f6f6a; border-color: #2f6f6a; color: #f3faf8; }
-  .t-ops:hover .tile-sub { color: #e3efec; }
+  .t-ops { border-color: rgba(42,122,75,0.45); }
+  .t-ops:hover { background: #2a7a4b; border-color: #2a7a4b; color: #f3faf8; }
+  .t-ops:hover .tile-sub { color: #e4f5ea; }
   .t-ops:hover .tile-ico { background: rgba(255,255,255,0.16); color: #f3faf8; }
   .t-ops:hover .live { color: #f3faf8; }
 
@@ -698,7 +698,7 @@
   const GUEST_PW = 'neighborsonly';
   // Third door — Operations Hub. Change this one word to set the real Ops passcode.
   const OPS_PW   = 'neighborlyops';
-  const SIDE_COLORS = { team: '#e87142', guest: '#cbc9d6', ops: '#2f6f6a' };
+  const SIDE_COLORS = { team: '#e87142', guest: '#cbc9d6', ops: '#2a7a4b' };
 
   const greetEl  = document.getElementById('greetText');
   const subPass  = document.getElementById('subPass');
@@ -797,11 +797,11 @@
       svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h4l3-9 4 18 3-9h4"/></svg>' },
     { key: 'guests',   label: 'Guest Intelligence',  sub: 'Feedback & experience trends', bg:'#f0eff5', stroke:'#5a4a7a', roles:['team'],
       svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="4"/><path d="M2 21a7 7 0 0 1 14 0"/><path d="M16 3.5a4 4 0 0 1 0 8M22 21a7 7 0 0 0-5-6.7"/></svg>' },
-    { key: 'opsforecast', label: 'Sales & Forecasting', sub: 'Forecast vs. actual, check, comps', bg:'#e3efec', stroke:'#1f4e49', roles:['ops'],
+    { key: 'opsforecast', label: 'Sales & Forecasting', sub: 'Forecast vs. actual, check, comps', bg:'#e4f5ea', stroke:'#1e5a37', roles:['ops'],
       svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l5-5 4 4 8-8"/><path d="M14 8h6v6"/></svg>' },
-    { key: 'opslabor', label: 'Labor & SPLH', sub: 'SPLH, hours, OT, labor %', bg:'#e3efec', stroke:'#1f4e49', roles:['ops'],
+    { key: 'opslabor', label: 'Labor & SPLH', sub: 'SPLH, hours, OT, labor %', bg:'#e4f5ea', stroke:'#1e5a37', roles:['ops'],
       svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 13h4l3 7 4-16 3 9h4"/></svg>' },
-    { key: 'opspmix', label: 'Product Mix · Ops', sub: 'POS mix, computed once', bg:'#e3efec', stroke:'#1f4e49', roles:['ops'],
+    { key: 'opspmix', label: 'Product Mix · Ops', sub: 'POS mix, computed once', bg:'#e4f5ea', stroke:'#1e5a37', roles:['ops'],
       svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>' }
   ];
   const HREF = {
