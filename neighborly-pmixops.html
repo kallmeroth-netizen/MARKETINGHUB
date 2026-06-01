@@ -7,7 +7,7 @@
 
 <link rel="manifest" href="/manifest.json">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-<meta name="theme-color" content="#2a7a4b">
+<meta name="theme-color" content="#7bbd91">
 <link rel="icon" href="/favicon.ico" sizes="any">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png">
@@ -17,7 +17,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 
 <style>
-  :root { --ops:#2a7a4b; --ops-deep:#1e5a37; --ops-light:#e4f5ea; }
+  :root { --ops:#7bbd91; --ops-deep:#1e5a37; --ops-light:#e4f5ea; }
   .np-nav-page-tag.ops { background:var(--ops-light); color:var(--ops-deep); }
 
   .wf-banner { display:flex; align-items:flex-start; gap:12px; background:var(--ops-light);
@@ -51,7 +51,7 @@
     <img src="NeighborlyLogo.png" alt="Neighborly">
   </a>
   <div class="np-nav-right">
-    <span class="np-nav-page-tag ops">Operations</span>
+    <span class="np-nav-page-tag ops">Product Mix &middot; Ops</span>
     <a class="np-icon-btn" href="index.html" title="Back to home" aria-label="Back to home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></a>
   </div>
 </nav>
@@ -85,11 +85,6 @@
         <button data-tf="period">Period</button>
       </div>
     </div>
-    <header class="np-page-header">
-      <div class="np-page-eyebrow">Operations &middot; Product Mix</div>
-      <h1 class="np-page-title">Product Mix &middot; Ops</h1>
-      <p class="np-page-meta">Category mix and item contribution from POS — the single source the Marketing view reads from.</p>
-    </header>
   </div>
 
   <a class="link-card" href="neighborly-pmix.html">
@@ -143,7 +138,7 @@ function render(){
   document.getElementById('kpiAttach').textContent='61%';
   draw(t);
 }
-var PAL=['#2a7a4b','#e87142','#b89a00','#5a4a7a','#7bbd91','#2d4480'];
+var PAL=['#7bbd91','#e87142','#b89a00','#5a4a7a','#7bbd91','#2d4480'];
 function draw(t){
   if(mixChart)mixChart.destroy();
   mixChart=new Chart(document.getElementById('mixChart'),{ type:'doughnut',
