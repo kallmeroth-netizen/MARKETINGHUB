@@ -913,7 +913,7 @@ function NeighborlyCalendar() {
 
   const toggleGoal = i => {
     const ng = [...monthGoals]; ng[i] = !ng[i];
-    saveGoals({...goals, [mKey]: ng});
+    saveEvents(events, {...goals, [mKey]: ng}, themes);
   };
 
   const changeMonth = d => {
@@ -964,13 +964,13 @@ function NeighborlyCalendar() {
   const handleSave = ev => {
     const prev = events.find(e => e.id===ev.id);
     const prevPeople = prev?.people || [];
-    saveEvents(prev ? events.map(e => e.id===ev.id ? ev : e) : [...events, ev]);
+    saveEvents(prev ? events.map(e => e.id===ev.id ? ev : e) : [...events, ev], goals, themes);
     setSidebarId(ev.id);
     notifyTagged(ev, prevPeople);
   };
 
-  const handleDelete = id => { saveEvents(events.filter(e=>e.id!==id)); setSidebarId(null); setFormOpen(false); };
-  const handleUpdateActions = (id, actions) => saveEvents(events.map(e => e.id===id ? {...e,actions} : e));
+  const handleDelete = id => { saveEvents(events.filter(e=>e.id!==id), goals, themes); setSidebarId(null); setFormOpen(false); };
+  const handleUpdateActions = (id, actions) => saveEvents(events.map(e => e.id===id ? {...e,actions} : e), goals, themes);
 
   const sidebarEvent = events.find(e => e.id===sidebarId) || null;
 
@@ -1284,7 +1284,7 @@ function NeighborlyCalendar() {
 
       {/* MODALS */}
       <EventForm open={formOpen} onClose={()=>{setFormOpen(false);setEditEvt(null);}} onSave={handleSave} onDelete={handleDelete} editEvent={editEvt} initialDate={formDate}/>
-      <ThemeForm open={themeOpen} onClose={()=>setThemeOpen(false)} monthIndex={mo} themes={themes} onSave={(idx,data)=>saveThemes({...themes,[idx]:{...themes[idx],...data}})}/>
+      <ThemeForm open={themeOpen} onClose={()=>setThemeOpen(false)} monthIndex={mo} themes={themes} onSave={(idx,data)=>saveEvents(events, goals, {...themes,[idx]:{...themes[idx],...data}})}/>
 
       {/* MOBILE FAB */}
       {mode==='edit' && isMobile && (
