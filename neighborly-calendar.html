@@ -797,16 +797,6 @@ function EventForm({open, onClose, onSave, onDelete, editEvent, initialDate}) {
         <span style={{fontSize:13,color:C.text2}}>Mark as HOLD (tentative)</span>
       </label>
 
-      <div style={{marginBottom:13}}>
-        <div style={{fontSize:11.5,color:C.text2,marginBottom:6}}>Department</div>
-        <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
-          {DEPTS.map(d => (
-            <span key={d} onClick={() => togDept(d)} style={{border:`0.5px solid ${depts.includes(d)?C.dark:C.borderStrong}`,borderRadius:20,padding:'4px 11px',fontSize:11.5,cursor:'pointer',color:depts.includes(d)?'#fff':C.text2,background:depts.includes(d)?C.dark:C.surface,transition:'all .15s'}}>
-              {d}
-            </span>
-          ))}
-        </div>
-      </div>
 
       <div style={{marginBottom:'1.25rem'}}>
         <div style={{fontSize:11.5,color:C.text2,marginBottom:6}}>Tag people <span style={{color:C.text3,fontSize:10.5}}>— they'll be emailed when saved</span></div>
