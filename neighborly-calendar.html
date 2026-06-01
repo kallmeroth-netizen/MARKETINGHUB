@@ -5,7 +5,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Marketing Calendar â Neighborly</title>
+<title>Marketing Calendar Ã¢ÂÂ Neighborly</title>
 <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
 <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
 <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -17,7 +17,7 @@
     try {
       firebase.initializeApp({apiKey:"AIzaSyAiHIQuw3eiyY305sDqc_CoV_MoEG9CQpw",authDomain:"neighborly-hub-53e4b.firebaseapp.com",databaseURL:"https://neighborly-hub-53e4b-default-rtdb.firebaseio.com",projectId:"neighborly-hub-53e4b",storageBucket:"neighborly-hub-53e4b.firebasestorage.app",messagingSenderId:"847761939455",appId:"1:847761939455:web:d0d5dbe1795bb4f05f25ca"});
       __fbDb = firebase.database();
-    } catch (e) { console.warn('Firebase unavailable â calendar falling back to local storage only.', e); }
+    } catch (e) { console.warn('Firebase unavailable Ã¢ÂÂ calendar falling back to local storage only.', e); }
   </script>
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -26,7 +26,7 @@
 html{-webkit-text-size-adjust:100%;height:100%}
 body{font-family:'DM Sans',sans-serif;overscroll-behavior:none;height:100%;background:#F7F6F3}
 
-/* ââ PRINT â landscape, full color, single page per view âââââââââââââ */
+/* Ã¢ÂÂÃ¢ÂÂ PRINT Ã¢ÂÂ landscape, full color, single page per view Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ */
 @page { size: landscape; margin: 0.4in; }
 @media print {
   html, body { background: #F7F6F3 !important; height: auto !important; }
@@ -40,7 +40,7 @@ body{font-family:'DM Sans',sans-serif;overscroll-behavior:none;height:100%;backg
   nav.np-nav, .hub-overlay, .hub-nav, .np-hub-overlay, .np-hub,
   .mobile-sidebar-overlay, .mobile-sidebar-sheet,
   .nb-toast, .np-icon-btn[title*="ettings"], .settings-btn { display: none !important; }
-  /* The whole app shell is a fixed flex container â flatten it so the
+  /* The whole app shell is a fixed flex container Ã¢ÂÂ flatten it so the
      grid below can paginate properly when printed. */
   #root > div { display: block !important; height: auto !important; }
   /* Scale the calendar grid down so a full month / week fits one page */
@@ -49,7 +49,7 @@ body{font-family:'DM Sans',sans-serif;overscroll-behavior:none;height:100%;backg
   }
 }
 
-/* ââ HUB NAV âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ */
+/* Ã¢ÂÂÃ¢ÂÂ HUB NAV Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ */
 .hub-nav{position:fixed;top:50%;left:50%;transform:translate(-50%,calc(-50% - 6px));width:min(560px, calc(100vw - 32px));max-height:calc(100vh - 80px);overflow-y:auto;background:#fff;border:.5px solid rgba(0,0,0,.14);border-radius:16px;z-index:160;padding:1.25rem 1.5rem 1.5rem;opacity:0;pointer-events:none;transition:opacity .18s ease,transform .18s ease;box-shadow:0 12px 40px rgba(0,0,0,.12)}
 .hub-nav.open{opacity:1;pointer-events:all;transform:translate(-50%,-50%)}
 .hub-nav-label{font-size:10px;font-weight:600;color:#9E9C96;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.85rem}
@@ -64,21 +64,21 @@ body{font-family:'DM Sans',sans-serif;overscroll-behavior:none;height:100%;backg
 .hub-card-sub{font-size:10.5px;color:#9E9C96;line-height:1.3}
 
 
-.google-cal-link{display:inline-flex;align-items:center;gap:6px;text-decoration:none;background:#fff;border:.5px solid rgba(0,0,0,.14);border-radius:8px;padding:6px 12px;color:#1A1916;font-size:12px;font-weight:500;height:32px;white-space:nowrap;transition:background .15s}
+.google-cal-link{display:inline-flex;align-items:center;gap:6px;text-decoration:none;background:#fff;border:.5px solid rgba(0,0,0,.14);border-radius:8px;padding:6px 12px;color:#1A1916;font-size:12px;font-weight:500;height:32px;white-space:nowrap;transition:background .15s;cursor:pointer;appearance:none}
 .google-cal-link:hover{background:#F0EEE9}
 @media(max-width:767px){.google-cal-link{padding:6px 9px}.google-cal-link span{display:none}}
-/* ââ MOBILE SIDEBAR ââââââââââââââââââââââââââââââââââââââââââââââââââââ */
+/* Ã¢ÂÂÃ¢ÂÂ MOBILE SIDEBAR Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ */
 @media(max-width:767px){
   .mobile-sidebar-sheet{position:fixed!important;inset:auto 0 0 0!important;width:100%!important;max-height:82vh!important;border-radius:16px 16px 0 0!important;box-shadow:0 -8px 32px rgba(0,0,0,.18)!important;z-index:200;overflow-y:auto;background:#fff}
   .mobile-sidebar-overlay{position:fixed;inset:0;background:rgba(0,0,0,.3);z-index:199}
   .hub-nav-grid{grid-template-columns:repeat(2,1fr)!important}
 }
 
-/* ââ TOAST âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ */
+/* Ã¢ÂÂÃ¢ÂÂ TOAST Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ */
 .nb-toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(60px);background:#1f2328;color:#fff;font-size:13px;font-weight:500;padding:10px 20px;border-radius:10px;z-index:999;transition:transform .25s,opacity .25s;opacity:0;pointer-events:none;white-space:nowrap;font-family:'DM Sans',sans-serif}
 .nb-toast.show{transform:translateX(-50%) translateY(0);opacity:1}
 
-/* ââ SCROLLBAR âââââââââââââââââââââââââââââââââââââââââââââââââââââââââ */
+/* Ã¢ÂÂÃ¢ÂÂ SCROLLBAR Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ */
 ::-webkit-scrollbar{width:5px;height:5px}
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:rgba(0,0,0,.12);border-radius:10px}
@@ -93,7 +93,7 @@ body{font-family:'DM Sans',sans-serif;overscroll-behavior:none;height:100%;backg
 /* Calendar content is full-bleed (no centred container), so the nav's
    default centring math leaves the logo well inside the widest text.
    Collapse the nav padding to a flat --gutter, matching the content's
-   horizontal padding below â logo + first calendar cell line up. */
+   horizontal padding below Ã¢ÂÂ logo + first calendar cell line up. */
 .np-nav{padding-left:var(--gutter)!important;padding-right:var(--gutter)!important}
 
 </style>
@@ -104,7 +104,7 @@ body{font-family:'DM Sans',sans-serif;overscroll-behavior:none;height:100%;backg
 
 <!-- Page header lives outside the React tree so it doesn't get unmounted on re-render -->
 
-<!-- Hub dropdown â opens from the React-rendered brand mark via window.toggleHubNav -->
+<!-- Hub dropdown Ã¢ÂÂ opens from the React-rendered brand mark via window.toggleHubNav -->
 <div class="np-hub-overlay" id="calHubOverlay" aria-hidden="true"></div>
 <div class="np-hub" id="calHub" role="dialog" aria-label="Marketing Hub">
   <div class="np-hub-label"><span>Neighborly Marketing Hub</span><a href="index.html" class="np-hub-back-home">&larr; Home</a></div>
@@ -150,7 +150,7 @@ body{font-family:'DM Sans',sans-serif;overscroll-behavior:none;height:100%;backg
 <div id="root"></div>
 <div class="nb-toast" id="nbToast"></div>
 
-<!-- ââ EVENT DATA ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ -->
+<!-- Ã¢ÂÂÃ¢ÂÂ EVENT DATA Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ -->
 <script>
 const NOTION_EVENTS = [
   {id:'ev001',name:'Marketplace Meals with Shabby',start:'2026-04-25',end:'2026-04-25',cat:'social',sub:'Social Media',notes:'',hold:false,depts:[],people:[],actions:[]},
@@ -215,15 +215,15 @@ const NOTION_EVENTS = [
   {id:'ev060',name:'Labor Day Weekend',start:'2026-09-05',end:'2026-09-05',cat:'keydate',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
   {id:'ev061',name:'Labor Day Weekend',start:'2026-09-06',end:'2026-09-06',cat:'keydate',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
   {id:'ev062',name:'Labor Day',start:'2026-09-07',end:'2026-09-07',cat:'keydate',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
-  {id:'ev063',name:'Coming Soonâ¦ Neighborly Coffee',start:'2026-07-26',end:'2026-07-26',cat:'social',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
-  {id:'ev064',name:'Coming Soonâ¦ Neighborly Coffee',start:'2026-07-28',end:'2026-07-28',cat:'campaign',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:'ev063',name:'Coming SoonÃ¢ÂÂ¦ Neighborly Coffee',start:'2026-07-26',end:'2026-07-26',cat:'social',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:'ev064',name:'Coming SoonÃ¢ÂÂ¦ Neighborly Coffee',start:'2026-07-28',end:'2026-07-28',cat:'campaign',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
   {id:'ev065',name:'Neighborly Coffee Now Available',start:'2026-07-30',end:'2026-07-30',cat:'launch',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
   {id:'ev066',name:'Gaby\'s Cookies - Collabed Post',start:'2026-08-16',end:'2026-08-16',cat:'social',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
   {id:'ev067',name:'Studio City Countdown Begins',start:'2026-09-09',end:'2026-09-09',cat:'social',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
   {id:'ev068',name:'Storefront Tease',start:'2026-08-27',end:'2026-08-27',cat:'social',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
   {id:'ev069',name:'SC Wrap Goes Up',start:'2026-08-27',end:'2026-08-27',cat:'bizupdate',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
   {id:'ev070',name:'Friends and Family Released',start:'2026-08-19',end:'2026-08-19',cat:'bizupdate',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
-  {id:'ev071',name:'Coming Soonâ¦ Neighborly Smoothies & Breakfast',start:'2026-08-10',end:'2026-08-10',cat:'social',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:'ev071',name:'Coming SoonÃ¢ÂÂ¦ Neighborly Smoothies & Breakfast',start:'2026-08-10',end:'2026-08-10',cat:'social',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
   {id:'ev072',name:'All VIP F&F Closes',start:'2026-08-31',end:'2026-08-31',cat:'bizupdate',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
   {id:'ev073',name:'Coming Soon to SC Tease - Highlighting Landmarks',start:'2026-08-30',end:'2026-08-30',cat:'social',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
   {id:'ev074',name:'Invites Sent for Pre-Opening Events',start:'2026-08-26',end:'2026-08-26',cat:'bizupdate',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
@@ -272,8 +272,8 @@ const NOTION_EVENTS = [
   {id:'ev117',name:'Collins Brothers Earned Media Outreach Begins',start:'2026-06-01',end:'2026-06-01',cat:'bizupdate',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
   {id:'ev118',name:'Collins Brothers Lead Gen Due',start:'2026-06-12',end:'2026-06-12',cat:'bizupdate',sub:'',notes:'',hold:false,depts:[],people:["KA"],actions:[]},
   {id:'ev119',name:'Collins Brothers Influencer Seeding Begins',start:'2026-06-08',end:'2026-06-08',cat:'social',sub:'',notes:'',hold:false,depts:[],people:["KA"],actions:[]},
-  {id:'ev120',name:'Coming Soonâ¦ Collins Brothers Email',start:'2026-06-15',end:'2026-06-15',cat:'campaign',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
-  {id:'ev121',name:'Coming Soonâ¦ Collins Brothers SMS',start:'2026-06-18',end:'2026-06-18',cat:'campaign',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:'ev120',name:'Coming SoonÃ¢ÂÂ¦ Collins Brothers Email',start:'2026-06-15',end:'2026-06-15',cat:'campaign',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
+  {id:'ev121',name:'Coming SoonÃ¢ÂÂ¦ Collins Brothers SMS',start:'2026-06-18',end:'2026-06-18',cat:'campaign',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
   {id:'ev122',name:'Collins Brothers Sampling for Fathers Day?',start:'2026-06-21',end:'2026-06-21',cat:'event',sub:'',notes:'',hold:false,depts:[],people:[],actions:[]},
   {id:'ev123',name:'PR Packages for HGP Sent',start:'2026-07-20',end:'2026-07-20',cat:'campaign',sub:'',notes:'',hold:false,depts:[],people:["KA"],actions:[]},
   {id:'ev124',name:'Pre-Opening Invite Designs Finalized',start:'2026-08-21',end:'2026-08-21',cat:'ops',sub:'',notes:'',hold:false,depts:[],people:["KA","JL"],actions:[]},
@@ -336,7 +336,7 @@ function showToast(msg, dur=2800) {
   t._timer = setTimeout(() => t.classList.remove('show'), dur);
 }
 
-// ââ ICS / iCAL HELPERS ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// Ã¢ÂÂÃ¢ÂÂ ICS / iCAL HELPERS Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 function escICS(s) {
   return String(s||'').replace(/\\/g,'\\\\').replace(/;/g,'\\;').replace(/,/g,'\\,').replace(/\n/g,'\\n');
 }
@@ -412,12 +412,12 @@ function downloadICS(evts, cats) {
 }
 </script>
 
-<!-- ââ REACT APP ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ -->
+<!-- Ã¢ÂÂÃ¢ÂÂ REACT APP Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ -->
 <script type="text/babel">
 const {useState, useCallback, useRef, useEffect} = React;
-const GOOGLE_CALENDAR_URL = 'https://calendar.google.com/calendar/r?cid=https://beneighborly.team/api/calendar';
+const GOOGLE_CALENDAR_URL = 'https://beneighborly.team/api/calendar';
 
-// ââ RESPONSIVE HOOK âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// Ã¢ÂÂÃ¢ÂÂ RESPONSIVE HOOK Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 function useIsMobile() {
   const [m, setM] = useState(typeof window !== 'undefined' && window.innerWidth < 768);
   useEffect(() => {
@@ -428,7 +428,7 @@ function useIsMobile() {
   return m;
 }
 
-// ââ BRAND COLORS ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// Ã¢ÂÂÃ¢ÂÂ BRAND COLORS Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 const C = {
   yellow:'#eace49', yl:'#fdf7d8', yd:'#7a6b00',
   green:'#7bbd91',  gl:'#e4f5ea', gd:'#2a5c38',
@@ -441,7 +441,7 @@ const C = {
   text:'#1A1916', text2:'#6B6960', text3:'#9E9C96',
 };
 
-// ââ CATEGORIES ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// Ã¢ÂÂÃ¢ÂÂ CATEGORIES Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 const CATS = {
   campaign:  {label:'Email / SMS', color:C.blue,   bg:C.bl,  text:C.bd,  icon:'M11 5.5a5.5 5.5 0 01-7.78 5.01L1 12l1.49-2.22A5.5 5.5 0 1111 5.5z'},
   social:    {label:'Social',      color:C.lav,    bg:C.ll,  text:C.ld,  icon:'M9 2H3a1 1 0 00-1 1v6a1 1 0 001 1h1v2l3-2h2a1 1 0 001-1V3a1 1 0 00-1-1z'},
@@ -454,7 +454,7 @@ const CATS = {
 
 const DEPTS = ['Marketing','Operations','Creative','Sales','Leadership'];
 
-// ââ PEOPLE â add real emails here âââââââââââââââââââââââââââââââââââââââââââââ
+// Ã¢ÂÂÃ¢ÂÂ PEOPLE Ã¢ÂÂ add real emails here Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 const PEOPLE = [
   {name:'Justin',   initials:'JL', color:C.yellow, email:'jlopez@beneighborly.com'},
   {name:'Kirsten',  initials:'KA', color:C.green,  email:'kallmeroth@beneighborly.com'},
@@ -464,10 +464,10 @@ const PEOPLE = [
   {name:'Ashley',   initials:'AT', color:C.lav,    email:'ashley@neighborlyeats.com'},
 ];
 
-// ââ MONTH THEMES ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// Ã¢ÂÂÃ¢ÂÂ MONTH THEMES Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 const DEFAULT_THEMES = {
-  0:  {theme:'New Year, New Push',          tag:'January',   color:C.blue,   goals:['Insert Goal','Insert Goal','Insert Goal'], desc:'Kick off Q1 with energy â introduce new offerings and reset brand positioning.'},
-  1:  {theme:'Love Your Community',         tag:'February',  color:C.orange, goals:['Insert Goal','Insert Goal','Insert Goal'], desc:'Lean into Valentine\'s Day â warm campaigns highlighting relationships and loyalty.'},
+  0:  {theme:'New Year, New Push',          tag:'January',   color:C.blue,   goals:['Insert Goal','Insert Goal','Insert Goal'], desc:'Kick off Q1 with energy Ã¢ÂÂ introduce new offerings and reset brand positioning.'},
+  1:  {theme:'Love Your Community',         tag:'February',  color:C.orange, goals:['Insert Goal','Insert Goal','Insert Goal'], desc:'Lean into Valentine\'s Day Ã¢ÂÂ warm campaigns highlighting relationships and loyalty.'},
   2:  {theme:'Spring Forward',              tag:'March',     color:C.green,  goals:['Insert Goal','Insert Goal','Insert Goal'], desc:'Seasonal refresh across all channels. New product spotlights and activation prep.'},
   3:  {theme:'Growth Season',               tag:'April',     color:C.green,  goals:['Insert Goal','Insert Goal','Insert Goal'], desc:'Double down on paid and organic reach. Q2 pipeline building.'},
   4:  {theme:'Effortless Gatherings',       tag:'May',       color:C.tan,    goals:['Insert Goal','Insert Goal','Insert Goal'], desc:'Last-minute hosting and meal ideas for end of school madness meets celebratory moments.'},
@@ -480,7 +480,7 @@ const DEFAULT_THEMES = {
   11: {theme:'Holiday Hustle, Made Easier.',tag:'December',  color:C.green,  goals:['Insert Goal','Insert Goal','Insert Goal'], desc:'Giftable Marketplace finds, holiday hosting, school break meals, cozy nights in.'},
 };
 
-// ââ STORAGE âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// Ã¢ÂÂÃ¢ÂÂ STORAGE Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
         const STORAGE_KEY = 'nbly_cal3_state';
         const __calRef = __fbDb ? __fbDb.ref('marketing-calendar') : null;
         // Local cache so the calendar always loads + persists, even if Firebase is unavailable.
@@ -488,9 +488,9 @@ const DEFAULT_THEMES = {
         const wr = (data) => { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch(e) {} };
         const saveToCloud = (data) => { wr(data); if (__calRef) { try { __calRef.set(data); } catch(e) {} } };
 
-// ââ HELPERS âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// Ã¢ÂÂÃ¢ÂÂ HELPERS Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,6);
-const fmtDate = ds => { if (!ds) return 'â'; return new Date(ds+'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}); };
+const fmtDate = ds => { if (!ds) return 'Ã¢ÂÂ'; return new Date(ds+'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}); };
 const addDays = (ds, n) => { const d = new Date(ds+'T00:00:00'); d.setDate(d.getDate()+n); return d.toISOString().split('T')[0]; };
 const mkKey = date => date.getFullYear()+'-'+date.getMonth();
 
@@ -505,21 +505,21 @@ const SAMPLE_EVENTS = NOTION_EVENTS.map(ev => {
   return {...ev, people};
 });
 
-// ââ EMAILJS CONFIG ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// Ã¢ÂÂÃ¢ÂÂ EMAILJS CONFIG Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 // Setup (one-time, ~5 min):
-//  1. Go to emailjs.com â create free account
-//  2. Email Services â Add Service â connect hello@beneighborly.com (Gmail or SMTP)
-//     â copy the Service ID below
-//  3. Email Templates â Create Template â use these variable names in your template:
-//       {{to_name}}        â recipient first name
-//       {{event_name}}     â event title
-//       {{event_date}}     â date or date range
-//       {{event_category}} â category label
-//       {{event_notes}}    â notes (or "â" if none)
+//  1. Go to emailjs.com Ã¢ÂÂ create free account
+//  2. Email Services Ã¢ÂÂ Add Service Ã¢ÂÂ connect hello@beneighborly.com (Gmail or SMTP)
+//     Ã¢ÂÂ copy the Service ID below
+//  3. Email Templates Ã¢ÂÂ Create Template Ã¢ÂÂ use these variable names in your template:
+//       {{to_name}}        Ã¢ÂÂ recipient first name
+//       {{event_name}}     Ã¢ÂÂ event title
+//       {{event_date}}     Ã¢ÂÂ date or date range
+//       {{event_category}} Ã¢ÂÂ category label
+//       {{event_notes}}    Ã¢ÂÂ notes (or "Ã¢ÂÂ" if none)
 //     Set "To Email" field to: {{to_email}}
 //     Set "From Email" to: hello@beneighborly.com (configured in your Service)
-//     â copy the Template ID below
-//  4. Account â API Keys â copy your Public Key below
+//     Ã¢ÂÂ copy the Template ID below
+//  4. Account Ã¢ÂÂ API Keys Ã¢ÂÂ copy your Public Key below
 const EMAILJS_PUBLIC_KEY  = 'pW4-kj71suA1OsbFa';
 const EMAILJS_SERVICE_ID  = 'service_v4jp7sp';
 const EMAILJS_TEMPLATE_ID = 'template_zmo0l7k';
@@ -527,7 +527,7 @@ if (EMAILJS_PUBLIC_KEY !== 'YOUR_PUBLIC_KEY') {
   emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
 }
 
-// Email notification â fires automatically on save, no clicks
+// Email notification Ã¢ÂÂ fires automatically on save, no clicks
 function notifyTagged(newEv, prevPeople) {
   // Skip if EmailJS not configured yet
   if (EMAILJS_SERVICE_ID === 'YOUR_SERVICE_ID') return;
@@ -538,25 +538,25 @@ function notifyTagged(newEv, prevPeople) {
     if (!person?.email) return;
     const dateStr = newEv.start === newEv.end
       ? fmtDate(newEv.start)
-      : fmtDate(newEv.start) + ' â ' + fmtDate(newEv.end);
+      : fmtDate(newEv.start) + ' Ã¢ÂÂ ' + fmtDate(newEv.end);
     emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
       to_email:       person.email,
       to_name:        person.name,
       event_name:     newEv.name,
       event_date:     dateStr,
       event_category: CATS[newEv.cat]?.label || newEv.cat,
-      event_notes:    newEv.notes || 'â',
+      event_notes:    newEv.notes || 'Ã¢ÂÂ',
     }).then(() => {
-      showToast(`ð§ Emailed ${person.name}`);
+      showToast(`Ã°ÂÂÂ§ Emailed ${person.name}`);
     }).catch(err => {
       const detail = err?.text || err?.message || JSON.stringify(err);
-      console.error('EmailJS error for', person.name, 'â', detail);
-      showToast(`â ï¸ Email to ${person.name} failed â check console`);
+      console.error('EmailJS error for', person.name, 'Ã¢ÂÂ', detail);
+      showToast(`Ã¢ÂÂ Ã¯Â¸Â Email to ${person.name} failed Ã¢ÂÂ check console`);
     });
   });
 }
 
-// ââ ICON ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// Ã¢ÂÂÃ¢ÂÂ ICON Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 function CatIcon({path, color, size=10}) {
   return (
     <svg width={size} height={size} viewBox="0 0 12 12" fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -565,7 +565,7 @@ function CatIcon({path, color, size=10}) {
   );
 }
 
-// ââ MODAL âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// Ã¢ÂÂÃ¢ÂÂ MODAL Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 function Modal({open, onClose, children, width=560}) {
   useEffect(() => {
     if (!open) return;
@@ -584,7 +584,7 @@ function Modal({open, onClose, children, width=560}) {
   );
 }
 
-// ââ SIDEBAR âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// Ã¢ÂÂÃ¢ÂÂ SIDEBAR Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 function Sidebar({event, mode, onClose, onEdit, onDelete, onUpdateActions}) {
   const [actionText, setActionText] = useState('');
   const inputRef = useRef(null);
@@ -601,7 +601,7 @@ function Sidebar({event, mode, onClose, onEdit, onDelete, onUpdateActions}) {
     onUpdateActions(event.id, (event.actions||[]).map((a,i) => i===idx ? {...a,done:!a.done} : a));
   };
 
-  const dateStr = event.start === event.end ? fmtDate(event.start) : fmtDate(event.start)+' â '+fmtDate(event.end);
+  const dateStr = event.start === event.end ? fmtDate(event.start) : fmtDate(event.start)+' Ã¢ÂÂ '+fmtDate(event.end);
   const doneCount = (event.actions||[]).filter(a => a.done).length;
 
   return (
@@ -613,7 +613,7 @@ function Sidebar({event, mode, onClose, onEdit, onDelete, onUpdateActions}) {
             <CatIcon path={cat.icon} color={cat.text} size={10}/> {cat.label}
             {event.hold && <span style={{marginLeft:4,background:C.tl,color:C.td,padding:'1px 6px',borderRadius:20}}>HOLD</span>}
           </span>
-          <button onClick={onClose} style={{background:'none',border:'none',cursor:'pointer',color:C.text3,fontSize:20,lineHeight:1,padding:'2px 6px',borderRadius:6,flexShrink:0}} aria-label="Close">Ã</button>
+          <button onClick={onClose} style={{background:'none',border:'none',cursor:'pointer',color:C.text3,fontSize:20,lineHeight:1,padding:'2px 6px',borderRadius:6,flexShrink:0}} aria-label="Close">ÃÂ</button>
         </div>
         <div style={{fontSize:17,fontWeight:600,letterSpacing:'-.02em',color:C.text,lineHeight:1.3,marginBottom:7}}>{event.name}</div>
         <div style={{fontSize:12,color:C.text3,display:'flex',flexDirection:'column',gap:4}}>
@@ -685,7 +685,7 @@ function Sidebar({event, mode, onClose, onEdit, onDelete, onUpdateActions}) {
           <div style={{display:'flex',gap:6,marginTop:8}}>
             <input ref={inputRef} value={actionText} onChange={e => setActionText(e.target.value)}
               onKeyDown={e => { if (e.key==='Enter') addAction(); }}
-              placeholder="Add action itemâ¦"
+              placeholder="Add action itemÃ¢ÂÂ¦"
               style={{flex:1,border:`0.5px solid ${C.borderStrong}`,borderRadius:8,padding:'7px 10px',fontSize:12.5,color:C.text,background:C.surface,outline:'none',fontFamily:'inherit'}}
               onFocus={e => e.target.style.borderColor=C.orange}
               onBlur={e => e.target.style.borderColor=C.borderStrong}/>
@@ -712,7 +712,7 @@ function Sidebar({event, mode, onClose, onEdit, onDelete, onUpdateActions}) {
   );
 }
 
-// ââ EVENT FORM ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// Ã¢ÂÂÃ¢ÂÂ EVENT FORM Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 function EventForm({open, onClose, onSave, onDelete, editEvent, initialDate}) {
   const [name,   setName]   = useState('');
   const [start,  setStart]  = useState('');
@@ -783,7 +783,7 @@ function EventForm({open, onClose, onSave, onDelete, editEvent, initialDate}) {
 
       <div style={{marginBottom:13}}>
         <div style={{fontSize:11.5,color:C.text2,marginBottom:3}}>Notes</div>
-        <textarea value={notes} onChange={e=>setNotes(e.target.value)} placeholder="Context, links, deliverablesâ¦"
+        <textarea value={notes} onChange={e=>setNotes(e.target.value)} placeholder="Context, links, deliverablesÃ¢ÂÂ¦"
           style={{...inputStyle,resize:'vertical',minHeight:72}} onFocus={focusO} onBlur={blurO}/>
       </div>
 
@@ -804,7 +804,7 @@ function EventForm({open, onClose, onSave, onDelete, editEvent, initialDate}) {
       </div>
 
       <div style={{marginBottom:'1.25rem'}}>
-        <div style={{fontSize:11.5,color:C.text2,marginBottom:6}}>Tag people <span style={{color:C.text3,fontSize:10.5}}>â they'll be emailed when saved</span></div>
+        <div style={{fontSize:11.5,color:C.text2,marginBottom:6}}>Tag people <span style={{color:C.text3,fontSize:10.5}}>Ã¢ÂÂ they'll be emailed when saved</span></div>
         <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
           {PEOPLE.map(p => (
             <span key={p.initials} onClick={() => togPerson(p.initials)} style={{border:`0.5px solid ${people.includes(p.initials)?p.color:C.borderStrong}`,borderRadius:20,padding:'4px 11px',fontSize:11.5,cursor:'pointer',color:people.includes(p.initials)?'#fff':C.text2,background:people.includes(p.initials)?p.color:C.surface,transition:'all .15s'}}>
@@ -823,7 +823,7 @@ function EventForm({open, onClose, onSave, onDelete, editEvent, initialDate}) {
   );
 }
 
-// ââ THEME FORM ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// Ã¢ÂÂÃ¢ÂÂ THEME FORM Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 function ThemeForm({open, onClose, monthIndex, themes, onSave}) {
   const t = themes[monthIndex] || DEFAULT_THEMES[monthIndex] || {};
   const [tag,   setTag]   = useState(t.tag||'');
@@ -846,7 +846,7 @@ function ThemeForm({open, onClose, monthIndex, themes, onSave}) {
       <h2 style={{fontSize:15,fontWeight:600,marginBottom:'1.1rem',color:C.text,letterSpacing:'-.02em'}}>Edit {t.tag||'month'} theme</h2>
       <div style={{marginBottom:11}}><div style={{fontSize:11.5,color:C.text2,marginBottom:3}}>Month heading</div><input value={tag} onChange={e=>setTag(e.target.value)} style={inpStyle} onFocus={focusO} onBlur={blurO}/></div>
       <div style={{marginBottom:11}}><div style={{fontSize:11.5,color:C.text2,marginBottom:3}}>Theme name</div><input value={theme} onChange={e=>setTheme(e.target.value)} style={inpStyle} onFocus={focusO} onBlur={blurO}/></div>
-      <div style={{marginBottom:11}}><div style={{fontSize:11.5,color:C.text2,marginBottom:3}}>Description</div><textarea value={desc} onChange={e=>setDesc(e.target.value)} placeholder="Monthly theme descriptionâ¦" style={{...inpStyle,resize:'vertical',minHeight:56}} onFocus={focusO} onBlur={blurO}/></div>
+      <div style={{marginBottom:11}}><div style={{fontSize:11.5,color:C.text2,marginBottom:3}}>Description</div><textarea value={desc} onChange={e=>setDesc(e.target.value)} placeholder="Monthly theme descriptionÃ¢ÂÂ¦" style={{...inpStyle,resize:'vertical',minHeight:56}} onFocus={focusO} onBlur={blurO}/></div>
       <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:8,marginBottom:16}}>
         {[0,1,2].map(i => (
           <div key={i}><div style={{fontSize:11.5,color:C.text2,marginBottom:3}}>Goal {i+1}</div>
@@ -862,7 +862,7 @@ function ThemeForm({open, onClose, monthIndex, themes, onSave}) {
   );
 }
 
-// ââ MAIN APP ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// Ã¢ÂÂÃ¢ÂÂ MAIN APP Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 function NeighborlyCalendar() {
   const isMobile = useIsMobile();
 
@@ -924,7 +924,7 @@ function NeighborlyCalendar() {
   };
   const goToday = () => { setCurDate(new Date()); setSidebarId(null); };
 
-  // Grid cells â month grid (42) or week strip (7) based on viewMode
+  // Grid cells Ã¢ÂÂ month grid (42) or week strip (7) based on viewMode
   const cells=[];
   if (viewMode === 'week') {
     const ref = new Date(curDate);
@@ -994,7 +994,7 @@ function NeighborlyCalendar() {
     return () => document.removeEventListener('click', h);
   }, [subOpen]);
 
-  // ââ RENDER âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+  // Ã¢ÂÂÃ¢ÂÂ RENDER Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
   return (
     <div style={{fontFamily:"'DM Sans',sans-serif",background:C.bg,minHeight:'100vh',color:C.text,display:'flex',flexDirection:'column'}}>
 
@@ -1002,7 +1002,7 @@ function NeighborlyCalendar() {
       <div className={`hub-nav${hubOpen?' open':''}`} onClick={e=>e.stopPropagation()}>
         <div className="hub-nav-label" style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:12}}>
           <span>Neighborly Marketing Hub</span>
-          <a href="https://beneighborly.team/" className="hub-back-home">â Home</a>
+          <a href="https://beneighborly.team/" className="hub-back-home">Ã¢ÂÂ Home</a>
         </div>
         <div className="hub-nav-grid">
           {[
@@ -1061,7 +1061,7 @@ function NeighborlyCalendar() {
       {/* PRESENT MODE BANNER */}
       {mode==='present' && (
         <div style={{background:C.orange,color:'#fff',fontSize:11.5,padding:'7px 1.25rem',textAlign:'center',letterSpacing:'.04em',flexShrink:0}}>
-          <strong style={{color:'#fff'}}>Presentation view</strong> Â· Read-only Â· Click any event to view details
+          <strong style={{color:'#fff'}}>Presentation view</strong> ÃÂ· Read-only ÃÂ· Click any event to view details
         </div>
       )}
 
@@ -1116,9 +1116,9 @@ function NeighborlyCalendar() {
             {/* MONTH NAV + MONTH/WEEK + ADD */}
             <div style={{display:'flex',flexWrap:'wrap',alignItems:'center',justifyContent:'space-between',gap:8,marginBottom:'.75rem'}}>
               <div style={{display:'flex',alignItems:'center',gap:6,flexWrap:'wrap'}}>
-                <button onClick={()=>changeMonth(-1)} style={{background:C.surface,border:`0.5px solid ${C.borderStrong}`,borderRadius:8,width:32,height:32,cursor:'pointer',color:C.text,display:'flex',alignItems:'center',justifyContent:'center',fontSize:16,fontFamily:'inherit',flexShrink:0}}>â¹</button>
+                <button onClick={()=>changeMonth(-1)} style={{background:C.surface,border:`0.5px solid ${C.borderStrong}`,borderRadius:8,width:32,height:32,cursor:'pointer',color:C.text,display:'flex',alignItems:'center',justifyContent:'center',fontSize:16,fontFamily:'inherit',flexShrink:0}}>Ã¢ÂÂ¹</button>
                 <span style={{fontSize:isMobile?14:16,fontWeight:500,color:C.text,minWidth:isMobile?128:180,textAlign:'center',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis',lineHeight:'32px'}}>{curDate.toLocaleDateString('en-US',{month:'long',year:'numeric'})}</span>
-                <button onClick={()=>changeMonth(1)} style={{background:C.surface,border:`0.5px solid ${C.borderStrong}`,borderRadius:8,width:32,height:32,cursor:'pointer',color:C.text,display:'flex',alignItems:'center',justifyContent:'center',fontSize:16,fontFamily:'inherit',flexShrink:0}}>âº</button>
+                <button onClick={()=>changeMonth(1)} style={{background:C.surface,border:`0.5px solid ${C.borderStrong}`,borderRadius:8,width:32,height:32,cursor:'pointer',color:C.text,display:'flex',alignItems:'center',justifyContent:'center',fontSize:16,fontFamily:'inherit',flexShrink:0}}>Ã¢ÂÂº</button>
                 <button onClick={goToday} style={{background:C.surface,border:`0.5px solid ${C.borderStrong}`,borderRadius:8,padding:'5px 0',cursor:'pointer',color:C.text,fontSize:12,fontFamily:'inherit',height:32,width:62}}>Today</button>
                 <div className="np-toggle" style={{marginLeft:4}}>
                   {[['month','Month'],['week','Week']].map(([v,label]) => (
@@ -1130,10 +1130,13 @@ function NeighborlyCalendar() {
                 </div>
               </div>
               <div style={{display:'flex',alignItems:'center',gap:8}}>
-                <a className="google-cal-link" href={GOOGLE_CALENDAR_URL} target="_blank" rel="noopener noreferrer" title="Add to Google Calendar (live sync)">
+                <button className="google-cal-link" title="Copies feed URL and opens Google Calendar" onClick={()=>{
+                    navigator.clipboard.writeText(GOOGLE_CALENDAR_URL).catch(()=>{});
+                    window.open('https://calendar.google.com/calendar/r/settings/addbyurl','_blank');
+                  }}>
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
                   <span>Add to Google Calendar</span>
-                </a>
+                </button>
                 {mode==='edit' && !isMobile && (
                   <button onClick={() => openAdd()} style={{background:C.orange,border:'none',borderRadius:8,padding:'7px 16px',cursor:'pointer',color:'#fff',fontSize:13,fontWeight:500,display:'flex',alignItems:'center',gap:6,fontFamily:'inherit',height:32}}>
                     + Add event
@@ -1156,7 +1159,7 @@ function NeighborlyCalendar() {
                 (one row per day) instead of a cramped 7-col grid. */}
             {(() => { return null; })()}
 
-            {/* DAY HEADERS â hidden in week view (each cell labels its own day)
+            {/* DAY HEADERS Ã¢ÂÂ hidden in week view (each cell labels its own day)
                 and hidden in the mobile-month agenda layout (each row labels itself). */}
             {viewMode!=='week' && !(isMobile && viewMode==='month') && (
               <div style={{display:'grid',gridTemplateColumns:'repeat(7,1fr)',gap:1,marginBottom:1}}>
@@ -1168,8 +1171,8 @@ function NeighborlyCalendar() {
               </div>
             )}
 
-            {/* CALENDAR GRID â desktop month keeps the 7-col layout; week view
-                breaks into a 4-col Ã 2-row grid; mobile-month stacks to a
+            {/* CALENDAR GRID Ã¢ÂÂ desktop month keeps the 7-col layout; week view
+                breaks into a 4-col ÃÂ 2-row grid; mobile-month stacks to a
                 single column so each day reads as a full agenda row. */}
             <div style={{display:'grid',gridTemplateColumns: (isMobile && viewMode==='month') ? '1fr' : (viewMode==='week' ? 'repeat(4,1fr)' : 'repeat(7,1fr)'),gap:1,background:C.border,border:`0.5px solid ${C.border}`,borderRadius:12,overflow:'hidden',boxShadow:'0 1px 4px rgba(0,0,0,.04)'}}>
               {cells.filter(c => !(isMobile && viewMode==='month' && c.o)).map((c, ci) => {
@@ -1198,7 +1201,7 @@ function NeighborlyCalendar() {
                     onDrop={mode==='edit' ? e=>handleDrop(e,ds) : undefined}
                     onClick={mode==='edit' ? ()=>openAdd(ds) : undefined}
                     style={{background:isDropTarget?C.yl:isTod?'#FFFDF2':c.o?'#FAFAF8':C.surface,minHeight:cellMinH,padding:cellPad,overflow:'hidden',position:'relative',cursor:mode==='edit'?'pointer':'default',transition:'background .1s',outline:isDropTarget?`2px dashed ${C.yellow}`:'none'}}>
-                    {/* Day header â in week and agenda views, embed day name + number directly in the cell */}
+                    {/* Day header Ã¢ÂÂ in week and agenda views, embed day name + number directly in the cell */}
                     <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:isWeek?10:(isAgenda?6:(isMobile?2:4))}}>
                       {showDayName && (
                         <span style={{fontSize:isMobile?11:12,color:C.text3,fontWeight:600,letterSpacing:'.06em',textTransform:'uppercase'}}>
@@ -1244,7 +1247,7 @@ function NeighborlyCalendar() {
               })}
             </div>
 
-            {/* Edit Â· Present Â· Print â small text toggle at the bottom of the calendar */}
+            {/* Edit ÃÂ· Present ÃÂ· Print Ã¢ÂÂ small text toggle at the bottom of the calendar */}
             <div style={{display:'flex',justifyContent:'center',alignItems:'center',gap:18,marginTop:16,fontSize:11.5,letterSpacing:'.04em'}}>
               {[['edit','Edit'],['present','Present']].map(([m,label]) => (
                 <span key={m} onClick={() => setMode(m)}
