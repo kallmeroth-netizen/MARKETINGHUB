@@ -62,7 +62,7 @@
     <img src="NeighborlyLogo.png" alt="Neighborly">
   </a>
   <div class="np-nav-right">
-    <span class="np-nav-page-tag ops">Operations</span>
+    <span class="np-nav-page-tag ops">Sales &amp; Forecasting</span>
     <a class="np-icon-btn" href="index.html" title="Back to home" aria-label="Back to home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></a>
   </div>
 </nav>
@@ -103,11 +103,6 @@
         <button data-seg="catering">Catering</button>
       </div>
     </div>
-    <header class="np-page-header">
-      <div class="np-page-eyebrow">Operations &middot; Sales</div>
-      <h1 class="np-page-title">Sales &amp; Forecasting</h1>
-<p class="np-page-meta" id="ctxMeta" style="display:none"></p>
-          </header>
   </div>
 
   <!-- KPI STRIP -->
@@ -164,6 +159,7 @@
     <span class="src-note" id="compSrc">POS comp/void log, grouped by menu item</span>
   </div>
 
+<p id="ctxMeta" style="display:none" aria-hidden="true"></p>
 </main>
 
 <footer class="np-foot"><span class="track-trim">Neighbors Only Portal</span></footer>
@@ -238,9 +234,9 @@ function render(){
   document.getElementById('kpiComps').textContent = fmt(comps);
   document.getElementById('kpiCompsPct').textContent = (comps/sales*100).toFixed(1) + '%';
 
-  document.getElementById('ctxMeta').textContent =
+  var _cm=document.getElementById('ctxMeta'); if(_cm) _cm.textContent =
     d.seg.name + ' &middot; ' + d.tfLabel + ' — forecast vs. actual, average check and comps.';
-  document.getElementById('ctxMeta').innerHTML =
+  if(_cm) _cm.innerHTML =
     d.seg.name + ' &middot; ' + d.tfLabel + ' — forecast vs. actual, average check and comps.';
   document.getElementById('fcSub').textContent = 'Net sales — forecast (line) vs. actual (bars), ' + d.tfLabel + '.';
 
