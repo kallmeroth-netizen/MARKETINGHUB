@@ -457,9 +457,9 @@
   .t-guests:hover { background: var(--lav); border-color: var(--lav); }
   .t-guests:hover .tile-ico { background: rgba(31,35,40,0.10); }
   /* Operations Hub tiles (third door) */
-  .t-ops { border-color: rgba(42,122,75,0.45); }
-  .t-ops:hover { background: #2a7a4b; border-color: #2a7a4b; color: #f3faf8; }
-  .t-ops:hover .tile-sub { color: #e4f5ea; }
+  .t-ops { border-color: rgba(123,189,145,0.45); }
+  .t-ops:hover { background: #7bbd91; border-color: #7bbd91; color: #1f2328; }
+  .t-ops:hover .tile-sub { color: #3a3d44; }
   .t-ops:hover .tile-ico { background: rgba(255,255,255,0.16); color: #f3faf8; }
   .t-ops:hover .live { color: #f3faf8; }
 
@@ -499,6 +499,9 @@
   .hub-shell {
     opacity: 0;
     transition: opacity 0.5s ease 0.1s;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
   }
   body[data-state="hub"] .hub-shell { opacity: 1; }
 
