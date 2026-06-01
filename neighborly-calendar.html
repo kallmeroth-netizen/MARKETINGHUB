@@ -876,8 +876,21 @@ function NeighborlyCalendar() {
             const data = snap.val();
             if (data) {
               if (data.events) setEvents(data.events);
-              if (data.goals) setGoals(data.goals);
+              if (data.goals)  setGoals(data.goals);
+              else {
+                const localGoals = rd('goals') || {};
+                if (Object.keys(localGoals).length > 0) __calRef.update({goals: localGoals});
+              }
               if (data.themes) setThemes(data.themes);
+              else {
+                const localThemes = rd('themes') || JSON.parse(JSON.stringify(DEFAULT_THEMES));
+                __calRef.update({themes: localThemes});
+              }
+            } else {
+              const localGoals  = rd('goals')  || {};
+              const localThemes = rd('themes') || JSON.parse(JSON.stringify(DEFAULT_THEMES));
+              const localEvents = rd('events') || [];
+              if (localEvents.length > 0) __calRef.set({events: localEvents, goals: localGoals, themes: localThemes});
             }
           });
           return () => __calRef.off('value', unsub);
