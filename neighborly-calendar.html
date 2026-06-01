@@ -883,7 +883,9 @@ function NeighborlyCalendar() {
               }
               if (data.themes) setThemes(data.themes);
               else {
-                const localThemes = rd('themes') || JSON.parse(JSON.stringify(DEFAULT_THEMES));
+                const localThemes = (rd('themes') && Object.keys(rd('themes')||{}).length > 0)
+                  ? rd('themes')
+                  : JSON.parse(JSON.stringify(DEFAULT_THEMES));
                 __calRef.update({themes: localThemes});
               }
             } else {
