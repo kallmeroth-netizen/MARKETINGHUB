@@ -1,6 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <link rel="icon" href="/favicon.ico" sizes="any">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Guest Feedback — Neighborly</title>
@@ -755,7 +760,7 @@ nav{background:var(--surface);border-bottom:.5px solid var(--border-strong);padd
       <div class="src-dot" style="background:var(--green)"></div>
       <div>
         <div class="src-name">Ovation (OLO surveys)</div>
-        <div class="src-meta">CSV export &nbsp;&#183;&nbsp; 5,196 responses &nbsp;&#183;&nbsp; Dec 2024 – May 2026</div>
+        <div class="src-meta">CSV export &nbsp;&#183;&nbsp; 5,385 responses &nbsp;&#183;&nbsp; Dec 2024 – May 2026</div>
       </div>
       <span class="pill pill-pos">Active</span>
     </div>
@@ -1306,12 +1311,13 @@ function getPriorPool(){
 }
 
 function poolStats(pool){
-  if(!pool.length) return {n:0,avg:0,avg5:'0.00',pro:0,pas:0,det:0};
+  if(!pool.length) return {n:0,avg:0,avg5:'0.00',top:0,pro:0,pas:0,det:0};
   var n=pool.length;
   var sum=pool.reduce(function(s,r){return s+r.rating;},0);
   var avg=sum/n;
   return {
     n:n, avg:avg, avg5:rateScaleTo5(avg),
+    top: Math.round(pool.filter(function(r){return r.rating===5;}).length/n*100),
     pro: Math.round(pool.filter(function(r){return r.rating===4;}).length/n*100),
     pas: Math.round(pool.filter(function(r){return r.rating===3;}).length/n*100),
     det: Math.round(pool.filter(function(r){return r.rating<=2;}).length/n*100)
@@ -1518,7 +1524,8 @@ function renderOverview(){
         +'<div style="font-size:11px;color:var(--text3);margin-top:4px">avg /5</div>'
       +'</div>'
       +'<div style="flex:1;min-width:200px">'+distRows+'</div>'
-      +'<div style="flex:0 0 auto;display:flex;gap:8px;align-self:center">'
+      +'<div style="flex:0 0 auto;display:flex;flex-wrap:wrap;gap:8px;align-self:center;justify-content:center">'
+        +'<div style="text-align:center;background:var(--green);border-radius:8px;padding:12px 16px;min-width:70px"><div style="font-size:22px;font-weight:700;color:#fff;font-family:\'DM Mono\',monospace">'+cur.top+'%</div><div style="font-size:10.5px;color:#fff;margin-top:3px;font-weight:600">Excellent</div></div>'
         +'<div style="text-align:center;background:var(--gl);border-radius:8px;padding:12px 16px;min-width:70px"><div style="font-size:22px;font-weight:700;color:var(--gd);font-family:\'DM Mono\',monospace">'+cur.pro+'%</div><div style="font-size:10.5px;color:var(--gd);margin-top:3px;font-weight:600">Positive</div></div>'
         +'<div style="text-align:center;background:var(--yl);border-radius:8px;padding:12px 16px;min-width:70px"><div style="font-size:22px;font-weight:700;color:var(--yd);font-family:\'DM Mono\',monospace">'+cur.pas+'%</div><div style="font-size:10.5px;color:var(--yd);margin-top:3px;font-weight:600">Neutral</div></div>'
         +'<div style="text-align:center;background:var(--rl);border-radius:8px;padding:12px 16px;min-width:70px"><div style="font-size:22px;font-weight:700;color:var(--rd);font-family:\'DM Mono\',monospace">'+cur.det+'%</div><div style="font-size:10.5px;color:var(--rd);margin-top:3px;font-weight:600">Negative</div></div>'
@@ -1792,35 +1799,61 @@ function renderComplaints(){}
 function renderWins(){}
 function renderSourceThemes(){}
 
+// Trends are computed LIVE from LIVE_REVIEWS + THEME_LIB keywords (no static
+// snapshot). The % column respects the location + date filter; the sparkline
+// shows the last 8 weeks' trajectory (location-aware, full history) so the
+// trend line stays meaningful even with a narrow date filter selected.
 function renderTrends(){
-  var loc2=locationFilter==='all'?'all':locationFilter;
-  var items = TRENDS.filter(locMatch);
-  var html=items.map(function(t){
-    var isWin=t.id==='caesar'||t.id==='team';
-    var catLabel=t.cat==='ops'?'Operations':t.cat==='food'?'Food quality':'Experience';
-    var catCls=isWin?'pill-pos':t.cat==='ops'?'pill-ops':'pill-neg';
-    var fullHistory=(t.history&&t.history[loc2])?t.history[loc2]:(t.history&&t.history['all']?t.history['all']:[]);
-    var locVel=t.vel;
-    if(Array.isArray(fullHistory)&&fullHistory.length>=2){var diff=fullHistory[fullHistory.length-1]-fullHistory[fullHistory.length-2];locVel=diff>0.5?'up':diff<-0.5?'dn':'flat';}
-    var velHtml=locVel==='up'
-      ?'<span class="vel up">&#8593; Rising</span>'
-      :locVel==='dn'
-        ?'<span class="vel dn">&#8595; Improving</span>'
-        :'<span class="vel flat">&#8212; Stable</span>';
-    var visHistory=Array.isArray(fullHistory)?fullHistory:[t.cur];
-    var maxH=Math.max.apply(null,visHistory)||1;
-    var sparkBars=visHistory.map(function(v,i){
+  var pool    = getFilteredPool();                                     // location + date aware → current %
+  var locPool = LIVE_REVIEWS.filter(function(r){ return locMatch(r); }); // location aware, all dates → history
+
+  // Bucket the location pool into Sunday-start weeks; keep weeks with >=5 responses, last 8.
+  function weekStart(dateStr){
+    var x=new Date(dateStr+'T00:00:00'); x.setDate(x.getDate()-x.getDay());
+    return x.toISOString().split('T')[0];
+  }
+  var wk={};
+  locPool.forEach(function(r){ if(!r.date) return; var k=weekStart(r.date); (wk[k]||(wk[k]=[])).push(r); });
+  var weekKeys=Object.keys(wk).sort().filter(function(k){return wk[k].length>=5;}).slice(-8);
+  function series(kws,isWin){
+    return weekKeys.map(function(k){
+      var b=wk[k];
+      var denom=isWin?Math.max(1,b.filter(function(r){return r.rating>=4;}).length):b.length;
+      var m=b.filter(function(r){return textMatches(r.text,kws);}).length;
+      return +(m/denom*100).toFixed(1);
+    });
+  }
+
+  var posDenom=Math.max(1, pool.filter(function(r){return r.rating>=4;}).length);
+  var rows=Object.keys(THEME_LIB).map(function(id){
+    var def=THEME_LIB[id], isWin=def.type==='win';
+    var n=pool.filter(function(r){return textMatches(r.text,def.kws);}).length;
+    var curPct=pool.length?+(n/(isWin?posDenom:pool.length)*100).toFixed(1):0;
+    return {id:id, def:def, isWin:isWin, n:n, curPct:curPct, hist:series(def.kws,isWin)};
+  }).filter(function(t){ return t.n>0 || t.hist.some(function(v){return v>0;}); })
+    .sort(function(a,b){ return b.curPct - a.curPct; });
+
+  var html=rows.map(function(t){
+    var def=t.def, isWin=t.isWin;
+    var catCls=isWin?'pill-pos':(def.cat==='Operations'?'pill-ops':'pill-neg');
+    var hist=t.hist.length?t.hist:[t.curPct];
+    var vel='flat';
+    if(hist.length>=2){ var diff=hist[hist.length-1]-hist[hist.length-2]; vel=diff>0.5?'up':diff<-0.5?'dn':'flat'; }
+    var velHtml=vel==='up'?'<span class="vel up">&#8593; Rising</span>'
+               :vel==='dn'?'<span class="vel dn">&#8595; Falling</span>'
+               :'<span class="vel flat">&#8212; Stable</span>';
+    var maxH=Math.max.apply(null,hist)||1;
+    var sparkBars=hist.map(function(v,i){
       var h=Math.max(Math.round(v/maxH*22),2);
       var clr='var(--tan)';
-      if(i===visHistory.length-1) clr=isWin?'var(--bd)':(locVel==='dn'?'var(--bd)':locVel==='up'?'var(--od)':'var(--td)');
+      if(i===hist.length-1) clr=isWin?'var(--bd)':(vel==='dn'?'var(--bd)':vel==='up'?'var(--od)':'var(--td)');
       return '<div class="spark-bar" style="height:'+h+'px;background:'+clr+'"></div>';
     }).join('');
-    var curPct = effectivePct(t.id, t.cur);
     var pctColor=isWin?'var(--gd)':'var(--rd)';
-    return '<tr onclick="openDrawer(\''+t.id+'\')">'
-      +'<td style="font-weight:500;color:var(--text)">'+t.name+'</td>'
-      +'<td><span class="pill '+catCls+'">'+catLabel+'</span></td>'
-      +'<td style="font-family:\'DM Mono\',monospace;font-weight:600;color:'+pctColor+'">'+curPct+'%</td>'
+    return '<tr onclick="openOvDrawer(\''+t.id+'\','+(isWin?'true':'false')+')">'
+      +'<td style="font-weight:500;color:var(--text)">'+def.label+'</td>'
+      +'<td><span class="pill '+catCls+'">'+def.cat+'</span></td>'
+      +'<td style="font-family:\'DM Mono\',monospace;font-weight:600;color:'+pctColor+'">'+t.curPct+'%</td>'
       +'<td><div class="sparkline">'+sparkBars+'</div></td>'
       +'<td>'+velHtml+'</td>'
     +'</tr>';
@@ -1944,7 +1977,7 @@ function derivedStars(){
   return counts.map(function(c){return pool.length?Math.round(c/pool.length*100):0;});
 }
 
-// ── LIVE REVIEWS DATA — fetched at boot from ovation-reviews.json (full 5,196-row Ovation export) ──
+// ── LIVE REVIEWS DATA — fetched at boot from ovation-reviews.json (full 5,385-row Ovation export) ──
 var LIVE_REVIEWS = [];
 
 // ── LIVE FEED ─────────────────────────────────────────────────────────────────

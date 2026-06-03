@@ -3,27 +3,12 @@
 
 <html lang="en">
 <head>
-    <link rel="manifest" href="/manifest.json">
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-    <link rel="icon" href="/favicon.ico" sizes="any">
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Marketing Calendar — Neighborly</title>
 <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
 <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
 <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-  <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
-  <script>
-    var __fbDb = null;
-    try {
-      firebase.initializeApp({apiKey:"AIzaSyAiHIQuw3eiyY305sDqc_CoV_MoEG9CQpw",authDomain:"neighborly-hub-53e4b.firebaseapp.com",databaseURL:"https://neighborly-hub-53e4b-default-rtdb.firebaseio.com",projectId:"neighborly-hub-53e4b",storageBucket:"neighborly-hub-53e4b.firebasestorage.app",messagingSenderId:"847761939455",appId:"1:847761939455:web:d0d5dbe1795bb4f05f25ca"});
-      __fbDb = firebase.database();
-    } catch (e) { console.warn('Firebase unavailable — calendar falling back to local storage only.', e); }
-  </script>
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -69,7 +54,7 @@ body{font-family:'DM Sans',sans-serif;overscroll-behavior:none;height:100%;backg
 .hub-card-sub{font-size:10.5px;color:#9E9C96;line-height:1.3}
 
 
-.google-cal-link{display:inline-flex;align-items:center;gap:6px;text-decoration:none;background:#fff;border:.5px solid rgba(0,0,0,.14);border-radius:8px;padding:6px 12px;color:#1A1916;font-size:12px;font-weight:500;height:32px;white-space:nowrap;transition:background .15s;cursor:pointer;appearance:none}
+.google-cal-link{display:inline-flex;align-items:center;gap:6px;text-decoration:none;background:#fff;border:.5px solid rgba(0,0,0,.14);border-radius:8px;padding:6px 12px;color:#1A1916;font-size:12px;font-weight:500;height:32px;white-space:nowrap;transition:background .15s}
 .google-cal-link:hover{background:#F0EEE9}
 @media(max-width:767px){.google-cal-link{padding:6px 9px}.google-cal-link span{display:none}}
 /* ── MOBILE SIDEBAR ──────────────────────────────────────────────────── */
@@ -420,7 +405,7 @@ function downloadICS(evts, cats) {
 <!-- ── REACT APP ────────────────────────────────────────────────────────── -->
 <script type="text/babel">
 const {useState, useCallback, useRef, useEffect} = React;
-const GOOGLE_CALENDAR_URL = 'https://beneighborly.team/api/calendar';
+const GOOGLE_CALENDAR_URL = 'https://calendar.google.com/calendar/u/0?cid=Y19hYzI3NzgwY2UxMTI4YjgwOWVlMDdhZGUwODA5MjdjMjMwYzM5ZjNjZGIwMjAyYjRiOWM5NmExN2I0MDAwMzM5QGdyb3VwLmNhbGVuZGFyLmdvb2dsZS5jb20';
 
 // ── RESPONSIVE HOOK ───────────────────────────────────────────────────────────
 function useIsMobile() {
@@ -463,7 +448,7 @@ const DEPTS = ['Marketing','Operations','Creative','Sales','Leadership'];
 const PEOPLE = [
   {name:'Justin',   initials:'JL', color:C.yellow, email:'jlopez@beneighborly.com'},
   {name:'Kirsten',  initials:'KA', color:C.green,  email:'kallmeroth@beneighborly.com'},
-  {name:'Jonathan', initials:'JB', color:C.orange, email:'jbrooks@beneighborly.com'},
+  {name:'Jonathan', initials:'JB', color:C.orange, email:'jonathan@neighborlyeats.com'},
   {name:'Lauren',   initials:'LG', color:C.blue,   email:'lauren@goldmine-digital.com'},
   {name:'Jennie',   initials:'JD', color:C.tan,    email:'jennie@neighborlyeats.com'},
   {name:'Ashley',   initials:'AT', color:C.lav,    email:'ashley@neighborlyeats.com'},
@@ -486,12 +471,9 @@ const DEFAULT_THEMES = {
 };
 
 // ── STORAGE ───────────────────────────────────────────────────────────────────
-        const STORAGE_KEY = 'nbly_cal3_state';
-        const __calRef = __fbDb ? __fbDb.ref('marketing-calendar') : null;
-        // Local cache so the calendar always loads + persists, even if Firebase is unavailable.
-        const rd = (key) => { try { const s = JSON.parse(localStorage.getItem(STORAGE_KEY)||'null'); return s ? s[key] : null; } catch(e) { return null; } };
-        const wr = (data) => { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch(e) {} };
-        const saveToCloud = (data) => { wr(data); if (__calRef) { try { __calRef.set(data); } catch(e) {} } };
+const NS = 'nbly_cal3_';
+const rd = k => { try { const v = localStorage.getItem(NS+k); return v ? JSON.parse(v) : null; } catch(e) { return null; } };
+const wr = (k, v) => { try { localStorage.setItem(NS+k, JSON.stringify(v)); } catch(e) {} };
 
 // ── HELPERS ───────────────────────────────────────────────────────────────────
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,6);
@@ -797,6 +779,16 @@ function EventForm({open, onClose, onSave, onDelete, editEvent, initialDate}) {
         <span style={{fontSize:13,color:C.text2}}>Mark as HOLD (tentative)</span>
       </label>
 
+      <div style={{marginBottom:13}}>
+        <div style={{fontSize:11.5,color:C.text2,marginBottom:6}}>Department</div>
+        <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
+          {DEPTS.map(d => (
+            <span key={d} onClick={() => togDept(d)} style={{border:`0.5px solid ${depts.includes(d)?C.dark:C.borderStrong}`,borderRadius:20,padding:'4px 11px',fontSize:11.5,cursor:'pointer',color:depts.includes(d)?'#fff':C.text2,background:depts.includes(d)?C.dark:C.surface,transition:'all .15s'}}>
+              {d}
+            </span>
+          ))}
+        </div>
+      </div>
 
       <div style={{marginBottom:'1.25rem'}}>
         <div style={{fontSize:11.5,color:C.text2,marginBottom:6}}>Tag people <span style={{color:C.text3,fontSize:10.5}}>— they'll be emailed when saved</span></div>
@@ -864,34 +856,6 @@ function NeighborlyCalendar() {
   const [events,    setEvents]    = useState(() => rd('events')  || SAMPLE_EVENTS);
   const [goals,     setGoals]     = useState(() => rd('goals')   || {});
   const [themes,    setThemes]    = useState(() => rd('themes')  || JSON.parse(JSON.stringify(DEFAULT_THEMES)));
-        // Firebase real-time sync
-        React.useEffect(() => {
-          if (!__calRef) return;
-          const unsub = __calRef.on('value', snap => {
-            const data = snap.val();
-            if (data) {
-              if (data.events) setEvents(data.events);
-              if (data.goals)  setGoals(data.goals);
-              else {
-                const localGoals = rd('goals') || {};
-                if (Object.keys(localGoals).length > 0) __calRef.update({goals: localGoals});
-              }
-              if (data.themes) setThemes(data.themes);
-              else {
-                const localThemes = (rd('themes') && Object.keys(rd('themes')||{}).length > 0)
-                  ? rd('themes')
-                  : JSON.parse(JSON.stringify(DEFAULT_THEMES));
-                __calRef.update({themes: localThemes});
-              }
-            } else {
-              const localGoals  = rd('goals')  || {};
-              const localThemes = rd('themes') || JSON.parse(JSON.stringify(DEFAULT_THEMES));
-              const localEvents = rd('events') || [];
-              if (localEvents.length > 0) __calRef.set({events: localEvents, goals: localGoals, themes: localThemes});
-            }
-          });
-          return () => __calRef.off('value', unsub);
-        }, []);
   // Auto-land on the current real month
   const [curDate,   setCurDate]   = useState(() => { const n = new Date(); return new Date(n.getFullYear(), n.getMonth(), 1); });
   const [mode,      setMode]      = useState('edit');
@@ -911,21 +875,16 @@ function NeighborlyCalendar() {
   const yr = curDate.getFullYear(), mo = curDate.getMonth();
   const mKey = mkKey(curDate);
 
-          const saveEvents = React.useCallback((evts, gls, ths) => {
-          const goals = gls !== undefined ? gls : {};
-          const themes = ths !== undefined ? ths : {};
-          setEvents(evts);
-          setGoals(goals);
-          setThemes(themes);
-          saveToCloud({events: evts || [], goals: goals || {}, themes: themes || {}});
-        }, []);
+  const saveEvents = useCallback(evts => { setEvents(evts); wr('events',evts); }, []);
+  const saveGoals  = useCallback(g    => { setGoals(g);  wr('goals',g);  }, []);
+  const saveThemes = useCallback(t    => { setThemes(t); wr('themes',t); }, []);
 
   const theme      = themes[mo] || DEFAULT_THEMES[mo] || {};
   const monthGoals = goals[mKey] || [false,false,false];
 
   const toggleGoal = i => {
     const ng = [...monthGoals]; ng[i] = !ng[i];
-    saveEvents(events, {...goals, [mKey]: ng}, themes);
+    saveGoals({...goals, [mKey]: ng});
   };
 
   const changeMonth = d => {
@@ -966,7 +925,7 @@ function NeighborlyCalendar() {
     const ev = events.find(x => x.id===id);
     if (!ev) return;
     const dur = Math.round((new Date(ev.end+'T00:00:00')-new Date(ev.start+'T00:00:00'))/86400000);
-    saveEvents(events.map(x => x.id===id ? {...x, start:ds, end:addDays(ds,dur)} : x), goals, themes);
+    saveEvents(events.map(x => x.id===id ? {...x, start:ds, end:addDays(ds,dur)} : x));
   };
 
   // Event CRUD
@@ -976,13 +935,13 @@ function NeighborlyCalendar() {
   const handleSave = ev => {
     const prev = events.find(e => e.id===ev.id);
     const prevPeople = prev?.people || [];
-    saveEvents(prev ? events.map(e => e.id===ev.id ? ev : e) : [...events, ev], goals, themes);
+    saveEvents(prev ? events.map(e => e.id===ev.id ? ev : e) : [...events, ev]);
     setSidebarId(ev.id);
     notifyTagged(ev, prevPeople);
   };
 
-  const handleDelete = id => { saveEvents(events.filter(e=>e.id!==id), goals, themes); setSidebarId(null); setFormOpen(false); };
-  const handleUpdateActions = (id, actions) => saveEvents(events.map(e => e.id===id ? {...e,actions} : e), goals, themes);
+  const handleDelete = id => { saveEvents(events.filter(e=>e.id!==id)); setSidebarId(null); setFormOpen(false); };
+  const handleUpdateActions = (id, actions) => saveEvents(events.map(e => e.id===id ? {...e,actions} : e));
 
   const sidebarEvent = events.find(e => e.id===sidebarId) || null;
 
@@ -1142,14 +1101,10 @@ function NeighborlyCalendar() {
                 </div>
               </div>
               <div style={{display:'flex',alignItems:'center',gap:8}}>
-                <button className="google-cal-link" title="Copies feed URL and opens Google Calendar" onClick={()=>{
-                    navigator.clipboard.writeText(GOOGLE_CALENDAR_URL).catch(()=>{});
-                    window.open('https://calendar.google.com/calendar/r/settings/addbyurl','_blank');
-                    showToast(' URL copied! Paste it in the URL of calendar field on the next page, then click Add calendar.');
-                  }}>
+                <a className="google-cal-link" href={GOOGLE_CALENDAR_URL} target="_blank" rel="noopener noreferrer" title="Open Google Calendar">
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-                  <span>Add to Google Calendar</span>
-                </button>
+                  <span>Open in Google Calendar</span>
+                </a>
                 {mode==='edit' && !isMobile && (
                   <button onClick={() => openAdd()} style={{background:C.orange,border:'none',borderRadius:8,padding:'7px 16px',cursor:'pointer',color:'#fff',fontSize:13,fontWeight:500,display:'flex',alignItems:'center',gap:6,fontFamily:'inherit',height:32}}>
                     + Add event
@@ -1300,7 +1255,7 @@ function NeighborlyCalendar() {
 
       {/* MODALS */}
       <EventForm open={formOpen} onClose={()=>{setFormOpen(false);setEditEvt(null);}} onSave={handleSave} onDelete={handleDelete} editEvent={editEvt} initialDate={formDate}/>
-      <ThemeForm open={themeOpen} onClose={()=>setThemeOpen(false)} monthIndex={mo} themes={themes} onSave={(idx,data)=>saveEvents(events, goals, {...themes,[idx]:{...themes[idx],...data}})}/>
+      <ThemeForm open={themeOpen} onClose={()=>setThemeOpen(false)} monthIndex={mo} themes={themes} onSave={(idx,data)=>saveThemes({...themes,[idx]:{...themes[idx],...data}})}/>
 
       {/* MOBILE FAB */}
       {mode==='edit' && isMobile && (

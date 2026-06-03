@@ -1,6 +1,60 @@
 {
   "dates": [
     {
+      "date": "2026-06-02",
+      "dateLabel": "Tuesday 06/02/26",
+      "netSales": {
+        "wlv": 22841.79,
+        "bw": 20552.69,
+        "total": 43394.48
+      }
+    },
+    {
+      "date": "2026-06-01",
+      "dateLabel": "Monday 06/01/26",
+      "netSales": {
+        "wlv": 19064.81,
+        "bw": 21239.7,
+        "total": 40304.51
+      }
+    },
+    {
+      "date": "2026-05-31",
+      "dateLabel": "Sunday 05/31/26",
+      "netSales": {
+        "wlv": 24318.77,
+        "bw": 28423.35,
+        "total": 52742.12
+      }
+    },
+    {
+      "date": "2026-05-30",
+      "dateLabel": "Saturday 05/30/26",
+      "netSales": {
+        "wlv": 22481.47,
+        "bw": 25001.38,
+        "total": 47482.85
+      }
+    },
+    {
+      "date": "2026-05-29",
+      "dateLabel": "Friday 05/29/26",
+      "netSales": {
+        "wlv": 27731.7,
+        "bw": 26433.48,
+        "total": 54165.18
+      }
+    },
+    {
+      "date": "2026-05-28",
+      "dateLabel": "Thursday 05/28/26",
+      "netSales": {
+        "wlv": 20543.4,
+        "bw": 23508.06,
+        "total": 44051.46
+      }
+    },
+    {
       "date": "2026-05-27",
       "dateLabel": "Wednesday 05/27/26",
       "netSales": {
@@ -100,6 +154,6 @@
       }
     }
   ],
-  "latest": "2026-05-27",
-  "count": 11
+  "latest": "2026-06-02",
+  "count": 17
 }

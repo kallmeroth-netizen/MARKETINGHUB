@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Product Mix — Neighborly</title>
+
+<link rel="manifest" href="/manifest.json">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta name="theme-color" content="#e87142">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png">
+
+<link rel="stylesheet" href="theme.css">
+<script src="chrome.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+
+<style>
+  /* === KPI strip — slimmer, item-forward === */
+  .pmix-kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--s-3); margin-bottom: var(--s-5); }
+  @media (max-width: 900px) { .pmix-kpis { grid-template-columns: 1fr 1fr; } }
+
+  /* === Leaderboard (the new hero) === */
+  .leader-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: var(--s-3); }
+  .leader-card {
+    position: relative; padding: var(--s-4);
+    background: var(--surface);
+    border: 1px solid var(--line); border-radius: var(--r-lg);
+    transition: border-color var(--t-base) var(--easing), transform var(--t-base) var(--easing);
+    overflow: hidden;
+  }
+  .leader-card:hover { border-color: var(--line-bold); transform: translateY(-1px); }
+  .leader-rank {
+    position: absolute; top: 14px; right: 16px;
+    font-family: var(--f-mono); font-size: 28px; font-weight: 500;
+    color: var(--line-bold); letter-spacing: -0.02em;
+  }
+  .leader-cat {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-family: var(--f-eyebrow); font-weight: 600;
+    font-size: var(--t-eyebrow); letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--text-3); margin-bottom: 8px;
+  }
+  .leader-cat .dot { width: 8px; height: 8px; border-radius: 50%; }
+  .leader-name {
+    font-size: 15px; font-weight: 600; color: var(--text); line-height: 1.25;
+    margin-bottom: var(--s-3); padding-right: 50px;
+    /* clamp to 2 lines */
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+    min-height: 2.5em;
+  }
+  .leader-row { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px; }
+  .leader-stat { font-family: var(--f-mono); font-size: 20px; font-weight: 500; color: var(--ink); }
+  .leader-sublabel { font-family: var(--f-eyebrow); font-weight: 600; font-size: var(--t-eyebrow); letter-spacing: 0.18em; text-transform: uppercase; color: var(--text-3); }
+  .leader-bar { height: 6px; border-radius: var(--r-pill); background: var(--surface-2); overflow: hidden; margin-top: var(--s-3); }
+  .leader-bar-fill { height: 100%; border-radius: var(--r-pill); transition: width .55s var(--easing); }
+  .leader-meta { display: flex; justify-content: space-between; font-family: var(--f-mono); font-size: var(--t-caption-sm); color: var(--text-3); margin-top: 8px; }
+
+  /* === Best-sellers carousel — 2 pages of 6, arrows + swipe + dots === */
+  .leader-carousel { position: relative; display: flex; align-items: stretch; gap: 4px; }
+  .leader-track {
+    flex: 1; min-width: 0;
+    display: flex; overflow-x: auto; scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+    scrollbar-width: none;
+  }
+  .leader-track::-webkit-scrollbar { display: none; }
+  .leader-page {
+    flex: 0 0 100%;
+    min-width: 0;
+    scroll-snap-align: start;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--s-3);
+    padding: 2px 4px;
+  }
+  @media (max-width: 900px) { .leader-page { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 560px) { .leader-page { grid-template-columns: 1fr; } }
+  .leader-nav {
+    flex: 0 0 32px;
+    align-self: center;
+    height: 32px; width: 32px;
+    display: inline-flex; align-items: center; justify-content: center;
+    background: var(--surface); color: var(--text-2);
+    border: 0.5px solid var(--line-strong); border-radius: 50%;
+    cursor: pointer;
+    transition: background var(--t-base) var(--easing), color var(--t-base) var(--easing), border-color var(--t-base) var(--easing), opacity var(--t-base) var(--easing);
+    padding: 0;
+  }
+  .leader-nav svg { width: 14px; height: 14px; }
+  .leader-nav:hover:not(:disabled) { background: var(--ink); color: #fff; border-color: var(--ink); }
+  .leader-nav:disabled { opacity: 0.3; cursor: default; }
+  .leader-nav-prev { margin-right: 2px; }
+  .leader-nav-next { margin-left: 2px; }
+  @media (max-width: 560px) {
+    .leader-nav { display: none; }
+  }
+  .leader-dots {
+    display: flex; justify-content: center; gap: 8px;
+    margin-top: var(--s-3);
+  }
+  .leader-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--line-strong); border: none; padding: 0; cursor: pointer;
+    transition: background var(--t-base) var(--easing), transform var(--t-base) var(--easing);
+  }
+  .leader-dot.is-active { background: var(--ink); transform: scale(1.25); }
+
+  /* === Explorer table === */
+  .explorer-controls { display: flex; flex-wrap: wrap; gap: 8px; margin: var(--s-3) 0 var(--s-4); }
+  .search-input {
+    flex: 1 1 240px; min-width: 0;
+    padding: 8px 14px;
+    border: 1px solid var(--line-strong); border-radius: var(--r-pill);
+    background: var(--surface); font-size: var(--t-body-sm); color: var(--text);
+    outline: none;
+    transition: border-color var(--t-base) var(--easing);
+  }
+  .search-input:focus { border-color: var(--ink); }
+  .menu-filter, .sort-toggle { display: inline-flex; gap: 2px; padding: 3px; background: var(--surface-2); border-radius: var(--r-pill); overflow-x: auto; scrollbar-width: none; max-width: 100%; }
+  .menu-filter::-webkit-scrollbar, .sort-toggle::-webkit-scrollbar { display: none; }
+  .menu-filter button, .sort-toggle button {
+    padding: 6px 12px; border: none; background: transparent; cursor: pointer;
+    border-radius: var(--r-pill); font-size: var(--t-caption); font-weight: 500;
+    color: var(--text-3); white-space: nowrap; flex-shrink: 0;
+    transition: all var(--t-fast) var(--easing);
+  }
+  .menu-filter button:hover, .sort-toggle button:hover { color: var(--text); }
+  .menu-filter button.is-active, .sort-toggle button.is-active { background: var(--surface); color: var(--text); box-shadow: var(--shadow-sm); }
+
+  .item-table { width: 100%; border-collapse: collapse; }
+  .item-table th {
+    text-align: left; padding: 10px 12px;
+    font-family: var(--f-eyebrow); font-weight: 600; font-size: var(--t-eyebrow);
+    letter-spacing: 0.18em; text-transform: uppercase; color: var(--text-3);
+    border-bottom: 1px solid var(--line);
+  }
+  .item-table th.num { text-align: right; }
+  .item-table td { padding: 10px 12px; font-size: var(--t-body-sm); color: var(--text); border-bottom: 1px solid var(--line); }
+  .item-table td.num { font-family: var(--f-mono); text-align: right; }
+  .item-table tr:hover td { background: var(--surface-2); }
+  .item-table .item-cell { display: flex; flex-direction: column; gap: 2px; }
+  .item-table .item-cell .item-cat { font-family: var(--f-eyebrow); font-weight: 600; font-size: var(--t-eyebrow); letter-spacing: 0.18em; text-transform: uppercase; color: var(--text-3); }
+  .item-table tr.empty td { text-align: center; color: var(--text-3); padding: var(--s-5); }
+  .qty-bar { width: 80px; height: 5px; border-radius: var(--r-pill); background: var(--surface-2); display: inline-block; vertical-align: middle; margin-left: 8px; overflow: hidden; }
+  .qty-bar-fill { height: 100%; background: var(--brand-orange); border-radius: var(--r-pill); }
+  .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 0 calc(var(--s-4) * -1); padding: 0 var(--s-4); }
+
+  /* === Concept summary — page-opening overview === */
+  .concept-summary {
+    margin-bottom: var(--s-4);
+    padding: var(--s-3) 0 var(--s-4);
+    border-bottom: 0.5px solid var(--line-strong);
+  }
+  .concept-summary-eyebrow {
+    font-family: var(--f-eyebrow); font-weight: 600;
+    font-size: var(--t-eyebrow); letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--text-3); margin-bottom: var(--s-3);
+    display: flex; align-items: center; gap: var(--s-2);
+  }
+  .concept-summary-eyebrow::after { content: ''; flex: 1; height: 0.5px; background: var(--line); }
+  .concept-strip { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: var(--s-3); }
+  .concept-chip {
+    position: relative;
+    padding: 14px 16px;
+    background: var(--surface);
+    border: 0.5px solid var(--line);
+    border-radius: var(--r-md);
+    transition: border-color var(--t-base) var(--easing), transform var(--t-base) var(--easing), box-shadow var(--t-base) var(--easing);
+  }
+  .concept-chip::before {
+    content: '';
+    position: absolute; left: 0; top: 12px; bottom: 12px;
+    width: 3px; border-radius: 0 2px 2px 0;
+    background: var(--concept-color, var(--line-strong));
+  }
+  .concept-chip:hover {
+    border-color: var(--line-bold);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-sm);
+  }
+  .concept-chip-name {
+    font-family: var(--f-eyebrow); font-weight: 600;
+    font-size: var(--t-eyebrow); letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--text-2); margin-bottom: 8px;
+    display: flex; align-items: center; gap: 8px;
+    line-height: 1.2;
+  }
+  .concept-chip-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+  .concept-chip-net {
+    font-family: var(--f-mono); font-size: 22px; font-weight: 500;
+    color: var(--ink); line-height: 1.05; margin-bottom: 10px;
+  }
+  .concept-chip-stats {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 4px 12px;
+    padding-top: 8px; border-top: 0.5px solid var(--line);
+  }
+  .concept-stat { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+  .concept-stat-val {
+    font-family: var(--f-mono); font-size: var(--t-body-sm); font-weight: 500;
+    color: var(--ink); line-height: 1.15;
+  }
+  .concept-stat-lbl {
+    font-family: var(--f-eyebrow); font-weight: 600;
+    font-size: 9.5px; letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--text-3);
+  }
+
+  /* === Quantity by concept — graph === */
+  .qty-by-concept { display: flex; flex-direction: column; gap: var(--s-3); }
+  .qty-row {
+    display: grid;
+    grid-template-columns: minmax(120px, 180px) 1fr auto;
+    align-items: center;
+    gap: var(--s-3);
+    padding: 6px 0;
+  }
+  .qty-row-label {
+    display: flex; align-items: center; gap: 8px;
+    font-family: var(--f-eyebrow); font-weight: 600;
+    font-size: var(--t-eyebrow); letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--text-2); min-width: 0;
+  }
+  .qty-row-label .dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+  .qty-row-label .name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .qty-track { height: 10px; border-radius: var(--r-pill); background: var(--surface-2); overflow: hidden; }
+  .qty-fill {
+    height: 100%; border-radius: var(--r-pill);
+    transition: width 0.55s var(--easing);
+  }
+  .qty-row-meta {
+    font-family: var(--f-mono); font-size: var(--t-caption);
+    color: var(--text-2); white-space: nowrap;
+    display: grid; grid-template-columns: auto auto auto;
+    align-items: baseline; gap: 4px 12px;
+    justify-items: end;
+  }
+  .qty-row-meta .qty-num { font-weight: 500; color: var(--ink); }
+  .qty-row-meta .qty-pct { color: var(--text-3); font-size: var(--t-caption-sm); min-width: 44px; text-align: right; }
+  .qty-row-meta .qty-avg { color: var(--text-2); font-size: var(--t-caption-sm); padding-left: 12px; border-left: 0.5px solid var(--line); min-width: 70px; text-align: right; }
+  @media (max-width: 640px) {
+    .qty-row { grid-template-columns: 1fr auto; gap: var(--s-2); }
+    .qty-row .qty-track { grid-column: 1 / -1; }
+    .qty-row-meta { grid-template-columns: auto auto; }
+    .qty-row-meta .qty-avg { grid-column: 1 / -1; padding-left: 0; border-left: none; padding-top: 2px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="np-nav">
+  <a class="np-nav-brand" onclick="toggleHubNav(event)" aria-label="Open hub">
+    <img src="NeighborlyLogo.png" alt="Neighborly">
+  </a>
+  <div class="np-tabs">
+    <a class="np-tab" href="neighborly-dashboard.html?p=daily">Daily sales</a>
+    <a class="np-tab" href="neighborly-dashboard.html?p=trends">Sales trends</a>
+    <a class="np-tab is-active">Product mix</a>
+  </div>
+  <div class="np-nav-right">
+    <span class="np-nav-page-tag">Sales &amp; Pmix</span>
+    <button class="np-icon-btn" title="Settings" aria-label="Settings" onclick="void(0)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg></button>
+    <a class="np-icon-btn" href="index.html" title="Back to home" aria-label="Back to home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></a>
+  </div>
+</nav>
+
+<div class="np-hub-overlay" aria-hidden="true"></div>
+<div class="np-hub" role="dialog" aria-label="Marketing Hub">
+  <div class="np-hub-label"><span>Neighborly Marketing Hub</span><a href="index.html" class="np-hub-back-home">&larr; Home</a></div>
+  <div class="np-hub-grid">
+    <a class="np-hub-card" href="index.html"><div class="np-hub-card-ico" style="background:var(--surface-2)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--text)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12l9-9 9 9"/><path d="M5 10v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V10"/></svg></div><div class="np-hub-card-title">Home</div><div class="np-hub-card-sub">Marketing Hub overview</div></a>
+    <a class="np-hub-card" href="neighborly-dashboard.html"><div class="np-hub-card-ico" style="background:var(--brand-yellow-light)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--brand-yellow-deep)" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></div><div class="np-hub-card-title">Performance Marketing</div><div class="np-hub-card-sub">Weekly &amp; all-time KPIs</div></a>
+    <a class="np-hub-card is-active" href="neighborly-pmix.html"><div class="np-hub-card-ico" style="background:#e3ece3"><svg viewBox="0 0 24 24" fill="none" stroke="#5a7a5a" stroke-width="2" stroke-linecap="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></div><div class="np-hub-card-title">Sales &amp; Pmix</div><div class="np-hub-card-sub">Daily sales &amp; product mix</div></a>
+    <a class="np-hub-card" href="neighborly-calendar.html"><div class="np-hub-card-ico" style="background:var(--brand-green-light)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--brand-green-deep)" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div><div class="np-hub-card-title">Marketing Calendar</div><div class="np-hub-card-sub">Campaigns &amp; scheduling</div></a>
+    <a class="np-hub-card" href="neighborly-assets.html"><div class="np-hub-card-ico" style="background:var(--brand-tan-light)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--brand-tan-deep)" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 010 14.14M4.93 4.93a10 10 0 000 14.14M12 2v2M12 20v2M2 12h2M20 12h2"/></svg></div><div class="np-hub-card-title">Brand Guidelines</div><div class="np-hub-card-sub">Logos &amp; templates</div></a>
+        <a class="np-hub-card" href="neighborly-social.html"><div class="np-hub-card-ico" style="background:var(--brand-blue-light)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--brand-blue-deep)" stroke-width="2"><path d="M3 12h4l3-9 4 18 3-9h4"/></svg></div><div class="np-hub-card-title">Social</div><div class="np-hub-card-sub">Reach &amp; engagement</div></a>
+    <a class="np-hub-card" href="neighborly-guests.html"><div class="np-hub-card-ico" style="background:var(--brand-lavender-light)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--brand-lavender-deep)" stroke-width="2"><circle cx="9" cy="8" r="4"/><path d="M2 21a7 7 0 0 1 14 0"/><path d="M16 3.5a4 4 0 0 1 0 8M22 21a7 7 0 0 0-5-6.7"/></svg></div><div class="np-hub-card-title">Guest Intelligence</div><div class="np-hub-card-sub">Feedback &amp; experience trends</div></a>
+  </div>
+</div>
+
+<main class="np-main">
+
+  <div class="np-page-header-row">
+    <header class="np-page-header">
+    </header>
+    <div class="np-page-selectors">
+      <button class="np-date-pill" id="dateBtn" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 11h18"/></svg>
+        <span id="dateBtnLabel">—</span>
+        <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="np-toggle" id="locToggle" role="tablist" aria-label="Location">
+        <button data-loc="wlv" role="tab">Westlake Village</button>
+        <button data-loc="bw" role="tab">Brentwood</button>
+        <button class="is-active" data-loc="total" role="tab">All Locations</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Date picker popover — lists available days from pmix-data.json -->
+  <div id="dateMenu" style="display:none; position:absolute; z-index:80; background:#fff; border:1px solid var(--line); border-radius:12px; box-shadow:var(--shadow-md); padding:6px; min-width:200px; max-height:280px; overflow-y:auto;"></div>
+
+  <!-- Empty-state banner shown when the selected location has no data yet -->
+  <div id="locEmpty" class="np-card" style="display:none; margin-bottom: var(--s-4); border-style: dashed; background: transparent;">
+    <div class="np-card-title" id="locEmptyTitle">No per-location export uploaded yet</div>
+    <div class="np-card-sub" id="locEmptyMsg">
+      Drop a location-specific Toast PMIX export and the breakdown for this location lights up automatically.
+      Until then, this view falls back to <strong>All Locations</strong> totals.
+    </div>
+  </div>
+
+  <!-- CONCEPT SUMMARY — page-opening overview that sets the tone -->
+  <section class="concept-summary">
+    <div class="concept-summary-eyebrow">Concept summary</div>
+    <div class="concept-strip" id="conceptStrip"></div>
+  </section>
+
+  <!-- KPI strip -->
+  <div class="pmix-kpis">
+    <div class="np-kpi"><div class="np-kpi-label">Items sold</div><div class="np-kpi-value" id="kpiQty">—</div><div class="np-kpi-sub">units across all menus</div></div>
+    <div class="np-kpi"><div class="np-kpi-label">Top by revenue</div><div class="np-kpi-value" id="kpiByRev">—</div><div class="np-kpi-sub" id="kpiByRevSub">—</div></div>
+    <div class="np-kpi"><div class="np-kpi-label">Top by quantity</div><div class="np-kpi-value" id="kpiByQty">—</div><div class="np-kpi-sub" id="kpiByQtySub">—</div></div>
+    <div class="np-kpi"><div class="np-kpi-label">Avg item price</div><div class="np-kpi-value" id="kpiAvg">—</div><div class="np-kpi-sub">net per unit</div></div>
+  </div>
+
+  <!-- TOP PERFORMERS LEADERBOARD (hero) — paged carousel: 2 sets of 6 -->
+  <section class="np-card" style="margin-bottom:var(--s-4)">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:var(--s-3);flex-wrap:wrap">
+      <div>
+        <div class="np-card-title">Today&rsquo;s best sellers</div>
+        <div class="np-card-sub" id="leaderSub">Top 12 items by revenue — quantity bar shows volume vs the day&rsquo;s leader</div>
+      </div>
+      <div class="sort-toggle" id="leaderToggle" role="tablist" aria-label="Leaderboard sort">
+        <button class="is-active" data-leader="net" role="tab">By revenue</button>
+        <button data-leader="qty" role="tab">By quantity</button>
+      </div>
+    </div>
+    <div class="leader-carousel" id="leaderCarousel" style="margin-top:var(--s-3)">
+      <button class="leader-nav leader-nav-prev" id="leaderPrev" aria-label="Previous page" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <div class="leader-track" id="leaderTrack" role="region" aria-roledescription="carousel" aria-label="Top sellers — swipe or use arrows">
+        <div class="leader-page" data-page="0"></div>
+        <div class="leader-page" data-page="1"></div>
+      </div>
+      <button class="leader-nav leader-nav-next" id="leaderNext" aria-label="Next page" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+    </div>
+    <div class="leader-dots" id="leaderDots" aria-hidden="true"></div>
+  </section>
+
+  <!-- QUANTITY BY CONCEPT — graph breakdown -->
+  <section class="np-card" style="margin-bottom:var(--s-4)">
+    <div class="np-card-title">Quantity sold by concept</div>
+    <div class="np-card-sub">Units sold, share of total volume, and average basket spend per concept</div>
+    <div class="qty-by-concept" id="qtyByConcept" style="margin-top:var(--s-4)"></div>
+  </section>
+
+  <!-- ITEM EXPLORER -->
+  <section class="np-card" style="margin-bottom:var(--s-4)">
+    <div class="np-card-title">All items</div>
+    <div class="np-card-sub">Search any item or filter by menu — sort by revenue, quantity, or price</div>
+
+    <div class="explorer-controls">
+      <input id="itemSearch" class="search-input" type="search" placeholder="Search items…">
+      <div class="sort-toggle" id="sortToggle">
+        <button class="is-active" data-sort="net">Revenue</button>
+        <button data-sort="qty">Quantity</button>
+        <button data-sort="avg">Avg price</button>
+      </div>
+    </div>
+    <div class="menu-filter" id="menuFilter" style="margin-bottom: var(--s-4)">
+      <!-- Menu chips injected by JS — first is "All" -->
+    </div>
+
+    <div class="table-wrap">
+      <table class="item-table" id="itemTable">
+        <thead>
+          <tr>
+            <th>Item</th>
+            <th class="num">Qty</th>
+            <th class="num">Net sales</th>
+            <th class="num">Avg price</th>
+          </tr>
+        </thead>
+        <tbody id="itemTbody"></tbody>
+      </table>
+    </div>
+  </section>
+
+</main>
+
+<footer class="np-foot"><span class="track-trim">Neighbors Only Portal</span></footer>
+
+<script>
+  const COLORS = ['#eace49','#e87142','#7bbd91','#6280bd','#dbc6a2','#cbc9d6','#a35bbf','#5fa9b8','#d99a3e','#88a07a','#b5654e','#3a6e9a','#c79c63','#9a7fbf','#7a9c8f'];
+  const fmt$  = n => n == null ? '—' : '$' + Math.round(n).toLocaleString();
+  const fmt$2 = n => n == null ? '—' : '$' + n.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+  const fmtN  = n => n == null ? '—' : Math.round(n).toLocaleString();
+  /* Normalize item / category names: data ships in mixed cases
+     ("GABY'S CAESAR AVOCADO WRAP" vs "Swedish Candy") — render every
+     name in Title Case so the page reads with one voice. */
+  const SMALL = new Set(['a','an','and','at','but','by','for','in','nor','of','on','or','so','the','to','vs','with']);
+  /* Concept display names — Toast ships internal codes ("MK Food",
+     "Gaby Food", "Mixtape Food"); display the team-facing brand
+     names everywhere a concept appears. */
+  const CONCEPT_DISPLAY = {
+    'mk food':           'Mini Kabob',
+    'gaby food':         "What's Gaby Cooking",
+    'mixtape food':      'Mixtape',
+    'social monk food':  'Social Monk',
+  };
+  const conceptName = s => {
+    if (s == null) return s;
+    const key = String(s).toLowerCase().trim();
+    return CONCEPT_DISPLAY[key] || titleCase(s);
+  };
+
+  const titleCase = s => {
+    if (s == null) return s;
+    return String(s).toLowerCase().replace(/[\w'’]+/g, (w, i, str) => {
+      if (i > 0 && SMALL.has(w)) return w;
+      // keep apostrophe contractions (gaby's, mama's) cased correctly
+      return w.replace(/(^|[\s\-/])([a-z’'])/g, (_, sep, ch) => sep + ch.toUpperCase())
+              .replace(/^([a-z])/, m => m.toUpperCase());
+    });
+  };
+
+  let RAW = null;          // full file (multi-day or legacy single-day shape)
+  let DAYS = {};           // { 'YYYY-MM-DD': { date_label, locations } }
+  let activeDate = null;   // 'YYYY-MM-DD'
+  let DATA = null;         // currently-rendered location payload
+  let activeLoc = 'total';
+  let conceptColor = {};   // concept name → color
+  let activeMenu = 'all';
+  let activeSort = 'net';
+  let leaderSort = 'net';  // 'net' | 'qty' — drives the best-sellers leaderboard
+  let searchQ = '';
+
+  async function loadPMIX() {
+    try {
+      const r = await fetch('pmix-data.json', { cache: 'no-store' });
+      RAW = await r.json();
+
+      // Normalize: support both new multi-day shape and legacy single-day shape
+      if (RAW.days && typeof RAW.days === 'object') {
+        DAYS = RAW.days;
+      } else if (RAW.date && RAW.locations) {
+        DAYS = { [RAW.date]: { date_label: RAW.date_label, locations: RAW.locations } };
+      } else {
+        DAYS = {};
+      }
+
+      const available = Object.keys(DAYS).sort();
+      if (!available.length) { console.error('PMIX: no day data'); return; }
+
+      // Default to today if available, otherwise the most recent day
+      const today = new Date().toISOString().slice(0, 10);
+      activeDate = DAYS[today] ? today : available[available.length - 1];
+
+      renderDateMenu(available);
+      applyDate(activeDate);
+    } catch (e) { console.error('PMIX load failed', e); }
+  }
+
+  function renderDateMenu(dates) {
+    const menu = document.getElementById('dateMenu');
+    // Most recent first
+    const sorted = [...dates].sort().reverse();
+    menu.innerHTML = sorted.map(d => `
+      <button class="dm-opt" data-date="${d}"
+        style="display:block; width:100%; text-align:left; padding:8px 12px; border:none;
+               background:${d === activeDate ? 'var(--surface-2)' : 'none'}; border-radius:8px;
+               font-size:13px; cursor:pointer;">
+        ${DAYS[d].date_label || d}
+      </button>
+    `).join('');
+    menu.querySelectorAll('.dm-opt').forEach(b => {
+      b.addEventListener('click', () => {
+        applyDate(b.dataset.date);
+        menu.style.display = 'none';
+      });
+    });
+  }
+
+  function applyDate(date) {
+    activeDate = date;
+    document.getElementById('dateBtnLabel').textContent = DAYS[date]?.date_label || date;
+    // Re-render the date menu so the active row gets highlighted
+    renderDateMenu(Object.keys(DAYS));
+    applyLocation(activeLoc);
+  }
+
+  function applyLocation(loc) {
+    if (!RAW || !activeDate || !DAYS[activeDate]) return;
+    activeLoc = loc;
+    const day = DAYS[activeDate];
+    const locs = day.locations || {};
+    const labels = RAW.labels || {};
+    const empty  = document.getElementById('locEmpty');
+
+    // If the selected location has no data, show the banner and fall back to "total"
+    let payload = locs[loc];
+    let fellBack = false;
+    if (!payload) {
+      payload = locs.total;
+      fellBack = true;
+    }
+    if (!payload) return; // nothing to render
+
+    document.querySelectorAll('#locToggle button').forEach(b => b.classList.toggle('is-active', b.dataset.loc === loc));
+
+    if (fellBack) {
+      empty.style.display = '';
+      document.getElementById('locEmptyTitle').textContent =
+        `No ${labels[loc] || loc} export uploaded yet`;
+    } else {
+      empty.style.display = 'none';
+    }
+
+    DATA = payload;
+    DATA.date       = activeDate;
+    DATA.date_label = day.date_label;
+    DATA.locations  = (fellBack ? labels.total : (labels[loc] || labels.total));
+
+    // Strip internal-ops rows (table-number prompts, utensil flags, curbside,
+    // 3PD info, etc.) so they never enter rankings or the product breakdown.
+    const EXCLUDED_ITEMS = new Set(['TABLE NUMBER']);
+    const EXCLUDED_CATEGORY = /^(no sales category|misc non sales)$/i;
+    const keep = it => {
+      if (!it) return false;
+      if (EXCLUDED_ITEMS.has((it.name || '').toUpperCase())) return false;
+      if (EXCLUDED_CATEGORY.test(it.category || '')) return false;
+      return true;
+    };
+    DATA.items         = (DATA.items || []).filter(keep);
+    DATA.topItemsByNet = (DATA.topItemsByNet || []).filter(keep);
+    DATA.topItemsByQty = (DATA.topItemsByQty || []).filter(keep);
+
+    // Rebuild concept color map for THIS location's concept list
+    conceptColor = {};
+    const sorted = [...(DATA.concepts || [])].sort((a, b) => b.net - a.net);
+    sorted.forEach((cc, i) => { conceptColor[cc.name] = COLORS[i % COLORS.length]; });
+    colorForCategory.cache = {};
+
+    render();
+  }
+
+  // Best-effort color from a Sales Category string
+  function colorForCategory(cat) {
+    if (!cat) return COLORS[14];
+    if (colorForCategory.cache[cat]) return colorForCategory.cache[cat];
+    const lower = cat.toLowerCase();
+    let hit = null;
+    for (const k of Object.keys(conceptColor)) {
+      if (lower.includes(k.toLowerCase().split(' ')[0])) { hit = conceptColor[k]; break; }
+    }
+    return (colorForCategory.cache[cat] = hit || COLORS[14]);
+  }
+
+  function render() {
+    if (!DATA) return;
+    const items = (DATA.items || []).filter(it => it.qty > 0);
+
+    // KPI strip
+    const topNet = [...items].sort((a, b) => b.net - a.net)[0];
+    const topQty = [...items].sort((a, b) => b.qty - a.qty)[0];
+    document.getElementById('kpiQty').textContent     = fmtN(DATA.totalQty);
+    document.getElementById('kpiByRev').textContent   = topNet ? fmt$(topNet.net) : '—';
+    document.getElementById('kpiByRevSub').textContent = topNet ? titleCase(topNet.name) : '—';
+    document.getElementById('kpiByQty').textContent   = topQty ? fmtN(topQty.qty) : '—';
+    document.getElementById('kpiByQtySub').textContent = topQty ? titleCase(topQty.name) : '—';
+    document.getElementById('kpiAvg').textContent     = DATA.totalQty ? fmt$2(DATA.totalNet / DATA.totalQty) : '—';
+
+    renderLeaderboard(items);
+    renderQtyByConcept();
+
+    // Menu filter chips — derived from unique sales categories
+    const cats = ['All', ...Array.from(new Set(items.map(it => it.category).filter(Boolean))).sort()];
+    document.getElementById('menuFilter').innerHTML = cats.map(c => {
+      const v = c === 'All' ? 'all' : c;
+      const cls = (v === activeMenu) ? 'is-active' : '';
+      return `<button class="${cls}" data-menu="${v.replace(/"/g, '&quot;')}">${c === 'All' ? c : conceptName(c)}</button>`;
+    }).join('');
+    document.querySelectorAll('#menuFilter button').forEach(b => {
+      b.addEventListener('click', () => {
+        activeMenu = b.dataset.menu;
+        renderTable();
+        document.querySelectorAll('#menuFilter button').forEach(x => x.classList.toggle('is-active', x === b));
+      });
+    });
+
+    // Concept context strip — drop operational catch-all buckets so the
+    // summary only shows real culinary concepts.
+    const NON_CONCEPT = /^(no sales category|misc non sales)$/i;
+    const concepts = (DATA.concepts || [])
+      .filter(c => c.net > 0 && !NON_CONCEPT.test(c.name || ''))
+      .sort((a, b) => b.net - a.net);
+    document.getElementById('conceptStrip').innerHTML = concepts.map(c => {
+      const color = conceptColor[c.name] || COLORS[14];
+      const avg = c.qty ? c.net / c.qty : 0;
+      return `
+      <div class="concept-chip" style="--concept-color:${color}" title="${conceptName(c.name)}: ${fmt$(c.net)} · ${fmtN(c.qty)} sold · ${fmt$2(avg)} avg basket">
+        <div class="concept-chip-name"><span class="concept-chip-dot" style="background:${color}"></span>${conceptName(c.name)}</div>
+        <div class="concept-chip-net">${fmt$(c.net)}</div>
+        <div class="concept-chip-stats">
+          <div class="concept-stat"><span class="concept-stat-val">${fmtN(c.qty)}</span><span class="concept-stat-lbl">Items sold</span></div>
+          <div class="concept-stat"><span class="concept-stat-val">${fmt$2(avg)}</span><span class="concept-stat-lbl">Avg basket</span></div>
+        </div>
+      </div>`;
+    }).join('');
+
+    renderTable();
+  }
+
+  function renderTable() {
+    const items = (DATA.items || []).filter(it => it.qty > 0);
+    let filtered = items;
+    if (activeMenu !== 'all') filtered = filtered.filter(it => it.category === activeMenu);
+    if (searchQ)              filtered = filtered.filter(it => it.name.toLowerCase().includes(searchQ));
+    if (activeSort === 'qty') filtered.sort((a, b) => b.qty - a.qty);
+    else if (activeSort === 'avg') filtered.sort((a, b) => b.avg_price - a.avg_price);
+    else                      filtered.sort((a, b) => b.net - a.net);
+
+    const maxQty = Math.max(...filtered.map(it => it.qty), 1);
+    const tbody = document.getElementById('itemTbody');
+    if (!filtered.length) {
+      tbody.innerHTML = '<tr class="empty"><td colspan="4">No items match those filters.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = filtered.map(it => `
+      <tr>
+        <td>
+          <div class="item-cell">
+            <span>${titleCase(it.name)}</span>
+            <span class="item-cat">${conceptName(it.category) || ''}</span>
+          </div>
+        </td>
+        <td class="num">${fmtN(it.qty)}<span class="qty-bar"><span class="qty-bar-fill" style="width:${(it.qty / maxQty * 100).toFixed(1)}%; background:${colorForCategory(it.category)}"></span></span></td>
+        <td class="num">${fmt$(it.net)}</td>
+        <td class="num">${fmt$2(it.avg_price)}</td>
+      </tr>
+    `).join('');
+  }
+
+  /* Wire search + sort */
+  document.getElementById('itemSearch').addEventListener('input', e => {
+    searchQ = e.target.value.trim().toLowerCase();
+    renderTable();
+  });
+  document.querySelectorAll('#sortToggle button').forEach(b => {
+    b.addEventListener('click', () => {
+      activeSort = b.dataset.sort;
+      document.querySelectorAll('#sortToggle button').forEach(x => x.classList.toggle('is-active', x === b));
+      renderTable();
+    });
+  });
+  document.querySelectorAll('#leaderToggle button').forEach(b => {
+    b.addEventListener('click', () => {
+      leaderSort = b.dataset.leader;
+      document.querySelectorAll('#leaderToggle button').forEach(x => x.classList.toggle('is-active', x === b));
+      if (DATA) renderLeaderboard((DATA.items || []).filter(it => it.qty > 0));
+    });
+  });
+
+  function renderLeaderboard(items) {
+    const sortKey = leaderSort === 'qty' ? 'qty' : 'net';
+    const top12 = [...items].sort((a, b) => b[sortKey] - a[sortKey]).slice(0, 12);
+    const maxOther = Math.max(...top12.map(it => sortKey === 'net' ? it.qty : it.net));
+    document.getElementById('leaderSub').textContent = sortKey === 'qty'
+      ? 'Top 12 items by units sold — revenue bar shows dollar share vs the day’s leader'
+      : 'Top 12 items by revenue — quantity bar shows volume vs the day’s leader';
+
+    const cardHTML = (it, i) => {
+      const color = colorForCategory(it.category);
+      const primary  = sortKey === 'qty' ? `${fmtN(it.qty)} sold` : fmt$(it.net);
+      const primaryL = sortKey === 'qty' ? 'Units' : 'Net';
+      const barVal   = sortKey === 'qty' ? it.net : it.qty;
+      const w        = maxOther ? (barVal / maxOther) * 100 : 0;
+      const metaText = sortKey === 'qty' ? fmt$(it.net) + ' net' : `${fmtN(it.qty)} sold`;
+      return `
+        <div class="leader-card" title="${titleCase(it.name)}: ${fmtN(it.qty)} sold · ${fmt$(it.net)}">
+          <span class="leader-rank">#${i + 1}</span>
+          <div class="leader-cat"><span class="dot" style="background:${color}"></span>${conceptName(it.category) || 'Item'}</div>
+          <div class="leader-name">${titleCase(it.name)}</div>
+          <div class="leader-row">
+            <span class="leader-stat">${primary}</span>
+            <span class="leader-sublabel">${primaryL}</span>
+          </div>
+          <div class="leader-bar"><div class="leader-bar-fill" style="width:${w.toFixed(1)}%; background:${color}"></div></div>
+          <div class="leader-meta"><span>${metaText}</span></div>
+        </div>`;
+    };
+
+    // Split top 12 into two pages of 6
+    const pages = [top12.slice(0, 6), top12.slice(6, 12)];
+    const trackEl = document.getElementById('leaderTrack');
+    const pageEls = trackEl ? trackEl.querySelectorAll('.leader-page') : [];
+    pages.forEach((slice, p) => {
+      const el = pageEls[p];
+      if (!el) return;
+      el.innerHTML = slice.map((it, i) => cardHTML(it, p * 6 + i)).join('');
+    });
+
+    // Reset scroll to page 0 on re-render (sort toggle, location change, etc.)
+    if (trackEl) trackEl.scrollLeft = 0;
+    syncLeaderCarousel();
+  }
+
+  // Carousel state + controls
+  function syncLeaderCarousel() {
+    const track = document.getElementById('leaderTrack');
+    const prev  = document.getElementById('leaderPrev');
+    const next  = document.getElementById('leaderNext');
+    const dots  = document.getElementById('leaderDots');
+    if (!track || !prev || !next || !dots) return;
+    const pageW = track.clientWidth || 1;
+    const idx = Math.round(track.scrollLeft / pageW);
+    prev.disabled = idx <= 0;
+    next.disabled = idx >= 1;
+    if (!dots.children.length) {
+      dots.innerHTML = '<button class="leader-dot" type="button" aria-label="Page 1"></button><button class="leader-dot" type="button" aria-label="Page 2"></button>';
+      Array.from(dots.children).forEach((d, i) => {
+        d.addEventListener('click', () => { track.scrollTo({left: i * track.clientWidth, behavior: 'smooth'}); });
+      });
+    }
+    Array.from(dots.children).forEach((d, i) => d.classList.toggle('is-active', i === idx));
+  }
+  document.getElementById('leaderPrev').addEventListener('click', () => {
+    const t = document.getElementById('leaderTrack');
+    t.scrollTo({left: 0, behavior: 'smooth'});
+  });
+  document.getElementById('leaderNext').addEventListener('click', () => {
+    const t = document.getElementById('leaderTrack');
+    t.scrollTo({left: t.clientWidth, behavior: 'smooth'});
+  });
+  document.getElementById('leaderTrack').addEventListener('scroll', () => {
+    clearTimeout(window.__leaderScrollT);
+    window.__leaderScrollT = setTimeout(syncLeaderCarousel, 80);
+  });
+  window.addEventListener('resize', syncLeaderCarousel);
+
+  function renderQtyByConcept() {
+    // Filter out operational catch-all buckets (Toast ships rows like
+    // "No Sales Category" / "Misc Non Sales" that mix odds-and-ends and
+    // shouldn't sit alongside real concepts).
+    const NON_CONCEPT = /^(no sales category|misc non sales)$/i;
+    const concepts = (DATA.concepts || [])
+      .filter(c => c.qty > 0 && c.net > 0 && !NON_CONCEPT.test(c.name || ''))
+      .sort((a, b) => b.qty - a.qty);
+    const totalQty = concepts.reduce((s, c) => s + c.qty, 0);
+    const maxQty = concepts.length ? concepts[0].qty : 0;
+    const wrap = document.getElementById('qtyByConcept');
+    if (!wrap) return;
+    if (!concepts.length) { wrap.innerHTML = '<div class="np-card-sub">No concept volume to show yet.</div>'; return; }
+    wrap.innerHTML = concepts.map(c => {
+      const color = conceptColor[c.name] || COLORS[14];
+      const w = maxQty ? (c.qty / maxQty) * 100 : 0;
+      const pct = totalQty ? (c.qty / totalQty * 100) : 0;
+      const avg = c.qty ? c.net / c.qty : 0;
+      return `
+        <div class="qty-row" title="${conceptName(c.name)}: ${fmtN(c.qty)} units · ${pct.toFixed(1)}% · ${fmt$2(avg)} avg basket">
+          <div class="qty-row-label"><span class="dot" style="background:${color}"></span><span class="name">${conceptName(c.name)}</span></div>
+          <div class="qty-track"><div class="qty-fill" style="width:${w.toFixed(1)}%; background:${color}"></div></div>
+          <div class="qty-row-meta">
+            <span class="qty-num">${fmtN(c.qty)}</span>
+            <span class="qty-pct">${pct.toFixed(1)}%</span>
+            <span class="qty-avg">${fmt$2(avg)} avg</span>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+
+  // Location toggle
+  document.querySelectorAll('#locToggle button').forEach(b => {
+    b.addEventListener('click', () => applyLocation(b.dataset.loc));
+  });
+
+  // Date picker popover
+  const dateBtn  = document.getElementById('dateBtn');
+  const dateMenu = document.getElementById('dateMenu');
+  dateBtn.addEventListener('click', e => {
+    e.stopPropagation();
+    const r = dateBtn.getBoundingClientRect();
+    dateMenu.style.top  = (window.scrollY + r.bottom + 6) + 'px';
+    dateMenu.style.left = (window.scrollX + r.right - 200) + 'px';
+    dateMenu.style.display = dateMenu.style.display === 'block' ? 'none' : 'block';
+  });
+  document.addEventListener('click', e => {
+    if (!dateMenu.contains(e.target) && e.target !== dateBtn) dateMenu.style.display = 'none';
+  });
+
+  loadPMIX();
+</script>
+
+</body>
+</html>

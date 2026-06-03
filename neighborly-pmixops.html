@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Product Mix · Ops — Neighborly</title>
+
+<link rel="manifest" href="/manifest.json">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta name="theme-color" content="#7bbd91">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png">
+
+<link rel="stylesheet" href="theme.css">
+<script src="chrome.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+
+<style>
+  :root { --ops:#7bbd91; --ops-deep:#1e5a37; --ops-light:#e4f5ea; }
+  .np-nav-page-tag.ops { background:var(--ops-light); color:var(--ops-deep); }
+
+  .wf-banner { display:flex; align-items:flex-start; gap:12px; background:var(--ops-light);
+    border:1px dashed var(--ops); border-radius:var(--r-lg); padding:12px 16px; margin-bottom:var(--s-5); }
+  .wf-banner .wf-ico { color:var(--ops-deep); flex:0 0 auto; margin-top:1px; }
+  .wf-banner b { color:var(--ops-deep); } .wf-banner p { font-size:var(--t-caption); color:var(--text-2); line-height:1.5; margin:2px 0 0; }
+
+  .src-note { display:inline-flex; align-items:center; gap:6px; margin-top:var(--s-3); padding:4px 10px;
+    background:var(--ops-light); color:var(--ops-deep); border-radius:var(--r-pill);
+    font-family:var(--f-mono); font-size:var(--t-caption-sm); }
+  .src-note::before { content:"DATA →"; font-weight:700; opacity:0.7; }
+
+  .ops-grid { display:grid; grid-template-columns:1fr 1.4fr; gap:var(--s-4); margin-bottom:var(--s-5); }
+  @media (max-width:860px){ .ops-grid { grid-template-columns:1fr; } }
+  .chart-wrap { position:relative; height:300px; }
+
+  .link-card { display:flex; align-items:center; gap:14px; background:var(--surface);
+    border:1px solid var(--line); border-left:3px solid var(--ops); border-radius:var(--r-lg);
+    padding:14px 18px; margin-bottom:var(--s-5); text-decoration:none; }
+  .link-card:hover { border-color:var(--line-bold); }
+  .link-card .lc-ico { width:34px;height:34px;border-radius:50%;background:var(--ops-light);color:var(--ops-deep);
+    display:flex;align-items:center;justify-content:center;flex:0 0 auto; }
+  .link-card .lc-title { font-weight:600; color:var(--text); font-size:14px; }
+  .link-card .lc-sub { font-size:var(--t-caption); color:var(--text-3); }
+</style>
+</head>
+<body>
+
+<nav class="np-nav">
+  <a class="np-nav-brand" onclick="toggleHubNav(event)" aria-label="Open hub">
+    <img src="NeighborlyLogo.png" alt="Neighborly">
+  </a>
+  <div class="np-nav-right">
+    <span class="np-nav-page-tag ops">Product Mix &middot; Ops</span>
+    <a class="np-icon-btn" href="index.html" title="Back to home" aria-label="Back to home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></a>
+  </div>
+</nav>
+
+<div class="np-hub-overlay" aria-hidden="true"></div>
+<div class="np-hub" role="dialog" aria-label="Operations Hub">
+  <div class="np-hub-label"><span>Neighborly Operations Hub</span><a href="index.html" class="np-hub-back-home">&larr; Home</a></div>
+  <div class="np-hub-grid">
+    <a class="np-hub-card" href="index.html"><div class="np-hub-card-ico" style="background:var(--surface-2)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--text)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12l9-9 9 9"/><path d="M5 10v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V10"/></svg></div><div class="np-hub-card-title">Operations Hub</div><div class="np-hub-card-sub">Ops overview</div></a>
+    <a class="np-hub-card" href="neighborly-sales.html"><div class="np-hub-card-ico" style="background:var(--ops-light)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--ops-deep)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l5-5 4 4 8-8"/><path d="M14 8h6v6"/></svg></div><div class="np-hub-card-title">Sales &amp; Forecasting</div><div class="np-hub-card-sub">Forecast vs. actual, check, comps</div></a>
+    <a class="np-hub-card" href="neighborly-labor.html"><div class="np-hub-card-ico" style="background:var(--ops-light)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--ops-deep)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 13h4l3 7 4-16 3 9h4"/></svg></div><div class="np-hub-card-title">Labor &amp; SPLH</div><div class="np-hub-card-sub">SPLH, hours, OT, labor %</div></a>
+    <a class="np-hub-card is-active" href="neighborly-pmixops.html"><div class="np-hub-card-ico" style="background:var(--ops-light)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--ops-deep)" stroke-width="2" stroke-linecap="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></div><div class="np-hub-card-title">Product Mix &middot; Ops</div><div class="np-hub-card-sub">POS mix, computed once</div></a>
+  </div>
+</div>
+
+<main class="np-main">
+
+  <div class="wf-banner">
+    <span class="wf-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg></span>
+    <div>
+      <b>Wireframe — sample data.</b>
+      <p>This is the <b>Ops face</b> of Product Mix — the same POS data, computed once here (where POS lives) and <b>linked</b> from the Marketing hub. Marketing's existing Sales &amp; Pmix page is unchanged. COO: wire the POS mix extract per the <b>DATA →</b> tags.</p>
+    </div>
+  </div>
+
+  <div class="np-page-header-row">
+    <div class="np-page-selectors">
+      <div class="np-toggle" id="tfToggle">
+        <button class="is-active" data-tf="day">Day</button>
+        <button data-tf="week">Week</button>
+        <button data-tf="period">Period</button>
+      </div>
+    </div>
+  </div>
+
+  <a class="link-card" href="neighborly-pmix.html">
+    <span class="lc-ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M17 7H8M17 7v9"/></svg></span>
+    <span>
+      <span class="lc-title">Marketing reads this mix &rarr; Sales &amp; Pmix</span>
+      <span class="lc-sub">Computed once in Ops; the Marketing hub links here. No duplicate calculation.</span>
+    </span>
+  </a>
+
+  <div class="np-kpi-grid">
+    <div class="np-kpi"><div class="np-kpi-label">Items Sold</div><div class="np-kpi-value" id="kpiItems">—</div><div class="np-kpi-sub">units, selected window</div></div>
+    <div class="np-kpi"><div class="np-kpi-label">Top Category</div><div class="np-kpi-value" id="kpiTopCat" style="font-size:20px">—</div><div class="np-kpi-sub" id="kpiTopCatPct">—% of mix</div></div>
+    <div class="np-kpi"><div class="np-kpi-label">Avg Items / Check</div><div class="np-kpi-value" id="kpiIpc">—</div><div class="np-kpi-sub">attach depth</div></div>
+    <div class="np-kpi"><div class="np-kpi-label">Attach Rate</div><div class="np-kpi-value" id="kpiAttach">—%</div><div class="np-kpi-sub">checks w/ add-on</div></div>
+  </div>
+
+  <div class="ops-grid">
+    <div class="np-card">
+      <div class="np-card-title">Category Mix</div>
+      <div class="np-card-sub">Share of units by category.</div>
+      <div class="chart-wrap"><canvas id="mixChart"></canvas></div>
+      <span class="src-note">POS line items &rarr; menu category map</span>
+    </div>
+    <div class="np-card">
+      <div class="np-card-title">Top Items by Contribution</div>
+      <div class="np-card-sub">Units &times; margin (sample).</div>
+      <div class="chart-wrap"><canvas id="itemChart"></canvas></div>
+      <span class="src-note">POS item sales &times; recipe/margin file</span>
+    </div>
+  </div>
+
+</main>
+
+<footer class="np-foot"><span class="track-trim">Neighbors Only Portal</span></footer>
+
+<script>
+/* Product Mix · Ops — wireframe mock. SAMPLE DATA. Wire POS mix extract. */
+var TF={ day:{f:1,items:1840}, week:{f:7,items:12900}, period:{f:28,items:51600} };
+var CATS=['Burgers','Bowls','Sides','Shakes','Salads','Drinks'];
+var CATV=[34,22,16,10,8,10];
+var ITEMS=[['Neighbor Burger',2100],['Harvest Bowl',1480],['Loaded Fries',1190],['Vanilla Shake',880],['Cobb Salad',760],['House Lemonade',640]];
+var state={tf:'day'}; var mixChart,itemChart;
+
+function render(){
+  var t=TF[state.tf];
+  document.getElementById('kpiItems').textContent=t.items.toLocaleString();
+  document.getElementById('kpiTopCat').textContent=CATS[0];
+  document.getElementById('kpiTopCatPct').textContent=CATV[0]+'% of mix';
+  document.getElementById('kpiIpc').textContent=(2.4).toFixed(1);
+  document.getElementById('kpiAttach').textContent='61%';
+  draw(t);
+}
+var PAL=['#7bbd91','#e87142','#b89a00','#5a4a7a','#7bbd91','#2d4480'];
+function draw(t){
+  if(mixChart)mixChart.destroy();
+  mixChart=new Chart(document.getElementById('mixChart'),{ type:'doughnut',
+    data:{labels:CATS,datasets:[{data:CATV,backgroundColor:PAL,borderWidth:2,borderColor:'#fff'}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:'58%',
+      plugins:{legend:{position:'right',labels:{boxWidth:10,font:{family:'DM Sans',size:11}}}}} });
+  if(itemChart)itemChart.destroy();
+  var scale=t.f;
+  itemChart=new Chart(document.getElementById('itemChart'),{ type:'bar',
+    data:{labels:ITEMS.map(function(x){return x[0];}),datasets:[{data:ITEMS.map(function(x){return x[1]*scale;}),backgroundColor:'rgba(42,122,75,0.82)',borderRadius:4}]},
+    options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',
+      plugins:{legend:{display:false}},
+      scales:{x:{grid:{color:'rgba(31,35,40,0.06)'},ticks:{font:{family:'DM Mono',size:10}}},y:{grid:{display:false},ticks:{font:{family:'DM Sans',size:11}}}}} });
+}
+document.getElementById('tfToggle').addEventListener('click',function(e){
+  var b=e.target.closest('button'); if(!b)return;
+  this.querySelectorAll('button').forEach(function(x){x.classList.remove('is-active');});
+  b.classList.add('is-active'); state.tf=b.dataset.tf; render();
+});
+render();
+</script>
+</body>
+</html>
