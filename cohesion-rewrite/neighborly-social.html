@@ -231,7 +231,10 @@
 
   async function loadSocial() {
     try {
-      DATA = await NPApi.apiGet('/social/organic');
+      // TODO: wire to /social/summary once organic_social_daily table exists in Supabase,
+      // Meta token is configured, and a backend summary endpoint matching this page's
+      // {summary, trends, formats, audience} shape is added (see relink-docs/HANDOFF-STATE.md).
+      DATA = await fetch('social-data.json').then(r => r.json());
       render();
     } catch (e) { console.error('social load failed', e); }
   }
