@@ -532,6 +532,8 @@
   </div>
 </div>
 
+<script src="np-api.config.local.js"></script>
+<script src="np-api.js"></script>
 <script>
 // ── DATA ─────────────────────────────────────────────────────────────────────
 let DATA = {
@@ -593,6 +595,40 @@ let DATA = {
 let currentView = 'weekly';
 let charts = {};
 
+// ── API helpers (data-seam only) ──────────────────────────────────────────────
+const _FISCAL_CUTOFF = new Date(2026, 0, 7);
+const _WEEKLY_CH_MAP = {
+  dine_in: 'dineIn', web_takeout: 'webPickup', curbside: 'webPickup',
+  kiosk_takeout: 'instore', web_delivery: 'delivery',
+  delivery_3p: 'tpd', catering: 'catering', marketplace: 'marketplace',
+};
+function _authHeaders() { return { Authorization: 'Bearer ' + (window.NP_API_KEY || '') }; }
+function _localISO(d) {
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+function _mostRecentFiscalWeekStart() {
+  const today = new Date();
+  const targetDow = today >= _FISCAL_CUTOFF ? 3 : 1;
+  const d = new Date(today);
+  while (d.getDay() !== targetDow) d.setDate(d.getDate() - 1);
+  return _localISO(d);
+}
+function _lastCompleteFiscalWeekStart() {
+  const ws = new Date(_mostRecentFiscalWeekStart() + 'T00:00:00');
+  const today = new Date();
+  if (Math.floor((today - ws) / 86400000) < 7) ws.setDate(ws.getDate() - 7);
+  return _localISO(ws);
+}
+function _isoToLabel(iso) {
+  const [y, m, d] = iso.split('-').map(Number);
+  const mo = ['','January','February','March','April','May','June','July','August','September','October','November','December'];
+  return `${mo[m]} ${d}, ${y}`;
+}
+function _setWeekBadge(isoStart) {
+  const lbl = document.getElementById('weekPickLabel');
+  if (lbl) lbl.textContent = _isoToLabel(isoStart);
+}
+
 // ── HELPERS ──────────────────────────────────────────────────────────────────
 function fmt$(n){ if(n==null||isNaN(n))return'—'; return'$'+Math.round(n).toLocaleString(); }
 function fmtN(n){ if(n==null||isNaN(n))return'—'; return n.toLocaleString(); }
@@ -637,8 +673,8 @@ function showPage(id, tab) {
   if (id === 'alltime' && typeof renderAllTime === 'function') {
     setTimeout(renderAllTime, 50);
   }
-  if (id === 'daily' && typeof fetchDailyData === 'function') {
-    setTimeout(fetchDailyData, 50);
+  if (id === 'daily') {
+    setTimeout(_initDailyPage, 50);
     setTimeout(() => { if (typeof _onDailyPageEnter === 'function') _onDailyPageEnter(); }, 60);
   }
 }
@@ -1568,7 +1604,10 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeHubNav(
 const HIST_TOTAL = [{"d": "1/27/2025", "v": 77615}, {"d": "2/3/2025", "v": 79358}, {"d": "2/10/2025", "v": 81589}, {"d": "2/17/2025", "v": 95513}, {"d": "2/24/2025", "v": 99312}, {"d": "3/3/2025", "v": 93108}, {"d": "3/10/2025", "v": 101464}, {"d": "3/17/2025", "v": 109236}, {"d": "3/24/2025", "v": 104488}, {"d": "3/31/2025", "v": 105809}, {"d": "4/7/2025", "v": 104764}, {"d": "4/14/2025", "v": 99471}, {"d": "4/21/2025", "v": 102055}, {"d": "4/28/2025", "v": 105420}, {"d": "5/5/2025", "v": 112433}, {"d": "5/12/2025", "v": 104405}, {"d": "5/19/2025", "v": 123204}, {"d": "5/26/2025", "v": 133457}, {"d": "6/2/2025", "v": 136453}, {"d": "6/9/2025", "v": 128980}, {"d": "6/16/2025", "v": 131787}, {"d": "6/23/2025", "v": 130713}, {"d": "6/30/2025", "v": 114538}, {"d": "7/7/2025", "v": 127434}, {"d": "7/14/2025", "v": 134142}, {"d": "7/21/2025", "v": 134565}, {"d": "7/28/2025", "v": 146965}, {"d": "8/4/2025", "v": 143881}, {"d": "8/11/2025", "v": 149362}, {"d": "8/18/2025", "v": 142628}, {"d": "8/25/2025", "v": 136500}, {"d": "9/1/2025", "v": 132792}, {"d": "9/8/2025", "v": 140417}, {"d": "9/15/2025", "v": 131452}, {"d": "9/22/2025", "v": 136658}, {"d": "9/29/2025", "v": 144188}, {"d": "10/6/2025", "v": 143371}, {"d": "10/13/2025", "v": 139956}, {"d": "10/20/2025", "v": 143131}, {"d": "10/27/2025", "v": 154351}, {"d": "11/3/2025", "v": 149546}, {"d": "11/10/2025", "v": 124790}, {"d": "11/17/2025", "v": 122585}, {"d": "11/24/2025", "v": 121857}, {"d": "12/1/2025", "v": 146396}, {"d": "12/8/2025", "v": 157299}, {"d": "12/15/2025", "v": 161588}, {"d": "12/22/2025", "v": 122964}, {"d": "12/29/2025", "v": 176549}, {"d": "1/7/2026", "v": 156490}, {"d": "1/14/2026", "v": 162862}, {"d": "1/21/2026", "v": 159125}, {"d": "1/28/2026", "v": 174557}, {"d": "2/4/2026", "v": 161947}, {"d": "2/11/2026", "v": 152457}, {"d": "2/18/2026", "v": 165233}, {"d": "2/25/2026", "v": 174710}, {"d": "3/4/2026", "v": 167526}, {"d": "3/11/2026", "v": 173844}, {"d": "3/18/2026", "v": 173306}, {"d": "3/25/2026", "v": 143262}, {"d": "4/1/2026", "v": 164500}, {"d": "4/8/2026", "v": 212190}, {"d": "4/15/2026", "v": 339781}, {"d": "4/22/2026", "v": 348116}, {"d": "4/29/2026", "v": 351739}, {"d": "5/6/2026", "v": 374910}];
 const HIST_CHANNELS = {"dineIn": [{"d": "1/27/2025", "v": 27386}, {"d": "2/3/2025", "v": 23404}, {"d": "2/10/2025", "v": 23218}, {"d": "2/17/2025", "v": 31415}, {"d": "2/24/2025", "v": 30360}, {"d": "3/3/2025", "v": 26946}, {"d": "3/10/2025", "v": 25174}, {"d": "3/17/2025", "v": 36337}, {"d": "3/24/2025", "v": 27958}, {"d": "3/31/2025", "v": 32943}, {"d": "4/7/2025", "v": 35418}, {"d": "4/14/2025", "v": 29441}, {"d": "4/21/2025", "v": 27786}, {"d": "4/28/2025", "v": 29261}, {"d": "5/5/2025", "v": 31171}, {"d": "5/12/2025", "v": 33218}, {"d": "5/19/2025", "v": 40150}, {"d": "5/26/2025", "v": 40757}, {"d": "6/2/2025", "v": 38641}, {"d": "6/9/2025", "v": 39174}, {"d": "6/16/2025", "v": 42540}, {"d": "6/23/2025", "v": 40594}, {"d": "6/30/2025", "v": 37735}, {"d": "7/7/2025", "v": 41519}, {"d": "7/14/2025", "v": 40857}, {"d": "7/21/2025", "v": 42530}, {"d": "7/28/2025", "v": 45292}, {"d": "8/4/2025", "v": 47411}, {"d": "8/11/2025", "v": 48100}, {"d": "8/18/2025", "v": 44347}, {"d": "8/25/2025", "v": 42997}, {"d": "9/1/2025", "v": 42348}, {"d": "9/8/2025", "v": 48965}, {"d": "9/15/2025", "v": 44537}, {"d": "9/22/2025", "v": 45490}, {"d": "9/29/2025", "v": 46189}, {"d": "10/6/2025", "v": 50608}, {"d": "10/13/2025", "v": 48692}, {"d": "10/20/2025", "v": 53071}, {"d": "10/27/2025", "v": 59729}, {"d": "11/3/2025", "v": 48722}, {"d": "11/10/2025", "v": 34946}, {"d": "11/17/2025", "v": 38216}, {"d": "11/24/2025", "v": 35717}, {"d": "12/1/2025", "v": 45988}, {"d": "12/8/2025", "v": 53685}, {"d": "12/15/2025", "v": 54143}, {"d": "12/22/2025", "v": 38268}, {"d": "12/29/2025", "v": 57153}, {"d": "1/7/2026", "v": 45743}, {"d": "1/14/2026", "v": 47320}, {"d": "1/21/2026", "v": 46736}, {"d": "1/28/2026", "v": 54369}, {"d": "2/4/2026", "v": 50252}, {"d": "2/11/2026", "v": 46099}, {"d": "2/18/2026", "v": 49510}, {"d": "2/25/2026", "v": 53274}, {"d": "3/4/2026", "v": 48268}, {"d": "3/11/2026", "v": 49012}, {"d": "3/18/2026", "v": 46572}, {"d": "3/25/2026", "v": 37370}, {"d": "4/1/2026", "v": 42205}, {"d": "4/8/2026", "v": 58990}, {"d": "4/15/2026", "v": 129927}, {"d": "4/22/2026", "v": 132100}, {"d": "4/29/2026", "v": 132159}, {"d": "5/6/2026", "v": 131962}], "webPickup": [{"d": "1/27/2025", "v": 16491}, {"d": "2/3/2025", "v": 17274}, {"d": "2/10/2025", "v": 17856}, {"d": "2/17/2025", "v": 18863}, {"d": "2/24/2025", "v": 20617}, {"d": "3/3/2025", "v": 17894}, {"d": "3/10/2025", "v": 19079}, {"d": "3/17/2025", "v": 22705}, {"d": "3/24/2025", "v": 20446}, {"d": "3/31/2025", "v": 21566}, {"d": "4/7/2025", "v": 21953}, {"d": "4/14/2025", "v": 20846}, {"d": "4/21/2025", "v": 24116}, {"d": "4/28/2025", "v": 22441}, {"d": "5/5/2025", "v": 27181}, {"d": "5/12/2025", "v": 22087}, {"d": "5/19/2025", "v": 27312}, {"d": "5/26/2025", "v": 28071}, {"d": "6/2/2025", "v": 26424}, {"d": "6/9/2025", "v": 26793}, {"d": "6/16/2025", "v": 26598}, {"d": "6/23/2025", "v": 24213}, {"d": "6/30/2025", "v": 21393}, {"d": "7/7/2025", "v": 24306}, {"d": "7/14/2025", "v": 23709}, {"d": "7/21/2025", "v": 28347}, {"d": "7/28/2025", "v": 32073}, {"d": "8/4/2025", "v": 30623}, {"d": "8/11/2025", "v": 28807}, {"d": "8/18/2025", "v": 28745}, {"d": "8/25/2025", "v": 29358}, {"d": "9/1/2025", "v": 27765}, {"d": "9/8/2025", "v": 28964}, {"d": "9/15/2025", "v": 29840}, {"d": "9/22/2025", "v": 28492}, {"d": "9/29/2025", "v": 29798}, {"d": "10/6/2025", "v": 28854}, {"d": "10/13/2025", "v": 27773}, {"d": "10/20/2025", "v": 27501}, {"d": "10/27/2025", "v": 29143}, {"d": "11/3/2025", "v": 28916}, {"d": "11/10/2025", "v": 22037}, {"d": "11/17/2025", "v": 21268}, {"d": "11/24/2025", "v": 21874}, {"d": "12/1/2025", "v": 27651}, {"d": "12/8/2025", "v": 26693}, {"d": "12/15/2025", "v": 28759}, {"d": "12/22/2025", "v": 24962}, {"d": "12/29/2025", "v": 32117}, {"d": "1/7/2026", "v": 33202}, {"d": "1/14/2026", "v": 35445}, {"d": "1/21/2026", "v": 35040}, {"d": "1/28/2026", "v": 36351}, {"d": "2/4/2026", "v": 34721}, {"d": "2/11/2026", "v": 34889}, {"d": "2/18/2026", "v": 36673}, {"d": "2/25/2026", "v": 38641}, {"d": "3/4/2026", "v": 38478}, {"d": "3/11/2026", "v": 40470}, {"d": "3/18/2026", "v": 40154}, {"d": "3/25/2026", "v": 35260}, {"d": "4/1/2026", "v": 43703}, {"d": "4/8/2026", "v": 57386}, {"d": "4/15/2026", "v": 70955}, {"d": "4/22/2026", "v": 79450}, {"d": "4/29/2026", "v": 73165}, {"d": "5/6/2026", "v": 78713}], "instore": [{"d": "1/27/2025", "v": 11198}, {"d": "2/3/2025", "v": 12512}, {"d": "2/10/2025", "v": 14093}, {"d": "2/17/2025", "v": 16754}, {"d": "2/24/2025", "v": 17818}, {"d": "3/3/2025", "v": 16410}, {"d": "3/10/2025", "v": 20044}, {"d": "3/17/2025", "v": 17193}, {"d": "3/24/2025", "v": 19626}, {"d": "3/31/2025", "v": 19493}, {"d": "4/7/2025", "v": 17473}, {"d": "4/14/2025", "v": 18500}, {"d": "4/21/2025", "v": 17963}, {"d": "4/28/2025", "v": 20769}, {"d": "5/5/2025", "v": 19228}, {"d": "5/12/2025", "v": 18638}, {"d": "5/19/2025", "v": 24798}, {"d": "5/26/2025", "v": 24846}, {"d": "6/2/2025", "v": 24973}, {"d": "6/9/2025", "v": 22908}, {"d": "6/16/2025", "v": 24204}, {"d": "6/23/2025", "v": 22540}, {"d": "6/30/2025", "v": 18173}, {"d": "7/7/2025", "v": 22736}, {"d": "7/14/2025", "v": 26724}, {"d": "7/21/2025", "v": 20473}, {"d": "7/28/2025", "v": 26924}, {"d": "8/4/2025", "v": 26514}, {"d": "8/11/2025", "v": 30830}, {"d": "8/18/2025", "v": 26625}, {"d": "8/25/2025", "v": 26425}, {"d": "9/1/2025", "v": 24494}, {"d": "9/8/2025", "v": 27119}, {"d": "9/15/2025", "v": 21224}, {"d": "9/22/2025", "v": 25769}, {"d": "9/29/2025", "v": 29604}, {"d": "10/6/2025", "v": 30118}, {"d": "10/13/2025", "v": 28486}, {"d": "10/20/2025", "v": 29485}, {"d": "10/27/2025", "v": 31910}, {"d": "11/3/2025", "v": 30743}, {"d": "11/10/2025", "v": 26523}, {"d": "11/17/2025", "v": 24988}, {"d": "11/24/2025", "v": 27882}, {"d": "12/1/2025", "v": 33670}, {"d": "12/8/2025", "v": 37169}, {"d": "12/15/2025", "v": 40371}, {"d": "12/22/2025", "v": 27499}, {"d": "12/29/2025", "v": 38184}, {"d": "1/7/2026", "v": 32370}, {"d": "1/14/2026", "v": 35150}, {"d": "1/21/2026", "v": 33707}, {"d": "1/28/2026", "v": 36495}, {"d": "2/4/2026", "v": 32998}, {"d": "2/11/2026", "v": 32133}, {"d": "2/18/2026", "v": 33925}, {"d": "2/25/2026", "v": 38364}, {"d": "3/4/2026", "v": 37584}, {"d": "3/11/2026", "v": 34349}, {"d": "3/18/2026", "v": 32115}, {"d": "3/25/2026", "v": 30250}, {"d": "4/1/2026", "v": 30239}, {"d": "4/8/2026", "v": 36070}, {"d": "4/15/2026", "v": 37061}, {"d": "4/22/2026", "v": 33508}, {"d": "4/29/2026", "v": 32168}, {"d": "5/6/2026", "v": 34322}], "delivery": [{"d": "1/27/2025", "v": 2307}, {"d": "2/3/2025", "v": 1955}, {"d": "2/10/2025", "v": 1959}, {"d": "2/17/2025", "v": 1893}, {"d": "2/24/2025", "v": 1460}, {"d": "3/3/2025", "v": 2030}, {"d": "3/10/2025", "v": 1722}, {"d": "3/17/2025", "v": 1711}, {"d": "3/24/2025", "v": 1660}, {"d": "3/31/2025", "v": 1170}, {"d": "4/7/2025", "v": 1530}, {"d": "4/14/2025", "v": 1175}, {"d": "4/21/2025", "v": 1514}, {"d": "4/28/2025", "v": 1504}, {"d": "5/5/2025", "v": 1354}, {"d": "5/12/2025", "v": 1236}, {"d": "5/19/2025", "v": 1864}, {"d": "5/26/2025", "v": 1738}, {"d": "6/2/2025", "v": 1766}, {"d": "6/9/2025", "v": 1987}, {"d": "6/16/2025", "v": 1410}, {"d": "6/23/2025", "v": 1477}, {"d": "6/30/2025", "v": 1762}, {"d": "7/7/2025", "v": 1659}, {"d": "7/14/2025", "v": 1354}, {"d": "7/21/2025", "v": 1200}, {"d": "7/28/2025", "v": 1291}, {"d": "8/4/2025", "v": 1519}, {"d": "8/11/2025", "v": 1175}, {"d": "8/18/2025", "v": 1617}, {"d": "8/25/2025", "v": 1483}, {"d": "9/1/2025", "v": 1355}, {"d": "9/8/2025", "v": 1710}, {"d": "9/15/2025", "v": 1834}, {"d": "9/22/2025", "v": 1867}, {"d": "9/29/2025", "v": 1747}, {"d": "10/6/2025", "v": 1673}, {"d": "10/13/2025", "v": 1593}, {"d": "10/20/2025", "v": 1500}, {"d": "10/27/2025", "v": 1576}, {"d": "11/3/2025", "v": 1892}, {"d": "11/10/2025", "v": 1319}, {"d": "11/17/2025", "v": 1261}, {"d": "11/24/2025", "v": 2518}, {"d": "12/1/2025", "v": 2249}, {"d": "12/8/2025", "v": 2207}, {"d": "12/15/2025", "v": 2398}, {"d": "12/22/2025", "v": 4562}, {"d": "12/29/2025", "v": 3535}, {"d": "1/7/2026", "v": 6549}, {"d": "1/14/2026", "v": 5267}, {"d": "1/21/2026", "v": 3987}, {"d": "1/28/2026", "v": 4659}, {"d": "2/4/2026", "v": 5340}, {"d": "2/11/2026", "v": 4932}, {"d": "2/18/2026", "v": 5014}, {"d": "2/25/2026", "v": 4833}, {"d": "3/4/2026", "v": 5395}, {"d": "3/11/2026", "v": 5877}, {"d": "3/18/2026", "v": 6420}, {"d": "3/25/2026", "v": 7226}, {"d": "4/1/2026", "v": 8091}, {"d": "4/8/2026", "v": 11573}, {"d": "4/15/2026", "v": 20549}, {"d": "4/22/2026", "v": 23200}, {"d": "4/29/2026", "v": 22368}, {"d": "5/6/2026", "v": 23436}], "tpd": [{"d": "1/27/2025", "v": 12381}, {"d": "2/3/2025", "v": 11267}, {"d": "2/10/2025", "v": 10456}, {"d": "2/17/2025", "v": 12136}, {"d": "2/24/2025", "v": 15468}, {"d": "3/3/2025", "v": 14730}, {"d": "3/10/2025", "v": 14491}, {"d": "3/17/2025", "v": 16591}, {"d": "3/24/2025", "v": 17266}, {"d": "3/31/2025", "v": 16148}, {"d": "4/7/2025", "v": 15610}, {"d": "4/14/2025", "v": 16346}, {"d": "4/21/2025", "v": 17434}, {"d": "4/28/2025", "v": 15818}, {"d": "5/5/2025", "v": 16857}, {"d": "5/12/2025", "v": 17107}, {"d": "5/19/2025", "v": 17690}, {"d": "5/26/2025", "v": 21177}, {"d": "6/2/2025", "v": 22588}, {"d": "6/9/2025", "v": 21309}, {"d": "6/16/2025", "v": 22437}, {"d": "6/23/2025", "v": 23804}, {"d": "6/30/2025", "v": 21125}, {"d": "7/7/2025", "v": 24311}, {"d": "7/14/2025", "v": 26483}, {"d": "7/21/2025", "v": 28239}, {"d": "7/28/2025", "v": 27705}, {"d": "8/4/2025", "v": 27457}, {"d": "8/11/2025", "v": 27899}, {"d": "8/18/2025", "v": 28321}, {"d": "8/25/2025", "v": 25345}, {"d": "9/1/2025", "v": 25717}, {"d": "9/8/2025", "v": 25190}, {"d": "9/15/2025", "v": 22600}, {"d": "9/22/2025", "v": 23371}, {"d": "9/29/2025", "v": 23420}, {"d": "10/6/2025", "v": 22648}, {"d": "10/13/2025", "v": 23910}, {"d": "10/20/2025", "v": 24228}, {"d": "10/27/2025", "v": 25986}, {"d": "11/3/2025", "v": 25960}, {"d": "11/10/2025", "v": 25396}, {"d": "11/17/2025", "v": 24960}, {"d": "11/24/2025", "v": 26976}, {"d": "12/1/2025", "v": 29443}, {"d": "12/8/2025", "v": 27917}, {"d": "12/15/2025", "v": 28338}, {"d": "12/22/2025", "v": 23110}, {"d": "12/29/2025", "v": 33712}, {"d": "1/7/2026", "v": 30269}, {"d": "1/14/2026", "v": 30568}, {"d": "1/21/2026", "v": 31998}, {"d": "1/28/2026", "v": 30242}, {"d": "2/4/2026", "v": 28814}, {"d": "2/11/2026", "v": 27124}, {"d": "2/18/2026", "v": 31947}, {"d": "2/25/2026", "v": 32263}, {"d": "3/4/2026", "v": 31517}, {"d": "3/11/2026", "v": 33324}, {"d": "3/18/2026", "v": 37617}, {"d": "3/25/2026", "v": 28997}, {"d": "4/1/2026", "v": 37982}, {"d": "4/8/2026", "v": 33735}, {"d": "4/15/2026", "v": 35787}, {"d": "4/22/2026", "v": 42146}, {"d": "4/29/2026", "v": 40228}, {"d": "5/6/2026", "v": 36796}], "marketplace": [{"d": "1/27/2025", "v": 3851}, {"d": "2/3/2025", "v": 5991}, {"d": "2/10/2025", "v": 4007}, {"d": "2/17/2025", "v": 4474}, {"d": "2/24/2025", "v": 3590}, {"d": "3/3/2025", "v": 4561}, {"d": "3/10/2025", "v": 3608}, {"d": "3/17/2025", "v": 4699}, {"d": "3/24/2025", "v": 3847}, {"d": "3/31/2025", "v": 4289}, {"d": "4/7/2025", "v": 3688}, {"d": "4/14/2025", "v": 3163}, {"d": "4/21/2025", "v": 3220}, {"d": "4/28/2025", "v": 3052}, {"d": "5/5/2025", "v": 6641}, {"d": "5/12/2025", "v": 4272}, {"d": "5/19/2025", "v": 4462}, {"d": "5/26/2025", "v": 4325}, {"d": "6/2/2025", "v": 4609}, {"d": "6/9/2025", "v": 4542}, {"d": "6/16/2025", "v": 4148}, {"d": "6/23/2025", "v": 4130}, {"d": "6/30/2025", "v": 4349}, {"d": "7/7/2025", "v": 4646}, {"d": "7/14/2025", "v": 5014}, {"d": "7/21/2025", "v": 3776}, {"d": "7/28/2025", "v": 4285}, {"d": "8/4/2025", "v": 4200}, {"d": "8/11/2025", "v": 4451}, {"d": "8/18/2025", "v": 4823}, {"d": "8/25/2025", "v": 4161}, {"d": "9/1/2025", "v": 3614}, {"d": "9/8/2025", "v": 5054}, {"d": "9/15/2025", "v": 1417}, {"d": "9/22/2025", "v": 5281}, {"d": "9/29/2025", "v": 5809}, {"d": "10/6/2025", "v": 5073}, {"d": "10/13/2025", "v": 5502}, {"d": "10/20/2025", "v": 5783}, {"d": "10/27/2025", "v": 6008}, {"d": "11/3/2025", "v": 6494}, {"d": "11/10/2025", "v": 4569}, {"d": "11/17/2025", "v": 5236}, {"d": "11/24/2025", "v": 6437}, {"d": "12/1/2025", "v": 5159}, {"d": "12/8/2025", "v": 5522}, {"d": "12/15/2025", "v": 3797}, {"d": "12/22/2025", "v": 5050}, {"d": "12/29/2025", "v": 4831}, {"d": "1/7/2026", "v": 4071}, {"d": "1/14/2026", "v": 5367}, {"d": "1/21/2026", "v": 5150}, {"d": "1/28/2026", "v": 5158}, {"d": "2/4/2026", "v": 3823}, {"d": "2/11/2026", "v": 5555}, {"d": "2/18/2026", "v": 4935}, {"d": "2/25/2026", "v": 3061}, {"d": "3/4/2026", "v": 5267}, {"d": "3/11/2026", "v": 4765}, {"d": "3/18/2026", "v": 4804}, {"d": "3/25/2026", "v": 5227}, {"d": "4/1/2026", "v": 7409}, {"d": "4/8/2026", "v": 6474}, {"d": "4/15/2026", "v": 6286}, {"d": "4/22/2026", "v": 7012}, {"d": "4/29/2026", "v": 6833}, {"d": "5/6/2026", "v": 7666}]};
 const HIST_DIGITAL = {"meta": [{"d": "1/27/2025", "v": 2201}, {"d": "2/3/2025", "v": 3010}, {"d": "2/10/2025", "v": 3084}, {"d": "2/17/2025", "v": 2429}, {"d": "2/24/2025", "v": 2199}, {"d": "3/3/2025", "v": 3017}, {"d": "3/10/2025", "v": 3356}, {"d": "3/17/2025", "v": 4042}, {"d": "3/24/2025", "v": 3322}, {"d": "3/31/2025", "v": 4164}, {"d": "4/7/2025", "v": 3312}, {"d": "4/14/2025", "v": 4026}, {"d": "4/21/2025", "v": 5214}, {"d": "4/28/2025", "v": 3661}, {"d": "5/5/2025", "v": 4479}, {"d": "5/12/2025", "v": 3812}, {"d": "5/19/2025", "v": 3646}, {"d": "5/26/2025", "v": 4278}, {"d": "6/2/2025", "v": 5359}, {"d": "6/9/2025", "v": 4415}, {"d": "6/16/2025", "v": 4156}, {"d": "6/23/2025", "v": 3043}, {"d": "6/30/2025", "v": 4633}, {"d": "7/7/2025", "v": 3457}, {"d": "7/14/2025", "v": 5010}, {"d": "7/21/2025", "v": 5108}, {"d": "7/28/2025", "v": 4222}, {"d": "8/4/2025", "v": 5256}, {"d": "8/11/2025", "v": 5426}, {"d": "8/18/2025", "v": 5785}, {"d": "8/25/2025", "v": 5790}, {"d": "9/1/2025", "v": 5738}, {"d": "9/8/2025", "v": 4899}, {"d": "9/15/2025", "v": 6258}, {"d": "9/22/2025", "v": 5060}, {"d": "9/29/2025", "v": 6895}, {"d": "10/6/2025", "v": 5557}, {"d": "10/13/2025", "v": 6931}, {"d": "10/20/2025", "v": 6204}, {"d": "10/27/2025", "v": 6103}, {"d": "11/3/2025", "v": 7405}, {"d": "11/10/2025", "v": 6688}, {"d": "11/17/2025", "v": 6122}, {"d": "11/24/2025", "v": 6601}, {"d": "12/1/2025", "v": 8235}, {"d": "12/8/2025", "v": 8285}, {"d": "12/15/2025", "v": 8010}, {"d": "12/22/2025", "v": 6635}, {"d": "12/29/2025", "v": 7960}, {"d": "1/7/2026", "v": 8076}, {"d": "1/14/2026", "v": 7040}, {"d": "1/21/2026", "v": 7901}, {"d": "1/28/2026", "v": 9102}, {"d": "2/4/2026", "v": 7689}, {"d": "2/11/2026", "v": 8454}, {"d": "2/18/2026", "v": 8251}, {"d": "2/25/2026", "v": 8420}, {"d": "3/4/2026", "v": 8681}, {"d": "3/11/2026", "v": 8837}, {"d": "3/18/2026", "v": 8662}, {"d": "3/25/2026", "v": 7650}, {"d": "4/1/2026", "v": 9156}, {"d": "4/8/2026", "v": 11984}, {"d": "4/15/2026", "v": 12918}, {"d": "4/22/2026", "v": 10585}, {"d": "4/29/2026", "v": 11438}, {"d": "5/6/2026", "v": 11010}], "google": [{"d": "1/27/2025", "v": 3412}, {"d": "2/3/2025", "v": 3650}, {"d": "2/10/2025", "v": 3701}, {"d": "2/17/2025", "v": 4007}, {"d": "2/24/2025", "v": 4096}, {"d": "3/3/2025", "v": 3928}, {"d": "3/10/2025", "v": 4410}, {"d": "3/17/2025", "v": 4753}, {"d": "3/24/2025", "v": 4028}, {"d": "3/31/2025", "v": 5051}, {"d": "4/7/2025", "v": 5046}, {"d": "4/14/2025", "v": 4570}, {"d": "4/21/2025", "v": 4361}, {"d": "4/28/2025", "v": 5588}, {"d": "5/5/2025", "v": 5392}, {"d": "5/12/2025", "v": 6055}, {"d": "5/19/2025", "v": 5428}, {"d": "5/26/2025", "v": 6827}, {"d": "6/2/2025", "v": 6581}, {"d": "6/9/2025", "v": 5884}, {"d": "6/16/2025", "v": 6155}, {"d": "6/23/2025", "v": 6948}, {"d": "6/30/2025", "v": 5791}, {"d": "7/7/2025", "v": 6383}, {"d": "7/14/2025", "v": 7145}, {"d": "7/21/2025", "v": 6750}, {"d": "7/28/2025", "v": 6621}, {"d": "8/4/2025", "v": 6700}, {"d": "8/11/2025", "v": 7984}, {"d": "8/18/2025", "v": 6709}, {"d": "8/25/2025", "v": 7229}, {"d": "9/1/2025", "v": 8162}, {"d": "9/8/2025", "v": 7324}, {"d": "9/15/2025", "v": 7914}, {"d": "9/22/2025", "v": 7345}, {"d": "9/29/2025", "v": 8631}, {"d": "10/6/2025", "v": 8808}, {"d": "10/13/2025", "v": 8211}, {"d": "10/20/2025", "v": 7590}, {"d": "10/27/2025", "v": 8021}, {"d": "11/3/2025", "v": 8910}, {"d": "11/10/2025", "v": 7799}, {"d": "11/17/2025", "v": 8152}, {"d": "11/24/2025", "v": 8337}, {"d": "12/1/2025", "v": 8387}, {"d": "12/8/2025", "v": 9084}, {"d": "12/15/2025", "v": 9970}, {"d": "12/22/2025", "v": 7217}, {"d": "12/29/2025", "v": 10162}, {"d": "1/7/2026", "v": 9979}, {"d": "1/14/2026", "v": 8482}, {"d": "1/21/2026", "v": 9163}, {"d": "1/28/2026", "v": 10294}, {"d": "2/4/2026", "v": 9917}, {"d": "2/11/2026", "v": 9257}, {"d": "2/18/2026", "v": 10430}, {"d": "2/25/2026", "v": 9851}, {"d": "3/4/2026", "v": 9785}, {"d": "3/11/2026", "v": 10323}, {"d": "3/18/2026", "v": 11024}, {"d": "3/25/2026", "v": 9432}, {"d": "4/1/2026", "v": 10206}, {"d": "4/8/2026", "v": 12795}, {"d": "4/15/2026", "v": 18909}, {"d": "4/22/2026", "v": 24156}, {"d": "4/29/2026", "v": 22788}, {"d": "5/6/2026", "v": 23523}]};
-const BRENTWOOD_IDX = 62;
+let BRENTWOOD_IDX = 62;
+let HIST_WLV = [], HIST_BW = [];
+let HIST_WLV_DAILY = null, HIST_BW_DAILY = null;
+let _atDailyFetching = false;
 
 let atView = 'total';
 let atCharts = {};
@@ -1810,7 +1849,7 @@ function _onDailyPageEnter() {
 //   }
 // }
 
-const DAILY_API_URL = '/daily-data.json';
+const DAILY_API_URL = `${NPApi.API_BASE}/dashboard/daily`;
 
 const DAILY = { wlv: null, bw: null, total: null };
 const DAILY_PREV = { wlv: null, bw: null, total: null, date: null };
@@ -1914,7 +1953,7 @@ async function fetchDailyData() {
   const ts  = document.getElementById('dailyLastUpdated');
   if (btn) { btn.textContent = 'Refreshing…'; btn.disabled = true; }
   try {
-    const res = await fetch(DAILY_API_URL, { cache: 'no-store' });
+    const res = await fetch(DAILY_API_URL, { cache: 'no-store', headers: _authHeaders() });
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const json = await res.json();
     _applyDailyJson(json);
@@ -1968,22 +2007,29 @@ function _shortDate(label) {
 }
 
 // ── DAILY HISTORICAL CALENDAR ─────────────────────────────────────────────────
-const DAILY_ARCHIVE_INDEX_URL = '/daily-data-index.json';
-const DAILY_ARCHIVE_PATH = '/daily-data-archive';
+const DAILY_ARCHIVE_INDEX_URL = `${NPApi.API_BASE}/daily-dates`;
+const DAILY_ARCHIVE_DAILY_URL = `${NPApi.API_BASE}/dashboard/daily`;
 let DAILY_INDEX = null;          // { dates: [{date, dateLabel, ...}], latest, count }
 let _dailyCalCursor = null;      // { y, m0 }
 let _dailyCalSelected = null;    // 'YYYY-MM-DD'
 
 async function fetchDailyIndex() {
   try {
-    const res = await fetch(DAILY_ARCHIVE_INDEX_URL, { cache: 'no-store' });
+    const res = await fetch(DAILY_ARCHIVE_INDEX_URL, { cache: 'no-store', headers: _authHeaders() });
     if (!res.ok) throw new Error('HTTP ' + res.status);
-    DAILY_INDEX = await res.json();
-    if (DAILY_INDEX && DAILY_INDEX.latest) {
-      _dailyCalSelected = DAILY_INDEX.latest;
-    }
+    const raw = await res.json();
+    // API returns {dates: ['YYYY-MM-DD', ...], latest, count}
+    // Convert to {dates: [{date, dateLabel}], latest, count}
+    const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const DAYS   = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+    const dates  = (raw.dates || []).map(d => {
+      const [y, m, day] = d.split('-').map(Number);
+      const dt = new Date(y, m - 1, day);
+      return { date: d, dateLabel: `${DAYS[dt.getDay()]} ${MONTHS[m-1]} ${day}, ${y}` };
+    });
+    DAILY_INDEX = { dates, count: raw.count || dates.length, latest: raw.latest };
+    if (DAILY_INDEX.latest) _dailyCalSelected = DAILY_INDEX.latest;
   } catch (e) {
-    // No archive yet — fine, calendar will show empty
     DAILY_INDEX = { dates: [], count: 0 };
   }
 }
@@ -2001,7 +2047,7 @@ async function _loadDailyPrev(currentDateKey) {
   }
   if (!prevDate) { if (typeof renderDailyTable === 'function') renderDailyTable(DAILY[dailyLoc]); return; }
   try {
-    const res = await fetch(`${DAILY_ARCHIVE_PATH}/${prevDate}.json`, { cache: 'no-store' });
+    const res = await fetch(`${DAILY_ARCHIVE_DAILY_URL}?report_date=${prevDate}`, { cache: 'no-store', headers: _authHeaders() });
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const json = await res.json();
     DAILY_PREV.wlv   = json.wlv   || null;
@@ -2122,7 +2168,7 @@ function renderDailyCalendar() {
 async function pickDailyDate(dateKey) {
   _dailyCalSelected = dateKey;
   try {
-    const res = await fetch(`${DAILY_ARCHIVE_PATH}/${dateKey}.json`, { cache: 'no-store' });
+    const res = await fetch(`${DAILY_ARCHIVE_DAILY_URL}?report_date=${dateKey}`, { cache: 'no-store', headers: _authHeaders() });
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const json = await res.json();
     _applyDailyJson(json);
@@ -2661,6 +2707,213 @@ function toggleCatRow(key, el) {
     r.style.display = isOpen ? '' : 'none';
   });
 }
+
+// ── Daily init / prefetch (uses API archive via DAILY_ARCHIVE_DAILY_URL) ─────
+async function _initDailyPage() {
+  _resetReveals();
+  if (_dailyPrefetchDate && DAILY[dailyLoc]) {
+    renderDailyDashboard();
+    if (DAILY_INDEX) renderDailyCalendar();
+    return;
+  }
+  if (!DAILY_INDEX) await fetchDailyIndex();
+  const dateToLoad = DAILY_INDEX?.latest;
+  if (dateToLoad) {
+    await pickDailyDate(dateToLoad);
+  } else {
+    fetchDailyData();
+  }
+}
+
+let _dailyPrefetchDate = null;
+
+async function _prefetchDailyPage() {
+  try {
+    if (!DAILY_INDEX) await fetchDailyIndex();
+    const dateToLoad = DAILY_INDEX?.latest;
+    if (!dateToLoad) return;
+    const res = await fetch(`${DAILY_ARCHIVE_DAILY_URL}?report_date=${dateToLoad}`, { cache: 'no-store', headers: _authHeaders() });
+    if (!res.ok) return;
+    const json = await res.json();
+    _applyDailyJson(json);
+    _dailyCalSelected = dateToLoad;
+    _dailyPrefetchDate = dateToLoad;
+    _loadDailyPrev(dateToLoad);
+  } catch (e) { /* silent — tab click falls back to live fetch */ }
+}
+_prefetchDailyPage();
+
+// ── All-time live loaders ─────────────────────────────────────────────────────
+async function loadAllTimeDailyData() {
+  if (HIST_WLV_DAILY || _atDailyFetching) return;
+  _atDailyFetching = true;
+  try {
+    const locRes = await fetch(`${NPApi.API_BASE}/locations`, { headers: _authHeaders(), cache: 'no-store' });
+    if (!locRes.ok) return;
+    const { locations } = await locRes.json();
+    const wlvLoc = locations.find(l => /westlake/i.test(l.short_name));
+    const bwLoc  = locations.find(l => /brentwood/i.test(l.short_name));
+    if (!wlvLoc || !bwLoc) return;
+    const [wlvR, bwR] = await Promise.all([
+      fetch(`${NPApi.API_BASE}/performance/all-time?location_id=${wlvLoc.id}&granularity=day`, { headers: _authHeaders(), cache: 'no-store' }),
+      fetch(`${NPApi.API_BASE}/performance/all-time?location_id=${bwLoc.id}&granularity=day`,  { headers: _authHeaders(), cache: 'no-store' }),
+    ]);
+    const wlvPer = wlvR.ok ? (await wlvR.json()).periods : [];
+    const bwPer  = bwR.ok  ? (await bwR.json()).periods  : [];
+    const wlvLk  = Object.fromEntries(wlvPer.map(p => [p.period_start, p.net_sales]));
+    const bwLk   = Object.fromEntries(bwPer.map(p  => [p.period_start, p.net_sales]));
+    const allIso = [...new Set([...Object.keys(wlvLk), ...Object.keys(bwLk)])].sort();
+    HIST_WLV_DAILY = allIso.map(iso => { const [y,m,d]=iso.split('-').map(Number); return {d:`${m}/${d}/${y}`,v:Math.round(wlvLk[iso]||0)}; });
+    HIST_BW_DAILY  = allIso.map(iso => { const [y,m,d]=iso.split('-').map(Number); return {d:`${m}/${d}/${y}`,v:Math.round(bwLk[iso] ||0)}; });
+    if (document.getElementById('page-alltime')?.classList.contains('active')) renderAllTime();
+  } catch(e) { console.warn('loadAllTimeDailyData failed:', e); }
+  finally { _atDailyFetching = false; }
+}
+
+async function loadAllTimeData() {
+  try {
+    const locRes = await fetch(`${NPApi.API_BASE}/locations`, { headers: _authHeaders(), cache: 'no-store' });
+    if (!locRes.ok) return;
+    const { locations } = await locRes.json();
+    if (!locations || !locations.length) return;
+
+    const combined  = {};
+    const wlvByWeek = {};
+    const bwByWeek  = {};
+    for (const loc of locations) {
+      const isWlv = /westlake/i.test(loc.short_name);
+      const isBw  = /brentwood/i.test(loc.short_name);
+      const r = await fetch(
+        `${NPApi.API_BASE}/performance/all-time?location_id=${loc.id}&granularity=week`,
+        { headers: _authHeaders(), cache: 'no-store' }
+      );
+      if (!r.ok) continue;
+      const { periods } = await r.json();
+      for (const p of (periods || [])) {
+        if (!combined[p.period_start]) combined[p.period_start] = { net_sales: 0, hasBrentwood: false };
+        combined[p.period_start].net_sales += p.net_sales;
+        if (isBw) {
+          combined[p.period_start].hasBrentwood = true;
+          bwByWeek[p.period_start] = (bwByWeek[p.period_start] || 0) + p.net_sales;
+        } else if (isWlv) {
+          wlvByWeek[p.period_start] = (wlvByWeek[p.period_start] || 0) + p.net_sales;
+        }
+      }
+    }
+    const sorted = Object.keys(combined).sort();
+    if (sorted.length < 10) return;
+
+    const newTotal = sorted.map(iso => {
+      const [y, m, d] = iso.split('-').map(Number);
+      return { d: `${m}/${d}/${y}`, v: Math.round(combined[iso].net_sales) };
+    });
+    let bIdx = newTotal.length;
+    for (let i = 0; i < sorted.length; i++) {
+      if (combined[sorted[i]].hasBrentwood) { bIdx = i; break; }
+    }
+    HIST_TOTAL.length = 0;
+    newTotal.forEach(x => HIST_TOTAL.push(x));
+    BRENTWOOD_IDX = bIdx;
+
+    HIST_WLV.length = 0;
+    HIST_BW.length  = 0;
+    sorted.forEach(iso => {
+      const [y, m, d] = iso.split('-').map(Number);
+      const label = `${m}/${d}/${y}`;
+      HIST_WLV.push({ d: label, v: Math.round(wlvByWeek[iso] || 0) });
+      HIST_BW.push({  d: label, v: Math.round(bwByWeek[iso]  || 0) });
+    });
+    _calAvailable = null;
+    _buildCalAvailable();
+
+    if (document.getElementById('calPop')?.classList.contains('open')) renderCalendar();
+    if (document.getElementById('page-alltime')?.classList.contains('active')) renderAllTime();
+  } catch (e) { console.warn('loadAllTimeData failed:', e); }
+}
+
+async function loadWeeklyChannelData(weekStartISO) {
+  try {
+    const weeks = [];
+    const base = new Date(weekStartISO + 'T00:00:00');
+    for (let i = 0; i < 5; i++) {
+      const d = new Date(base);
+      d.setDate(d.getDate() - i * 7);
+      weeks.push(d.toISOString().split('T')[0]);
+    }
+    const locRes = await fetch(`${NPApi.API_BASE}/locations`, { headers: _authHeaders() });
+    if (!locRes.ok) return;
+    const { locations } = await locRes.json();
+    const locs = locations.filter(l => l.short_name !== 'Commissary');
+
+    const fetches = weeks.flatMap(w =>
+      locs.map(l => fetch(
+        `${NPApi.API_BASE}/weekly-kpis?location_id=${l.id}&week_start=${w}`,
+        { headers: _authHeaders() }
+      ).then(r => r.ok ? r.json() : null).catch(() => null))
+    );
+    const results = await Promise.all(fetches);
+
+    const agg = weeks.map((_, wi) => {
+      const net = { net_sales: 0, channels: {} };
+      locs.forEach((_, li) => {
+        const r = results[wi * locs.length + li];
+        if (!r) return;
+        net.net_sales += r.net_sales || 0;
+        for (const [ch, amt] of Object.entries(r.channels || {})) {
+          net.channels[ch] = (net.channels[ch] || 0) + amt;
+        }
+      });
+      return net;
+    });
+
+    const chKeys = ['dineIn','webPickup','instore','delivery','catering','tpd','marketplace'];
+    function toDash(weekAgg) {
+      const out = {};
+      for (const [apiKey, dashKey] of Object.entries(_WEEKLY_CH_MAP)) {
+        out[dashKey] = (out[dashKey] || 0) + (weekAgg.channels[apiKey] || 0);
+      }
+      return out;
+    }
+
+    const cwAgg = agg[0], lwAgg = agg[1];
+    const cwCh = toDash(cwAgg), lwCh = toDash(lwAgg);
+    const t4wNet = agg.slice(1).reduce((s, w) => s + w.net_sales, 0) / 4;
+    const t4wCh = {};
+    chKeys.forEach(k => {
+      t4wCh[k] = agg.slice(1).reduce((s, w) => s + (toDash(w)[k] || 0), 0) / 4;
+    });
+
+    function pct(a, b) { return b ? Math.round((a - b) / Math.abs(b) * 100) : null; }
+
+    chKeys.forEach(k => {
+      DATA.revenue[k] = {
+        cw: Math.round(cwCh[k] || 0), lw: Math.round(lwCh[k] || 0),
+        t4w: Math.round(t4wCh[k] || 0),
+        pctT4W: pct(cwCh[k], t4wCh[k]), pctPW: pct(cwCh[k], lwCh[k]),
+      };
+    });
+    DATA.revenue.total = {
+      cw: Math.round(cwAgg.net_sales), lw: Math.round(lwAgg.net_sales),
+      t4w: Math.round(t4wNet),
+      pctT4W: pct(cwAgg.net_sales, t4wNet), pctPW: pct(cwAgg.net_sales, lwAgg.net_sales),
+    };
+    chKeys.forEach(k => {
+      DATA.revMix[k] = {
+        cw:  cwAgg.net_sales ? +((cwCh[k]  || 0) / cwAgg.net_sales * 100).toFixed(2) : 0,
+        lw:  lwAgg.net_sales ? +((lwCh[k]  || 0) / lwAgg.net_sales * 100).toFixed(2) : 0,
+        t4w: t4wNet          ? +((t4wCh[k] || 0) / t4wNet          * 100).toFixed(2) : 0,
+      };
+    });
+    DATA.currentWeek = _isoToLabel(weeks[0]);
+    DATA.lastWeek    = _isoToLabel(weeks[1]);
+    _setWeekBadge(weeks[0]);
+    renderDashboard();
+  } catch (e) { console.warn('loadWeeklyChannelData failed:', e); }
+}
+
+// Kick off background data loads on page open
+loadAllTimeData();
+loadWeeklyChannelData(_lastCompleteFiscalWeekStart());
 </script>
 
 <footer class="np-foot"><span class="track-trim">Neighbors Only Portal</span></footer>
