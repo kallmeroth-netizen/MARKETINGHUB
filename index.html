@@ -761,7 +761,13 @@
     pw.select();
   }
 
+  // Latch so the sweep choreography can only run once. Without this a double
+  // Enter-press (or Enter + Go click, or key auto-repeat) fires accept() twice
+  // on offset timelines and the slide-up curtain visibly plays "almost twice".
+  let entering = false;
   function accept(side) {
+    if (entering) return;
+    entering = true;
     cap.classList.add('accept');
     const phrase = side === 'team' ? 'Welcome back, team.'
                  : side === 'ops'  ? 'Welcome, ops.'
