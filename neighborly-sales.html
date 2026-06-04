@@ -329,5 +329,73 @@ document.getElementById('compTabs').addEventListener('click', function(e){
 
 render();
 </script>
+
+<script>
+// ── Live sales data seam — Phase 4 ───────────────────────────────────────────
+// Actuals via nbly_weekly_kpis + nbly_discounts_summary.
+// Forecast: no data source yet — explicit placeholder.
+(async function() {
+  try {
+    var sb = NPData.supabase;
+    var WLV = '417501a4-3ffb-41d2-9539-a1b87855a869', BW = '74dacac4-6208-4388-9612-39b46df05359';
+    function fwStart(s) {
+      var d = new Date(s+'T12:00:00Z'), cut = new Date('2026-01-07T00:00:00Z');
+      var dow = d.getUTCDay(), back = d >= cut ? (dow+4)%7 : (dow+6)%7;
+      d.setUTCDate(d.getUTCDate()-back); return d.toISOString().slice(0,10);
+    }
+    function addDays(s,n){ var d=new Date(s+'T12:00:00Z'); d.setUTCDate(d.getUTCDate()+n); return d.toISOString().slice(0,10); }
+    var cwStart = addDays(fwStart(new Date().toISOString().slice(0,10)), -7);
+    var cwEnd   = addDays(cwStart, 6);
+    var lwStart = addDays(cwStart, -7);
+
+    var results = await Promise.all([
+      sb.rpc('nbly_weekly_kpis',      { p_location_id: WLV, p_week_start: cwStart }),
+      sb.rpc('nbly_weekly_kpis',      { p_location_id: BW,  p_week_start: cwStart }),
+      sb.rpc('nbly_weekly_kpis',      { p_location_id: WLV, p_week_start: lwStart }),
+      sb.rpc('nbly_weekly_kpis',      { p_location_id: BW,  p_week_start: lwStart }),
+      sb.rpc('nbly_discounts_summary', { p_location_id: WLV, p_start_date: cwStart, p_end_date: cwEnd }),
+      sb.rpc('nbly_discounts_summary', { p_location_id: BW,  p_start_date: cwStart, p_end_date: cwEnd }),
+    ]);
+    var wK=results[0], bK=results[1], wLK=results[2], bLK=results[3], wD=results[4], bD=results[5];
+
+    var net    = (wK.data?.net_sales    || 0) + (bK.data?.net_sales    || 0);
+    var checks = (wK.data?.check_count  || 0) + (bK.data?.check_count  || 0);
+    var lwNet  = (wLK.data?.net_sales   || 0) + (bLK.data?.net_sales   || 0);
+    var lwCks  = (wLK.data?.check_count || 0) + (bLK.data?.check_count || 0);
+    var comps  = (wD.data?.total        || 0) + (bD.data?.total        || 0);
+
+    if (net > 0) {
+      var avgCheck   = checks > 0 ? net / checks : 0;
+      var lwAvgCheck = lwCks  > 0 ? lwNet / lwCks : 0;
+      var checkVar   = lwAvgCheck > 0 ? (avgCheck - lwAvgCheck) / lwAvgCheck * 100 : 0;
+      var wlvCh = wK.data?.channels || {}, bwCh = bK.data?.channels || {};
+      var catering = (wlvCh.catering || 0) + (bwCh.catering || 0);
+
+      document.getElementById('kpiSales').textContent = '$' + Math.round(net).toLocaleString();
+      document.getElementById('kpiSalesFc').textContent = 'No forecast yet';
+      var sv = document.getElementById('kpiSalesVar');
+      if (sv) { sv.textContent = '—'; sv.classList.remove('up','down'); }
+
+      document.getElementById('kpiCheck').textContent = '$' + avgCheck.toFixed(2);
+      var cv = document.getElementById('kpiCheckVar');
+      if (cv) {
+        cv.textContent = (checkVar>=0?'+':'')+checkVar.toFixed(1)+'% vs last wk';
+        cv.classList.remove('up','down'); cv.classList.add(checkVar>=0?'up':'down');
+      }
+
+      document.getElementById('kpiCater').textContent    = (net > 0 ? (catering/net*100).toFixed(0) : '—') + '%';
+      document.getElementById('kpiComps').textContent     = '$' + Math.round(comps).toLocaleString();
+      document.getElementById('kpiCompsPct').textContent  = (net > 0 ? (comps/net*100).toFixed(1) : '—') + '%';
+
+      // Forecast chart: label the forecast series as unavailable
+      var fcSub = document.getElementById('fcSub');
+      if (fcSub) fcSub.textContent = 'Net sales — actual (bars); forecast data not yet available.';
+
+      // Calibrate the schematic chart with real week base
+      if (typeof TF !== 'undefined') TF.week.base = Math.round(net);
+    }
+  } catch(e) { console.error('Sales seam error:', e); }
+})();
+</script>
 </body>
 </html>

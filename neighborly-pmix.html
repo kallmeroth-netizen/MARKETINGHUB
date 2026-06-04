@@ -446,8 +446,9 @@
 
   async function loadPMIX() {
     try {
-      const r = await fetch('pmix-data.json', { cache: 'no-store' });
-      RAW = await r.json();
+      const { data: pmixData, error: pmixErr } = await NPData.supabase.rpc('nbly_pmix_summary', {});
+      if (pmixErr) throw pmixErr;
+      RAW = pmixData;
 
       // Normalize: support both new multi-day shape and legacy single-day shape
       if (RAW.days && typeof RAW.days === 'object') {
