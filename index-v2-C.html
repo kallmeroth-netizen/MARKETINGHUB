@@ -569,14 +569,13 @@
   .pass-hero .bg-video {
     position: static !important;
     display: block !important;
-    width: 100% !important;
+    width: 120% !important;         /* +20% beyond the form column */
+    max-width: 92vw !important;     /* never overflows the viewport */
+    margin: 0 -10% 4px !important;  /* centers the overflow */
     height: auto !important;
     aspect-ratio: 3 / 2;
-    margin: 0 auto 4px !important;
     object-fit: contain !important;
     pointer-events: none;
-    /* webm has real alpha — no blend needed; this also avoids the
-       extra compositing pass that was slightly softening the lines */
     image-rendering: -webkit-optimize-contrast;
   }
   /* Static greeting (no typewriter/cursor), original TAYAmaya at small size */
