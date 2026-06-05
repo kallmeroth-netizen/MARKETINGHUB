@@ -557,8 +557,8 @@
     position: fixed; inset: 0; z-index: 0;
     pointer-events: none;
     background:
-      radial-gradient(ellipse 90% 70% at 50% 45%, transparent 55%, rgba(242,242,242,0.55) 100%),
-      linear-gradient(to bottom, rgba(242,242,242,0.55) 0%, transparent 18%, transparent 70%, rgba(242,242,242,0.62) 100%);
+      radial-gradient(ellipse 90% 70% at 50% 45%, transparent 55%, rgba(242,242,242,0.42) 100%),
+      linear-gradient(to bottom, rgba(242,242,242,0.45) 0%, transparent 20%, transparent 82%, rgba(242,242,242,0.35) 100%);
     transition: opacity 0.7s ease;
   }
   /* Once the user is on the hub, hide the entry-video chrome entirely */
@@ -591,43 +591,117 @@
   }
   .divider-pass { display: none; }
 
-  /* ~Half-sized, more "floating" capsule */
+  /* ~Half-sized, more "floating" capsule — now a two-row auth card */
   .capsule-wrap {
-    width: min(300px, 90%);
-    margin-top: 4px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: min(320px, 90%);
+    margin-top: 6px;
   }
   .capsule {
-    height: 34px;
-    padding: 0 5px 0 12px;
-    gap: 7px;
-    background: rgba(255,255,255,0.82);
-    border: 1px solid rgba(31,35,40,0.14);
+    display: block;
+    height: auto;
+    width: 100%;
+    padding: 0;
+    border-radius: 14px;
+    overflow: hidden;
+    background: rgba(255,255,255,0.92);
+    border: 1.5px solid rgba(31,35,40,0.22);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
     box-shadow:
-      0 10px 28px rgba(31,35,40,0.10),
-      0 1px 2px rgba(31,35,40,0.04);
+      0 24px 56px rgba(31,35,40,0.18),
+      0 2px 6px rgba(31,35,40,0.08);
   }
+  .auth-div { background: rgba(31,35,40,0.14); }
   .capsule:focus-within {
+    border-color: rgba(31,35,40,0.28);
     box-shadow:
-      0 14px 36px rgba(31,35,40,0.14),
+      0 26px 56px rgba(31,35,40,0.18),
       0 0 0 3px rgba(0,0,0,0.04);
   }
-  .lock-ico svg { width: 12px; height: 12px; }
-  .pw-input { font-size: 12px; letter-spacing: 0.12em; }
-  .pw-input::placeholder { font-size: 10.5px; }
-  .toggle-vis { padding: 4px; }
-  .toggle-vis svg { width: 14px; height: 14px; }
-  .submit {
-    height: 24px;
-    padding: 0 10px;
-    font-size: 9.5px;
-    letter-spacing: 0.05em;
-    box-shadow: 0 4px 10px rgba(232,113,66,0.28);
+  .auth-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 14px;
+    height: 38px;
   }
+  .row-ico {
+    display: flex; align-items: center;
+    opacity: 0.45;
+    flex-shrink: 0;
+    color: var(--ink);
+  }
+  .row-ico svg { width: 13px; height: 13px; }
+  .auth-div {
+    height: 1px;
+    background: rgba(31,35,40,0.08);
+    margin: 0;
+  }
+  .capsule .pw-input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    outline: none;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    color: var(--ink);
+    width: 100%;
+    padding: 0;
+    min-width: 0;
+  }
+  .capsule .pw-input::placeholder {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 11px;
+    letter-spacing: 0.04em;
+    color: #8a8780;
+  }
+  .toggle-vis {
+    background: none; border: none; cursor: pointer;
+    padding: 4px;
+    color: var(--ink); opacity: 0.45;
+    display: flex; align-items: center;
+  }
+  .toggle-vis:hover { opacity: 1; }
+  .toggle-vis svg { width: 14px; height: 14px; }
+
+  /* Refined dark submit pill, sits below the card */
+  .submit {
+    display: inline-flex; align-items: center;
+    margin: 12px auto 0;
+    height: 28px;
+    padding: 0 18px;
+    font-family: 'Jost', 'futura-pt', 'Futura', sans-serif;
+    font-size: 9.5px;
+    font-weight: 600;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    line-height: 1;
+    color: #fff8f1;
+    background: var(--ink);
+    border: none; border-radius: 100px;
+    box-shadow: 0 10px 24px rgba(31,35,40,0.20);
+    gap: 6px; cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.2s ease, filter 0.2s ease;
+  }
+  .submit:hover {
+    transform: translateY(-1px);
+    filter: brightness(1.08);
+    box-shadow: 0 14px 30px rgba(31,35,40,0.26);
+  }
+
   .err {
     font-size: 10px;
     margin-top: 8px;
     height: 12px;
   }
+
+  /* Hide the now-redundant "Sign in to continue." subtitle for a cleaner stack */
+  .sub-pass { display: none; }
+  .pass-hero { gap: 12px; }
 
   /* When the password is accepted and the video starts playing, dim
      the center cluster so attention follows the car. */
@@ -670,16 +744,25 @@
 
     <div class="capsule-wrap">
       <div class="capsule" id="capsule">
-        <span class="lock-ico">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-        </span>
-        <input id="pw" class="pw-input" type="password" placeholder="Enter passcode" autocomplete="off" autocapitalize="off" spellcheck="false">
-        <button class="toggle-vis" id="toggleVis" type="button" aria-label="Show passcode">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>
-        </button>
-        <button class="submit" id="go" type="button">Enter →</button>
+        <div class="auth-row">
+          <span class="row-ico" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
+          </span>
+          <input id="usr" class="pw-input" type="text" placeholder="Username" autocomplete="username" autocapitalize="off" spellcheck="false">
+        </div>
+        <div class="auth-div"></div>
+        <div class="auth-row">
+          <span class="row-ico" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          </span>
+          <input id="pw" class="pw-input" type="password" placeholder="Password" autocomplete="current-password" autocapitalize="off" spellcheck="false">
+          <button class="toggle-vis" id="toggleVis" type="button" aria-label="Show password">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+        </div>
       </div>
-      <div class="err" id="err">That passcode doesn't open either door.</div>
+      <button class="submit" id="go" type="button">Enter <span aria-hidden="true">→</span></button>
+      <div class="err" id="err">That doesn't open either door.</div>
     </div>
   </div>
 
@@ -875,6 +958,8 @@
 
   document.getElementById('go').addEventListener('click', submitPW);
   pw.addEventListener('keydown', (e) => { if (e.key === 'Enter') submitPW(); });
+  const usr = document.getElementById('usr');
+  if (usr) usr.addEventListener('keydown', (e) => { if (e.key === 'Enter') submitPW(); });
   document.getElementById('toggleVis').addEventListener('click', () => {
     pw.type = pw.type === 'password' ? 'text' : 'password';
   });
