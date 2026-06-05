@@ -558,7 +558,10 @@
      hairline-only capsules, orange pill ENTER, mono footer.
      Auth/role logic untouched from main.
   ===================================================================== */
-  .pass-shell { padding-bottom: clamp(120px, 18vh, 200px); }
+  .pass-shell {
+    justify-content: flex-end !important;
+    padding-bottom: clamp(80px, 12vh, 140px) !important;
+  }
   .pass-logo img { width: 92px !important; }
   @media (max-width: 520px) {
     .pass-logo img { width: 76px !important; }
