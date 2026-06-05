@@ -560,7 +560,9 @@
   ===================================================================== */
   .pass-shell {
     justify-content: flex-end !important;
-    padding-bottom: clamp(80px, 12vh, 140px) !important;
+    align-items: flex-start !important;
+    padding-bottom: clamp(48px, 8vh, 100px) !important;
+    padding-left: clamp(24px, 10vw, 160px) !important;
   }
   .pass-logo img { width: 92px !important; }
   @media (max-width: 520px) {
@@ -668,6 +670,7 @@
   }
 
   @media (max-width: 520px) {
+    .pass-shell { padding-left: 20px !important; padding-right: 20px !important; }
     .pass-hero { width: min(300px, 86vw) !important; gap: 14px !important; }
     .greeting { font-size: 14px !important; }
     .capsule { height: 36px !important; }
