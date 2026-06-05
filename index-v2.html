@@ -1,0 +1,1012 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<!-- PWA / favicons -->
+<link rel="manifest" href="/manifest.json">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Neighborly">
+<meta name="theme-color" content="#e87142">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png">
+
+<title>Neighbors Only Portal — Neighborly</title>
+<link rel="stylesheet" href="theme.css">
+<script src="chrome.js" defer></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&family=DM+Mono:wght@400&family=Jost:wght@500;600;700&display=swap');
+
+  @font-face { font-family: 'Tuppence'; src: url('fonts/TuppenceVariable.otf') format('opentype'); font-display: swap; }
+  .amp {
+    font-family: 'Tuppence', serif;
+    font-weight: 500;
+    font-style: normal;
+    margin: 0 0.04em;
+    font-size: 1.05em;
+    vertical-align: baseline;
+  }
+  @font-face { font-family: 'TAYAmaya'; src: url('fonts/TAYAmaya.otf') format('opentype'); font-display: swap; }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --dark:#1f2328; --yellow:#eace49; --green:#7bbd91;
+    --lav:#cbc9d6; --cream:#f2f2f2; --off:#e5e3d6; --orange:#e87142;
+    --sand:#dbc6a2; --blue:#6280bd; --softgreen:#cedbce;
+    --surface:#fff; --border:#e8e6dd; --border-strong:#d4d1c5;
+    --text:#1f2328; --text2:#3a3d44; --text3:#7a7770;
+
+    --bg: var(--cream); --ink: var(--dark);
+  }
+
+  html, body {
+    min-height: 100vh; width: 100%;
+    background: var(--bg); color: var(--ink);
+    font-family: 'DM Sans', sans-serif;
+    overflow-x: hidden;
+  }
+  body { display: flex; flex-direction: column; transition: background 0.6s ease, color 0.6s ease; }
+  main { flex: 1 0 auto; }
+  footer.foot { flex-shrink: 0; }
+
+  body::before {
+    content: ''; position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+    opacity: 0.5; pointer-events: none; z-index: 0;
+  }
+  .blob {
+    position: fixed; border-radius: 50%; filter: blur(110px);
+    opacity: 0; pointer-events: none; z-index: 0;
+    transition: background 0.6s ease, opacity 0.6s ease;
+  }
+  .b1 { width: 620px; height: 620px; background: var(--yellow); top: -200px; right: -160px; }
+  .b2 { width: 480px; height: 480px; background: var(--green);  bottom: -160px; left: -120px; }
+  .b3 { width: 320px; height: 320px; background: var(--lav);    top: 30%; right: 8%; }
+  body[data-side="guest"] .b1 { background: var(--orange); opacity: 0.12; }
+  body[data-side="guest"] .b2 { background: var(--lav); }
+  body[data-side="guest"] .b3 { background: var(--sand); }
+
+  /* ===== STATE TOGGLES ===== */
+  /* Default: passcode visible, hub hidden */
+  body[data-state="passcode"] .hub-shell { display: none; }
+  body[data-state="hub"] .pass-shell    { display: none; }
+
+  /* ===========================================================
+     PASSCODE STAGE
+  ============================================================= */
+  .pass-shell {
+    position: fixed; inset: 0; z-index: 1;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 2rem;
+    transition: opacity 0.4s ease;
+  }
+  .pass-shell.fading { opacity: 0; pointer-events: none; }
+
+  .pass-logo {
+    position: absolute; top: 40px; left: 50%; transform: translateX(-50%);
+    z-index: 2;
+  }
+  .pass-logo img {
+    width: 145px; height: auto; display: block;
+    filter: brightness(0) drop-shadow(0 1px 4px rgba(31,35,40,0.10));
+    opacity: 0; animation: rise 0.6s ease 0.1s forwards;
+  }
+  @media (max-width: 520px) {
+    /* Scale down passcode logo ~50% on phones */
+    .pass-logo { top: 32px; }
+    .pass-logo img { width: 132px; }
+  }
+
+  .pass-hero {
+    display: flex; flex-direction: column; align-items: center;
+    gap: 14px;
+    width: min(440px, 100%);
+  }
+
+  .greeting {
+    font-family: 'TAYAmaya', 'DM Sans', sans-serif;
+    font-size: clamp(31px, 4.9vw, 50px);
+    line-height: 1; letter-spacing: -0.005em;
+    color: var(--ink); text-align: center;
+    min-height: 1em;
+    display: inline-flex; align-items: baseline; justify-content: center;
+    white-space: nowrap;
+    opacity: 0;
+    animation: rise 0.6s ease 0.55s forwards;
+  }
+  .greeting .cursor {
+    display: inline-block; width: 2.5px; height: 0.78em;
+    background: var(--ink); margin-left: 5px;
+    transform: translateY(0.08em);
+    animation: blink 1s steps(1) infinite;
+  }
+
+  .sub-pass {
+    font-family: 'Jost', 'futura-pt', 'Futura', sans-serif;
+    font-weight: 600;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.22em;
+    color: var(--ink); opacity: 0; text-align: center;
+    transition: opacity 0.5s ease;
+  }
+  .sub-pass.shown { opacity: 0.7; }
+
+  .divider-pass {
+    width: 0; height: 0.5px; background: var(--ink); opacity: 0;
+    animation: expandLine 0.9s ease 1.6s forwards;
+  }
+
+  .capsule-wrap {
+    width: min(360px, 100%);
+    opacity: 0; transform: translateY(10px);
+    animation: rise 0.55s ease 1.5s forwards;
+  }
+  .capsule {
+    display: flex; align-items: center;
+    background: rgba(255,255,255,0.92);
+    backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+    border: 1.5px solid rgba(31,35,40,0.15);
+    border-radius: 100px;
+    padding: 0 16px; height: 56px; gap: 12px;
+    transition: border-color 0.25s ease, box-shadow 0.25s ease;
+  }
+  .capsule:focus-within {
+    border-color: var(--dark);
+    box-shadow: 0 0 0 4px rgba(0,0,0,0.05);
+  }
+  .capsule.error { border-color: var(--orange); animation: shake 0.36s ease; }
+  .capsule.accept { border-color: var(--orange); }
+
+  .lock-ico { display: flex; align-items: center; opacity: 0.6; flex-shrink: 0; }
+  .pw-input {
+    flex: 1; border: none; background: transparent; outline: none;
+    font-family: 'DM Mono', monospace;
+    font-size: 16px; letter-spacing: 0.16em; color: var(--ink); width: 100%;
+  }
+  .pw-input::placeholder {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px; letter-spacing: 0.02em; color: #8a8780;
+  }
+  .toggle-vis {
+    background: none; border: none; cursor: pointer; padding: 6px;
+    color: var(--ink); opacity: 0.55; display: flex; align-items: center;
+  }
+  .toggle-vis:hover { opacity: 1; }
+
+  .submit {
+    background: var(--orange); color: #fff8f1;
+    border: none; border-radius: 100px;
+    height: 36px; padding: 0 14px;
+    font-family: 'DM Sans', sans-serif; font-size: 11.5px; font-weight: 600;
+    line-height: 1; letter-spacing: 0.04em;
+    cursor: pointer; display: inline-flex; align-items: center; gap: 6px;
+    box-shadow: 0 4px 14px rgba(232,113,66,0.28);
+    transition: transform 0.15s ease, box-shadow 0.2s ease, filter 0.2s ease;
+    flex-shrink: 0;
+  }
+  .submit:hover { transform: scale(1.03); filter: brightness(1.05); box-shadow: 0 6px 18px rgba(232,113,66,0.36); }
+
+  @media (max-width: 420px) {
+    .capsule { height: 52px; padding: 0 6px 0 14px; gap: 6px; }
+    .lock-ico svg { width: 14px; height: 14px; }
+    .toggle-vis { padding: 4px; }
+    .toggle-vis svg { width: 16px; height: 16px; }
+    .pw-input { font-size: 16px; letter-spacing: 0.12em; min-width: 0; }
+    .pw-input::placeholder { font-size: 12.5px; }
+    .submit { height: 38px; padding: 0 14px; font-size: 11px; }
+  }
+
+  .err {
+    margin-top: 14px; height: 14px;
+    font-size: 11.5px; color: var(--orange); text-align: center;
+    opacity: 0; transition: opacity 0.2s ease;
+  }
+  .err.show { opacity: 1; }
+
+  .portal-foot {
+    position: fixed; bottom: 26px; left: 0; right: 0; width: 100%;
+    text-align: center;
+    font-family: 'Jost', 'futura-pt', 'Futura', sans-serif;
+    font-weight: 600;
+    font-size: 11px; letter-spacing: 0.34em; text-transform: uppercase;
+    color: var(--ink); opacity: 0; z-index: 2;
+    animation: rise 0.6s ease 2.05s forwards;
+    pointer-events: none;
+  }
+  .portal-foot.shown { opacity: 0.5; }
+
+  /* Sweep — shared transition between states */
+  .sweep {
+    position: fixed; inset: 0; z-index: 50;
+    transform: translateY(100%);
+    pointer-events: none;
+    transition: transform 0.7s cubic-bezier(0.7, 0, 0.2, 1), opacity 0.5s ease 0.4s;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--orange);
+  }
+  .sweep.up { transform: translateY(0); }
+  .sweep.lift { opacity: 0; }
+  .sweep-text {
+    font-family: 'TAYAmaya', 'DM Sans', sans-serif;
+    font-size: clamp(28px, 4.6vw, 44px);
+    color: #fff8f1;
+    opacity: 0; transition: opacity 0.4s ease 0.35s;
+    text-align: center;
+  }
+  .sweep.up .sweep-text { opacity: 1; }
+  .sweep.lav { background: var(--lav); }
+  .sweep.lav .sweep-text { color: #1f2328; }
+
+  /* ===========================================================
+     HUB STAGE — same look as web-dashboard.html
+  ============================================================= */
+  nav.topbar {
+    position: sticky; top: 0; z-index: 30;
+    height: 68px;
+    display: flex; justify-content: space-between; align-items: center;
+    /* Match the centred-container math used by main, so the Neighborly logo
+       sits flush with the widest text (i.e. the content's left edge). */
+    padding-left: max(var(--gutter), calc(50% - var(--content-max) / 2 + var(--gutter)));
+    padding-right: max(var(--gutter), calc(50% - var(--content-max) / 2 + var(--gutter)));
+    background: rgba(255,255,255,0.78);
+    backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+    border-bottom: 1px solid rgba(31,35,40,0.06);
+  }
+  .nav-brand {
+    display: flex; align-items: center; gap: 10px;
+    cursor: pointer; padding: 6px 10px; border-radius: 10px;
+    transition: background 0.2s ease;
+  }
+  .nav-brand:hover { background: rgba(31,35,40,0.04); }
+  .nav-brand img { height: 31px; width: auto; display: block; }
+  /* desktop date chip matches logo height for a balanced banner */
+  .nav-brand .chev {
+    display: none;
+    width: 14px; height: 14px; color: var(--text3);
+    transition: transform 0.25s ease;
+  }
+  .nav-brand.open .chev { transform: rotate(180deg); }
+  .nav-right { display: flex; align-items: center; gap: 8px; }
+
+  .date-chip {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 7px 14px;
+    background: rgba(31,35,40,0.04);
+    border-radius: 100px;
+    color: var(--text2);
+    font-family: 'Jost', 'futura-pt', 'Futura', sans-serif;
+    font-weight: 600;
+    font-size: 11px; letter-spacing: 0.22em;
+    text-transform: uppercase;
+    user-select: none;
+  }
+  .date-chip svg { opacity: 0.7; }
+
+  /* Hub dropdown */
+  .hub-overlay {
+    position: fixed; inset: 0; z-index: 25;
+    background: rgba(31,35,40,0.18);
+    backdrop-filter: blur(2px);
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.25s ease;
+  }
+  .hub-overlay.open { opacity: 1; pointer-events: auto; }
+  .hub-pop {
+    position: fixed;
+    top: 50%; left: 50%;
+    transform: translate(-50%, calc(-50% - 6px));
+    z-index: 28;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 18px;
+    width: min(420px, calc(100vw - 24px));
+    max-height: calc(100vh - 80px); overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.16);
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+  }
+  .hub-pop.open { opacity: 1; transform: translate(-50%, -50%); pointer-events: auto; }
+  .hub-label {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    font-family: 'futura-pt', 'Jost', sans-serif;
+    font-weight: 600; font-size: 11px; letter-spacing: 0.28em; text-transform: uppercase;
+    color: var(--text3); margin-bottom: 12px;
+  }
+  .hub-label .hub-back-home {
+    font-family: 'DM Sans', sans-serif; font-weight: 500;
+    font-size: 11px; letter-spacing: 0; text-transform: none;
+    color: var(--text2); text-decoration: none;
+    padding: 4px 10px;
+    border: 1px solid var(--border-strong); border-radius: 7px;
+    background: var(--surface-2, #F0EEE9);
+    white-space: nowrap;
+    transition: background 0.15s, color 0.15s;
+  }
+  .hub-label .hub-back-home:hover { background: var(--surface, #fff); color: var(--text); }
+  .hub-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .hub-card {
+    display: flex; flex-direction: column; gap: 8px;
+    padding: 16px; border-radius: 14px;
+    background: #ffffff;
+    border: 1px solid var(--border);
+    text-decoration: none; color: var(--text); cursor: pointer;
+    transition: background 0.18s, border-color 0.18s, transform 0.18s;
+  }
+  .hub-card:hover { transform: translateY(-1px); border-color: var(--border-strong); }
+  .hub-card.active { background: #fff; border-color: var(--dark); }
+  .hub-card-ico { width: 30px; height: 30px; border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+  .hub-card-ico svg { width: 14px; height: 14px; }
+  .hub-card-title { font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 600; line-height: 1.2; }
+  .hub-card-sub { font-size: 12px; color: var(--text3); line-height: 1.35; }
+
+  main {
+    position: relative; z-index: 1;
+    max-width: var(--content-max); margin: 0 auto;
+    /* Use the same horizontal token as the topbar so the logo lines up with
+       the widest text below it. */
+    padding: clamp(128px, 18vh, 200px) var(--gutter) 80px;
+  }
+  .hero { text-align: center; margin-bottom: 0; }
+  .hero-greet {
+    font-family: 'TAYAmaya', 'DM Sans', sans-serif;
+    font-size: clamp(34px, 4vw, 52px);
+    line-height: 1; letter-spacing: -0.005em;
+    color: var(--dark);
+    margin-bottom: 12px;
+    min-height: 1em;
+    display: inline-flex; align-items: baseline;
+  }
+  .hero-greet .cursor {
+    display: inline-block; width: 2px; height: 0.78em;
+    background: var(--dark); margin-left: 4px;
+    transform: translateY(0.08em);
+    animation: blink 1s steps(1) infinite;
+  }
+  .hero-sub {
+    font-family: 'futura-pt', 'Jost', 'Futura', sans-serif;
+    font-weight: 600;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.32em;
+    color: var(--text3);
+    max-width: 640px; margin: 6px auto 0;
+  }
+  .hero-sub.empty { display: none; }
+
+  .hero-divider {
+    width: 120px; height: 1px;
+    background: var(--dark); opacity: 0.18;
+    margin: 56px auto 64px;
+  }
+
+  .tile-grid {
+    display: flex; flex-wrap: wrap;
+    justify-content: center;
+    gap: 16px;
+  }
+  .tile-grid .tile { flex: 0 0 calc((100% - 32px) / 3); }
+  body[data-side="guest"] .tile-grid .tile { flex: 0 0 min(560px, 100%); }
+
+  .tile {
+    position: relative;
+    display: flex; flex-direction: column; justify-content: space-between;
+    min-height: 144px;
+    background: rgba(255,255,255,0.86);
+    backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+    border: 1.5px solid rgba(31,35,40,0.10);
+    border-radius: 18px;
+    padding: 16px;
+    text-decoration: none; color: var(--dark);
+    overflow: hidden; cursor: pointer;
+    transition: transform 0.22s ease, box-shadow 0.25s ease, border-color 0.22s ease;
+  }
+  body[data-side="guest"] .tile { min-height: 200px; padding: 24px; }
+  .tile:hover { transform: translateY(-3px); box-shadow: 0 18px 40px rgba(0,0,0,0.10); }
+  .tile-ico {
+    width: 34px; height: 34px; border-radius: 10px;
+    background: rgba(31,35,40,0.06);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--dark); transition: background 0.22s, color 0.22s;
+  }
+  .tile-ico svg { width: 17px; height: 17px; }
+  .tile-body { display: flex; flex-direction: column; gap: 2px; margin-top: 14px; }
+  .tile-label { font-family: 'Jost', 'futura-pt', 'Futura', sans-serif; font-weight: 600; font-size: 13.5px; line-height: 1.3; letter-spacing: 0.18em; text-transform: uppercase; color: #1f2328; }
+  .tile-sub { font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; opacity: 0.6; letter-spacing: 0.01em; margin-top: 2px; }
+  .tile .live {
+    position: absolute; top: 16px; right: 16px;
+    display: inline-flex; align-items: center; gap: 6px;
+    font-family: 'futura-pt', 'Jost', sans-serif; font-weight: 600;
+    font-size: 9.5px; letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--text3);
+  }
+  .tile .live::before {
+    content: ''; width: 6px; height: 6px; border-radius: 50%;
+    background: var(--green); box-shadow: 0 0 0 4px rgba(123,189,145,0.18);
+    animation: pulse 1.8s ease-in-out infinite;
+  }
+
+  /* tile color personalities (matching web-dashboard.html) */
+  .t-sales { border-color: rgba(234,206,73,0.55); }
+  .t-sales:hover { background: var(--yellow); border-color: var(--yellow); }
+  .t-sales:hover .tile-ico { background: rgba(31,35,40,0.12); }
+  body[data-side="guest"] .t-sales { border-color: rgba(232,113,66,0.55); }
+  body[data-side="guest"] .t-sales:hover { background: var(--orange); border-color: var(--orange); color: #fff8f1; }
+  body[data-side="guest"] .t-sales:hover .tile-sub { color: #fff8f1; }
+  body[data-side="guest"] .t-sales:hover .tile-ico { background: rgba(255,255,255,0.16); color: #fff8f1; }
+  body[data-side="guest"] .t-sales:hover .live { color: #fff8f1; }
+  .t-pmix { border-color: rgba(206,219,206,0.85); }
+  .t-pmix:hover { background: var(--softgreen); border-color: var(--softgreen); }
+  .t-pmix:hover .tile-ico { background: rgba(31,35,40,0.12); }
+  .t-cal { border-color: rgba(123,189,145,0.55); }
+  .t-cal:hover { background: var(--green); border-color: var(--green); }
+  .t-cal:hover .tile-ico { background: rgba(31,35,40,0.12); }
+  .t-assets { border-color: rgba(219,198,162,0.65); }
+  .t-assets:hover { background: var(--sand); border-color: var(--sand); }
+  .t-assets:hover .tile-ico { background: rgba(31,35,40,0.12); }
+  .t-social { border-color: rgba(98,128,189,0.45); }
+  .t-social:hover { background: var(--blue); border-color: var(--blue); color: #fff8f1; }
+  .t-social:hover .tile-sub { color: #fff8f1; }
+  .t-social:hover .tile-ico { background: rgba(255,255,255,0.16); color: #fff8f1; }
+  .t-guests { border-color: rgba(203,201,214,0.65); }
+  .t-guests:hover { background: var(--lav); border-color: var(--lav); }
+  .t-guests:hover .tile-ico { background: rgba(31,35,40,0.10); }
+
+  .tile-grid .tile { opacity: 0; transform: translateY(12px); }
+  .tile-grid.in .tile { animation: tileIn 0.55s cubic-bezier(0.34,1.3,0.64,1) forwards; }
+  .tile-grid.in .tile:nth-child(1) { animation-delay: 0.05s; }
+  .tile-grid.in .tile:nth-child(2) { animation-delay: 0.12s; }
+  .tile-grid.in .tile:nth-child(3) { animation-delay: 0.19s; }
+  .tile-grid.in .tile:nth-child(4) { animation-delay: 0.26s; }
+  .tile-grid.in .tile:nth-child(5) { animation-delay: 0.33s; }
+
+  footer.foot {
+    position: relative; z-index: 1; text-align: center;
+    padding: 28px 0 32px;
+    font-family: 'futura-pt', 'Jost', 'Futura', sans-serif;
+    font-weight: 600; font-size: 12.5px; letter-spacing: 0.34em; text-transform: uppercase;
+    color: var(--dark); opacity: 0.42;
+  }
+
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes blink { 0%,49% { opacity:1; } 50%,100% { opacity:0; } }
+  @keyframes expandLine {
+    from { width: 0; opacity: 0; }
+    to   { width: min(280px, 80%); opacity: 0.14; }
+  }
+  @keyframes shake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
+  @keyframes tileIn { to { opacity: 1; transform: translateY(0); } }
+  @keyframes pulse {
+    0%,100% { box-shadow: 0 0 0 4px rgba(123,189,145,0.18); }
+    50%     { box-shadow: 0 0 0 8px rgba(123,189,145,0.05); }
+  }
+
+  /* Hub fade-in once the sweep settles */
+  .hub-shell {
+    opacity: 0;
+    transition: opacity 0.5s ease 0.1s;
+  }
+  body[data-state="hub"] .hub-shell { opacity: 1; }
+
+  @media (max-width: 880px) {
+    .tile-grid .tile { flex: 0 0 calc((100% - 16px) / 2); }
+    /* Match topbar and main side padding so the logo stays flush with the
+       widest text in the hub grid below. */
+    nav.topbar { padding: 0 16px; }
+    main { padding: clamp(72px, 10vh, 120px) 16px 60px; }
+    .hub-pop { width: min(420px, calc(100vw - 24px)); }
+  }
+  @media (max-width: 520px) {
+    /* Compact mobile nav: smaller logo, tighter chrome */
+    nav.topbar { height: 60px; padding: 0 16px; }
+    .nav-brand { padding: 10px 12px 10px 8px; gap: 6px; min-height: 44px; min-width: 44px; }
+    .nav-brand img { height: 20px; }
+    .date-chip { padding: 6px 10px; font-size: 11px; }
+    .date-chip svg { width: 11px; height: 11px; }
+    .hub-pop { padding: 14px; border-radius: 16px; }
+    .hub-grid { gap: 6px; }
+    .hub-card { padding: 10px; border-radius: 10px; }
+    .hub-card-title { font-size: 13px; }
+    .hub-card-sub { font-size: 11.5px; }
+
+    /* Uniform mobile tiles */
+    .tile-grid { gap: 10px; }
+    .tile-grid .tile { flex: 0 0 100%; min-height: 84px !important; padding: 14px 16px !important; border-radius: 14px !important; }
+    .tile .tile-ico { width: 30px !important; height: 30px !important; border-radius: 8px !important; }
+    .tile .tile-ico svg { width: 15px !important; height: 15px !important; }
+    .tile .tile-label { font-size: 12.5px !important; letter-spacing: 0.16em !important; }
+    .tile .tile-sub { font-size: 11.5px !important; }
+    .tile-body { margin-top: 8px !important; }
+    .tile .live { top: 12px !important; right: 12px !important; font-size: 8.5px !important; }
+
+    /* Tighter hero spacing so first tile sits above the fold */
+    main { padding: 16px 16px 60px !important; }
+    .hero-greet { font-size: clamp(30px, 8vw, 38px) !important; }
+    .hero-sub { font-size: 10.5px !important; letter-spacing: 0.26em !important; }
+    .hero-divider { margin: 22px auto 22px !important; width: 80px !important; }
+    footer.foot { padding: 20px 0 24px; font-size: 11px; letter-spacing: 0.28em; }
+  }
+  .track-center { display: inline-block; margin-right: -0.34em; }
+
+
+  /* Prevent any vertical jump when state flips from passcode -> hub */
+  body[data-state="hub"] .pass-shell { display: none !important; }
+  body[data-state="hub"] main { padding-top: clamp(96px, 14vh, 160px); }
+  html { scroll-behavior: auto; }
+
+  /* ===========================================================
+     V2 — backdrop video + elevated, slimmer center cluster
+  ============================================================= */
+  .bg-video {
+    position: fixed; inset: 0;
+    width: 100%; height: 100%;
+    object-fit: cover;
+    z-index: 0;
+    background: var(--cream);
+    pointer-events: none;
+  }
+  .bg-wash {
+    position: fixed; inset: 0; z-index: 0;
+    pointer-events: none;
+    background:
+      radial-gradient(ellipse 90% 70% at 50% 45%, transparent 55%, rgba(242,242,242,0.55) 100%),
+      linear-gradient(to bottom, rgba(242,242,242,0.55) 0%, transparent 18%, transparent 70%, rgba(242,242,242,0.62) 100%);
+    transition: opacity 0.7s ease;
+  }
+  /* Once the user is on the hub, hide the entry-video chrome entirely */
+  body[data-state="hub"] .bg-video,
+  body[data-state="hub"] .bg-wash { display: none; }
+
+  /* Lift the central content above the geometric center for a more
+     composed, "elevated" feel; keep logo/footer exactly where they were. */
+  .pass-shell {
+    justify-content: flex-start;
+    padding-top: clamp(170px, 28vh, 280px);
+  }
+
+  /* Static welcome — no typewriter, no cursor */
+  .greeting {
+    animation: none;
+    opacity: 1;
+    font-size: clamp(28px, 4.2vw, 44px);
+    letter-spacing: -0.01em;
+    transition: opacity 0.5s ease;
+  }
+  .greeting .cursor { display: none; }
+  .sub-pass {
+    opacity: 0.6;
+    font-size: 10.5px;
+    letter-spacing: 0.26em;
+    transition: opacity 0.5s ease;
+  }
+  .divider-pass { display: none; }
+
+  /* Slightly smaller, more "floating" capsule */
+  .capsule-wrap {
+    width: min(340px, 100%);
+    margin-top: 6px;
+  }
+  .capsule {
+    height: 50px;
+    padding: 0 8px 0 14px;
+    gap: 10px;
+    background: rgba(255,255,255,0.78);
+    border: 1px solid rgba(31,35,40,0.12);
+    box-shadow:
+      0 14px 40px rgba(31,35,40,0.10),
+      0 1px 2px rgba(31,35,40,0.04);
+  }
+  .capsule:focus-within {
+    box-shadow:
+      0 18px 48px rgba(31,35,40,0.14),
+      0 0 0 4px rgba(0,0,0,0.04);
+  }
+  .pw-input { font-size: 15px; letter-spacing: 0.14em; }
+  .pw-input::placeholder { font-size: 12.5px; }
+  .submit {
+    height: 34px;
+    padding: 0 13px;
+    font-size: 11px;
+    box-shadow: 0 6px 16px rgba(232,113,66,0.30);
+  }
+
+  /* When the password is accepted and the video starts playing, dim
+     the center cluster so attention follows the car. */
+  body[data-entering="1"] .greeting,
+  body[data-entering="1"] .sub-pass,
+  body[data-entering="1"] .capsule-wrap {
+    opacity: 0;
+    transition: opacity 0.6s ease;
+    pointer-events: none;
+  }
+  body[data-entering="1"] .greeting { opacity: 0.85; }
+
+  @media (max-width: 520px) {
+    .pass-shell { padding-top: clamp(140px, 22vh, 220px); }
+    .capsule-wrap { width: min(320px, 100%); }
+  }
+</style>
+</head>
+<body data-state="passcode" data-side="team">
+
+<video class="bg-video" id="bgVideo" muted playsinline preload="auto" disablepictureinpicture x-webkit-airplay="deny">
+  <source src="./portal-intro.mp4" type="video/mp4">
+</video>
+<div class="bg-wash"></div>
+
+<div class="blob b1"></div>
+<div class="blob b2"></div>
+<div class="blob b3"></div>
+
+<!-- ==================== PASSCODE ==================== -->
+<div class="pass-shell" id="passShell">
+  <div class="pass-logo">
+    <img src="./NeighborlyLogo.png" alt="Neighborly">
+  </div>
+
+  <div class="pass-hero">
+    <div class="greeting"><span id="greetText">Welcome.</span></div>
+    <div class="sub-pass" id="subPass">Sign in to continue.</div>
+    <div class="divider-pass"></div>
+
+    <div class="capsule-wrap">
+      <div class="capsule" id="capsule">
+        <span class="lock-ico">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        </span>
+        <input id="pw" class="pw-input" type="password" placeholder="Enter passcode" autocomplete="off" autocapitalize="off" spellcheck="false">
+        <button class="toggle-vis" id="toggleVis" type="button" aria-label="Show passcode">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>
+        </button>
+        <button class="submit" id="go" type="button">Enter →</button>
+      </div>
+      <div class="err" id="err">That passcode doesn't open either door.</div>
+    </div>
+  </div>
+
+  <div class="portal-foot shown"><span class="track-center">Neighbors Only Portal</span></div>
+</div>
+
+<!-- ==================== SWEEP ==================== -->
+<div class="sweep" id="sweep">
+  <div class="sweep-text" id="sweepText"></div>
+</div>
+
+<!-- ==================== HUB ==================== -->
+<div class="hub-shell" id="hubShell">
+  <nav class="topbar">
+    <div class="nav-brand" id="navBrand">
+      <img src="./NeighborlyLogo.png" alt="Neighborly">
+      <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+    <div class="nav-right">
+      <div class="date-chip" id="dateChip">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 11h18"/></svg>
+        <span id="dateText">—</span>
+      </div>
+    </div>
+  </nav>
+
+  <div class="hub-overlay" id="hubOverlay"></div>
+  <div class="hub-pop" id="hubPop">
+    <div class="hub-label"><span>Neighborly Marketing Hub</span></div>
+    <div class="hub-grid" id="hubGrid"></div>
+  </div>
+
+  <main>
+    <div class="hero">
+      <div class="hero-greet"><span id="heroGreet"></span><span class="cursor"></span></div>
+      <div class="hero-sub" id="heroSub">Welcome to your team hub</div>
+    </div>
+
+    <div class="hero-divider"></div>
+
+    <div class="tile-grid in" id="tileGrid">
+      <a class="tile t-sales" data-roles="team,guest" data-key="sales" href="neighborly-dashboard.html">
+        <span class="live">Live</span>
+        <span class="tile-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l5-5 4 4 8-8"/><path d="M14 8h6v6"/></svg></span>
+        <span class="tile-body">
+          <span class="tile-label">Performance Marketing</span>
+          <span class="tile-sub">Weekly &amp; all-time KPIs</span>
+        </span>
+      </a>
+      <a class="tile t-pmix" data-roles="team,guest" data-key="pmix" href="neighborly-pmix.html">
+        <span class="tile-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span>
+        <span class="tile-body">
+          <span class="tile-label">Sales &amp; Pmix</span>
+          <span class="tile-sub">Daily sales &amp; product mix</span>
+        </span>
+      </a>
+      <a class="tile t-cal" data-roles="team" data-key="calendar" href="neighborly-calendar.html">
+        <span class="tile-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 11h18"/></svg></span>
+        <span class="tile-body">
+          <span class="tile-label">Marketing Calendar</span>
+          <span class="tile-sub">Campaigns &amp; scheduling</span>
+        </span>
+      </a>
+      <a class="tile t-assets" data-roles="team" data-key="assets" href="neighborly-assets.html">
+        <span class="tile-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="M21 15l-5-5L5 21"/></svg></span>
+        <span class="tile-body">
+          <span class="tile-label">Brand Assets</span>
+          <span class="tile-sub">Logos &amp; templates</span>
+        </span>
+      </a>
+      <a class="tile t-social" data-roles="team" data-key="social" href="neighborly-social.html">
+        <span class="tile-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="12" r="3"/><circle cx="18" cy="6" r="3"/><circle cx="18" cy="18" r="3"/><path d="M8.5 10.5l7-3.5M8.5 13.5l7 3.5"/></svg></span>
+        <span class="tile-body">
+          <span class="tile-label">Social</span>
+          <span class="tile-sub">Reach &amp; engagement</span>
+        </span>
+      </a>
+      <a class="tile t-guests" data-roles="team" data-key="guests" href="neighborly-guests.html">
+        <span class="tile-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="4"/><path d="M2 21a7 7 0 0 1 14 0"/><path d="M16 3.5a4 4 0 0 1 0 8M22 21a7 7 0 0 0-5-6.7"/></svg></span>
+        <span class="tile-body">
+          <span class="tile-label">Guest Intelligence</span>
+          <span class="tile-sub">Feedback &amp; experience trends</span>
+        </span>
+      </a>
+    </div>
+  </main>
+
+  <footer class="foot"><span class="track-center">Neighbors Only Portal</span></footer>
+</div>
+
+<script>
+  /* ============ Passcode ============ */
+  const TEAM_PW  = 'neighborly';
+  const GUEST_PW = 'neighborsonly';
+  const SIDE_COLORS = { team: '#e87142', guest: '#cbc9d6' };
+
+  const greetEl  = document.getElementById('greetText');
+  const subPass  = document.getElementById('subPass');
+  const baseText = 'Welcome.';
+
+  function typeText(target, text, speed, done) {
+    target.textContent = '';
+    let i = 0;
+    (function step() {
+      if (i < text.length) {
+        target.textContent += text[i++];
+        setTimeout(step, speed);
+      } else if (done) done();
+    })();
+  }
+  function retypeGreeting(text, then) {
+    const cur = greetEl.textContent;
+    let i = cur.length;
+    (function erase() {
+      if (i > 0) {
+        greetEl.textContent = cur.slice(0, --i);
+        setTimeout(erase, 28);
+      } else {
+        typeText(greetEl, text, 75, then);
+      }
+    })();
+  }
+
+  // v2: static welcome — no typewriter
+  greetEl.textContent = baseText;
+  subPass.classList.add('shown');
+
+  const pw     = document.getElementById('pw');
+  const cap    = document.getElementById('capsule');
+  const err    = document.getElementById('err');
+  const sweep  = document.getElementById('sweep');
+  const sweepText = document.getElementById('sweepText');
+  const passShell = document.getElementById('passShell');
+  const bgVideo  = document.getElementById('bgVideo');
+
+  // Hold the video on its first frame until the user submits. A quick
+  // play/pause forces mobile Safari to render the frame instead of a
+  // black box.
+  if (bgVideo) {
+    const paintFirstFrame = () => {
+      try {
+        const p = bgVideo.play();
+        if (p && typeof p.then === 'function') {
+          p.then(() => bgVideo.pause()).catch(() => {});
+        } else {
+          bgVideo.pause();
+        }
+      } catch (e) {}
+    };
+    if (bgVideo.readyState >= 2) paintFirstFrame();
+    else bgVideo.addEventListener('loadeddata', paintFirstFrame, { once: true });
+  }
+
+  pw.addEventListener('input', () => {
+    cap.classList.remove('error');
+    err.classList.remove('show');
+  });
+
+  function submitPW() {
+    const v = pw.value.trim().toLowerCase();
+    if (!v) return;
+    if (v === TEAM_PW)  return accept('team');
+    if (v === GUEST_PW) return accept('guest');
+    cap.classList.add('error');
+    err.classList.add('show');
+    pw.select();
+  }
+
+  function accept(side) {
+    cap.classList.add('accept');
+    const phrase = side === 'team' ? 'Welcome back, team.' : 'Welcome home, neighbor.';
+    greetEl.textContent = phrase;
+    // The car drives off — release the still frame. The video itself
+    // is the transition; we drop into the hub when it ends.
+    document.body.dataset.entering = '1';
+    let entered = false;
+    const finalize = () => {
+      if (entered) return;
+      entered = true;
+      enterHub(side);
+    };
+    if (bgVideo) {
+      bgVideo.addEventListener('ended', finalize, { once: true });
+      try { bgVideo.currentTime = 0; } catch (e) {}
+      const p = bgVideo.play();
+      if (p && typeof p.catch === 'function') p.catch(() => finalize());
+    } else {
+      finalize();
+    }
+    // Safety net in case 'ended' never fires (network drop, codec quirk)
+    setTimeout(finalize, 9000);
+  }
+
+  document.getElementById('go').addEventListener('click', submitPW);
+  pw.addEventListener('keydown', (e) => { if (e.key === 'Enter') submitPW(); });
+  document.getElementById('toggleVis').addEventListener('click', () => {
+    pw.type = pw.type === 'password' ? 'text' : 'password';
+  });
+
+  /* ============ Hub ============ */
+  const HUB_ITEMS = [
+    { key: 'home',     label: 'Home',                sub: 'Marketing Hub overview',     bg:'#efece2', stroke:'#1f2328', roles:['team','guest'],
+      svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>' },
+    { key: 'sales',    label: 'Performance Marketing', sub: 'Weekly & all-time KPIs',     bg:'#fdf7d8', stroke:'#b89a00', roles:['team','guest'],
+      svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>' },
+    { key: 'pmix',     label: 'Sales & Pmix',         sub: 'Daily sales & product mix',  bg:'#e3ece3', stroke:'#5a7a5a', roles:['team','guest'],
+      svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>' },
+    { key: 'calendar', label: 'Marketing Calendar',  sub: 'Campaigns & scheduling',     bg:'#e4f5ea', stroke:'#2a7a4b', roles:['team'],
+      svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>' },
+    { key: 'assets',   label: 'Brand Assets',        sub: 'Logos & templates',   bg:'#f7f0e4', stroke:'#9c7a3c', roles:['team'],
+      svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 010 14.14M4.93 4.93a10 10 0 000 14.14M12 2v2M12 20v2M2 12h2M20 12h2"/></svg>' },
+    { key: 'social',   label: 'Social',              sub: 'Reach & engagement',         bg:'#eaeef8', stroke:'#3a59a0', roles:['team'],
+      svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h4l3-9 4 18 3-9h4"/></svg>' },
+    { key: 'guests',   label: 'Guest Intelligence',  sub: 'Feedback & experience trends', bg:'#f0eff5', stroke:'#5a4a7a', roles:['team'],
+      svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="4"/><path d="M2 21a7 7 0 0 1 14 0"/><path d="M16 3.5a4 4 0 0 1 0 8M22 21a7 7 0 0 0-5-6.7"/></svg>' }
+  ];
+  const HREF = {
+    home: '#',
+    sales: 'neighborly-dashboard.html',
+    pmix: 'neighborly-pmix.html',
+    calendar: 'neighborly-calendar.html',
+    assets: 'neighborly-assets.html',
+    social: 'neighborly-social.html',
+    guests: 'neighborly-guests.html'
+  };
+
+  let CURRENT_SIDE = 'team';
+  const body = document.body;
+  const hubPop = document.getElementById('hubPop');
+  const hubOverlay = document.getElementById('hubOverlay');
+  const hubGrid = document.getElementById('hubGrid');
+  const navBrand = document.getElementById('navBrand');
+  const tileGrid = document.getElementById('tileGrid');
+
+  function renderHub() {
+    const items = HUB_ITEMS.filter(i => i.roles.includes(CURRENT_SIDE));
+    hubGrid.innerHTML = items.map(i => `
+      <a class="hub-card ${i.key === 'home' ? 'active' : ''}" data-key="${i.key}" href="${HREF[i.key] || '#'}">
+        <div class="hub-card-ico" style="background:${i.bg}">
+          ${i.svg.replace('stroke="currentColor"', 'stroke="' + i.stroke + '"')}
+        </div>
+        <div class="hub-card-title">${i.label}</div>
+        <div class="hub-card-sub">${i.sub}</div>
+      </a>
+    `).join('');
+    hubGrid.querySelectorAll('.hub-card').forEach(el => {
+      if (el.dataset.key === 'home') {
+        el.addEventListener('click', (e) => { e.preventDefault(); closeHub(); });
+      }
+    });
+  }
+  function openHub()  { renderHub(); hubPop.classList.add('open'); hubOverlay.classList.add('open'); navBrand.classList.add('open'); }
+  function closeHub() { hubPop.classList.remove('open'); hubOverlay.classList.remove('open'); navBrand.classList.remove('open'); }
+  navBrand.addEventListener('click', () => { hubPop.classList.contains('open') ? closeHub() : openHub(); });
+  hubOverlay.addEventListener('click', closeHub);
+
+  function paintDate() {
+    const d = new Date();
+    const wk = d.toLocaleDateString('en-US', { weekday: 'short' });
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    document.getElementById('dateText').textContent = `${wk} ${mm}/${dd}`;
+  }
+
+  function applySide(side) {
+    CURRENT_SIDE = side;
+    body.dataset.side = side;
+    const heroSub = document.getElementById('heroSub');
+    if (side === 'team') {
+      heroSub.textContent = 'Welcome to your team hub';
+      heroSub.classList.remove('empty');
+    } else {
+      heroSub.textContent = '';
+      heroSub.classList.add('empty');
+    }
+    tileGrid.querySelectorAll('.tile').forEach(t => {
+      const roles = (t.dataset.roles || '').split(',');
+      t.style.display = roles.includes(side) ? '' : 'none';
+    });
+    tileGrid.classList.remove('in'); void tileGrid.offsetWidth; tileGrid.classList.add('in');
+  }
+
+  function typeHero() {
+    const txt = 'Hey, Neighbor!';
+    const el = document.getElementById('heroGreet');
+    let i = 0;
+    el.textContent = '';
+    setTimeout(function step() {
+      if (i <= txt.length) {
+        el.textContent = txt.slice(0, i++);
+        setTimeout(step, 80);
+      }
+    }, 200);
+  }
+
+  /* ============ Transition between states ============ */
+  function enterHub(side) {
+    applySide(side);
+    paintDate();
+    // Persist auth for 15 minutes so navigating back from internal pages
+    // (or briefly closing/reopening the tab) restores the hub without
+    // forcing the passcode again.
+    try {
+      localStorage.setItem('np_side', side);
+      localStorage.setItem('np_exp', String(Date.now() + 15 * 60 * 1000));
+    } catch (e) {}
+    body.dataset.state = 'hub';
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+    passShell.classList.add('fading');
+    typeHero();
+  }
+
+  // On page load: if the user authenticated within the last 15 minutes,
+  // skip the passcode screen and drop them straight into the hub. The
+  // back button on internal pages now returns here without re-prompting,
+  // and brief tab closes/reopens are also tolerated.
+  (function restoreSession() {
+    var saved, exp;
+    try {
+      saved = localStorage.getItem('np_side');
+      exp = parseInt(localStorage.getItem('np_exp') || '0', 10);
+    } catch (e) { saved = null; exp = 0; }
+    if (saved !== 'team' && saved !== 'guest') return;
+    if (!exp || Date.now() > exp) {
+      // Expired — clear and fall through to the passcode screen.
+      try { localStorage.removeItem('np_side'); localStorage.removeItem('np_exp'); } catch (e) {}
+      return;
+    }
+    // Sliding window: extend by another 15 minutes on each visit
+    try { localStorage.setItem('np_exp', String(Date.now() + 15 * 60 * 1000)); } catch (e) {}
+    applySide(saved);
+    paintDate();
+    body.dataset.state = 'hub';
+    // No sweep — just appear on the hub. Skip the typewriter delay too.
+    var heroEl = document.getElementById('heroGreet');
+    if (heroEl) heroEl.textContent = 'Hey, Neighbor!';
+    if (passShell) passShell.style.display = 'none';
+  })();
+</script>
+</body>
+</html>
