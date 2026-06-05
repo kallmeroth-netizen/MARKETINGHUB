@@ -575,7 +575,9 @@
     margin: 0 auto 4px !important;
     object-fit: contain !important;
     pointer-events: none;
-    mix-blend-mode: multiply;   /* knocks out the white background of the line drawing */
+    /* webm has real alpha — no blend needed; this also avoids the
+       extra compositing pass that was slightly softening the lines */
+    image-rendering: -webkit-optimize-contrast;
   }
   /* Static greeting (no typewriter/cursor), original TAYAmaya at small size */
   .greeting {
@@ -639,7 +641,9 @@
     bottom: 14px !important;
     transform: translateX(-50%) !important;
     height: 30px !important;
-    padding: 0 22px !important;
+    /* extra left padding = letter-spacing so trailing space doesn't push
+       the visible glyphs off-center */
+    padding: 0 22px 0 calc(22px + 0.16em) !important;
     font-family: 'Futura PT Demi', 'futura-pt', 'Jost', sans-serif !important;
     font-size: 11.5px !important;
     font-weight: 600 !important;
