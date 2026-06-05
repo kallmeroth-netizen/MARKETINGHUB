@@ -693,6 +693,10 @@
 
   <div class="pass-hero">
     <video class="bg-video" id="bgVideo" muted playsinline preload="auto" disablepictureinpicture x-webkit-airplay="deny" aria-hidden="true">
+      <!-- VP9 alpha — Chrome, Firefox, Edge, iOS Safari 17+ -->
+      <source src="./LineDrawingNeighborly_transparent.webm" type="video/webm">
+      <!-- Older Safari falls through to the opaque mp4; mix-blend-mode below
+           knocks out its white background so it still reads like a PNG. -->
       <source src="./LineDrawingNeighborly.mp4" type="video/mp4">
     </video>
     <div class="greeting"><span id="greetText"></span><span class="cursor"></span></div>
