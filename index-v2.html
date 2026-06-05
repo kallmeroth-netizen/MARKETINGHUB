@@ -541,9 +541,106 @@
   body[data-state="hub"] .pass-shell { display: none !important; }
   body[data-state="hub"] main { padding-top: clamp(96px, 14vh, 160px); }
   html { scroll-behavior: auto; }
+
+  /* ===========================================================
+     V2 — backdrop video + elevated, slimmer center cluster
+  ============================================================= */
+  .bg-video {
+    position: fixed; inset: 0;
+    width: 100%; height: 100%;
+    object-fit: cover;
+    z-index: 0;
+    background: var(--cream);
+    pointer-events: none;
+  }
+  .bg-wash {
+    position: fixed; inset: 0; z-index: 0;
+    pointer-events: none;
+    background:
+      radial-gradient(ellipse 90% 70% at 50% 45%, transparent 55%, rgba(242,242,242,0.55) 100%),
+      linear-gradient(to bottom, rgba(242,242,242,0.55) 0%, transparent 18%, transparent 70%, rgba(242,242,242,0.62) 100%);
+    transition: opacity 0.7s ease;
+  }
+  /* Once the user is on the hub, hide the entry-video chrome entirely */
+  body[data-state="hub"] .bg-video,
+  body[data-state="hub"] .bg-wash { display: none; }
+
+  /* Lift the central content above the geometric center for a more
+     composed, "elevated" feel; keep logo/footer exactly where they were. */
+  .pass-shell {
+    justify-content: flex-start;
+    padding-top: clamp(170px, 28vh, 280px);
+  }
+
+  /* Static welcome — no typewriter, no cursor */
+  .greeting {
+    animation: none;
+    opacity: 1;
+    font-size: clamp(28px, 4.2vw, 44px);
+    letter-spacing: -0.01em;
+    transition: opacity 0.5s ease;
+  }
+  .greeting .cursor { display: none; }
+  .sub-pass {
+    opacity: 0.6;
+    font-size: 10.5px;
+    letter-spacing: 0.26em;
+    transition: opacity 0.5s ease;
+  }
+  .divider-pass { display: none; }
+
+  /* Slightly smaller, more "floating" capsule */
+  .capsule-wrap {
+    width: min(340px, 100%);
+    margin-top: 6px;
+  }
+  .capsule {
+    height: 50px;
+    padding: 0 8px 0 14px;
+    gap: 10px;
+    background: rgba(255,255,255,0.78);
+    border: 1px solid rgba(31,35,40,0.12);
+    box-shadow:
+      0 14px 40px rgba(31,35,40,0.10),
+      0 1px 2px rgba(31,35,40,0.04);
+  }
+  .capsule:focus-within {
+    box-shadow:
+      0 18px 48px rgba(31,35,40,0.14),
+      0 0 0 4px rgba(0,0,0,0.04);
+  }
+  .pw-input { font-size: 15px; letter-spacing: 0.14em; }
+  .pw-input::placeholder { font-size: 12.5px; }
+  .submit {
+    height: 34px;
+    padding: 0 13px;
+    font-size: 11px;
+    box-shadow: 0 6px 16px rgba(232,113,66,0.30);
+  }
+
+  /* When the password is accepted and the video starts playing, dim
+     the center cluster so attention follows the car. */
+  body[data-entering="1"] .greeting,
+  body[data-entering="1"] .sub-pass,
+  body[data-entering="1"] .capsule-wrap {
+    opacity: 0;
+    transition: opacity 0.6s ease;
+    pointer-events: none;
+  }
+  body[data-entering="1"] .greeting { opacity: 0.85; }
+
+  @media (max-width: 520px) {
+    .pass-shell { padding-top: clamp(140px, 22vh, 220px); }
+    .capsule-wrap { width: min(320px, 100%); }
+  }
 </style>
 </head>
 <body data-state="passcode" data-side="team">
+
+<video class="bg-video" id="bgVideo" muted playsinline preload="auto" disablepictureinpicture x-webkit-airplay="deny">
+  <source src="./portal-intro.mp4" type="video/mp4">
+</video>
+<div class="bg-wash"></div>
 
 <div class="blob b1"></div>
 <div class="blob b2"></div>
@@ -556,7 +653,7 @@
   </div>
 
   <div class="pass-hero">
-    <div class="greeting"><span id="greetText"></span><span class="cursor"></span></div>
+    <div class="greeting"><span id="greetText">Welcome.</span></div>
     <div class="sub-pass" id="subPass">Sign in to continue.</div>
     <div class="divider-pass"></div>
 
@@ -695,11 +792,9 @@
     })();
   }
 
-  setTimeout(() => {
-    typeText(greetEl, baseText, 110, () => {
-      setTimeout(() => subPass.classList.add('shown'), 220);
-    });
-  }, 900);
+  // v2: static welcome — no typewriter
+  greetEl.textContent = baseText;
+  subPass.classList.add('shown');
 
   const pw     = document.getElementById('pw');
   const cap    = document.getElementById('capsule');
@@ -707,6 +802,25 @@
   const sweep  = document.getElementById('sweep');
   const sweepText = document.getElementById('sweepText');
   const passShell = document.getElementById('passShell');
+  const bgVideo  = document.getElementById('bgVideo');
+
+  // Hold the video on its first frame until the user submits. A quick
+  // play/pause forces mobile Safari to render the frame instead of a
+  // black box.
+  if (bgVideo) {
+    const paintFirstFrame = () => {
+      try {
+        const p = bgVideo.play();
+        if (p && typeof p.then === 'function') {
+          p.then(() => bgVideo.pause()).catch(() => {});
+        } else {
+          bgVideo.pause();
+        }
+      } catch (e) {}
+    };
+    if (bgVideo.readyState >= 2) paintFirstFrame();
+    else bgVideo.addEventListener('loadeddata', paintFirstFrame, { once: true });
+  }
 
   pw.addEventListener('input', () => {
     cap.classList.remove('error');
@@ -726,18 +840,26 @@
   function accept(side) {
     cap.classList.add('accept');
     const phrase = side === 'team' ? 'Welcome back, team.' : 'Welcome home, neighbor.';
-    retypeGreeting(phrase, () => {
-      setTimeout(() => {
-        sweep.style.background = SIDE_COLORS[side];
-        sweep.classList.toggle('lav', side === 'guest');
-        sweepText.textContent = side === 'team' ? 'Team Hub' : 'Guest Hub';
-        sweep.classList.add('up');
-        // Once the sweep is up, swap to hub state, then lift the sweep
-        setTimeout(() => {
-          enterHub(side);
-        }, 900);
-      }, 350);
-    });
+    greetEl.textContent = phrase;
+    // The car drives off — release the still frame. The video itself
+    // is the transition; we drop into the hub when it ends.
+    document.body.dataset.entering = '1';
+    let entered = false;
+    const finalize = () => {
+      if (entered) return;
+      entered = true;
+      enterHub(side);
+    };
+    if (bgVideo) {
+      bgVideo.addEventListener('ended', finalize, { once: true });
+      try { bgVideo.currentTime = 0; } catch (e) {}
+      const p = bgVideo.play();
+      if (p && typeof p.catch === 'function') p.catch(() => finalize());
+    } else {
+      finalize();
+    }
+    // Safety net in case 'ended' never fires (network drop, codec quirk)
+    setTimeout(finalize, 9000);
   }
 
   document.getElementById('go').addEventListener('click', submitPW);
@@ -853,25 +975,10 @@
       localStorage.setItem('np_side', side);
       localStorage.setItem('np_exp', String(Date.now() + 15 * 60 * 1000));
     } catch (e) {}
-    // Swap states (hub becomes visible) and lift the sweep curtain
     body.dataset.state = 'hub';
-    // Land at the top of the hub instead of wherever the passcode page scrolled to
     window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
     passShell.classList.add('fading');
-    requestAnimationFrame(() => {
-      sweep.classList.add('lift');
-      setTimeout(() => {
-        // Disable transitions before resetting so the orange doesn't
-        // animate back down from translateY(0) → translateY(100%) and
-        // flash on screen for a frame.
-        sweep.style.transition = 'none';
-        sweep.classList.remove('up', 'lift');
-        sweep.style.opacity = '';
-        // Re-enable transitions on the next frame for future use.
-        requestAnimationFrame(() => { sweep.style.transition = ''; });
-      }, 900);
-      typeHero();
-    });
+    typeHero();
   }
 
   // On page load: if the user authenticated within the last 15 minutes,
