@@ -30,7 +30,6 @@
     vertical-align: baseline;
   }
   @font-face { font-family: 'TAYAmaya'; src: url('fonts/TAYAmaya.otf') format('opentype'); font-display: swap; }
-  @font-face { font-family: 'Telegraf'; src: url('fonts/TelegrafRegular.otf') format('opentype'); font-display: swap; }
 
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -551,133 +550,6 @@
   body[data-state="hub"] .pass-shell { display: none !important; }
   body[data-state="hub"] main { padding-top: clamp(96px, 14vh, 160px); }
   html { scroll-behavior: auto; }
-
-  /* =====================================================================
-     V2-C — dainty editorial intro
-     Inline line-drawing video above WELCOME (mix-blend knocks out white),
-     hairline-only capsules, orange pill ENTER, mono footer.
-     Auth/role logic untouched from main.
-  ===================================================================== */
-  .pass-shell {
-    justify-content: flex-end !important;
-    padding-bottom: clamp(80px, 12vh, 140px) !important;
-  }
-  /* Nudge the stack a touch left to optically center against the
-     line drawing's visual weight (which sits right-of-center) */
-  .pass-hero { transform: translateX(clamp(-32px, -1.6vw, -10px)); }
-  .pass-logo img { width: 92px !important; }
-  @media (max-width: 520px) {
-    .pass-logo img { width: 76px !important; }
-  }
-  .pass-hero { gap: 18px !important; width: clamp(280px, 34vw, 420px) !important; }
-
-  /* Dainty line drawing — sits above WELCOME, scales fluidly, mobile-safe */
-  .pass-hero .bg-video {
-    position: static !important;
-    display: block !important;
-    width: 120% !important;         /* +20% beyond the form column */
-    max-width: 92vw !important;     /* never overflows the viewport */
-    margin: 0 -10% 4px !important;  /* centers the overflow */
-    height: auto !important;
-    aspect-ratio: 3 / 2;
-    object-fit: contain !important;
-    pointer-events: none;
-    image-rendering: -webkit-optimize-contrast;
-  }
-  /* Welcome word removed — drawing sits directly above the form */
-  .greeting { display: none !important; }
-  .sub-pass { display: none !important; }
-  .divider-pass { display: none !important; }
-
-  /* Capsules — hairline rows instead of pill chrome */
-  .capsule-wrap {
-    width: 100% !important;
-    gap: 0 !important;
-    opacity: 1 !important;
-    transform: none !important;
-    animation: none !important;
-  }
-  .capsule {
-    background: transparent !important;
-    border: none !important;
-    border-bottom: 1px solid rgba(31,35,40,0.22) !important;
-    border-radius: 0 !important;
-    padding: 0 !important;
-    height: 38px !important;
-    gap: 0 !important;
-    backdrop-filter: none !important;
-    -webkit-backdrop-filter: none !important;
-    box-shadow: none !important;
-  }
-  #emailCapsule { border-top: 1px solid rgba(31,35,40,0.22) !important; }
-  .capsule:focus-within {
-    border-color: rgba(31,35,40,0.5) !important;
-    box-shadow: none !important;
-  }
-  .capsule.error { border-color: var(--orange) !important; }
-  .lock-ico { display: none !important; }
-  .pw-input {
-    font-family: 'Telegraf', 'Jost', 'futura-pt', sans-serif !important;
-    font-size: 13px !important;
-    letter-spacing: 0.02em !important;
-    text-transform: none !important;
-  }
-  .pw-input::placeholder {
-    font-family: 'Telegraf', 'Jost', 'futura-pt', sans-serif !important;
-    font-size: 12px !important;
-    letter-spacing: 0.02em !important;
-    text-transform: none !important;
-    color: rgba(31,35,40,0.42) !important;
-  }
-  .toggle-vis { padding: 4px !important; opacity: 0.4; }
-  .toggle-vis:hover { opacity: 0.9; }
-
-  /* ENTER — orange pill, lifted out of the password row to live below the form */
-  .capsule-wrap { padding-bottom: 60px; position: relative; }
-  .capsule .submit {
-    position: absolute !important;
-    left: 50% !important;
-    bottom: 14px !important;
-    transform: translateX(-50%) !important;
-    height: 30px !important;
-    /* extra left padding = letter-spacing so trailing space doesn't push
-       the visible glyphs off-center */
-    padding: 0 22px 0 calc(22px + 0.16em) !important;
-    font-family: 'Futura PT Demi', 'futura-pt', 'Jost', sans-serif !important;
-    font-size: 11.5px !important;
-    font-weight: 600 !important;
-    letter-spacing: 0.16em !important;
-    text-transform: uppercase !important;
-    background: var(--orange) !important;
-    color: #fff8f1 !important;
-    box-shadow: 0 4px 14px rgba(232,113,66,0.26) !important;
-    flex-shrink: 0;
-  }
-  .capsule .submit:hover {
-    transform: translateX(-50%) translateY(-1px) !important;
-    box-shadow: 0 6px 18px rgba(232,113,66,0.36) !important;
-  }
-  .err { text-align: center; padding-top: 8px; }
-
-  /* Telegraf footer — quiet sentence-case label */
-  .portal-foot,
-  footer.foot .track-center {
-    font-family: 'Telegraf', 'Jost', 'futura-pt', sans-serif !important;
-    font-size: 11px !important;
-    letter-spacing: 0.04em !important;
-    text-transform: none !important;
-    font-weight: 400 !important;
-    opacity: 0.55;
-  }
-
-  @media (max-width: 520px) {
-    .pass-hero { width: min(300px, 86vw) !important; gap: 14px !important; transform: translateX(-6px); }
-    .greeting { font-size: 14px !important; }
-    .capsule { height: 36px !important; }
-    .capsule .submit { margin-top: 52px; height: 28px !important; font-size: 9.5px !important; }
-    .capsule-wrap { padding-bottom: 52px; }
-    .err { margin-top: 56px !important; }
-  }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script src="np-data.js"></script>
@@ -695,13 +567,6 @@
   </div>
 
   <div class="pass-hero">
-    <video class="bg-video" id="bgVideo" muted playsinline preload="auto" disablepictureinpicture x-webkit-airplay="deny" aria-hidden="true">
-      <!-- VP9 alpha — Chrome, Firefox, Edge, iOS Safari 17+ -->
-      <source src="./LineDrawingNeighborly_transparent.webm" type="video/webm">
-      <!-- Older Safari falls through to the opaque mp4; mix-blend-mode below
-           knocks out its white background so it still reads like a PNG. -->
-      <source src="./LineDrawingNeighborly.mp4" type="video/mp4">
-    </video>
     <div class="greeting"><span id="greetText"></span><span class="cursor"></span></div>
     <div class="sub-pass" id="subPass">Sign in to continue.</div>
     <div class="divider-pass"></div>
@@ -727,7 +592,7 @@
     </div>
   </div>
 
-  <div class="portal-foot shown"><span class="track-center">neighbors only hub</span></div>
+  <div class="portal-foot shown"><span class="track-center">Neighbors Only Portal</span></div>
 </div>
 
 <!-- ==================== SWEEP ==================== -->

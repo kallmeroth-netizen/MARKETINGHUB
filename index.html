@@ -30,6 +30,7 @@
     vertical-align: baseline;
   }
   @font-face { font-family: 'TAYAmaya'; src: url('fonts/TAYAmaya.otf') format('opentype'); font-display: swap; }
+  @font-face { font-family: 'Telegraf'; src: url('fonts/TelegrafRegular.otf') format('opentype'); font-display: swap; }
 
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -550,7 +551,136 @@
   body[data-state="hub"] .pass-shell { display: none !important; }
   body[data-state="hub"] main { padding-top: clamp(96px, 14vh, 160px); }
   html { scroll-behavior: auto; }
+
+  /* =====================================================================
+     V2-C — dainty editorial intro
+     Inline line-drawing video above WELCOME (mix-blend knocks out white),
+     hairline-only capsules, orange pill ENTER, mono footer.
+     Auth/role logic untouched from main.
+  ===================================================================== */
+  .pass-shell {
+    justify-content: flex-end !important;
+    padding-bottom: clamp(80px, 12vh, 140px) !important;
+  }
+  /* Nudge the stack a touch left to optically center against the
+     line drawing's visual weight (which sits right-of-center) */
+  .pass-hero { transform: translateX(clamp(-32px, -1.6vw, -10px)); }
+  .pass-logo img { width: 92px !important; }
+  @media (max-width: 520px) {
+    .pass-logo img { width: 76px !important; }
+  }
+  .pass-hero { gap: 18px !important; width: clamp(280px, 34vw, 420px) !important; }
+
+  /* Dainty line drawing — sits above WELCOME, scales fluidly, mobile-safe */
+  .pass-hero .bg-video {
+    position: static !important;
+    display: block !important;
+    width: 120% !important;         /* +20% beyond the form column */
+    max-width: 92vw !important;     /* never overflows the viewport */
+    margin: 0 -10% 4px !important;  /* centers the overflow */
+    height: auto !important;
+    aspect-ratio: 3 / 2;
+    object-fit: contain !important;
+    pointer-events: none;
+    image-rendering: -webkit-optimize-contrast;
+  }
+  /* Welcome word removed — drawing sits directly above the form */
+  .greeting { display: none !important; }
+  .sub-pass { display: none !important; }
+  .divider-pass { display: none !important; }
+
+  /* Capsules — hairline rows instead of pill chrome */
+  .capsule-wrap {
+    width: 100% !important;
+    gap: 0 !important;
+    opacity: 1 !important;
+    transform: none !important;
+    animation: none !important;
+  }
+  .capsule {
+    background: transparent !important;
+    border: none !important;
+    border-bottom: 1px solid rgba(31,35,40,0.22) !important;
+    border-radius: 0 !important;
+    padding: 0 !important;
+    height: 38px !important;
+    gap: 0 !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    box-shadow: none !important;
+  }
+  #emailCapsule { border-top: 1px solid rgba(31,35,40,0.22) !important; }
+  .capsule:focus-within {
+    border-color: rgba(31,35,40,0.5) !important;
+    box-shadow: none !important;
+  }
+  .capsule.error { border-color: var(--orange) !important; }
+  .lock-ico { display: none !important; }
+  .pw-input {
+    font-family: 'Telegraf', 'Jost', 'futura-pt', sans-serif !important;
+    font-size: 13px !important;
+    letter-spacing: 0.02em !important;
+    text-transform: none !important;
+  }
+  .pw-input::placeholder {
+    font-family: 'Telegraf', 'Jost', 'futura-pt', sans-serif !important;
+    font-size: 12px !important;
+    letter-spacing: 0.02em !important;
+    text-transform: none !important;
+    color: rgba(31,35,40,0.42) !important;
+  }
+  .toggle-vis { padding: 4px !important; opacity: 0.4; }
+  .toggle-vis:hover { opacity: 0.9; }
+
+  /* ENTER — orange pill, lifted out of the password row to live below the form */
+  .capsule-wrap { padding-bottom: 60px; position: relative; }
+  .capsule .submit {
+    position: absolute !important;
+    left: 50% !important;
+    bottom: 14px !important;
+    transform: translateX(-50%) !important;
+    height: 30px !important;
+    /* extra left padding = letter-spacing so trailing space doesn't push
+       the visible glyphs off-center */
+    padding: 0 22px 0 calc(22px + 0.16em) !important;
+    font-family: 'Futura PT Demi', 'futura-pt', 'Jost', sans-serif !important;
+    font-size: 11.5px !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.16em !important;
+    text-transform: uppercase !important;
+    background: var(--orange) !important;
+    color: #fff8f1 !important;
+    box-shadow: 0 4px 14px rgba(232,113,66,0.26) !important;
+    flex-shrink: 0;
+  }
+  .capsule .submit:hover {
+    transform: translateX(-50%) translateY(-1px) !important;
+    box-shadow: 0 6px 18px rgba(232,113,66,0.36) !important;
+  }
+  .err { text-align: center; padding-top: 8px; }
+
+  /* Telegraf footer — quiet sentence-case label */
+  .portal-foot,
+  footer.foot .track-center {
+    font-family: 'Telegraf', 'Jost', 'futura-pt', sans-serif !important;
+    font-size: 11px !important;
+    letter-spacing: 0.04em !important;
+    text-transform: none !important;
+    font-weight: 400 !important;
+    opacity: 0.55;
+  }
+
+  @media (max-width: 520px) {
+    .pass-hero { width: min(300px, 86vw) !important; gap: 14px !important; transform: translateX(-6px); }
+    .greeting { font-size: 14px !important; }
+    .capsule { height: 36px !important; }
+    .capsule .submit { margin-top: 52px; height: 28px !important; font-size: 9.5px !important; }
+    .capsule-wrap { padding-bottom: 52px; }
+    .err { margin-top: 56px !important; }
+  }
 </style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="np-data.js"></script>
 </head>
 <body data-state="passcode" data-side="team">
 
@@ -565,26 +695,39 @@
   </div>
 
   <div class="pass-hero">
+    <video class="bg-video" id="bgVideo" muted playsinline preload="auto" disablepictureinpicture x-webkit-airplay="deny" aria-hidden="true">
+      <!-- VP9 alpha — Chrome, Firefox, Edge, iOS Safari 17+ -->
+      <source src="./LineDrawingNeighborly_transparent.webm" type="video/webm">
+      <!-- Older Safari falls through to the opaque mp4; mix-blend-mode below
+           knocks out its white background so it still reads like a PNG. -->
+      <source src="./LineDrawingNeighborly.mp4" type="video/mp4">
+    </video>
     <div class="greeting"><span id="greetText"></span><span class="cursor"></span></div>
     <div class="sub-pass" id="subPass">Sign in to continue.</div>
     <div class="divider-pass"></div>
 
-    <div class="capsule-wrap">
+    <div class="capsule-wrap" style="display:flex;flex-direction:column;gap:8px">
+      <div class="capsule" id="emailCapsule">
+        <span class="lock-ico">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 8l9 6 9-6"/></svg>
+        </span>
+        <input id="em" class="pw-input" type="email" placeholder="Email" autocomplete="email" autocapitalize="off" spellcheck="false" style="letter-spacing:0.02em">
+      </div>
       <div class="capsule" id="capsule">
         <span class="lock-ico">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
         </span>
-        <input id="pw" class="pw-input" type="password" placeholder="Enter passcode" autocomplete="off" autocapitalize="off" spellcheck="false">
-        <button class="toggle-vis" id="toggleVis" type="button" aria-label="Show passcode">
+        <input id="pw" class="pw-input" type="password" placeholder="Password" autocomplete="current-password" autocapitalize="off" spellcheck="false">
+        <button class="toggle-vis" id="toggleVis" type="button" aria-label="Show password">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>
         </button>
         <button class="submit" id="go" type="button">Enter →</button>
       </div>
-      <div class="err" id="err">That passcode doesn't open any door.</div>
+      <div class="err" id="err">Invalid email or password.</div>
     </div>
   </div>
 
-  <div class="portal-foot shown"><span class="track-center">Neighbors Only Portal</span></div>
+  <div class="portal-foot shown"><span class="track-center">neighbors only hub</span></div>
 </div>
 
 <!-- ==================== SWEEP ==================== -->
@@ -604,6 +747,7 @@
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 11h18"/></svg>
         <span id="dateText">—</span>
       </div>
+      <button id="signOutBtn" type="button" onclick="NPData.signOut()" style="background:none;border:1.5px solid rgba(31,35,40,0.15);border-radius:100px;padding:7px 14px;font-family:'Jost','futura-pt','Futura',sans-serif;font-weight:600;font-size:11px;letter-spacing:0.22em;text-transform:uppercase;color:var(--text2);cursor:pointer;transition:border-color 0.2s,color 0.2s" onmouseover="this.style.borderColor='rgba(31,35,40,0.4)';this.style.color='var(--text)'" onmouseout="this.style.borderColor='rgba(31,35,40,0.15)';this.style.color='var(--text2)'">Sign out</button>
     </div>
   </nav>
 
@@ -665,6 +809,14 @@
           <span class="tile-sub">Feedback &amp; experience trends</span>
         </span>
       </a>
+      <a class="tile t-social" data-roles="team" data-key="paidads" href="neighborly-paid-ads.html">
+        <span class="live">Live</span>
+        <span class="tile-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></span>
+        <span class="tile-body">
+          <span class="tile-label">Paid Ads</span>
+          <span class="tile-sub">Meta &amp; Google spend, ROAS</span>
+        </span>
+      </a>
 
       <!-- ===== Operations Hub tiles (third door — ops passcode only) ===== -->
       <a class="tile t-ops" data-roles="ops" data-key="opsforecast" href="neighborly-sales.html">
@@ -689,6 +841,15 @@
           <span class="tile-sub">POS mix, computed once</span>
         </span>
       </a>
+
+      <!-- Admin tile — visible to admin role only -->
+      <a class="tile" data-roles="admin" data-key="admin" href="neighborly-admin.html" style="border-color:rgba(31,35,40,0.25)">
+        <span class="tile-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/><path d="M18 14l1.5 1.5L22 13"/></svg></span>
+        <span class="tile-body">
+          <span class="tile-label">Admin</span>
+          <span class="tile-sub">User management</span>
+        </span>
+      </a>
     </div>
   </main>
 
@@ -696,12 +857,8 @@
 </div>
 
 <script>
-  /* ============ Passcode ============ */
-  const TEAM_PW  = 'neighborly';
-  const GUEST_PW = 'neighborsonly';
-  // Third door — Operations Hub. Change this one word to set the real Ops passcode.
-  const OPS_PW   = 'neighborlyops';
-  const SIDE_COLORS = { team: '#e87142', guest: '#cbc9d6', ops: '#7bbd91' };
+  /* ============ Login ============ */
+  const SIDE_COLORS = { team: '#e87142', guest: '#cbc9d6', ops: '#7bbd91', admin: '#1f2328' };
 
   const greetEl  = document.getElementById('greetText');
   const subPass  = document.getElementById('subPass');
@@ -736,6 +893,7 @@
     });
   }, 900);
 
+  const em     = document.getElementById('em');
   const pw     = document.getElementById('pw');
   const cap    = document.getElementById('capsule');
   const err    = document.getElementById('err');
@@ -743,32 +901,61 @@
   const sweepText = document.getElementById('sweepText');
   const passShell = document.getElementById('passShell');
 
-  pw.addEventListener('input', () => {
-    cap.classList.remove('error');
-    err.classList.remove('show');
-  });
+  function clearError() { cap.classList.remove('error'); err.classList.remove('show'); }
+  em.addEventListener('input', clearError);
+  pw.addEventListener('input', clearError);
 
-  function submitPW() {
-    const v = pw.value.trim().toLowerCase();
-    if (!v) return;
-    if (v === TEAM_PW)  return accept('team');
-    if (v === GUEST_PW) return accept('guest');
-    if (v === OPS_PW)   return accept('ops');
-    cap.classList.add('error');
-    err.classList.add('show');
-    pw.select();
+  async function submitLogin() {
+    const email = em.value.trim();
+    const pass  = pw.value;
+    if (!email || !pass) return;
+    clearError();
+
+    const btn = document.getElementById('go');
+    btn.disabled = true;
+    btn.textContent = '…';
+
+    const { data, error } = await NPData.signIn(email, pass);
+
+    btn.disabled = false;
+    btn.textContent = 'Enter →';
+
+    if (error || !data?.session) {
+      cap.classList.add('error');
+      err.classList.add('show');
+      pw.select();
+      return;
+    }
+
+    // Role comes from JWT app_metadata (once hook is registered) or DB fallback.
+    const role = data.session.user?.app_metadata?.role ?? await NPData.getRole();
+    const side = role === 'admin' ? 'admin'
+               : role === 'ops'   ? 'ops'
+               : role === 'guest' ? 'guest'
+               : 'team';
+    accept(side);
   }
 
+  // Latch so the sweep choreography can only run once. Without this a double
+  // Enter-press (or Enter + Go click, or key auto-repeat) fires accept() twice
+  // on offset timelines and the slide-up curtain visibly plays "almost twice".
+  let entering = false;
   function accept(side) {
+    if (entering) return;
+    entering = true;
     cap.classList.add('accept');
-    const phrase = side === 'team' ? 'Welcome back, team.'
-                 : side === 'ops'  ? 'Welcome, ops.'
+    const phrase = side === 'team'  ? 'Welcome back, team.'
+                 : side === 'ops'   ? 'Welcome, ops.'
+                 : side === 'admin' ? 'Welcome, admin.'
                  : 'Welcome home, neighbor.';
     retypeGreeting(phrase, () => {
       setTimeout(() => {
         sweep.style.background = SIDE_COLORS[side];
         sweep.classList.toggle('lav', side === 'guest');
-        sweepText.textContent = side === 'team' ? 'Team Hub' : side === 'ops' ? 'Operations Hub' : 'Guest Hub';
+        sweepText.textContent = side === 'team'  ? 'Team Hub'
+                              : side === 'ops'   ? 'Operations Hub'
+                              : side === 'admin' ? 'Admin Hub'
+                              : 'Guest Hub';
         sweep.classList.add('up');
         // Once the sweep is up, swap to hub state, then lift the sweep
         setTimeout(() => {
@@ -778,34 +965,39 @@
     });
   }
 
-  document.getElementById('go').addEventListener('click', submitPW);
-  pw.addEventListener('keydown', (e) => { if (e.key === 'Enter') submitPW(); });
+  document.getElementById('go').addEventListener('click', submitLogin);
+  pw.addEventListener('keydown', (e) => { if (e.key === 'Enter') submitLogin(); });
+  em.addEventListener('keydown', (e) => { if (e.key === 'Enter') pw.focus(); });
   document.getElementById('toggleVis').addEventListener('click', () => {
     pw.type = pw.type === 'password' ? 'text' : 'password';
   });
 
   /* ============ Hub ============ */
   const HUB_ITEMS = [
-    { key: 'home',     label: 'Home',                sub: 'Hub overview',               bg:'#efece2', stroke:'#1f2328', roles:['team','guest','ops'],
+    { key: 'home',     label: 'Home',                sub: 'Hub overview',               bg:'#efece2', stroke:'#1f2328', roles:['team','guest','ops','admin'],
       svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>' },
-    { key: 'sales',    label: 'Performance Marketing', sub: 'Weekly & all-time KPIs',     bg:'#fdf7d8', stroke:'#b89a00', roles:['team','guest'],
+    { key: 'sales',    label: 'Performance Marketing', sub: 'Weekly & all-time KPIs',     bg:'#fdf7d8', stroke:'#b89a00', roles:['team','guest','admin'],
       svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>' },
-    { key: 'pmix',     label: 'Sales & Pmix',         sub: 'Daily sales & product mix',  bg:'#e3ece3', stroke:'#5a7a5a', roles:['team','guest'],
+    { key: 'pmix',     label: 'Sales & Pmix',         sub: 'Daily sales & product mix',  bg:'#e3ece3', stroke:'#5a7a5a', roles:['team','guest','admin'],
       svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>' },
-    { key: 'calendar', label: 'Marketing Calendar',  sub: 'Campaigns & scheduling',     bg:'#e4f5ea', stroke:'#7bbd91', roles:['team'],
+    { key: 'calendar', label: 'Marketing Calendar',  sub: 'Campaigns & scheduling',     bg:'#e4f5ea', stroke:'#7bbd91', roles:['team','admin'],
       svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>' },
-    { key: 'assets',   label: 'Brand Assets',        sub: 'Logos & templates',   bg:'#f7f0e4', stroke:'#9c7a3c', roles:['team'],
+    { key: 'assets',   label: 'Brand Assets',        sub: 'Logos & templates',          bg:'#f7f0e4', stroke:'#9c7a3c', roles:['team','admin'],
       svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 010 14.14M4.93 4.93a10 10 0 000 14.14M12 2v2M12 20v2M2 12h2M20 12h2"/></svg>' },
-    { key: 'social',   label: 'Social',              sub: 'Reach & engagement',         bg:'#eaeef8', stroke:'#3a59a0', roles:['team'],
+    { key: 'social',   label: 'Social',              sub: 'Reach & engagement',         bg:'#eaeef8', stroke:'#3a59a0', roles:['team','admin'],
       svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h4l3-9 4 18 3-9h4"/></svg>' },
-    { key: 'guests',   label: 'Guest Intelligence',  sub: 'Feedback & experience trends', bg:'#f0eff5', stroke:'#5a4a7a', roles:['team'],
+    { key: 'guests',   label: 'Guest Intelligence',  sub: 'Feedback & experience trends', bg:'#f0eff5', stroke:'#5a4a7a', roles:['team','admin'],
       svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="4"/><path d="M2 21a7 7 0 0 1 14 0"/><path d="M16 3.5a4 4 0 0 1 0 8M22 21a7 7 0 0 0-5-6.7"/></svg>' },
-    { key: 'opsforecast', label: 'Sales & Forecasting', sub: 'Forecast vs. actual, check, comps', bg:'#e4f5ea', stroke:'#1e5a37', roles:['ops'],
+    { key: 'paidads',  label: 'Paid Ads',            sub: 'Meta & Google spend, ROAS',    bg:'#ddeaff', stroke:'#1877f2', roles:['team','admin'],
+      svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>' },
+    { key: 'opsforecast', label: 'Sales & Forecasting', sub: 'Forecast vs. actual, check, comps', bg:'#e4f5ea', stroke:'#1e5a37', roles:['ops','admin'],
       svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l5-5 4 4 8-8"/><path d="M14 8h6v6"/></svg>' },
-    { key: 'opslabor', label: 'Labor & SPLH', sub: 'SPLH, hours, OT, labor %', bg:'#e4f5ea', stroke:'#1e5a37', roles:['ops'],
+    { key: 'opslabor', label: 'Labor & SPLH', sub: 'SPLH, hours, OT, labor %', bg:'#e4f5ea', stroke:'#1e5a37', roles:['ops','admin'],
       svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 13h4l3 7 4-16 3 9h4"/></svg>' },
-    { key: 'opspmix', label: 'Product Mix · Ops', sub: 'POS mix, computed once', bg:'#e4f5ea', stroke:'#1e5a37', roles:['ops'],
-      svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>' }
+    { key: 'opspmix', label: 'Product Mix · Ops', sub: 'POS mix, computed once', bg:'#e4f5ea', stroke:'#1e5a37', roles:['ops','admin'],
+      svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>' },
+    { key: 'admin', label: 'Admin', sub: 'User management', bg:'#efece2', stroke:'#1f2328', roles:['admin'],
+      svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/><path d="M18 14l1.5 1.5L22 13"/></svg>' }
   ];
   const HREF = {
     home: '#',
@@ -814,10 +1006,12 @@
     calendar: 'neighborly-calendar.html',
     assets: 'neighborly-assets.html',
     social: 'neighborly-social.html',
-    guests: 'neighborly-guests.html',
+    guests:   'neighborly-guests.html',
+    paidads:  'neighborly-paid-ads.html',
     opsforecast: 'neighborly-sales.html',
     opslabor: 'neighborly-labor.html',
-    opspmix: 'neighborly-pmixops.html'
+    opspmix: 'neighborly-pmixops.html',
+    admin: 'neighborly-admin.html'
   };
 
   let CURRENT_SIDE = 'team';
@@ -868,16 +1062,20 @@
     } else if (side === 'ops') {
       heroSub.textContent = 'Welcome to operations';
       heroSub.classList.remove('empty');
+    } else if (side === 'admin') {
+      heroSub.textContent = 'Welcome, admin';
+      heroSub.classList.remove('empty');
     } else {
       heroSub.textContent = '';
       heroSub.classList.add('empty');
     }
-    // Hub dropdown label reflects the active portal
     var hubLabelText = document.getElementById('hubLabelText');
-    if (hubLabelText) hubLabelText.textContent = (side === 'ops') ? 'Neighborly Operations Hub' : 'Neighborly Marketing Hub';
+    if (hubLabelText) hubLabelText.textContent = side === 'ops'   ? 'Neighborly Operations Hub'
+                                               : side === 'admin' ? 'Neighborly Admin Hub'
+                                               : 'Neighborly Marketing Hub';
     tileGrid.querySelectorAll('.tile').forEach(t => {
       const roles = (t.dataset.roles || '').split(',');
-      t.style.display = roles.includes(side) ? '' : 'none';
+      t.style.display = (side === 'admin' || roles.includes(side)) ? '' : 'none';
     });
     tileGrid.classList.remove('in'); void tileGrid.offsetWidth; tileGrid.classList.add('in');
   }
@@ -899,56 +1097,36 @@
   function enterHub(side) {
     applySide(side);
     paintDate();
-    // Persist auth for 15 minutes so navigating back from internal pages
-    // (or briefly closing/reopening the tab) restores the hub without
-    // forcing the passcode again.
-    try {
-      localStorage.setItem('np_side', side);
-      localStorage.setItem('np_exp', String(Date.now() + 15 * 60 * 1000));
-    } catch (e) {}
-    // Swap states (hub becomes visible) and lift the sweep curtain
     body.dataset.state = 'hub';
-    // Land at the top of the hub instead of wherever the passcode page scrolled to
     window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
     passShell.classList.add('fading');
     requestAnimationFrame(() => {
       sweep.classList.add('lift');
       setTimeout(() => {
-        // Disable transitions before resetting so the orange doesn't
-        // animate back down from translateY(0) → translateY(100%) and
-        // flash on screen for a frame.
         sweep.style.transition = 'none';
         sweep.classList.remove('up', 'lift');
         sweep.style.opacity = '';
-        // Re-enable transitions on the next frame for future use.
         requestAnimationFrame(() => { sweep.style.transition = ''; });
       }, 900);
       typeHero();
     });
   }
 
-  // On page load: if the user authenticated within the last 15 minutes,
-  // skip the passcode screen and drop them straight into the hub. The
-  // back button on internal pages now returns here without re-prompting,
-  // and brief tab closes/reopens are also tolerated.
-  (function restoreSession() {
-    var saved, exp;
-    try {
-      saved = localStorage.getItem('np_side');
-      exp = parseInt(localStorage.getItem('np_exp') || '0', 10);
-    } catch (e) { saved = null; exp = 0; }
-    if (saved !== 'team' && saved !== 'guest' && saved !== 'ops') return;
-    if (!exp || Date.now() > exp) {
-      // Expired — clear and fall through to the passcode screen.
-      try { localStorage.removeItem('np_side'); localStorage.removeItem('np_exp'); } catch (e) {}
-      return;
-    }
-    // Sliding window: extend by another 15 minutes on each visit
-    try { localStorage.setItem('np_exp', String(Date.now() + 15 * 60 * 1000)); } catch (e) {}
-    applySide(saved);
+  // On page load: check for an existing Supabase Auth session and skip the
+  // login screen if the user is still authenticated.
+  (async function restoreSession() {
+    const session = await NPData.getSession();
+    if (!session) return;
+    const role = session.user?.app_metadata?.role ?? await NPData.getRole();
+    const side = role === 'admin' ? 'admin'
+               : role === 'ops'   ? 'ops'
+               : role === 'guest' ? 'guest'
+               : role === 'team'  ? 'team'
+               : null;
+    if (!side) return;
+    applySide(side);
     paintDate();
     body.dataset.state = 'hub';
-    // No sweep — just appear on the hub. Skip the typewriter delay too.
     var heroEl = document.getElementById('heroGreet');
     if (heroEl) heroEl.textContent = 'Hey, Neighbor!';
     if (passShell) passShell.style.display = 'none';
