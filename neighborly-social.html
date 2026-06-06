@@ -73,6 +73,9 @@
   .format-rows { flex: 1; }
   @media (max-width: 600px) { .format-card { flex-direction: column; } }
 </style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="np-data.js"></script>
+<script>NPData.guardPage(['team']);</script>
 </head>
 <body>
 
@@ -247,8 +250,9 @@
 
   async function loadSocial() {
     try {
-      const r = await fetch('social-data.json', { cache: 'no-store' });
-      DATA = await r.json();
+      const { data, error } = await NPData.supabase.functions.invoke('social-summary', { body: {} });
+      if (error) throw error;
+      DATA = data;
       render();
     } catch (e) { console.error('social load failed', e); }
   }

@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Admin — Neighborly</title>
+
+<link rel="manifest" href="/manifest.json">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta name="theme-color" content="#1f2328">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png">
+
+<link rel="stylesheet" href="theme.css">
+<script src="chrome.js" defer></script>
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
+  :root { --admin:#1f2328; --admin-light:#efece2; }
+  .np-nav-page-tag.admin { background:var(--admin-light); color:var(--admin); }
+
+  .admin-wrap { max-width:760px; margin:0 auto; padding:32px 20px 80px; }
+
+  .section-head {
+    font-family:'DM Sans',sans-serif; font-weight:600; font-size:14px;
+    color:var(--text,#1A1916); margin:0 0 16px;
+    padding-bottom:10px; border-bottom:1px solid var(--border,rgba(0,0,0,0.08));
+  }
+
+  /* User table */
+  .user-table { width:100%; border-collapse:collapse; font-size:13px; }
+  .user-table th {
+    text-align:left; padding:8px 12px; font-size:11px; font-weight:600;
+    text-transform:uppercase; letter-spacing:0.08em;
+    color:var(--text-2,#6B6960); border-bottom:1px solid var(--border,rgba(0,0,0,0.08));
+  }
+  .user-table td { padding:10px 12px; border-bottom:1px solid var(--border,rgba(0,0,0,0.06)); vertical-align:middle; }
+  .user-table tr:last-child td { border-bottom:none; }
+
+  .role-badge {
+    display:inline-flex; align-items:center; padding:3px 10px;
+    border-radius:100px; font-size:11px; font-weight:600; letter-spacing:0.04em;
+  }
+  .role-badge.admin  { background:#1f2328; color:#fff; }
+  .role-badge.team   { background:#fdf7d8; color:#7a6b00; }
+  .role-badge.guest  { background:#eaeef8; color:#3a59a0; }
+  .role-badge.ops    { background:#e4f5ea; color:#1e5a37; }
+
+  /* Inline role selector */
+  select.role-select {
+    padding:4px 8px; border:1px solid var(--border-strong,rgba(0,0,0,0.14));
+    border-radius:8px; font-family:inherit; font-size:12px;
+    background:var(--surface,#fff); color:var(--text,#1A1916);
+    cursor:pointer;
+  }
+  select.role-select:focus { outline:2px solid #1f2328; outline-offset:1px; }
+
+  /* Invite form */
+  .invite-form {
+    display:grid; grid-template-columns:1fr auto auto; gap:10px; align-items:end;
+  }
+  .invite-form label { font-size:12px; font-weight:500; color:var(--text-2,#6B6960); margin-bottom:4px; display:block; }
+  .invite-form input, .invite-form select {
+    width:100%; padding:10px 14px;
+    border:1.5px solid rgba(31,35,40,0.15); border-radius:12px;
+    font-family:inherit; font-size:14px;
+    background:rgba(255,255,255,0.92);
+    color:var(--text,#1A1916);
+    transition:border-color 0.2s;
+  }
+  .invite-form input:focus, .invite-form select:focus {
+    outline:none; border-color:#1f2328;
+  }
+  .invite-form .field { display:flex; flex-direction:column; }
+  .btn-invite {
+    padding:10px 20px; border:none; border-radius:12px;
+    background:#1f2328; color:#fff;
+    font-family:inherit; font-size:13px; font-weight:600;
+    cursor:pointer; white-space:nowrap;
+    transition:opacity 0.2s;
+  }
+  .btn-invite:hover { opacity:0.85; }
+  .btn-invite:disabled { opacity:0.5; cursor:not-allowed; }
+
+  .msg { font-size:12.5px; margin-top:12px; padding:10px 14px; border-radius:10px; }
+  .msg.ok  { background:#e4f5ea; color:#1e5a37; }
+  .msg.err { background:#fdeee7; color:#8a3518; }
+
+  .card {
+    background:rgba(255,255,255,0.86);
+    border:1px solid var(--border,rgba(0,0,0,0.08));
+    border-radius:16px; padding:24px; margin-bottom:28px;
+  }
+
+  @media(max-width:600px) {
+    .invite-form { grid-template-columns:1fr; }
+  }
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="np-data.js"></script>
+<script>NPData.guardPage(['admin']);</script>
+</head>
+<body>
+
+<div id="np-nav-placeholder"></div>
+
+<div class="admin-wrap">
+  <h1 style="font-family:'DM Sans',sans-serif;font-size:24px;font-weight:600;margin:0 0 8px;color:var(--text,#1A1916)">User Management</h1>
+  <p style="font-size:13px;color:var(--text-2,#6B6960);margin:0 0 32px">Invite new users and manage access tiers.</p>
+
+  <!-- ===== Invite new user ===== -->
+  <div class="card">
+    <div class="section-head">Invite a user</div>
+    <p style="font-size:12.5px;color:var(--text-2,#6B6960);margin:0 0 16px">
+      An invitation email is sent. The user sets their own password on first sign-in.<br>
+      <strong>Requires:</strong> <code>invite-user</code> Edge Function deployed
+      (<code>supabase functions deploy invite-user</code>).
+    </p>
+    <div class="invite-form" id="inviteForm">
+      <div class="field">
+        <label for="inviteEmail">Email address</label>
+        <input id="inviteEmail" type="email" placeholder="name@example.com" autocomplete="off">
+      </div>
+      <div class="field">
+        <label for="inviteRole">Role</label>
+        <select id="inviteRole">
+          <option value="team">team</option>
+          <option value="guest">guest</option>
+          <option value="ops">ops</option>
+          <option value="admin">admin</option>
+        </select>
+      </div>
+      <button class="btn-invite" id="inviteBtn" type="button" onclick="inviteUser()">Send invite</button>
+    </div>
+    <div id="inviteMsg" style="display:none"></div>
+  </div>
+
+  <!-- ===== Existing users ===== -->
+  <div class="card">
+    <div class="section-head">Existing users</div>
+    <div id="usersArea">
+      <p style="font-size:13px;color:var(--text-2,#6B6960)">Loading…</p>
+    </div>
+  </div>
+</div>
+
+<script>
+async function loadUsers() {
+  const { data, error } = await NPData.supabase
+    .from('users')
+    .select('id, email, role, created_at')
+    .order('created_at', { ascending: true });
+
+  const area = document.getElementById('usersArea');
+  if (error || !data?.length) {
+    area.innerHTML = '<p style="font-size:13px;color:var(--text-2,#6B6960)">' +
+      (error ? 'Error loading users: ' + error.message : 'No users yet.') + '</p>';
+    return;
+  }
+
+  area.innerHTML = `<table class="user-table">
+    <thead><tr>
+      <th>Email</th><th>Role</th><th>Member since</th><th>Change role</th>
+    </tr></thead>
+    <tbody>${data.map(u => `
+      <tr>
+        <td>${u.email}</td>
+        <td><span class="role-badge ${u.role || ''}">${u.role || '—'}</span></td>
+        <td style="color:var(--text-2,#6B6960)">${u.created_at ? new Date(u.created_at).toLocaleDateString() : '—'}</td>
+        <td>
+          <select class="role-select" data-uid="${u.id}" onchange="updateRole(this)">
+            ${['team','guest','ops','admin'].map(r =>
+              `<option value="${r}"${r === u.role ? ' selected' : ''}>${r}</option>`
+            ).join('')}
+          </select>
+        </td>
+      </tr>`).join('')}
+    </tbody>
+  </table>`;
+}
+
+async function updateRole(sel) {
+  const uid  = sel.dataset.uid;
+  const role = sel.value;
+  sel.disabled = true;
+  const { error } = await NPData.supabase
+    .from('users')
+    .update({ role })
+    .eq('id', uid);
+  sel.disabled = false;
+  if (error) {
+    alert('Failed to update role: ' + error.message);
+    await loadUsers();
+  }
+}
+
+async function inviteUser() {
+  const email = document.getElementById('inviteEmail').value.trim();
+  const role  = document.getElementById('inviteRole').value;
+  const btn   = document.getElementById('inviteBtn');
+  const msgEl = document.getElementById('inviteMsg');
+
+  if (!email) return;
+  btn.disabled = true;
+  btn.textContent = 'Sending…';
+  msgEl.style.display = 'none';
+
+  const { data: { session } } = await NPData.supabase.auth.getSession();
+  const resp = await fetch(NPData.SUPABASE_URL + '/functions/v1/invite-user', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + session.access_token,
+    },
+    body: JSON.stringify({ email, role }),
+  });
+
+  btn.disabled = false;
+  btn.textContent = 'Send invite';
+
+  let body;
+  try { body = await resp.json(); } catch { body = {}; }
+
+  msgEl.style.display = '';
+  if (resp.ok) {
+    msgEl.className = 'msg ok';
+    msgEl.textContent = 'Invitation sent to ' + email + '.';
+    document.getElementById('inviteEmail').value = '';
+    loadUsers();
+  } else {
+    msgEl.className = 'msg err';
+    msgEl.textContent = 'Error: ' + (body.error || resp.statusText);
+  }
+}
+
+loadUsers();
+</script>
+</body>
+</html>

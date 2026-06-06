@@ -43,6 +43,9 @@
   .link-card .lc-title { font-weight:600; color:var(--text); font-size:14px; }
   .link-card .lc-sub { font-size:var(--t-caption); color:var(--text-3); }
 </style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="np-data.js"></script>
+<script>NPData.guardPage(['ops']);</script>
 </head>
 <body>
 
@@ -159,6 +162,76 @@ document.getElementById('tfToggle').addEventListener('click',function(e){
   b.classList.add('is-active'); state.tf=b.dataset.tf; render();
 });
 render();
+</script>
+
+<script>
+// ── Live pmix-ops data seam — Phase 4 ────────────────────────────────────────
+(async function() {
+  try {
+    const { data: pmix, error } = await NPData.supabase.rpc('nbly_pmix_summary', {});
+    if (error) throw error;
+    const total = pmix?.locations?.total;
+    if (!total) return;
+
+    document.getElementById('kpiItems').textContent = (total.totalQty || 0).toLocaleString();
+
+    const concepts = (total.concepts || []).sort(function(a,b){ return b.net - a.net; });
+    if (concepts.length) {
+      document.getElementById('kpiTopCat').textContent = concepts[0].name;
+      var topPct = total.totalNet > 0 ? (concepts[0].net / total.totalNet * 100).toFixed(1) : '—';
+      document.getElementById('kpiTopCatPct').textContent = topPct + '% of mix';
+    }
+
+    // Avg items / check via weekly KPIs
+    var WLV = '417501a4-3ffb-41d2-9539-a1b87855a869', BW = '74dacac4-6208-4388-9612-39b46df05359';
+    function fwStart(s) {
+      var d = new Date(s+'T12:00:00Z'), cut = new Date('2026-01-07T00:00:00Z');
+      var dow = d.getUTCDay(), back = d >= cut ? (dow+4)%7 : (dow+6)%7;
+      d.setUTCDate(d.getUTCDate()-back); return d.toISOString().slice(0,10);
+    }
+    function addDays(s,n){ var d=new Date(s+'T12:00:00Z'); d.setUTCDate(d.getUTCDate()+n); return d.toISOString().slice(0,10); }
+    var cwStart = addDays(fwStart(new Date().toISOString().slice(0,10)), -7);
+    var res = await Promise.all([
+      NPData.supabase.rpc('nbly_weekly_kpis',{ p_location_id: WLV, p_week_start: cwStart }),
+      NPData.supabase.rpc('nbly_weekly_kpis',{ p_location_id: BW,  p_week_start: cwStart })
+    ]);
+    var totalChecks = (res[0].data?.check_count || 0) + (res[1].data?.check_count || 0);
+    if (totalChecks > 0 && total.totalQty > 0)
+      document.getElementById('kpiIpc').textContent = (total.totalQty / totalChecks).toFixed(1);
+
+    // Beverage attach rate
+    var bevQ = 0;
+    (total.concepts || []).forEach(function(c){
+      if (/bever|beer|wine/i.test(c.name)) bevQ += c.qty;
+    });
+    document.getElementById('kpiAttach').textContent =
+      (totalChecks > 0 ? (bevQ / totalChecks * 100).toFixed(0) : '—') + '%';
+
+    // Re-draw category mix chart with real concept data
+    if (concepts.length && typeof Chart !== 'undefined') {
+      var cats = concepts.map(function(c){ return c.name; });
+      var catPct = concepts.map(function(c){ return total.totalNet > 0 ? Math.round(c.net/total.totalNet*100) : 0; });
+      var PAL = ['#7bbd91','#e87142','#b89a00','#5a4a7a','#6280bd','#2d4480','#dbc6a2','#eace49'];
+      if (typeof mixChart !== 'undefined' && mixChart) mixChart.destroy();
+      mixChart = new Chart(document.getElementById('mixChart'),{
+        type:'doughnut',
+        data:{labels:cats,datasets:[{data:catPct,backgroundColor:PAL.slice(0,cats.length),borderWidth:2,borderColor:'#fff'}]},
+        options:{responsive:true,maintainAspectRatio:false,cutout:'58%',plugins:{legend:{position:'right',labels:{boxWidth:10,font:{family:'DM Sans',size:11}}}}}
+      });
+    }
+
+    // Re-draw top items chart with real item data
+    var topItems = (total.items || []).sort(function(a,b){ return b.qty-a.qty; }).slice(0,6);
+    if (topItems.length && typeof Chart !== 'undefined') {
+      if (typeof itemChart !== 'undefined' && itemChart) itemChart.destroy();
+      itemChart = new Chart(document.getElementById('itemChart'),{
+        type:'bar',
+        data:{labels:topItems.map(function(i){return i.name;}),datasets:[{data:topItems.map(function(i){return i.qty;}),backgroundColor:'rgba(42,122,75,0.82)',borderRadius:4}]},
+        options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{grid:{color:'rgba(31,35,40,0.06)'},ticks:{font:{family:'DM Mono',size:10}}},y:{grid:{display:false},ticks:{font:{family:'DM Sans',size:11}}}}}
+      });
+    }
+  } catch(e) { console.error('PMixOps seam error:', e); }
+})();
 </script>
 </body>
 </html>

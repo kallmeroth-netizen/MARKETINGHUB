@@ -248,6 +248,9 @@
     .qty-row-meta .qty-avg { grid-column: 1 / -1; padding-left: 0; border-left: none; padding-top: 2px; }
   }
 </style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="np-data.js"></script>
+<script>NPData.guardPage(['team','guest']);</script>
 </head>
 <body>
 
@@ -443,8 +446,9 @@
 
   async function loadPMIX() {
     try {
-      const r = await fetch('pmix-data.json', { cache: 'no-store' });
-      RAW = await r.json();
+      const { data: pmixData, error: pmixErr } = await NPData.supabase.rpc('nbly_pmix_summary', {});
+      if (pmixErr) throw pmixErr;
+      RAW = pmixData;
 
       // Normalize: support both new multi-day shape and legacy single-day shape
       if (RAW.days && typeof RAW.days === 'object') {
