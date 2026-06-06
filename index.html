@@ -744,13 +744,30 @@
            disablepictureinpicture x-webkit-airplay="deny"
            poster="./LineDrawingNeighborly_poster.png"
            aria-hidden="true">
-      <!-- VP9 alpha — Chrome, Firefox, Edge, iOS Safari 17+.
-           No mp4 fallback: the opaque mp4 has a near-white background baked
-           in that paints a rectangle over the cream page on iOS Safari that
-           can't play the webm. Poster (transparent PNG) stays visible
-           instead when no source plays. -->
+      <!-- VP9 alpha — Chrome, Firefox, Edge.
+           Safari (iOS + macOS) is swapped to a static <img> below because
+           its VP9-alpha support is unreliable and the opaque mp4 fallback
+           painted a white rectangle on the cream page. -->
       <source src="./LineDrawingNeighborly_transparent.webm" type="video/webm">
     </video>
+    <script>
+      // Safari (any version, iOS + macOS) can't reliably render VP9-alpha webm.
+      // Swap the <video> for a static line-drawing PNG before the video tries to load.
+      (function () {
+        var ua = navigator.userAgent;
+        var isSafari = /^((?!chrome|android|crios|fxios|edgios|opios|samsung).)*safari/i.test(ua);
+        if (!isSafari) return;
+        var v = document.getElementById('bgVideo');
+        if (!v) return;
+        var img = document.createElement('img');
+        img.className = 'bg-video';
+        img.id = 'bgVideo';
+        img.src = './LineDrawingNeighborly_safari.png';
+        img.alt = '';
+        img.setAttribute('aria-hidden', 'true');
+        v.replaceWith(img);
+      })();
+    </script>
     <div class="greeting"><span id="greetText"></span><span class="cursor"></span></div>
     <div class="sub-pass" id="subPass">Sign in to continue.</div>
     <div class="divider-pass"></div>
