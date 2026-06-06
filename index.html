@@ -744,12 +744,12 @@
            disablepictureinpicture x-webkit-airplay="deny"
            poster="./LineDrawingNeighborly_poster.png"
            aria-hidden="true">
-      <!-- VP9 alpha — Chrome, Firefox, Edge, iOS Safari 17+ -->
+      <!-- VP9 alpha — Chrome, Firefox, Edge, iOS Safari 17+.
+           No mp4 fallback: the opaque mp4 has a near-white background baked
+           in that paints a rectangle over the cream page on iOS Safari that
+           can't play the webm. Poster (transparent PNG) stays visible
+           instead when no source plays. -->
       <source src="./LineDrawingNeighborly_transparent.webm" type="video/webm">
-      <!-- Safari fallback: opaque mp4. Poster above guarantees something
-           always renders even when no source can play (older iOS Safari
-           with flaky VP9-alpha support). -->
-      <source src="./LineDrawingNeighborly.mp4" type="video/mp4">
     </video>
     <div class="greeting"><span id="greetText"></span><span class="cursor"></span></div>
     <div class="sub-pass" id="subPass">Sign in to continue.</div>
