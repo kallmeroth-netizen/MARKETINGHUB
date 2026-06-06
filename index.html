@@ -678,6 +678,50 @@
     .capsule-wrap { padding-bottom: 52px; }
     .err { margin-top: 56px !important; }
   }
+
+  /* =====================================================================
+     Hub header pills (date + sign out) — vertically thinner, mobile-safe
+     Pure cosmetic override; NPData.signOut handler on the button is unchanged.
+  ===================================================================== */
+  .date-chip {
+    padding: 4px 12px !important;
+    font-size: 10.5px !important;
+    letter-spacing: 0.14em !important;
+    line-height: 1.1 !important;
+    height: 28px;
+  }
+  .date-chip svg { width: 12px !important; height: 12px !important; }
+
+  #signOutBtn {
+    padding: 4px 14px !important;
+    font-size: 10.5px !important;
+    letter-spacing: 0.14em !important;
+    line-height: 1.1 !important;
+    border-width: 1px !important;
+    height: 28px;
+    white-space: nowrap !important;     /* never wrap "Sign out" */
+    display: inline-flex;
+    align-items: center;
+  }
+
+  @media (max-width: 520px) {
+    nav.topbar { height: 56px !important; padding: 0 14px !important; }
+    .date-chip {
+      padding: 3px 10px !important;
+      font-size: 10px !important;
+      letter-spacing: 0.12em !important;
+      gap: 6px !important;
+      height: 26px;
+    }
+    .date-chip svg { width: 10px !important; height: 10px !important; }
+    #signOutBtn {
+      padding: 3px 12px !important;
+      font-size: 10px !important;
+      letter-spacing: 0.12em !important;
+      height: 26px;
+    }
+    .nav-right { gap: 6px !important; }
+  }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script src="np-data.js"></script>
@@ -695,11 +739,16 @@
   </div>
 
   <div class="pass-hero">
-    <video class="bg-video" id="bgVideo" muted playsinline preload="auto" disablepictureinpicture x-webkit-airplay="deny" aria-hidden="true">
+    <video class="bg-video" id="bgVideo"
+           muted playsinline preload="auto" autoplay
+           disablepictureinpicture x-webkit-airplay="deny"
+           poster="./LineDrawingNeighborly_poster.png"
+           aria-hidden="true">
       <!-- VP9 alpha — Chrome, Firefox, Edge, iOS Safari 17+ -->
       <source src="./LineDrawingNeighborly_transparent.webm" type="video/webm">
-      <!-- Older Safari falls through to the opaque mp4; mix-blend-mode below
-           knocks out its white background so it still reads like a PNG. -->
+      <!-- Safari fallback: opaque mp4. Poster above guarantees something
+           always renders even when no source can play (older iOS Safari
+           with flaky VP9-alpha support). -->
       <source src="./LineDrawingNeighborly.mp4" type="video/mp4">
     </video>
     <div class="greeting"><span id="greetText"></span><span class="cursor"></span></div>
