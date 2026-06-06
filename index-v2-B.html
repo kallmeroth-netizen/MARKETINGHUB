@@ -30,7 +30,6 @@
     vertical-align: baseline;
   }
   @font-face { font-family: 'TAYAmaya'; src: url('fonts/TAYAmaya.otf') format('opentype'); font-display: swap; }
-  @font-face { font-family: 'Telegraf'; src: url('fonts/TelegrafRegular.otf') format('opentype'); font-display: swap; }
 
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -457,12 +456,6 @@
   .t-guests { border-color: rgba(203,201,214,0.65); }
   .t-guests:hover { background: var(--lav); border-color: var(--lav); }
   .t-guests:hover .tile-ico { background: rgba(31,35,40,0.10); }
-  /* Operations Hub tiles (third door) */
-  .t-ops { border-color: rgba(123,189,145,0.45); }
-  .t-ops:hover { background: #7bbd91; border-color: #7bbd91; color: #1f2328; }
-  .t-ops:hover .tile-sub { color: #3a3d44; }
-  .t-ops:hover .tile-ico { background: rgba(255,255,255,0.16); color: #f3faf8; }
-  .t-ops:hover .live { color: #f3faf8; }
 
   .tile-grid .tile { opacity: 0; transform: translateY(12px); }
   .tile-grid.in .tile { animation: tileIn 0.55s cubic-bezier(0.34,1.3,0.64,1) forwards; }
@@ -500,9 +493,6 @@
   .hub-shell {
     opacity: 0;
     transition: opacity 0.5s ease 0.1s;
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
   }
   body[data-state="hub"] .hub-shell { opacity: 1; }
 
@@ -552,137 +542,291 @@
   body[data-state="hub"] main { padding-top: clamp(96px, 14vh, 160px); }
   html { scroll-behavior: auto; }
 
-  /* =====================================================================
-     V2-C — dainty editorial intro
-     Inline line-drawing video above WELCOME (mix-blend knocks out white),
-     hairline-only capsules, orange pill ENTER, mono footer.
-     Auth/role logic untouched from main.
-  ===================================================================== */
-  .pass-shell {
-    justify-content: flex-end !important;
-    padding-bottom: clamp(80px, 12vh, 140px) !important;
-  }
-  /* Nudge the stack a touch left to optically center against the
-     line drawing's visual weight (which sits right-of-center) */
-  .pass-hero { transform: translateX(clamp(-32px, -1.6vw, -10px)); }
-  .pass-logo img { width: 92px !important; }
-  @media (max-width: 520px) {
-    .pass-logo img { width: 76px !important; }
-  }
-  .pass-hero { gap: 18px !important; width: clamp(280px, 34vw, 420px) !important; }
-
-  /* Dainty line drawing — sits above WELCOME, scales fluidly, mobile-safe */
-  .pass-hero .bg-video {
-    position: static !important;
-    display: block !important;
-    width: 120% !important;         /* +20% beyond the form column */
-    max-width: 92vw !important;     /* never overflows the viewport */
-    margin: 0 -10% 4px !important;  /* centers the overflow */
-    height: auto !important;
-    aspect-ratio: 3 / 2;
-    object-fit: contain !important;
+  /* ===========================================================
+     V2 — backdrop video + elevated, slimmer center cluster
+  ============================================================= */
+  .bg-video {
+    position: fixed; inset: 0;
+    width: 100%; height: 100%;
+    object-fit: cover;
+    z-index: 0;
+    background: var(--cream);
     pointer-events: none;
-    image-rendering: -webkit-optimize-contrast;
   }
-  /* Welcome word removed — drawing sits directly above the form */
-  .greeting { display: none !important; }
-  .sub-pass { display: none !important; }
-  .divider-pass { display: none !important; }
+  .bg-wash {
+    position: fixed; inset: 0; z-index: 0;
+    pointer-events: none;
+    background:
+      radial-gradient(ellipse 90% 70% at 50% 45%, transparent 55%, rgba(242,242,242,0.42) 100%),
+      linear-gradient(to bottom, rgba(242,242,242,0.45) 0%, transparent 20%, transparent 82%, rgba(242,242,242,0.35) 100%);
+    transition: opacity 0.7s ease;
+  }
+  /* Once the user is on the hub, hide the entry-video chrome entirely */
+  body[data-state="hub"] .bg-video,
+  body[data-state="hub"] .bg-wash { display: none; }
 
-  /* Capsules — hairline rows instead of pill chrome */
-  .capsule-wrap {
-    width: 100% !important;
-    gap: 0 !important;
-    opacity: 1 !important;
-    transform: none !important;
-    animation: none !important;
+  /* Lift the central content above the geometric center for a more
+     composed, "elevated" feel; keep logo/footer exactly where they were. */
+  .pass-shell {
+    justify-content: flex-end;
+    padding-top: 2rem;
+    padding-bottom: clamp(96px, 14vh, 160px);
   }
+  .pass-hero { gap: 8px; }
+
+  /* Static welcome — no typewriter, no cursor, ~half size */
+  .greeting {
+    animation: none;
+    opacity: 1;
+    font-size: clamp(15px, 2.1vw, 22px);
+    letter-spacing: -0.005em;
+    transition: opacity 0.5s ease;
+  }
+  .greeting .cursor { display: none; }
+  .sub-pass {
+    opacity: 0.6;
+    font-size: 9px;
+    letter-spacing: 0.24em;
+    transition: opacity 0.5s ease;
+  }
+  .divider-pass { display: none; }
+
+  /* ~Half-sized, more "floating" capsule — now a two-row auth card */
+  .capsule-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: min(320px, 90%);
+    margin-top: 6px;
+  }
+  .capsule {
+    display: block;
+    height: auto;
+    width: 100%;
+    padding: 0;
+    border-radius: 14px;
+    overflow: hidden;
+    background: rgba(255,255,255,0.92);
+    border: 1.5px solid rgba(31,35,40,0.22);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    box-shadow:
+      0 24px 56px rgba(31,35,40,0.18),
+      0 2px 6px rgba(31,35,40,0.08);
+  }
+  .auth-div { background: rgba(31,35,40,0.14); }
+  .capsule:focus-within {
+    border-color: rgba(31,35,40,0.28);
+    box-shadow:
+      0 26px 56px rgba(31,35,40,0.18),
+      0 0 0 3px rgba(0,0,0,0.04);
+  }
+  .auth-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 14px;
+    height: 38px;
+  }
+  .row-ico {
+    display: flex; align-items: center;
+    opacity: 0.45;
+    flex-shrink: 0;
+    color: var(--ink);
+  }
+  .row-ico svg { width: 13px; height: 13px; }
+  .auth-div {
+    height: 1px;
+    background: rgba(31,35,40,0.08);
+    margin: 0;
+  }
+  .capsule .pw-input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    outline: none;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    color: var(--ink);
+    width: 100%;
+    padding: 0;
+    min-width: 0;
+  }
+  .capsule .pw-input::placeholder {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 11px;
+    letter-spacing: 0.04em;
+    color: #8a8780;
+  }
+  .toggle-vis {
+    background: none; border: none; cursor: pointer;
+    padding: 4px;
+    color: var(--ink); opacity: 0.45;
+    display: flex; align-items: center;
+  }
+  .toggle-vis:hover { opacity: 1; }
+  .toggle-vis svg { width: 14px; height: 14px; }
+
+  /* Refined dark submit pill, sits below the card */
+  .submit {
+    display: inline-flex; align-items: center;
+    margin: 12px auto 0;
+    height: 28px;
+    padding: 0 18px;
+    font-family: 'Jost', 'futura-pt', 'Futura', sans-serif;
+    font-size: 9.5px;
+    font-weight: 600;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    line-height: 1;
+    color: #fff8f1;
+    background: var(--ink);
+    border: none; border-radius: 100px;
+    box-shadow: 0 10px 24px rgba(31,35,40,0.20);
+    gap: 6px; cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.2s ease, filter 0.2s ease;
+  }
+  .submit:hover {
+    transform: translateY(-1px);
+    filter: brightness(1.08);
+    box-shadow: 0 14px 30px rgba(31,35,40,0.26);
+  }
+
+  .err {
+    font-size: 10px;
+    margin-top: 8px;
+    height: 12px;
+  }
+
+  /* Hide the now-redundant "Sign in to continue." subtitle for a cleaner stack */
+  .sub-pass { display: none; }
+  .pass-hero { gap: 12px; }
+
+  /* When the password is accepted and the video starts playing, dim
+     the center cluster so attention follows the car. */
+  body[data-entering="1"] .greeting,
+  body[data-entering="1"] .sub-pass,
+  body[data-entering="1"] .capsule-wrap {
+    opacity: 0;
+    transition: opacity 0.6s ease;
+    pointer-events: none;
+  }
+  body[data-entering="1"] .greeting { opacity: 0.85; }
+
+  @media (max-width: 520px) {
+    .pass-shell { padding-bottom: clamp(80px, 11vh, 130px); }
+    .capsule-wrap { width: min(280px, 90%); }
+  }
+
+  /* ============================================================
+     VARIANT B — Video-first
+     Full-bleed video, single thin form line anchored lower-left.
+  ============================================================ */
+  .pass-logo {
+    top: 28px !important;
+    left: 32px !important;
+    transform: none !important;
+  }
+  .pass-logo img { width: 76px; }
+
+  /* Strip the wash so the video carries the page */
+  .bg-wash {
+    background:
+      linear-gradient(to bottom, transparent 60%, rgba(20,18,15,0.28) 100%),
+      linear-gradient(to right, rgba(20,18,15,0.18) 0%, transparent 40%) !important;
+  }
+
+  /* Anchor the form to the lower-left, asymmetric */
+  .pass-shell {
+    align-items: flex-start !important;
+    justify-content: flex-end !important;
+    padding: 0 !important;
+    padding-bottom: clamp(72px, 11vh, 120px) !important;
+    padding-left: clamp(32px, 6vw, 80px) !important;
+  }
+  .pass-hero {
+    align-items: flex-start !important;
+    text-align: left !important;
+    gap: 14px !important;
+    width: min(360px, 80vw);
+  }
+  .greeting, .sub-pass, .divider-pass { display: none !important; }
+
+  /* Form: borderless, hairline-bottom inputs only, very thin */
+  .capsule-wrap { width: 100%; display: flex; flex-direction: column; }
   .capsule {
     background: transparent !important;
     border: none !important;
-    border-bottom: 1px solid rgba(31,35,40,0.22) !important;
     border-radius: 0 !important;
-    padding: 0 !important;
-    height: 38px !important;
-    gap: 0 !important;
+    box-shadow: none !important;
     backdrop-filter: none !important;
-    -webkit-backdrop-filter: none !important;
-    box-shadow: none !important;
+    padding: 0 !important;
   }
-  #emailCapsule { border-top: 1px solid rgba(31,35,40,0.22) !important; }
-  .capsule:focus-within {
-    border-color: rgba(31,35,40,0.5) !important;
-    box-shadow: none !important;
+  .capsule:focus-within { box-shadow: none !important; }
+  .auth-row {
+    padding: 0 !important;
+    height: 36px !important;
+    gap: 0 !important;
+    border-bottom: 1px solid rgba(255,250,242,0.42) !important;
   }
-  .capsule.error { border-color: var(--orange) !important; }
-  .lock-ico { display: none !important; }
-  .pw-input {
-    font-family: 'Telegraf', 'Jost', 'futura-pt', sans-serif !important;
-    font-size: 13px !important;
-    letter-spacing: 0.02em !important;
-    text-transform: none !important;
-  }
-  .pw-input::placeholder {
-    font-family: 'Telegraf', 'Jost', 'futura-pt', sans-serif !important;
+  .auth-div { display: none !important; }
+  .row-ico, .toggle-vis { display: none !important; }
+  .capsule .pw-input {
+    font-family: 'Jost', 'futura-pt', sans-serif !important;
     font-size: 12px !important;
-    letter-spacing: 0.02em !important;
-    text-transform: none !important;
-    color: rgba(31,35,40,0.42) !important;
-  }
-  .toggle-vis { padding: 4px !important; opacity: 0.4; }
-  .toggle-vis:hover { opacity: 0.9; }
-
-  /* ENTER — orange pill, lifted out of the password row to live below the form */
-  .capsule-wrap { padding-bottom: 60px; position: relative; }
-  .capsule .submit {
-    position: absolute !important;
-    left: 50% !important;
-    bottom: 14px !important;
-    transform: translateX(-50%) !important;
-    height: 30px !important;
-    /* extra left padding = letter-spacing so trailing space doesn't push
-       the visible glyphs off-center */
-    padding: 0 22px 0 calc(22px + 0.16em) !important;
-    font-family: 'Futura PT Demi', 'futura-pt', 'Jost', sans-serif !important;
-    font-size: 11.5px !important;
-    font-weight: 600 !important;
-    letter-spacing: 0.16em !important;
-    text-transform: uppercase !important;
-    background: var(--orange) !important;
+    letter-spacing: 0.24em !important;
+    text-transform: uppercase;
     color: #fff8f1 !important;
-    box-shadow: 0 4px 14px rgba(232,113,66,0.26) !important;
-    flex-shrink: 0;
+    background: transparent !important;
   }
-  .capsule .submit:hover {
-    transform: translateX(-50%) translateY(-1px) !important;
-    box-shadow: 0 6px 18px rgba(232,113,66,0.36) !important;
+  .capsule .pw-input::placeholder {
+    font-family: 'Jost', 'futura-pt', sans-serif !important;
+    font-size: 10px !important;
+    letter-spacing: 0.36em !important;
+    text-transform: uppercase;
+    color: rgba(255,250,242,0.55) !important;
   }
-  .err { text-align: center; padding-top: 8px; }
 
-  /* Telegraf footer — quiet sentence-case label */
+  /* ENTER as a thin underlined link, left-aligned just under the form */
+  .submit {
+    align-self: flex-start !important;
+    background: transparent !important;
+    color: #fff8f1 !important;
+    box-shadow: none !important;
+    border: none !important;
+    border-radius: 0 !important;
+    padding: 0 0 4px 0 !important;
+    height: auto !important;
+    margin: 18px 0 0 !important;
+    font-family: 'Jost', 'futura-pt', sans-serif !important;
+    font-size: 10px !important;
+    letter-spacing: 0.4em !important;
+    text-transform: uppercase;
+    border-bottom: 1px solid rgba(255,250,242,0.78) !important;
+  }
+  .submit:hover { transform: none !important; filter: none !important; opacity: 0.7; }
+
+  /* Footer: tiny mono in same warm-white as form */
   .portal-foot,
   footer.foot .track-center {
-    font-family: 'Telegraf', 'Jost', 'futura-pt', sans-serif !important;
-    font-size: 11px !important;
+    font-family: 'DM Mono', monospace !important;
+    font-size: 10px !important;
     letter-spacing: 0.04em !important;
     text-transform: none !important;
     font-weight: 400 !important;
-    opacity: 0.55;
+    color: rgba(255,250,242,0.55) !important;
+    opacity: 1 !important;
   }
-
-  @media (max-width: 520px) {
-    .pass-hero { width: min(300px, 86vw) !important; gap: 14px !important; transform: translateX(-6px); }
-    .greeting { font-size: 14px !important; }
-    .capsule { height: 36px !important; }
-    .capsule .submit { margin-top: 52px; height: 28px !important; font-size: 9.5px !important; }
-    .capsule-wrap { padding-bottom: 52px; }
-    .err { margin-top: 56px !important; }
-  }
+  .portal-foot { left: auto !important; right: 32px !important; text-align: right !important; width: auto !important; }
 </style>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-<script src="np-data.js"></script>
 </head>
 <body data-state="passcode" data-side="team">
+
+<video class="bg-video" id="bgVideo" muted playsinline preload="auto" disablepictureinpicture x-webkit-airplay="deny">
+  <source src="./LineDrawingNeighborly.mp4" type="video/mp4">
+</video>
+<div class="bg-wash"></div>
 
 <div class="blob b1"></div>
 <div class="blob b2"></div>
@@ -695,39 +839,35 @@
   </div>
 
   <div class="pass-hero">
-    <video class="bg-video" id="bgVideo" muted playsinline preload="auto" disablepictureinpicture x-webkit-airplay="deny" aria-hidden="true">
-      <!-- VP9 alpha — Chrome, Firefox, Edge, iOS Safari 17+ -->
-      <source src="./LineDrawingNeighborly_transparent.webm" type="video/webm">
-      <!-- Older Safari falls through to the opaque mp4; mix-blend-mode below
-           knocks out its white background so it still reads like a PNG. -->
-      <source src="./LineDrawingNeighborly.mp4" type="video/mp4">
-    </video>
-    <div class="greeting"><span id="greetText"></span><span class="cursor"></span></div>
+    <div class="greeting"><span id="greetText">Welcome.</span></div>
     <div class="sub-pass" id="subPass">Sign in to continue.</div>
     <div class="divider-pass"></div>
 
-    <div class="capsule-wrap" style="display:flex;flex-direction:column;gap:8px">
-      <div class="capsule" id="emailCapsule">
-        <span class="lock-ico">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 8l9 6 9-6"/></svg>
-        </span>
-        <input id="em" class="pw-input" type="email" placeholder="Email" autocomplete="email" autocapitalize="off" spellcheck="false" style="letter-spacing:0.02em">
-      </div>
+    <div class="capsule-wrap">
       <div class="capsule" id="capsule">
-        <span class="lock-ico">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-        </span>
-        <input id="pw" class="pw-input" type="password" placeholder="Password" autocomplete="current-password" autocapitalize="off" spellcheck="false">
-        <button class="toggle-vis" id="toggleVis" type="button" aria-label="Show password">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>
-        </button>
-        <button class="submit" id="go" type="button">Enter →</button>
+        <div class="auth-row">
+          <span class="row-ico" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
+          </span>
+          <input id="usr" class="pw-input" type="text" placeholder="Username" autocomplete="username" autocapitalize="off" spellcheck="false">
+        </div>
+        <div class="auth-div"></div>
+        <div class="auth-row">
+          <span class="row-ico" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          </span>
+          <input id="pw" class="pw-input" type="password" placeholder="Password" autocomplete="current-password" autocapitalize="off" spellcheck="false">
+          <button class="toggle-vis" id="toggleVis" type="button" aria-label="Show password">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+        </div>
       </div>
-      <div class="err" id="err">Invalid email or password.</div>
+      <button class="submit" id="go" type="button">Enter <span aria-hidden="true">→</span></button>
+      <div class="err" id="err">That doesn't open either door.</div>
     </div>
   </div>
 
-  <div class="portal-foot shown"><span class="track-center">neighbors only hub</span></div>
+  <div class="portal-foot shown"><span class="track-center">est. 2024</span></div>
 </div>
 
 <!-- ==================== SWEEP ==================== -->
@@ -747,13 +887,12 @@
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 11h18"/></svg>
         <span id="dateText">—</span>
       </div>
-      <button id="signOutBtn" type="button" onclick="NPData.signOut()" style="background:none;border:1.5px solid rgba(31,35,40,0.15);border-radius:100px;padding:7px 14px;font-family:'Jost','futura-pt','Futura',sans-serif;font-weight:600;font-size:11px;letter-spacing:0.22em;text-transform:uppercase;color:var(--text2);cursor:pointer;transition:border-color 0.2s,color 0.2s" onmouseover="this.style.borderColor='rgba(31,35,40,0.4)';this.style.color='var(--text)'" onmouseout="this.style.borderColor='rgba(31,35,40,0.15)';this.style.color='var(--text2)'">Sign out</button>
     </div>
   </nav>
 
   <div class="hub-overlay" id="hubOverlay"></div>
   <div class="hub-pop" id="hubPop">
-    <div class="hub-label"><span id="hubLabelText">Neighborly Marketing Hub</span></div>
+    <div class="hub-label"><span>Neighborly Marketing Hub</span></div>
     <div class="hub-grid" id="hubGrid"></div>
   </div>
 
@@ -809,56 +948,17 @@
           <span class="tile-sub">Feedback &amp; experience trends</span>
         </span>
       </a>
-      <a class="tile t-social" data-roles="team" data-key="paidads" href="neighborly-paid-ads.html">
-        <span class="live">Live</span>
-        <span class="tile-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></span>
-        <span class="tile-body">
-          <span class="tile-label">Paid Ads</span>
-          <span class="tile-sub">Meta &amp; Google spend, ROAS</span>
-        </span>
-      </a>
-
-      <!-- ===== Operations Hub tiles (third door — ops passcode only) ===== -->
-      <a class="tile t-ops" data-roles="ops" data-key="opsforecast" href="neighborly-sales.html">
-        <span class="live">Live</span>
-        <span class="tile-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l5-5 4 4 8-8"/><path d="M14 8h6v6"/></svg></span>
-        <span class="tile-body">
-          <span class="tile-label">Sales &amp; Forecasting</span>
-          <span class="tile-sub">Forecast vs. actual, check, comps</span>
-        </span>
-      </a>
-      <a class="tile t-ops" data-roles="ops" data-key="opslabor" href="neighborly-labor.html">
-        <span class="tile-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 13h4l3 7 4-16 3 9h4"/></svg></span>
-        <span class="tile-body">
-          <span class="tile-label">Labor &amp; SPLH</span>
-          <span class="tile-sub">SPLH, hours, OT, labor %</span>
-        </span>
-      </a>
-      <a class="tile t-ops" data-roles="ops" data-key="opspmix" href="neighborly-pmixops.html">
-        <span class="tile-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span>
-        <span class="tile-body">
-          <span class="tile-label">Product Mix &middot; Ops</span>
-          <span class="tile-sub">POS mix, computed once</span>
-        </span>
-      </a>
-
-      <!-- Admin tile — visible to admin role only -->
-      <a class="tile" data-roles="admin" data-key="admin" href="neighborly-admin.html" style="border-color:rgba(31,35,40,0.25)">
-        <span class="tile-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/><path d="M18 14l1.5 1.5L22 13"/></svg></span>
-        <span class="tile-body">
-          <span class="tile-label">Admin</span>
-          <span class="tile-sub">User management</span>
-        </span>
-      </a>
     </div>
   </main>
 
-  <footer class="foot"><span class="track-center">Neighbors Only Portal</span></footer>
+  <footer class="foot"><span class="track-center">est. 2024</span></footer>
 </div>
 
 <script>
-  /* ============ Login ============ */
-  const SIDE_COLORS = { team: '#e87142', guest: '#cbc9d6', ops: '#7bbd91', admin: '#1f2328' };
+  /* ============ Passcode ============ */
+  const TEAM_PW  = 'neighborly';
+  const GUEST_PW = 'neighborsonly';
+  const SIDE_COLORS = { team: '#e87142', guest: '#cbc9d6' };
 
   const greetEl  = document.getElementById('greetText');
   const subPass  = document.getElementById('subPass');
@@ -887,117 +987,100 @@
     })();
   }
 
-  setTimeout(() => {
-    typeText(greetEl, baseText, 110, () => {
-      setTimeout(() => subPass.classList.add('shown'), 220);
-    });
-  }, 900);
+  // v2: static welcome — no typewriter
+  greetEl.textContent = baseText;
+  subPass.classList.add('shown');
 
-  const em     = document.getElementById('em');
   const pw     = document.getElementById('pw');
   const cap    = document.getElementById('capsule');
   const err    = document.getElementById('err');
   const sweep  = document.getElementById('sweep');
   const sweepText = document.getElementById('sweepText');
   const passShell = document.getElementById('passShell');
+  const bgVideo  = document.getElementById('bgVideo');
 
-  function clearError() { cap.classList.remove('error'); err.classList.remove('show'); }
-  em.addEventListener('input', clearError);
-  pw.addEventListener('input', clearError);
-
-  async function submitLogin() {
-    const email = em.value.trim();
-    const pass  = pw.value;
-    if (!email || !pass) return;
-    clearError();
-
-    const btn = document.getElementById('go');
-    btn.disabled = true;
-    btn.textContent = '…';
-
-    const { data, error } = await NPData.signIn(email, pass);
-
-    btn.disabled = false;
-    btn.textContent = 'Enter →';
-
-    if (error || !data?.session) {
-      cap.classList.add('error');
-      err.classList.add('show');
-      pw.select();
-      return;
-    }
-
-    // Role comes from JWT app_metadata (once hook is registered) or DB fallback.
-    const role = data.session.user?.app_metadata?.role ?? await NPData.getRole();
-    const side = role === 'admin' ? 'admin'
-               : role === 'ops'   ? 'ops'
-               : role === 'guest' ? 'guest'
-               : 'team';
-    accept(side);
+  // Hold the video on its first frame until the user submits. A quick
+  // play/pause forces mobile Safari to render the frame instead of a
+  // black box.
+  if (bgVideo) {
+    const paintFirstFrame = () => {
+      try {
+        const p = bgVideo.play();
+        if (p && typeof p.then === 'function') {
+          p.then(() => bgVideo.pause()).catch(() => {});
+        } else {
+          bgVideo.pause();
+        }
+      } catch (e) {}
+    };
+    if (bgVideo.readyState >= 2) paintFirstFrame();
+    else bgVideo.addEventListener('loadeddata', paintFirstFrame, { once: true });
   }
 
-  // Latch so the sweep choreography can only run once. Without this a double
-  // Enter-press (or Enter + Go click, or key auto-repeat) fires accept() twice
-  // on offset timelines and the slide-up curtain visibly plays "almost twice".
-  let entering = false;
+  pw.addEventListener('input', () => {
+    cap.classList.remove('error');
+    err.classList.remove('show');
+  });
+
+  function submitPW() {
+    const v = pw.value.trim().toLowerCase();
+    if (!v) return;
+    if (v === TEAM_PW)  return accept('team');
+    if (v === GUEST_PW) return accept('guest');
+    cap.classList.add('error');
+    err.classList.add('show');
+    pw.select();
+  }
+
   function accept(side) {
-    if (entering) return;
-    entering = true;
     cap.classList.add('accept');
-    const phrase = side === 'team'  ? 'Welcome back, team.'
-                 : side === 'ops'   ? 'Welcome, ops.'
-                 : side === 'admin' ? 'Welcome, admin.'
-                 : 'Welcome home, neighbor.';
-    retypeGreeting(phrase, () => {
-      setTimeout(() => {
-        sweep.style.background = SIDE_COLORS[side];
-        sweep.classList.toggle('lav', side === 'guest');
-        sweepText.textContent = side === 'team'  ? 'Team Hub'
-                              : side === 'ops'   ? 'Operations Hub'
-                              : side === 'admin' ? 'Admin Hub'
-                              : 'Guest Hub';
-        sweep.classList.add('up');
-        // Once the sweep is up, swap to hub state, then lift the sweep
-        setTimeout(() => {
-          enterHub(side);
-        }, 900);
-      }, 350);
-    });
+    const phrase = side === 'team' ? 'Welcome back, team.' : 'Welcome home, neighbor.';
+    greetEl.textContent = phrase;
+    // The car drives off — release the still frame. The video itself
+    // is the transition; we drop into the hub when it ends.
+    document.body.dataset.entering = '1';
+    let entered = false;
+    const finalize = () => {
+      if (entered) return;
+      entered = true;
+      enterHub(side);
+    };
+    if (bgVideo) {
+      bgVideo.addEventListener('ended', finalize, { once: true });
+      try { bgVideo.currentTime = 0; } catch (e) {}
+      const p = bgVideo.play();
+      if (p && typeof p.catch === 'function') p.catch(() => finalize());
+    } else {
+      finalize();
+    }
+    // Safety net in case 'ended' never fires (network drop, codec quirk)
+    setTimeout(finalize, 9000);
   }
 
-  document.getElementById('go').addEventListener('click', submitLogin);
-  pw.addEventListener('keydown', (e) => { if (e.key === 'Enter') submitLogin(); });
-  em.addEventListener('keydown', (e) => { if (e.key === 'Enter') pw.focus(); });
+  document.getElementById('go').addEventListener('click', submitPW);
+  pw.addEventListener('keydown', (e) => { if (e.key === 'Enter') submitPW(); });
+  const usr = document.getElementById('usr');
+  if (usr) usr.addEventListener('keydown', (e) => { if (e.key === 'Enter') submitPW(); });
   document.getElementById('toggleVis').addEventListener('click', () => {
     pw.type = pw.type === 'password' ? 'text' : 'password';
   });
 
   /* ============ Hub ============ */
   const HUB_ITEMS = [
-    { key: 'home',     label: 'Home',                sub: 'Hub overview',               bg:'#efece2', stroke:'#1f2328', roles:['team','guest','ops','admin'],
+    { key: 'home',     label: 'Home',                sub: 'Marketing Hub overview',     bg:'#efece2', stroke:'#1f2328', roles:['team','guest'],
       svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>' },
-    { key: 'sales',    label: 'Performance Marketing', sub: 'Weekly & all-time KPIs',     bg:'#fdf7d8', stroke:'#b89a00', roles:['team','guest','admin'],
+    { key: 'sales',    label: 'Performance Marketing', sub: 'Weekly & all-time KPIs',     bg:'#fdf7d8', stroke:'#b89a00', roles:['team','guest'],
       svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>' },
-    { key: 'pmix',     label: 'Sales & Pmix',         sub: 'Daily sales & product mix',  bg:'#e3ece3', stroke:'#5a7a5a', roles:['team','guest','admin'],
+    { key: 'pmix',     label: 'Sales & Pmix',         sub: 'Daily sales & product mix',  bg:'#e3ece3', stroke:'#5a7a5a', roles:['team','guest'],
       svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>' },
-    { key: 'calendar', label: 'Marketing Calendar',  sub: 'Campaigns & scheduling',     bg:'#e4f5ea', stroke:'#7bbd91', roles:['team','admin'],
+    { key: 'calendar', label: 'Marketing Calendar',  sub: 'Campaigns & scheduling',     bg:'#e4f5ea', stroke:'#2a7a4b', roles:['team'],
       svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>' },
-    { key: 'assets',   label: 'Brand Assets',        sub: 'Logos & templates',          bg:'#f7f0e4', stroke:'#9c7a3c', roles:['team','admin'],
+    { key: 'assets',   label: 'Brand Assets',        sub: 'Logos & templates',   bg:'#f7f0e4', stroke:'#9c7a3c', roles:['team'],
       svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 010 14.14M4.93 4.93a10 10 0 000 14.14M12 2v2M12 20v2M2 12h2M20 12h2"/></svg>' },
-    { key: 'social',   label: 'Social',              sub: 'Reach & engagement',         bg:'#eaeef8', stroke:'#3a59a0', roles:['team','admin'],
+    { key: 'social',   label: 'Social',              sub: 'Reach & engagement',         bg:'#eaeef8', stroke:'#3a59a0', roles:['team'],
       svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h4l3-9 4 18 3-9h4"/></svg>' },
-    { key: 'guests',   label: 'Guest Intelligence',  sub: 'Feedback & experience trends', bg:'#f0eff5', stroke:'#5a4a7a', roles:['team','admin'],
-      svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="4"/><path d="M2 21a7 7 0 0 1 14 0"/><path d="M16 3.5a4 4 0 0 1 0 8M22 21a7 7 0 0 0-5-6.7"/></svg>' },
-    { key: 'paidads',  label: 'Paid Ads',            sub: 'Meta & Google spend, ROAS',    bg:'#ddeaff', stroke:'#1877f2', roles:['team','admin'],
-      svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>' },
-    { key: 'opsforecast', label: 'Sales & Forecasting', sub: 'Forecast vs. actual, check, comps', bg:'#e4f5ea', stroke:'#1e5a37', roles:['ops','admin'],
-      svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l5-5 4 4 8-8"/><path d="M14 8h6v6"/></svg>' },
-    { key: 'opslabor', label: 'Labor & SPLH', sub: 'SPLH, hours, OT, labor %', bg:'#e4f5ea', stroke:'#1e5a37', roles:['ops','admin'],
-      svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 13h4l3 7 4-16 3 9h4"/></svg>' },
-    { key: 'opspmix', label: 'Product Mix · Ops', sub: 'POS mix, computed once', bg:'#e4f5ea', stroke:'#1e5a37', roles:['ops','admin'],
-      svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>' },
-    { key: 'admin', label: 'Admin', sub: 'User management', bg:'#efece2', stroke:'#1f2328', roles:['admin'],
-      svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/><path d="M18 14l1.5 1.5L22 13"/></svg>' }
+    { key: 'guests',   label: 'Guest Intelligence',  sub: 'Feedback & experience trends', bg:'#f0eff5', stroke:'#5a4a7a', roles:['team'],
+      svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="4"/><path d="M2 21a7 7 0 0 1 14 0"/><path d="M16 3.5a4 4 0 0 1 0 8M22 21a7 7 0 0 0-5-6.7"/></svg>' }
   ];
   const HREF = {
     home: '#',
@@ -1006,12 +1089,7 @@
     calendar: 'neighborly-calendar.html',
     assets: 'neighborly-assets.html',
     social: 'neighborly-social.html',
-    guests:   'neighborly-guests.html',
-    paidads:  'neighborly-paid-ads.html',
-    opsforecast: 'neighborly-sales.html',
-    opslabor: 'neighborly-labor.html',
-    opspmix: 'neighborly-pmixops.html',
-    admin: 'neighborly-admin.html'
+    guests: 'neighborly-guests.html'
   };
 
   let CURRENT_SIDE = 'team';
@@ -1059,23 +1137,13 @@
     if (side === 'team') {
       heroSub.textContent = 'Welcome to your team hub';
       heroSub.classList.remove('empty');
-    } else if (side === 'ops') {
-      heroSub.textContent = 'Welcome to operations';
-      heroSub.classList.remove('empty');
-    } else if (side === 'admin') {
-      heroSub.textContent = 'Welcome, admin';
-      heroSub.classList.remove('empty');
     } else {
       heroSub.textContent = '';
       heroSub.classList.add('empty');
     }
-    var hubLabelText = document.getElementById('hubLabelText');
-    if (hubLabelText) hubLabelText.textContent = side === 'ops'   ? 'Neighborly Operations Hub'
-                                               : side === 'admin' ? 'Neighborly Admin Hub'
-                                               : 'Neighborly Marketing Hub';
     tileGrid.querySelectorAll('.tile').forEach(t => {
       const roles = (t.dataset.roles || '').split(',');
-      t.style.display = (side === 'admin' || roles.includes(side)) ? '' : 'none';
+      t.style.display = roles.includes(side) ? '' : 'none';
     });
     tileGrid.classList.remove('in'); void tileGrid.offsetWidth; tileGrid.classList.add('in');
   }
@@ -1097,36 +1165,41 @@
   function enterHub(side) {
     applySide(side);
     paintDate();
+    // Persist auth for 15 minutes so navigating back from internal pages
+    // (or briefly closing/reopening the tab) restores the hub without
+    // forcing the passcode again.
+    try {
+      localStorage.setItem('np_side', side);
+      localStorage.setItem('np_exp', String(Date.now() + 15 * 60 * 1000));
+    } catch (e) {}
     body.dataset.state = 'hub';
     window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
     passShell.classList.add('fading');
-    requestAnimationFrame(() => {
-      sweep.classList.add('lift');
-      setTimeout(() => {
-        sweep.style.transition = 'none';
-        sweep.classList.remove('up', 'lift');
-        sweep.style.opacity = '';
-        requestAnimationFrame(() => { sweep.style.transition = ''; });
-      }, 900);
-      typeHero();
-    });
+    typeHero();
   }
 
-  // On page load: check for an existing Supabase Auth session and skip the
-  // login screen if the user is still authenticated.
-  (async function restoreSession() {
-    const session = await NPData.getSession();
-    if (!session) return;
-    const role = session.user?.app_metadata?.role ?? await NPData.getRole();
-    const side = role === 'admin' ? 'admin'
-               : role === 'ops'   ? 'ops'
-               : role === 'guest' ? 'guest'
-               : role === 'team'  ? 'team'
-               : null;
-    if (!side) return;
-    applySide(side);
+  // On page load: if the user authenticated within the last 15 minutes,
+  // skip the passcode screen and drop them straight into the hub. The
+  // back button on internal pages now returns here without re-prompting,
+  // and brief tab closes/reopens are also tolerated.
+  (function restoreSession() {
+    var saved, exp;
+    try {
+      saved = localStorage.getItem('np_side');
+      exp = parseInt(localStorage.getItem('np_exp') || '0', 10);
+    } catch (e) { saved = null; exp = 0; }
+    if (saved !== 'team' && saved !== 'guest') return;
+    if (!exp || Date.now() > exp) {
+      // Expired — clear and fall through to the passcode screen.
+      try { localStorage.removeItem('np_side'); localStorage.removeItem('np_exp'); } catch (e) {}
+      return;
+    }
+    // Sliding window: extend by another 15 minutes on each visit
+    try { localStorage.setItem('np_exp', String(Date.now() + 15 * 60 * 1000)); } catch (e) {}
+    applySide(saved);
     paintDate();
     body.dataset.state = 'hub';
+    // No sweep — just appear on the hub. Skip the typewriter delay too.
     var heroEl = document.getElementById('heroGreet');
     if (heroEl) heroEl.textContent = 'Hey, Neighbor!';
     if (passShell) passShell.style.display = 'none';
