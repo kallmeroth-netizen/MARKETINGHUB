@@ -739,18 +739,13 @@
   </div>
 
   <div class="pass-hero">
-    <video class="bg-video" id="bgVideo"
-           muted playsinline preload="auto" autoplay
-           disablepictureinpicture x-webkit-airplay="deny"
-           poster="./LineDrawingNeighborly_poster.png"
-           aria-hidden="true">
-      <!-- VP9 alpha — Chrome, Firefox, Edge, iOS Safari 17+ -->
-      <source src="./LineDrawingNeighborly_transparent.webm" type="video/webm">
-      <!-- Safari fallback: opaque mp4. Poster above guarantees something
-           always renders even when no source can play (older iOS Safari
-           with flaky VP9-alpha support). -->
-      <source src="./LineDrawingNeighborly.mp4" type="video/mp4">
-    </video>
+    <!-- Static line drawing — transparent PNG strokes sit directly on the
+         page background, so no color seam, no video element loading, no
+         autoplay shenanigans. submitLogin() swaps this for a <video> and
+         plays the cream-baked mp4 as the entry transition. -->
+    <img class="bg-video" id="bgDrawing"
+         src="./LineDrawingNeighborly_safari.png"
+         alt="" aria-hidden="true">
     <div class="greeting"><span id="greetText"></span><span class="cursor"></span></div>
     <div class="sub-pass" id="subPass">Sign in to continue.</div>
     <div class="divider-pass"></div>
@@ -954,11 +949,41 @@
   em.addEventListener('input', clearError);
   pw.addEventListener('input', clearError);
 
+  // Swap the static line drawing for a <video> and play the animation
+  // as the entry transition. User-gesture context (the Enter click) lets
+  // the video play even on iOS in Low Power Mode.
+  let drawingPlayed = false;
+  function playEntryDrawing() {
+    if (drawingPlayed) return;
+    drawingPlayed = true;
+    const img = document.getElementById('bgDrawing');
+    if (!img) return;
+    const v = document.createElement('video');
+    v.className = 'bg-video';
+    v.id = 'bgVideo';
+    v.muted = true;
+    v.defaultMuted = true;
+    v.playsInline = true;
+    v.setAttribute('playsinline', '');
+    v.setAttribute('muted', '');
+    v.setAttribute('disablepictureinpicture', '');
+    v.setAttribute('x-webkit-airplay', 'deny');
+    v.setAttribute('aria-hidden', 'true');
+    v.poster = './LineDrawingNeighborly_safari.png';
+    v.src = './LineDrawingNeighborly_cream.mp4';
+    img.replaceWith(v);
+    const tryPlay = () => v.play().catch(() => {});
+    if (v.readyState >= 2) tryPlay();
+    else v.addEventListener('loadeddata', tryPlay, { once: true });
+  }
+
   async function submitLogin() {
     const email = em.value.trim();
     const pass  = pw.value;
     if (!email || !pass) return;
     clearError();
+
+    playEntryDrawing();
 
     const btn = document.getElementById('go');
     btn.disabled = true;
