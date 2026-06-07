@@ -247,6 +247,27 @@
     .qty-row-meta { grid-template-columns: auto auto; }
     .qty-row-meta .qty-avg { grid-column: 1 / -1; padding-left: 0; border-left: none; padding-top: 2px; }
   }
+
+  /* === Week calendar popover (product-mix date picker) === */
+  .cal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.25); z-index: 200; opacity: 0; pointer-events: none; transition: opacity 0.2s ease; }
+  .cal-overlay.open { opacity: 1; pointer-events: all; }
+  .cal-pop { position: fixed; top: -9999px; left: -9999px; z-index: 210; background: var(--surface); border: 0.5px solid var(--line-strong); border-radius: 14px; padding: 14px; box-shadow: 0 16px 40px rgba(0,0,0,0.18); width: 280px; max-width: calc(100vw - 16px); opacity: 0; transform: translateY(-6px); pointer-events: none; transition: opacity 0.18s ease, transform 0.18s ease; box-sizing: border-box; }
+  .cal-pop.open { opacity: 1; transform: translateY(0); pointer-events: all; }
+  .cal-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+  .cal-title { font-size: 13px; font-weight: 600; color: var(--text); font-family: 'DM Sans', sans-serif; }
+  .cal-nav { display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; border: none; background: transparent; border-radius: 6px; cursor: pointer; color: var(--text-2); transition: background 0.12s; }
+  .cal-nav:hover:not(:disabled) { background: var(--surface-2); color: var(--text); }
+  .cal-nav:disabled { opacity: 0.25; cursor: not-allowed; }
+  .cal-nav svg { width: 14px; height: 14px; }
+  .cal-weeks { display: flex; flex-direction: column; gap: 2px; max-height: 260px; overflow-y: auto; }
+  .cal-week { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 12px; color: var(--text-3); border-radius: 8px; background: transparent; border: none; padding: 8px 10px; font-family: 'DM Sans', sans-serif; cursor: default; text-align: left; width: 100%; box-sizing: border-box; }
+  .cal-week.available { color: var(--text); background: var(--brand-yellow-light); font-weight: 500; cursor: pointer; transition: background 0.12s, transform 0.08s; }
+  .cal-week.available:hover { background: var(--brand-yellow); color: #1f2328; }
+  .cal-week.available:active { transform: scale(0.98); }
+  .cal-week.selected { background: var(--brand-orange) !important; color: #FFFFFF !important; font-weight: 600; }
+  .cal-week .cal-week-range { font-family: var(--f-mono); font-size: var(--t-caption-sm); opacity: 0.75; }
+  .cal-foot { font-size: 10px; color: var(--text-3); margin-top: 10px; padding-top: 10px; border-top: 0.5px solid var(--line); line-height: 1.4; }
+  .cal-foot strong { color: var(--text-2); font-weight: 600; }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script src="np-data.js"></script>
@@ -276,7 +297,7 @@
   <div class="np-hub-grid">
     <a class="np-hub-card" href="index.html"><div class="np-hub-card-ico" style="background:var(--surface-2)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--text)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12l9-9 9 9"/><path d="M5 10v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V10"/></svg></div><div class="np-hub-card-title">Home</div><div class="np-hub-card-sub">Marketing Hub overview</div></a>
     <a class="np-hub-card" href="neighborly-dashboard.html"><div class="np-hub-card-ico" style="background:var(--brand-yellow-light)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--brand-yellow-deep)" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></div><div class="np-hub-card-title">Performance Marketing</div><div class="np-hub-card-sub">Weekly &amp; all-time KPIs</div></a>
-    <a class="np-hub-card is-active" href="neighborly-pmix.html"><div class="np-hub-card-ico" style="background:#e3ece3"><svg viewBox="0 0 24 24" fill="none" stroke="#5a7a5a" stroke-width="2" stroke-linecap="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></div><div class="np-hub-card-title">Sales &amp; Pmix</div><div class="np-hub-card-sub">Daily sales &amp; product mix</div></a>
+    <a class="np-hub-card is-active" href="neighborly-dashboard.html?p=daily"><div class="np-hub-card-ico" style="background:#e3ece3"><svg viewBox="0 0 24 24" fill="none" stroke="#5a7a5a" stroke-width="2" stroke-linecap="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></div><div class="np-hub-card-title">Sales &amp; Pmix</div><div class="np-hub-card-sub">Daily sales &amp; product mix</div></a>
     <a class="np-hub-card" href="neighborly-calendar.html"><div class="np-hub-card-ico" style="background:var(--brand-green-light)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--brand-green-deep)" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div><div class="np-hub-card-title">Marketing Calendar</div><div class="np-hub-card-sub">Campaigns &amp; scheduling</div></a>
     <a class="np-hub-card" href="neighborly-assets.html"><div class="np-hub-card-ico" style="background:var(--brand-tan-light)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--brand-tan-deep)" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 010 14.14M4.93 4.93a10 10 0 000 14.14M12 2v2M12 20v2M2 12h2M20 12h2"/></svg></div><div class="np-hub-card-title">Brand Guidelines</div><div class="np-hub-card-sub">Logos &amp; templates</div></a>
         <a class="np-hub-card" href="neighborly-social.html"><div class="np-hub-card-ico" style="background:var(--brand-blue-light)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--brand-blue-deep)" stroke-width="2"><path d="M3 12h4l3-9 4 18 3-9h4"/></svg></div><div class="np-hub-card-title">Social</div><div class="np-hub-card-sub">Reach &amp; engagement</div></a>
@@ -303,8 +324,21 @@
     </div>
   </div>
 
-  <!-- Date picker popover — lists available days from pmix-data.json -->
-  <div id="dateMenu" style="display:none; position:absolute; z-index:80; background:#fff; border:1px solid var(--line); border-radius:12px; box-shadow:var(--shadow-md); padding:6px; min-width:200px; max-height:280px; overflow-y:auto;"></div>
+  <!-- Week calendar popover — every fiscal week back to opening -->
+  <div class="cal-overlay" id="calOverlay" onclick="closeWeekCalendar()"></div>
+  <div class="cal-pop" id="calPop">
+    <div class="cal-head">
+      <button class="cal-nav" id="calPrev" onclick="calNav(-1)" aria-label="Newer weeks">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+      </button>
+      <div class="cal-title" id="calTitle">Fiscal weeks</div>
+      <button class="cal-nav" id="calNext" onclick="calNav(1)" aria-label="Older weeks">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+    </div>
+    <div class="cal-weeks" id="calWeeks"></div>
+    <div class="cal-foot" id="calFoot"></div>
+  </div>
 
   <!-- Empty-state banner shown when the selected location has no data yet -->
   <div id="locEmpty" class="np-card" style="display:none; margin-bottom: var(--s-4); border-style: dashed; background: transparent;">
@@ -433,8 +467,8 @@
     });
   };
 
-  let RAW = null;          // full file (multi-day or legacy single-day shape)
-  let DAYS = {};           // { 'YYYY-MM-DD': { date_label, locations } }
+  let RAW = null;          // most-recently-fetched response (multi-day or legacy single-day shape)
+  let DAYS = {};           // cache: { 'YYYY-MM-DD': { date_label, locations } }
   let activeDate = null;   // 'YYYY-MM-DD'
   let DATA = null;         // currently-rendered location payload
   let activeLoc = 'total';
@@ -444,59 +478,153 @@
   let leaderSort = 'net';  // 'net' | 'qty' — drives the best-sellers leaderboard
   let searchQ = '';
 
+  // Westlake Village — used to pull the canonical list of fiscal week-start dates
+  // (server-computed via fiscal_week_start(), so we never have to guess week
+  // boundaries client-side around the Mon→Wed cutover).
+  const _PMIX_WLV = '417501a4-3ffb-41d2-9539-a1b87855a869';
+  const _PMIX_MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+  let _pmixWeeks = [];       // [{ iso:'YYYY-MM-DD', label, range }] every fiscal week back to opening, newest first
+  let _pmixCalYears = [];    // distinct years present in _pmixWeeks, newest first
+  let _pmixCalYearIdx = 0;   // index into _pmixCalYears for the year currently shown in the popover
+
+  function _pmixWeekLabel(iso) {
+    const [y, m, d] = iso.split('-').map(Number);
+    return `Week of ${_PMIX_MONTHS[m - 1]} ${d}, ${y}`;
+  }
+  function _pmixWeekRange(iso) {
+    const [y, m, d] = iso.split('-').map(Number);
+    const start = new Date(y, m - 1, d);
+    const end = new Date(start); end.setDate(end.getDate() + 6);
+    return start.getMonth() === end.getMonth()
+      ? `${_PMIX_MONTHS[start.getMonth()]} ${start.getDate()}–${end.getDate()}`
+      : `${_PMIX_MONTHS[start.getMonth()]} ${start.getDate()} – ${_PMIX_MONTHS[end.getMonth()]} ${end.getDate()}`;
+  }
+
+  // Cache a `nbly_pmix_summary` response into DAYS (handles both the legacy
+  // single-day shape and a possible future multi-day `.days` shape) and
+  // return the date key it was stored under.
+  function _cachePmixResponse(raw) {
+    if (!raw) return null;
+    RAW = raw;
+    if (raw.days && typeof raw.days === 'object') {
+      Object.assign(DAYS, raw.days);
+      return Object.keys(raw.days).sort().pop() || null;
+    }
+    if (raw.date && raw.locations) {
+      DAYS[raw.date] = { date_label: raw.date_label, locations: raw.locations };
+      return raw.date;
+    }
+    return null;
+  }
+
   async function loadPMIX() {
     try {
-      const { data: pmixData, error: pmixErr } = await NPData.supabase.rpc('nbly_pmix_summary', {});
-      if (pmixErr) throw pmixErr;
-      RAW = pmixData;
+      const [defaultR, weeksR] = await Promise.all([
+        NPData.supabase.rpc('nbly_pmix_summary', {}),
+        NPData.supabase.rpc('nbly_performance_all_time', { p_location_id: _PMIX_WLV, p_granularity: 'week' })
+      ]);
+      if (defaultR.error) throw defaultR.error;
 
-      // Normalize: support both new multi-day shape and legacy single-day shape
-      if (RAW.days && typeof RAW.days === 'object') {
-        DAYS = RAW.days;
-      } else if (RAW.date && RAW.locations) {
-        DAYS = { [RAW.date]: { date_label: RAW.date_label, locations: RAW.locations } };
-      } else {
-        DAYS = {};
+      // The RPC's own no-arg default is "most recent complete fiscal week" —
+      // more authoritative than re-deriving that client-side.
+      const defaultDate = _cachePmixResponse(defaultR.data);
+      if (!defaultDate) { console.error('PMIX: no day data'); return; }
+
+      const periods = weeksR.data?.periods || [];
+      _pmixWeeks = periods.map(p => ({ iso: p.period_start, label: _pmixWeekLabel(p.period_start), range: _pmixWeekRange(p.period_start) }));
+      if (!_pmixWeeks.some(w => w.iso === defaultDate)) {
+        _pmixWeeks.push({ iso: defaultDate, label: _pmixWeekLabel(defaultDate), range: _pmixWeekRange(defaultDate) });
       }
+      _pmixWeeks.sort((a, b) => b.iso.localeCompare(a.iso));
+      _pmixCalYears = [...new Set(_pmixWeeks.map(w => w.iso.slice(0, 4)))].sort((a, b) => b.localeCompare(a));
+      _pmixCalYearIdx = Math.max(0, _pmixCalYears.indexOf(defaultDate.slice(0, 4)));
 
-      const available = Object.keys(DAYS).sort();
-      if (!available.length) { console.error('PMIX: no day data'); return; }
-
-      // Default to today if available, otherwise the most recent day
-      const today = new Date().toISOString().slice(0, 10);
-      activeDate = DAYS[today] ? today : available[available.length - 1];
-
-      renderDateMenu(available);
-      applyDate(activeDate);
+      applyDate(defaultDate);
     } catch (e) { console.error('PMIX load failed', e); }
   }
 
-  function renderDateMenu(dates) {
-    const menu = document.getElementById('dateMenu');
-    // Most recent first
-    const sorted = [...dates].sort().reverse();
-    menu.innerHTML = sorted.map(d => `
-      <button class="dm-opt" data-date="${d}"
-        style="display:block; width:100%; text-align:left; padding:8px 12px; border:none;
-               background:${d === activeDate ? 'var(--surface-2)' : 'none'}; border-radius:8px;
-               font-size:13px; cursor:pointer;">
-        ${DAYS[d].date_label || d}
-      </button>
-    `).join('');
-    menu.querySelectorAll('.dm-opt').forEach(b => {
-      b.addEventListener('click', () => {
-        applyDate(b.dataset.date);
-        menu.style.display = 'none';
-      });
-    });
+  async function applyDate(date) {
+    if (!DAYS[date]) {
+      try {
+        const { data, error } = await NPData.supabase.rpc('nbly_pmix_summary', { p_week_start: date });
+        if (error) throw error;
+        _cachePmixResponse(data);
+      } catch (e) { console.error('PMIX week load failed', date, e); return; }
+    }
+    if (!DAYS[date]) return;
+    activeDate = date;
+    document.getElementById('dateBtnLabel').textContent = DAYS[date].date_label || _pmixWeekLabel(date);
+    closeWeekCalendar();
+    renderPmixCalendar();
+    applyLocation(activeLoc);
   }
 
-  function applyDate(date) {
-    activeDate = date;
-    document.getElementById('dateBtnLabel').textContent = DAYS[date]?.date_label || date;
-    // Re-render the date menu so the active row gets highlighted
-    renderDateMenu(Object.keys(DAYS));
-    applyLocation(activeLoc);
+  // ----- Week calendar popover -----
+
+  function toggleWeekCalendar(e) {
+    if (e) e.stopPropagation();
+    const pop = document.getElementById('calPop');
+    if (pop.classList.contains('open')) { closeWeekCalendar(); return; }
+    openWeekCalendar();
+  }
+
+  function openWeekCalendar() {
+    if (!_pmixWeeks.length) return;
+    const idx = _pmixCalYears.indexOf((activeDate || _pmixWeeks[0].iso).slice(0, 4));
+    if (idx >= 0) _pmixCalYearIdx = idx;
+
+    const btn = document.getElementById('dateBtn');
+    const pop = document.getElementById('calPop');
+    const overlay = document.getElementById('calOverlay');
+    const rect = btn.getBoundingClientRect();
+    pop.style.top  = (rect.bottom + 8) + 'px';
+    pop.style.left = Math.max(8, rect.right - 280) + 'px';
+    const winW = window.innerWidth;
+    if (rect.right > winW - 8) pop.style.left = (winW - 280 - 8) + 'px';
+
+    renderPmixCalendar();
+    overlay.classList.add('open');
+    pop.classList.add('open');
+  }
+
+  function closeWeekCalendar() {
+    document.getElementById('calPop').classList.remove('open');
+    document.getElementById('calOverlay').classList.remove('open');
+  }
+
+  function calNav(delta) {
+    const next = _pmixCalYearIdx + delta;
+    if (next < 0 || next >= _pmixCalYears.length) return;
+    _pmixCalYearIdx = next;
+    renderPmixCalendar();
+  }
+
+  function renderPmixCalendar() {
+    if (!_pmixWeeks.length) return;
+    const year = _pmixCalYears[_pmixCalYearIdx];
+    document.getElementById('calTitle').textContent = year || 'Fiscal weeks';
+    document.getElementById('calPrev').disabled = _pmixCalYearIdx <= 0;
+    document.getElementById('calNext').disabled = _pmixCalYearIdx >= _pmixCalYears.length - 1;
+
+    const weeks = _pmixWeeks.filter(w => w.iso.slice(0, 4) === year);
+    document.getElementById('calWeeks').innerHTML = weeks.map(w => {
+      const cls = ['cal-week', 'available'];
+      if (w.iso === activeDate) cls.push('selected');
+      return `<button class="${cls.join(' ')}" onclick="pickPmixWeek('${w.iso}')">
+        <span>${w.label}</span><span class="cal-week-range">${w.range}</span>
+      </button>`;
+    }).join('');
+
+    const foot = document.getElementById('calFoot');
+    const sel = _pmixWeeks.find(w => w.iso === activeDate);
+    foot.innerHTML = sel
+      ? `Showing <strong>${sel.label}</strong> (${sel.range}) · ${_pmixWeeks.length} fiscal weeks back to opening`
+      : `${_pmixWeeks.length} fiscal weeks back to opening — pick one to load its product mix.`;
+  }
+
+  function pickPmixWeek(iso) {
+    applyDate(iso);
   }
 
   function applyLocation(loc) {
@@ -630,13 +758,22 @@
     else if (activeSort === 'avg') filtered.sort((a, b) => b.avg_price - a.avg_price);
     else                      filtered.sort((a, b) => b.net - a.net);
 
-    const maxQty = Math.max(...filtered.map(it => it.qty), 1);
+    // Bars show each item's share of its own category's total quantity — a
+    // meaningful proportion that holds steady regardless of which categories
+    // happen to be in view (an absolute-max scale made the bars meaningless
+    // whenever the table was filtered to a single category).
+    const catQty = {};
+    items.forEach(it => { catQty[it.category] = (catQty[it.category] || 0) + it.qty; });
+
     const tbody = document.getElementById('itemTbody');
     if (!filtered.length) {
       tbody.innerHTML = '<tr class="empty"><td colspan="4">No items match those filters.</td></tr>';
       return;
     }
-    tbody.innerHTML = filtered.map(it => `
+    tbody.innerHTML = filtered.map(it => {
+      const catTotal = catQty[it.category] || it.qty;
+      const pct = catTotal ? (it.qty / catTotal * 100) : 0;
+      return `
       <tr>
         <td>
           <div class="item-cell">
@@ -644,11 +781,12 @@
             <span class="item-cat">${conceptName(it.category) || ''}</span>
           </div>
         </td>
-        <td class="num">${fmtN(it.qty)}<span class="qty-bar"><span class="qty-bar-fill" style="width:${(it.qty / maxQty * 100).toFixed(1)}%; background:${colorForCategory(it.category)}"></span></span></td>
+        <td class="num">${fmtN(it.qty)}<span class="qty-bar" title="${pct.toFixed(1)}% of ${conceptName(it.category) || 'category'} quantity"><span class="qty-bar-fill" style="width:${pct.toFixed(1)}%; background:${colorForCategory(it.category)}"></span></span></td>
         <td class="num">${fmt$(it.net)}</td>
         <td class="num">${fmt$2(it.avg_price)}</td>
       </tr>
-    `).join('');
+    `;
+    }).join('');
   }
 
   /* Wire search + sort */
@@ -786,18 +924,10 @@
     b.addEventListener('click', () => applyLocation(b.dataset.loc));
   });
 
-  // Date picker popover
-  const dateBtn  = document.getElementById('dateBtn');
-  const dateMenu = document.getElementById('dateMenu');
-  dateBtn.addEventListener('click', e => {
-    e.stopPropagation();
-    const r = dateBtn.getBoundingClientRect();
-    dateMenu.style.top  = (window.scrollY + r.bottom + 6) + 'px';
-    dateMenu.style.left = (window.scrollX + r.right - 200) + 'px';
-    dateMenu.style.display = dateMenu.style.display === 'block' ? 'none' : 'block';
-  });
-  document.addEventListener('click', e => {
-    if (!dateMenu.contains(e.target) && e.target !== dateBtn) dateMenu.style.display = 'none';
+  // Week calendar popover
+  document.getElementById('dateBtn').addEventListener('click', toggleWeekCalendar);
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && document.getElementById('calPop').classList.contains('open')) closeWeekCalendar();
   });
 
   loadPMIX();
