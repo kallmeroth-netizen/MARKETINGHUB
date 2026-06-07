@@ -751,12 +751,17 @@
       <source src="./LineDrawingNeighborly_transparent.webm" type="video/webm">
     </video>
     <script>
-      // Safari (any version, iOS + macOS) can't reliably render VP9-alpha webm.
-      // Swap the <video> for a static line-drawing PNG before the video tries to load.
+      // All iOS browsers (WKWebView) + macOS Safari can't reliably render
+      // VP9-alpha webm. iOS in Low Power Mode also blocks autoplay, leaving
+      // a play button on top of the video. Swap to a static line-drawing PNG
+      // on any Apple device before the video tries to load.
       (function () {
         var ua = navigator.userAgent;
-        var isSafari = /^((?!chrome|android|crios|fxios|edgios|opios|samsung).)*safari/i.test(ua);
-        if (!isSafari) return;
+        var isIOS = /iPad|iPhone|iPod/.test(ua) ||
+                    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+        var isMacSafari = /Macintosh/.test(ua) && /Safari/.test(ua) &&
+                          !/Chrome|Chromium|Edg|OPR|Firefox/.test(ua);
+        if (!isIOS && !isMacSafari) return;
         var v = document.getElementById('bgVideo');
         if (!v) return;
         var img = document.createElement('img');
