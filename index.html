@@ -739,44 +739,13 @@
   </div>
 
   <div class="pass-hero">
-    <video class="bg-video" id="bgVideo"
-           muted playsinline preload="auto"
-           disablepictureinpicture x-webkit-airplay="deny"
-           poster="./LineDrawingNeighborly_safari.png"
-           aria-hidden="true">
-      <!-- Cream (#f2f2f2) baked into the video to match the page background.
-           No autoplay: video stays on its last frame (completed drawing) and
-           is played as the transition when the user submits the password. -->
-      <source src="./LineDrawingNeighborly_cream.mp4" type="video/mp4">
-    </video>
-    <script>
-      // Hold the video on its last frame so the static state shows the
-      // completed drawing. Sample the rendered color and apply it to the
-      // page so the video and body background match exactly across
-      // browsers (h264 limited-range decode can shift cream slightly).
-      (function () {
-        var v = document.getElementById('bgVideo');
-        if (!v || !v.tagName || v.tagName !== 'VIDEO') return;
-        function holdAtEnd() {
-          var d = v.duration;
-          if (!isFinite(d) || d <= 0) return;
-          v.currentTime = Math.max(0, d - 0.04);
-        }
-        function matchPageColor() {
-          try {
-            var c = document.createElement('canvas');
-            c.width = c.height = 4;
-            var ctx = c.getContext('2d');
-            ctx.drawImage(v, 0, 0, 4, 4);
-            var p = ctx.getImageData(0, 0, 1, 1).data;
-            var rgb = 'rgb(' + p[0] + ',' + p[1] + ',' + p[2] + ')';
-            document.documentElement.style.setProperty('--cream', rgb);
-          } catch (e) { /* canvas tainted or video not ready — leave bg as-is */ }
-        }
-        v.addEventListener('loadedmetadata', holdAtEnd, { once: true });
-        v.addEventListener('seeked', matchPageColor, { once: true });
-      })();
-    </script>
+    <!-- Static line drawing — transparent PNG strokes sit directly on the
+         page background, so no color seam, no video element loading, no
+         autoplay shenanigans. submitLogin() swaps this for a <video> and
+         plays the cream-baked mp4 as the entry transition. -->
+    <img class="bg-video" id="bgDrawing"
+         src="./LineDrawingNeighborly_safari.png"
+         alt="" aria-hidden="true">
     <div class="greeting"><span id="greetText"></span><span class="cursor"></span></div>
     <div class="sub-pass" id="subPass">Sign in to continue.</div>
     <div class="divider-pass"></div>
@@ -980,16 +949,41 @@
   em.addEventListener('input', clearError);
   pw.addEventListener('input', clearError);
 
+  // Swap the static line drawing for a <video> and play the animation
+  // as the entry transition. User-gesture context (the Enter click) lets
+  // the video play even on iOS in Low Power Mode.
+  let drawingPlayed = false;
+  function playEntryDrawing() {
+    if (drawingPlayed) return;
+    drawingPlayed = true;
+    const img = document.getElementById('bgDrawing');
+    if (!img) return;
+    const v = document.createElement('video');
+    v.className = 'bg-video';
+    v.id = 'bgVideo';
+    v.muted = true;
+    v.defaultMuted = true;
+    v.playsInline = true;
+    v.setAttribute('playsinline', '');
+    v.setAttribute('muted', '');
+    v.setAttribute('disablepictureinpicture', '');
+    v.setAttribute('x-webkit-airplay', 'deny');
+    v.setAttribute('aria-hidden', 'true');
+    v.poster = './LineDrawingNeighborly_safari.png';
+    v.src = './LineDrawingNeighborly_cream.mp4';
+    img.replaceWith(v);
+    const tryPlay = () => v.play().catch(() => {});
+    if (v.readyState >= 2) tryPlay();
+    else v.addEventListener('loadeddata', tryPlay, { once: true });
+  }
+
   async function submitLogin() {
     const email = em.value.trim();
     const pass  = pw.value;
     if (!email || !pass) return;
     clearError();
 
-    const vid = document.getElementById('bgVideo');
-    if (vid && vid.tagName === 'VIDEO') {
-      try { vid.currentTime = 0; vid.play(); } catch (e) {}
-    }
+    playEntryDrawing();
 
     const btn = document.getElementById('go');
     btn.disabled = true;
