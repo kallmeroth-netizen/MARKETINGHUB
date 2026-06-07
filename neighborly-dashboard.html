@@ -2061,11 +2061,20 @@ function renderTRRolling() {
 }
 
 function renderTRMix() {
-  // Always includes every revenue channel (incl. Marketplace) so each bar sums to ~100%,
-  // and buckets by month so each bar represents exactly one period.
-  const keys=['dineIn','webPickup','instore','delivery','tpd','marketplace'];
-  const lbls=['Dine in','Web pickup','In-store Takeout','Delivery','3PD','Marketplace'];
-  const cols=['#eace49','#7bbd91','#cbc9d6','#6280bd','#dbc6a2','#e87142'];
+  // HIST_CHANNELS / HIST_CHANNELS_LOC use legacy coarse key names and have no historical
+  // catering series. Map each onto its equivalent in CHANNEL_LABELS / CHANNEL_COLORS — the
+  // canonical taxonomy that drives the "Sales by channel" chart on the Daily Sales tab —
+  // so labels, colors and category meaning line up across both charts. Curbside has no
+  // separate historical series; the live loader already folds it into webPickup ("Web
+  // Take Out"), so it lands there rather than in Catering. Catering is derived as the
+  // remainder of total revenue not covered by the other six channels — this guarantees
+  // each bar sums to 100% even where a historical catering series is missing or zero.
+  const histKeyToChannel={dineIn:'dineIn',webPickup:'webTakeOut',instore:'kioskTakeOut',delivery:'webDelivery',tpd:'thirdParty',marketplace:'marketplace'};
+  const channelKeys=Object.keys(CHANNEL_LABELS);
+  const colorOf=ck=>CHANNEL_COLORS[channelKeys.indexOf(ck)];
+  const keys=Object.keys(histKeyToChannel);
+  const lbls=keys.map(k=>CHANNEL_LABELS[histKeyToChannel[k]]);
+  const cols=keys.map(k=>colorOf(histKeyToChannel[k]));
 
   const sub = document.getElementById('trMixSub');
   if (sub) sub.textContent = '% share by revenue center · monthly · ' +
@@ -2084,15 +2093,27 @@ function renderTRMix() {
   const totByMonth = {};
   totalSeries.forEach(p => { const k = monthKey(p.d); totByMonth[k] = (totByMonth[k]||0) + p.v; });
 
-  const datasets = keys.map((k,i) => {
-    const series = chSeries(k);
+  const byMonthByKey = keys.map(k => {
     const byMonth = {};
-    series.forEach(p => { const mk = monthKey(p.d); byMonth[mk] = (byMonth[mk]||0) + p.v; });
-    return {
-      label: lbls[i],
-      data: months.map(mk => totByMonth[mk] ? Math.round((byMonth[mk]||0) / totByMonth[mk] * 100) : null),
-      backgroundColor: cols[i], stack: 'm'
-    };
+    chSeries(k).forEach(p => { const mk = monthKey(p.d); byMonth[mk] = (byMonth[mk]||0) + p.v; });
+    return byMonth;
+  });
+
+  const cateringByMonth = {};
+  months.forEach(mk => {
+    const known = byMonthByKey.reduce((s, byMonth) => s + (byMonth[mk] || 0), 0);
+    cateringByMonth[mk] = Math.max(0, (totByMonth[mk] || 0) - known);
+  });
+
+  const datasets = keys.map((k,i) => ({
+    label: lbls[i],
+    data: months.map(mk => totByMonth[mk] ? Math.round((byMonthByKey[i][mk]||0) / totByMonth[mk] * 100) : null),
+    backgroundColor: cols[i], stack: 'm'
+  }));
+  datasets.push({
+    label: CHANNEL_LABELS.catering,
+    data: months.map(mk => totByMonth[mk] ? Math.round(cateringByMonth[mk] / totByMonth[mk] * 100) : null),
+    backgroundColor: colorOf('catering'), stack: 'm'
   });
 
   if (trCharts.mix) trCharts.mix.destroy();
