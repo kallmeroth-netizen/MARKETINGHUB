@@ -677,22 +677,6 @@
     .capsule .submit { margin-top: 52px; height: 28px !important; font-size: 9.5px !important; }
     .capsule-wrap { padding-bottom: 52px; }
     .err { margin-top: 56px !important; }
-
-    /* Lock the entry screen on phones so the line drawing, greeting, and
-       form don't shift around when the iOS keyboard appears. Body becomes
-       a fixed viewport-sized box that can't scroll; .pass-shell already
-       uses position:fixed, so the layout stays proportionally anchored
-       while iOS overlays the keyboard. */
-    body[data-state="passcode"] {
-      position: fixed;
-      inset: 0;
-      width: 100%;
-      height: 100dvh;
-      overflow: hidden;
-    }
-    body[data-state="passcode"] .pass-shell {
-      height: 100dvh;
-    }
   }
 
   /* =====================================================================
