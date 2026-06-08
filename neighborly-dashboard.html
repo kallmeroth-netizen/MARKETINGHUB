@@ -1263,34 +1263,26 @@ function switchWeek(idx) {
 
 // ── HISTORICAL WEEK CALENDAR ─────────────────────────────────────────────────
 // Build a set of week-start dates we have data for. HIST_TOTAL stores them as
-// the week-start day. Pre-Jan 2026 the fiscal week started Monday; from Jan 7
-// 2026 onwards it starts Wednesday.
+// the week-start day (one entry per fiscal week, loaded live from
+// nbly_performance_all_time). nbly_weekly_kpis / nbly_channels_summary can
+// return full revenue + channel data for ANY of these fiscal weeks on demand —
+// so every date here is a live-fetchable week, not just a "revenue only" one.
 let _calCursor = null;       // {year, monthIdx0}
 let _calSelected = null;     // 'M/D/YYYY' string
-let _calAvailable = null;    // Map<'M/D/YYYY', {revenue, label, dow}>
+let _calAvailable = null;    // Map<'M/D/YYYY', {revenue, label, dow, dt}>
 function _buildCalAvailable() {
   if (_calAvailable) return _calAvailable;
   _calAvailable = new Map();
-  // From HIST_TOTAL (revenue-only weeks)
   (typeof HIST_TOTAL !== 'undefined' ? HIST_TOTAL : []).forEach(p => {
     const [m, d, y] = p.d.split('/').map(Number);
     const dt = new Date(y, m - 1, d);
-    _calAvailable.set(p.d, { revenue: p.v, label: p.d, dow: dt.getDay(), dt, full: false });
-  });
-  // Mark which weeks have FULL data (from WEEK_HISTORY)
-  WEEK_HISTORY.forEach((w, i) => {
-    const dt = new Date(w.label + ' 00:00:00');
-    if (isNaN(dt)) return;
-    const key = `${dt.getMonth()+1}/${dt.getDate()}/${dt.getFullYear()}`;
-    const entry = _calAvailable.get(key) || { revenue: null, label: w.label, dow: dt.getDay(), dt };
-    entry.full = true;
-    entry.weekHistoryIdx = i;
-    _calAvailable.set(key, entry);
+    _calAvailable.set(p.d, { revenue: p.v, label: p.d, dow: dt.getDay(), dt });
   });
   return _calAvailable;
 }
 
 function _pad(n) { return n < 10 ? '0' + n : '' + n; }
+function _isoFromCalDate(dt) { return `${dt.getFullYear()}-${_pad(dt.getMonth()+1)}-${_pad(dt.getDate())}`; }
 function _calKey(y, m0, d) { return `${m0+1}/${d}/${y}`; }
 function _calMonthName(m0) { return ['January','February','March','April','May','June','July','August','September','October','November','December'][m0]; }
 
@@ -1369,11 +1361,7 @@ function renderCalendar() {
     const cls = ['cal-day'];
     if (entry) cls.push('available');
     if (isSelected) cls.push('selected');
-    const title = entry
-      ? (entry.full
-          ? `Week of ${entry.label} — full data`
-          : `Week of ${entry.label} — total revenue only`)
-      : '';
+    const title = entry ? `Week of ${entry.label}` : '';
     html += `<button class="${cls.join(' ')}" ${entry ? `onclick="pickCalDay('${key}')"` : 'disabled'} ${title ? `title="${title}"` : ''}>${d}</button>`;
   }
   document.getElementById('calGrid').innerHTML = html;
@@ -1383,8 +1371,7 @@ function renderCalendar() {
   const foot = document.getElementById('calFoot');
   if (sel) {
     const dowName = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][sel.dow];
-    const kind = sel.full ? 'Full KPI data' : 'Total revenue only';
-    foot.innerHTML = `Selected: <strong>${sel.label}</strong> · ${dowName} start · ${kind}`;
+    foot.innerHTML = `Selected: <strong>${sel.label}</strong> · ${dowName} start`;
   } else {
     foot.textContent = 'Highlighted days mark the start of a fiscal week we have data for.';
   }
@@ -1397,35 +1384,24 @@ function pickCalDay(key) {
   // Update label on the badge
   const lbl = document.getElementById('weekPickLabel');
   if (lbl) lbl.textContent = entry.label;
-  // If we have full WEEK_HISTORY data for this week → switch via existing path
-  if (entry.weekHistoryIdx != null) {
-    switchWeek(entry.weekHistoryIdx);
-  } else {
-    // Partial data — total revenue only. Show a banner-style overlay rather than
-    // silently fail. We render what we know and gray out the rest.
-    _applyPartialWeekData(entry);
-  }
+  // nbly_weekly_kpis / nbly_channels_summary return full revenue + channel
+  // data for any fiscal week on demand — fetch live rather than falling back
+  // to a "total revenue only" snapshot.
+  _sbLoadWeeklyKPIs(_isoFromCalDate(entry.dt)).then(() => _noteDigitalFreshness(entry.label)).catch(console.error);
   renderCalendar();
   setTimeout(closeWeekCalendar, 180);
 }
 
-// When user selects a historical week we only have revenue total for,
-// render the dashboard in a "limited data" mode. We update only what we
-// have and clearly flag the rest.
-function _applyPartialWeekData(entry) {
-  // Show a status bar message — non-blocking
-  if (typeof showStatus === 'function') {
-    showStatus(`Showing week of ${entry.label} — only total revenue available for this week`);
-  }
-  // Update top-level revenue total + the week labels; leave other panels alone
-  // but visually dim the dashboard so user knows the rest isn't from this week.
-  DATA.currentWeek = entry.label;
-  if (DATA.revenue && DATA.revenue.total) {
-    DATA.revenue.total = { ...DATA.revenue.total, cw: entry.revenue };
-  }
-  renderDashboard();
-  // Add a one-time visual note below the week badge
+// Paid-digital figures (Meta/Google/Sponsored/Promo/blended ROAS/contribution)
+// have no live per-week RPC yet — they always come from WEEK_HISTORY[0]'s
+// static snapshot. Flag that explicitly whenever the selected week differs,
+// so those numbers aren't mistaken for the selected week's actual figures.
+function _noteDigitalFreshness(selectedLabel) {
   let note = document.getElementById('weekDataNote');
+  if (selectedLabel === WEEK_HISTORY[0]?.label) {
+    if (note) note.remove();
+    return;
+  }
   if (!note) {
     note = document.createElement('div');
     note.id = 'weekDataNote';
@@ -1434,16 +1410,9 @@ function _applyPartialWeekData(entry) {
     const badge = document.getElementById('weekBadge');
     badge.parentNode.insertBefore(note, badge.nextSibling);
   }
-  note.querySelector('span').textContent = `Limited data for this week — only total revenue is available. Channel breakdowns and paid digital reflect a more recent week.`;
+  note.querySelector('span').textContent =
+    `Revenue and channel mix shown are live for the week of ${selectedLabel}. Paid-digital figures (Meta, Google, Sponsored, Promo) aren't yet wired to per-week history and still reflect the week of ${WEEK_HISTORY[0]?.label}.`;
 }
-
-// Clear the partial-data note when user picks a week with full data
-const _origSwitchWeek = switchWeek;
-switchWeek = function(idx) {
-  const note = document.getElementById('weekDataNote');
-  if (note) note.remove();
-  _origSwitchWeek(idx);
-};
 
 // Close on Escape
 document.addEventListener('keydown', e => {
@@ -1743,6 +1712,7 @@ let HIST_CHANNELS_LOC = {                   // per-location weekly channel break
 // Shared helpers
 const _MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 function _fmtWeekShort(s){ const [m,d,y]=s.split('/').map(Number); return `${_MONTHS[m-1]} ${d}, ${y}`; }
+function _fmtMonYr(s){ const [m,,y]=s.split('/').map(Number); return `${_MONTHS[m-1]} ${y}`; }
 function _kpiCard(label,val,sub){
   return `<div class="kpi-card"><div class="kpi-label">${label}</div><div class="kpi-value">${val}</div><div class="kpi-foot">${sub}</div></div>`;
 }
@@ -1787,18 +1757,28 @@ function renderATMain() {
   const allDates = HIST_TOTAL.map(x=>x.d);
   if (atCharts.main) atCharts.main.destroy();
 
+  // HIST_DIGITAL.meta/google are built from ad_performance and don't share
+  // HIST_TOTAL's date axis (different start dates, occasional gaps). Pairing
+  // them with allDates by array index — as before — misaligned every point
+  // and made the line look like it stopped wherever the shorter series ended.
+  // Look each platform's value up by its own date instead, so points land on
+  // their real calendar week and missing weeks render as gaps, not truncation.
+  const meta = HIST_DIGITAL.meta || [];
+  const google = HIST_DIGITAL.google || [];
+  const metaLk = {}; meta.forEach(p=>{metaLk[p.d]=p.v;});
+  const googleLk = {}; google.forEach(p=>{googleLk[p.d]=p.v;});
+
+  const rangeSrc = allDates.length ? allDates : [...meta.map(x=>x.d), ...google.map(x=>x.d)].sort();
+  const rangeLbl = rangeSrc.length ? `${_fmtMonYr(rangeSrc[0])} – ${_fmtMonYr(rangeSrc[rangeSrc.length-1])}` : '';
+
   document.getElementById('atChartTitle').textContent =
     atView === 'share' ? 'Meta vs Google share over time' : 'Paid digital net revenue over time';
   document.getElementById('atChartSub').textContent =
-    atView === 'share' ? '% share of paid digital net revenue by platform · Jan 2025 – May 2026'
-                       : 'Meta vs Google weekly net revenue · Jan 2025 – May 2026';
+    atView === 'share' ? `% share of paid digital net revenue by platform · ${rangeLbl}`
+                       : `Meta vs Google weekly net revenue · ${rangeLbl}`;
 
   if (atView === 'share') {
-    const meta = HIST_DIGITAL.meta || [];
-    const google = HIST_DIGITAL.google || [];
     const sample = allDates.filter((_,i)=>i%4===0);
-    const metaLk = {}; meta.forEach(p=>{metaLk[p.d]=p.v;});
-    const googleLk = {}; google.forEach(p=>{googleLk[p.d]=p.v;});
     const metaShare = sample.map(d=>{ const t=(metaLk[d]||0)+(googleLk[d]||0); return t?Math.round((metaLk[d]||0)/t*100):null; });
     const googleShare = sample.map((_,i)=>metaShare[i]==null?null:100-metaShare[i]);
     atCharts.main = new Chart(document.getElementById('atMainChart'), {
@@ -1818,8 +1798,8 @@ function renderATMain() {
   } else {
     atCharts.main = new Chart(document.getElementById('atMainChart'), {
       type:'line',data:{labels:allDates,datasets:[
-        {label:'Meta',  data:(HIST_DIGITAL.meta  ||[]).map(x=>x.v), borderColor:'#eace49', backgroundColor:'rgba(234,206,73,0.10)', tension:0.3, pointRadius:0, borderWidth:2, fill:true},
-        {label:'Google',data:(HIST_DIGITAL.google||[]).map(x=>x.v), borderColor:'#7bbd91', backgroundColor:'rgba(123,189,145,0.10)', tension:0.3, pointRadius:0, borderWidth:2, fill:true}
+        {label:'Meta',  data: allDates.map(d => metaLk[d]   ?? null), borderColor:'#eace49', backgroundColor:'rgba(234,206,73,0.10)', tension:0.3, pointRadius:0, borderWidth:2, fill:true, spanGaps:true},
+        {label:'Google',data: allDates.map(d => googleLk[d] ?? null), borderColor:'#7bbd91', backgroundColor:'rgba(123,189,145,0.10)', tension:0.3, pointRadius:0, borderWidth:2, fill:true, spanGaps:true}
       ]},
       options:{responsive:true,maintainAspectRatio:false,
         plugins:{legend:{display:false}},
@@ -2120,7 +2100,10 @@ function renderTRMix() {
   trCharts.mix = new Chart(document.getElementById('trMixChart'), {
     type:'bar',data:{labels: months.map(monthLabel), datasets},
     options:{responsive:true,maintainAspectRatio:false,
-      plugins:{legend:{position:'bottom',labels:{font:{family:'DM Sans',size:10},boxWidth:8,padding:8}}},
+      plugins:{
+        legend:{position:'bottom',labels:{font:{family:'DM Sans',size:10},boxWidth:8,padding:8}},
+        tooltip:{callbacks:{label:(ctx)=>`${ctx.dataset.label}: ${Math.round(ctx.parsed.y)}%`}}
+      },
       scales:{
         x:{stacked:true,grid:{display:false},ticks:{font:{family:'DM Sans',size:9},color:'#9E9C96',maxTicksLimit:10,maxRotation:30}},
         y:{stacked:true,max:100,grid:{color:'rgba(0,0,0,0.04)'},ticks:{font:{family:'DM Mono',size:9},color:'#9E9C96',callback:v=>v+'%'}}
@@ -3144,9 +3127,6 @@ function _sbAddDays(s, n) {
   d.setUTCDate(d.getUTCDate() + n);
   return d.toISOString().slice(0, 10);
 }
-function _sbLastCompleteWeek() {
-  return _sbAddDays(_sbFiscalWeekStart(new Date().toISOString().slice(0, 10)), -7);
-}
 function _sbFmtWeekLabel(iso) {
   const [y, m, d] = iso.split('-').map(Number);
   return ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][m-1] + ' ' + d + ', ' + y;
@@ -3246,9 +3226,14 @@ async function _sbLoadAllTime() {
   }
 }
 
-async function _sbLoadWeeklyKPIs() {
+async function _sbLoadWeeklyKPIs(weekStartOverride) {
   const sb = NPData.supabase;
-  const cwStart  = _sbLastCompleteWeek();
+  // Default to the in-progress fiscal week ("most recent week" per the badge),
+  // not the last *complete* one — nbly_weekly_kpis returns real partial-week
+  // data (days_with_data, net_sales, channels) for in-progress weeks too, so
+  // there's no need to lag a week behind. Pass an explicit week-start (e.g.
+  // from the calendar picker) to load any other fiscal week live.
+  const cwStart  = weekStartOverride || _sbFiscalWeekStart(new Date().toISOString().slice(0, 10));
   const lwStart  = _sbAddDays(cwStart, -7);
   const t4wStart = _sbAddDays(cwStart, -28);
   const lwEnd    = _sbAddDays(cwStart, -1);

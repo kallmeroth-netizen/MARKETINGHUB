@@ -144,8 +144,14 @@
   .item-table .item-cell { display: flex; flex-direction: column; gap: 2px; }
   .item-table .item-cell .item-cat { font-family: var(--f-eyebrow); font-weight: 600; font-size: var(--t-eyebrow); letter-spacing: 0.18em; text-transform: uppercase; color: var(--text-3); }
   .item-table tr.empty td { text-align: center; color: var(--text-3); padding: var(--s-5); }
-  .qty-bar { width: 80px; height: 5px; border-radius: var(--r-pill); background: var(--surface-2); display: inline-block; vertical-align: middle; margin-left: 8px; overflow: hidden; }
-  .qty-bar-fill { height: 100%; background: var(--brand-orange); border-radius: var(--r-pill); }
+  .qty-bar { width: 64px; height: 7px; border-radius: var(--r-pill); background: var(--surface-2); display: inline-block; vertical-align: middle; margin-left: 8px; overflow: hidden; box-shadow: inset 0 0 0 0.5px var(--line); }
+  .qty-bar-fill { display: block; height: 100%; min-width: 6%; background: var(--brand-orange); border-radius: var(--r-pill); }
+  .item-table td.num.rank, .item-table th.num.rank { font-family: var(--f-mono); }
+  .tbl-pos { color: var(--brand-green-deep); font-weight: 500; }
+  .tbl-neg { color: #A32D2D; font-weight: 500; }
+  .tbl-muted { color: var(--text-3); }
+  .rank-chg { display: inline-flex; align-items: center; gap: 2px; }
+  .rank-chg svg { width: 10px; height: 10px; }
   .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 0 calc(var(--s-4) * -1); padding: 0 var(--s-4); }
 
   /* === Concept summary — page-opening overview === */
@@ -259,13 +265,15 @@
   .cal-nav:hover:not(:disabled) { background: var(--surface-2); color: var(--text); }
   .cal-nav:disabled { opacity: 0.25; cursor: not-allowed; }
   .cal-nav svg { width: 14px; height: 14px; }
-  .cal-weeks { display: flex; flex-direction: column; gap: 2px; max-height: 260px; overflow-y: auto; }
-  .cal-week { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 12px; color: var(--text-3); border-radius: 8px; background: transparent; border: none; padding: 8px 10px; font-family: 'DM Sans', sans-serif; cursor: default; text-align: left; width: 100%; box-sizing: border-box; }
-  .cal-week.available { color: var(--text); background: var(--brand-yellow-light); font-weight: 500; cursor: pointer; transition: background 0.12s, transform 0.08s; }
-  .cal-week.available:hover { background: var(--brand-yellow); color: #1f2328; }
-  .cal-week.available:active { transform: scale(0.98); }
-  .cal-week.selected { background: var(--brand-orange) !important; color: #FFFFFF !important; font-weight: 600; }
-  .cal-week .cal-week-range { font-family: var(--f-mono); font-size: var(--t-caption-sm); opacity: 0.75; }
+  .cal-dow { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; margin-bottom: 4px; }
+  .cal-dow div { font-size: 10px; font-weight: 600; color: var(--text-3); text-align: center; padding: 4px 0; text-transform: uppercase; letter-spacing: 0.04em; }
+  .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
+  .cal-day { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; font-size: 12px; color: var(--text-3); border-radius: 7px; background: transparent; border: none; padding: 0; font-family: 'DM Sans', sans-serif; cursor: default; }
+  .cal-day.available { color: var(--text); background: var(--brand-yellow-light); font-weight: 500; cursor: pointer; transition: background 0.12s, transform 0.08s; }
+  .cal-day.available:hover { background: var(--brand-yellow); color: #1f2328; }
+  .cal-day.available:active { transform: scale(0.92); }
+  .cal-day.selected { background: var(--brand-orange) !important; color: #FFFFFF !important; font-weight: 600; }
+  .cal-day.muted { opacity: 0.35; }
   .cal-foot { font-size: 10px; color: var(--text-3); margin-top: 10px; padding-top: 10px; border-top: 0.5px solid var(--line); line-height: 1.4; }
   .cal-foot strong { color: var(--text-2); font-weight: 600; }
 </style>
@@ -328,16 +336,25 @@
   <div class="cal-overlay" id="calOverlay" onclick="closeWeekCalendar()"></div>
   <div class="cal-pop" id="calPop">
     <div class="cal-head">
-      <button class="cal-nav" id="calPrev" onclick="calNav(-1)" aria-label="Newer weeks">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+      <button class="cal-nav" id="calPrev" onclick="calNav(-1)" aria-label="Previous month">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
       </button>
-      <div class="cal-title" id="calTitle">Fiscal weeks</div>
-      <button class="cal-nav" id="calNext" onclick="calNav(1)" aria-label="Older weeks">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+      <div class="cal-title" id="calTitle">—</div>
+      <button class="cal-nav" id="calNext" onclick="calNav(1)" aria-label="Next month">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
       </button>
     </div>
-    <div class="cal-weeks" id="calWeeks"></div>
+    <div class="cal-dow"><div>S</div><div>M</div><div>T</div><div>W</div><div>T</div><div>F</div><div>S</div></div>
+    <div class="cal-grid" id="calGrid"></div>
     <div class="cal-foot" id="calFoot"></div>
+  </div>
+
+  <!-- Banner shown when the selected fiscal week has no product-mix data at all yet
+       (e.g. an in-progress week whose weekly report hasn't run) — distinct from
+       locEmpty below, which covers a single missing per-location export. -->
+  <div id="weekPending" class="np-card" style="display:none; margin-bottom: var(--s-4); border-style: dashed; background: transparent;">
+    <div class="np-card-title">Product mix isn't ready for this week yet</div>
+    <div class="np-card-sub" id="weekPendingMsg"></div>
   </div>
 
   <!-- Empty-state banner shown when the selected location has no data yet -->
@@ -422,6 +439,11 @@
             <th class="num">Qty</th>
             <th class="num">Net sales</th>
             <th class="num">Avg price</th>
+            <th class="num" title="Rank by net sales within this item's category, this week">Wk rank</th>
+            <th class="num" title="Average rank by net sales within category over the 6 weeks before this one">6wk avg rank</th>
+            <th class="num" title="Change vs the 6-week average rank — up arrow means the item climbed">Rank Δ</th>
+            <th class="num" title="Average net sales over the 6 weeks before this one">6wk avg net</th>
+            <th class="num" title="This week's net sales vs the 6-week average, in dollars and percent">Δ vs 6wk avg</th>
           </tr>
         </thead>
         <tbody id="itemTbody"></tbody>
@@ -484,9 +506,32 @@
   const _PMIX_WLV = '417501a4-3ffb-41d2-9539-a1b87855a869';
   const _PMIX_MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 
-  let _pmixWeeks = [];       // [{ iso:'YYYY-MM-DD', label, range }] every fiscal week back to opening, newest first
-  let _pmixCalYears = [];    // distinct years present in _pmixWeeks, newest first
-  let _pmixCalYearIdx = 0;   // index into _pmixCalYears for the year currently shown in the popover
+  let _pmixWeeks = [];          // [{ iso:'YYYY-MM-DD', label, range }] every fiscal week back to opening, newest first
+  let _pmixCalCursor = null;    // { y, m0 } - month currently shown in the popover
+  let _pmixCalSelected = null;  // 'M/D/YYYY' string matching the active week's start date
+  let _pmixCalAvailable = null; // Map<'M/D/YYYY', { iso, label, range, dow, dt }> - fiscal week starts
+
+  function _pmixCalKey(y, m0, d) { return `${m0 + 1}/${d}/${y}`; }
+  function _pmixCalMonthName(m0) { return ['January','February','March','April','May','June','July','August','September','October','November','December'][m0]; }
+
+  function _buildPmixCalAvailable() {
+    _pmixCalAvailable = new Map();
+    _pmixWeeks.forEach(w => {
+      const [y, m, d] = w.iso.split('-').map(Number);
+      const dt = new Date(y, m - 1, d);
+      _pmixCalAvailable.set(_pmixCalKey(y, m - 1, d), { iso: w.iso, label: w.label, range: w.range, dow: dt.getDay(), dt });
+    });
+    return _pmixCalAvailable;
+  }
+
+  // Point the popover's cursor + selection at the active week so opening it
+  // always lands on the right month with that day highlighted.
+  function _pmixSyncCalToActive() {
+    if (!_pmixCalAvailable || !activeDate) return;
+    const [y, m, d] = activeDate.split('-').map(Number);
+    _pmixCalSelected = _pmixCalKey(y, m - 1, d);
+    _pmixCalCursor = { y, m0: m - 1 };
+  }
 
   function _pmixWeekLabel(iso) {
     const [y, m, d] = iso.split('-').map(Number);
@@ -499,6 +544,12 @@
     return start.getMonth() === end.getMonth()
       ? `${_PMIX_MONTHS[start.getMonth()]} ${start.getDate()}–${end.getDate()}`
       : `${_PMIX_MONTHS[start.getMonth()]} ${start.getDate()} – ${_PMIX_MONTHS[end.getMonth()]} ${end.getDate()}`;
+  }
+  function _pmixWeekEndLabel(iso) {
+    const [y, m, d] = iso.split('-').map(Number);
+    const end = new Date(y, m - 1, d);
+    end.setDate(end.getDate() + 6);
+    return `${_PMIX_MONTHS[end.getMonth()]} ${end.getDate()}`;
   }
 
   // Cache a `nbly_pmix_summary` response into DAYS (handles both the legacy
@@ -537,8 +588,7 @@
         _pmixWeeks.push({ iso: defaultDate, label: _pmixWeekLabel(defaultDate), range: _pmixWeekRange(defaultDate) });
       }
       _pmixWeeks.sort((a, b) => b.iso.localeCompare(a.iso));
-      _pmixCalYears = [...new Set(_pmixWeeks.map(w => w.iso.slice(0, 4)))].sort((a, b) => b.localeCompare(a));
-      _pmixCalYearIdx = Math.max(0, _pmixCalYears.indexOf(defaultDate.slice(0, 4)));
+      _buildPmixCalAvailable();
 
       applyDate(defaultDate);
     } catch (e) { console.error('PMIX load failed', e); }
@@ -555,6 +605,7 @@
     if (!DAYS[date]) return;
     activeDate = date;
     document.getElementById('dateBtnLabel').textContent = DAYS[date].date_label || _pmixWeekLabel(date);
+    _pmixSyncCalToActive();
     closeWeekCalendar();
     renderPmixCalendar();
     applyLocation(activeLoc);
@@ -571,8 +622,8 @@
 
   function openWeekCalendar() {
     if (!_pmixWeeks.length) return;
-    const idx = _pmixCalYears.indexOf((activeDate || _pmixWeeks[0].iso).slice(0, 4));
-    if (idx >= 0) _pmixCalYearIdx = idx;
+    if (!_pmixCalAvailable) _buildPmixCalAvailable();
+    if (!_pmixCalCursor) _pmixSyncCalToActive();
 
     const btn = document.getElementById('dateBtn');
     const pop = document.getElementById('calPop');
@@ -594,37 +645,134 @@
   }
 
   function calNav(delta) {
-    const next = _pmixCalYearIdx + delta;
-    if (next < 0 || next >= _pmixCalYears.length) return;
-    _pmixCalYearIdx = next;
+    _pmixCalCursor.m0 += delta;
+    if (_pmixCalCursor.m0 < 0)  { _pmixCalCursor.m0 = 11; _pmixCalCursor.y--; }
+    if (_pmixCalCursor.m0 > 11) { _pmixCalCursor.m0 = 0;  _pmixCalCursor.y++; }
     renderPmixCalendar();
   }
 
   function renderPmixCalendar() {
-    if (!_pmixWeeks.length) return;
-    const year = _pmixCalYears[_pmixCalYearIdx];
-    document.getElementById('calTitle').textContent = year || 'Fiscal weeks';
-    document.getElementById('calPrev').disabled = _pmixCalYearIdx <= 0;
-    document.getElementById('calNext').disabled = _pmixCalYearIdx >= _pmixCalYears.length - 1;
+    if (!_pmixWeeks.length || !_pmixCalCursor) return;
+    const { y, m0 } = _pmixCalCursor;
+    document.getElementById('calTitle').textContent = `${_pmixCalMonthName(m0)} ${y}`;
 
-    const weeks = _pmixWeeks.filter(w => w.iso.slice(0, 4) === year);
-    document.getElementById('calWeeks').innerHTML = weeks.map(w => {
-      const cls = ['cal-week', 'available'];
-      if (w.iso === activeDate) cls.push('selected');
-      return `<button class="${cls.join(' ')}" onclick="pickPmixWeek('${w.iso}')">
-        <span>${w.label}</span><span class="cal-week-range">${w.range}</span>
-      </button>`;
-    }).join('');
+    const all = Array.from(_pmixCalAvailable.values()).map(v => v.dt);
+    const minDt = all.length ? new Date(Math.min(...all.map(d => +d))) : null;
+    const maxDt = all.length ? new Date(Math.max(...all.map(d => +d))) : null;
+    document.getElementById('calPrev').disabled = !!(minDt && (y < minDt.getFullYear() || (y === minDt.getFullYear() && m0 <= minDt.getMonth())));
+    document.getElementById('calNext').disabled = !!(maxDt && (y > maxDt.getFullYear() || (y === maxDt.getFullYear() && m0 >= maxDt.getMonth())));
 
+    const firstDow = new Date(y, m0, 1).getDay();
+    const daysInMonth = new Date(y, m0 + 1, 0).getDate();
+    const prevMonthDays = new Date(y, m0, 0).getDate();
+
+    let html = '';
+    for (let i = firstDow - 1; i >= 0; i--) {
+      html += `<button class="cal-day muted" disabled>${prevMonthDays - i}</button>`;
+    }
+    for (let d = 1; d <= daysInMonth; d++) {
+      const key = _pmixCalKey(y, m0, d);
+      const entry = _pmixCalAvailable.get(key);
+      const isSelected = key === _pmixCalSelected;
+      const cls = ['cal-day'];
+      if (entry) cls.push('available');
+      if (isSelected) cls.push('selected');
+      const title = entry ? `${entry.label} (${entry.range})` : '';
+      html += `<button class="${cls.join(' ')}" ${entry ? `onclick="pickPmixWeek('${entry.iso}')"` : 'disabled'} ${title ? `title="${title}"` : ''}>${d}</button>`;
+    }
+    document.getElementById('calGrid').innerHTML = html;
+
+    const sel = _pmixCalAvailable.get(_pmixCalSelected);
     const foot = document.getElementById('calFoot');
-    const sel = _pmixWeeks.find(w => w.iso === activeDate);
     foot.innerHTML = sel
       ? `Showing <strong>${sel.label}</strong> (${sel.range}) · ${_pmixWeeks.length} fiscal weeks back to opening`
-      : `${_pmixWeeks.length} fiscal weeks back to opening — pick one to load its product mix.`;
+      : `${_pmixWeeks.length} fiscal weeks back to opening — pick a highlighted day to load that week's product mix.`;
   }
 
   function pickPmixWeek(iso) {
     applyDate(iso);
+  }
+
+  // ----- 6-week comparison (week rank, 6wk avg rank/net, deltas) -----
+  // Server-side rank/avg CTEs exist (nbly_weekly_pmix) but only for one
+  // location+concept at a time with a fixed item limit; the explorer needs
+  // every item across every category for whichever location is selected, so
+  // we fetch the prior 6 fiscal weeks' summaries (same RPC + cache the page
+  // already uses) and aggregate client-side instead.
+  let _pmixHistCache = {};    // `${weekStart}|${loc}` -> { weekRankMap, avgRankMap, avgNetMap }
+  let _pmixHistInFlight = {}; // `${weekStart}|${loc}` -> Promise (de-dupe concurrent loads of the same key)
+
+  function _pmixHistKeysFor(weekStart) {
+    const out = [];
+    for (let i = 1; i <= 6; i++) {
+      const d = new Date(weekStart + 'T00:00:00');
+      d.setDate(d.getDate() - 7 * i);
+      out.push(d.toISOString().slice(0, 10));
+    }
+    return out;
+  }
+
+  // Rank within category by net sales (desc) -> Map('category||name' -> 1-based rank)
+  function _pmixRankByCategory(items, netOf) {
+    const byCat = {};
+    items.forEach(it => { (byCat[it.category] = byCat[it.category] || []).push(it); });
+    const rankMap = {};
+    Object.values(byCat).forEach(list => {
+      [...list].sort((a, b) => netOf(b) - netOf(a))
+        .forEach((it, i) => { rankMap[`${it.category}||${it.name}`] = i + 1; });
+    });
+    return rankMap;
+  }
+
+  async function _ensurePmixHistory(weekStart, loc, items) {
+    const cacheKey = `${weekStart}|${loc}`;
+    if (_pmixHistCache[cacheKey]) return _pmixHistCache[cacheKey];
+    if (_pmixHistInFlight[cacheKey]) return _pmixHistInFlight[cacheKey];
+
+    const promise = (async () => {
+      const histDates = _pmixHistKeysFor(weekStart);
+      await Promise.all(histDates.map(async iso => {
+        if (DAYS[iso]) return;
+        try {
+          const { data, error } = await NPData.supabase.rpc('nbly_pmix_summary', { p_week_start: iso });
+          if (error) throw error;
+          if (data && data.date && data.locations && !DAYS[data.date]) {
+            DAYS[data.date] = { date_label: data.date_label, locations: data.locations };
+          }
+        } catch (e) { console.error('PMIX 6wk history load failed', iso, e); }
+      }));
+
+      // Average net sales per item over whichever of those weeks has data
+      const agg = {};
+      histDates.forEach(iso => {
+        const day = DAYS[iso];
+        if (!day) return;
+        const payload = (day.locations || {})[loc] || (day.locations || {}).total;
+        if (!payload) return;
+        (payload.items || []).forEach(it => {
+          if (!(it.qty > 0)) return;
+          const k = `${it.category}||${it.name}`;
+          if (!agg[k]) agg[k] = { name: it.name, category: it.category, sumNet: 0, weeks: 0 };
+          agg[k].sumNet += (it.net || 0);
+          agg[k].weeks  += 1;
+        });
+      });
+      const avgItems = Object.values(agg).map(a => ({ ...a, avgNet: a.sumNet / a.weeks }));
+      const avgNetMap = {};
+      avgItems.forEach(a => { avgNetMap[`${a.category}||${a.name}`] = a.avgNet; });
+
+      const result = {
+        weekRankMap: _pmixRankByCategory(items, it => it.net),
+        avgRankMap:  _pmixRankByCategory(avgItems, it => it.avgNet),
+        avgNetMap
+      };
+      _pmixHistCache[cacheKey] = result;
+      return result;
+    })();
+
+    _pmixHistInFlight[cacheKey] = promise;
+    try { return await promise; }
+    finally { delete _pmixHistInFlight[cacheKey]; }
   }
 
   function applyLocation(loc) {
@@ -633,7 +781,24 @@
     const day = DAYS[activeDate];
     const locs = day.locations || {};
     const labels = RAW.labels || {};
-    const empty  = document.getElementById('locEmpty');
+    const empty   = document.getElementById('locEmpty');
+    const pending = document.getElementById('weekPending');
+
+    // The RPC always returns a well-formed response, even for a fiscal week
+    // whose report hasn't run yet — just with every location's items/totals
+    // at zero. Detect that "whole week is empty" case (totalQty across ALL
+    // locations is 0) and say so plainly, instead of rendering an all-zero
+    // page that looks like something failed to load.
+    const weekHasData = !!(locs.total && locs.total.totalQty > 0);
+    if (!weekHasData) {
+      pending.style.display = '';
+      document.getElementById('weekPendingMsg').innerHTML =
+        `Fiscal weeks run Wednesday–Tuesday. <strong>${day.date_label || _pmixWeekLabel(activeDate)}</strong> ` +
+        `runs through ${_pmixWeekEndLabel(activeDate)}, and the product-mix report is generated once that week closes — ` +
+        `figures for it should appear within a day or two after.`;
+    } else {
+      pending.style.display = 'none';
+    }
 
     // If the selected location has no data, show the banner and fall back to "total"
     let payload = locs[loc];
@@ -646,7 +811,10 @@
 
     document.querySelectorAll('#locToggle button').forEach(b => b.classList.toggle('is-active', b.dataset.loc === loc));
 
-    if (fellBack) {
+    // Don't pile the per-location banner on top of the week-pending one — when
+    // the whole week is empty, "no WLV export" would be a misleading, narrower
+    // explanation than the truth (the week itself isn't processed yet).
+    if (weekHasData && fellBack) {
       empty.style.display = '';
       document.getElementById('locEmptyTitle').textContent =
         `No ${labels[loc] || loc} export uploaded yet`;
@@ -680,6 +848,14 @@
     colorForCategory.cache = {};
 
     render();
+
+    // Week rank / 6wk-avg comparison columns load in the background (6 extra
+    // RPC calls) and re-render the table once ready, so the rest of the page
+    // shows immediately rather than waiting on them.
+    const wkItems = (DATA.items || []).filter(it => it.qty > 0);
+    _ensurePmixHistory(activeDate, loc, wkItems).then(hist => {
+      if (hist && activeDate === DATA.date && activeLoc === loc) renderTable();
+    });
   }
 
   // Best-effort color from a Sales Category string
@@ -765,14 +941,36 @@
     const catQty = {};
     items.forEach(it => { catQty[it.category] = (catQty[it.category] || 0) + it.qty; });
 
+    // Week-rank / 6wk-avg comparison — loaded async by _ensurePmixHistory and
+    // cached per (week, location); render dashes until it's ready, then
+    // applyLocation's .then() calls renderTable() again to fill them in.
+    const hist = _pmixHistCache[`${activeDate}|${activeLoc}`] || null;
+
     const tbody = document.getElementById('itemTbody');
     if (!filtered.length) {
-      tbody.innerHTML = '<tr class="empty"><td colspan="4">No items match those filters.</td></tr>';
+      tbody.innerHTML = '<tr class="empty"><td colspan="9">No items match those filters.</td></tr>';
       return;
     }
     tbody.innerHTML = filtered.map(it => {
       const catTotal = catQty[it.category] || it.qty;
       const pct = catTotal ? (it.qty / catTotal * 100) : 0;
+      const key = `${it.category}||${it.name}`;
+
+      const weekRank = hist ? hist.weekRankMap[key] : null;
+      const avgRank  = hist ? hist.avgRankMap[key]  : null;
+      const avgNet   = hist ? hist.avgNetMap[key]   : null;
+      const rankChange = (weekRank != null && avgRank != null) ? (avgRank - weekRank) : null;
+      const deltaNet = (avgNet != null) ? (it.net - avgNet) : null;
+      const deltaPct = (avgNet)         ? (deltaNet / avgNet * 100) : null;
+
+      const rankChangeHTML = rankChange == null ? '<span class="tbl-muted">—</span>'
+        : rankChange > 0 ? `<span class="rank-chg tbl-pos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>${rankChange}</span>`
+        : rankChange < 0 ? `<span class="rank-chg tbl-neg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>${Math.abs(rankChange)}</span>`
+        : '<span class="tbl-muted">—</span>';
+
+      const deltaHTML = deltaNet == null ? '<span class="tbl-muted">—</span>'
+        : `<span class="${deltaNet >= 0 ? 'tbl-pos' : 'tbl-neg'}">${deltaNet >= 0 ? '+' : '−'}${fmt$(Math.abs(deltaNet))} (${deltaPct >= 0 ? '+' : '−'}${Math.abs(deltaPct).toFixed(1)}%)</span>`;
+
       return `
       <tr>
         <td>
@@ -784,6 +982,11 @@
         <td class="num">${fmtN(it.qty)}<span class="qty-bar" title="${pct.toFixed(1)}% of ${conceptName(it.category) || 'category'} quantity"><span class="qty-bar-fill" style="width:${pct.toFixed(1)}%; background:${colorForCategory(it.category)}"></span></span></td>
         <td class="num">${fmt$(it.net)}</td>
         <td class="num">${fmt$2(it.avg_price)}</td>
+        <td class="num rank">${weekRank != null ? '#' + weekRank : '<span class="tbl-muted">—</span>'}</td>
+        <td class="num rank">${avgRank != null ? '#' + avgRank : '<span class="tbl-muted">—</span>'}</td>
+        <td class="num rank">${rankChangeHTML}</td>
+        <td class="num">${avgNet != null ? fmt$(avgNet) : '<span class="tbl-muted">—</span>'}</td>
+        <td class="num">${deltaHTML}</td>
       </tr>
     `;
     }).join('');
