@@ -1565,9 +1565,6 @@ function ra(){eec();etc();uth();ug();}var _t=null;new MutationObserver(function(
     footer.style.borderTop='none';
     footer.style.borderBottom='0.5px solid rgba(0,0,0,0.08)';
     footer.style.padding='0.6rem 1.1rem';
-    panel.style.overflowY='hidden';
-    contentArea.style.overflowY='auto';
-    contentArea.style.flex='1 1 0%';
   }
     function startObserver(){
     if(_observer)return;
@@ -1576,7 +1573,7 @@ function ra(){eec();etc();uth();ug();}var _t=null;new MutationObserver(function(
       if(!document.getElementById('nb-tba-section')){inject();initFirebase();}
       if(!document.getElementById('nb-filter-enhanced')){injectFilterChips();}
       if(!document.querySelector('.np-nav-tab')){injectNavTabs();}
-    moveEditEventBtn();
+    setTimeout(moveEditEventBtn,150);
     });
     _observer.observe(root,{childList:true,subtree:true});
   }
