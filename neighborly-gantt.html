@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Marketing Calendar — Timeline</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#F7F6F3;--surface:#fff;--surface2:#F0EEE9;--surface3:#E8E6DF;
+  --border:rgba(0,0,0,0.07);--borderMid:rgba(0,0,0,0.11);--borderStrong:rgba(0,0,0,0.16);
+  --text:#1A1916;--text2:#6B6960;--text3:#9E9C96;--text4:#BEBBB3;
+  --orange:#e87142;--orangeLight:#fdeee7;
+  --nav-h:60px;--toolbar-h:56px;--label-w:140px;
+  --row-h:32px;--lane-head-h:28px;
+}
+html,body{height:100%;background:var(--bg);font-family:'Inter',system-ui,sans-serif;color:var(--text);font-size:13px;overflow:hidden}
+
+/* ══ NAV ══════════════════════════════════════════════════════════════ */
+:root { --nav-h: 68px; }
+.np-nav {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  padding: 0 48px;
+  height: var(--nav-h);
+  background: rgba(253,251,246,0.88);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-bottom: 1px solid rgba(0,0,0,0.07);
+  flex-shrink: 0;
+}
+.np-nav-brand { display: flex; align-items: center; flex: 0 0 auto; }
+.np-nav-brand img { height: 31px; display: block; }
+.np-nav-right {
+  display: flex;
+  align-items: flex-end;
+  height: var(--nav-h);
+  gap: 0;
+  flex-shrink: 0;
+  margin-bottom: -1px;
+}
+.np-nav-tab {
+  font-size: 13px;
+  font-weight: 500;
+  color: #9E9C96;
+  text-decoration: none;
+  padding: 0 16px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  border-bottom: 2px solid transparent;
+  transition: color .15s, border-color .15s;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.np-nav-tab:hover { color: #6B6960; }
+.np-nav-tab.active { color: #1A1916; font-weight: 600; border-bottom-color: #1A1916; }
+.toolbar{
+  height:var(--toolbar-h);display:flex;align-items:center;gap:10px;
+  padding:0 20px;background:var(--surface);border-bottom:1px solid var(--border);
+  flex-shrink:0;flex-wrap:nowrap;overflow:hidden;
+}
+.toolbar-group{display:flex;align-items:center;gap:4px}
+.toolbar-sep{width:1px;height:20px;background:var(--border);margin:0 6px;flex-shrink:0}
+.t-btn{
+  height:28px;display:inline-flex;align-items:center;gap:5px;
+  background:var(--surface);border:1px solid var(--border);border-radius:7px;
+  padding:0 10px;font-size:12px;font-weight:500;color:var(--text2);
+  font-family:inherit;cursor:pointer;transition:all .12s;white-space:nowrap;flex-shrink:0;
+}
+.t-btn:hover{border-color:var(--borderStrong);color:var(--text)}
+.t-btn.active{background:var(--text);color:#fff;border-color:var(--text)}
+.t-btn.primary{background:var(--orange);color:#fff;border-color:var(--orange)}
+.t-btn.primary:hover{background:#d4623b}
+.t-btn-icon{width:28px;height:28px;padding:0;justify-content:center;font-size:14px}
+.zoom-label{font-size:11px;font-weight:600;color:var(--text3);letter-spacing:.04em;text-transform:uppercase;padding:0 4px}
+.today-dot{width:7px;height:7px;border-radius:50%;background:var(--orange);flex-shrink:0}
+
+/* Filter chips */
+.fc{
+  display:inline-flex;align-items:center;gap:4px;
+  background:transparent;border:1px solid transparent;border-radius:20px;
+  padding:3px 9px 3px 6px;font-size:11.5px;font-weight:500;color:var(--text2);
+  font-family:inherit;cursor:pointer;transition:all .12s;white-space:nowrap;
+  height:26px;
+}
+.fc:hover{background:var(--surface2);border-color:var(--border)}
+.fc.active{background:var(--text);color:#fff;border-color:var(--text)}
+.fc-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.fc-all-dot{width:7px;height:7px;border-radius:50%;background:conic-gradient(#e87142 0 33%,#6280bd 33% 66%,#eace49 66% 100%);flex-shrink:0}
+
+/* ══ MAIN LAYOUT ══════════════════════════════════════════════════════ */
+.gantt-layout{
+  display:flex;flex:1;overflow:hidden;
+  height:calc(100vh - var(--nav-h) - var(--toolbar-h));
+}
+
+/* Left frozen label column */
+.gantt-labels{
+  width:var(--label-w);min-width:var(--label-w);flex-shrink:0;
+  overflow:hidden;border-right:1px solid var(--borderMid);
+  display:flex;flex-direction:column;background:var(--surface);
+  position:relative;z-index:10;
+}
+.gantt-labels-head{
+  height:var(--toolbar-h);flex-shrink:0;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;padding:0 12px;
+  font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--text3);
+  background:var(--surface2);
+}
+.gantt-labels-scroll{overflow:hidden;flex:1}
+.lane-label-head{
+  height:var(--lane-head-h);display:flex;align-items:center;padding:0 12px;
+  font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+  border-bottom:1px solid var(--border);flex-shrink:0;cursor:pointer;
+  user-select:none;transition:background .12s;
+}
+.lane-label-head:hover{background:var(--surface2)}
+.lane-label-head .lh-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-right:6px}
+.lane-label-head .lh-count{margin-left:auto;font-size:9px;font-weight:500;color:var(--text4);background:var(--surface2);border-radius:10px;padding:1px 5px}
+.lane-event-label{
+  height:var(--row-h);display:flex;align-items:center;padding:0 12px;
+  font-size:11.5px;color:var(--text);border-bottom:1px solid var(--border);
+  overflow:hidden;white-space:nowrap;text-overflow:ellipsis;flex-shrink:0;
+  cursor:pointer;transition:background .1s;
+}
+.lane-event-label:hover{background:var(--surface2)}
+.lane-event-label.selected{background:rgba(232,113,66,.08)}
+.lane-event-label .ev-dot-sm{width:5px;height:5px;border-radius:50%;flex-shrink:0;margin-right:7px}
+
+/* ══ TIMELINE AREA ════════════════════════════════════════════════════ */
+.gantt-timeline{flex:1;overflow:auto;position:relative;background:var(--bg)}
+
+/* Sticky time header */
+.time-header{
+  position:sticky;top:0;z-index:20;background:var(--surface2);
+  border-bottom:1px solid var(--borderMid);
+  display:flex;flex-direction:column;
+}
+.time-header-months{display:flex}
+.time-month{
+  flex-shrink:0;border-right:1px solid var(--borderMid);
+  padding:3px 8px;font-size:10px;font-weight:700;letter-spacing:.06em;
+  text-transform:uppercase;color:var(--text2);
+}
+.time-header-days{display:flex}
+.time-day{
+  flex-shrink:0;display:flex;align-items:center;justify-content:center;
+  border-right:1px solid var(--border);height:22px;
+  font-size:9px;color:var(--text3);transition:background .1s;
+  cursor:default;
+}
+.time-day.wknd{background:rgba(0,0,0,.025)}
+.time-day.is-today{background:rgba(232,113,66,.15);color:var(--orange);font-weight:700}
+.time-day.is-today-col{background:rgba(232,113,66,.04)}
+
+/* Lane headers in timeline */
+.tl-lane-head{
+  position:sticky;left:0;
+  height:var(--lane-head-h);border-bottom:1px solid var(--border);
+  font-size:10px;font-weight:600;color:transparent;
+  padding:0 10px;display:flex;align-items:center;
+  z-index:12;
+}
+.tl-lane-row{
+  position:relative;height:var(--row-h);border-bottom:1px solid var(--border);
+  display:flex;align-items:center;
+}
+.tl-lane-row.wknd-col{background:rgba(0,0,0,.012)}
+.tl-lane-row.today-col{background:rgba(232,113,66,.04)}
+.tl-lane-row.selected-row{background:rgba(232,113,66,.07)}
+
+/* Event chips */
+.ev-chip{
+  position:absolute;top:50%;transform:translateY(-50%);
+  border-radius:5px;display:flex;align-items:center;cursor:pointer;
+  transition:transform .12s,box-shadow .12s,filter .12s;
+  z-index:5;overflow:hidden;white-space:nowrap;
+}
+.ev-chip:hover{transform:translateY(-50%) scaleY(1.15);box-shadow:0 3px 10px rgba(0,0,0,.15);z-index:15}
+.ev-chip.selected-chip{box-shadow:0 0 0 2px var(--orange),0 3px 10px rgba(232,113,66,.3);z-index:16}
+.ev-chip-inner{
+  display:flex;align-items:center;gap:4px;
+  padding:0 7px;height:100%;font-size:10.5px;font-weight:500;
+}
+/* Point events (single day small zoom) */
+.ev-point{
+  position:absolute;top:50%;transform:translate(-50%,-50%);
+  width:11px;height:11px;border-radius:50%;cursor:pointer;
+  transition:transform .12s,box-shadow .12s;z-index:5;
+  border:2px solid rgba(255,255,255,.6);
+}
+.ev-point:hover{transform:translate(-50%,-50%) scale(1.5);box-shadow:0 2px 8px rgba(0,0,0,.2);z-index:15}
+.ev-point.selected-chip{box-shadow:0 0 0 2.5px var(--orange);transform:translate(-50%,-50%) scale(1.3);z-index:16}
+
+/* Today vertical line */
+.today-line{
+  position:absolute;top:0;bottom:0;width:2px;
+  background:rgba(232,113,66,.5);z-index:8;pointer-events:none;
+}
+.today-badge{
+  position:absolute;top:4px;left:50%;transform:translateX(-50%);
+  background:var(--orange);color:#fff;font-size:8px;font-weight:700;
+  padding:1px 4px;border-radius:3px;white-space:nowrap;pointer-events:none;
+  letter-spacing:.04em;
+}
+
+/* ══ DETAIL PANEL ═════════════════════════════════════════════════════ */
+.detail-panel{
+  width:300px;min-width:300px;border-left:1px solid var(--border);
+  background:var(--surface);display:flex;flex-direction:column;
+  transform:translateX(100%);transition:transform .2s ease;
+  position:absolute;right:0;top:0;bottom:0;z-index:50;
+  box-shadow:-4px 0 20px rgba(0,0,0,.08);
+}
+.detail-panel.open{transform:translateX(0)}
+.dp-header{
+  padding:16px 20px 12px;border-bottom:1px solid var(--border);
+  display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-shrink:0;
+}
+.dp-title{font-size:15px;font-weight:700;line-height:1.3;color:var(--text);flex:1}
+.dp-close{background:none;border:none;cursor:pointer;color:var(--text3);font-size:18px;line-height:1;padding:2px 4px;border-radius:4px;flex-shrink:0}
+.dp-close:hover{background:var(--surface2);color:var(--text)}
+.dp-body{flex:1;overflow-y:auto;padding:16px 20px}
+.dp-row{margin-bottom:14px}
+.dp-label{font-size:10px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--text3);margin-bottom:4px}
+.dp-value{font-size:13px;color:var(--text);line-height:1.5}
+.dp-badge{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;
+}
+.dp-people{display:flex;gap:5px;flex-wrap:wrap;margin-top:4px}
+.dp-person{
+  background:var(--surface2);border-radius:20px;padding:2px 9px;
+  font-size:11px;font-weight:600;color:var(--text2);
+}
+.dp-nav{display:flex;gap:6px;padding:12px 20px;border-top:1px solid var(--border);flex-shrink:0}
+.dp-nav-btn{
+  flex:1;height:30px;border:1px solid var(--border);border-radius:7px;
+  background:var(--surface);color:var(--text2);font-size:12px;
+  font-family:inherit;cursor:pointer;transition:all .12s;
+}
+.dp-nav-btn:hover{background:var(--surface2);color:var(--text)}
+
+/* ══ LOADING / EMPTY ══════════════════════════════════════════════════ */
+.gantt-loading{display:flex;align-items:center;justify-content:center;height:100%;flex-direction:column;gap:12px;color:var(--text3)}
+@keyframes spin{to{transform:rotate(360deg)}}
+.spinner{width:22px;height:22px;border:2px solid var(--border);border-top-color:var(--orange);border-radius:50%;animation:spin .7s linear infinite}
+.gantt-empty{display:flex;align-items:center;justify-content:center;height:100%;flex-direction:column;gap:8px;color:var(--text3)}
+.empty-icon{font-size:28px}
+
+/* Scrollbar styling */
+.gantt-timeline::-webkit-scrollbar{width:6px;height:6px}
+.gantt-timeline::-webkit-scrollbar-track{background:transparent}
+.gantt-timeline::-webkit-scrollbar-thumb{background:var(--borderStrong);border-radius:3px}
+
+@media (max-width: 900px) {
+  .np-nav { padding: 0 24px; }
+  .np-nav-tab { padding: 0 10px; }
+  .toolbar { flex-wrap: wrap; gap: 6px; padding: 6px 12px; }
+}
+@media (max-width: 768px) {
+  :root { --nav-h: 52px; }
+  .np-nav { padding: 0 14px; }
+  .np-nav-brand img { height: 22px; }
+  .np-nav-tab { padding: 0 8px; font-size: 11px; }
+  .toolbar { padding: 4px 10px; gap: 4px; overflow-x: auto; flex-wrap: nowrap; }
+  .toolbar::-webkit-scrollbar { display: none; }
+  .zoom-btn, .view-btn { padding: 4px 8px; font-size: 11px; }
+  .gantt-left { width: 120px; min-width: 120px; max-width: 120px; }
+  .gantt-label { font-size: 11px; }
+  .detail-panel { width: 240px; min-width: 240px; }
+}
+@media (max-width: 480px) {
+  .np-nav { padding: 0 10px; }
+  .np-nav-tab { padding: 0 6px; font-size: 10px; }
+  .gantt-left { width: 90px; min-width: 90px; }
+}
+
+</style>
+</head><body>
+<div style="display:flex;flex-direction:column;height:100vh;overflow:hidden">
+
+<!-- NAV -->
+<nav class="np-nav"><div class="np-nav-brand nav-logo-wrap" style="display:flex;align-items:center;flex:0 0 auto;"><img src="https://raw.githubusercontent.com/kallmeroth-netizen/MARKETINGHUB/a5d8cf8a019ba9e6f3d9bc3afb115dca7d42549a/NeighborlyLogo.png" alt="Neighborly" style="height:31px;display:block;"></div><div class="np-nav-right" style="display:flex;align-items:flex-end;height:100%;gap:0;flex-shrink:0;margin-bottom:-1px;"><a href="neighborly-calendar.html" class="np-nav-tab">Calendar</a><a href="neighborly-gantt.html" class="np-nav-tab active">Timeline</a></div></nav>
+
+
+<!-- TOOLBAR -->
+<div class="toolbar">
+  <!-- Today -->
+  <button class="t-btn primary" onclick="goToToday()">Today</button>
+  
+  <div class="toolbar-sep"></div>
+  
+  <!-- Nav arrows + date label -->
+  <div class="toolbar-group">
+    <button class="t-btn t-btn-icon" onclick="shiftView(-1)" title="Previous">&#8249;</button>
+    <span id="view-label" style="font-size:13px;font-weight:600;color:var(--text);min-width:140px;text-align:center;cursor:pointer" onclick="goToToday()"></span>
+    <button class="t-btn t-btn-icon" onclick="shiftView(1)" title="Next">&#8250;</button>
+  </div>
+  
+  <div class="toolbar-sep"></div>
+  
+  <!-- Zoom -->
+  <span class="zoom-label">Zoom</span>
+  <div class="toolbar-group" id="zoom-btns">
+    <button class="t-btn" data-zoom="week" onclick="setZoom('week',this)">Week</button>
+    <button class="t-btn active" data-zoom="2week" onclick="setZoom('2week',this)">2 Weeks</button>
+    <button class="t-btn" data-zoom="month" onclick="setZoom('month',this)">Month</button>
+    <button class="t-btn" data-zoom="quarter" onclick="setZoom('quarter',this)">Quarter</button>
+    <button class="t-btn" data-zoom="year" onclick="setZoom('year',this)">Year</button>
+  </div>
+  
+  <div class="toolbar-sep"></div>
+  
+  <!-- Group toggle -->
+  <button class="t-btn" id="group-btn" onclick="toggleGrouping()">
+    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" style="flex-shrink:0"><rect y="2" width="12" height="1.5" rx=".75" fill="currentColor"/><rect y="5.25" width="9" height="1.5" rx=".75" fill="currentColor"/><rect y="8.5" width="6" height="1.5" rx=".75" fill="currentColor"/></svg>
+    Category rows
+  </button>
+
+  <div class="toolbar-sep"></div>
+
+  <!-- Filters -->
+  <div class="toolbar-group" id="filter-chips" style="flex-wrap:nowrap;gap:3px">
+    <button class="fc active" data-cat="all" onclick="setFilter('all',this)"><span class="fc-all-dot"></span>All</button>
+    <button class="fc" data-cat="campaign" onclick="setFilter('campaign',this)"><span class="fc-dot" style="background:#6280bd"></span>Email</button>
+    <button class="fc" data-cat="social" onclick="setFilter('social',this)"><span class="fc-dot" style="background:#cbc9d6"></span>Social</button>
+    <button class="fc" data-cat="keydate" onclick="setFilter('keydate',this)"><span class="fc-dot" style="background:#eace49"></span>Key date</button>
+    <button class="fc" data-cat="ops" onclick="setFilter('ops',this)"><span class="fc-dot" style="background:#888780"></span>Marketplace</button>
+    <button class="fc" data-cat="event" onclick="setFilter('event',this)"><span class="fc-dot" style="background:#e87142"></span>Event</button>
+    <button class="fc" data-cat="bizupdate" onclick="setFilter('bizupdate',this)"><span class="fc-dot" style="background:#6280bd"></span>Biz update</button>
+    <button class="fc" data-cat="launch" onclick="setFilter('launch',this)"><span class="fc-dot" style="background:#7bbd91"></span>Collateral</button>
+  </div>
+</div>
+
+<!-- MAIN LAYOUT -->
+<div class="gantt-layout" id="gantt-layout">
+  <!-- Frozen label column -->
+  <div class="gantt-labels" id="gantt-labels">
+    <div class="gantt-labels-head">Event</div>
+    <div class="gantt-labels-scroll" id="labels-scroll"></div>
+  </div>
+  
+  <!-- Timeline -->
+  <div class="gantt-timeline" id="gantt-timeline">
+    <div id="timeline-inner" style="position:relative">
+      <div class="gantt-loading"><div class="spinner"></div><span>Loading from Firebase…</span></div>
+    </div>
+  </div>
+  
+  <!-- Detail panel -->
+  <div class="detail-panel" id="detail-panel">
+    <div class="dp-header">
+      <div class="dp-title" id="dp-title">Event</div>
+      <button class="dp-close" onclick="closeDetail()">&#x2715;</button>
+    </div>
+    <div class="dp-body" id="dp-body"></div>
+    <div class="dp-nav">
+      <button class="dp-nav-btn" onclick="navDetail(-1)">&#8249; Prev</button>
+      <button class="dp-nav-btn" onclick="navDetail(1)">Next &#8250;</button>
+    </div>
+  </div>
+</div>
+
+</div><!-- /page wrapper -->
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+<script>
+// ═══ CONFIG ═════════════════════════════════════════════════════════
+const FBCFG = {
+  apiKey:"AIzaSyAiHIQuw3eiyY305sDqc_CoV_MoEG9CQpw",
+  authDomain:"neighborly-hub-53e4b.firebaseapp.com",
+  databaseURL:"https://neighborly-hub-53e4b-default-rtdb.firebaseio.com",
+  projectId:"neighborly-hub-53e4b",storageBucket:"neighborly-hub-53e4b.firebasestorage.app",
+  messagingSenderId:"847761939455",appId:"1:847761939455:web:d0d5dbe1795bb4f05f25ca"
+};
+
+// ═══ CATEGORY MAP ═══════════════════════════════════════════════════
+const CATS = {
+  campaign:  {label:'Email / SMS',color:'#6280bd',bg:'#eaeef8',text:'#2d4480'},
+  social:    {label:'Social',     color:'#cbc9d6',bg:'#f0eff5',text:'#4a4760'},
+  keydate:   {label:'Key date',   color:'#eace49',bg:'#fdf7d8',text:'#7a6b00'},
+  ops:       {label:'Marketplace',color:'#888780',bg:'#F1EFE8',text:'#444441'},
+  event:     {label:'Event',      color:'#e87142',bg:'#fdeee7',text:'#8a3518'},
+  bizupdate: {label:'Biz update', color:'#6280bd',bg:'#eaeef8',text:'#2d4480'},
+  launch:    {label:'Collateral', color:'#7bbd91',bg:'#e4f5ea',text:'#2a5c38'},
+};
+const CAT_ORDER = ['campaign','social','keydate','ops','event','bizupdate','launch'];
+
+// ═══ STATE ══════════════════════════════════════════════════════════
+let allEvents = [], filteredEvents = [], visibleRows = [];
+let curFilter = 'all', curGrouped = true;
+let curZoom = '2week'; // week|2week|month|quarter|year
+let viewStart = null; // first day visible
+let selectedId = null, selectedRowIdx = -1;
+let db = null;
+const TODAY = new Date(); TODAY.setHours(0,0,0,0);
+
+// ═══ ZOOM CONFIG ════════════════════════════════════════════════════
+const ZOOM_CFG = {
+  week:    {days:7,   dw:64, showDayName:true,  showDate:true,  chipH:22, chipMode:'label'},
+  '2week': {days:14,  dw:40, showDayName:true,  showDate:true,  chipH:20, chipMode:'label'},
+  month:   {days:30,  dw:22, showDayName:false, showDate:true,  chipH:18, chipMode:'dot'},
+  quarter: {days:90,  dw:10, showDayName:false, showDate:false, chipH:14, chipMode:'dot'},
+  year:    {days:365, dw:4,  showDayName:false, showDate:false, chipH:10, chipMode:'micro'},
+};
+
+// ═══ HELPERS ════════════════════════════════════════════════════════
+function pd(s){if(!s)return null;const p=s.split('-');return new Date(+p[0],+p[1]-1,+p[2]);}
+function ds(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function daysApart(a,b){return Math.round((b-a)/86400000);}
+function addDays(d,n){const r=new Date(d);r.setDate(r.getDate()+n);return r;}
+function isWknd(d){return d.getDay()===0||d.getDay()===6;}
+function mkey(d){return d.getFullYear()*100+d.getMonth();}
+function fmtDate(d){if(!d)return'';return d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric',year:'numeric'});}
+function fmtShort(d){if(!d)return'';return d.toLocaleDateString('en-US',{month:'short',day:'numeric'});}
+
+function getViewEnd(){const cfg=ZOOM_CFG[curZoom];return addDays(viewStart,cfg.days-1);}
+function getTotalPx(){const cfg=ZOOM_CFG[curZoom];return cfg.days*cfg.dw;}
+function getDayPx(date){return daysApart(viewStart,date)*ZOOM_CFG[curZoom].dw;}
+
+// ═══ VIEW NAVIGATION ════════════════════════════════════════════════
+function initViewStart(){
+  const cfg=ZOOM_CFG[curZoom];
+  // Center today
+  viewStart=addDays(TODAY,-Math.floor(cfg.days/4));
+}
+function shiftView(dir){
+  const cfg=ZOOM_CFG[curZoom];
+  const shift=Math.max(1,Math.floor(cfg.days/3));
+  viewStart=addDays(viewStart,dir*shift);
+  render();
+}
+function goToToday(){
+  initViewStart();
+  render();
+}
+function setZoom(z,btn){
+  curZoom=z;
+  document.querySelectorAll('#zoom-btns .t-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  initViewStart();
+  render();
+}
+function setFilter(cat,el){
+  curFilter=cat;
+  document.querySelectorAll('#filter-chips .fc').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  render();
+}
+function toggleGrouping(){
+  curGrouped=!curGrouped;
+  const btn=document.getElementById('group-btn');
+  btn.classList.toggle('active',curGrouped);
+  render();
+}
+
+// ═══ VIEW LABEL ═════════════════════════════════════════════════════
+function updateViewLabel(){
+  const end=getViewEnd();
+  const sameYear=viewStart.getFullYear()===end.getFullYear();
+  const sameMonth=sameYear&&viewStart.getMonth()===end.getMonth();
+  let label='';
+  if(sameMonth){
+    label=viewStart.toLocaleDateString('en-US',{month:'long',year:'numeric'});
+  } else if(sameYear){
+    label=viewStart.toLocaleDateString('en-US',{month:'short'})+' – '+end.toLocaleDateString('en-US',{month:'short',year:'numeric'});
+  } else {
+    label=viewStart.toLocaleDateString('en-US',{month:'short',year:'numeric'})+' – '+end.toLocaleDateString('en-US',{month:'short',year:'numeric'});
+  }
+  document.getElementById('view-label').textContent=label;
+}
+
+// ═══ BUILD ROWS ════════════════════════════════════════════════════
+function buildRows(){
+  const viewEnd=getViewEnd();
+  // Filter by category
+  filteredEvents=allEvents.filter(e=>{
+    if(!e.start)return false;
+    if(curFilter!=='all'&&e.cat!==curFilter)return false;
+    const s=pd(e.start),en=pd(e.end)||s;
+    return s<=viewEnd&&en>=viewStart;
+  });
+  
+  if(curGrouped){
+    // Build by category lane
+    visibleRows=[];
+    const groups={};
+    CAT_ORDER.forEach(cat=>{groups[cat]=[];});
+    filteredEvents.forEach(e=>{
+      const cat=CATS[e.cat]?e.cat:'ops';
+      if(!groups[cat])groups[cat]=[];
+      groups[cat].push(e);
+    });
+    CAT_ORDER.forEach(cat=>{
+      if(groups[cat].length===0)return;
+      if(curFilter==='all'||curFilter===cat){
+        visibleRows.push({type:'laneHead',cat,count:groups[cat].length});
+        groups[cat].sort((a,b)=>a.start<b.start?-1:1).forEach(e=>{
+          visibleRows.push({type:'event',event:e,cat});
+        });
+      }
+    });
+  } else {
+    // Flat list sorted by date
+    visibleRows=[];
+    filteredEvents.sort((a,b)=>a.start<b.start?-1:1).forEach(e=>{
+      visibleRows.push({type:'event',event:e,cat:e.cat||'ops'});
+    });
+  }
+}
+
+// ═══ RENDER ═════════════════════════════════════════════════════════
+function render(){
+  updateViewLabel();
+  buildRows();
+  renderLabels();
+  renderTimeline();
+}
+
+function renderLabels(){
+  const scroll=document.getElementById('labels-scroll');
+  let h='';
+  visibleRows.forEach((row,i)=>{
+    if(row.type==='laneHead'){
+      const c=CATS[row.cat]||{label:row.cat,color:'#888'};
+      h+=`<div class="lane-label-head" style="color:${c.color}" onclick="scrollToLane('${row.cat}')">
+        <span class="lh-dot" style="background:${c.color}"></span>
+        ${c.label}
+        <span class="lh-count">${row.count}</span>
+      </div>`;
+    } else {
+      const e=row.event;
+      const c=CATS[row.cat]||{color:'#888'};
+      const isSel=e.id===selectedId;
+      h+=`<div class="lane-event-label${isSel?' selected':''}" title="${e.name}" onclick="selectEvent('${e.id}',${i})">
+        <span class="ev-dot-sm" style="background:${c.color}"></span>
+        <span style="overflow:hidden;text-overflow:ellipsis">${e.name}</span>
+      </div>`;
+    }
+  });
+  scroll.innerHTML=h;
+}
+
+function renderTimeline(){
+  const tl=document.getElementById('gantt-timeline');
+  const inner=document.getElementById('timeline-inner');
+  const cfg=ZOOM_CFG[curZoom];
+  const totalPx=getTotalPx();
+  const viewEnd=getViewEnd();
+  const todayOffset=daysApart(viewStart,TODAY);
+  const showTodayLine=todayOffset>=0&&todayOffset<cfg.days;
+  
+  if(visibleRows.length===0){
+    inner.innerHTML='<div class="gantt-empty"><span class="empty-icon">📅</span><span>No events match this filter.</span></div>';
+    return;
+  }
+  
+  let h='';
+  
+  // ── Time header ──────────────────────────────────────────────────
+  h+='<div class="time-header" style="width:'+totalPx+'px">';
+  
+  // Months row
+  h+='<div class="time-header-months">';
+  let d=new Date(viewStart);
+  while(d<=viewEnd){
+    const mEnd=new Date(d.getFullYear(),d.getMonth()+1,0);
+    const visEnd=mEnd<viewEnd?mEnd:viewEnd;
+    const days=daysApart(d,visEnd)+1;
+    const w=days*cfg.dw;
+    h+=`<div class="time-month" style="width:${w}px;min-width:${w}px">${d.toLocaleDateString('en-US',{month:'long',year:'numeric'})}</div>`;
+    d=new Date(d.getFullYear(),d.getMonth()+1,1);
+  }
+  h+='</div>';
+  
+  // Days row
+  h+='<div class="time-header-days">';
+  let dd=new Date(viewStart);
+  while(dd<=viewEnd){
+    const isTd=ds(dd)===ds(TODAY);
+    const wknd=isWknd(dd);
+    let txt='';
+    if(cfg.showDate){
+      if(cfg.showDayName){
+        txt='<div style="font-size:8px;opacity:.7">'+['Su','Mo','Tu','We','Th','Fr','Sa'][dd.getDay()]+'</div><div>'+dd.getDate()+'</div>';
+      } else {
+        txt=dd.getDate()===1?dd.toLocaleDateString('en-US',{month:'short'}):dd.getDate()%5===0?String(dd.getDate()):'';
+      }
+    }
+    h+=`<div class="time-day${isTd?' is-today':''}${wknd?' wknd':''}" style="width:${cfg.dw}px;min-width:${cfg.dw}px;height:${cfg.showDayName?36:22}px;flex-direction:column;gap:0;">${txt}</div>`;
+    dd=new Date(dd);dd.setDate(dd.getDate()+1);
+  }
+  h+='</div></div>';
+  
+  // ── Rows ─────────────────────────────────────────────────────────
+  h+='<div style="position:relative;width:'+totalPx+'px">';
+  
+  // Today line (behind rows)
+  if(showTodayLine){
+    const tleft=(todayOffset+0.5)*cfg.dw;
+    h+=`<div class="today-line" style="left:${tleft}px"><div class="today-badge">TODAY</div></div>`;
+  }
+  
+  visibleRows.forEach((row,i)=>{
+    if(row.type==='laneHead'){
+      const c=CATS[row.cat]||{color:'#888',bg:'#eee'};
+      h+=`<div class="tl-lane-head" style="background:${c.bg};border-left:3px solid ${c.color};width:${totalPx}px"></div>`;
+    } else {
+      const e=row.event;
+      const c=CATS[row.cat]||{color:'#888',bg:'#eee',text:'#444'};
+      const s=pd(e.start),en=pd(e.end)||s;
+      const isSingle=!e.end||e.start===e.end;
+      const isSel=e.id===selectedId;
+      
+      // Weekend/today background
+      let rowBg='';
+      if(isSel) rowBg='today-col selected-row';
+      
+      h+=`<div class="tl-lane-row ${rowBg}" style="width:${totalPx}px" id="row-${e.id}">`;
+      
+      // Background day stripes
+      let bdd=new Date(viewStart);
+      while(bdd<=viewEnd){
+        const isTd2=ds(bdd)===ds(TODAY);
+        const wk=isWknd(bdd);
+        if(wk||isTd2){
+          const lx=daysApart(viewStart,bdd)*cfg.dw;
+          h+=`<div style="position:absolute;left:${lx}px;top:0;bottom:0;width:${cfg.dw}px;background:${isTd2?'rgba(232,113,66,.06)':'rgba(0,0,0,.018)'};pointer-events:none;z-index:0"></div>`;
+        }
+        bdd=new Date(bdd);bdd.setDate(bdd.getDate()+1);
+      }
+      
+      if(isSingle){
+        const dayOff=daysApart(viewStart,s);
+        if(dayOff>=0&&dayOff<cfg.days){
+          const cx=(dayOff+0.5)*cfg.dw;
+          if(cfg.chipMode==='label'||cfg.chipMode==='dot'){
+            // Chip with label if wide enough
+            if(cfg.chipMode==='label'){
+              const chipW=Math.min(cfg.dw*1.5+100, 200);
+              const chipLeft=cx-cfg.dw*0.5;
+              h+=`<div class="ev-chip${isSel?' selected-chip':''}"
+                style="left:${chipLeft}px;height:${cfg.chipH}px;max-width:${chipW}px;background:${c.bg};border-left:2.5px solid ${c.color};"
+                onclick="selectEvent('${e.id}',${i})"
+                data-ev="${encodeEv(e)}">
+                <div class="ev-chip-inner" style="color:${c.text}">${e.name}</div>
+              </div>`;
+            } else {
+              // Dot
+              h+=`<div class="ev-point${isSel?' selected-chip':''}"
+                style="left:${cx}px;background:${c.color};"
+                onclick="selectEvent('${e.id}',${i})"
+                data-ev="${encodeEv(e)}"></div>`;
+            }
+          } else {
+            // Micro dot
+            h+=`<div style="position:absolute;left:${cx-3}px;top:50%;transform:translateY(-50%);width:6px;height:6px;border-radius:50%;background:${c.color};cursor:pointer;z-index:5${isSel?';box-shadow:0 0 0 2px var(--orange)':''}" onclick="selectEvent('${e.id}',${i})" data-ev="${encodeEv(e)}"></div>`;
+          }
+        }
+      } else {
+        // Multi-day bar
+        const visS=s<viewStart?viewStart:s;
+        const visE=en>viewEnd?viewEnd:en;
+        const leftPx=daysApart(viewStart,visS)*cfg.dw;
+        const widPx=Math.max((daysApart(visS,visE)+1)*cfg.dw,12);
+        h+=`<div class="ev-chip${isSel?' selected-chip':''}"
+          style="left:${leftPx}px;width:${widPx}px;height:${cfg.chipH}px;background:${c.bg};border-left:3px solid ${c.color};"
+          onclick="selectEvent('${e.id}',${i})"
+          data-ev="${encodeEv(e)}">
+          <div class="ev-chip-inner" style="color:${c.text}">${widPx>50?e.name:''}</div>
+        </div>`;
+      }
+      
+      h+='</div>';
+    }
+  });
+  
+  h+='</div>';
+  inner.innerHTML=h;
+  
+  // Sync label scroll with timeline scroll
+  syncScroll();
+  
+  // Scroll today into view if first render
+  if(showTodayLine){
+    const tleft=(todayOffset+0.5)*ZOOM_CFG[curZoom].dw;
+    tl.scrollLeft=Math.max(0,tleft-tl.clientWidth/2);
+  }
+}
+
+function encodeEv(e){
+  return JSON.stringify({id:e.id,name:e.name,cat:e.cat,start:e.start,end:e.end,notes:e.notes||'',sub:e.sub||'',people:e.people||[]}).replace(/"/g,'&quot;');
+}
+
+// ═══ SCROLL SYNC ════════════════════════════════════════════════════
+let _scrollSyncing=false;
+function syncScroll(){
+  const tl=document.getElementById('gantt-timeline');
+  const ls=document.getElementById('labels-scroll');
+  if(!tl||!ls)return;
+  tl.addEventListener('scroll',()=>{
+    if(_scrollSyncing)return;
+    _scrollSyncing=true;
+    ls.scrollTop=tl.scrollTop;
+    _scrollSyncing=false;
+  },true);
+  ls.addEventListener('scroll',()=>{
+    if(_scrollSyncing)return;
+    _scrollSyncing=true;
+    tl.scrollTop=ls.scrollTop;
+    _scrollSyncing=false;
+  },true);
+}
+
+// ═══ SELECTION + DETAIL PANEL ═══════════════════════════════════════
+function selectEvent(id,rowIdx){
+  const e=allEvents.find(ev=>ev.id===id);
+  if(!e)return;
+  selectedId=id; selectedRowIdx=rowIdx;
+  openDetail(e);
+  // Re-render to show selection
+  renderLabels();
+  renderTimeline();
+}
+function scrollToLane(cat){
+  const tl=document.getElementById('gantt-timeline');
+  const row=tl.querySelector('#row-'+cat);
+  if(row) row.scrollIntoView({behavior:'smooth',block:'start'});
+}
+function openDetail(e){
+  const c=CATS[e.cat]||{label:e.cat,color:'#888',bg:'#eee',text:'#444'};
+  const s=pd(e.start),en=pd(e.end)||s;
+  const isSingle=!e.end||e.start===e.end;
+  document.getElementById('dp-title').textContent=e.name;
+  let body='';
+  body+=`<div class="dp-row"><div class="dp-label">Date</div><div class="dp-value">${isSingle?fmtDate(s):fmtShort(s)+' → '+fmtDate(en)}</div></div>`;
+  body+=`<div class="dp-row"><div class="dp-label">Category</div><span class="dp-badge" style="background:${c.bg};color:${c.text}">${c.label}</span></div>`;
+  if(e.sub) body+=`<div class="dp-row"><div class="dp-label">Type</div><div class="dp-value">${e.sub}</div></div>`;
+  if(e.notes) body+=`<div class="dp-row"><div class="dp-label">Notes</div><div class="dp-value">${e.notes}</div></div>`;
+  if(e.people&&e.people.length) body+=`<div class="dp-row"><div class="dp-label">Team</div><div class="dp-people">${e.people.map(p=>`<span class="dp-person">${p}</span>`).join('')}</div></div>`;
+  if(e.hold) body+=`<div class="dp-row"><div class="dp-label">Status</div><div class="dp-value" style="color:var(--text3)">On hold</div></div>`;
+  document.getElementById('dp-body').innerHTML=body;
+  document.getElementById('detail-panel').classList.add('open');
+}
+function closeDetail(){
+  document.getElementById('detail-panel').classList.remove('open');
+  selectedId=null; selectedRowIdx=-1;
+  renderLabels();
+}
+function navDetail(dir){
+  const eventRows=visibleRows.filter(r=>r.type==='event');
+  if(!eventRows.length)return;
+  let idx=eventRows.findIndex(r=>r.event.id===selectedId);
+  idx=(idx+dir+eventRows.length)%eventRows.length;
+  const newRow=eventRows[idx];
+  selectEvent(newRow.event.id, visibleRows.indexOf(newRow));
+  // Scroll to event
+  const el=document.getElementById('row-'+newRow.event.id);
+  if(el) el.scrollIntoView({behavior:'smooth',block:'center'});
+}
+
+// ═══ KEYBOARD NAV ═══════════════════════════════════════════════════
+document.addEventListener('keydown',e=>{
+  if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA')return;
+  if(e.key==='ArrowRight') shiftView(1);
+  else if(e.key==='ArrowLeft') shiftView(-1);
+  else if(e.key==='t'||e.key==='T') goToToday();
+  else if(e.key==='Escape') closeDetail();
+  else if(e.key==='ArrowDown'&&selectedId) navDetail(1);
+  else if(e.key==='ArrowUp'&&selectedId) navDetail(-1);
+});
+
+// ═══ FIREBASE ═══════════════════════════════════════════════════════
+function initFB(){
+  try{
+    firebase.initializeApp(FBCFG);
+    db=firebase.database();
+    db.ref('marketing-calendar/events').on('value',snap=>{
+      const v=snap.val();
+      if(!v){allEvents=[];}
+      else if(Array.isArray(v)){allEvents=v.filter(Boolean);}
+      else{allEvents=Object.values(v).filter(Boolean);}
+      allEvents.sort((a,b)=>a.start<b.start?-1:1);
+      render();
+    },err=>{
+      document.getElementById('timeline-inner').innerHTML='<div class="gantt-empty"><span>Error: '+err.message+'</span></div>';
+    });
+  }catch(err){
+    document.getElementById('timeline-inner').innerHTML='<div class="gantt-empty"><span>Firebase error: '+err.message+'</span></div>';
+  }
+}
+
+// ═══ INIT ════════════════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded',()=>{
+  // Set grouped btn initial state
+  document.getElementById('group-btn').classList.add('active');
+  initViewStart();
+  initFB();
+});
+</script>
+</body></html>
