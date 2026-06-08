@@ -420,7 +420,8 @@ function fmtDate(d){if(!d)return'';return d.toLocaleDateString('en-US',{weekday:
 function fmtShort(d){if(!d)return'';return d.toLocaleDateString('en-US',{month:'short',day:'numeric'});}
 
 function getViewEnd(){const cfg=ZOOM_CFG[curZoom];return addDays(viewStart,cfg.days-1);}
-function getTotalPx(){const cfg=ZOOM_CFG[curZoom];return cfg.days*cfg.dw;}
+function getTotalPx(){const cfg=ZOOM_CFG[curZoom];const raw=cfg.days*cfg.dw;const tl=document.getElementById('gantt-timeline');const avail=tl?tl.clientWidth:0;return Math.max(raw,avail);}
+function getEffectiveDw(){const cfg=ZOOM_CFG[curZoom];const raw=cfg.days*cfg.dw;const tl=document.getElementById('gantt-timeline');const avail=tl?tl.clientWidth:0;return avail>raw?avail/cfg.days:cfg.dw;}
 function getDayPx(date){return daysApart(viewStart,date)*ZOOM_CFG[curZoom].dw;}
 
 // ═══ VIEW NAVIGATION ════════════════════════════════════════════════
@@ -547,6 +548,7 @@ function renderLabels(){
 }
 
 function renderTimeline(){
+  const effectiveDw=getEffectiveDw();
   const tl=document.getElementById('gantt-timeline');
   const inner=document.getElementById('timeline-inner');
   const cfg=ZOOM_CFG[curZoom];
@@ -572,7 +574,7 @@ function renderTimeline(){
     const mEnd=new Date(d.getFullYear(),d.getMonth()+1,0);
     const visEnd=mEnd<viewEnd?mEnd:viewEnd;
     const days=daysApart(d,visEnd)+1;
-    const w=days*cfg.dw;
+    const w=days*effectiveDw;
     h+=`<div class="time-month" style="width:${w}px;min-width:${w}px">${d.toLocaleDateString('en-US',{month:'long',year:'numeric'})}</div>`;
     d=new Date(d.getFullYear(),d.getMonth()+1,1);
   }
@@ -592,7 +594,7 @@ function renderTimeline(){
         txt=dd.getDate()===1?dd.toLocaleDateString('en-US',{month:'short'}):dd.getDate()%5===0?String(dd.getDate()):'';
       }
     }
-    h+=`<div class="time-day${isTd?' is-today':''}${wknd?' wknd':''}" style="width:${cfg.dw}px;min-width:${cfg.dw}px;height:${cfg.showDayName?36:22}px;flex-direction:column;gap:0;">${txt}</div>`;
+    h+=`<div class="time-day${isTd?' is-today':''}${wknd?' wknd':''}" style="width:${effectiveDw}px;min-width:${effectiveDw}px;height:${cfg.showDayName?36:22}px;flex-direction:column;gap:0;">${txt}</div>`;
     dd=new Date(dd);dd.setDate(dd.getDate()+1);
   }
   h+='</div></div>';
@@ -602,7 +604,7 @@ function renderTimeline(){
   
   // Today line (behind rows)
   if(showTodayLine){
-    const tleft=(todayOffset+0.5)*cfg.dw;
+    const tleft=(todayOffset+0.5)*effectiveDw;
     h+=`<div class="today-line" style="left:${tleft}px"><div class="today-badge">TODAY</div></div>`;
   }
   
@@ -629,8 +631,8 @@ function renderTimeline(){
         const isTd2=ds(bdd)===ds(TODAY);
         const wk=isWknd(bdd);
         if(wk||isTd2){
-          const lx=daysApart(viewStart,bdd)*cfg.dw;
-          h+=`<div style="position:absolute;left:${lx}px;top:0;bottom:0;width:${cfg.dw}px;background:${isTd2?'rgba(232,113,66,.06)':'rgba(0,0,0,.018)'};pointer-events:none;z-index:0"></div>`;
+          const lx=daysApart(viewStart,bdd)*effectiveDw;
+          h+=`<div style="position:absolute;left:${lx}px;top:0;bottom:0;width:${effectiveDw}px;background:${isTd2?'rgba(232,113,66,.06)':'rgba(0,0,0,.018)'};pointer-events:none;z-index:0"></div>`;
         }
         bdd=new Date(bdd);bdd.setDate(bdd.getDate()+1);
       }
@@ -638,12 +640,12 @@ function renderTimeline(){
       if(isSingle){
         const dayOff=daysApart(viewStart,s);
         if(dayOff>=0&&dayOff<cfg.days){
-          const cx=(dayOff+0.5)*cfg.dw;
+          const cx=(dayOff+0.5)*effectiveDw;
           if(cfg.chipMode==='label'||cfg.chipMode==='dot'){
             // Chip with label if wide enough
             if(cfg.chipMode==='label'){
-              const chipW=Math.min(cfg.dw*1.5+100, 200);
-              const chipLeft=cx-cfg.dw*0.5;
+              const chipW=Math.min(effectiveDw*1.5+100, 200);
+              const chipLeft=cx-effectiveDw*0.5;
               h+=`<div class="ev-chip${isSel?' selected-chip':''}"
                 style="left:${chipLeft}px;height:${cfg.chipH}px;max-width:${chipW}px;background:${c.bg};border-left:2.5px solid ${c.color};"
                 onclick="selectEvent('${e.id}',${i})"
@@ -666,8 +668,8 @@ function renderTimeline(){
         // Multi-day bar
         const visS=s<viewStart?viewStart:s;
         const visE=en>viewEnd?viewEnd:en;
-        const leftPx=daysApart(viewStart,visS)*cfg.dw;
-        const widPx=Math.max((daysApart(visS,visE)+1)*cfg.dw,12);
+        const leftPx=daysApart(viewStart,visS)*effectiveDw;
+        const widPx=Math.max((daysApart(visS,visE)+1)*effectiveDw,12);
         h+=`<div class="ev-chip${isSel?' selected-chip':''}"
           style="left:${leftPx}px;width:${widPx}px;height:${cfg.chipH}px;background:${c.bg};border-left:3px solid ${c.color};"
           onclick="selectEvent('${e.id}',${i})"
@@ -802,5 +804,8 @@ document.addEventListener('DOMContentLoaded',()=>{
   initViewStart();
   initFB();
 });
+
+// Re-render on window resize so timeline always fills available space
+window.addEventListener('resize', () => { clearTimeout(window._rzTimer); window._rzTimer = setTimeout(render, 120); });
 </script>
 </body></html>
