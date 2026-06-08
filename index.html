@@ -96,23 +96,10 @@
     filter: brightness(0) drop-shadow(0 1px 4px rgba(31,35,40,0.10));
     opacity: 0; animation: rise 0.6s ease 0.1s forwards;
   }
-  .pass-logo-text {
-    display: block;
-    font-family: 'TAYAmaya', 'DM Sans', sans-serif;
-    font-size: clamp(22px, 2.6vw, 30px);
-    line-height: 1;
-    letter-spacing: 0.01em;
-    color: var(--ink);
-    white-space: nowrap;
-    text-shadow: 0 1px 4px rgba(31,35,40,0.10);
-    opacity: 0;
-    animation: rise 0.6s ease 0.1s forwards;
-  }
   @media (max-width: 520px) {
     /* Scale down passcode logo ~50% on phones */
     .pass-logo { top: 32px; }
     .pass-logo img { width: 132px; }
-    .pass-logo-text { font-size: 20px; }
   }
 
   .pass-hero {
@@ -764,7 +751,7 @@
 <!-- ==================== PASSCODE ==================== -->
 <div class="pass-shell" id="passShell">
   <div class="pass-logo">
-    <span class="pass-logo-text">Neighbors Only Hub</span>
+    <img src="./NeighborlyLogo.png" alt="Neighborly">
   </div>
 
   <div class="pass-hero">
@@ -1236,5 +1223,10 @@
     if (passShell) passShell.style.display = 'none';
   })();
 </script>
+
+<footer class="np-footer" aria-label="Neighbors Only Hub">
+  <img src="./NeighborlyLogo.png" alt="Neighborly">
+  <div class="np-footer-text">Neighbors Only Hub</div>
+</footer>
 </body>
 </html>
