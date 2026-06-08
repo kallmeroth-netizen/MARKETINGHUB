@@ -17,6 +17,21 @@
 <title>Neighbors Only Portal — Neighborly</title>
 <link rel="stylesheet" href="theme.css">
 <script src="chrome.js" defer></script>
+<script>
+  // Unregister any leftover service worker from older deployments and
+  // purge their caches. Without this, an SW registered before we ever
+  // shipped one here can keep serving stale HTML on iOS for a long time.
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then(function (regs) {
+      regs.forEach(function (r) { r.unregister(); });
+    }).catch(function () {});
+  }
+  if (window.caches && caches.keys) {
+    caches.keys().then(function (keys) {
+      keys.forEach(function (k) { caches.delete(k); });
+    }).catch(function () {});
+  }
+</script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&family=DM+Mono:wght@400&family=Jost:wght@500;600;700&display=swap');
 
