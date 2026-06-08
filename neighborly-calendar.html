@@ -1542,7 +1542,7 @@ function ra(){eec();etc();uth();ug();}var _t=null;new MutationObserver(function(
     });
     filterRow.parentElement.insertBefore(row,filterRow);
     row.querySelector('[data-label="All"]').classList.add('nb-chip-active');
-  
+  }
   function injectNavTabs(){
     if(document.querySelector('.np-nav-tab'))return;
     var navRight=document.querySelector('.np-nav-right');if(!navRight)return;
@@ -1551,33 +1551,17 @@ function ra(){eec();etc();uth();ug();}var _t=null;new MutationObserver(function(
     navRight.insertBefore(calTab,navRight.firstChild);
     navRight.insertBefore(tlTab,calTab.nextSibling);
   }
-  function moveEditEventBtn(){
-    var btns=document.querySelectorAll('button');
-    var editBtn=null;
-    for(var i=0;i<btns.length;i++){if(btns[i].textContent.trim()==='Edit event'){editBtn=btns[i];break;}}
-    if(!editBtn)return;
-    var footer=editBtn.parentElement;
-    var panel=footer?footer.parentElement:null;
-    if(!panel||panel.children.length<3)return;
-    if(footer===panel.children[1])return;
-    var contentArea=panel.children[1];
-    panel.insertBefore(footer,contentArea);
-    footer.style.borderTop='none';
-    footer.style.borderBottom='0.5px solid rgba(0,0,0,0.08)';
-    footer.style.padding='0.6rem 1.1rem';
-  }
-    function startObserver(){
+  function startObserver(){
     if(_observer)return;
     var root=document.getElementById('root')||document.body;
     _observer=new MutationObserver(function(){
       if(!document.getElementById('nb-tba-section')){inject();initFirebase();}
       if(!document.getElementById('nb-filter-enhanced')){injectFilterChips();}
       if(!document.querySelector('.np-nav-tab')){injectNavTabs();}
-    setTimeout(moveEditEventBtn,150);
     });
     _observer.observe(root,{childList:true,subtree:true});
   }
-  function init(){inject();initFirebase();injectFilterChips();injectNavTabs();startObserver();moveEditEventBtn();}
+  function init(){inject();initFirebase();injectFilterChips();injectNavTabs();startObserver();}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);
   else setTimeout(init,500);
 })();
