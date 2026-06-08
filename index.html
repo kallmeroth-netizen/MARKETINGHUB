@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
 <!-- PWA / favicons -->
 <link rel="manifest" href="/manifest.json">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -567,7 +567,7 @@
   .pass-hero { transform: translateX(clamp(-32px, -1.6vw, -10px)); }
   .pass-logo img { width: 92px !important; }
   @media (max-width: 520px) {
-    .pass-logo img { width: 76px !important; }
+    .pass-logo img { width: 102px !important; }
   }
   .pass-hero { gap: 18px !important; width: clamp(280px, 34vw, 420px) !important; }
 
@@ -1024,8 +1024,9 @@
                  : 'Welcome home, neighbor.';
     retypeGreeting(phrase, () => {
       setTimeout(() => {
-        sweep.style.background = SIDE_COLORS[side];
-        sweep.classList.toggle('lav', side === 'guest');
+        // Always Neighborly orange for the entry sweep, regardless of role.
+        sweep.style.background = '#e87142';
+        sweep.classList.remove('lav');
         sweepText.textContent = side === 'team'  ? 'Team Hub'
                               : side === 'ops'   ? 'Operations Hub'
                               : side === 'admin' ? 'Admin Hub'
@@ -1206,5 +1207,10 @@
     if (passShell) passShell.style.display = 'none';
   })();
 </script>
+
+<footer class="np-footer" aria-label="Neighbors Only Hub">
+  <img src="./NeighborlyLogo.png" alt="Neighborly">
+  <div class="np-footer-text">Neighbors Only Hub</div>
+</footer>
 </body>
 </html>

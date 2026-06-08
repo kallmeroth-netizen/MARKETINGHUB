@@ -1147,3 +1147,35 @@ section.row    { padding: var(--s-7) 0; gap: var(--s-6); }
   .np-kpi-value, .kpi-value { font-size: 16px !important; }
 }
 
+
+/* ============================================================
+   Site footer — Neighborly mark + "Neighbors Only Hub" wordmark
+   Appears at the bottom of every page.
+============================================================ */
+.np-footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 40px 16px 28px;
+  margin-top: auto;
+  opacity: 0.78;
+}
+.np-footer img {
+  width: 96px;
+  height: auto;
+  display: block;
+  filter: brightness(0);
+}
+.np-footer .np-footer-text {
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-size: 10.5px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--text2, #6b6960);
+}
+@media (max-width: 520px) {
+  .np-footer { padding: 28px 12px 20px; }
+  .np-footer img { width: 80px; }
+  .np-footer .np-footer-text { font-size: 9.5px; letter-spacing: 0.18em; }
+}
