@@ -51,7 +51,7 @@
 
   :root {
     --dark:#1f2328; --yellow:#eace49; --green:#7bbd91;
-    --lav:#cbc9d6; --cream:#f2f2f2; --off:#e5e3d6; --orange:#e87142;
+    --lav:#cbc9d6; --cream:#F7F6F3; --off:#e5e3d6; --orange:#e87142;
     --sand:#dbc6a2; --blue:#6280bd; --softgreen:#cedbce;
     --surface:#fff; --border:#e8e6dd; --border-strong:#d4d1c5;
     --text:#1f2328; --text2:#3a3d44; --text3:#7a7770;
@@ -579,7 +579,7 @@
   }
   /* Nudge the stack a touch left to optically center against the
      line drawing's visual weight (which sits right-of-center) */
-  .pass-hero { transform: translateX(clamp(-32px, -1.6vw, -10px)); }
+  .pass-hero { transform: none; }
   .pass-logo img { width: 92px !important; }
   @media (max-width: 520px) {
     .pass-logo img { width: 102px !important; }
@@ -685,6 +685,9 @@
     opacity: 0.55;
   }
 
+  /* Fix: compensate letter-spacing override so text stays centered */
+  .portal-foot .track-center { margin-right: -0.04em !important; }
+
   @media (max-width: 520px) {
     .pass-hero { width: min(300px, 86vw) !important; gap: 14px !important; transform: translateX(-6px); }
     .greeting { font-size: 14px !important; }
@@ -737,6 +740,8 @@
     }
     .nav-right { gap: 6px !important; }
   }
+  /* Login page: hide footer logo (shown at top already) */
+  body[data-state="passcode"] .np-footer img { display: none; }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script src="np-data.js"></script>
