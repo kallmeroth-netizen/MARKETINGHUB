@@ -951,6 +951,7 @@
   // as the entry transition. User-gesture context (the Enter click) lets
   // the video play even on iOS in Low Power Mode.
   let drawingPlayed = false;
+  let drawingDone = Promise.resolve();
   function playEntryDrawing() {
     if (drawingPlayed) return;
     drawingPlayed = true;
@@ -970,7 +971,19 @@
     v.poster = './LineDrawingNeighborly_safari.png';
     v.src = './LineDrawingNeighborly_cream.mp4';
     img.replaceWith(v);
-    const tryPlay = () => v.play().catch(() => {});
+    // Resolve when the animation finishes so the sweep can wait for the
+    // car to drive off. 4s safety timeout in case 'ended' never fires
+    // (autoplay blocked, codec issue, etc.) so login never hangs.
+    drawingDone = new Promise((resolve) => {
+      let resolved = false;
+      const done = () => { if (!resolved) { resolved = true; resolve(); } };
+      v.addEventListener('ended', done, { once: true });
+      setTimeout(done, 4000);
+    });
+    const tryPlay = () => {
+      v.playbackRate = 2.0;  // 2x — same animation, finishes in half the time
+      v.play().catch(() => {});
+    };
     if (v.readyState >= 2) tryPlay();
     else v.addEventListener('loadeddata', tryPlay, { once: true });
   }
@@ -1012,10 +1025,14 @@
   // Enter-press (or Enter + Go click, or key auto-repeat) fires accept() twice
   // on offset timelines and the slide-up curtain visibly plays "almost twice".
   let entering = false;
-  function accept(side) {
+  async function accept(side) {
     if (entering) return;
     entering = true;
     cap.classList.add('accept');
+    // Hold the sweep until the line drawing finishes (so the user always
+    // sees the car drive off at the end of the animation). drawingDone is
+    // already-resolved when the user lands here from a restored session.
+    await drawingDone;
     const phrase = side === 'team'  ? 'Welcome back, team.'
                  : side === 'ops'   ? 'Welcome, ops.'
                  : side === 'admin' ? 'Welcome, admin.'
