@@ -253,6 +253,7 @@
 
   .mp-gantt{ overflow-x:auto; border:1px solid var(--line-strong); border-radius:var(--r-lg); background:var(--surface); }
   .mp-g-head{ display:flex; position:sticky; top:0; z-index:5; background:var(--surface); border-bottom:1px solid var(--line-strong); }
+  .mp-g-rows{ width:max-content; min-width:100%; }
   .mp-g-corner{ position:sticky; left:0; z-index:6; background:var(--surface); flex:0 0 var(--gl-w,200px); width:var(--gl-w,200px); border-right:1px solid var(--line-strong); }
   .mp-g-axis{ position:relative; height:34px; flex:0 0 auto; }
   .mp-g-tick{ position:absolute; top:0; bottom:0; border-left:1px solid var(--line); }
@@ -275,6 +276,87 @@
   .mp-milestone{ position:absolute; top:15px; width:15px; height:15px; transform:translateX(-7px) rotate(45deg); border-radius:3px; z-index:2; }
   .mp-today{ position:absolute; top:0; bottom:0; width:2px; background:var(--brand-orange); z-index:3; }
   .mp-today .dot{ position:absolute; top:1px; left:-3px; width:8px; height:8px; border-radius:50%; background:var(--brand-orange); }
+
+  /* ============ TECH-FORWARD MOTION & POLISH ============ */
+  @keyframes mpUp     { from { opacity:0; transform:translateY(11px); } to { opacity:1; transform:none; } }
+  @keyframes mpGrow   { from { width:0 !important; } }
+  @keyframes mpRing   { from { stroke-dashoffset: var(--c0); } }
+  @keyframes mpDot    { 0%,100%{ opacity:1; transform:scale(1); } 50%{ opacity:.3; transform:scale(.7); } }
+  @keyframes mpShimmer{ from { background-position:-180% 0; } to { background-position:180% 0; } }
+  @keyframes mpFade   { from { opacity:0; } to { opacity:1; } }
+
+  /* staggered entrance — only while a tab carries .mp-anim (added on reveal,
+     removed after, so data re-renders never replay) */
+  .mp-anim .mp-stagger > *,
+  .mp-kpis.mp-anim > * { animation: mpUp .5s cubic-bezier(.22,1,.36,1) both; }
+  .mp-anim .mp-stagger>*:nth-child(1),.mp-kpis.mp-anim>*:nth-child(1){animation-delay:0s}
+  .mp-anim .mp-stagger>*:nth-child(2),.mp-kpis.mp-anim>*:nth-child(2){animation-delay:.04s}
+  .mp-anim .mp-stagger>*:nth-child(3),.mp-kpis.mp-anim>*:nth-child(3){animation-delay:.08s}
+  .mp-anim .mp-stagger>*:nth-child(4),.mp-kpis.mp-anim>*:nth-child(4){animation-delay:.12s}
+  .mp-anim .mp-stagger>*:nth-child(5),.mp-kpis.mp-anim>*:nth-child(5){animation-delay:.16s}
+  .mp-anim .mp-stagger>*:nth-child(6){animation-delay:.20s}
+  .mp-anim .mp-stagger>*:nth-child(7){animation-delay:.24s}
+  .mp-anim .mp-stagger>*:nth-child(8){animation-delay:.28s}
+  .mp-anim .mp-stagger>*:nth-child(9){animation-delay:.32s}
+  .mp-anim .mp-stagger>*:nth-child(10){animation-delay:.36s}
+  .mp-anim .mp-stagger>*:nth-child(n+11){animation-delay:.40s}
+  .mp-anim .mp-ready .fill{ animation: mpGrow .8s cubic-bezier(.22,1,.36,1) both; }
+
+  /* live-sync pulse pill in the eyebrow */
+  .mp-live{ display:inline-flex; align-items:center; gap:6px; margin-left:10px; padding:2px 9px; border-radius:var(--r-pill);
+    background:var(--brand-green-light); color:var(--brand-green-deep); font-family:var(--f-mono); font-size:9.5px;
+    letter-spacing:.09em; text-transform:uppercase; vertical-align:middle; }
+  .mp-live .d{ width:6px; height:6px; border-radius:50%; background:var(--brand-green-deep); animation:mpDot 1.6s ease-in-out infinite; }
+
+  /* gradient wordmark */
+  .mp-head h1{ background:linear-gradient(92deg,var(--ink) 30%,var(--mp-deep)); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; }
+
+  /* richer hovers */
+  .mp-card{ transition:transform .18s var(--easing), box-shadow .18s var(--easing), border-color .18s; will-change:transform; }
+  .mp-card:hover{ transform:translateY(-3px); box-shadow:0 10px 26px rgba(31,35,40,.10); }
+  .mp-card:active{ transform:translateY(-1px); }
+  .mp-kpi{ transition:transform .18s var(--easing), box-shadow .18s; position:relative; overflow:hidden; }
+  .mp-kpi:hover{ transform:translateY(-2px); box-shadow:0 8px 20px rgba(31,35,40,.07); }
+  .mp-kpi::after{ content:''; position:absolute; left:0; top:0; height:3px; width:100%; background:linear-gradient(90deg,var(--mp),transparent); opacity:0; transition:opacity .2s; }
+  .mp-kpi:hover::after{ opacity:.9; }
+  .mp-kpi .v{ font-variant-numeric:tabular-nums; }
+  .mp-btn{ transition:transform .12s var(--easing), background .15s, border-color .15s; }
+  .mp-btn:active{ transform:translateY(1px) scale(.98); }
+  .mp-g-row{ transition:background .15s; }
+  .mp-g-row:hover{ background:rgba(90,74,122,.035); }
+  .mp-seg{ transition:filter .15s, transform .15s; }
+  .mp-seg:hover{ filter:brightness(1.07); }
+  .mp-trow,.mp-table tr.clickable{ transition:transform .15s var(--easing), box-shadow .15s, background .15s; }
+  .mp-trow:hover{ transform:translateX(2px); box-shadow:0 6px 16px rgba(31,35,40,.06); border-color:var(--line-bold); }
+
+  /* the active stage on the timeline "processes" — a slow sheen = in-flux */
+  .mp-seg.cur{ position:absolute; }
+  .mp-seg.cur::after{ content:''; position:absolute; inset:0; border-radius:5px;
+    background:linear-gradient(100deg,transparent 35%,rgba(255,255,255,.4) 50%,transparent 65%);
+    background-size:220% 100%; background-repeat:no-repeat; animation:mpShimmer 2.6s linear infinite; pointer-events:none; }
+
+  /* detail ring sweeps in on open */
+  .mp-ring .prog{ animation:mpRing .9s cubic-bezier(.22,1,.36,1) both; }
+
+  /* frosted slide-over + animated overlay */
+  .mp-overlay{ backdrop-filter:blur(3px); -webkit-backdrop-filter:blur(3px); }
+  .mp-panel{ box-shadow:-18px 0 60px rgba(31,35,40,.20); }
+  .mp-dept{ transition:border-color .15s, box-shadow .2s; }
+  .mp-dept.open{ box-shadow:0 6px 20px rgba(31,35,40,.05); }
+  .mp-check{ transition:transform .12s var(--easing), background .15s, border-color .15s; }
+  .mp-check:hover{ transform:scale(1.12); border-color:var(--brand-green-deep); }
+  .mp-check:active{ transform:scale(.9); }
+
+  /* tab underline glides */
+  .mp-tab{ position:relative; transition:color .15s; }
+  .mp-tab::after{ content:''; position:absolute; left:10px; right:10px; bottom:-1px; height:2px; background:var(--mp); border-radius:2px; transform:scaleX(0); transform-origin:center; transition:transform .22s var(--easing); }
+  .mp-tab.active::after{ transform:scaleX(1); }
+
+  @media (prefers-reduced-motion: reduce){
+    .mp-anim .mp-stagger>*, .mp-kpis.mp-anim>*, .mp-anim .mp-ready .fill,
+    .mp-ring .prog, .mp-seg.cur::after, .mp-live .d{ animation:none !important; }
+    .mp-card:hover, .mp-trow:hover, .mp-kpi:hover{ transform:none; }
+  }
 </style>
 </head>
 <body>
@@ -310,7 +392,7 @@
 
   <div class="mp-head">
     <div>
-      <div class="eyebrow">Marketplace Operations</div>
+      <div class="eyebrow">Marketplace Operations <span class="mp-live"><span class="d"></span>Live sync</span></div>
       <h1>New Product Introduction</h1>
     </div>
     <div class="mp-actions">
@@ -455,6 +537,7 @@ let openLaunchId = null;
 let teamFilter = 'Marketplace';
 let ganttPx = 18;
 let _bootstrapped = false;
+const revealed = {};
 
 /* ---------------------------------------------------------------- UTIL ----- */
 const $ = s => document.querySelector(s);
@@ -602,7 +685,13 @@ function toast(html, action, color, ms){
 function renderAll(){ renderKpis(); renderCounts(); renderBoard();
   if($('#tab-timeline').style.display!=='none') renderTimeline();
   if($('#tab-teams').style.display!=='none') renderTeams();
-  if($('#tab-brands').style.display!=='none') renderBrands(); }
+  if($('#tab-brands').style.display!=='none') renderBrands();
+  if(!revealed._init){ revealed._init=true; setTimeout(()=>revealTab('board'),30); } }
+
+/* add .mp-anim to a tab so its stagger animation plays once, then strip it so
+   subsequent in-place re-renders (task toggles, advances) stay static */
+function revealTab(name){ const el=$('#tab-'+name); if(!el) return; el.classList.add('mp-anim'); setTimeout(()=>el.classList.remove('mp-anim'),950); }
+function countUp(el,to,suf,dur){ const t0=performance.now(); (function f(t){ const p=Math.min((t-t0)/dur,1); const e=1-Math.pow(1-p,3); el.textContent=Math.round(to*e)+(suf||''); if(p<1) requestAnimationFrame(f); })(performance.now()); }
 
 function renderCounts(){
   const launches = Object.values(state.launches);
@@ -620,13 +709,20 @@ function renderKpis(){
   const avgReady = active.length ? Math.round(active.reduce((a,l)=>a+readiness(l).overall,0)/active.length) : 0;
   const liveCount = launches.filter(l=>l.stage==='live').length;
   const k = [
-    ['In pipeline', active.length, 'active launches'],
-    ['Launching ≤30d', live30.length, 'next 30 days'],
-    ['Avg readiness', avgReady+'%', 'across active'],
-    ['At risk', atRisk.length, '<7d & under gate'],
-    ['Live', liveCount, 'on shelf']
+    { l:'In pipeline', v:active.length, suf:'', s:'active launches' },
+    { l:'Launching ≤30d', v:live30.length, suf:'', s:'next 30 days' },
+    { l:'Avg readiness', v:avgReady, suf:'%', s:'across active' },
+    { l:'At risk', v:atRisk.length, suf:'', s:'<7d & under gate' },
+    { l:'Live', v:liveCount, suf:'', s:'on shelf' }
   ];
-  $('#mpKpis').innerHTML = k.map(x=>`<div class="mp-kpi"><div class="l">${x[0]}</div><div class="v">${x[1]}</div><div class="s">${x[2]}</div></div>`).join('');
+  const first = !revealed.kpi;
+  const wrap = $('#mpKpis');
+  wrap.innerHTML = k.map(x=>`<div class="mp-kpi"><div class="l">${x.l}</div><div class="v" data-to="${x.v}" data-suf="${x.suf}">${first?('0'+x.suf):(x.v+x.suf)}</div><div class="s">${x.s}</div></div>`).join('');
+  if(first){
+    revealed.kpi = true;
+    wrap.classList.add('mp-anim'); setTimeout(()=>wrap.classList.remove('mp-anim'),950);
+    wrap.querySelectorAll('.v').forEach(el=>countUp(el, +el.dataset.to, el.dataset.suf, 850));
+  }
 }
 
 function readyColor(p){ return p>=90?'#2a7a4b':p>=50?'#b89a00':'#a32d2d'; }
@@ -646,7 +742,7 @@ function renderBoard(){
       <div class="mp-col-body">${cards}</div>
     </div>`;
   }).join('');
-  $('#tab-board').innerHTML = `<div class="mp-board">${html}</div>`;
+  $('#tab-board').innerHTML = `<div class="mp-board mp-stagger">${html}</div>`;
 }
 
 function cardHtml(l){
@@ -737,7 +833,7 @@ function renderDetail(id){
     <div class="mp-panel-body">
       <div class="mp-stage-row">
         <span class="mp-ring">
-          <svg width="54" height="54"><circle cx="27" cy="27" r="23" stroke="var(--surface-2)" stroke-width="6" fill="none"/><circle cx="27" cy="27" r="23" stroke="${readyColor(r.overall)}" stroke-width="6" fill="none" stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${off}"/></svg>
+          <svg width="54" height="54"><circle cx="27" cy="27" r="23" stroke="var(--surface-2)" stroke-width="6" fill="none"/><circle class="prog" cx="27" cy="27" r="23" stroke="${readyColor(r.overall)}" stroke-width="6" fill="none" stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${off}" style="--c0:${C}"/></svg>
           <span class="pct">${r.overall}%</span>
         </span>
         <div style="flex:1">
@@ -800,7 +896,7 @@ function renderTeams(){
       ${r.isCur?`<span class="mp-pri High" style="background:var(--mp-light);color:var(--mp-deep)">Active stage</span>`:''}
     </div>`).join('') : `<div class="mp-empty">No open tasks for ${esc(teamFilter)}. 🎉</div>`;
 
-  $('#tab-teams').innerHTML = `<div class="mp-team-bar">${pills}</div><div class="mp-tasklist">${list}</div>`;
+  $('#tab-teams').innerHTML = `<div class="mp-team-bar">${pills}</div><div class="mp-tasklist mp-stagger">${list}</div>`;
 }
 
 /* ---- gantt timeline ---- */
@@ -888,7 +984,7 @@ function renderTimeline(){
     <div class="mp-legend">${legend}${zoom}</div>
     <div class="mp-gantt" style="--gl-w:200px">
       <div class="mp-g-head"><div class="mp-g-corner"></div><div class="mp-g-axis" style="width:${W}px">${ticks}<div class="mp-today" style="left:${todayX}px"><span class="dot"></span></div></div></div>
-      ${body}
+      <div class="mp-g-rows mp-stagger">${body}</div>
     </div>`;
 }
 
@@ -908,7 +1004,7 @@ function renderBrands(){
     </tr>`).join('') : `<tr><td colspan="7"><div class="mp-empty">No brands yet — add your discovery pipeline.</div></td></tr>`;
   $('#tab-brands').innerHTML = `<div class="mp-table-wrap"><table class="mp-table">
     <thead><tr><th>Brand</th><th>Category</th><th>Contact</th><th>Distributor</th><th>Source</th><th>Status</th><th>Launches</th></tr></thead>
-    <tbody>${rows}</tbody></table></div>`;
+    <tbody class="mp-stagger">${rows}</tbody></table></div>`;
 }
 
 /* ---------------------------------------------------------------- MODALS --- */
@@ -1039,6 +1135,7 @@ window.MP = {
     document.querySelectorAll('.mp-tab').forEach(t=>t.classList.toggle('active', t.dataset.tab===name));
     ['board','timeline','teams','brands'].forEach(n=>$('#tab-'+n).style.display = n===name?'':'none');
     if(name==='timeline') renderTimeline(); if(name==='teams') renderTeams(); if(name==='brands') renderBrands();
+    revealTab(name);
   },
   team(d){ teamFilter=d; renderTeams(); },
   ganttZoom(px){ ganttPx=px; renderTimeline(); },
