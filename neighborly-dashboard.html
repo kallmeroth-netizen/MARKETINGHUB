@@ -2321,22 +2321,40 @@ function pickCalDay(key) {
 // have no live per-week RPC yet — they always come from WEEK_HISTORY[0]'s
 // static snapshot. Flag that explicitly whenever the selected week differs,
 // so those numbers aren't mistaken for the selected week's actual figures.
+//
+// Labels arrive in two formats — 'M/D/YYYY' from HIST_TOTAL / the calendar
+// and 'Mon D, YYYY' from WEEK_HISTORY — so normalize both sides to a single
+// canonical "Mon D, YYYY" for the comparison AND for display, otherwise the
+// suppress check never matches and the note also fires on the most recent
+// full-data week.
+function _normalizeWeekLabel(s) {
+  if (!s) return s;
+  const d = new Date(s + ' 00:00:00');
+  if (isNaN(d)) return s;
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return `${months[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
+}
 function _noteDigitalFreshness(selectedLabel) {
   let note = document.getElementById('weekDataNote');
-  if (selectedLabel === WEEK_HISTORY[0]?.label) {
+  const snapLabel = WEEK_HISTORY[0]?.label;
+  const selNorm = _normalizeWeekLabel(selectedLabel);
+  const snapNorm = _normalizeWeekLabel(snapLabel);
+  if (!snapLabel || selNorm === snapNorm) {
     if (note) note.remove();
     return;
   }
   if (!note) {
     note = document.createElement('div');
     note.id = 'weekDataNote';
-    note.style.cssText = 'font-size:11px;color:var(--brand-orange);margin-top:6px;display:flex;align-items:center;gap:6px;line-height:1.4';
-    note.innerHTML = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="flex-shrink:0"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><span></span>';
+    note.style.cssText = 'font-size:11px;color:var(--brand-orange);margin-top:6px;display:flex;align-items:flex-start;gap:6px;line-height:1.4;max-width:680px';
+    note.innerHTML = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="flex-shrink:0;margin-top:2px"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><span></span>';
     const badge = document.getElementById('weekBadge');
     if (badge && badge.parentNode) badge.parentNode.insertBefore(note, badge.nextSibling);
   }
   note.querySelector('span').textContent =
-    `Revenue and channel mix shown are live for the week of ${selectedLabel}. Paid-digital figures (Meta, Google, Sponsored, Promo) aren't yet wired to per-week history and still reflect the week of ${WEEK_HISTORY[0]?.label}.`;
+    `Revenue and channel mix shown are live for the week of ${selNorm}. ` +
+    `Paid-digital figures (Meta, Google, Sponsored, Promo) aren't yet wired to ` +
+    `per-week history and still reflect the week of ${snapNorm}.`;
 }
 
 // Close on Escape
