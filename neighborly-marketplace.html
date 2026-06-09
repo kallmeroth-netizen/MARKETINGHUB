@@ -450,6 +450,8 @@ const CONFIG = {
   // EmailJS — reuses the hub's existing account (same as the calendar).
   // Actual sending is gated by the in-app Notifications toggle + each team
   // having an email on file, so nothing goes out until you turn it on.
+  // For branded NPI emails, paste npi-email-template.html into a new EmailJS
+  // template and swap the templateId below for that new template's ID.
   EMAILJS: { publicKey:'pW4-kj71suA1OsbFa', serviceId:'service_v4jp7sp', templateId:'template_zmo0l7k' }
 };
 
@@ -649,6 +651,27 @@ function toggleTask(id, taskId){
   if(openLaunchId===id) renderDetail(id);
 }
 
+function emailVars(l, dept, message){
+  const base = location.href.split('#')[0].split('?')[0];
+  return {
+    to_name:     dept,
+    team:        dept,
+    launch:      l.name,
+    brand:       brandName(l.brandId),
+    stage:       stageOf(l.stage).label,
+    launch_date: l.launchDate ? fmtDate(l.launchDate) : 'TBD',
+    readiness:   readiness(l).overall + '%',
+    accent:      deptColor(dept),
+    link:        base,
+    message:     message,
+    // backward-compat with the existing calendar template's variable names:
+    event_name:     `${l.name} — ${stageOf(l.stage).label} stage active`,
+    event_date:     l.launchDate ? fmtDate(l.launchDate) : 'TBD',
+    event_category: `${brandName(l.brandId)} · ${dept}`,
+    event_notes:    message
+  };
+}
+
 function notifyTeam(l, dept, message){
   logEvent(l, `🔔 ${dept} notified`);
   // outbound email — only if alerts are ON and this team has an address on file
@@ -656,18 +679,14 @@ function notifyTeam(l, dept, message){
   if(!s.notifyEmail || !window.emailjs) return;
   const to = (s.teamEmails && s.teamEmails[dept]) || '';
   if(!to) return;
+  const vars = emailVars(l, dept, message); vars.to_email = to;
   try{
-    emailjs.send(CONFIG.EMAILJS.serviceId, CONFIG.EMAILJS.templateId, {
-      to_email:       to,
-      to_name:        dept,
-      event_name:     `${l.name} — ${stageOf(l.stage).label} stage active`,
-      event_date:     l.launchDate ? fmtDate(l.launchDate) : 'TBD',
-      event_category: `${brandName(l.brandId)} · ${dept}`,
-      event_notes:    message
-    }).then(()=>toast(`📧 Emailed ${dept}`)).catch(err=>{
-      console.error('EmailJS error →', err);
-      toast(`⚠️ Email to ${dept} failed — check console`, null, '#a32d2d');
-    });
+    emailjs.send(CONFIG.EMAILJS.serviceId, CONFIG.EMAILJS.templateId, vars)
+      .then(()=>toast(`📧 Emailed ${dept}`))
+      .catch(err=>{
+        console.error('EmailJS error →', err);
+        toast(`⚠️ Email to ${dept} failed — check console`, null, '#a32d2d');
+      });
   }catch(e){ console.warn('EmailJS send failed', e); }
 }
 
@@ -1160,10 +1179,12 @@ window.MP = {
     if(!window.emailjs){ toast('EmailJS not loaded.',null,'#a32d2d'); return; }
     let to=''; DEPTS.forEach((d,i)=>{ const el=$('#se_'+i); if(el && el.value.trim() && !to) to=el.value.trim(); });
     if(!to){ toast('Enter at least one team email first.',null,'#a32d2d'); return; }
+    const msg = 'If you received this, NPI team email alerts are working. 🎉';
     emailjs.send(CONFIG.EMAILJS.serviceId, CONFIG.EMAILJS.templateId, {
-      to_email:to, to_name:'Marketplace NPI', event_name:'Test notification',
-      event_date:fmtDate(isoIn(0)), event_category:'Marketplace NPI · test',
-      event_notes:'If you received this, NPI team email alerts are working. 🎉'
+      to_email:to, to_name:'Marketplace team', team:'Marketplace', launch:'Test Launch', brand:'Neighborly',
+      stage:'Sample Review', launch_date:fmtDate(isoIn(21)), readiness:'42%', accent:'#5a4a7a',
+      link:location.href.split('#')[0].split('?')[0], message:msg,
+      event_name:'NPI test notification', event_date:fmtDate(isoIn(0)), event_category:'Marketplace NPI · test', event_notes:msg
     }).then(()=>toast(`📧 Test sent to ${esc(to)}`)).catch(err=>{ console.error(err); toast('Test failed — check console.',null,'#a32d2d'); });
   },
   closeModal,

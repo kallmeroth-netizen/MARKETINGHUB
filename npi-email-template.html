@@ -1,0 +1,129 @@
+<!--
+  ┌────────────────────────────────────────────────────────────────────────┐
+  │  Neighborly · Marketplace NPI — notification email template              │
+  │                                                                          │
+  │  HOW TO USE (one-time, ~2 min):                                          │
+  │   1. EmailJS dashboard → Email Templates → Create New Template           │
+  │   2. Open the "Content" tab → click "</> Edit Content as HTML"           │
+  │   3. Paste EVERYTHING below this comment block                           │
+  │   4. Settings on the same template:                                      │
+  │        • To Email   →  {{to_email}}                                       │
+  │        • From Name  →  Neighborly Marketplace                            │
+  │        • From Email →  (your connected service address)                  │
+  │        • Subject    →  NPI · {{launch}} → {{stage}}                       │
+  │   5. Save, copy the new Template ID, and paste it into                    │
+  │      neighborly-marketplace.html → CONFIG.EMAILJS.templateId              │
+  │                                                                          │
+  │  Variables the page sends: to_name, team, launch, brand, stage,          │
+  │  launch_date, readiness, accent (hex), message, link                     │
+  └────────────────────────────────────────────────────────────────────────┘
+-->
+<div style="margin:0;padding:0;background:#F7F6F3;">
+  <div style="display:none;max-height:0;overflow:hidden;opacity:0;color:#F7F6F3;font-size:1px;line-height:1px;">{{launch}} is now in {{stage}} — {{team}} has tasks to action.</div>
+
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#F7F6F3;padding:28px 12px;">
+    <tr>
+      <td align="center">
+
+        <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="width:600px;max-width:100%;background:#ffffff;border:1px solid rgba(31,35,40,0.08);border-radius:18px;overflow:hidden;font-family:'DM Sans',Helvetica,Arial,sans-serif;">
+
+          <!-- header -->
+          <tr>
+            <td style="padding:22px 28px 0 28px;">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td align="left" style="vertical-align:middle;">
+                    <img src="https://raw.githubusercontent.com/kallmeroth-netizen/MARKETINGHUB/main/NeighborlyLogo.png" alt="Neighborly" height="26" style="display:block;height:26px;width:auto;border:0;">
+                  </td>
+                  <td align="right" style="vertical-align:middle;font-family:'DM Mono','Courier New',monospace;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:#7a7770;">
+                    Marketplace · NPI
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- accent stage banner -->
+          <tr>
+            <td style="padding:18px 28px 0 28px;">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:{{accent}};border-radius:12px;">
+                <tr>
+                  <td style="padding:13px 18px;font-family:'DM Sans',Helvetica,Arial,sans-serif;font-size:13px;font-weight:700;color:#ffffff;letter-spacing:0.02em;">
+                    {{stage}} &nbsp;·&nbsp; {{team}}
+                  </td>
+                  <td align="right" style="padding:13px 18px;font-family:'DM Mono','Courier New',monospace;font-size:12px;font-weight:700;color:#ffffff;">
+                    {{readiness}} ready
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- body -->
+          <tr>
+            <td style="padding:22px 28px 6px 28px;">
+              <div style="font-family:'DM Mono','Courier New',monospace;font-size:11px;letter-spacing:0.04em;color:#5a4a7a;text-transform:uppercase;font-weight:700;">{{brand}}</div>
+              <div style="font-family:'DM Sans',Helvetica,Arial,sans-serif;font-size:24px;line-height:1.2;font-weight:700;color:#1f2328;margin-top:4px;">{{launch}}</div>
+              <p style="font-family:'DM Sans',Helvetica,Arial,sans-serif;font-size:15px;line-height:1.55;color:#3a3d44;margin:14px 0 0 0;">
+                Hi {{to_name}},<br>
+                {{message}}
+              </p>
+            </td>
+          </tr>
+
+          <!-- detail rows -->
+          <tr>
+            <td style="padding:18px 28px 4px 28px;">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid rgba(31,35,40,0.08);border-radius:12px;">
+                <tr>
+                  <td style="padding:12px 16px;border-bottom:1px solid rgba(31,35,40,0.06);font-family:'DM Sans',Helvetica,Arial,sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:0.05em;color:#7a7770;font-weight:700;width:42%;">Stage</td>
+                  <td style="padding:12px 16px;border-bottom:1px solid rgba(31,35,40,0.06);font-family:'DM Sans',Helvetica,Arial,sans-serif;font-size:13px;color:#1f2328;font-weight:600;">{{stage}}</td>
+                </tr>
+                <tr>
+                  <td style="padding:12px 16px;border-bottom:1px solid rgba(31,35,40,0.06);font-family:'DM Sans',Helvetica,Arial,sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:0.05em;color:#7a7770;font-weight:700;">Owner</td>
+                  <td style="padding:12px 16px;border-bottom:1px solid rgba(31,35,40,0.06);font-family:'DM Sans',Helvetica,Arial,sans-serif;font-size:13px;color:#1f2328;font-weight:600;">{{team}}</td>
+                </tr>
+                <tr>
+                  <td style="padding:12px 16px;border-bottom:1px solid rgba(31,35,40,0.06);font-family:'DM Sans',Helvetica,Arial,sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:0.05em;color:#7a7770;font-weight:700;">Launch date</td>
+                  <td style="padding:12px 16px;border-bottom:1px solid rgba(31,35,40,0.06);font-family:'DM Sans',Helvetica,Arial,sans-serif;font-size:13px;color:#1f2328;font-weight:600;">{{launch_date}}</td>
+                </tr>
+                <tr>
+                  <td style="padding:12px 16px;font-family:'DM Sans',Helvetica,Arial,sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:0.05em;color:#7a7770;font-weight:700;">Readiness</td>
+                  <td style="padding:12px 16px;font-family:'DM Mono','Courier New',monospace;font-size:13px;color:#1f2328;font-weight:600;">{{readiness}}</td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- CTA -->
+          <tr>
+            <td align="center" style="padding:22px 28px 6px 28px;">
+              <table role="presentation" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td align="center" style="border-radius:100px;background:{{accent}};">
+                    <a href="{{link}}" target="_blank" style="display:inline-block;padding:13px 30px;font-family:'DM Sans',Helvetica,Arial,sans-serif;font-size:14px;font-weight:700;color:#ffffff;text-decoration:none;border-radius:100px;">Open in the hub &rarr;</a>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- footer -->
+          <tr>
+            <td style="padding:20px 28px 26px 28px;">
+              <div style="border-top:1px solid rgba(31,35,40,0.08);padding-top:16px;text-align:center;">
+                <img src="https://raw.githubusercontent.com/kallmeroth-netizen/MARKETINGHUB/main/NeighborlyLogo.png" alt="Neighborly" height="18" style="display:inline-block;height:18px;width:auto;border:0;opacity:0.55;">
+                <div style="font-family:'DM Sans',Helvetica,Arial,sans-serif;font-size:11px;color:#9e9c96;margin-top:8px;line-height:1.5;">
+                  Neighbors Only Hub · Marketplace NPI<br>
+                  Automated notification — sent when a launch enters your team's stage.
+                </div>
+              </div>
+            </td>
+          </tr>
+
+        </table>
+
+      </td>
+    </tr>
+  </table>
+</div>
