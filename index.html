@@ -279,7 +279,7 @@
     transition: background 0.2s ease;
   }
   .nav-brand:hover { background: rgba(31,35,40,0.04); }
-  .nav-brand img { height: 31px; width: auto; display: block; }
+  .nav-brand img { height: 22px; width: auto; display: block; }
   /* desktop date chip matches logo height for a balanced banner */
   .nav-brand .chev {
     display: none;
@@ -533,7 +533,7 @@
     /* Compact mobile nav: smaller logo, tighter chrome */
     nav.topbar { height: 60px; padding: 0 16px; }
     .nav-brand { padding: 10px 12px 10px 8px; gap: 6px; min-height: 44px; min-width: 44px; }
-    .nav-brand img { height: 20px; }
+    .nav-brand img { height: 18px; }
     .date-chip { padding: 6px 10px; font-size: 11px; }
     .date-chip svg { width: 11px; height: 11px; }
     .hub-pop { padding: 14px; border-radius: 16px; }
@@ -558,6 +558,13 @@
     .hero-sub { font-size: 10.5px !important; letter-spacing: 0.26em !important; }
     .hero-divider { margin: 22px auto 22px !important; width: 80px !important; }
     footer.foot { padding: 20px 0 24px; font-size: 11px; letter-spacing: 0.28em; }
+  }
+  /* Match ops nav logo sizing on the hub topbar: 22 desktop / 18 <=640 / 14 <=380. */
+  @media (max-width: 640px) {
+    .nav-brand img { height: 18px; }
+  }
+  @media (max-width: 380px) {
+    .nav-brand img { height: 14px; }
   }
   .track-center { display: inline-block; margin-right: -0.34em; }
 

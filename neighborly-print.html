@@ -25,7 +25,9 @@ button,input,select{font-family:inherit}
 
 nav{background:var(--surface);border-bottom:.5px solid var(--border-strong);padding:0 1.5rem;display:flex;align-items:center;justify-content:space-between;height:50px;position:sticky;top:0;z-index:50}
 .nav-brand{display:flex;align-items:center;height:50px;text-decoration:none}
-.nav-brand img{height:20px;width:auto;display:block}
+.nav-brand img{height:22px;width:auto;display:block}
+@media (max-width:640px){ .nav-brand img{height:18px} }
+@media (max-width:380px){ .nav-brand img{height:14px} }
 .nav-links{display:flex;gap:8px}
 .nav-back{font-size:12px;color:var(--text2);text-decoration:none;padding:5px 12px;border:.5px solid var(--border-strong);border-radius:8px;transition:background .15s;white-space:nowrap}
 .nav-back:hover{background:var(--surface2)}
@@ -184,7 +186,7 @@ nav{background:var(--surface);border-bottom:.5px solid var(--border-strong);padd
 
 <nav>
   <div class="nav-brand" onclick="toggleHubNav(event)" style="cursor:pointer">
-    <img src="https://raw.githubusercontent.com/kallmeroth-netizen/MARKETINGHUB/a5d8cf8a019ba9e6f3d9bc3afb115dca7d42549a/NeighborlyLogo.png" alt="Neighborly" style="height:20px;width:auto;display:block">
+    <img src="https://raw.githubusercontent.com/kallmeroth-netizen/MARKETINGHUB/a5d8cf8a019ba9e6f3d9bc3afb115dca7d42549a/NeighborlyLogo.png" alt="Neighborly">
   </div>
 </nav>
 
