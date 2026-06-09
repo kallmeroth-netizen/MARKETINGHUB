@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Neighborly Marketplace · NPI Process</title>
+<link rel="stylesheet" href="theme.css">
+<style>
+  /* ── Neighborly brand palette (exact swatches) ─────────────────────────── */
+  :root{
+    --ink:#1f2328; --bg:#f2f2f2; --cream:#e5e3d6; --surface:#ffffff;
+    --t-yellow:#eace49; --t-lavender:#cbc9d6; --t-orange:#e87142; --t-sage:#cedbce;
+    --t-green:#7bbd91; --t-tan:#dbc6a2; --t-blue:#6280bd;
+    --line:rgba(31,35,40,0.10);
+  }
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  body{ font-family:'DM Sans',system-ui,-apple-system,Arial,sans-serif; color:var(--ink); background:var(--bg); padding:34px 26px 60px; }
+  .wrap{ max-width:1180px; margin:0 auto; }
+
+  /* header */
+  .hd{ display:flex; align-items:flex-end; justify-content:space-between; gap:20px; flex-wrap:wrap; margin-bottom:6px; }
+  .hd img{ height:30px; display:block; margin-bottom:14px; }
+  .eyebrow{ font-family:'Futura PT Demi','Jost','futura-pt',sans-serif; font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--t-orange); font-weight:600; }
+  h1{ font-family:'Futura PT Demi','Jost','futura-pt',sans-serif; font-size:30px; line-height:1.08; letter-spacing:.005em; margin-top:4px; }
+  .lead{ font-size:15px; color:#3a3d44; line-height:1.55; max-width:760px; margin-top:12px; }
+  .lead b{ color:var(--ink); }
+  .rule{ height:1px; background:var(--line); margin:24px 0 26px; }
+
+  .sec-label{ font-family:'Futura PT Demi','Jost',sans-serif; font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:#7a7770; font-weight:600; margin-bottom:14px; }
+
+  /* ── pipeline flow ─────────────────────────────────────────────────────── */
+  .flow{ display:flex; align-items:stretch; gap:0; overflow-x:auto; padding-bottom:10px; }
+  .stage{ flex:1 0 178px; min-width:178px; background:var(--surface); border:1px solid var(--line); border-radius:14px; border-top:5px solid var(--c); padding:15px 15px 14px; display:flex; flex-direction:column; }
+  .stage .num{ font-family:'DM Mono',monospace; font-size:11px; color:#9e9c96; }
+  .chip{ display:inline-flex; align-items:center; gap:6px; align-self:flex-start; background:var(--c); color:var(--ink); font-size:10.5px; font-weight:700; padding:3px 9px; border-radius:100px; text-transform:uppercase; letter-spacing:.03em; margin:7px 0 9px; }
+  .stage h3{ font-size:15px; line-height:1.2; margin-bottom:9px; }
+  .stage ul{ list-style:none; display:flex; flex-direction:column; gap:5px; margin-bottom:12px; }
+  .stage li{ font-size:11.5px; color:#3a3d44; line-height:1.35; padding-left:13px; position:relative; }
+  .stage li::before{ content:''; position:absolute; left:0; top:6px; width:5px; height:5px; border-radius:50%; background:var(--c); }
+  .trigger{ margin-top:auto; border-top:1px dashed var(--line); padding-top:9px; font-size:10.5px; line-height:1.4; color:var(--ink); display:flex; gap:7px; align-items:flex-start; }
+  .trigger .env{ flex:0 0 auto; color:var(--t-orange); margin-top:1px; }
+  .trigger b{ color:#a32d2d; }
+  .arrow{ flex:0 0 26px; display:flex; align-items:center; justify-content:center; color:#bdbab3; }
+
+  /* ── notification map ──────────────────────────────────────────────────── */
+  .map{ background:var(--surface); border:1px solid var(--line); border-radius:14px; overflow:hidden; }
+  .maprow{ display:grid; grid-template-columns:1fr 30px 1fr 1.4fr; gap:14px; align-items:center; padding:13px 18px; border-bottom:1px solid var(--line); }
+  .maprow:last-child{ border-bottom:none; }
+  .maprow.head{ background:var(--cream); }
+  .maprow.head span{ font-family:'Futura PT Demi','Jost',sans-serif; font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:#7a7770; font-weight:600; }
+  .who{ display:inline-flex; align-items:center; gap:8px; font-weight:700; font-size:13px; }
+  .who .dot{ width:11px; height:11px; border-radius:50%; flex:0 0 auto; }
+  .trig{ font-size:13px; color:var(--ink); }
+  .trig small{ display:block; color:#7a7770; font-size:11px; margin-top:1px; }
+  .maprow .env{ color:var(--t-orange); display:flex; justify-content:center; }
+  .note-line{ font-size:12px; color:#3a3d44; }
+
+  /* ── legend + note ─────────────────────────────────────────────────────── */
+  .grid2{ display:grid; grid-template-columns:1.1fr 1fr; gap:22px; margin-top:26px; }
+  @media(max-width:760px){ .grid2{ grid-template-columns:1fr; } }
+  .legend{ display:flex; flex-wrap:wrap; gap:9px 18px; }
+  .legend .it{ display:flex; align-items:center; gap:8px; font-size:12.5px; color:var(--ink); }
+  .legend .sw{ width:13px; height:13px; border-radius:4px; flex:0 0 auto; }
+  .callout{ background:var(--surface); border:1px solid var(--line); border-left:4px solid var(--t-green); border-radius:12px; padding:15px 18px; }
+  .callout h4{ font-size:13px; margin-bottom:8px; }
+  .callout p{ font-size:12.5px; color:#3a3d44; line-height:1.5; margin-bottom:6px; }
+  .callout p:last-child{ margin-bottom:0; }
+  .callout b{ color:var(--ink); }
+
+  .ft{ margin-top:30px; font-size:11px; color:#9e9c96; display:flex; align-items:center; gap:8px; }
+
+  @media print{
+    @page{ size:landscape; margin:0.35in; }
+    body{ background:#fff; padding:0; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+    .stage,.map,.callout{ box-shadow:none; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="hd">
+    <div>
+      <img src="NeighborlyLogo.png" alt="Neighborly">
+      <div class="eyebrow">Marketplace Operations</div>
+      <h1>New Product Introduction — How It Works</h1>
+    </div>
+  </div>
+  <p class="lead">Every brand we approve becomes a <b>launch</b> that moves through six stages, from sample to shelf. Each stage is <b>owned by one team</b>, and the moment a team finishes its checklist, the system <b>automatically emails the next team</b> that it's their turn — no chasing, no spreadsheets, no "who owns this?" A launch can't move forward until the prior stage is 100% complete.</p>
+
+  <div class="rule"></div>
+
+  <div class="sec-label">The pipeline · sample → shelf</div>
+  <div class="flow">
+
+    <div class="stage" style="--c:var(--t-lavender)">
+      <div class="num">STAGE 1–2</div>
+      <span class="chip">Marketplace</span>
+      <h3>Discovery &amp; Sample Review</h3>
+      <ul>
+        <li>Request &amp; receive samples</li>
+        <li>Tasting + taste approval</li>
+        <li>Margin &amp; assortment approval</li>
+        <li>Collect brand assets</li>
+      </ul>
+      <div class="trigger"><span class="env">✉</span><span>On <b>Sample approved</b> → emails <b>Procurement</b></span></div>
+    </div>
+    <div class="arrow"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>
+
+    <div class="stage" style="--c:var(--t-blue)">
+      <div class="num">STAGE 3</div>
+      <span class="chip">Procurement</span>
+      <h3>Commercial Setup</h3>
+      <ul>
+        <li>Vendor setup, W9, insurance</li>
+        <li>Terms &amp; cost sheet</li>
+        <li>Case pack / MOQ</li>
+        <li>Secure free first fill</li>
+      </ul>
+      <div class="trigger"><span class="env">✉</span><span>On <b>First fill secured</b> → emails <b>Commissary</b></span></div>
+    </div>
+    <div class="arrow"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>
+
+    <div class="stage" style="--c:var(--t-tan)">
+      <div class="num">STAGE 4</div>
+      <span class="chip">Commissary</span>
+      <h3>Supply Chain</h3>
+      <ul>
+        <li>Create warehouse SKU</li>
+        <li>Receiving setup &amp; SOP</li>
+        <li>Storage location</li>
+        <li>Reorder point</li>
+      </ul>
+      <div class="trigger"><span class="env">✉</span><span>On <b>SKU created</b> → emails <b>Operations</b></span></div>
+    </div>
+    <div class="arrow"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>
+
+    <div class="stage" style="--c:var(--t-green)">
+      <div class="num">STAGE 5</div>
+      <span class="chip">Operations</span>
+      <h3>Retail Readiness</h3>
+      <ul>
+        <li>Create POS / Toast item</li>
+        <li>Shelf label</li>
+        <li>Add to order guide</li>
+        <li>Establish pars</li>
+      </ul>
+      <div class="trigger"><span class="env">✉</span><span>On <b>Pars established</b> → emails <b>Marketing</b></span></div>
+    </div>
+    <div class="arrow"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>
+
+    <div class="stage" style="--c:var(--t-orange)">
+      <div class="num">STAGE 6</div>
+      <span class="chip">Marketing</span>
+      <h3>Launch Readiness</h3>
+      <ul>
+        <li>Product photography</li>
+        <li>Product story / description</li>
+        <li>Print shelf labels</li>
+        <li>Schedule social &amp; email</li>
+      </ul>
+      <div class="trigger"><span class="env">✉</span><span>On <b>Assets done</b> → emails <b>Store Ops</b></span></div>
+    </div>
+    <div class="arrow"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>
+
+    <div class="stage" style="--c:var(--t-yellow)">
+      <div class="num">STAGE 7 · LIVE</div>
+      <span class="chip">Store Ops</span>
+      <h3>Store Launch</h3>
+      <ul>
+        <li>Receive &amp; merchandise</li>
+        <li>Install shelf tags</li>
+        <li>Train team</li>
+        <li>Verify launch</li>
+      </ul>
+      <div class="trigger"><span class="env">✉</span><span>On <b>Go Live</b> → emails <b>Marketplace</b> + starts 30-day review</span></div>
+    </div>
+
+  </div>
+
+  <div class="rule"></div>
+
+  <div class="grid2" style="grid-template-columns:1fr;">
+    <div>
+      <div class="sec-label">Who gets emailed, and when</div>
+      <div class="map">
+        <div class="maprow head"><span>When this is completed…</span><span></span><span>…this team is emailed</span><span>What the email tells them to do</span></div>
+
+        <div class="maprow">
+          <div class="trig">Sample approved <small>by Marketplace</small></div>
+          <div class="env">✉</div>
+          <div class="who"><span class="dot" style="background:var(--t-blue)"></span>Procurement</div>
+          <div class="note-line">Set up the vendor and lock the free first fill</div>
+        </div>
+        <div class="maprow">
+          <div class="trig">First fill secured <small>by Procurement</small></div>
+          <div class="env">✉</div>
+          <div class="who"><span class="dot" style="background:var(--t-tan)"></span>Commissary</div>
+          <div class="note-line">Receive product, create SKU, slot &amp; set reorder point</div>
+        </div>
+        <div class="maprow">
+          <div class="trig">SKU created <small>by Commissary</small></div>
+          <div class="env">✉</div>
+          <div class="who"><span class="dot" style="background:var(--t-green)"></span>Operations</div>
+          <div class="note-line">Build POS item, shelf label, order guide, pars</div>
+        </div>
+        <div class="maprow">
+          <div class="trig">Pars established <small>by Operations</small></div>
+          <div class="env">✉</div>
+          <div class="who"><span class="dot" style="background:var(--t-orange)"></span>Marketing</div>
+          <div class="note-line">Photography, product story, print labels, schedule social &amp; email</div>
+        </div>
+        <div class="maprow">
+          <div class="trig">Marketing assets done <small>by Marketing</small></div>
+          <div class="env">✉</div>
+          <div class="who"><span class="dot" style="background:var(--t-yellow)"></span>Store Ops</div>
+          <div class="note-line">Receive, merchandise, install tags, train, verify</div>
+        </div>
+        <div class="maprow">
+          <div class="trig">Product goes Live <small>by Store Ops</small></div>
+          <div class="env">✉</div>
+          <div class="who"><span class="dot" style="background:var(--t-lavender)"></span>Marketplace</div>
+          <div class="note-line">Confirmation it's on shelf — 30-day velocity review begins</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid2">
+    <div>
+      <div class="sec-label">Team color key</div>
+      <div class="legend">
+        <span class="it"><span class="sw" style="background:var(--t-lavender)"></span>Marketplace</span>
+        <span class="it"><span class="sw" style="background:var(--t-blue)"></span>Procurement</span>
+        <span class="it"><span class="sw" style="background:var(--t-tan)"></span>Commissary</span>
+        <span class="it"><span class="sw" style="background:var(--t-green)"></span>Operations</span>
+        <span class="it"><span class="sw" style="background:var(--t-orange)"></span>Marketing</span>
+        <span class="it"><span class="sw" style="background:var(--t-yellow)"></span>Store Ops</span>
+      </div>
+    </div>
+    <div class="callout">
+      <h4>Why this beats the spreadsheet</h4>
+      <p><b>Nothing slips.</b> A launch can't advance until the owning team's checklist hits 100% — built-in stage gates.</p>
+      <p><b>Everyone owns their lane.</b> Each team has a live dashboard of only their open tasks across every launch.</p>
+      <p><b>Hands-off handoffs.</b> Every email is automatic and Neighborly-branded — the next team is notified the second they're up.</p>
+    </div>
+  </div>
+
+  <div class="ft">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
+    Neighborly Marketplace · NPI — live pipeline in the team hub. Automated, branded notifications across Marketplace · Procurement · Commissary · Operations · Marketing · Store Ops.
+  </div>
+
+</div>
+</body>
+</html>

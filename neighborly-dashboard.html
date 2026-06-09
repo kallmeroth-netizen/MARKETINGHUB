@@ -404,7 +404,7 @@
       <div class="hub-card-sub">Weekly & all-time KPIs</div>
     </a>
 
-    <a class="hub-card" href="neighborly-pmix.html">
+    <a class="hub-card" href="neighborly-dashboard.html?p=daily">
       <div class="hub-card-icon" style="background:#e3ece3">
         <svg viewBox="0 0 24 24" fill="none" stroke="#5a7a5a" stroke-width="2" stroke-linecap="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>
       </div>
@@ -1267,34 +1267,26 @@ function switchWeek(idx) {
 
 // ── HISTORICAL WEEK CALENDAR ─────────────────────────────────────────────────
 // Build a set of week-start dates we have data for. HIST_TOTAL stores them as
-// the week-start day. Pre-Jan 2026 the fiscal week started Monday; from Jan 7
-// 2026 onwards it starts Wednesday.
+// the week-start day (one entry per fiscal week, loaded live from
+// nbly_performance_all_time). nbly_weekly_kpis / nbly_channels_summary can
+// return full revenue + channel data for ANY of these fiscal weeks on demand —
+// so every date here is a live-fetchable week, not just a "revenue only" one.
 let _calCursor = null;       // {year, monthIdx0}
 let _calSelected = null;     // 'M/D/YYYY' string
-let _calAvailable = null;    // Map<'M/D/YYYY', {revenue, label, dow}>
+let _calAvailable = null;    // Map<'M/D/YYYY', {revenue, label, dow, dt}>
 function _buildCalAvailable() {
   if (_calAvailable) return _calAvailable;
   _calAvailable = new Map();
-  // From HIST_TOTAL (revenue-only weeks)
   (typeof HIST_TOTAL !== 'undefined' ? HIST_TOTAL : []).forEach(p => {
     const [m, d, y] = p.d.split('/').map(Number);
     const dt = new Date(y, m - 1, d);
-    _calAvailable.set(p.d, { revenue: p.v, label: p.d, dow: dt.getDay(), dt, full: false });
-  });
-  // Mark which weeks have FULL data (from WEEK_HISTORY)
-  WEEK_HISTORY.forEach((w, i) => {
-    const dt = new Date(w.label + ' 00:00:00');
-    if (isNaN(dt)) return;
-    const key = `${dt.getMonth()+1}/${dt.getDate()}/${dt.getFullYear()}`;
-    const entry = _calAvailable.get(key) || { revenue: null, label: w.label, dow: dt.getDay(), dt };
-    entry.full = true;
-    entry.weekHistoryIdx = i;
-    _calAvailable.set(key, entry);
+    _calAvailable.set(p.d, { revenue: p.v, label: p.d, dow: dt.getDay(), dt });
   });
   return _calAvailable;
 }
 
 function _pad(n) { return n < 10 ? '0' + n : '' + n; }
+function _isoFromCalDate(dt) { return `${dt.getFullYear()}-${_pad(dt.getMonth()+1)}-${_pad(dt.getDate())}`; }
 function _calKey(y, m0, d) { return `${m0+1}/${d}/${y}`; }
 function _calMonthName(m0) { return ['January','February','March','April','May','June','July','August','September','October','November','December'][m0]; }
 
@@ -1373,11 +1365,7 @@ function renderCalendar() {
     const cls = ['cal-day'];
     if (entry) cls.push('available');
     if (isSelected) cls.push('selected');
-    const title = entry
-      ? (entry.full
-          ? `Week of ${entry.label} — full data`
-          : `Week of ${entry.label} — total revenue only`)
-      : '';
+    const title = entry ? `Week of ${entry.label}` : '';
     html += `<button class="${cls.join(' ')}" ${entry ? `onclick="pickCalDay('${key}')"` : 'disabled'} ${title ? `title="${title}"` : ''}>${d}</button>`;
   }
   document.getElementById('calGrid').innerHTML = html;
@@ -1387,8 +1375,7 @@ function renderCalendar() {
   const foot = document.getElementById('calFoot');
   if (sel) {
     const dowName = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][sel.dow];
-    const kind = sel.full ? 'Full KPI data' : 'Total revenue only';
-    foot.innerHTML = `Selected: <strong>${sel.label}</strong> · ${dowName} start · ${kind}`;
+    foot.innerHTML = `Selected: <strong>${sel.label}</strong> · ${dowName} start`;
   } else {
     foot.textContent = 'Highlighted days mark the start of a fiscal week we have data for.';
   }
@@ -1401,59 +1388,24 @@ function pickCalDay(key) {
   // Update label on the badge
   const lbl = document.getElementById('weekPickLabel');
   if (lbl) lbl.textContent = entry.label;
-  // If we have full WEEK_HISTORY data for this week → switch via existing path
-  if (entry.weekHistoryIdx != null) {
-    switchWeek(entry.weekHistoryIdx);
-  } else {
-    // Partial data — total revenue only. Show a banner-style overlay rather than
-    // silently fail. We render what we know and gray out the rest.
-    _applyPartialWeekData(entry);
-  }
+  // nbly_weekly_kpis / nbly_channels_summary return full revenue + channel
+  // data for any fiscal week on demand — fetch live rather than falling back
+  // to a "total revenue only" snapshot.
+  _sbLoadWeeklyKPIs(_isoFromCalDate(entry.dt)).then(() => _noteDigitalFreshness(entry.label)).catch(console.error);
   renderCalendar();
   setTimeout(closeWeekCalendar, 180);
 }
 
-// When user selects a historical week we only have revenue total for,
-// render the dashboard cleanly: show the one number we have, blank
-// every other category so users don't see stale values from the
-// previously selected week, and surface one small note explaining
-// that the week hasn't been fully updated yet (e.g. June 8 the day
-// after the period ends, before paid-digital data is wired in).
-function _applyPartialWeekData(entry) {
-  DATA.currentWeek = entry.label;
-
-  // Null out every per-channel field. Formatters (fmt$ / fmtN / fmtR /
-  // fmtPct) already render null as '—'.
-  function clearGroup(group) {
-    if (!group || typeof group !== 'object') return;
-    for (const key of Object.keys(group)) {
-      const v = group[key];
-      if (v && typeof v === 'object') {
-        for (const f of Object.keys(v)) v[f] = null;
-      } else {
-        group[key] = null;
-      }
-    }
-  }
-  clearGroup(DATA.revenue);
-  clearGroup(DATA.revMix);
-  clearGroup(DATA.meta);
-  clearGroup(DATA.google);
-  clearGroup(DATA.sponsored);
-  clearGroup(DATA.promo);
-  clearGroup(DATA.contribution);
-  if (DATA.blendedROAS) {
-    for (const f of Object.keys(DATA.blendedROAS)) DATA.blendedROAS[f] = null;
-  }
-
-  // Restore the one number we actually have for the picked week.
-  if (!DATA.revenue) DATA.revenue = {};
-  DATA.revenue.total = { t4w:null, lw:null, cw:entry.revenue, pctT4W:null, pctPW:null };
-
-  // Surface a small note below the week badge so it's obvious this
-  // week isn't fully loaded yet. Removed automatically by switchWeek
-  // when the user picks a full-data week again.
+// Paid-digital figures (Meta/Google/Sponsored/Promo/blended ROAS/contribution)
+// have no live per-week RPC yet — they always come from WEEK_HISTORY[0]'s
+// static snapshot. Flag that explicitly whenever the selected week differs,
+// so those numbers aren't mistaken for the selected week's actual figures.
+function _noteDigitalFreshness(selectedLabel) {
   let note = document.getElementById('weekDataNote');
+  if (selectedLabel === WEEK_HISTORY[0]?.label) {
+    if (note) note.remove();
+    return;
+  }
   if (!note) {
     note = document.createElement('div');
     note.id = 'weekDataNote';
@@ -1462,18 +1414,9 @@ function _applyPartialWeekData(entry) {
     const badge = document.getElementById('weekBadge');
     if (badge && badge.parentNode) badge.parentNode.insertBefore(note, badge.nextSibling);
   }
-  note.querySelector('span').textContent = `Week of ${entry.label} hasn't been updated yet — only total revenue is available.`;
-
-  renderDashboard();
+  note.querySelector('span').textContent =
+    `Revenue and channel mix shown are live for the week of ${selectedLabel}. Paid-digital figures (Meta, Google, Sponsored, Promo) aren't yet wired to per-week history and still reflect the week of ${WEEK_HISTORY[0]?.label}.`;
 }
-
-// When the user picks a full-data week again, clear the partial note.
-const _origSwitchWeek = switchWeek;
-switchWeek = function(idx) {
-  const note = document.getElementById('weekDataNote');
-  if (note) note.remove();
-  _origSwitchWeek(idx);
-};
 
 // Close on Escape
 document.addEventListener('keydown', e => {
@@ -1674,7 +1617,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeHubNav(
 <div class="page" id="page-trends">
   <div class="dashboard">
     <div class="dash-header np-page-header">
-      <div></div>
+      <div class="chart-card-sub" id="trAsOf" style="margin:0">Data through —</div>
       <div class="view-toggle">
         <button class="vt-btn active" onclick="setTRView('total',this)">Total revenue</button>
         <button class="vt-btn" onclick="setTRView('channels',this)">By channel</button>
@@ -1684,23 +1627,30 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeHubNav(
     <div class="section-title">Brentwood opening impact</div>
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:1.5rem">
       <div class="chart-card" style="text-align:center">
-        <div class="kpi-label">Pre-Brentwood avg / week</div>
+        <div class="kpi-label">Pre-Brentwood avg / week / restaurant</div>
         <div class="kpi-value" id="trPreAvg">—</div>
-        <div class="kpi-foot">Jan 2025 – Apr 1, 2026</div>
+        <div class="kpi-foot">Jan 2025 – Apr 1, 2026 · 1 location</div>
       </div>
       <div class="chart-card" style="text-align:center;border-left:3px solid var(--brand-orange);border-radius:0 var(--r-lg) var(--r-lg) 0">
-        <div class="kpi-label">Post-Brentwood avg / week</div>
+        <div class="kpi-label">Post-Brentwood avg / week / restaurant</div>
         <div class="kpi-value" id="trPostAvg">—</div>
-        <div class="kpi-foot">Apr 8, 2026 – present</div>
+        <div class="kpi-foot">Apr 8, 2026 – present · 2 locations</div>
       </div>
       <div class="chart-card" style="text-align:center">
         <div class="kpi-label">Revenue lift from opening</div>
         <div class="kpi-value" id="trLift" style="color:var(--brand-green-deep)">—</div>
-        <div class="kpi-foot">avg uplift vs pre-opening</div>
+        <div class="kpi-foot">avg uplift vs pre-opening, per restaurant</div>
       </div>
     </div>
 
-    <div class="section-title">All-time sales</div>
+    <div class="dash-header np-page-header" style="margin-bottom:0">
+      <div class="section-title" style="margin:0">All-time sales</div>
+      <div class="view-toggle">
+        <button class="vt-btn active" onclick="setTRKpiLoc('combined',this)">Combined</button>
+        <button class="vt-btn" onclick="setTRKpiLoc('wlv',this)">Westlake</button>
+        <button class="vt-btn" onclick="setTRKpiLoc('bw',this)">Brentwood</button>
+      </div>
+    </div>
     <div class="kpi-grid" id="trKpiGrid" style="margin-bottom:1.5rem"></div>
 
     <div class="chart-card" style="margin-bottom:1.5rem">
@@ -1709,10 +1659,16 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeHubNav(
           <div class="chart-card-title" id="trChartTitle">Weekly total revenue</div>
           <div class="chart-card-sub" id="trChartSub">Jan 2025 – May 2026 · all Neighborly locations</div>
         </div>
-        <div style="display:flex;align-items:center;gap:var(--s-3);font-size:var(--t-caption-sm);color:var(--text-3)">
-          <span style="display:inline-flex;align-items:center;gap:5px"><span style="width:14px;height:10px;background:#fdf7d8;border:1.5px solid #eace49;border-radius:2px;display:inline-block"></span>Pre-Brentwood</span>
-          <span style="display:inline-flex;align-items:center;gap:5px"><span style="width:14px;height:10px;background:#1f2328;border-radius:2px;display:inline-block"></span>Post-opening</span>
-          <span style="display:inline-flex;align-items:center;gap:5px;background:#fdf7d8;color:#7a6b00;padding:3px 8px;border-radius:20px;font-weight:500">&#9733; Brentwood opening Apr 8, 2026</span>
+        <div style="display:flex;align-items:center;gap:var(--s-3);flex-wrap:wrap">
+          <div class="view-toggle" id="trGranToggle">
+            <button class="vt-btn active" onclick="setTRGranularity('weekly',this)">Weekly</button>
+            <button class="vt-btn" onclick="setTRGranularity('daily',this)">Daily</button>
+          </div>
+          <div style="display:flex;align-items:center;gap:var(--s-3);font-size:var(--t-caption-sm);color:var(--text-3)" id="trMainLegend">
+            <span style="display:inline-flex;align-items:center;gap:5px"><span style="width:14px;height:10px;background:#eace49;border-radius:2px;display:inline-block"></span>Westlake Village</span>
+            <span style="display:inline-flex;align-items:center;gap:5px"><span style="width:14px;height:10px;background:#1f2328;border-radius:2px;display:inline-block"></span>Brentwood</span>
+            <span style="display:inline-flex;align-items:center;gap:5px;background:#fdf7d8;color:#7a6b00;padding:3px 8px;border-radius:20px;font-weight:500">&#9733; Brentwood opening Apr 8, 2026</span>
+          </div>
         </div>
       </div>
       <div style="position:relative;height:320px"><canvas id="trMainChart"></canvas></div>
@@ -1722,13 +1678,22 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeHubNav(
     <div class="chart-grid-2" style="margin-bottom:1.5rem">
       <div class="chart-card">
         <div class="chart-card-title">6-week rolling average</div>
-        <div class="chart-card-sub">Smoothed revenue trend over time</div>
+        <div class="chart-card-sub">Daily-smoothed revenue trend by location · stacked</div>
         <div style="position:relative;height:180px"><canvas id="trRollingChart"></canvas></div>
-        <div class="chart-source">Source: Toast POS</div>
+        <div class="chart-source">Source: Toast POS · 42-day trailing average</div>
       </div>
       <div class="chart-card">
-        <div class="chart-card-title">Channel mix over time</div>
-        <div class="chart-card-sub">% share by revenue center (sampled)</div>
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:var(--s-2);flex-wrap:wrap;gap:var(--s-2)">
+          <div>
+            <div class="chart-card-title">Channel mix over time</div>
+            <div class="chart-card-sub" id="trMixSub">% share by revenue center · monthly</div>
+          </div>
+          <div class="view-toggle" id="trMixLocToggle">
+            <button class="vt-btn active" onclick="setTRMixLoc('total',this)">Total</button>
+            <button class="vt-btn" onclick="setTRMixLoc('wlv',this)">Westlake</button>
+            <button class="vt-btn" onclick="setTRMixLoc('bw',this)">Brentwood</button>
+          </div>
+        </div>
         <div style="position:relative;height:180px"><canvas id="trMixChart"></canvas></div>
         <div class="chart-source">Source: Toast POS</div>
       </div>
@@ -1741,10 +1706,17 @@ let HIST_TOTAL = [{"d": "1/27/2025", "v": 77615}, {"d": "2/3/2025", "v": 79358},
 let HIST_CHANNELS = {"dineIn": [{"d": "1/27/2025", "v": 27386}, {"d": "2/3/2025", "v": 23404}, {"d": "2/10/2025", "v": 23218}, {"d": "2/17/2025", "v": 31415}, {"d": "2/24/2025", "v": 30360}, {"d": "3/3/2025", "v": 26946}, {"d": "3/10/2025", "v": 25174}, {"d": "3/17/2025", "v": 36337}, {"d": "3/24/2025", "v": 27958}, {"d": "3/31/2025", "v": 32943}, {"d": "4/7/2025", "v": 35418}, {"d": "4/14/2025", "v": 29441}, {"d": "4/21/2025", "v": 27786}, {"d": "4/28/2025", "v": 29261}, {"d": "5/5/2025", "v": 31171}, {"d": "5/12/2025", "v": 33218}, {"d": "5/19/2025", "v": 40150}, {"d": "5/26/2025", "v": 40757}, {"d": "6/2/2025", "v": 38641}, {"d": "6/9/2025", "v": 39174}, {"d": "6/16/2025", "v": 42540}, {"d": "6/23/2025", "v": 40594}, {"d": "6/30/2025", "v": 37735}, {"d": "7/7/2025", "v": 41519}, {"d": "7/14/2025", "v": 40857}, {"d": "7/21/2025", "v": 42530}, {"d": "7/28/2025", "v": 45292}, {"d": "8/4/2025", "v": 47411}, {"d": "8/11/2025", "v": 48100}, {"d": "8/18/2025", "v": 44347}, {"d": "8/25/2025", "v": 42997}, {"d": "9/1/2025", "v": 42348}, {"d": "9/8/2025", "v": 48965}, {"d": "9/15/2025", "v": 44537}, {"d": "9/22/2025", "v": 45490}, {"d": "9/29/2025", "v": 46189}, {"d": "10/6/2025", "v": 50608}, {"d": "10/13/2025", "v": 48692}, {"d": "10/20/2025", "v": 53071}, {"d": "10/27/2025", "v": 59729}, {"d": "11/3/2025", "v": 48722}, {"d": "11/10/2025", "v": 34946}, {"d": "11/17/2025", "v": 38216}, {"d": "11/24/2025", "v": 35717}, {"d": "12/1/2025", "v": 45988}, {"d": "12/8/2025", "v": 53685}, {"d": "12/15/2025", "v": 54143}, {"d": "12/22/2025", "v": 38268}, {"d": "12/29/2025", "v": 57153}, {"d": "1/7/2026", "v": 45743}, {"d": "1/14/2026", "v": 47320}, {"d": "1/21/2026", "v": 46736}, {"d": "1/28/2026", "v": 54369}, {"d": "2/4/2026", "v": 50252}, {"d": "2/11/2026", "v": 46099}, {"d": "2/18/2026", "v": 49510}, {"d": "2/25/2026", "v": 53274}, {"d": "3/4/2026", "v": 48268}, {"d": "3/11/2026", "v": 49012}, {"d": "3/18/2026", "v": 46572}, {"d": "3/25/2026", "v": 37370}, {"d": "4/1/2026", "v": 42205}, {"d": "4/8/2026", "v": 58990}, {"d": "4/15/2026", "v": 129927}, {"d": "4/22/2026", "v": 132100}, {"d": "4/29/2026", "v": 132159}, {"d": "5/6/2026", "v": 131962}], "webPickup": [{"d": "1/27/2025", "v": 16491}, {"d": "2/3/2025", "v": 17274}, {"d": "2/10/2025", "v": 17856}, {"d": "2/17/2025", "v": 18863}, {"d": "2/24/2025", "v": 20617}, {"d": "3/3/2025", "v": 17894}, {"d": "3/10/2025", "v": 19079}, {"d": "3/17/2025", "v": 22705}, {"d": "3/24/2025", "v": 20446}, {"d": "3/31/2025", "v": 21566}, {"d": "4/7/2025", "v": 21953}, {"d": "4/14/2025", "v": 20846}, {"d": "4/21/2025", "v": 24116}, {"d": "4/28/2025", "v": 22441}, {"d": "5/5/2025", "v": 27181}, {"d": "5/12/2025", "v": 22087}, {"d": "5/19/2025", "v": 27312}, {"d": "5/26/2025", "v": 28071}, {"d": "6/2/2025", "v": 26424}, {"d": "6/9/2025", "v": 26793}, {"d": "6/16/2025", "v": 26598}, {"d": "6/23/2025", "v": 24213}, {"d": "6/30/2025", "v": 21393}, {"d": "7/7/2025", "v": 24306}, {"d": "7/14/2025", "v": 23709}, {"d": "7/21/2025", "v": 28347}, {"d": "7/28/2025", "v": 32073}, {"d": "8/4/2025", "v": 30623}, {"d": "8/11/2025", "v": 28807}, {"d": "8/18/2025", "v": 28745}, {"d": "8/25/2025", "v": 29358}, {"d": "9/1/2025", "v": 27765}, {"d": "9/8/2025", "v": 28964}, {"d": "9/15/2025", "v": 29840}, {"d": "9/22/2025", "v": 28492}, {"d": "9/29/2025", "v": 29798}, {"d": "10/6/2025", "v": 28854}, {"d": "10/13/2025", "v": 27773}, {"d": "10/20/2025", "v": 27501}, {"d": "10/27/2025", "v": 29143}, {"d": "11/3/2025", "v": 28916}, {"d": "11/10/2025", "v": 22037}, {"d": "11/17/2025", "v": 21268}, {"d": "11/24/2025", "v": 21874}, {"d": "12/1/2025", "v": 27651}, {"d": "12/8/2025", "v": 26693}, {"d": "12/15/2025", "v": 28759}, {"d": "12/22/2025", "v": 24962}, {"d": "12/29/2025", "v": 32117}, {"d": "1/7/2026", "v": 33202}, {"d": "1/14/2026", "v": 35445}, {"d": "1/21/2026", "v": 35040}, {"d": "1/28/2026", "v": 36351}, {"d": "2/4/2026", "v": 34721}, {"d": "2/11/2026", "v": 34889}, {"d": "2/18/2026", "v": 36673}, {"d": "2/25/2026", "v": 38641}, {"d": "3/4/2026", "v": 38478}, {"d": "3/11/2026", "v": 40470}, {"d": "3/18/2026", "v": 40154}, {"d": "3/25/2026", "v": 35260}, {"d": "4/1/2026", "v": 43703}, {"d": "4/8/2026", "v": 57386}, {"d": "4/15/2026", "v": 70955}, {"d": "4/22/2026", "v": 79450}, {"d": "4/29/2026", "v": 73165}, {"d": "5/6/2026", "v": 78713}], "instore": [{"d": "1/27/2025", "v": 11198}, {"d": "2/3/2025", "v": 12512}, {"d": "2/10/2025", "v": 14093}, {"d": "2/17/2025", "v": 16754}, {"d": "2/24/2025", "v": 17818}, {"d": "3/3/2025", "v": 16410}, {"d": "3/10/2025", "v": 20044}, {"d": "3/17/2025", "v": 17193}, {"d": "3/24/2025", "v": 19626}, {"d": "3/31/2025", "v": 19493}, {"d": "4/7/2025", "v": 17473}, {"d": "4/14/2025", "v": 18500}, {"d": "4/21/2025", "v": 17963}, {"d": "4/28/2025", "v": 20769}, {"d": "5/5/2025", "v": 19228}, {"d": "5/12/2025", "v": 18638}, {"d": "5/19/2025", "v": 24798}, {"d": "5/26/2025", "v": 24846}, {"d": "6/2/2025", "v": 24973}, {"d": "6/9/2025", "v": 22908}, {"d": "6/16/2025", "v": 24204}, {"d": "6/23/2025", "v": 22540}, {"d": "6/30/2025", "v": 18173}, {"d": "7/7/2025", "v": 22736}, {"d": "7/14/2025", "v": 26724}, {"d": "7/21/2025", "v": 20473}, {"d": "7/28/2025", "v": 26924}, {"d": "8/4/2025", "v": 26514}, {"d": "8/11/2025", "v": 30830}, {"d": "8/18/2025", "v": 26625}, {"d": "8/25/2025", "v": 26425}, {"d": "9/1/2025", "v": 24494}, {"d": "9/8/2025", "v": 27119}, {"d": "9/15/2025", "v": 21224}, {"d": "9/22/2025", "v": 25769}, {"d": "9/29/2025", "v": 29604}, {"d": "10/6/2025", "v": 30118}, {"d": "10/13/2025", "v": 28486}, {"d": "10/20/2025", "v": 29485}, {"d": "10/27/2025", "v": 31910}, {"d": "11/3/2025", "v": 30743}, {"d": "11/10/2025", "v": 26523}, {"d": "11/17/2025", "v": 24988}, {"d": "11/24/2025", "v": 27882}, {"d": "12/1/2025", "v": 33670}, {"d": "12/8/2025", "v": 37169}, {"d": "12/15/2025", "v": 40371}, {"d": "12/22/2025", "v": 27499}, {"d": "12/29/2025", "v": 38184}, {"d": "1/7/2026", "v": 32370}, {"d": "1/14/2026", "v": 35150}, {"d": "1/21/2026", "v": 33707}, {"d": "1/28/2026", "v": 36495}, {"d": "2/4/2026", "v": 32998}, {"d": "2/11/2026", "v": 32133}, {"d": "2/18/2026", "v": 33925}, {"d": "2/25/2026", "v": 38364}, {"d": "3/4/2026", "v": 37584}, {"d": "3/11/2026", "v": 34349}, {"d": "3/18/2026", "v": 32115}, {"d": "3/25/2026", "v": 30250}, {"d": "4/1/2026", "v": 30239}, {"d": "4/8/2026", "v": 36070}, {"d": "4/15/2026", "v": 37061}, {"d": "4/22/2026", "v": 33508}, {"d": "4/29/2026", "v": 32168}, {"d": "5/6/2026", "v": 34322}], "delivery": [{"d": "1/27/2025", "v": 2307}, {"d": "2/3/2025", "v": 1955}, {"d": "2/10/2025", "v": 1959}, {"d": "2/17/2025", "v": 1893}, {"d": "2/24/2025", "v": 1460}, {"d": "3/3/2025", "v": 2030}, {"d": "3/10/2025", "v": 1722}, {"d": "3/17/2025", "v": 1711}, {"d": "3/24/2025", "v": 1660}, {"d": "3/31/2025", "v": 1170}, {"d": "4/7/2025", "v": 1530}, {"d": "4/14/2025", "v": 1175}, {"d": "4/21/2025", "v": 1514}, {"d": "4/28/2025", "v": 1504}, {"d": "5/5/2025", "v": 1354}, {"d": "5/12/2025", "v": 1236}, {"d": "5/19/2025", "v": 1864}, {"d": "5/26/2025", "v": 1738}, {"d": "6/2/2025", "v": 1766}, {"d": "6/9/2025", "v": 1987}, {"d": "6/16/2025", "v": 1410}, {"d": "6/23/2025", "v": 1477}, {"d": "6/30/2025", "v": 1762}, {"d": "7/7/2025", "v": 1659}, {"d": "7/14/2025", "v": 1354}, {"d": "7/21/2025", "v": 1200}, {"d": "7/28/2025", "v": 1291}, {"d": "8/4/2025", "v": 1519}, {"d": "8/11/2025", "v": 1175}, {"d": "8/18/2025", "v": 1617}, {"d": "8/25/2025", "v": 1483}, {"d": "9/1/2025", "v": 1355}, {"d": "9/8/2025", "v": 1710}, {"d": "9/15/2025", "v": 1834}, {"d": "9/22/2025", "v": 1867}, {"d": "9/29/2025", "v": 1747}, {"d": "10/6/2025", "v": 1673}, {"d": "10/13/2025", "v": 1593}, {"d": "10/20/2025", "v": 1500}, {"d": "10/27/2025", "v": 1576}, {"d": "11/3/2025", "v": 1892}, {"d": "11/10/2025", "v": 1319}, {"d": "11/17/2025", "v": 1261}, {"d": "11/24/2025", "v": 2518}, {"d": "12/1/2025", "v": 2249}, {"d": "12/8/2025", "v": 2207}, {"d": "12/15/2025", "v": 2398}, {"d": "12/22/2025", "v": 4562}, {"d": "12/29/2025", "v": 3535}, {"d": "1/7/2026", "v": 6549}, {"d": "1/14/2026", "v": 5267}, {"d": "1/21/2026", "v": 3987}, {"d": "1/28/2026", "v": 4659}, {"d": "2/4/2026", "v": 5340}, {"d": "2/11/2026", "v": 4932}, {"d": "2/18/2026", "v": 5014}, {"d": "2/25/2026", "v": 4833}, {"d": "3/4/2026", "v": 5395}, {"d": "3/11/2026", "v": 5877}, {"d": "3/18/2026", "v": 6420}, {"d": "3/25/2026", "v": 7226}, {"d": "4/1/2026", "v": 8091}, {"d": "4/8/2026", "v": 11573}, {"d": "4/15/2026", "v": 20549}, {"d": "4/22/2026", "v": 23200}, {"d": "4/29/2026", "v": 22368}, {"d": "5/6/2026", "v": 23436}], "tpd": [{"d": "1/27/2025", "v": 12381}, {"d": "2/3/2025", "v": 11267}, {"d": "2/10/2025", "v": 10456}, {"d": "2/17/2025", "v": 12136}, {"d": "2/24/2025", "v": 15468}, {"d": "3/3/2025", "v": 14730}, {"d": "3/10/2025", "v": 14491}, {"d": "3/17/2025", "v": 16591}, {"d": "3/24/2025", "v": 17266}, {"d": "3/31/2025", "v": 16148}, {"d": "4/7/2025", "v": 15610}, {"d": "4/14/2025", "v": 16346}, {"d": "4/21/2025", "v": 17434}, {"d": "4/28/2025", "v": 15818}, {"d": "5/5/2025", "v": 16857}, {"d": "5/12/2025", "v": 17107}, {"d": "5/19/2025", "v": 17690}, {"d": "5/26/2025", "v": 21177}, {"d": "6/2/2025", "v": 22588}, {"d": "6/9/2025", "v": 21309}, {"d": "6/16/2025", "v": 22437}, {"d": "6/23/2025", "v": 23804}, {"d": "6/30/2025", "v": 21125}, {"d": "7/7/2025", "v": 24311}, {"d": "7/14/2025", "v": 26483}, {"d": "7/21/2025", "v": 28239}, {"d": "7/28/2025", "v": 27705}, {"d": "8/4/2025", "v": 27457}, {"d": "8/11/2025", "v": 27899}, {"d": "8/18/2025", "v": 28321}, {"d": "8/25/2025", "v": 25345}, {"d": "9/1/2025", "v": 25717}, {"d": "9/8/2025", "v": 25190}, {"d": "9/15/2025", "v": 22600}, {"d": "9/22/2025", "v": 23371}, {"d": "9/29/2025", "v": 23420}, {"d": "10/6/2025", "v": 22648}, {"d": "10/13/2025", "v": 23910}, {"d": "10/20/2025", "v": 24228}, {"d": "10/27/2025", "v": 25986}, {"d": "11/3/2025", "v": 25960}, {"d": "11/10/2025", "v": 25396}, {"d": "11/17/2025", "v": 24960}, {"d": "11/24/2025", "v": 26976}, {"d": "12/1/2025", "v": 29443}, {"d": "12/8/2025", "v": 27917}, {"d": "12/15/2025", "v": 28338}, {"d": "12/22/2025", "v": 23110}, {"d": "12/29/2025", "v": 33712}, {"d": "1/7/2026", "v": 30269}, {"d": "1/14/2026", "v": 30568}, {"d": "1/21/2026", "v": 31998}, {"d": "1/28/2026", "v": 30242}, {"d": "2/4/2026", "v": 28814}, {"d": "2/11/2026", "v": 27124}, {"d": "2/18/2026", "v": 31947}, {"d": "2/25/2026", "v": 32263}, {"d": "3/4/2026", "v": 31517}, {"d": "3/11/2026", "v": 33324}, {"d": "3/18/2026", "v": 37617}, {"d": "3/25/2026", "v": 28997}, {"d": "4/1/2026", "v": 37982}, {"d": "4/8/2026", "v": 33735}, {"d": "4/15/2026", "v": 35787}, {"d": "4/22/2026", "v": 42146}, {"d": "4/29/2026", "v": 40228}, {"d": "5/6/2026", "v": 36796}], "marketplace": [{"d": "1/27/2025", "v": 3851}, {"d": "2/3/2025", "v": 5991}, {"d": "2/10/2025", "v": 4007}, {"d": "2/17/2025", "v": 4474}, {"d": "2/24/2025", "v": 3590}, {"d": "3/3/2025", "v": 4561}, {"d": "3/10/2025", "v": 3608}, {"d": "3/17/2025", "v": 4699}, {"d": "3/24/2025", "v": 3847}, {"d": "3/31/2025", "v": 4289}, {"d": "4/7/2025", "v": 3688}, {"d": "4/14/2025", "v": 3163}, {"d": "4/21/2025", "v": 3220}, {"d": "4/28/2025", "v": 3052}, {"d": "5/5/2025", "v": 6641}, {"d": "5/12/2025", "v": 4272}, {"d": "5/19/2025", "v": 4462}, {"d": "5/26/2025", "v": 4325}, {"d": "6/2/2025", "v": 4609}, {"d": "6/9/2025", "v": 4542}, {"d": "6/16/2025", "v": 4148}, {"d": "6/23/2025", "v": 4130}, {"d": "6/30/2025", "v": 4349}, {"d": "7/7/2025", "v": 4646}, {"d": "7/14/2025", "v": 5014}, {"d": "7/21/2025", "v": 3776}, {"d": "7/28/2025", "v": 4285}, {"d": "8/4/2025", "v": 4200}, {"d": "8/11/2025", "v": 4451}, {"d": "8/18/2025", "v": 4823}, {"d": "8/25/2025", "v": 4161}, {"d": "9/1/2025", "v": 3614}, {"d": "9/8/2025", "v": 5054}, {"d": "9/15/2025", "v": 1417}, {"d": "9/22/2025", "v": 5281}, {"d": "9/29/2025", "v": 5809}, {"d": "10/6/2025", "v": 5073}, {"d": "10/13/2025", "v": 5502}, {"d": "10/20/2025", "v": 5783}, {"d": "10/27/2025", "v": 6008}, {"d": "11/3/2025", "v": 6494}, {"d": "11/10/2025", "v": 4569}, {"d": "11/17/2025", "v": 5236}, {"d": "11/24/2025", "v": 6437}, {"d": "12/1/2025", "v": 5159}, {"d": "12/8/2025", "v": 5522}, {"d": "12/15/2025", "v": 3797}, {"d": "12/22/2025", "v": 5050}, {"d": "12/29/2025", "v": 4831}, {"d": "1/7/2026", "v": 4071}, {"d": "1/14/2026", "v": 5367}, {"d": "1/21/2026", "v": 5150}, {"d": "1/28/2026", "v": 5158}, {"d": "2/4/2026", "v": 3823}, {"d": "2/11/2026", "v": 5555}, {"d": "2/18/2026", "v": 4935}, {"d": "2/25/2026", "v": 3061}, {"d": "3/4/2026", "v": 5267}, {"d": "3/11/2026", "v": 4765}, {"d": "3/18/2026", "v": 4804}, {"d": "3/25/2026", "v": 5227}, {"d": "4/1/2026", "v": 7409}, {"d": "4/8/2026", "v": 6474}, {"d": "4/15/2026", "v": 6286}, {"d": "4/22/2026", "v": 7012}, {"d": "4/29/2026", "v": 6833}, {"d": "5/6/2026", "v": 7666}]};
 let HIST_DIGITAL = {"meta": [{"d": "1/27/2025", "v": 2201}, {"d": "2/3/2025", "v": 3010}, {"d": "2/10/2025", "v": 3084}, {"d": "2/17/2025", "v": 2429}, {"d": "2/24/2025", "v": 2199}, {"d": "3/3/2025", "v": 3017}, {"d": "3/10/2025", "v": 3356}, {"d": "3/17/2025", "v": 4042}, {"d": "3/24/2025", "v": 3322}, {"d": "3/31/2025", "v": 4164}, {"d": "4/7/2025", "v": 3312}, {"d": "4/14/2025", "v": 4026}, {"d": "4/21/2025", "v": 5214}, {"d": "4/28/2025", "v": 3661}, {"d": "5/5/2025", "v": 4479}, {"d": "5/12/2025", "v": 3812}, {"d": "5/19/2025", "v": 3646}, {"d": "5/26/2025", "v": 4278}, {"d": "6/2/2025", "v": 5359}, {"d": "6/9/2025", "v": 4415}, {"d": "6/16/2025", "v": 4156}, {"d": "6/23/2025", "v": 3043}, {"d": "6/30/2025", "v": 4633}, {"d": "7/7/2025", "v": 3457}, {"d": "7/14/2025", "v": 5010}, {"d": "7/21/2025", "v": 5108}, {"d": "7/28/2025", "v": 4222}, {"d": "8/4/2025", "v": 5256}, {"d": "8/11/2025", "v": 5426}, {"d": "8/18/2025", "v": 5785}, {"d": "8/25/2025", "v": 5790}, {"d": "9/1/2025", "v": 5738}, {"d": "9/8/2025", "v": 4899}, {"d": "9/15/2025", "v": 6258}, {"d": "9/22/2025", "v": 5060}, {"d": "9/29/2025", "v": 6895}, {"d": "10/6/2025", "v": 5557}, {"d": "10/13/2025", "v": 6931}, {"d": "10/20/2025", "v": 6204}, {"d": "10/27/2025", "v": 6103}, {"d": "11/3/2025", "v": 7405}, {"d": "11/10/2025", "v": 6688}, {"d": "11/17/2025", "v": 6122}, {"d": "11/24/2025", "v": 6601}, {"d": "12/1/2025", "v": 8235}, {"d": "12/8/2025", "v": 8285}, {"d": "12/15/2025", "v": 8010}, {"d": "12/22/2025", "v": 6635}, {"d": "12/29/2025", "v": 7960}, {"d": "1/7/2026", "v": 8076}, {"d": "1/14/2026", "v": 7040}, {"d": "1/21/2026", "v": 7901}, {"d": "1/28/2026", "v": 9102}, {"d": "2/4/2026", "v": 7689}, {"d": "2/11/2026", "v": 8454}, {"d": "2/18/2026", "v": 8251}, {"d": "2/25/2026", "v": 8420}, {"d": "3/4/2026", "v": 8681}, {"d": "3/11/2026", "v": 8837}, {"d": "3/18/2026", "v": 8662}, {"d": "3/25/2026", "v": 7650}, {"d": "4/1/2026", "v": 9156}, {"d": "4/8/2026", "v": 11984}, {"d": "4/15/2026", "v": 12918}, {"d": "4/22/2026", "v": 10585}, {"d": "4/29/2026", "v": 11438}, {"d": "5/6/2026", "v": 11010}], "google": [{"d": "1/27/2025", "v": 3412}, {"d": "2/3/2025", "v": 3650}, {"d": "2/10/2025", "v": 3701}, {"d": "2/17/2025", "v": 4007}, {"d": "2/24/2025", "v": 4096}, {"d": "3/3/2025", "v": 3928}, {"d": "3/10/2025", "v": 4410}, {"d": "3/17/2025", "v": 4753}, {"d": "3/24/2025", "v": 4028}, {"d": "3/31/2025", "v": 5051}, {"d": "4/7/2025", "v": 5046}, {"d": "4/14/2025", "v": 4570}, {"d": "4/21/2025", "v": 4361}, {"d": "4/28/2025", "v": 5588}, {"d": "5/5/2025", "v": 5392}, {"d": "5/12/2025", "v": 6055}, {"d": "5/19/2025", "v": 5428}, {"d": "5/26/2025", "v": 6827}, {"d": "6/2/2025", "v": 6581}, {"d": "6/9/2025", "v": 5884}, {"d": "6/16/2025", "v": 6155}, {"d": "6/23/2025", "v": 6948}, {"d": "6/30/2025", "v": 5791}, {"d": "7/7/2025", "v": 6383}, {"d": "7/14/2025", "v": 7145}, {"d": "7/21/2025", "v": 6750}, {"d": "7/28/2025", "v": 6621}, {"d": "8/4/2025", "v": 6700}, {"d": "8/11/2025", "v": 7984}, {"d": "8/18/2025", "v": 6709}, {"d": "8/25/2025", "v": 7229}, {"d": "9/1/2025", "v": 8162}, {"d": "9/8/2025", "v": 7324}, {"d": "9/15/2025", "v": 7914}, {"d": "9/22/2025", "v": 7345}, {"d": "9/29/2025", "v": 8631}, {"d": "10/6/2025", "v": 8808}, {"d": "10/13/2025", "v": 8211}, {"d": "10/20/2025", "v": 7590}, {"d": "10/27/2025", "v": 8021}, {"d": "11/3/2025", "v": 8910}, {"d": "11/10/2025", "v": 7799}, {"d": "11/17/2025", "v": 8152}, {"d": "11/24/2025", "v": 8337}, {"d": "12/1/2025", "v": 8387}, {"d": "12/8/2025", "v": 9084}, {"d": "12/15/2025", "v": 9970}, {"d": "12/22/2025", "v": 7217}, {"d": "12/29/2025", "v": 10162}, {"d": "1/7/2026", "v": 9979}, {"d": "1/14/2026", "v": 8482}, {"d": "1/21/2026", "v": 9163}, {"d": "1/28/2026", "v": 10294}, {"d": "2/4/2026", "v": 9917}, {"d": "2/11/2026", "v": 9257}, {"d": "2/18/2026", "v": 10430}, {"d": "2/25/2026", "v": 9851}, {"d": "3/4/2026", "v": 9785}, {"d": "3/11/2026", "v": 10323}, {"d": "3/18/2026", "v": 11024}, {"d": "3/25/2026", "v": 9432}, {"d": "4/1/2026", "v": 10206}, {"d": "4/8/2026", "v": 12795}, {"d": "4/15/2026", "v": 18909}, {"d": "4/22/2026", "v": 24156}, {"d": "4/29/2026", "v": 22788}, {"d": "5/6/2026", "v": 23523}]};
 let BRENTWOOD_IDX = 62;
+let HIST_WEEKLY_LOC = { wlv: [], bw: [] };  // per-location weekly net sales [{d,v}], same date axis as HIST_TOTAL
+let HIST_DAILY_LOC  = { wlv: [], bw: [] };  // per-location daily net sales [{d,v}] — basis for the daily rolling average
+let HIST_CHANNELS_LOC = {                   // per-location weekly channel breakdown, same keys/date axis as HIST_CHANNELS
+  wlv: { dineIn:[], webPickup:[], instore:[], delivery:[], tpd:[], marketplace:[] },
+  bw:  { dineIn:[], webPickup:[], instore:[], delivery:[], tpd:[], marketplace:[] }
+};
 
 // Shared helpers
 const _MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 function _fmtWeekShort(s){ const [m,d,y]=s.split('/').map(Number); return `${_MONTHS[m-1]} ${d}, ${y}`; }
+function _fmtMonYr(s){ const [m,,y]=s.split('/').map(Number); return `${_MONTHS[m-1]} ${y}`; }
 function _kpiCard(label,val,sub){
   return `<div class="kpi-card"><div class="kpi-label">${label}</div><div class="kpi-value">${val}</div><div class="kpi-foot">${sub}</div></div>`;
 }
@@ -1789,18 +1761,28 @@ function renderATMain() {
   const allDates = HIST_TOTAL.map(x=>x.d);
   if (atCharts.main) atCharts.main.destroy();
 
+  // HIST_DIGITAL.meta/google are built from ad_performance and don't share
+  // HIST_TOTAL's date axis (different start dates, occasional gaps). Pairing
+  // them with allDates by array index — as before — misaligned every point
+  // and made the line look like it stopped wherever the shorter series ended.
+  // Look each platform's value up by its own date instead, so points land on
+  // their real calendar week and missing weeks render as gaps, not truncation.
+  const meta = HIST_DIGITAL.meta || [];
+  const google = HIST_DIGITAL.google || [];
+  const metaLk = {}; meta.forEach(p=>{metaLk[p.d]=p.v;});
+  const googleLk = {}; google.forEach(p=>{googleLk[p.d]=p.v;});
+
+  const rangeSrc = allDates.length ? allDates : [...meta.map(x=>x.d), ...google.map(x=>x.d)].sort();
+  const rangeLbl = rangeSrc.length ? `${_fmtMonYr(rangeSrc[0])} – ${_fmtMonYr(rangeSrc[rangeSrc.length-1])}` : '';
+
   document.getElementById('atChartTitle').textContent =
     atView === 'share' ? 'Meta vs Google share over time' : 'Paid digital net revenue over time';
   document.getElementById('atChartSub').textContent =
-    atView === 'share' ? '% share of paid digital net revenue by platform · Jan 2025 – May 2026'
-                       : 'Meta vs Google weekly net revenue · Jan 2025 – May 2026';
+    atView === 'share' ? `% share of paid digital net revenue by platform · ${rangeLbl}`
+                       : `Meta vs Google weekly net revenue · ${rangeLbl}`;
 
   if (atView === 'share') {
-    const meta = HIST_DIGITAL.meta || [];
-    const google = HIST_DIGITAL.google || [];
     const sample = allDates.filter((_,i)=>i%4===0);
-    const metaLk = {}; meta.forEach(p=>{metaLk[p.d]=p.v;});
-    const googleLk = {}; google.forEach(p=>{googleLk[p.d]=p.v;});
     const metaShare = sample.map(d=>{ const t=(metaLk[d]||0)+(googleLk[d]||0); return t?Math.round((metaLk[d]||0)/t*100):null; });
     const googleShare = sample.map((_,i)=>metaShare[i]==null?null:100-metaShare[i]);
     atCharts.main = new Chart(document.getElementById('atMainChart'), {
@@ -1820,8 +1802,8 @@ function renderATMain() {
   } else {
     atCharts.main = new Chart(document.getElementById('atMainChart'), {
       type:'line',data:{labels:allDates,datasets:[
-        {label:'Meta',  data:(HIST_DIGITAL.meta  ||[]).map(x=>x.v), borderColor:'#eace49', backgroundColor:'rgba(234,206,73,0.10)', tension:0.3, pointRadius:0, borderWidth:2, fill:true},
-        {label:'Google',data:(HIST_DIGITAL.google||[]).map(x=>x.v), borderColor:'#7bbd91', backgroundColor:'rgba(123,189,145,0.10)', tension:0.3, pointRadius:0, borderWidth:2, fill:true}
+        {label:'Meta',  data: allDates.map(d => metaLk[d]   ?? null), borderColor:'#eace49', backgroundColor:'rgba(234,206,73,0.10)', tension:0.3, pointRadius:0, borderWidth:2, fill:true, spanGaps:true},
+        {label:'Google',data: allDates.map(d => googleLk[d] ?? null), borderColor:'#7bbd91', backgroundColor:'rgba(123,189,145,0.10)', tension:0.3, pointRadius:0, borderWidth:2, fill:true, spanGaps:true}
       ]},
       options:{responsive:true,maintainAspectRatio:false,
         plugins:{legend:{display:false}},
@@ -1887,69 +1869,109 @@ function renderAllTime() {
 // ═════════════════════════════════════════════════════════════════════════
 // SALES TRENDS — Brentwood opening impact + total revenue + channels
 // ═════════════════════════════════════════════════════════════════════════
-let trView = 'total';
+let trView = 'total';          // 'total' | 'channels' — main chart series mode
+let trGranularity = 'weekly';  // 'weekly' | 'daily'    — main chart bar granularity
+let trKpiLoc = 'combined';     // 'combined' | 'wlv' | 'bw' — All-time sales tiles
+let trMixLoc = 'total';        // 'total' | 'wlv' | 'bw'    — Channel mix location filter
 let trCharts = {};
+const TR_RESTAURANTS_PRE = 1;   // Westlake only, before Apr 8 2026
+const TR_RESTAURANTS_POST = 2;  // Westlake + Brentwood, from Apr 8 2026
+
+function _trSetActive(btn) {
+  btn.parentElement.querySelectorAll('.vt-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
 
 function setTRView(v, btn) {
   trView = v;
-  document.querySelectorAll('#page-trends .vt-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  renderTrends();
+  _trSetActive(btn);
+  renderTRMain();
+}
+
+function setTRGranularity(v, btn) {
+  trGranularity = v;
+  _trSetActive(btn);
+  renderTRMain();
+  setTimeout(renderTRRolling, 30);
+}
+
+function setTRKpiLoc(v, btn) {
+  trKpiLoc = v;
+  _trSetActive(btn);
+  renderTRKPIs();
+}
+
+function setTRMixLoc(v, btn) {
+  trMixLoc = v;
+  _trSetActive(btn);
+  renderTRMix();
+}
+
+function _trAsOfLabel() {
+  const latest = HIST_TOTAL[HIST_TOTAL.length - 1];
+  const el = document.getElementById('trAsOf');
+  if (el) el.textContent = latest ? ('Data through week of ' + _fmtWeekShort(latest.d)) : 'Data through —';
 }
 
 function renderTRKPIs() {
   const total = HIST_TOTAL;
   const pre = total.slice(0, BRENTWOOD_IDX);
   const post = total.slice(BRENTWOOD_IDX);
-  const preAvg = Math.round(pre.reduce((s,x)=>s+x.v,0)/pre.length);
-  const postAvg = Math.round(post.reduce((s,x)=>s+x.v,0)/post.length);
-  const lift = Math.round(((postAvg-preAvg)/preAvg)*100);
-
-  const topWeek = total.reduce((best, x) => x.v > best.v ? x : best, total[0]);
-  const ttmCount = Math.min(52, total.length);
-  const ttm = total.slice(-ttmCount).reduce((s,x)=>s+x.v,0);
-  const ttmLabel = ttmCount === 52 ? '52-week trailing revenue' : `${ttmCount}-week trailing revenue`;
-  const growth = Math.round(((total[total.length-1].v - total[0].v)/total[0].v)*100);
-  const latest = total[total.length-1];
+  const preAvg = pre.length ? Math.round(pre.reduce((s,x)=>s+x.v,0) / pre.length / TR_RESTAURANTS_PRE) : 0;
+  const postAvg = post.length ? Math.round(post.reduce((s,x)=>s+x.v,0) / post.length / TR_RESTAURANTS_POST) : 0;
+  const lift = preAvg ? Math.round(((postAvg-preAvg)/preAvg)*100) : 0;
 
   document.getElementById('trPreAvg').textContent = '$'+preAvg.toLocaleString();
   document.getElementById('trPostAvg').textContent = '$'+postAvg.toLocaleString();
-  document.getElementById('trLift').textContent = '+'+lift+'%';
-  document.getElementById('trKpiGrid').innerHTML = [
+  document.getElementById('trLift').textContent = (lift>=0?'+':'')+lift+'%';
+
+  _trAsOfLabel();
+
+  // All-time sales tiles, filtered to the location selected via the Combined / Westlake / Brentwood toggle
+  const series = trKpiLoc === 'combined' ? HIST_TOTAL
+               : trKpiLoc === 'wlv'      ? HIST_WEEKLY_LOC.wlv
+               : (HIST_WEEKLY_LOC.bw || []).filter(x => x.v != null);
+  const grid = document.getElementById('trKpiGrid');
+  if (!series.length) { grid.innerHTML = ''; return; }
+
+  const topWeek = series.reduce((best, x) => x.v > best.v ? x : best, series[0]);
+  const ttmCount = Math.min(52, series.length);
+  const ttm = series.slice(-ttmCount).reduce((s,x)=>s+x.v,0);
+  const ttmLabel = ttmCount === 52 ? '52-week trailing revenue' : `${ttmCount}-week trailing revenue`;
+  const first = series[0], latest = series[series.length-1];
+  const growth = first.v ? Math.round(((latest.v - first.v)/first.v)*100) : 0;
+  const sinceLabel = trKpiLoc === 'bw' ? ('Week of ' + _fmtWeekShort(first.d) + ' → present') : 'Jan 2025 → present';
+
+  grid.innerHTML = [
     _kpiCard('Top sales week',           '$'+topWeek.v.toLocaleString(), 'Week of ' + _fmtWeekShort(topWeek.d)),
     _kpiCard(ttmLabel,                   '$'+ttm.toLocaleString(),       'Trailing twelve months'),
-    _kpiCard('Growth since first week',  '+'+growth+'%',                 'Jan 2025 → present'),
+    _kpiCard('Growth since first week',  (growth>=0?'+':'')+growth+'%',  sinceLabel),
     _kpiCard('Latest week',              '$'+latest.v.toLocaleString(),  'Week of ' + _fmtWeekShort(latest.d))
   ].join('');
 }
 
 function renderTRMain() {
-  document.getElementById('trChartTitle').textContent =
-    trView==='total' ? 'Weekly total revenue' : 'Revenue by channel — stacked weekly';
-  document.getElementById('trChartSub').textContent =
-    trView==='total' ? 'Jan 2025 – May 2026 · all Neighborly locations'
-                     : 'All channels · Brentwood opening Apr 8, 2026';
+  const isChannels = trView === 'channels';
+  const isDaily = trGranularity === 'daily';
 
-  const allDates = HIST_TOTAL.map(x=>x.d);
+  document.getElementById('trChartTitle').textContent =
+    isChannels ? 'Revenue by channel — stacked weekly'
+               : (isDaily ? 'Daily total revenue — by location' : 'Weekly total revenue — by location');
+  document.getElementById('trChartSub').textContent =
+    isChannels ? 'All channels · Brentwood opening Apr 8, 2026'
+               : (isDaily ? 'Daily net sales, stacked by location · Jan 2025 – present'
+                          : 'Weekly net sales, stacked by location · Jan 2025 – present');
+
+  // The granularity toggle and the Westlake/Brentwood legend only apply to the "Total revenue" series
+  const granToggle = document.getElementById('trGranToggle');
+  const legend = document.getElementById('trMainLegend');
+  if (granToggle) granToggle.style.display = isChannels ? 'none' : '';
+  if (legend) legend.style.display = isChannels ? 'none' : 'flex';
+
   if (trCharts.main) trCharts.main.destroy();
 
-  if (trView === 'total') {
-    const vals = HIST_TOTAL.map(x=>x.v);
-    trCharts.main = new Chart(document.getElementById('trMainChart'), {
-      type:'bar',
-      data:{labels:allDates, datasets:[
-        {label:'Pre-Brentwood', data:vals.map((v,i)=>i<BRENTWOOD_IDX?v:null), backgroundColor:'#fdf7d8', borderColor:'#eace49', borderWidth:1.5, borderRadius:3, barPercentage:0.85},
-        {label:'Post-Brentwood',data:vals.map((v,i)=>i>=BRENTWOOD_IDX?v:null),backgroundColor:'#1f2328',borderColor:'#1f2328',borderWidth:1,borderRadius:3,barPercentage:0.85}
-      ]},
-      options:{responsive:true,maintainAspectRatio:false,
-        plugins:{legend:{display:false}},
-        scales:{
-          x:{grid:{display:false},ticks:{font:{family:'DM Sans',size:9},color:'#9E9C96',maxTicksLimit:14,maxRotation:45}},
-          y:{grid:{color:'rgba(0,0,0,0.04)'},ticks:{font:{family:'DM Mono',size:10},color:'#9E9C96',callback:v=>'$'+Math.round(v/1000)+'k'}}
-        }
-      }
-    });
-  } else {
+  if (isChannels) {
+    const allDates = HIST_TOTAL.map(x=>x.d);
     const keys=['dineIn','webPickup','instore','delivery','tpd','marketplace'];
     const lbls=['Dine in','Web pickup','In-store Takeout','Delivery','3PD','Marketplace'];
     const cols=['#eace49','#7bbd91','#cbc9d6','#6280bd','#dbc6a2','#e87142'];
@@ -1967,45 +1989,127 @@ function renderTRMain() {
         }
       }
     });
+    return;
   }
-}
 
-function renderTRRolling() {
-  const rolling = HIST_TOTAL.map((p,i)=>{
-    const start=Math.max(0,i-5); const arr=HIST_TOTAL.slice(start,i+1);
-    return Math.round(arr.reduce((s,x)=>s+x.v,0)/arr.length);
-  });
-  if(trCharts.rolling) trCharts.rolling.destroy();
-  trCharts.rolling = new Chart(document.getElementById('trRollingChart'),{
-    type:'line',data:{labels:HIST_TOTAL.map(x=>x.d),datasets:[{data:rolling,borderColor:'#1f2328',backgroundColor:'#fdf7d8',fill:true,tension:0.35,pointRadius:0,borderWidth:2}]},
+  // Total revenue, stacked Westlake (yellow) + Brentwood (black). HIST_WEEKLY_LOC / HIST_DAILY_LOC
+  // are built index-aligned on the same date axis (bw entries are null before Brentwood opened),
+  // so the two series can be plotted directly without re-keying.
+  const src = isDaily ? HIST_DAILY_LOC : HIST_WEEKLY_LOC;
+  const labels = src.wlv.map(x=>x.d);
+  const barOpts = isDaily ? { barPercentage:1, categoryPercentage:0.92 } : { barPercentage:0.85, categoryPercentage:0.9 };
+  trCharts.main = new Chart(document.getElementById('trMainChart'), {
+    type:'bar',
+    data:{labels, datasets:[
+      {label:'Westlake Village', data:src.wlv.map(x=>x.v), backgroundColor:'#eace49', borderColor:'#eace49', borderWidth:1, borderRadius:isDaily?1:3, stack:'loc', ...barOpts},
+      {label:'Brentwood',        data:src.bw.map(x=>x.v), backgroundColor:'#1f2328', borderColor:'#1f2328', borderWidth:1, borderRadius:isDaily?1:3, stack:'loc', ...barOpts}
+    ]},
     options:{responsive:true,maintainAspectRatio:false,
       plugins:{legend:{display:false}},
       scales:{
-        x:{grid:{display:false},ticks:{display:false}},
-        y:{grid:{color:'rgba(0,0,0,0.04)'},ticks:{font:{family:'DM Mono',size:9},color:'#9E9C96',callback:v=>'$'+Math.round(v/1000)+'k'}}
+        x:{stacked:true,grid:{display:false},ticks:{font:{family:'DM Sans',size:9},color:'#9E9C96',maxTicksLimit:isDaily?10:14,maxRotation:45}},
+        y:{stacked:true,grid:{color:'rgba(0,0,0,0.04)'},ticks:{font:{family:'DM Mono',size:10},color:'#9E9C96',callback:v=>'$'+Math.round(v/1000)+'k'}}
+      }
+    }
+  });
+}
+
+function renderTRRolling() {
+  // Computed on a daily basis (42-day trailing average ≈ 6 weeks) so a partial in-progress
+  // week never drags the most recent point down — each day rolls in/out one at a time.
+  const ROLL_DAYS = 42;
+  const _rollSeries = (arr) => arr.map((p, i) => {
+    const start = Math.max(0, i - (ROLL_DAYS - 1));
+    const win = arr.slice(start, i + 1).filter(x => x.v != null);
+    return win.length ? Math.round(win.reduce((s,x)=>s+x.v, 0) / win.length) : null;
+  });
+  const wlvRoll = _rollSeries(HIST_DAILY_LOC.wlv);
+  const bwRoll = _rollSeries(HIST_DAILY_LOC.bw || []);
+  const labels = HIST_DAILY_LOC.wlv.map(x=>x.d);
+
+  if (trCharts.rolling) trCharts.rolling.destroy();
+  trCharts.rolling = new Chart(document.getElementById('trRollingChart'), {
+    type:'line',
+    data:{labels, datasets:[
+      {label:'Westlake Village', data:wlvRoll, borderColor:'#eace49', backgroundColor:'rgba(234,206,73,0.45)', fill:'origin', stack:'roll', tension:0.35, pointRadius:0, borderWidth:2},
+      {label:'Brentwood',        data:bwRoll,  borderColor:'#1f2328', backgroundColor:'rgba(31,35,40,0.55)',   fill:'-1',     stack:'roll', tension:0.35, pointRadius:0, borderWidth:2}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false}},
+      scales:{
+        x:{stacked:true,grid:{display:false},ticks:{display:false}},
+        y:{stacked:true,grid:{color:'rgba(0,0,0,0.04)'},ticks:{font:{family:'DM Mono',size:9},color:'#9E9C96',callback:v=>'$'+Math.round(v/1000)+'k'}}
       }
     }
   });
 }
 
 function renderTRMix() {
-  const keys=['dineIn','webPickup','instore','delivery','tpd'];
-  const lbls=['Dine in','Web','In-store Takeout','Delivery','3PD'];
-  const cols=['#eace49','#7bbd91','#cbc9d6','#6280bd','#dbc6a2'];
-  const allDates=HIST_TOTAL.map(x=>x.d);
-  const sample=allDates.filter((_,i)=>i%4===0);
-  const totLk={};HIST_TOTAL.forEach(p=>{totLk[p.d]=p.v;});
-  const datasets=keys.map((k,i)=>{
-    const lk={};(HIST_CHANNELS[k]||[]).forEach(p=>{lk[p.d]=p.v;});
-    return {label:lbls[i],data:sample.map(d=>totLk[d]?Math.round((lk[d]||0)/totLk[d]*100):null),backgroundColor:cols[i],stack:'m'};
+  // HIST_CHANNELS / HIST_CHANNELS_LOC use legacy coarse key names and have no historical
+  // catering series. Map each onto its equivalent in CHANNEL_LABELS / CHANNEL_COLORS — the
+  // canonical taxonomy that drives the "Sales by channel" chart on the Daily Sales tab —
+  // so labels, colors and category meaning line up across both charts. Curbside has no
+  // separate historical series; the live loader already folds it into webPickup ("Web
+  // Take Out"), so it lands there rather than in Catering. Catering is derived as the
+  // remainder of total revenue not covered by the other six channels — this guarantees
+  // each bar sums to 100% even where a historical catering series is missing or zero.
+  const histKeyToChannel={dineIn:'dineIn',webPickup:'webTakeOut',instore:'kioskTakeOut',delivery:'webDelivery',tpd:'thirdParty',marketplace:'marketplace'};
+  const channelKeys=Object.keys(CHANNEL_LABELS);
+  const colorOf=ck=>CHANNEL_COLORS[channelKeys.indexOf(ck)];
+  const keys=Object.keys(histKeyToChannel);
+  const lbls=keys.map(k=>CHANNEL_LABELS[histKeyToChannel[k]]);
+  const cols=keys.map(k=>colorOf(histKeyToChannel[k]));
+
+  const sub = document.getElementById('trMixSub');
+  if (sub) sub.textContent = '% share by revenue center · monthly · ' +
+    (trMixLoc === 'total' ? 'all locations' : trMixLoc === 'wlv' ? 'Westlake Village' : 'Brentwood');
+
+  // Pick the per-location channel series when filtering, otherwise the combined HIST_CHANNELS
+  const chSeries = (k) => trMixLoc === 'total' ? (HIST_CHANNELS[k] || []) : (HIST_CHANNELS_LOC[trMixLoc]?.[k] || []);
+  const totalSeries = trMixLoc === 'total' ? HIST_TOTAL
+                    : (HIST_WEEKLY_LOC[trMixLoc] || []).filter(x => x.v != null);
+
+  // Bucket by calendar month — each bar = one month (one period)
+  const monthKey = (d) => { const [m,,y] = d.split('/').map(Number); return y*100+m; };
+  const monthLabel = (key) => { const y = Math.floor(key/100), m = key%100; return _MONTHS[m-1] + ' ' + y; };
+
+  const months = [...new Set(totalSeries.map(p => monthKey(p.d)))].sort((a,b)=>a-b);
+  const totByMonth = {};
+  totalSeries.forEach(p => { const k = monthKey(p.d); totByMonth[k] = (totByMonth[k]||0) + p.v; });
+
+  const byMonthByKey = keys.map(k => {
+    const byMonth = {};
+    chSeries(k).forEach(p => { const mk = monthKey(p.d); byMonth[mk] = (byMonth[mk]||0) + p.v; });
+    return byMonth;
   });
-  if(trCharts.mix) trCharts.mix.destroy();
-  trCharts.mix = new Chart(document.getElementById('trMixChart'),{
-    type:'bar',data:{labels:sample,datasets},
+
+  const cateringByMonth = {};
+  months.forEach(mk => {
+    const known = byMonthByKey.reduce((s, byMonth) => s + (byMonth[mk] || 0), 0);
+    cateringByMonth[mk] = Math.max(0, (totByMonth[mk] || 0) - known);
+  });
+
+  const datasets = keys.map((k,i) => ({
+    label: lbls[i],
+    data: months.map(mk => totByMonth[mk] ? Math.round((byMonthByKey[i][mk]||0) / totByMonth[mk] * 100) : null),
+    backgroundColor: cols[i], stack: 'm'
+  }));
+  datasets.push({
+    label: CHANNEL_LABELS.catering,
+    data: months.map(mk => totByMonth[mk] ? Math.round(cateringByMonth[mk] / totByMonth[mk] * 100) : null),
+    backgroundColor: colorOf('catering'), stack: 'm'
+  });
+
+  if (trCharts.mix) trCharts.mix.destroy();
+  trCharts.mix = new Chart(document.getElementById('trMixChart'), {
+    type:'bar',data:{labels: months.map(monthLabel), datasets},
     options:{responsive:true,maintainAspectRatio:false,
-      plugins:{legend:{position:'bottom',labels:{font:{family:'DM Sans',size:10},boxWidth:8,padding:8}}},
+      plugins:{
+        legend:{position:'bottom',labels:{font:{family:'DM Sans',size:10},boxWidth:8,padding:8}},
+        tooltip:{callbacks:{label:(ctx)=>`${ctx.dataset.label}: ${Math.round(ctx.parsed.y)}%`}}
+      },
       scales:{
-        x:{stacked:true,grid:{display:false},ticks:{font:{family:'DM Sans',size:9},color:'#9E9C96',maxTicksLimit:8,maxRotation:30}},
+        x:{stacked:true,grid:{display:false},ticks:{font:{family:'DM Sans',size:9},color:'#9E9C96',maxTicksLimit:10,maxRotation:30}},
         y:{stacked:true,max:100,grid:{color:'rgba(0,0,0,0.04)'},ticks:{font:{family:'DM Mono',size:9},color:'#9E9C96',callback:v=>v+'%'}}
       }
     }
@@ -2109,6 +2213,17 @@ const _dailyCharts = {};
 let dailyLoc = 'total';
 let _dailyFetching = false;
 
+// Edge Function calls inherit the Supabase client's Authorization header, but
+// on first page load the auth client may still be restoring the persisted
+// session from storage — invoking before that finishes sends the anon key,
+// and the function's `locations` RLS check then fails with "No locations"
+// (empty Daily sales tab). Awaiting the session and forwarding its token
+// explicitly closes that race.
+async function _dailyAuthHeaders() {
+  const session = await NPData.getSession();
+  return session ? { Authorization: 'Bearer ' + session.access_token } : {};
+}
+
 // ── Helpers ───────────────────────────────────────────────────────────────────
 function _pct(a, b)     { return b ? (a - b) / Math.abs(b) * 100 : 0; }
 function _ptsDelta(a,b) { return (a||0) - (b||0); }
@@ -2204,7 +2319,7 @@ async function fetchDailyData() {
   const ts  = document.getElementById('dailyLastUpdated');
   if (btn) { btn.textContent = 'Refreshing…'; btn.disabled = true; }
   try {
-    const { data: json, error: fnErr } = await NPData.supabase.functions.invoke('dashboard-daily', { body: {} });
+    const { data: json, error: fnErr } = await NPData.supabase.functions.invoke('dashboard-daily', { body: {}, headers: await _dailyAuthHeaders() });
     if (fnErr) throw fnErr;
     _applyDailyJson(json);
     if (ts && DAILY_META.generated) {
@@ -2295,7 +2410,7 @@ async function _loadDailyPrev(currentDateKey) {
   }
   if (!prevDate) { if (typeof renderDailyTable === 'function') renderDailyTable(DAILY[dailyLoc]); return; }
   try {
-    const { data: json, error: archErr } = await NPData.supabase.functions.invoke('dashboard-daily', { body: { report_date: prevDate } });
+    const { data: json, error: archErr } = await NPData.supabase.functions.invoke('dashboard-daily', { body: { report_date: prevDate }, headers: await _dailyAuthHeaders() });
     if (archErr) throw archErr;
     DAILY_PREV.wlv   = json.wlv   || null;
     DAILY_PREV.bw    = json.bw    || null;
@@ -2415,7 +2530,7 @@ function renderDailyCalendar() {
 async function pickDailyDate(dateKey) {
   _dailyCalSelected = dateKey;
   try {
-    const { data: json, error: fnErr } = await NPData.supabase.functions.invoke('dashboard-daily', { body: { report_date: dateKey } });
+    const { data: json, error: fnErr } = await NPData.supabase.functions.invoke('dashboard-daily', { body: { report_date: dateKey }, headers: await _dailyAuthHeaders() });
     if (fnErr) throw fnErr;
     _applyDailyJson(json);
     renderDailyDashboard();
@@ -3015,9 +3130,6 @@ function _sbAddDays(s, n) {
   d.setUTCDate(d.getUTCDate() + n);
   return d.toISOString().slice(0, 10);
 }
-function _sbLastCompleteWeek() {
-  return _sbAddDays(_sbFiscalWeekStart(new Date().toISOString().slice(0, 10)), -7);
-}
 function _sbFmtWeekLabel(iso) {
   const [y, m, d] = iso.split('-').map(Number);
   return ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][m-1] + ' ' + d + ', ' + y;
@@ -3025,9 +3137,11 @@ function _sbFmtWeekLabel(iso) {
 
 async function _sbLoadAllTime() {
   const sb = NPData.supabase;
-  const [wlvR, bwR, adR] = await Promise.all([
+  const [wlvR, bwR, wlvDayR, bwDayR, adR] = await Promise.all([
     sb.rpc('nbly_performance_all_time', { p_location_id: _SB_WLV, p_granularity: 'week' }),
     sb.rpc('nbly_performance_all_time', { p_location_id: _SB_BW,  p_granularity: 'week' }),
+    sb.rpc('nbly_performance_all_time', { p_location_id: _SB_WLV, p_granularity: 'day' }),
+    sb.rpc('nbly_performance_all_time', { p_location_id: _SB_BW,  p_granularity: 'day' }),
     sb.from('ad_performance')
       .select('report_date, purchase_value, platform')
       .in('platform', ['meta', 'google'])
@@ -3043,13 +3157,30 @@ async function _sbLoadAllTime() {
   const allDates = [...new Set([...Object.keys(wlvByDate), ...Object.keys(bwByDate)])].sort();
   const newTotal = [];
   const newCh = { dineIn:[], webPickup:[], instore:[], delivery:[], tpd:[], marketplace:[] };
+  const newWeeklyLoc = { wlv: [], bw: [] };
+  const newChLoc = {
+    wlv: { dineIn:[], webPickup:[], instore:[], delivery:[], tpd:[], marketplace:[] },
+    bw:  { dineIn:[], webPickup:[], instore:[], delivery:[], tpd:[], marketplace:[] }
+  };
   let newBwIdx = allDates.length;
+
+  const pushLocChannels = (loc, d, raw) => {
+    const c = raw || {};
+    newChLoc[loc].dineIn.push({ d, v: Math.round(c.dine_in || 0) });
+    newChLoc[loc].webPickup.push({ d, v: Math.round((c.web_takeout || 0) + (c.curbside || 0)) });
+    newChLoc[loc].instore.push({ d, v: Math.round(c.kiosk_takeout || 0) });
+    newChLoc[loc].delivery.push({ d, v: Math.round(c.web_delivery || 0) });
+    newChLoc[loc].tpd.push({ d, v: Math.round(c.delivery_3p || 0) });
+    newChLoc[loc].marketplace.push({ d, v: Math.round(c.marketplace || 0) });
+  };
 
   allDates.forEach((date, idx) => {
     const wlv = wlvByDate[date], bw = bwByDate[date];
     const tot = (wlv?.net_sales || 0) + (bw?.net_sales || 0);
     const d = _sbIsoToSlash(date);
     newTotal.push({ d, v: Math.round(tot) });
+    newWeeklyLoc.wlv.push({ d, v: Math.round(wlv?.net_sales || 0) });
+    newWeeklyLoc.bw.push({ d, v: bw ? Math.round(bw.net_sales || 0) : null });
     if (bw && newBwIdx === allDates.length) newBwIdx = idx;
     const wc = wlv?.channels || {}, bc = bw?.channels || {};
     const ch = (k) => (wc[k] || 0) + (bc[k] || 0);
@@ -3059,12 +3190,31 @@ async function _sbLoadAllTime() {
     newCh.delivery.push({ d, v: Math.round(ch('web_delivery')) });
     newCh.tpd.push({ d, v: Math.round(ch('delivery_3p')) });
     newCh.marketplace.push({ d, v: Math.round(ch('marketplace')) });
+    pushLocChannels('wlv', d, wc);
+    pushLocChannels('bw',  d, bc);
   });
 
   HIST_TOTAL = newTotal;
   HIST_CHANNELS = newCh;
   BRENTWOOD_IDX = newBwIdx;
+  HIST_WEEKLY_LOC = newWeeklyLoc;
+  HIST_CHANNELS_LOC = newChLoc;
   _calAvailable = null; // reset calendar cache
+
+  if (!wlvDayR.error || !bwDayR.error) {
+    const wlvDayByDate = {}, bwDayByDate = {};
+    (wlvDayR.data?.periods || []).forEach(p => { wlvDayByDate[p.period_start] = p; });
+    (bwDayR.data?.periods  || []).forEach(p => { bwDayByDate[p.period_start]  = p; });
+    const allDayDates = [...new Set([...Object.keys(wlvDayByDate), ...Object.keys(bwDayByDate)])].sort();
+    const newDailyLoc = { wlv: [], bw: [] };
+    allDayDates.forEach(date => {
+      const wlv = wlvDayByDate[date], bw = bwDayByDate[date];
+      const d = _sbIsoToSlash(date);
+      newDailyLoc.wlv.push({ d, v: wlv ? Math.round(wlv.net_sales || 0) : null });
+      newDailyLoc.bw.push({ d, v: bw ? Math.round(bw.net_sales || 0) : null });
+    });
+    HIST_DAILY_LOC = newDailyLoc;
+  }
 
   if (!adR.error && adR.data?.length) {
     const metaWk = {}, googleWk = {};
@@ -3079,9 +3229,14 @@ async function _sbLoadAllTime() {
   }
 }
 
-async function _sbLoadWeeklyKPIs() {
+async function _sbLoadWeeklyKPIs(weekStartOverride) {
   const sb = NPData.supabase;
-  const cwStart  = _sbLastCompleteWeek();
+  // Default to the in-progress fiscal week ("most recent week" per the badge),
+  // not the last *complete* one — nbly_weekly_kpis returns real partial-week
+  // data (days_with_data, net_sales, channels) for in-progress weeks too, so
+  // there's no need to lag a week behind. Pass an explicit week-start (e.g.
+  // from the calendar picker) to load any other fiscal week live.
+  const cwStart  = weekStartOverride || _sbFiscalWeekStart(new Date().toISOString().slice(0, 10));
   const lwStart  = _sbAddDays(cwStart, -7);
   const t4wStart = _sbAddDays(cwStart, -28);
   const lwEnd    = _sbAddDays(cwStart, -1);
@@ -3162,7 +3317,12 @@ async function _sbLoadWeeklyKPIs() {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-  _sbLoadAllTime().catch(console.error);
+  _sbLoadAllTime().then(() => {
+    // If the user is already on All-time / Trends (e.g. via a ?p= deep link) when the live
+    // data lands, re-render so the placeholder figures are replaced rather than left stale.
+    if (document.getElementById('page-alltime')?.classList.contains('active')) renderAllTime();
+    if (document.getElementById('page-trends')?.classList.contains('active'))  renderTrends();
+  }).catch(console.error);
   _sbLoadWeeklyKPIs().catch(console.error);
 });
 </script>
