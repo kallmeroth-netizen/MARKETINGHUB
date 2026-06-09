@@ -1414,40 +1414,48 @@ function pickCalDay(key) {
 }
 
 // When user selects a historical week we only have revenue total for,
-// render the dashboard in a "limited data" mode. We update only what we
-// have and clearly flag the rest.
+// render the dashboard cleanly: show the one number we have and blank
+// out every other category so users don't see stale values from the
+// previously selected week. No banner / status bar — the '—' placeholders
+// communicate "not available for this week" without copy.
 function _applyPartialWeekData(entry) {
-  // Show a status bar message — non-blocking
-  if (typeof showStatus === 'function') {
-    showStatus(`Showing week of ${entry.label} — only total revenue available for this week`);
-  }
-  // Update top-level revenue total + the week labels; leave other panels alone
-  // but visually dim the dashboard so user knows the rest isn't from this week.
   DATA.currentWeek = entry.label;
-  if (DATA.revenue && DATA.revenue.total) {
-    DATA.revenue.total = { ...DATA.revenue.total, cw: entry.revenue };
-  }
-  renderDashboard();
-  // Add a one-time visual note below the week badge
-  let note = document.getElementById('weekDataNote');
-  if (!note) {
-    note = document.createElement('div');
-    note.id = 'weekDataNote';
-    note.style.cssText = 'font-size:11px;color:var(--brand-orange);margin-top:6px;display:flex;align-items:center;gap:6px';
-    note.innerHTML = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><span></span>';
-    const badge = document.getElementById('weekBadge');
-    badge.parentNode.insertBefore(note, badge.nextSibling);
-  }
-  note.querySelector('span').textContent = `Limited data for this week — only total revenue is available. Channel breakdowns and paid digital reflect a more recent week.`;
-}
 
-// Clear the partial-data note when user picks a week with full data
-const _origSwitchWeek = switchWeek;
-switchWeek = function(idx) {
-  const note = document.getElementById('weekDataNote');
-  if (note) note.remove();
-  _origSwitchWeek(idx);
-};
+  // Null out every per-channel field. Formatters (fmt$ / fmtN / fmtR /
+  // fmtPct) already render null as '—'.
+  function clearGroup(group) {
+    if (!group || typeof group !== 'object') return;
+    for (const key of Object.keys(group)) {
+      const v = group[key];
+      if (v && typeof v === 'object') {
+        for (const f of Object.keys(v)) v[f] = null;
+      } else {
+        group[key] = null;
+      }
+    }
+  }
+  clearGroup(DATA.revenue);
+  clearGroup(DATA.revMix);
+  clearGroup(DATA.meta);
+  clearGroup(DATA.google);
+  clearGroup(DATA.sponsored);
+  clearGroup(DATA.promo);
+  clearGroup(DATA.contribution);
+  if (DATA.blendedROAS) {
+    for (const f of Object.keys(DATA.blendedROAS)) DATA.blendedROAS[f] = null;
+  }
+
+  // Restore the one number we actually have for the picked week.
+  if (!DATA.revenue) DATA.revenue = {};
+  DATA.revenue.total = { t4w:null, lw:null, cw:entry.revenue, pctT4W:null, pctPW:null };
+
+  // Remove any leftover note from a previous build that may still be
+  // sitting in the DOM (caches, prior render).
+  const stale = document.getElementById('weekDataNote');
+  if (stale) stale.remove();
+
+  renderDashboard();
+}
 
 // Close on Escape
 document.addEventListener('keydown', e => {
