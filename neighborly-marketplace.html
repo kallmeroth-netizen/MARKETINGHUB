@@ -41,9 +41,16 @@
 
 <style>
   :root{
-    --mp:#5a4a7a; --mp-light:#f0eff5; --mp-deep:#4a3d66;
+    --mp:#5a4a7a; --mp-light:#f0eff5; --mp-deep:#5a4a7a;
   }
   *{box-sizing:border-box;}
+
+  /* Neighborly-orange scrollbars (this page only) */
+  *{ scrollbar-width:thin; scrollbar-color:var(--brand-orange) transparent; }
+  ::-webkit-scrollbar{ width:10px; height:10px; }
+  ::-webkit-scrollbar-track{ background:transparent; }
+  ::-webkit-scrollbar-thumb{ background:var(--brand-orange); border-radius:10px; }
+  ::-webkit-scrollbar-thumb:hover{ background:var(--brand-orange-deep); }
   .np-nav-page-tag.mp{ background:var(--mp-light); color:var(--mp-deep); }
 
   /* ---- WIP banner ---- */
@@ -85,7 +92,7 @@
   .mp-kpi .s{ font-size:11px; color:var(--text-3); margin-top:3px; }
 
   /* ---- board ---- */
-  .mp-board{ display:flex; gap:12px; overflow-x:auto; padding-bottom:12px; }
+  .mp-board{ display:flex; gap:12px; overflow-x:auto; padding:8px 4px 18px; }
   .mp-col{ flex:0 0 268px; width:268px; background:var(--surface-2); border-radius:var(--r-lg); padding:10px; display:flex; flex-direction:column; }
   .mp-col-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; padding:0 2px; }
   .mp-col-title{ display:flex; align-items:center; gap:7px; font-size:12px; font-weight:700; color:var(--text); }
@@ -290,7 +297,7 @@
   .mp-g-track{ position:relative; flex:0 0 auto; height:48px; }
   .mp-g-grid{ position:absolute; top:0; bottom:0; border-left:1px solid var(--line); }
   .mp-seg{ position:absolute; top:10px; height:28px; border-radius:5px; display:flex; align-items:center; padding:0 6px; overflow:hidden;
-    font-size:10px; font-weight:700; color:#fff; white-space:nowrap; box-sizing:border-box; }
+    font-size:10px; font-weight:700; color:#1f2328; white-space:nowrap; box-sizing:border-box; }
   .mp-seg.future{ color:var(--text-2); }
   .mp-seg.cur{ box-shadow:0 0 0 2px var(--surface), 0 0 0 4px currentColor; }
   .mp-milestone{ position:absolute; top:15px; width:15px; height:15px; transform:translateX(-7px) rotate(45deg); border-radius:3px; z-index:2; }
@@ -302,7 +309,6 @@
   @keyframes mpGrow   { from { width:0 !important; } }
   @keyframes mpRing   { from { stroke-dashoffset: var(--c0); } }
   @keyframes mpDot    { 0%,100%{ opacity:1; transform:scale(1); } 50%{ opacity:.3; transform:scale(.7); } }
-  @keyframes mpShimmer{ from { background-position:-180% 0; } to { background-position:180% 0; } }
   @keyframes mpFade   { from { opacity:0; } to { opacity:1; } }
 
   /* staggered entrance — only while a tab carries .mp-anim (added on reveal,
@@ -349,12 +355,6 @@
   .mp-trow,.mp-table tr.clickable{ transition:transform .15s var(--easing), box-shadow .15s, background .15s; }
   .mp-trow:hover{ transform:translateX(2px); box-shadow:0 6px 16px rgba(31,35,40,.06); border-color:var(--line-bold); }
 
-  /* the active stage on the timeline "processes" — a slow sheen = in-flux */
-  .mp-seg.cur{ position:absolute; }
-  .mp-seg.cur::after{ content:''; position:absolute; inset:0; border-radius:5px;
-    background:linear-gradient(100deg,transparent 35%,rgba(255,255,255,.4) 50%,transparent 65%);
-    background-size:220% 100%; background-repeat:no-repeat; animation:mpShimmer 2.6s linear infinite; pointer-events:none; }
-
   /* detail ring sweeps in on open */
   .mp-ring .prog{ animation:mpRing .9s cubic-bezier(.22,1,.36,1) both; }
 
@@ -374,7 +374,7 @@
 
   @media (prefers-reduced-motion: reduce){
     .mp-anim .mp-stagger>*, .mp-kpis.mp-anim>*, .mp-anim .mp-ready .fill,
-    .mp-ring .prog, .mp-seg.cur::after, .mp-live .d{ animation:none !important; }
+    .mp-ring .prog, .mp-live .d{ animation:none !important; }
     .mp-card:hover, .mp-trow:hover, .mp-kpi:hover{ transform:none; }
   }
 </style>
@@ -477,27 +477,27 @@ const CONFIG = {
 
 /* Pipeline stages — each owned by a team. color maps to brand tokens. */
 const STAGES = [
-  { key:'discovery',  label:'Discovery',      dept:'Marketplace', color:'#5a4a7a' },
-  { key:'sample',     label:'Sample Review',  dept:'Marketplace', color:'#5a4a7a' },
-  { key:'commercial', label:'Commercial',     dept:'Procurement', color:'#2d4480' },
-  { key:'commissary', label:'Commissary',     dept:'Commissary',  color:'#9c7a3c' },
-  { key:'operations', label:'Operations',     dept:'Operations',  color:'#2a7a4b' },
-  { key:'marketing',  label:'Marketing',      dept:'Marketing',   color:'#a32d2d' },
-  { key:'store',      label:'Store Launch',   dept:'Store Ops',   color:'#b89a00' },
-  { key:'live',       label:'Live',           dept:'—',           color:'#2a7a4b' },
-  { key:'review',     label:'30-Day Review',  dept:'Marketplace', color:'#5a4a7a' }
+  { key:'discovery',  label:'Discovery',      dept:'Marketplace', color:'#cbc9d6' },
+  { key:'sample',     label:'Sample Review',  dept:'Marketplace', color:'#cbc9d6' },
+  { key:'commercial', label:'Commercial',     dept:'Procurement', color:'#6280bd' },
+  { key:'commissary', label:'Commissary',     dept:'Commissary',  color:'#dbc6a2' },
+  { key:'operations', label:'Operations',     dept:'Operations',  color:'#7bbd91' },
+  { key:'marketing',  label:'Marketing',      dept:'Marketing',   color:'#e87142' },
+  { key:'store',      label:'Store Launch',   dept:'Store Ops',   color:'#eace49' },
+  { key:'live',       label:'Live',           dept:'—',           color:'#7bbd91' },
+  { key:'review',     label:'30-Day Review',  dept:'Marketplace', color:'#cbc9d6' }
 ];
 const stageIdx = k => STAGES.findIndex(s=>s.key===k);
 const stageOf  = k => STAGES[stageIdx(k)] || STAGES[0];
 
 /* Departments + colors (for task grouping & dashboards) */
 const DEPTS = [
-  { key:'Marketplace', color:'#5a4a7a' },
-  { key:'Procurement', color:'#2d4480' },
-  { key:'Commissary',  color:'#9c7a3c' },
-  { key:'Operations',  color:'#2a7a4b' },
-  { key:'Marketing',   color:'#a32d2d' },
-  { key:'Store Ops',   color:'#b89a00' }
+  { key:'Marketplace', color:'#cbc9d6' },
+  { key:'Procurement', color:'#6280bd' },
+  { key:'Commissary',  color:'#dbc6a2' },
+  { key:'Operations',  color:'#7bbd91' },
+  { key:'Marketing',   color:'#e87142' },
+  { key:'Store Ops',   color:'#eace49' }
 ];
 const deptColor = d => (DEPTS.find(x=>x.key===d)||{}).color || '#7a7770';
 
@@ -764,7 +764,7 @@ function renderKpis(){
   }
 }
 
-function readyColor(p){ return p>=90?'#2a7a4b':p>=50?'#b89a00':'#a32d2d'; }
+function readyColor(p){ return p>=90?'#7bbd91':p>=50?'#eace49':'#e87142'; }
 
 function renderBoard(){
   const cols = STAGES.filter(s=>s.key!=='review'); // review handled in detail; keep board focused
@@ -776,7 +776,7 @@ function renderBoard(){
   const railNodes = STAGES.map((s,i)=>{
     const c = counts[s.key]||0;
     const node = `<div class="mp-rail-node ${c?'':'empty'}" onclick="MP.scrollStage('${s.key}')" title="${esc(s.label)}${s.dept!=='—'?' · '+esc(s.dept):''}">
-      <div class="cnt" style="${c?'color:'+s.color:''}">${c}</div>
+      <div class="cnt">${c}</div>
       <div class="lbl"><span class="d" style="background:${s.color}"></span>${esc(s.label)}</div>
     </div>`;
     return node + (i<STAGES.length-1 ? '<span class="mp-rail-arrow">›</span>' : '');
@@ -900,7 +900,7 @@ function renderDetail(id){
           <span class="pct">${r.overall}%</span>
         </span>
         <div style="flex:1">
-          <span class="mp-stage-chip" style="background:${cur.color}1a;color:${cur.color}">${esc(cur.label)}${cur.dept!=='—'?' · '+esc(cur.dept):''}</span>
+          <span class="mp-stage-chip" style="background:${cur.color};color:#1f2328">${esc(cur.label)}${cur.dept!=='—'?' · '+esc(cur.dept):''}</span>
           <div style="font-size:12px;color:var(--text-3);margin-top:6px">${r.done}/${r.total} launch tasks complete</div>
         </div>
         ${next?`<button class="mp-btn primary" onclick="MP.advance('${l.id}','${next.key}')">${l.stage==='store'?'Go Live':'Advance'}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>`:
@@ -1017,7 +1017,7 @@ function renderTimeline(){
       else if(si===ci){ cls='cur'; style=`background:${col};color:${col}`; }
       else { cls='future'; style=`background:${hexA(col,.14)};border:1px solid ${hexA(col,.45)}`; }
       const lbl = w>=34 ? GSHORT[sg.key] : '';
-      const inner = cls==='cur' ? `<span style="color:#fff">${lbl}</span>` : lbl;
+      const inner = cls==='cur' ? `<span style="color:#1f2328">${lbl}</span>` : lbl;
       return `<div class="mp-seg ${cls}" style="left:${left}px;width:${w}px;${style}" title="${esc(stageOf(sg.key).label)} · ${esc(stageOf(sg.key).dept)}">${inner}</div>`;
     }).join('');
     const mx=x(sc.end.getTime());
