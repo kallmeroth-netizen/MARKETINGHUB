@@ -507,15 +507,22 @@ const DEFAULT_THEMES = {
         // Local cache so the calendar always loads + persists, even if Firebase is unavailable.
         const rd = (key) => { try { const s = JSON.parse(localStorage.getItem(STORAGE_KEY)||'null'); return s ? s[key] : null; } catch(e) { return null; } };
         const wr = (data) => { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch(e) {} };
-        // Note: __calRef.set returns a Promise — the synchronous try/catch
+        // Note: __calRef.update returns a Promise — the synchronous try/catch
         // here only catches synchronous throws (e.g. circular JSON). Any
         // Firebase rejection (auth, security rules, network) must be caught
         // on the returned promise, otherwise saves fail silently.
+        //
+        // Use update() rather than set() so we only touch the keys we're
+        // writing (events / goals / themes). Set() would replace the whole
+        // marketing-calendar node and wipe sibling sub-paths like
+        // toBeAdded (the "To Be Added" section below the calendar has its
+        // own writer at marketing-calendar/toBeAdded that we don't want
+        // to clobber every time an event is added or a theme is edited).
         const saveToCloud = (data) => {
           wr(data);
           if (!__calRef) return Promise.resolve();
           try {
-            return __calRef.set(data).then(() => {
+            return __calRef.update(data).then(() => {
               if (typeof showToast === 'function') showToast('Saved');
             }).catch(err => {
               console.error('[calendar] Firebase save failed:', err);
@@ -931,7 +938,7 @@ function NeighborlyCalendar() {
               const localGoals  = rd('goals')  || {};
               const localThemes = rd('themes') || JSON.parse(JSON.stringify(DEFAULT_THEMES));
               const localEvents = rd('events') || [];
-              if (localEvents.length > 0) __calRef.set({events: localEvents, goals: localGoals, themes: localThemes});
+              if (localEvents.length > 0) __calRef.update({events: localEvents, goals: localGoals, themes: localThemes});
             }
           });
           return () => __calRef.off('value', unsub);
