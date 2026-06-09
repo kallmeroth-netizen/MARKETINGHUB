@@ -474,23 +474,36 @@ const PEOPLE = [
 
 // ── MONTH THEMES ──────────────────────────────────────────────────────────────
 const DEFAULT_THEMES = {
-  0:  {theme:'New Year, New Push',          tag:'January',   color:C.blue,   goals:['Insert Goal','Insert Goal','Insert Goal'], desc:'Kick off Q1 with energy — introduce new offerings and reset brand positioning.'},
-  1:  {theme:'Love Your Community',         tag:'February',  color:C.orange, goals:['Insert Goal','Insert Goal','Insert Goal'], desc:'Lean into Valentine\'s Day — warm campaigns highlighting relationships and loyalty.'},
-  2:  {theme:'Spring Forward',              tag:'March',     color:C.green,  goals:['Insert Goal','Insert Goal','Insert Goal'], desc:'Seasonal refresh across all channels. New product spotlights and activation prep.'},
-  3:  {theme:'Growth Season',               tag:'April',     color:C.green,  goals:['Insert Goal','Insert Goal','Insert Goal'], desc:'Double down on paid and organic reach. Q2 pipeline building.'},
-  4:  {theme:'Effortless Gatherings',       tag:'May',       color:C.tan,    goals:['Insert Goal','Insert Goal','Insert Goal'], desc:'Last-minute hosting and meal ideas for end of school madness meets celebratory moments.'},
-  5:  {theme:'Easy Summer Eats',            tag:'June',      color:C.orange, goals:['Insert Goal','Insert Goal','Insert Goal'], desc:'Summer break meals, kid-friendly favorites, pool day dinners, picnic-style takeout.'},
-  6:  {theme:'Bring People Together',       tag:'July',      color:C.yellow, goals:['Insert Goal','Insert Goal','Insert Goal'], desc:'Fourth of July, backyard dinners, beach and pool days, casual hosting.'},
-  7:  {theme:'Back to the Table',           tag:'August',    color:C.blue,   goals:['Insert Goal','Insert Goal','Insert Goal'], desc:'Back-to-school prep, lunchbox-hero ideas, weeknight dinner shortcuts.'},
-  8:  {theme:'Dinner, Solved.',             tag:'September', color:C.lav,    goals:['Insert Goal','Insert Goal','Insert Goal'], desc:'Settling into routine, family dinners, fall sports, office lunches, easy catering.'},
-  9:  {theme:'Warm Nights, Easy Meals',     tag:'October',   color:C.tan,    goals:['Insert Goal','Insert Goal','Insert Goal'], desc:'Cozy comfort food, Halloween week survival, fall gatherings, football Sundays.'},
-  10: {theme:'Hosting Season, Handled.',    tag:'November',  color:C.orange, goals:['Insert Goal','Insert Goal','Insert Goal'], desc:'Thanksgiving entertaining, Friendsgiving, office gatherings, hosting shortcuts.'},
-  11: {theme:'Holiday Hustle, Made Easier.',tag:'December',  color:C.green,  goals:['Insert Goal','Insert Goal','Insert Goal'], desc:'Giftable Marketplace finds, holiday hosting, school break meals, cozy nights in.'},
+  0:  {theme:'New Year, New Push',          tag:'January',   color:C.blue,   goals:['','',''], desc:'Kick off Q1 with energy — introduce new offerings and reset brand positioning.'},
+  1:  {theme:'Love Your Community',         tag:'February',  color:C.orange, goals:['','',''], desc:'Lean into Valentine\'s Day — warm campaigns highlighting relationships and loyalty.'},
+  2:  {theme:'Spring Forward',              tag:'March',     color:C.green,  goals:['','',''], desc:'Seasonal refresh across all channels. New product spotlights and activation prep.'},
+  3:  {theme:'Growth Season',               tag:'April',     color:C.green,  goals:['','',''], desc:'Double down on paid and organic reach. Q2 pipeline building.'},
+  4:  {theme:'Effortless Gatherings',       tag:'May',       color:C.tan,    goals:['','',''], desc:'Last-minute hosting and meal ideas for end of school madness meets celebratory moments.'},
+  5:  {theme:'Easy Summer Eats',            tag:'June',      color:C.orange, goals:['','',''], desc:'Summer break meals, kid-friendly favorites, pool day dinners, picnic-style takeout.'},
+  6:  {theme:'Bring People Together',       tag:'July',      color:C.yellow, goals:['','',''], desc:'Fourth of July, backyard dinners, beach and pool days, casual hosting.'},
+  7:  {theme:'Back to the Table',           tag:'August',    color:C.blue,   goals:['','',''], desc:'Back-to-school prep, lunchbox-hero ideas, weeknight dinner shortcuts.'},
+  8:  {theme:'Dinner, Solved.',             tag:'September', color:C.lav,    goals:['','',''], desc:'Settling into routine, family dinners, fall sports, office lunches, easy catering.'},
+  9:  {theme:'Warm Nights, Easy Meals',     tag:'October',   color:C.tan,    goals:['','',''], desc:'Cozy comfort food, Halloween week survival, fall gatherings, football Sundays.'},
+  10: {theme:'Hosting Season, Handled.',    tag:'November',  color:C.orange, goals:['','',''], desc:'Thanksgiving entertaining, Friendsgiving, office gatherings, hosting shortcuts.'},
+  11: {theme:'Holiday Hustle, Made Easier.',tag:'December',  color:C.green,  goals:['','',''], desc:'Giftable Marketplace finds, holiday hosting, school break meals, cozy nights in.'},
 };
 
 // ── STORAGE ───────────────────────────────────────────────────────────────────
         const STORAGE_KEY = 'nbly_cal3_state';
         const __calRef = __fbDb ? __fbDb.ref('marketing-calendar') : null;
+        // Legacy values stored in Firebase / localStorage before goals were
+        // turned into true placeholders — treat as empty so the editor doesn't
+        // show pre-typed text and the calendar doesn't render them as goals.
+        const cleanGoal = g => (g === 'Insert Goal' || g == null) ? '' : String(g);
+        const normalizeThemes = ths => {
+          if (!ths || typeof ths !== 'object') return ths;
+          const out = {};
+          for (const k of Object.keys(ths)) {
+            const t = ths[k] || {};
+            out[k] = {...t, goals: Array.isArray(t.goals) ? t.goals.map(cleanGoal) : ['','','']};
+          }
+          return out;
+        };
         // Local cache so the calendar always loads + persists, even if Firebase is unavailable.
         const rd = (key) => { try { const s = JSON.parse(localStorage.getItem(STORAGE_KEY)||'null'); return s ? s[key] : null; } catch(e) { return null; } };
         const wr = (data) => { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch(e) {} };
@@ -823,12 +836,12 @@ function ThemeForm({open, onClose, monthIndex, themes, onSave}) {
   const [tag,   setTag]   = useState(t.tag||'');
   const [theme, setTheme] = useState(t.theme||'');
   const [desc,  setDesc]  = useState(t.desc||'');
-  const [goals, setGoals] = useState([...(t.goals||['','',''])]);
+  const [goals, setGoals] = useState((t.goals||['','','']).map(cleanGoal));
 
   useEffect(() => {
     if (!open) return;
     const t2 = themes[monthIndex] || DEFAULT_THEMES[monthIndex] || {};
-    setTag(t2.tag||''); setTheme(t2.theme||''); setDesc(t2.desc||''); setGoals([...(t2.goals||['','',''])]);
+    setTag(t2.tag||''); setTheme(t2.theme||''); setDesc(t2.desc||''); setGoals((t2.goals||['','','']).map(cleanGoal));
   }, [open, monthIndex, themes]);
 
   const inpStyle = {width:'100%',border:`0.5px solid ${C.borderStrong}`,borderRadius:8,padding:'7px 10px',fontSize:13,color:C.text,background:C.surface,outline:'none',fontFamily:'inherit'};
@@ -844,7 +857,7 @@ function ThemeForm({open, onClose, monthIndex, themes, onSave}) {
       <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:8,marginBottom:16}}>
         {[0,1,2].map(i => (
           <div key={i}><div style={{fontSize:11.5,color:C.text2,marginBottom:3}}>Goal {i+1}</div>
-            <input value={goals[i]||''} onChange={e=>setGoals(g=>{const ng=[...g];ng[i]=e.target.value;return ng;})} style={inpStyle} onFocus={focusO} onBlur={blurO}/>
+            <input value={goals[i]||''} placeholder="To be added" onChange={e=>setGoals(g=>{const ng=[...g];ng[i]=e.target.value;return ng;})} style={inpStyle} onFocus={focusO} onBlur={blurO}/>
           </div>
         ))}
       </div>
@@ -862,7 +875,7 @@ function NeighborlyCalendar() {
 
   const [events,    setEvents]    = useState(() => rd('events')  || SAMPLE_EVENTS);
   const [goals,     setGoals]     = useState(() => rd('goals')   || {});
-  const [themes,    setThemes]    = useState(() => rd('themes')  || JSON.parse(JSON.stringify(DEFAULT_THEMES)));
+  const [themes,    setThemes]    = useState(() => normalizeThemes(rd('themes')) || JSON.parse(JSON.stringify(DEFAULT_THEMES)));
         // Firebase real-time sync
         React.useEffect(() => {
           if (!__calRef) return;
@@ -875,7 +888,7 @@ function NeighborlyCalendar() {
                 const localGoals = rd('goals') || {};
                 if (Object.keys(localGoals).length > 0) __calRef.update({goals: localGoals});
               }
-              if (data.themes) setThemes(data.themes);
+              if (data.themes) setThemes(normalizeThemes(data.themes));
               else {
                 const localThemes = (rd('themes') && Object.keys(rd('themes')||{}).length > 0)
                   ? rd('themes')
@@ -1113,12 +1126,15 @@ function NeighborlyCalendar() {
                 {!isMobile && (
                   <div>
                     <div style={{fontSize:10,fontWeight:500,color:C.text3,textTransform:'uppercase',letterSpacing:'.06em',marginBottom:7}}>Monthly goals</div>
-                    {(theme.goals||[]).map((g,i) => (
-                      <label key={i} onClick={e=>e.stopPropagation()} style={{display:'flex',alignItems:'center',gap:8,marginBottom:6,cursor:'pointer'}}>
-                        <input type="checkbox" checked={monthGoals[i]||false} onChange={()=>toggleGoal(i)} style={{width:14,height:14,accentColor:C.orange,flexShrink:0}}/>
-                        <span style={{fontSize:12.5,color:C.text,lineHeight:1.4,textDecoration:monthGoals[i]?'line-through':'none',opacity:monthGoals[i]?.55:1}}>{g}</span>
-                      </label>
-                    ))}
+                    {(theme.goals||[]).map((g,i) => {
+                      const empty = !cleanGoal(g);
+                      return (
+                        <label key={i} onClick={e=>e.stopPropagation()} style={{display:'flex',alignItems:'center',gap:8,marginBottom:6,cursor:'pointer'}}>
+                          <input type="checkbox" checked={!empty && (monthGoals[i]||false)} disabled={empty} onChange={()=>!empty && toggleGoal(i)} style={{width:14,height:14,accentColor:C.orange,flexShrink:0}}/>
+                          <span style={{fontSize:12.5,color:empty?C.text3:C.text,lineHeight:1.4,fontStyle:empty?'italic':'normal',textDecoration:!empty&&monthGoals[i]?'line-through':'none',opacity:!empty&&monthGoals[i]?.55:1}}>{empty?'To be added':g}</span>
+                        </label>
+                      );
+                    })}
                   </div>
                 )}
               </div>
