@@ -19,11 +19,13 @@
   --blue:#6280bd;--bl:#eaeef8;--bd:#2d4480;
   --tan:#dbc6a2;--tl:#f7f0e4;--td:#5a4520;
   --lav:#cbc9d6;--ll:#f0eff5;--ld:#4a4760;
+  --content-max:1240px;
+  --gutter:clamp(16px, 4vw, 48px);
 }
 body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
 button,input,select{font-family:inherit}
 
-nav{background:var(--surface);border-bottom:.5px solid var(--border-strong);padding:0 1.5rem;display:flex;align-items:center;justify-content:space-between;height:50px;position:sticky;top:0;z-index:50}
+nav{background:var(--surface);border-bottom:.5px solid var(--border-strong);padding-left:max(var(--gutter), calc(50% - var(--content-max) / 2 + var(--gutter)));padding-right:max(var(--gutter), calc(50% - var(--content-max) / 2 + var(--gutter)));display:flex;align-items:center;justify-content:space-between;height:50px;position:sticky;top:0;z-index:50}
 .nav-brand{display:flex;align-items:center;height:50px;text-decoration:none}
 .nav-brand img{height:22px;width:auto;display:block}
 @media (max-width:640px){ .nav-brand img{height:18px} }
@@ -34,7 +36,7 @@ nav{background:var(--surface);border-bottom:.5px solid var(--border-strong);padd
 .nav-back.accent{color:var(--yd);border-color:rgba(234,206,73,.5);background:var(--yl)}
 .nav-back.accent:hover{background:#f5eebc}
 
-.wrap{padding:1.5rem;max-width:1200px;margin:0 auto}
+.wrap{padding:1.5rem var(--gutter);max-width:var(--content-max);margin:0 auto}
 .page-header{margin-bottom:1.5rem}
 .page-header h1{font-size:22px;font-weight:600;letter-spacing:-.02em;color:var(--text)}
 .page-header p{font-size:13px;color:var(--text2);margin-top:3px}

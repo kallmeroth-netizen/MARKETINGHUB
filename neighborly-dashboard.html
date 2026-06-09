@@ -39,7 +39,7 @@
   body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
 
   /* NAV */
-  nav { background: var(--surface); border-bottom: 0.5px solid var(--border-strong); padding: 0 2rem; display: flex; align-items: center; justify-content: space-between; height: 52px; position: sticky; top: 0; z-index: 100; }
+  nav { background: var(--surface); border-bottom: 0.5px solid var(--border-strong); padding-left: max(var(--gutter), calc(50% - var(--content-max) / 2 + var(--gutter))); padding-right: max(var(--gutter), calc(50% - var(--content-max) / 2 + var(--gutter))); display: flex; align-items: center; justify-content: space-between; height: 52px; position: sticky; top: 0; z-index: 100; }
   .nav-brand { display: flex; align-items: center; position: relative; }
   .nav-logo { height: 22px; width: auto; display: block; cursor: pointer; }
 
@@ -80,10 +80,6 @@
   /* PAGES */
   .page { display: none; }
   .page.active { display: block; }
-
-  /* Pull the nav's centred padding in to the actual content edge (1200px),
-     so the Neighborly logo sits flush with the widest text on the page. */
-  :root { --content-max: 1200px; }
 
   /* DASHBOARD PAGE */
   .dashboard { padding: 2rem var(--gutter); max-width: var(--content-max); margin: 0 auto; }
@@ -175,7 +171,7 @@
 
     /* NAV — compact on mobile */
     html, body { overflow-x: hidden; }
-    nav { padding: 0 0.75rem; gap: 4px; }
+    nav { padding-left: var(--gutter); padding-right: var(--gutter); gap: 4px; }
     .nav-tab { padding: 7px 10px; font-size: 11.5px; }
     .nav-right { gap: 6px; }
     .nav-logo { height: 18px; }
@@ -342,12 +338,6 @@
   }
 </style>
 <link rel="stylesheet" href="theme.css">
-<style>
-  /* Page-specific tokens — loaded AFTER theme.css so they win.
-     Dashboard content is 1200px wide; pulling --content-max down to match
-     makes the fixed-banner Neighborly logo sit flush with the widest text. */
-  :root { --content-max: 1200px; }
-</style>
 <script src="chrome.js" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script src="np-data.js"></script>
