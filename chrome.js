@@ -82,3 +82,136 @@
   }, true);
 })();
 
+/* Shared hub navigator. Single source of truth for the logo-click menu so
+   every page shows the same set of destinations, filtered by the signed-in
+   user's role. Before this, each page had a hand-rolled list that drifted
+   (some omitted Paid Ads, none filtered by role, ops pages only showed ops
+   links, admin had no menu at all). On load we:
+     1) Inject a default nav + hub markup into any page whose
+        #np-nav-placeholder is empty (admin).
+     2) Replace the contents of every .np-hub-grid and .hub-nav-grid on the
+        page with a canonical, role-filtered card list. The current page
+        gets the .is-active / .active class so it reads as "you are here".
+   index.html is skipped — it already owns the canonical role-aware hub
+   and switches CURRENT_SIDE via applySide(). */
+(function () {
+  'use strict';
+
+  const HUB_ITEMS = [
+    { key:'home',        label:'Home',                  sub:'Hub overview',                  href:'index.html',                  bg:'#efece2', stroke:'#1f2328', roles:['team','guest','ops','admin'],
+      svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>' },
+    { key:'sales',       label:'Performance Marketing', sub:'Weekly & all-time KPIs',        href:'neighborly-dashboard.html',   bg:'#fdf7d8', stroke:'#b89a00', roles:['team','guest','admin'],
+      svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>' },
+    { key:'pmix',        label:'Sales & Pmix',          sub:'Daily sales & product mix',     href:'neighborly-pmix.html',        bg:'#e3ece3', stroke:'#5a7a5a', roles:['team','guest','admin'],
+      svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>' },
+    { key:'calendar',    label:'Marketing Calendar',    sub:'Campaigns & scheduling',        href:'neighborly-calendar.html',    bg:'#e4f5ea', stroke:'#7bbd91', roles:['team','admin'],
+      svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>' },
+    { key:'assets',      label:'Brand Assets',          sub:'Logos & templates',             href:'neighborly-assets.html',      bg:'#f7f0e4', stroke:'#9c7a3c', roles:['team','admin'],
+      svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 010 14.14M4.93 4.93a10 10 0 000 14.14M12 2v2M12 20v2M2 12h2M20 12h2"/></svg>' },
+    { key:'social',      label:'Social',                sub:'Reach & engagement',            href:'neighborly-social.html',      bg:'#eaeef8', stroke:'#3a59a0', roles:['team','admin'],
+      svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h4l3-9 4 18 3-9h4"/></svg>' },
+    { key:'guests',      label:'Guest Intelligence',    sub:'Feedback & experience trends',  href:'neighborly-guests.html',      bg:'#f0eff5', stroke:'#5a4a7a', roles:['team','admin'],
+      svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="4"/><path d="M2 21a7 7 0 0 1 14 0"/><path d="M16 3.5a4 4 0 0 1 0 8M22 21a7 7 0 0 0-5-6.7"/></svg>' },
+    { key:'paidads',     label:'Paid Ads',              sub:'Meta & Google spend, ROAS',     href:'neighborly-paid-ads.html',    bg:'#ddeaff', stroke:'#1877f2', roles:['team','admin'],
+      svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>' },
+    { key:'print',       label:'Print Production',      sub:'Posters, menus, signage',       href:'neighborly-print.html',       bg:'#f7f0e4', stroke:'#9c7a3c', roles:['team','admin'],
+      svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="3" width="12" height="6" rx="1"/><rect x="3" y="9" width="18" height="9" rx="2"/><rect x="6" y="14" width="12" height="7" rx="1"/></svg>' },
+    { key:'opsforecast', label:'Sales & Forecasting',   sub:'Forecast vs. actual, comps',    href:'neighborly-sales.html',       bg:'#e4f5ea', stroke:'#1e5a37', roles:['ops','admin'],
+      svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l5-5 4 4 8-8"/><path d="M14 8h6v6"/></svg>' },
+    { key:'opslabor',    label:'Labor & SPLH',          sub:'SPLH, hours, OT, labor %',      href:'neighborly-labor.html',       bg:'#e4f5ea', stroke:'#1e5a37', roles:['ops','admin'],
+      svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 13h4l3 7 4-16 3 9h4"/></svg>' },
+    { key:'opspmix',     label:'Product Mix · Ops',     sub:'POS mix, computed once',        href:'neighborly-pmixops.html',     bg:'#e4f5ea', stroke:'#1e5a37', roles:['ops','admin'],
+      svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>' },
+    { key:'admin',       label:'Admin',                 sub:'User management',               href:'neighborly-admin.html',       bg:'#efece2', stroke:'#1f2328', roles:['admin'],
+      svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/><path d="M18 14l1.5 1.5L22 13"/></svg>' }
+  ];
+
+  const PATH_TO_KEY = {};
+  HUB_ITEMS.forEach(function (i) { PATH_TO_KEY[i.href.toLowerCase()] = i.key; });
+
+  function currentKey() {
+    const p = (location.pathname.split('/').pop() || '').toLowerCase();
+    if (!p || p === 'index.html') return 'home';
+    return PATH_TO_KEY[p] || null;
+  }
+
+  async function detectRole() {
+    try {
+      if (window.NPData && typeof window.NPData.getRole === 'function') {
+        const r = await window.NPData.getRole();
+        if (r) return r;
+      }
+    } catch (e) { /* fall through to defaults */ }
+    if (sessionStorage.getItem('nbly_guest') === '1') return 'guest';
+    return 'team';
+  }
+
+  function cardHtml(item, isActive, container) {
+    const isNp = container === 'np';
+    const card = isNp ? 'np-hub-card' : 'hub-card';
+    const ico  = isNp ? 'np-hub-card-ico' : 'hub-card-icon';
+    const ttl  = isNp ? 'np-hub-card-title' : 'hub-card-title';
+    const sub  = isNp ? 'np-hub-card-sub' : 'hub-card-sub';
+    const act  = isNp ? 'is-active' : 'active';
+    const svg = item.svg.replace('stroke="currentColor"', 'stroke="' + item.stroke + '"');
+    return '<a class="' + card + (isActive ? ' ' + act : '') + '" data-hub-key="' + item.key + '" href="' + item.href + '">' +
+             '<div class="' + ico + '" style="background:' + item.bg + '">' + svg + '</div>' +
+             '<div class="' + ttl + '">' + item.label + '</div>' +
+             '<div class="' + sub + '">' + item.sub + '</div>' +
+           '</a>';
+  }
+
+  // Build a minimal nav + hub for pages whose #np-nav-placeholder is empty
+  // (admin), so they get the same logo + menu as every other page.
+  function ensureNavOnPlaceholder() {
+    const ph = document.getElementById('np-nav-placeholder');
+    if (!ph || ph.children.length > 0) return;
+    const tag = document.body.dataset.pageTag || (document.title.split('—')[0] || '').trim() || '';
+    ph.outerHTML =
+      '<nav class="np-nav">' +
+        '<a class="np-nav-brand" onclick="toggleHubNav(event)" aria-label="Open hub">' +
+          '<img src="NeighborlyLogo.png" alt="Neighborly">' +
+          '<svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>' +
+        '</a>' +
+        '<div class="np-nav-right">' +
+          (tag ? '<span class="np-nav-page-tag">' + tag + '</span>' : '') +
+          '<a class="np-icon-btn" href="index.html" title="Back to home" aria-label="Back to home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></a>' +
+        '</div>' +
+      '</nav>' +
+      '<div class="np-hub-overlay" aria-hidden="true"></div>' +
+      '<div class="np-hub" role="dialog" aria-label="Marketing Hub">' +
+        '<div class="np-hub-label"><span>Neighborly Marketing Hub</span><a href="index.html" class="np-hub-back-home">&larr; Home</a></div>' +
+        '<div class="np-hub-grid"></div>' +
+      '</div>';
+  }
+
+  async function renderSharedHubs() {
+    // index.html owns its own role-aware hub via applySide(); leave it alone.
+    const path = (location.pathname.split('/').pop() || '').toLowerCase();
+    if (!path || path === 'index.html') return;
+
+    ensureNavOnPlaceholder();
+
+    const role = await detectRole();
+    const active = currentKey();
+    const visible = HUB_ITEMS.filter(function (i) { return i.roles.indexOf(role) !== -1; });
+
+    document.querySelectorAll('.np-hub-grid').forEach(function (grid) {
+      grid.innerHTML = visible.map(function (i) { return cardHtml(i, i.key === active, 'np'); }).join('');
+    });
+    document.querySelectorAll('.hub-nav-grid').forEach(function (grid) {
+      grid.innerHTML = visible.map(function (i) { return cardHtml(i, i.key === active, 'hub'); }).join('');
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', renderSharedHubs);
+  } else {
+    renderSharedHubs();
+  }
+  // React-rendered navs (calendar) and async-mounted shells may inject the
+  // hub container after DOMContentLoaded — re-run once shortly after.
+  setTimeout(renderSharedHubs, 400);
+  setTimeout(renderSharedHubs, 1200);
+})();
+
