@@ -1,0 +1,113 @@
+<!--
+  ┌────────────────────────────────────────────────────────────────────────┐
+  │  Neighborly · Marketplace NPI — notification email template              │
+  │  Matches the Neighborly marketing-calendar email styling.                │
+  │                                                                          │
+  │  HOW TO USE (one-time, ~2 min):                                          │
+  │   1. EmailJS dashboard → Email Templates → Create New Template           │
+  │   2. Open the "Content" tab → click "</> Edit Content as HTML"           │
+  │   3. Paste EVERYTHING below this comment block                           │
+  │   4. Settings on the same template:                                      │
+  │        • To Email   →  {{to_email}}                                       │
+  │        • From Name  →  Neighborly Marketplace                            │
+  │        • Subject    →  NPI · {{launch}} → {{stage}}                       │
+  │   5. Save, copy the new Template ID, and paste it into                    │
+  │      neighborly-marketplace.html → CONFIG.EMAILJS.templateId              │
+  │                                                                          │
+  │  Variables sent by the page: to_name, team, launch, brand, stage,        │
+  │  launch_date, readiness, accent (hex), message, link                     │
+  └────────────────────────────────────────────────────────────────────────┘
+-->
+<div style="font-family: 'DM Sans', system-ui, -apple-system, Arial, sans-serif; font-size: 14px; color: #1f2328; padding: 24px 14px; background-color: #f7f6f3;">
+<div style="display:none;max-height:0;overflow:hidden;opacity:0;color:#f7f6f3;font-size:1px;line-height:1px;">{{launch}} just entered {{stage}} — {{team}} has tasks to action.</div>
+<table style="max-width: 600px; margin: auto;" role="presentation" width="100%" cellspacing="0" cellpadding="0">
+<tbody>
+<tr>
+<td style="background-color: #ffffff; border-radius: 16px; border: 1px solid rgba(31,35,40,0.08); overflow: hidden;"><!-- Brand bar -->
+<table role="presentation" width="100%" cellspacing="0" cellpadding="0">
+<tbody>
+<tr>
+<td style="height: 5px; background-color: #e87142; line-height: 5px; font-size: 0;">&nbsp;</td>
+</tr>
+</tbody>
+</table>
+<!-- Logo -->
+<table role="presentation" width="100%" cellspacing="0" cellpadding="0">
+<tbody>
+<tr>
+<td style="padding: 26px 32px 6px;"><img style="height: auto; width: 150px; display: block;" src="https://raw.githubusercontent.com/kallmeroth-netizen/MARKETINGHUB/a5d8cf8a019ba9e6f3d9bc3afb115dca7d42549a/NeighborlyLogo.png" alt="Neighborly" width="150"></td>
+</tr>
+</tbody>
+</table>
+<!-- Body -->
+<table role="presentation" width="100%" cellspacing="0" cellpadding="0">
+<tbody>
+<tr>
+<td style="padding: 14px 32px 28px;">
+<p style="font-size: 11px; font-weight: 600; letter-spacing: .10em; text-transform: uppercase; color: #e87142; margin: 0 0 10px;">Action needed &middot; {{team}}</p>
+<h1 style="font-size: 23px; font-weight: bold; letter-spacing: -.01em; color: #1f2328; margin: 0 0 18px;">Hi {{to_name}}, {{launch}} just entered {{stage}}</h1>
+<p style="font-size: 14px; line-height: 1.6; color: #3a3d44; margin: 0 0 22px;">{{message}}</p>
+<!-- Detail card -->
+<table style="background-color: #f7f6f3; border-radius: 12px; border: 1px solid rgba(31,35,40,0.06); border-left: 3px solid {{accent}};" role="presentation" width="100%" cellspacing="0" cellpadding="0">
+<tbody>
+<tr>
+<td style="padding: 18px 20px;">
+<table style="font-size: 14px; line-height: 1.5;" role="presentation" width="100%" cellspacing="0" cellpadding="0">
+<tbody>
+<tr>
+<td style="padding: 5px 0; color: #7a7770; width: 110px; vertical-align: top;">Product</td>
+<td style="padding: 5px 0; color: #1f2328; font-weight: 600;">{{launch}}</td>
+</tr>
+<tr>
+<td style="padding: 5px 0; color: #7a7770; vertical-align: top;">Brand</td>
+<td style="padding: 5px 0; color: #1f2328;">{{brand}}</td>
+</tr>
+<tr>
+<td style="padding: 5px 0; color: #7a7770; vertical-align: top;">Stage</td>
+<td style="padding: 5px 0; color: #1f2328; font-weight: 600;">{{stage}}</td>
+</tr>
+<tr>
+<td style="padding: 5px 0; color: #7a7770; vertical-align: top;">Owner</td>
+<td style="padding: 5px 0; color: #1f2328;">{{team}}</td>
+</tr>
+<tr>
+<td style="padding: 5px 0; color: #7a7770; vertical-align: top;">Launch date</td>
+<td style="padding: 5px 0; color: #1f2328;">{{launch_date}}</td>
+</tr>
+<tr>
+<td style="padding: 5px 0; color: #7a7770; vertical-align: top;">Readiness</td>
+<td style="padding: 5px 0; color: #1f2328; font-weight: 600;">{{readiness}}</td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+</tbody>
+</table>
+<!-- CTA -->
+<table style="margin: 26px 0 10px;" role="presentation" cellspacing="0" cellpadding="0">
+<tbody>
+<tr>
+<td style="background-color: #e87142; border-radius: 10px;"><a style="display: inline-block; padding: 12px 26px; font-size: 12px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: #ffffff; text-decoration: none;" href="{{link}}" target="_blank" rel="noopener"> Open Marketplace NPI </a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+</tbody>
+</table>
+<!-- Footer -->
+<table role="presentation" width="100%" cellspacing="0" cellpadding="0">
+<tbody>
+<tr>
+<td style="padding: 18px 32px 24px; border-top: 1px solid rgba(31,35,40,0.06);">
+<p style="font-size: 12px; color: #7a7770; margin: 0;">&mdash; Neighborly Marketplace</p>
+</td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+</tbody>
+</table>
+</div>

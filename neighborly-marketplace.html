@@ -242,6 +242,120 @@
     .mp-specs{ grid-template-columns:1fr; }
     .mp-panel-head{ padding:16px 16px 12px; }
     .mp-panel-body{ padding:16px 16px 50px; }
+    .mp-gantt{ --gl-w:128px !important; }
+  }
+
+  /* ---- gantt timeline ---- */
+  .mp-legend{ display:flex; gap:13px; flex-wrap:wrap; align-items:center; margin-bottom:12px; }
+  .mp-legend .it{ display:flex; align-items:center; gap:6px; font-size:11px; color:var(--text-3); white-space:nowrap; }
+  .mp-legend .sw{ width:11px; height:11px; border-radius:3px; flex:0 0 auto; }
+  .mp-zoom{ margin-left:auto; display:flex; gap:4px; }
+
+  .mp-gantt{ overflow-x:auto; border:1px solid var(--line-strong); border-radius:var(--r-lg); background:var(--surface); }
+  .mp-g-head{ display:flex; position:sticky; top:0; z-index:5; background:var(--surface); border-bottom:1px solid var(--line-strong); }
+  .mp-g-rows{ width:max-content; min-width:100%; }
+  .mp-g-corner{ position:sticky; left:0; z-index:6; background:var(--surface); flex:0 0 var(--gl-w,200px); width:var(--gl-w,200px); border-right:1px solid var(--line-strong); }
+  .mp-g-axis{ position:relative; height:34px; flex:0 0 auto; }
+  .mp-g-tick{ position:absolute; top:0; bottom:0; border-left:1px solid var(--line); }
+  .mp-g-tick .lab{ position:absolute; top:9px; left:5px; font-size:10px; color:var(--text-3); font-family:var(--f-mono); white-space:nowrap; }
+  .mp-g-tick.month .lab{ color:var(--text-2); font-weight:700; }
+
+  .mp-g-row{ display:flex; border-bottom:1px solid var(--line); cursor:pointer; }
+  .mp-g-row:last-child{ border-bottom:none; }
+  .mp-g-row:hover .mp-g-label{ background:var(--surface-2); }
+  .mp-g-label{ position:sticky; left:0; z-index:4; background:var(--surface); flex:0 0 var(--gl-w,200px); width:var(--gl-w,200px); border-right:1px solid var(--line-strong); padding:8px 12px; }
+  .mp-g-label .br{ font-size:9.5px; color:var(--mp-deep); font-weight:700; text-transform:uppercase; letter-spacing:.03em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .mp-g-label .nm{ font-size:13px; font-weight:600; color:var(--text); line-height:1.2; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .mp-g-label .st{ font-size:10px; color:var(--text-3); margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .mp-g-track{ position:relative; flex:0 0 auto; height:48px; }
+  .mp-g-grid{ position:absolute; top:0; bottom:0; border-left:1px solid var(--line); }
+  .mp-seg{ position:absolute; top:10px; height:28px; border-radius:5px; display:flex; align-items:center; padding:0 6px; overflow:hidden;
+    font-size:10px; font-weight:700; color:#fff; white-space:nowrap; box-sizing:border-box; }
+  .mp-seg.future{ color:var(--text-2); }
+  .mp-seg.cur{ box-shadow:0 0 0 2px var(--surface), 0 0 0 4px currentColor; }
+  .mp-milestone{ position:absolute; top:15px; width:15px; height:15px; transform:translateX(-7px) rotate(45deg); border-radius:3px; z-index:2; }
+  .mp-today{ position:absolute; top:0; bottom:0; width:2px; background:var(--brand-orange); z-index:3; }
+  .mp-today .dot{ position:absolute; top:1px; left:-3px; width:8px; height:8px; border-radius:50%; background:var(--brand-orange); }
+
+  /* ============ TECH-FORWARD MOTION & POLISH ============ */
+  @keyframes mpUp     { from { opacity:0; transform:translateY(11px); } to { opacity:1; transform:none; } }
+  @keyframes mpGrow   { from { width:0 !important; } }
+  @keyframes mpRing   { from { stroke-dashoffset: var(--c0); } }
+  @keyframes mpDot    { 0%,100%{ opacity:1; transform:scale(1); } 50%{ opacity:.3; transform:scale(.7); } }
+  @keyframes mpShimmer{ from { background-position:-180% 0; } to { background-position:180% 0; } }
+  @keyframes mpFade   { from { opacity:0; } to { opacity:1; } }
+
+  /* staggered entrance — only while a tab carries .mp-anim (added on reveal,
+     removed after, so data re-renders never replay) */
+  .mp-anim .mp-stagger > *,
+  .mp-kpis.mp-anim > * { animation: mpUp .5s cubic-bezier(.22,1,.36,1) both; }
+  .mp-anim .mp-stagger>*:nth-child(1),.mp-kpis.mp-anim>*:nth-child(1){animation-delay:0s}
+  .mp-anim .mp-stagger>*:nth-child(2),.mp-kpis.mp-anim>*:nth-child(2){animation-delay:.04s}
+  .mp-anim .mp-stagger>*:nth-child(3),.mp-kpis.mp-anim>*:nth-child(3){animation-delay:.08s}
+  .mp-anim .mp-stagger>*:nth-child(4),.mp-kpis.mp-anim>*:nth-child(4){animation-delay:.12s}
+  .mp-anim .mp-stagger>*:nth-child(5),.mp-kpis.mp-anim>*:nth-child(5){animation-delay:.16s}
+  .mp-anim .mp-stagger>*:nth-child(6){animation-delay:.20s}
+  .mp-anim .mp-stagger>*:nth-child(7){animation-delay:.24s}
+  .mp-anim .mp-stagger>*:nth-child(8){animation-delay:.28s}
+  .mp-anim .mp-stagger>*:nth-child(9){animation-delay:.32s}
+  .mp-anim .mp-stagger>*:nth-child(10){animation-delay:.36s}
+  .mp-anim .mp-stagger>*:nth-child(n+11){animation-delay:.40s}
+  .mp-anim .mp-ready .fill{ animation: mpGrow .8s cubic-bezier(.22,1,.36,1) both; }
+
+  /* live-sync pulse pill in the eyebrow */
+  .mp-live{ display:inline-flex; align-items:center; gap:6px; margin-left:10px; padding:2px 9px; border-radius:var(--r-pill);
+    background:var(--brand-green-light); color:var(--brand-green-deep); font-family:var(--f-mono); font-size:9.5px;
+    letter-spacing:.09em; text-transform:uppercase; vertical-align:middle; }
+  .mp-live .d{ width:6px; height:6px; border-radius:50%; background:var(--brand-green-deep); animation:mpDot 1.6s ease-in-out infinite; }
+
+  /* gradient wordmark */
+  .mp-head h1{ background:linear-gradient(92deg,var(--ink) 30%,var(--mp-deep)); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; }
+
+  /* richer hovers */
+  .mp-card{ transition:transform .18s var(--easing), box-shadow .18s var(--easing), border-color .18s; will-change:transform; }
+  .mp-card:hover{ transform:translateY(-3px); box-shadow:0 10px 26px rgba(31,35,40,.10); }
+  .mp-card:active{ transform:translateY(-1px); }
+  .mp-kpi{ transition:transform .18s var(--easing), box-shadow .18s; position:relative; overflow:hidden; }
+  .mp-kpi:hover{ transform:translateY(-2px); box-shadow:0 8px 20px rgba(31,35,40,.07); }
+  .mp-kpi::after{ content:''; position:absolute; left:0; top:0; height:3px; width:100%; background:linear-gradient(90deg,var(--mp),transparent); opacity:0; transition:opacity .2s; }
+  .mp-kpi:hover::after{ opacity:.9; }
+  .mp-kpi .v{ font-variant-numeric:tabular-nums; }
+  .mp-btn{ transition:transform .12s var(--easing), background .15s, border-color .15s; }
+  .mp-btn:active{ transform:translateY(1px) scale(.98); }
+  .mp-g-row{ transition:background .15s; }
+  .mp-g-row:hover{ background:rgba(90,74,122,.035); }
+  .mp-seg{ transition:filter .15s, transform .15s; }
+  .mp-seg:hover{ filter:brightness(1.07); }
+  .mp-trow,.mp-table tr.clickable{ transition:transform .15s var(--easing), box-shadow .15s, background .15s; }
+  .mp-trow:hover{ transform:translateX(2px); box-shadow:0 6px 16px rgba(31,35,40,.06); border-color:var(--line-bold); }
+
+  /* the active stage on the timeline "processes" — a slow sheen = in-flux */
+  .mp-seg.cur{ position:absolute; }
+  .mp-seg.cur::after{ content:''; position:absolute; inset:0; border-radius:5px;
+    background:linear-gradient(100deg,transparent 35%,rgba(255,255,255,.4) 50%,transparent 65%);
+    background-size:220% 100%; background-repeat:no-repeat; animation:mpShimmer 2.6s linear infinite; pointer-events:none; }
+
+  /* detail ring sweeps in on open */
+  .mp-ring .prog{ animation:mpRing .9s cubic-bezier(.22,1,.36,1) both; }
+
+  /* frosted slide-over + animated overlay */
+  .mp-overlay{ backdrop-filter:blur(3px); -webkit-backdrop-filter:blur(3px); }
+  .mp-panel{ box-shadow:-18px 0 60px rgba(31,35,40,.20); }
+  .mp-dept{ transition:border-color .15s, box-shadow .2s; }
+  .mp-dept.open{ box-shadow:0 6px 20px rgba(31,35,40,.05); }
+  .mp-check{ transition:transform .12s var(--easing), background .15s, border-color .15s; }
+  .mp-check:hover{ transform:scale(1.12); border-color:var(--brand-green-deep); }
+  .mp-check:active{ transform:scale(.9); }
+
+  /* tab underline glides */
+  .mp-tab{ position:relative; transition:color .15s; }
+  .mp-tab::after{ content:''; position:absolute; left:10px; right:10px; bottom:-1px; height:2px; background:var(--mp); border-radius:2px; transform:scaleX(0); transform-origin:center; transition:transform .22s var(--easing); }
+  .mp-tab.active::after{ transform:scaleX(1); }
+
+  @media (prefers-reduced-motion: reduce){
+    .mp-anim .mp-stagger>*, .mp-kpis.mp-anim>*, .mp-anim .mp-ready .fill,
+    .mp-ring .prog, .mp-seg.cur::after, .mp-live .d{ animation:none !important; }
+    .mp-card:hover, .mp-trow:hover, .mp-kpi:hover{ transform:none; }
   }
 </style>
 </head>
@@ -278,10 +392,11 @@
 
   <div class="mp-head">
     <div>
-      <div class="eyebrow">Marketplace Operations</div>
+      <div class="eyebrow">Marketplace Operations <span class="mp-live"><span class="d"></span>Live sync</span></div>
       <h1>New Product Introduction</h1>
     </div>
     <div class="mp-actions">
+      <button class="mp-btn" onclick="MP.openSettings()" title="Email notifications"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>Notifications</button>
       <button class="mp-btn" onclick="MP.openBrandModal()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>Add brand</button>
       <button class="mp-btn primary" onclick="MP.openLaunchModal()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>New launch</button>
     </div>
@@ -291,11 +406,13 @@
 
   <div class="mp-tabs">
     <button class="mp-tab active" data-tab="board" onclick="MP.tab('board')">Pipeline <span class="count" id="cBoard">0</span></button>
+    <button class="mp-tab" data-tab="timeline" onclick="MP.tab('timeline')">Timeline</button>
     <button class="mp-tab" data-tab="teams" onclick="MP.tab('teams')">Team tasks <span class="count" id="cTeams">0</span></button>
     <button class="mp-tab" data-tab="brands" onclick="MP.tab('brands')">Brands <span class="count" id="cBrands">0</span></button>
   </div>
 
   <div id="tab-board"></div>
+  <div id="tab-timeline" style="display:none"></div>
   <div id="tab-teams" style="display:none"></div>
   <div id="tab-brands" style="display:none"></div>
 
@@ -330,8 +447,12 @@ const CONFIG = {
   LAUNCH_GATE: 90,        // overall readiness % required before a launch can go Live
   AUTO_ADVANCE: true,     // when a stage's tasks hit 100%, offer 1-click advance
   YEAR: new Date().getFullYear(),
-  // EmailJS — outbound team notifications. Fill these in + set enabled:true to go live.
-  EMAILJS: { enabled:false, publicKey:'', serviceId:'', templateId:'' }
+  // EmailJS — reuses the hub's existing account (same as the calendar).
+  // Actual sending is gated by the in-app Notifications toggle + each team
+  // having an email on file, so nothing goes out until you turn it on.
+  // For branded NPI emails, paste npi-email-template.html into a new EmailJS
+  // template and swap the templateId below for that new template's ID.
+  EMAILJS: { publicKey:'pW4-kj71suA1OsbFa', serviceId:'service_v4jp7sp', templateId:'template_zmo0l7k' }
 };
 
 /* Pipeline stages — each owned by a team. color maps to brand tokens. */
@@ -412,10 +533,13 @@ const TASK_TEMPLATES = [
 ];
 
 /* ---------------------------------------------------------------- STATE ---- */
-let state = { brands:{}, launches:{} };
+function defaultSettings(){ return { notifyEmail:false, teamEmails:{} }; }
+let state = { brands:{}, launches:{}, settings:defaultSettings() };
 let openLaunchId = null;
 let teamFilter = 'Marketplace';
+let ganttPx = 18;
 let _bootstrapped = false;
+const revealed = {};
 
 /* ---------------------------------------------------------------- UTIL ----- */
 const $ = s => document.querySelector(s);
@@ -438,7 +562,7 @@ function subscribe(){
   if(!window.__fbDb){ bootstrapIfEmpty(); renderAll(); return; }
   __fbDb.ref(CONFIG.FB_PATH).on('value', snap=>{
     const v = snap.val();
-    state = { brands:(v&&v.brands)||{}, launches:(v&&v.launches)||{} };
+    state = { brands:(v&&v.brands)||{}, launches:(v&&v.launches)||{}, settings:(v&&v.settings)||defaultSettings() };
     // normalise: ensure tasks object exists
     Object.values(state.launches).forEach(l=>{ if(!l.tasks) l.tasks={}; if(!l.log) l.log=[]; });
     bootstrapIfEmpty();
@@ -527,17 +651,43 @@ function toggleTask(id, taskId){
   if(openLaunchId===id) renderDetail(id);
 }
 
+function emailVars(l, dept, message){
+  const base = location.href.split('#')[0].split('?')[0];
+  return {
+    to_name:     dept,
+    team:        dept,
+    launch:      l.name,
+    brand:       brandName(l.brandId),
+    stage:       stageOf(l.stage).label,
+    launch_date: l.launchDate ? fmtDate(l.launchDate) : 'TBD',
+    readiness:   readiness(l).overall + '%',
+    accent:      deptColor(dept),
+    link:        base,
+    message:     message,
+    // backward-compat with the existing calendar template's variable names:
+    event_name:     `${l.name} — ${stageOf(l.stage).label} stage active`,
+    event_date:     l.launchDate ? fmtDate(l.launchDate) : 'TBD',
+    event_category: `${brandName(l.brandId)} · ${dept}`,
+    event_notes:    message
+  };
+}
+
 function notifyTeam(l, dept, message){
   logEvent(l, `🔔 ${dept} notified`);
-  // outbound email (optional — wired, off by default)
-  if(CONFIG.EMAILJS.enabled && window.emailjs){
-    try{
-      emailjs.send(CONFIG.EMAILJS.serviceId, CONFIG.EMAILJS.templateId, {
-        team:dept, launch:l.name, brand:brandName(l.brandId), stage:stageOf(l.stage).label,
-        message, to_email:(l.deptOwners&&l.deptOwners[dept])||''
+  // outbound email — only if alerts are ON and this team has an address on file
+  const s = state.settings || {};
+  if(!s.notifyEmail || !window.emailjs) return;
+  const to = (s.teamEmails && s.teamEmails[dept]) || '';
+  if(!to) return;
+  const vars = emailVars(l, dept, message); vars.to_email = to;
+  try{
+    emailjs.send(CONFIG.EMAILJS.serviceId, CONFIG.EMAILJS.templateId, vars)
+      .then(()=>toast(`📧 Emailed ${dept}`))
+      .catch(err=>{
+        console.error('EmailJS error →', err);
+        toast(`⚠️ Email to ${dept} failed — check console`, null, '#a32d2d');
       });
-    }catch(e){ console.warn('EmailJS send failed', e); }
-  }
+  }catch(e){ console.warn('EmailJS send failed', e); }
 }
 
 /* ---------------------------------------------------------------- TOASTS --- */
@@ -551,7 +701,16 @@ function toast(html, action, color, ms){
 }
 
 /* ---------------------------------------------------------------- RENDER --- */
-function renderAll(){ renderKpis(); renderCounts(); renderBoard(); if($('#tab-teams').style.display!=='none') renderTeams(); if($('#tab-brands').style.display!=='none') renderBrands(); }
+function renderAll(){ renderKpis(); renderCounts(); renderBoard();
+  if($('#tab-timeline').style.display!=='none') renderTimeline();
+  if($('#tab-teams').style.display!=='none') renderTeams();
+  if($('#tab-brands').style.display!=='none') renderBrands();
+  if(!revealed._init){ revealed._init=true; setTimeout(()=>revealTab('board'),30); } }
+
+/* add .mp-anim to a tab so its stagger animation plays once, then strip it so
+   subsequent in-place re-renders (task toggles, advances) stay static */
+function revealTab(name){ const el=$('#tab-'+name); if(!el) return; el.classList.add('mp-anim'); setTimeout(()=>el.classList.remove('mp-anim'),950); }
+function countUp(el,to,suf,dur){ const t0=performance.now(); (function f(t){ const p=Math.min((t-t0)/dur,1); const e=1-Math.pow(1-p,3); el.textContent=Math.round(to*e)+(suf||''); if(p<1) requestAnimationFrame(f); })(performance.now()); }
 
 function renderCounts(){
   const launches = Object.values(state.launches);
@@ -569,13 +728,20 @@ function renderKpis(){
   const avgReady = active.length ? Math.round(active.reduce((a,l)=>a+readiness(l).overall,0)/active.length) : 0;
   const liveCount = launches.filter(l=>l.stage==='live').length;
   const k = [
-    ['In pipeline', active.length, 'active launches'],
-    ['Launching ≤30d', live30.length, 'next 30 days'],
-    ['Avg readiness', avgReady+'%', 'across active'],
-    ['At risk', atRisk.length, '<7d & under gate'],
-    ['Live', liveCount, 'on shelf']
+    { l:'In pipeline', v:active.length, suf:'', s:'active launches' },
+    { l:'Launching ≤30d', v:live30.length, suf:'', s:'next 30 days' },
+    { l:'Avg readiness', v:avgReady, suf:'%', s:'across active' },
+    { l:'At risk', v:atRisk.length, suf:'', s:'<7d & under gate' },
+    { l:'Live', v:liveCount, suf:'', s:'on shelf' }
   ];
-  $('#mpKpis').innerHTML = k.map(x=>`<div class="mp-kpi"><div class="l">${x[0]}</div><div class="v">${x[1]}</div><div class="s">${x[2]}</div></div>`).join('');
+  const first = !revealed.kpi;
+  const wrap = $('#mpKpis');
+  wrap.innerHTML = k.map(x=>`<div class="mp-kpi"><div class="l">${x.l}</div><div class="v" data-to="${x.v}" data-suf="${x.suf}">${first?('0'+x.suf):(x.v+x.suf)}</div><div class="s">${x.s}</div></div>`).join('');
+  if(first){
+    revealed.kpi = true;
+    wrap.classList.add('mp-anim'); setTimeout(()=>wrap.classList.remove('mp-anim'),950);
+    wrap.querySelectorAll('.v').forEach(el=>countUp(el, +el.dataset.to, el.dataset.suf, 850));
+  }
 }
 
 function readyColor(p){ return p>=90?'#2a7a4b':p>=50?'#b89a00':'#a32d2d'; }
@@ -595,7 +761,7 @@ function renderBoard(){
       <div class="mp-col-body">${cards}</div>
     </div>`;
   }).join('');
-  $('#tab-board').innerHTML = `<div class="mp-board">${html}</div>`;
+  $('#tab-board').innerHTML = `<div class="mp-board mp-stagger">${html}</div>`;
 }
 
 function cardHtml(l){
@@ -686,7 +852,7 @@ function renderDetail(id){
     <div class="mp-panel-body">
       <div class="mp-stage-row">
         <span class="mp-ring">
-          <svg width="54" height="54"><circle cx="27" cy="27" r="23" stroke="var(--surface-2)" stroke-width="6" fill="none"/><circle cx="27" cy="27" r="23" stroke="${readyColor(r.overall)}" stroke-width="6" fill="none" stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${off}"/></svg>
+          <svg width="54" height="54"><circle cx="27" cy="27" r="23" stroke="var(--surface-2)" stroke-width="6" fill="none"/><circle class="prog" cx="27" cy="27" r="23" stroke="${readyColor(r.overall)}" stroke-width="6" fill="none" stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${off}" style="--c0:${C}"/></svg>
           <span class="pct">${r.overall}%</span>
         </span>
         <div style="flex:1">
@@ -749,7 +915,96 @@ function renderTeams(){
       ${r.isCur?`<span class="mp-pri High" style="background:var(--mp-light);color:var(--mp-deep)">Active stage</span>`:''}
     </div>`).join('') : `<div class="mp-empty">No open tasks for ${esc(teamFilter)}. 🎉</div>`;
 
-  $('#tab-teams').innerHTML = `<div class="mp-team-bar">${pills}</div><div class="mp-tasklist">${list}</div>`;
+  $('#tab-teams').innerHTML = `<div class="mp-team-bar">${pills}</div><div class="mp-tasklist mp-stagger">${list}</div>`;
+}
+
+/* ---- gantt timeline ---- */
+const STAGE_DUR = { discovery:5, sample:5, commercial:5, commissary:3, operations:3, marketing:4, store:2 };
+const GSTAGES = ['discovery','sample','commercial','commissary','operations','marketing','store'];
+const GSHORT  = { discovery:'Disc', sample:'Sample', commercial:"Comm'l", commissary:'Whse', operations:'Ops', marketing:'Mktg', store:'Store' };
+const DAYMS = 864e5;
+const gtotal = () => GSTAGES.reduce((a,k)=>a+STAGE_DUR[k],0);
+function hexA(h,a){ const n=parseInt(h.slice(1),16); return `rgba(${(n>>16)&255},${(n>>8)&255},${n&255},${a})`; }
+
+/* Back-schedule each launch: stages end at the launch date (countdown). If no
+   launch date, run forward from when it was created. */
+function scheduleOf(l){
+  const tot = gtotal();
+  let end = l.launchDate ? new Date(l.launchDate+'T12:00:00') : new Date((l.createdAt||Date.now())+tot*DAYMS);
+  end.setHours(12,0,0,0);
+  const start = new Date(end.getTime()-tot*DAYMS);
+  let cur=new Date(start); const segs=[];
+  GSTAGES.forEach(k=>{ const s=new Date(cur), e=new Date(cur.getTime()+STAGE_DUR[k]*DAYMS); segs.push({key:k,s,e}); cur=e; });
+  return { start, end, segs };
+}
+
+function renderTimeline(){
+  const host=$('#tab-timeline');
+  const launches=Object.values(state.launches);
+  if(!launches.length){ host.innerHTML=`<div class="mp-empty">No launches yet — create one to see the timeline.</div>`; return; }
+  const rows=launches.map(l=>({l,sc:scheduleOf(l)})).sort((a,b)=>a.sc.end-b.sc.end);
+  const today=new Date(); today.setHours(12,0,0,0);
+  const minMs=Math.min(today.getTime(), ...rows.map(r=>r.sc.start.getTime()));
+  const maxMs=Math.max(today.getTime(), ...rows.map(r=>r.sc.end.getTime()));
+  const startN=Math.floor(minMs/DAYMS)-3, endN=Math.ceil(maxMs/DAYMS)+5;
+  const PX=ganttPx, W=(endN-startN)*PX;
+  const x=ms=>(Math.floor(ms/DAYMS)-startN)*PX;
+  const todayX=x(today.getTime());
+
+  // axis ticks (month labels + weekly day numbers) and matching grid lines
+  let ticks='', grid='', lastMonth=-1;
+  for(let n=startN;n<=endN;n++){
+    const d=new Date(n*DAYMS), left=(n-startN)*PX, mo=d.getUTCMonth(), dow=d.getUTCDay();
+    if(mo!==lastMonth){ lastMonth=mo;
+      ticks+=`<div class="mp-g-tick month" style="left:${left}px"><span class="lab">${d.toLocaleDateString('en-US',{month:'short',timeZone:'UTC'})}</span></div>`;
+      grid+=`<div class="mp-g-grid" style="left:${left}px"></div>`;
+    } else if(dow===1){
+      ticks+=`<div class="mp-g-tick" style="left:${left}px"><span class="lab">${d.getUTCDate()}</span></div>`;
+      grid+=`<div class="mp-g-grid" style="left:${left}px"></div>`;
+    }
+  }
+
+  const body=rows.map(({l,sc})=>{
+    const ci=stageIdx(l.stage), launched=(l.stage==='live'||l.stage==='review'), r=readiness(l);
+    const segHtml=sc.segs.map(sg=>{
+      const left=x(sg.s.getTime()), w=Math.max((sg.e-sg.s)/DAYMS*PX-2,6), col=stageOf(sg.key).color, si=stageIdx(sg.key);
+      let cls,style;
+      if(launched||si<ci){ cls='done'; style=`background:${col}`; }
+      else if(si===ci){ cls='cur'; style=`background:${col};color:${col}`; }
+      else { cls='future'; style=`background:${hexA(col,.14)};border:1px solid ${hexA(col,.45)}`; }
+      const lbl = w>=34 ? GSHORT[sg.key] : '';
+      const inner = cls==='cur' ? `<span style="color:#fff">${lbl}</span>` : lbl;
+      return `<div class="mp-seg ${cls}" style="left:${left}px;width:${w}px;${style}" title="${esc(stageOf(sg.key).label)} · ${esc(stageOf(sg.key).dept)}">${inner}</div>`;
+    }).join('');
+    const mx=x(sc.end.getTime());
+    const milestone=`<div class="mp-milestone" title="Go live: ${l.launchDate?esc(fmtDate(l.launchDate)):'TBD'}" style="left:${mx}px;${launched?'background:var(--brand-green)':'background:#fff;border:2px solid '+stageOf('store').color}"></div>`;
+    const openCur=Object.values(l.tasks||{}).filter(t=>t.stage===l.stage&&!t.done).length;
+    const st = launched ? '🟢 Live' : `${stageOf(l.stage).label}${openCur?` · ${openCur} open`:''}`;
+    return `<div class="mp-g-row" onclick="MP.openDetail('${l.id}')">
+      <div class="mp-g-label">
+        <div class="br">${esc(brandName(l.brandId))}</div>
+        <div class="nm">${esc(l.name)}</div>
+        <div class="st">${esc(st)} · ${r.overall}%</div>
+      </div>
+      <div class="mp-g-track" style="width:${W}px">${grid}${segHtml}${milestone}<div class="mp-today" style="left:${todayX}px"></div></div>
+    </div>`;
+  }).join('');
+
+  const legend = GSTAGES.map(k=>`<span class="it"><span class="sw" style="background:${stageOf(k).color}"></span>${esc(stageOf(k).label)}</span>`).join('')
+    + `<span class="it"><span class="sw" style="transform:rotate(45deg);border-radius:2px;background:#fff;border:2px solid ${stageOf('store').color}"></span>Go-live</span>`
+    + `<span class="it"><span class="sw" style="background:var(--brand-orange)"></span>Today</span>`;
+  const zoom = `<span class="mp-zoom">
+      <button class="mp-btn sm ${PX<=14?'primary':''}" onclick="MP.ganttZoom(12)">Fit</button>
+      <button class="mp-btn sm ${PX>14&&PX<24?'primary':''}" onclick="MP.ganttZoom(18)">Comfort</button>
+      <button class="mp-btn sm ${PX>=24?'primary':''}" onclick="MP.ganttZoom(28)">Wide</button>
+    </span>`;
+
+  host.innerHTML = `
+    <div class="mp-legend">${legend}${zoom}</div>
+    <div class="mp-gantt" style="--gl-w:200px">
+      <div class="mp-g-head"><div class="mp-g-corner"></div><div class="mp-g-axis" style="width:${W}px">${ticks}<div class="mp-today" style="left:${todayX}px"><span class="dot"></span></div></div></div>
+      <div class="mp-g-rows mp-stagger">${body}</div>
+    </div>`;
 }
 
 /* ---- brands CRM ---- */
@@ -768,7 +1023,7 @@ function renderBrands(){
     </tr>`).join('') : `<tr><td colspan="7"><div class="mp-empty">No brands yet — add your discovery pipeline.</div></td></tr>`;
   $('#tab-brands').innerHTML = `<div class="mp-table-wrap"><table class="mp-table">
     <thead><tr><th>Brand</th><th>Category</th><th>Contact</th><th>Distributor</th><th>Source</th><th>Status</th><th>Launches</th></tr></thead>
-    <tbody>${rows}</tbody></table></div>`;
+    <tbody class="mp-stagger">${rows}</tbody></table></div>`;
 }
 
 /* ---------------------------------------------------------------- MODALS --- */
@@ -844,6 +1099,28 @@ function brandModal(b){
     </div>`);
 }
 
+function settingsModal(){
+  const s = state.settings || defaultSettings();
+  const rows = DEPTS.map((d,i)=>`
+    <div class="mp-field">
+      <label><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${d.color};margin-right:6px;vertical-align:middle"></span>${esc(d.key)}</label>
+      <input id="se_${i}" type="email" value="${esc((s.teamEmails||{})[d.key]||'')}" placeholder="${d.key.toLowerCase().replace(/[^a-z]/g,'')}@beneighborly.com">
+    </div>`).join('');
+  openModal(`
+    <h3>Team notifications</h3>
+    <div class="sub">When a launch enters a team's stage, that team gets auto-emailed. Uses the hub's existing email account — no setup needed.</div>
+    <label style="display:flex;align-items:center;gap:10px;background:var(--mp-light);border-radius:var(--r-md);padding:11px 14px;margin-bottom:16px;cursor:pointer;font-size:13px;font-weight:600;color:var(--mp-deep)">
+      <input id="se_toggle" type="checkbox" ${s.notifyEmail?'checked':''} style="width:18px;height:18px;accent-color:var(--mp)">
+      Email alerts are ${s.notifyEmail?'<b>ON</b>':'OFF'} — send emails on stage changes
+    </label>
+    ${rows}
+    <div class="mp-modal-foot">
+      <button class="mp-btn sm" style="margin-right:auto" onclick="MP.sendTest()">Send test</button>
+      <button class="mp-btn" onclick="MP.closeModal()">Cancel</button>
+      <button class="mp-btn primary" onclick="MP.saveSettings()">Save</button>
+    </div>`);
+}
+
 /* ---------------------------------------------------------------- SEED ----- */
 function bootstrapIfEmpty(){
   if(_bootstrapped) return;
@@ -875,10 +1152,12 @@ function isoIn(days){ const d=new Date(); d.setDate(d.getDate()+days); return d.
 window.MP = {
   tab(name){
     document.querySelectorAll('.mp-tab').forEach(t=>t.classList.toggle('active', t.dataset.tab===name));
-    ['board','teams','brands'].forEach(n=>$('#tab-'+n).style.display = n===name?'':'none');
-    if(name==='teams') renderTeams(); if(name==='brands') renderBrands();
+    ['board','timeline','teams','brands'].forEach(n=>$('#tab-'+n).style.display = n===name?'':'none');
+    if(name==='timeline') renderTimeline(); if(name==='teams') renderTeams(); if(name==='brands') renderBrands();
+    revealTab(name);
   },
   team(d){ teamFilter=d; renderTeams(); },
+  ganttZoom(px){ ganttPx=px; renderTimeline(); },
   openDetail(id){ openLaunchId=id; renderDetail(id); $('#mpOverlay').classList.add('open'); $('#mpPanel').classList.add('open'); document.body.style.overflow='hidden'; },
   closeDetail(){ openLaunchId=null; $('#mpOverlay').classList.remove('open'); $('#mpPanel').classList.remove('open'); document.body.style.overflow=''; },
   toggle(id,tid){ toggleTask(id,tid); },
@@ -887,6 +1166,27 @@ window.MP = {
   editLaunch(id){ launchModal(state.launches[id]); },
   openBrandModal(){ brandModal(null); },
   editBrand(id){ brandModal(state.brands[id]); },
+  openSettings(){ settingsModal(); },
+  saveSettings(){
+    const s = state.settings = state.settings || defaultSettings();
+    s.notifyEmail = $('#se_toggle').checked;
+    s.teamEmails = s.teamEmails || {};
+    DEPTS.forEach((d,i)=>{ const el=$('#se_'+i); if(el) s.teamEmails[d.key]=el.value.trim(); });
+    save(); closeModal();
+    toast(s.notifyEmail ? 'Email alerts <b>ON</b>' : 'Settings saved — alerts off');
+  },
+  sendTest(){
+    if(!window.emailjs){ toast('EmailJS not loaded.',null,'#a32d2d'); return; }
+    let to=''; DEPTS.forEach((d,i)=>{ const el=$('#se_'+i); if(el && el.value.trim() && !to) to=el.value.trim(); });
+    if(!to){ toast('Enter at least one team email first.',null,'#a32d2d'); return; }
+    const msg = 'If you received this, NPI team email alerts are working. 🎉';
+    emailjs.send(CONFIG.EMAILJS.serviceId, CONFIG.EMAILJS.templateId, {
+      to_email:to, to_name:'Marketplace team', team:'Marketplace', launch:'Test Launch', brand:'Neighborly',
+      stage:'Sample Review', launch_date:fmtDate(isoIn(21)), readiness:'42%', accent:'#5a4a7a',
+      link:location.href.split('#')[0].split('?')[0], message:msg,
+      event_name:'NPI test notification', event_date:fmtDate(isoIn(0)), event_category:'Marketplace NPI · test', event_notes:msg
+    }).then(()=>toast(`📧 Test sent to ${esc(to)}`)).catch(err=>{ console.error(err); toast('Test failed — check console.',null,'#a32d2d'); });
+  },
   closeModal,
   _brandSel(sel){ $('#f_newbrand').style.display = sel.value==='__new'?'block':'none'; },
   saveLaunch(id){
@@ -927,7 +1227,7 @@ window.MP = {
 };
 
 /* ---------------------------------------------------------------- INIT ----- */
-if(CONFIG.EMAILJS.enabled && window.emailjs){ try{ emailjs.init(CONFIG.EMAILJS.publicKey); }catch(e){} }
+if(window.emailjs){ try{ emailjs.init({ publicKey: CONFIG.EMAILJS.publicKey }); }catch(e){} }
 subscribe();
 
 })();
