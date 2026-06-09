@@ -39,7 +39,7 @@
   body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
 
   /* NAV */
-  nav { background: var(--surface); border-bottom: 0.5px solid var(--border-strong); padding: 0 2rem; display: flex; align-items: center; justify-content: space-between; height: 52px; position: sticky; top: 0; z-index: 100; }
+  nav { background: var(--surface); border-bottom: 0.5px solid var(--border-strong); padding-left: max(var(--gutter), calc(50% - var(--content-max) / 2 + var(--gutter))); padding-right: max(var(--gutter), calc(50% - var(--content-max) / 2 + var(--gutter))); display: flex; align-items: center; justify-content: space-between; height: 52px; position: sticky; top: 0; z-index: 100; }
   .nav-brand { display: flex; align-items: center; position: relative; }
   .nav-logo { height: 22px; width: auto; display: block; cursor: pointer; }
 
@@ -80,10 +80,6 @@
   /* PAGES */
   .page { display: none; }
   .page.active { display: block; }
-
-  /* Pull the nav's centred padding in to the actual content edge (1200px),
-     so the Neighborly logo sits flush with the widest text on the page. */
-  :root { --content-max: 1200px; }
 
   /* DASHBOARD PAGE */
   .dashboard { padding: 2rem var(--gutter); max-width: var(--content-max); margin: 0 auto; }
@@ -175,7 +171,7 @@
 
     /* NAV — compact on mobile */
     html, body { overflow-x: hidden; }
-    nav { padding: 0 0.75rem; gap: 4px; }
+    nav { padding-left: var(--gutter); padding-right: var(--gutter); gap: 4px; }
     .nav-tab { padding: 7px 10px; font-size: 11.5px; }
     .nav-right { gap: 6px; }
     .nav-logo { height: 18px; }
@@ -342,12 +338,6 @@
   }
 </style>
 <link rel="stylesheet" href="theme.css">
-<style>
-  /* Page-specific tokens — loaded AFTER theme.css so they win.
-     Dashboard content is 1200px wide; pulling --content-max down to match
-     makes the fixed-banner Neighborly logo sit flush with the widest text. */
-  :root { --content-max: 1200px; }
-</style>
 <script src="chrome.js" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script src="np-data.js"></script>
@@ -1191,6 +1181,20 @@ const WEEK_HISTORY = [
   // The two most recent weeks come from the KPI tracker; earlier weeks have
   // partial data (total revenue only) from the historical dataset.
   {
+    label: 'May 27, 2026',
+    data: {
+      currentWeek:'May 27, 2026', lastWeek:'May 20, 2026',
+      revenue:{ total:{t4w:324157,lw:320916,cw:324549,pctT4W:0,pctPW:1}, dineIn:{t4w:135292,lw:139740,cw:138018,pctT4W:2,pctPW:-1}, webPickup:{t4w:74661,lw:73763,cw:74226,pctT4W:-1,pctPW:1}, instore:{t4w:30524,lw:26398,cw:31306,pctT4W:3,pctPW:19}, delivery:{t4w:23879,lw:24366,cw:26039,pctT4W:9,pctPW:7}, catering:{t4w:15393,lw:16802,cw:8073,pctT4W:-48,pctPW:-52}, tpd:{t4w:37132,lw:33226,cw:39120,pctT4W:5,pctPW:18}, marketplace:{t4w:7276,lw:6621,cw:7767,pctT4W:7,pctPW:17} },
+      revMix:{ dineIn:{t4w:41.75,lw:43.5,cw:42.5}, webPickup:{t4w:23.03,lw:23.0,cw:22.9}, instore:{t4w:9.41,lw:8.2,cw:9.6}, delivery:{t4w:7.37,lw:7.6,cw:8.0}, catering:{t4w:4.74,lw:5.2,cw:2.5}, tpd:{t4w:11.46,lw:10.4,cw:12.1}, marketplace:{t4w:2.24,lw:2.1,cw:2.4} },
+      meta:{ netRev:{t4w:11188,lw:10159,cw:10236,pctT4W:-9,pctPW:1}, spend:{t4w:1384,lw:1407,cw:1375,pctT4W:-1,pctPW:-2}, customers:{t4w:309,lw:303,cw:333,pctT4W:8,pctPW:10}, cac:{t4w:4.70,lw:4.64,cw:4.13,pctT4W:-12,pctPW:-11}, roas:{t4w:9.09,lw:8.22,cw:8.44,pctT4W:-7,pctPW:3} },
+      google:{ netRev:{t4w:24089,lw:29547,cw:23056,pctT4W:-4,pctPW:-22}, spend:{t4w:804,lw:889,cw:1022,pctT4W:27,pctPW:15}, customers:{t4w:635,lw:637,cw:670,pctT4W:5,pctPW:5}, cac:{t4w:1.27,lw:1.39,cw:1.52,pctT4W:20,pctPW:9}, roas:{t4w:30.93,lw:34.25,cw:23.57,pctT4W:-24,pctPW:-31} },
+      sponsored:{ netRev:{t4w:9411,lw:8663,cw:20936,pctT4W:122,pctPW:142}, spend:{t4w:958,lw:905,cw:1555,pctT4W:62,pctPW:72}, roas:{t4w:9.81,lw:9.58,cw:13.46,pctT4W:37,pctPW:41} },
+      promo:{ netRev:{t4w:13395,lw:13190,cw:7426,pctT4W:-45,pctPW:-44}, spend:{t4w:1102,lw:1224,cw:1355,pctT4W:23,pctPW:11}, roas:{t4w:12.22,lw:10.77,cw:5.48,pctT4W:-55,pctPW:-49} },
+      blendedROAS:{t4w:13.7,lw:13.9,cw:11.6,pctT4W:-15,pctPW:-17},
+      contribution:{ sponsored:{t4w:3,lw:3,cw:6}, promo:{t4w:4,lw:4,cw:2}, meta:{t4w:3,lw:3,cw:3}, google:{t4w:7,lw:9,cw:7}, total:{t4w:17,lw:19,cw:18} }
+    }
+  },
+  {
     label: 'May 20, 2026',
     data: {
       currentWeek:'May 20, 2026', lastWeek:'May 13, 2026',
@@ -1405,10 +1409,10 @@ function _noteDigitalFreshness(selectedLabel) {
   if (!note) {
     note = document.createElement('div');
     note.id = 'weekDataNote';
-    note.style.cssText = 'font-size:11px;color:var(--brand-orange);margin-top:6px;display:flex;align-items:center;gap:6px';
-    note.innerHTML = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><span></span>';
+    note.style.cssText = 'font-size:11px;color:var(--brand-orange);margin-top:6px;display:flex;align-items:center;gap:6px;line-height:1.4';
+    note.innerHTML = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="flex-shrink:0"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><span></span>';
     const badge = document.getElementById('weekBadge');
-    badge.parentNode.insertBefore(note, badge.nextSibling);
+    if (badge && badge.parentNode) badge.parentNode.insertBefore(note, badge.nextSibling);
   }
   note.querySelector('span').textContent =
     `Revenue and channel mix shown are live for the week of ${selectedLabel}. Paid-digital figures (Meta, Google, Sponsored, Promo) aren't yet wired to per-week history and still reflect the week of ${WEEK_HISTORY[0]?.label}.`;

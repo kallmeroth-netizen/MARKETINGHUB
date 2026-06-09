@@ -31,7 +31,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 button,input,select,textarea{font-family:inherit}
 
 /* NAV */
-nav{background:var(--surface);border-bottom:.5px solid var(--border-strong);padding:0 1.5rem;display:flex;align-items:center;height:50px;position:sticky;top:0;z-index:100;gap:12px}
+nav{background:var(--surface);border-bottom:.5px solid var(--border-strong);padding-left:max(var(--gutter), calc(50% - var(--content-max) / 2 + var(--gutter)));padding-right:max(var(--gutter), calc(50% - var(--content-max) / 2 + var(--gutter)));display:flex;align-items:center;height:50px;position:sticky;top:0;z-index:100;gap:12px}
 .nav-right{margin-left:auto;display:flex;align-items:center;gap:10px}
 .nav-brand{display:flex;align-items:center;position:relative;height:50px;flex-shrink:0}
 .nav-logo{height:22px;width:auto;display:block;cursor:pointer}
@@ -107,9 +107,6 @@ nav{background:var(--surface);border-bottom:.5px solid var(--border-strong);padd
 #calApplyBtn:hover{filter:brightness(1.08);background:var(--brand-orange);color:#fff}
 
 /* PAGE HEADER — matches the dashboard's .dash-header pattern: title + date controls on the left, location toggle on the right */
-/* Lock content width + horizontal padding to the same tokens the fixed
-   banner uses, so the Neighborly logo sits flush with the widest text. */
-:root{--content-max:1200px}
 .guest-header{max-width:var(--content-max);margin:0 auto;padding:1.5rem var(--gutter) 0;display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;flex-wrap:wrap}
 .guest-header-left{display:flex;flex-direction:column;gap:8px;min-width:0;flex:1 1 auto}
 .guest-title{font-size:22px;font-weight:600;letter-spacing:-0.03em;color:var(--text);line-height:1.15}
@@ -485,12 +482,6 @@ nav{background:var(--surface);border-bottom:.5px solid var(--border-strong);padd
 
 </style>
 <link rel="stylesheet" href="theme.css">
-<style>
-  /* Loaded AFTER theme.css so the override sticks. Guests pages render at
-     1200px content width — match the banner padding to that edge so the
-     Neighborly logo sits flush with the widest text. */
-  :root { --content-max: 1200px; }
-</style>
 <script src="chrome.js" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script src="np-data.js"></script>
