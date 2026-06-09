@@ -1,0 +1,937 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Marketplace NPI — Neighborly</title>
+
+<link rel="manifest" href="/manifest.json">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta name="theme-color" content="#5a4a7a">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png">
+
+<link rel="stylesheet" href="theme.css">
+<script src="chrome.js" defer></script>
+
+<!-- Firebase (live multi-user sync — same project as calendar/gantt) -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<script>
+  var __fbDb = null;
+  try {
+    firebase.initializeApp({apiKey:"AIzaSyAiHIQuw3eiyY305sDqc_CoV_MoEG9CQpw",authDomain:"neighborly-hub-53e4b.firebaseapp.com",databaseURL:"https://neighborly-hub-53e4b-default-rtdb.firebaseio.com",projectId:"neighborly-hub-53e4b",storageBucket:"neighborly-hub-53e4b.firebasestorage.app",messagingSenderId:"847761939455",appId:"1:847761939455:web:d0d5dbe1795bb4f05f25ca"});
+    __fbDb = firebase.database();
+  } catch (e) { console.warn('Firebase unavailable — Marketplace NPI falling back to local memory only.', e); }
+</script>
+
+<!-- EmailJS (optional outbound notifications — flip on in CONFIG below) -->
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+
+<!-- Auth / role gate -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="np-data.js"></script>
+<script>
+  /* HIDDEN FOR NOW: only the admin role can reach this page and no tile is
+     shown on the hub home. To open it up later, change the line below to e.g.
+     ['admin','marketplace'] and add a data-roles="marketplace" tile in index.html. */
+  NPData.guardPage(['admin']);
+</script>
+
+<style>
+  :root{
+    --mp:#5a4a7a; --mp-light:#f0eff5; --mp-deep:#4a3d66;
+  }
+  *{box-sizing:border-box;}
+  .np-nav-page-tag.mp{ background:var(--mp-light); color:var(--mp-deep); }
+
+  /* ---- WIP banner ---- */
+  .wf-banner{ display:flex; align-items:flex-start; gap:12px; background:var(--mp-light);
+    border:1px dashed var(--mp); border-radius:var(--r-lg); padding:12px 16px; margin-bottom:var(--s-4); }
+  .wf-banner .wf-ico{ color:var(--mp-deep); flex:0 0 auto; margin-top:1px; }
+  .wf-banner b{ color:var(--mp-deep); }
+  .wf-banner p{ font-size:var(--t-caption); color:var(--text-2); line-height:1.5; margin:2px 0 0; }
+
+  /* ---- header row ---- */
+  .mp-head{ display:flex; align-items:flex-end; justify-content:space-between; gap:16px; margin-bottom:var(--s-4); flex-wrap:wrap; }
+  .mp-head h1{ font-family:var(--f-amp); font-size:var(--t-section); margin:0; line-height:1.1; }
+  .mp-head .eyebrow{ font-family:var(--f-eyebrow); font-size:var(--t-eyebrow); letter-spacing:.1em; text-transform:uppercase; color:var(--mp-deep); }
+  .mp-actions{ display:flex; gap:8px; flex-wrap:wrap; }
+
+  .mp-btn{ display:inline-flex; align-items:center; gap:7px; border:1px solid var(--line-strong); background:var(--surface);
+    color:var(--text); font-family:var(--f-sans); font-size:13px; font-weight:600; padding:9px 14px; border-radius:var(--r-pill);
+    cursor:pointer; transition:.15s; white-space:nowrap; }
+  .mp-btn:hover{ border-color:var(--line-bold); background:var(--surface-2); }
+  .mp-btn.primary{ background:var(--mp); border-color:var(--mp); color:#fff; }
+  .mp-btn.primary:hover{ background:var(--mp-deep); }
+  .mp-btn.sm{ padding:6px 11px; font-size:12px; }
+  .mp-btn svg{ width:15px; height:15px; }
+
+  /* ---- tabs ---- */
+  .mp-tabs{ display:flex; gap:4px; border-bottom:1px solid var(--line-strong); margin-bottom:var(--s-4); overflow-x:auto; }
+  .mp-tab{ border:none; background:none; font-family:var(--f-sans); font-size:13px; font-weight:600; color:var(--text-3);
+    padding:10px 14px; cursor:pointer; border-bottom:2px solid transparent; white-space:nowrap; display:flex; align-items:center; gap:6px; }
+  .mp-tab.active{ color:var(--mp-deep); border-bottom-color:var(--mp); }
+  .mp-tab .count{ background:var(--surface-2); color:var(--text-3); font-size:10px; font-weight:700; padding:1px 6px; border-radius:var(--r-pill); }
+  .mp-tab.active .count{ background:var(--mp-light); color:var(--mp-deep); }
+
+  /* ---- KPI strip ---- */
+  .mp-kpis{ display:grid; grid-template-columns:repeat(5,1fr); gap:var(--s-3); margin-bottom:var(--s-4); }
+  @media(max-width:760px){ .mp-kpis{ grid-template-columns:repeat(2,1fr); } }
+  .mp-kpi{ background:var(--surface); border:1px solid var(--line-strong); border-radius:var(--r-lg); padding:12px 14px; }
+  .mp-kpi .l{ font-size:var(--t-caption-sm); color:var(--text-3); text-transform:uppercase; letter-spacing:.06em; font-weight:600; }
+  .mp-kpi .v{ font-family:var(--f-mono); font-size:24px; color:var(--text); margin-top:3px; line-height:1; }
+  .mp-kpi .s{ font-size:11px; color:var(--text-3); margin-top:3px; }
+
+  /* ---- board ---- */
+  .mp-board{ display:flex; gap:12px; overflow-x:auto; padding-bottom:12px; }
+  .mp-col{ flex:0 0 268px; width:268px; background:var(--surface-2); border-radius:var(--r-lg); padding:10px; display:flex; flex-direction:column; }
+  .mp-col-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; padding:0 2px; }
+  .mp-col-title{ display:flex; align-items:center; gap:7px; font-size:12px; font-weight:700; color:var(--text); }
+  .mp-col-title .dot{ width:9px; height:9px; border-radius:50%; flex:0 0 auto; }
+  .mp-col-owner{ font-size:10px; color:var(--text-3); font-weight:600; text-transform:uppercase; letter-spacing:.04em; }
+  .mp-col-count{ font-size:11px; font-weight:700; color:var(--text-3); }
+  .mp-col-body{ display:flex; flex-direction:column; gap:8px; min-height:24px; }
+
+  .mp-card{ background:var(--surface); border:1px solid var(--line-strong); border-radius:var(--r-md); padding:11px 12px; cursor:pointer; transition:.15s; }
+  .mp-card:hover{ border-color:var(--line-bold); box-shadow:0 4px 14px rgba(31,35,40,.06); }
+  .mp-card .code{ font-family:var(--f-mono); font-size:10px; color:var(--text-3); letter-spacing:.02em; }
+  .mp-card .brand{ font-size:11px; color:var(--mp-deep); font-weight:700; text-transform:uppercase; letter-spacing:.03em; margin-top:2px; }
+  .mp-card .name{ font-size:14px; font-weight:600; color:var(--text); line-height:1.25; margin-top:1px; }
+  .mp-card .meta{ display:flex; align-items:center; gap:8px; margin-top:9px; flex-wrap:wrap; }
+  .mp-pri{ font-size:9.5px; font-weight:800; padding:2px 7px; border-radius:var(--r-pill); text-transform:uppercase; letter-spacing:.04em; }
+  .mp-pri.High{ background:var(--brand-orange-light); color:var(--brand-orange-deep); }
+  .mp-pri.Med{ background:var(--brand-yellow-light); color:var(--brand-yellow-deep); }
+  .mp-pri.Low{ background:var(--surface-2); color:var(--text-3); }
+  .mp-date{ font-size:11px; color:var(--text-3); display:inline-flex; align-items:center; gap:4px; }
+  .mp-date.soon{ color:var(--brand-orange-deep); font-weight:700; }
+
+  /* readiness bar */
+  .mp-ready{ margin-top:9px; }
+  .mp-ready .track{ height:5px; background:var(--surface-2); border-radius:var(--r-pill); overflow:hidden; }
+  .mp-ready .fill{ height:100%; border-radius:var(--r-pill); transition:width .3s; }
+  .mp-ready .lbl{ display:flex; justify-content:space-between; font-size:10px; color:var(--text-3); margin-top:4px; }
+  .mp-ready .lbl b{ color:var(--text-2); font-family:var(--f-mono); }
+
+  .mp-card .advance{ margin-top:9px; width:100%; justify-content:center; }
+
+  /* ---- detail slide-over ---- */
+  .mp-overlay{ position:fixed; inset:0; background:rgba(31,35,40,.32); opacity:0; pointer-events:none; transition:.2s; z-index:200; }
+  .mp-overlay.open{ opacity:1; pointer-events:auto; }
+  .mp-panel{ position:fixed; top:0; right:0; height:100%; width:min(560px,100%); background:var(--surface);
+    box-shadow:-10px 0 40px rgba(31,35,40,.14); transform:translateX(100%); transition:transform .25s var(--easing); z-index:201; overflow-y:auto; }
+  .mp-panel.open{ transform:translateX(0); }
+  .mp-panel-head{ position:sticky; top:0; background:var(--surface); border-bottom:1px solid var(--line); padding:18px 22px 14px; z-index:2; }
+  .mp-panel-head .row{ display:flex; align-items:flex-start; justify-content:space-between; gap:12px; }
+  .mp-panel-head .code{ font-family:var(--f-mono); font-size:11px; color:var(--text-3); }
+  .mp-panel-head h2{ font-family:var(--f-amp); font-size:22px; margin:3px 0 0; line-height:1.1; }
+  .mp-panel-head .brand{ font-size:12px; color:var(--mp-deep); font-weight:700; text-transform:uppercase; letter-spacing:.04em; margin-top:3px; }
+  .mp-close{ border:none; background:var(--surface-2); width:32px; height:32px; border-radius:50%; cursor:pointer; flex:0 0 auto; display:flex; align-items:center; justify-content:center; color:var(--text-2); }
+  .mp-close:hover{ background:var(--line-strong); }
+  .mp-panel-body{ padding:18px 22px 60px; }
+
+  /* stage stepper */
+  .mp-stepper{ display:flex; gap:4px; margin:14px 0 6px; overflow-x:auto; padding-bottom:4px; }
+  .mp-step{ flex:1 0 auto; min-width:0; }
+  .mp-step .bar{ height:5px; border-radius:var(--r-pill); background:var(--surface-2); }
+  .mp-step.done .bar{ background:var(--brand-green); }
+  .mp-step.cur .bar{ background:var(--mp); }
+  .mp-step .t{ font-size:9px; color:var(--text-3); margin-top:4px; white-space:nowrap; }
+  .mp-step.cur .t{ color:var(--mp-deep); font-weight:700; }
+
+  .mp-stage-row{ display:flex; align-items:center; gap:10px; margin:14px 0; flex-wrap:wrap; }
+  .mp-stage-chip{ display:inline-flex; align-items:center; gap:7px; font-size:13px; font-weight:700; padding:7px 14px; border-radius:var(--r-pill); }
+  .mp-ring{ position:relative; width:54px; height:54px; flex:0 0 auto; }
+  .mp-ring svg{ transform:rotate(-90deg); }
+  .mp-ring .pct{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-family:var(--f-mono); font-size:14px; font-weight:600; }
+
+  .mp-sec{ margin-top:22px; }
+  .mp-sec-title{ font-family:var(--f-eyebrow); font-size:var(--t-eyebrow); letter-spacing:.1em; text-transform:uppercase; color:var(--text-3); margin-bottom:10px; display:flex; align-items:center; gap:8px; }
+  .mp-sec-title .pct{ font-family:var(--f-mono); margin-left:auto; color:var(--text-2); }
+
+  /* dept task group */
+  .mp-dept{ border:1px solid var(--line-strong); border-radius:var(--r-lg); margin-bottom:10px; overflow:hidden; }
+  .mp-dept-head{ display:flex; align-items:center; gap:9px; padding:11px 14px; cursor:pointer; background:var(--surface); }
+  .mp-dept-head:hover{ background:var(--surface-2); }
+  .mp-dept-head .dot{ width:9px; height:9px; border-radius:50%; }
+  .mp-dept-head .nm{ font-size:13px; font-weight:700; color:var(--text); }
+  .mp-dept-head .mini{ margin-left:auto; display:flex; align-items:center; gap:9px; }
+  .mp-dept-head .minibar{ width:64px; height:5px; background:var(--surface-2); border-radius:var(--r-pill); overflow:hidden; }
+  .mp-dept-head .minibar i{ display:block; height:100%; }
+  .mp-dept-head .mpct{ font-family:var(--f-mono); font-size:11px; color:var(--text-3); min-width:34px; text-align:right; }
+  .mp-dept-head .chev{ width:14px; height:14px; color:var(--text-3); transition:transform .2s; }
+  .mp-dept.open .chev{ transform:rotate(90deg); }
+  .mp-tasks{ display:none; padding:4px 14px 12px; border-top:1px solid var(--line); }
+  .mp-dept.open .mp-tasks{ display:block; }
+  .mp-task{ display:flex; align-items:flex-start; gap:10px; padding:8px 0; border-bottom:1px solid var(--line); }
+  .mp-task:last-child{ border-bottom:none; }
+  .mp-check{ width:19px; height:19px; border:2px solid var(--line-bold); border-radius:6px; flex:0 0 auto; cursor:pointer; margin-top:1px; display:flex; align-items:center; justify-content:center; background:var(--surface); transition:.15s; }
+  .mp-check.on{ background:var(--brand-green-deep); border-color:var(--brand-green-deep); }
+  .mp-check svg{ width:12px; height:12px; color:#fff; opacity:0; }
+  .mp-check.on svg{ opacity:1; }
+  .mp-task .body{ flex:1; min-width:0; }
+  .mp-task .lab{ font-size:13px; color:var(--text); line-height:1.3; }
+  .mp-task.done .lab{ color:var(--text-3); text-decoration:line-through; }
+  .mp-task .sub{ font-size:10.5px; color:var(--text-3); margin-top:2px; }
+
+  /* spec grid */
+  .mp-specs{ display:grid; grid-template-columns:1fr 1fr; gap:1px; background:var(--line-strong); border:1px solid var(--line-strong); border-radius:var(--r-lg); overflow:hidden; }
+  .mp-spec{ background:var(--surface); padding:10px 13px; }
+  .mp-spec .l{ font-size:10px; color:var(--text-3); text-transform:uppercase; letter-spacing:.05em; font-weight:600; }
+  .mp-spec .v{ font-size:13px; color:var(--text); margin-top:2px; font-weight:500; }
+
+  /* activity log */
+  .mp-log{ list-style:none; padding:0; margin:0; }
+  .mp-log li{ display:flex; gap:10px; padding:8px 0; border-bottom:1px solid var(--line); font-size:12px; color:var(--text-2); }
+  .mp-log li:last-child{ border-bottom:none; }
+  .mp-log .ts{ font-family:var(--f-mono); font-size:10px; color:var(--text-3); flex:0 0 92px; }
+
+  /* ---- brand CRM table ---- */
+  .mp-table-wrap{ background:var(--surface); border:1px solid var(--line-strong); border-radius:var(--r-lg); overflow:hidden; overflow-x:auto; }
+  table.mp-table{ width:100%; border-collapse:collapse; font-size:13px; min-width:680px; }
+  .mp-table th{ text-align:left; font-size:10px; text-transform:uppercase; letter-spacing:.05em; color:var(--text-3); font-weight:700; padding:11px 14px; border-bottom:1px solid var(--line-strong); white-space:nowrap; }
+  .mp-table td{ padding:11px 14px; border-bottom:1px solid var(--line); color:var(--text-2); vertical-align:middle; }
+  .mp-table tr:last-child td{ border-bottom:none; }
+  .mp-table tr.clickable{ cursor:pointer; }
+  .mp-table tr.clickable:hover td{ background:var(--surface-2); }
+  .mp-table .bn{ font-weight:700; color:var(--text); }
+  .mp-status{ font-size:10px; font-weight:800; padding:3px 9px; border-radius:var(--r-pill); text-transform:uppercase; letter-spacing:.03em; white-space:nowrap; }
+  .mp-status.Prospect{ background:var(--surface-2); color:var(--text-3); }
+  .mp-status.Testing{ background:var(--brand-yellow-light); color:var(--brand-yellow-deep); }
+  .mp-status.Approved{ background:var(--brand-blue-light); color:var(--brand-blue-deep); }
+  .mp-status.Active{ background:var(--brand-green-light); color:var(--brand-green-deep); }
+  .mp-status.Rejected{ background:var(--brand-orange-light); color:var(--brand-orange-deep); }
+
+  /* ---- team dashboard ---- */
+  .mp-team-bar{ display:flex; align-items:center; gap:8px; margin-bottom:var(--s-4); flex-wrap:wrap; }
+  .mp-team-pill{ border:1px solid var(--line-strong); background:var(--surface); border-radius:var(--r-pill); padding:7px 14px; font-size:12px; font-weight:600; cursor:pointer; color:var(--text-2); display:inline-flex; align-items:center; gap:7px; }
+  .mp-team-pill .dot{ width:8px; height:8px; border-radius:50%; }
+  .mp-team-pill.active{ border-color:var(--mp); background:var(--mp-light); color:var(--mp-deep); }
+  .mp-team-pill .n{ font-family:var(--f-mono); font-size:11px; opacity:.8; }
+  .mp-tasklist{ display:flex; flex-direction:column; gap:8px; }
+  .mp-trow{ display:flex; align-items:center; gap:12px; background:var(--surface); border:1px solid var(--line-strong); border-radius:var(--r-md); padding:11px 14px; }
+  .mp-trow .body{ flex:1; min-width:0; }
+  .mp-trow .lab{ font-size:14px; font-weight:600; color:var(--text); }
+  .mp-trow .ctx{ font-size:11px; color:var(--text-3); margin-top:2px; }
+  .mp-trow .ctx a{ color:var(--mp-deep); font-weight:600; text-decoration:none; }
+  .mp-empty{ text-align:center; color:var(--text-3); font-size:13px; padding:40px 20px; }
+
+  /* ---- modal ---- */
+  .mp-modal-ov{ position:fixed; inset:0; background:rgba(31,35,40,.4); opacity:0; pointer-events:none; transition:.2s; z-index:210; display:flex; align-items:center; justify-content:center; padding:20px; }
+  .mp-modal-ov.open{ opacity:1; pointer-events:auto; }
+  .mp-modal{ background:var(--surface); border-radius:var(--r-xl); width:min(480px,100%); max-height:90vh; overflow-y:auto; padding:24px; transform:translateY(12px); transition:.2s; }
+  .mp-modal-ov.open .mp-modal{ transform:translateY(0); }
+  .mp-modal h3{ font-family:var(--f-amp); font-size:20px; margin:0 0 4px; }
+  .mp-modal .sub{ font-size:12px; color:var(--text-3); margin-bottom:18px; }
+  .mp-field{ margin-bottom:14px; }
+  .mp-field label{ display:block; font-size:11px; font-weight:700; color:var(--text-2); text-transform:uppercase; letter-spacing:.04em; margin-bottom:5px; }
+  .mp-field input, .mp-field select, .mp-field textarea{ width:100%; border:1px solid var(--line-strong); border-radius:var(--r-md); padding:9px 12px; font-family:var(--f-sans); font-size:14px; color:var(--text); background:var(--surface); }
+  .mp-field input:focus, .mp-field select:focus, .mp-field textarea:focus{ outline:none; border-color:var(--mp); }
+  .mp-field .two{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .mp-modal-foot{ display:flex; gap:8px; justify-content:flex-end; margin-top:8px; }
+
+  /* toast */
+  .mp-toasts{ position:fixed; bottom:20px; left:50%; transform:translateX(-50%); z-index:300; display:flex; flex-direction:column; gap:8px; align-items:center; pointer-events:none; }
+  .mp-toast{ background:var(--ink); color:#fff; font-size:13px; padding:11px 18px; border-radius:var(--r-pill); box-shadow:0 8px 24px rgba(0,0,0,.18); display:flex; align-items:center; gap:10px; opacity:0; transform:translateY(8px); transition:.2s; max-width:90vw; }
+  .mp-toast.show{ opacity:1; transform:translateY(0); }
+  .mp-toast b{ color:var(--brand-green); }
+  .mp-toast .act{ pointer-events:auto; color:var(--brand-yellow); font-weight:700; cursor:pointer; text-decoration:underline; }
+
+  @media(max-width:640px){
+    .mp-specs{ grid-template-columns:1fr; }
+    .mp-panel-head{ padding:16px 16px 12px; }
+    .mp-panel-body{ padding:16px 16px 50px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="np-nav">
+  <a class="np-nav-brand" onclick="toggleHubNav(event)" aria-label="Open hub">
+    <img src="NeighborlyLogo.png" alt="Neighborly">
+  </a>
+  <div class="np-nav-right">
+    <span class="np-nav-page-tag mp">Marketplace · NPI</span>
+    <a class="np-icon-btn" href="index.html" title="Back to home" aria-label="Back to home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></a>
+  </div>
+</nav>
+
+<div class="np-hub-overlay" aria-hidden="true"></div>
+<div class="np-hub" role="dialog" aria-label="Marketplace Hub">
+  <div class="np-hub-label"><span>Neighborly Marketplace · NPI</span><a href="index.html" class="np-hub-back-home">&larr; Home</a></div>
+  <div class="np-hub-grid">
+    <a class="np-hub-card" href="index.html"><div class="np-hub-card-ico" style="background:var(--surface-2)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--text)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12l9-9 9 9"/><path d="M5 10v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V10"/></svg></div><div class="np-hub-card-title">Home</div><div class="np-hub-card-sub">Back to hub</div></a>
+    <a class="np-hub-card is-active" href="neighborly-marketplace.html"><div class="np-hub-card-ico" style="background:var(--mp-light)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--mp-deep)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l1-5h16l1 5"/><path d="M4 9v11a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1V9"/><path d="M9 21v-6h6v6"/></svg></div><div class="np-hub-card-title">Marketplace NPI</div><div class="np-hub-card-sub">New product introduction</div></a>
+  </div>
+</div>
+
+<main class="np-main">
+
+  <div class="wf-banner">
+    <span class="wf-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg></span>
+    <div>
+      <b>Hidden — Marketplace Ops (work in progress).</b>
+      <p>Live New Product Introduction (NPI) pipeline. Every brand sample becomes a <b>launch</b> that moves through stage-gates, auto-assigning tasks to each team. Synced live across everyone via Firebase. This page is admin-only and not yet on the hub home.</p>
+    </div>
+  </div>
+
+  <div class="mp-head">
+    <div>
+      <div class="eyebrow">Marketplace Operations</div>
+      <h1>New Product Introduction</h1>
+    </div>
+    <div class="mp-actions">
+      <button class="mp-btn" onclick="MP.openBrandModal()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>Add brand</button>
+      <button class="mp-btn primary" onclick="MP.openLaunchModal()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>New launch</button>
+    </div>
+  </div>
+
+  <div class="mp-kpis" id="mpKpis"></div>
+
+  <div class="mp-tabs">
+    <button class="mp-tab active" data-tab="board" onclick="MP.tab('board')">Pipeline <span class="count" id="cBoard">0</span></button>
+    <button class="mp-tab" data-tab="teams" onclick="MP.tab('teams')">Team tasks <span class="count" id="cTeams">0</span></button>
+    <button class="mp-tab" data-tab="brands" onclick="MP.tab('brands')">Brands <span class="count" id="cBrands">0</span></button>
+  </div>
+
+  <div id="tab-board"></div>
+  <div id="tab-teams" style="display:none"></div>
+  <div id="tab-brands" style="display:none"></div>
+
+</main>
+
+<!-- detail slide-over -->
+<div class="mp-overlay" id="mpOverlay" onclick="MP.closeDetail()"></div>
+<div class="mp-panel" id="mpPanel"></div>
+
+<!-- modal host -->
+<div class="mp-modal-ov" id="mpModalOv"><div class="mp-modal" id="mpModal"></div></div>
+
+<!-- toasts -->
+<div class="mp-toasts" id="mpToasts"></div>
+
+<footer class="np-footer" aria-label="Neighbors Only Hub">
+  <img src="./NeighborlyLogo.png" alt="Neighborly">
+  <div class="np-footer-text">Neighbors Only Hub</div>
+</footer>
+
+<script>
+/* ============================================================================
+   Marketplace NPI — New Product Introduction command center
+   Single-file, vanilla JS, Firebase Realtime DB live sync (path: marketplace-npi)
+   ========================================================================== */
+(function(){
+'use strict';
+
+/* ---------------------------------------------------------------- CONFIG --- */
+const CONFIG = {
+  FB_PATH: 'marketplace-npi',
+  LAUNCH_GATE: 90,        // overall readiness % required before a launch can go Live
+  AUTO_ADVANCE: true,     // when a stage's tasks hit 100%, offer 1-click advance
+  YEAR: new Date().getFullYear(),
+  // EmailJS — outbound team notifications. Fill these in + set enabled:true to go live.
+  EMAILJS: { enabled:false, publicKey:'', serviceId:'', templateId:'' }
+};
+
+/* Pipeline stages — each owned by a team. color maps to brand tokens. */
+const STAGES = [
+  { key:'discovery',  label:'Discovery',      dept:'Marketplace', color:'#5a4a7a' },
+  { key:'sample',     label:'Sample Review',  dept:'Marketplace', color:'#5a4a7a' },
+  { key:'commercial', label:'Commercial',     dept:'Procurement', color:'#2d4480' },
+  { key:'commissary', label:'Commissary',     dept:'Commissary',  color:'#9c7a3c' },
+  { key:'operations', label:'Operations',     dept:'Operations',  color:'#2a7a4b' },
+  { key:'marketing',  label:'Marketing',      dept:'Marketing',   color:'#a32d2d' },
+  { key:'store',      label:'Store Launch',   dept:'Store Ops',   color:'#b89a00' },
+  { key:'live',       label:'Live',           dept:'—',           color:'#2a7a4b' },
+  { key:'review',     label:'30-Day Review',  dept:'Marketplace', color:'#5a4a7a' }
+];
+const stageIdx = k => STAGES.findIndex(s=>s.key===k);
+const stageOf  = k => STAGES[stageIdx(k)] || STAGES[0];
+
+/* Departments + colors (for task grouping & dashboards) */
+const DEPTS = [
+  { key:'Marketplace', color:'#5a4a7a' },
+  { key:'Procurement', color:'#2d4480' },
+  { key:'Commissary',  color:'#9c7a3c' },
+  { key:'Operations',  color:'#2a7a4b' },
+  { key:'Marketing',   color:'#a32d2d' },
+  { key:'Store Ops',   color:'#b89a00' }
+];
+const deptColor = d => (DEPTS.find(x=>x.key===d)||{}).color || '#7a7770';
+
+/* Task templates — auto-generated for every launch. Each task is owned by a
+   department and "gated" by the stage it belongs to. This is the launch
+   scorecard / checklist. Edit freely — new launches pick up changes. */
+const TASK_TEMPLATES = [
+  // Marketplace — Discovery
+  { stage:'discovery',  dept:'Marketplace', label:'Brand submitted & logged' },
+  { stage:'discovery',  dept:'Marketplace', label:'Samples requested' },
+  { stage:'discovery',  dept:'Marketplace', label:'Samples received' },
+  // Marketplace — Sample review
+  { stage:'sample',     dept:'Marketplace', label:'Tasting scheduled' },
+  { stage:'sample',     dept:'Marketplace', label:'Taste approved' },
+  { stage:'sample',     dept:'Marketplace', label:'Margin approved' },
+  { stage:'sample',     dept:'Marketplace', label:'Assortment approved' },
+  { stage:'sample',     dept:'Marketplace', label:'Brand assets obtained' },
+  // Procurement — Commercial setup
+  { stage:'commercial', dept:'Procurement', label:'Vendor setup' },
+  { stage:'commercial', dept:'Procurement', label:'W9 received' },
+  { stage:'commercial', dept:'Procurement', label:'Insurance received' },
+  { stage:'commercial', dept:'Procurement', label:'Terms finalized' },
+  { stage:'commercial', dept:'Procurement', label:'Cost sheet approved' },
+  { stage:'commercial', dept:'Procurement', label:'Case pack & MOQ confirmed' },
+  { stage:'commercial', dept:'Procurement', label:'Free first fill secured' },
+  // Commissary — Supply chain
+  { stage:'commissary', dept:'Commissary',  label:'SKU created in warehouse' },
+  { stage:'commissary', dept:'Commissary',  label:'Receiving setup' },
+  { stage:'commissary', dept:'Commissary',  label:'Storage location assigned' },
+  { stage:'commissary', dept:'Commissary',  label:'Reorder point set' },
+  { stage:'commissary', dept:'Commissary',  label:'Receiving SOP written' },
+  // Operations — Retail readiness
+  { stage:'operations', dept:'Operations',  label:'POS / Toast item created' },
+  { stage:'operations', dept:'Operations',  label:'Shelf label created' },
+  { stage:'operations', dept:'Operations',  label:'Added to store order guide' },
+  { stage:'operations', dept:'Operations',  label:'Pars established' },
+  // Marketing — Launch readiness
+  { stage:'marketing',  dept:'Marketing',   label:'Product photography' },
+  { stage:'marketing',  dept:'Marketing',   label:'Product story / description written' },
+  { stage:'marketing',  dept:'Marketing',   label:'Shelf labels printed' },
+  { stage:'marketing',  dept:'Marketing',   label:'Social scheduled' },
+  { stage:'marketing',  dept:'Marketing',   label:'Email scheduled' },
+  // Store Ops — Store launch
+  { stage:'store',      dept:'Store Ops',   label:'Product received at store' },
+  { stage:'store',      dept:'Store Ops',   label:'Merchandised on shelf' },
+  { stage:'store',      dept:'Store Ops',   label:'Shelf tags installed' },
+  { stage:'store',      dept:'Store Ops',   label:'Team trained' },
+  { stage:'store',      dept:'Store Ops',   label:'Launch verified' },
+  // Review
+  { stage:'review',     dept:'Marketplace', label:'30-day sales reviewed' },
+  { stage:'review',     dept:'Marketplace', label:'Velocity reviewed' },
+  { stage:'review',     dept:'Marketplace', label:'Reorder decision (Expand / Maintain / Exit)' }
+];
+
+/* ---------------------------------------------------------------- STATE ---- */
+let state = { brands:{}, launches:{} };
+let openLaunchId = null;
+let teamFilter = 'Marketplace';
+let _bootstrapped = false;
+
+/* ---------------------------------------------------------------- UTIL ----- */
+const $ = s => document.querySelector(s);
+const uid = p => p + Math.random().toString(36).slice(2,8) + Date.now().toString(36).slice(-3);
+const esc = s => String(s==null?'':s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function fmtDate(d){ if(!d) return '—'; const x=new Date(d+'T12:00:00'); return isNaN(x)?'—':x.toLocaleDateString('en-US',{month:'short',day:'numeric'}); }
+function daysUntil(d){ if(!d) return null; const x=new Date(d+'T12:00:00'), n=new Date(); n.setHours(12,0,0,0); return Math.round((x-n)/864e5); }
+function nowTs(){ return new Date().toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}); }
+function brandName(id){ return (state.brands[id]||{}).name || '—'; }
+
+/* ---------------------------------------------------------------- FIREBASE - */
+let _saveT = null;
+function save(){
+  if(_saveT) clearTimeout(_saveT);
+  _saveT = setTimeout(()=>{
+    if(window.__fbDb){ try { __fbDb.ref(CONFIG.FB_PATH).set(state); } catch(e){ console.warn('save failed',e); } }
+  }, 250);
+}
+function subscribe(){
+  if(!window.__fbDb){ bootstrapIfEmpty(); renderAll(); return; }
+  __fbDb.ref(CONFIG.FB_PATH).on('value', snap=>{
+    const v = snap.val();
+    state = { brands:(v&&v.brands)||{}, launches:(v&&v.launches)||{} };
+    // normalise: ensure tasks object exists
+    Object.values(state.launches).forEach(l=>{ if(!l.tasks) l.tasks={}; if(!l.log) l.log=[]; });
+    bootstrapIfEmpty();
+    renderAll();
+    if(openLaunchId && state.launches[openLaunchId]) renderDetail(openLaunchId);
+  });
+}
+
+/* ---------------------------------------------------------------- TASKS ---- */
+function buildTasks(){
+  const t = {};
+  TASK_TEMPLATES.forEach((tpl,i)=>{
+    t['t'+i] = { label:tpl.label, dept:tpl.dept, stage:tpl.stage, done:false, owner:'', doneAt:null };
+  });
+  return t;
+}
+function readiness(l){
+  const tasks = Object.values(l.tasks||{});
+  const live = tasks.filter(t=>t.stage!=='review'); // review tasks excluded from launch readiness
+  const done = live.filter(t=>t.done).length;
+  const overall = live.length ? Math.round(done/live.length*100) : 0;
+  const byDept = {};
+  DEPTS.forEach(d=>{
+    const dt = tasks.filter(t=>t.dept===d.key);
+    byDept[d.key] = { total:dt.length, done:dt.filter(t=>t.done).length };
+  });
+  return { overall, byDept, done, total:live.length };
+}
+function stageReady(l, stageKey){
+  const dt = Object.values(l.tasks||{}).filter(t=>t.stage===stageKey);
+  if(!dt.length) return true;
+  return dt.every(t=>t.done);
+}
+
+/* ---------------------------------------------------------------- AUTOMATION */
+function logEvent(l, text){ (l.log = l.log||[]).unshift({ ts:nowTs(), text }); if(l.log.length>40) l.log.length=40; }
+
+function advanceStage(id, toKey){
+  const l = state.launches[id]; if(!l) return;
+  const from = stageOf(l.stage), to = stageOf(toKey);
+  const toIdx = stageIdx(toKey);
+
+  // gate: can't reach Live until overall readiness >= LAUNCH_GATE
+  if(toKey==='live'){
+    const r = readiness(l);
+    if(r.overall < CONFIG.LAUNCH_GATE){
+      toast(`Can't launch yet — ${r.overall}% ready (need ${CONFIG.LAUNCH_GATE}%).`, null, '#a32d2d');
+      return;
+    }
+  }
+  l.stage = toKey;
+  logEvent(l, `Stage → ${to.label}${to.dept!=='—'?'  ·  '+to.dept+' activated':''}`);
+
+  // AUTOMATION: notify the newly-responsible team & surface their tasks
+  if(to.dept && to.dept!=='—'){
+    const dt = Object.values(l.tasks).filter(t=>t.stage===toKey);
+    const open = dt.filter(t=>!t.done).length;
+    notifyTeam(l, to.dept, `${to.label} stage is now active for ${l.name} (${brandName(l.brandId)}). ${open} task${open!==1?'s':''} assigned to ${to.dept}.`);
+  }
+  if(toKey==='live'){ logEvent(l, '🎉 Product is LIVE on shelf'); notifyTeam(l,'Marketplace',`${l.name} is LIVE.`); }
+  save();
+  renderAll();
+  if(openLaunchId===id) renderDetail(id);
+  toast(`Advanced to <b>${to.label}</b>`);
+}
+
+function toggleTask(id, taskId){
+  const l = state.launches[id]; if(!l||!l.tasks[taskId]) return;
+  const t = l.tasks[taskId];
+  t.done = !t.done; t.doneAt = t.done ? Date.now() : null;
+  save();
+  // AUTOMATION: when a stage's tasks all complete, offer 1-click advance to next stage
+  if(t.done && CONFIG.AUTO_ADVANCE){
+    const sk = t.stage;
+    if(stageReady(l, sk) && l.stage===sk){
+      const ni = stageIdx(sk)+1;
+      if(ni < STAGES.length){
+        const next = STAGES[ni];
+        const nextLabel = next.key;
+        toast(`<b>${stageOf(sk).dept}</b> done for ${esc(l.name)} → advance to ${next.label}?`,
+              { label:'Advance', fn:()=>advanceStage(id, nextLabel) }, null, 6000);
+      }
+    }
+  }
+  renderAll();
+  if(openLaunchId===id) renderDetail(id);
+}
+
+function notifyTeam(l, dept, message){
+  logEvent(l, `🔔 ${dept} notified`);
+  // outbound email (optional — wired, off by default)
+  if(CONFIG.EMAILJS.enabled && window.emailjs){
+    try{
+      emailjs.send(CONFIG.EMAILJS.serviceId, CONFIG.EMAILJS.templateId, {
+        team:dept, launch:l.name, brand:brandName(l.brandId), stage:stageOf(l.stage).label,
+        message, to_email:(l.deptOwners&&l.deptOwners[dept])||''
+      });
+    }catch(e){ console.warn('EmailJS send failed', e); }
+  }
+}
+
+/* ---------------------------------------------------------------- TOASTS --- */
+function toast(html, action, color, ms){
+  const wrap = $('#mpToasts'); const el = document.createElement('div');
+  el.className='mp-toast'; if(color) el.style.background=color;
+  el.innerHTML = html;
+  if(action){ const a=document.createElement('span'); a.className='act'; a.textContent=action.label; a.onclick=()=>{ action.fn(); el.remove(); }; el.appendChild(a); }
+  wrap.appendChild(el); requestAnimationFrame(()=>el.classList.add('show'));
+  setTimeout(()=>{ el.classList.remove('show'); setTimeout(()=>el.remove(),250); }, ms||3600);
+}
+
+/* ---------------------------------------------------------------- RENDER --- */
+function renderAll(){ renderKpis(); renderCounts(); renderBoard(); if($('#tab-teams').style.display!=='none') renderTeams(); if($('#tab-brands').style.display!=='none') renderBrands(); }
+
+function renderCounts(){
+  const launches = Object.values(state.launches);
+  $('#cBoard').textContent = launches.filter(l=>l.stage!=='review'||true).length;
+  let openTasks=0; launches.forEach(l=>Object.values(l.tasks||{}).forEach(t=>{ if(!t.done) openTasks++; }));
+  $('#cTeams').textContent = openTasks;
+  $('#cBrands').textContent = Object.keys(state.brands).length;
+}
+
+function renderKpis(){
+  const launches = Object.values(state.launches);
+  const active = launches.filter(l=>!['live','review'].includes(l.stage));
+  const live30 = launches.filter(l=>{ const d=daysUntil(l.launchDate); return d!=null && d>=0 && d<=30 && l.stage!=='live'; });
+  const atRisk = active.filter(l=>{ const d=daysUntil(l.launchDate); return d!=null && d<7 && readiness(l).overall<CONFIG.LAUNCH_GATE; });
+  const avgReady = active.length ? Math.round(active.reduce((a,l)=>a+readiness(l).overall,0)/active.length) : 0;
+  const liveCount = launches.filter(l=>l.stage==='live').length;
+  const k = [
+    ['In pipeline', active.length, 'active launches'],
+    ['Launching ≤30d', live30.length, 'next 30 days'],
+    ['Avg readiness', avgReady+'%', 'across active'],
+    ['At risk', atRisk.length, '<7d & under gate'],
+    ['Live', liveCount, 'on shelf']
+  ];
+  $('#mpKpis').innerHTML = k.map(x=>`<div class="mp-kpi"><div class="l">${x[0]}</div><div class="v">${x[1]}</div><div class="s">${x[2]}</div></div>`).join('');
+}
+
+function readyColor(p){ return p>=90?'#2a7a4b':p>=50?'#b89a00':'#a32d2d'; }
+
+function renderBoard(){
+  const cols = STAGES.filter(s=>s.key!=='review'); // review handled in detail; keep board focused
+  const launches = Object.values(state.launches);
+  const html = cols.map(s=>{
+    const items = launches.filter(l=>l.stage===s.key).sort((a,b)=>(a.launchDate||'9').localeCompare(b.launchDate||'9'));
+    const cards = items.map(l=>cardHtml(l)).join('') || `<div style="font-size:11px;color:var(--text-mute);text-align:center;padding:14px 0">—</div>`;
+    return `<div class="mp-col">
+      <div class="mp-col-head">
+        <div class="mp-col-title"><span class="dot" style="background:${s.color}"></span>${esc(s.label)}</div>
+        <span class="mp-col-count">${items.length}</span>
+      </div>
+      <div class="mp-col-owner" style="margin:-4px 0 8px 16px">${s.dept==='—'?'':esc(s.dept)}</div>
+      <div class="mp-col-body">${cards}</div>
+    </div>`;
+  }).join('');
+  $('#tab-board').innerHTML = `<div class="mp-board">${html}</div>`;
+}
+
+function cardHtml(l){
+  const r = readiness(l); const d = daysUntil(l.launchDate);
+  const si = stageIdx(l.stage), next = STAGES[si+1];
+  const canAdvance = next && next.key!=='review';
+  const dateCls = (d!=null && d>=0 && d<=14) ? 'soon' : '';
+  return `<div class="mp-card" onclick="MP.openDetail('${l.id}')">
+    <div class="code">${esc(l.code||'')}</div>
+    <div class="brand">${esc(brandName(l.brandId))}</div>
+    <div class="name">${esc(l.name||'Untitled')}</div>
+    <div class="meta">
+      ${l.priority?`<span class="mp-pri ${esc(l.priority)}">${esc(l.priority)}</span>`:''}
+      ${l.launchDate?`<span class="mp-date ${dateCls}"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>${fmtDate(l.launchDate)}${d!=null&&d>=0?` · ${d}d`:''}</span>`:''}
+    </div>
+    <div class="mp-ready">
+      <div class="track"><div class="fill" style="width:${r.overall}%;background:${readyColor(r.overall)}"></div></div>
+      <div class="lbl"><span>Readiness</span><b>${r.overall}%</b></div>
+    </div>
+    ${canAdvance?`<button class="mp-btn sm advance" onclick="event.stopPropagation();MP.advance('${l.id}','${next.key}')">Advance → ${esc(next.label)}</button>`:
+      (next&&next.key==='review'?`<button class="mp-btn sm advance" onclick="event.stopPropagation();MP.advance('${l.id}','review')">Start 30-day review</button>`:'')}
+  </div>`;
+}
+
+/* ---- detail slide-over ---- */
+function renderDetail(id){
+  const l = state.launches[id]; if(!l) return;
+  const r = readiness(l); const si = stageIdx(l.stage); const cur = stageOf(l.stage);
+  const C = 2*Math.PI*23; const off = C*(1-r.overall/100);
+
+  const stepper = STAGES.filter(s=>s.key!=='review').map((s,i)=>{
+    const cls = i<si?'done':(i===si?'cur':'');
+    return `<div class="mp-step ${cls}"><div class="bar"></div><div class="t">${esc(s.label)}</div></div>`;
+  }).join('');
+
+  // department task groups (ordered as the pipeline flows)
+  const deptOrder = ['Marketplace','Procurement','Commissary','Operations','Marketing','Store Ops'];
+  const groups = deptOrder.map(dep=>{
+    const tasks = Object.entries(l.tasks).filter(([,t])=>t.dept===dep);
+    if(!tasks.length) return '';
+    const done = tasks.filter(([,t])=>t.done).length, tot=tasks.length;
+    const pct = tot?Math.round(done/tot*100):0;
+    const isCur = cur.dept===dep;
+    const rows = tasks.map(([tid,t])=>`
+      <div class="mp-task ${t.done?'done':''}">
+        <div class="mp-check ${t.done?'on':''}" onclick="MP.toggle('${l.id}','${tid}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+        <div class="body"><div class="lab">${esc(t.label)}</div>${t.done&&t.doneAt?`<div class="sub">done ${new Date(t.doneAt).toLocaleDateString('en-US',{month:'short',day:'numeric'})}</div>`:''}</div>
+      </div>`).join('');
+    return `<div class="mp-dept ${isCur?'open':''}">
+      <div class="mp-dept-head" onclick="this.parentNode.classList.toggle('open')">
+        <span class="dot" style="background:${deptColor(dep)}"></span>
+        <span class="nm">${esc(dep)}</span>
+        <span class="mini">
+          <span class="minibar"><i style="width:${pct}%;background:${readyColor(pct)}"></i></span>
+          <span class="mpct">${done}/${tot}</span>
+          <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </span>
+      </div>
+      <div class="mp-tasks">${rows}</div>
+    </div>`;
+  }).join('');
+
+  const next = STAGES[si+1];
+  const b = state.brands[l.brandId] || {};
+  const specs = [
+    ['Brand', brandName(l.brandId)], ['Category', l.category||'—'],
+    ['Launch date', l.launchDate?fmtDate(l.launchDate):'—'], ['Priority', l.priority||'—'],
+    ['Cost', l.cost?'$'+l.cost:'—'], ['MSRP', l.msrp?'$'+l.msrp:'—'],
+    ['Margin', (l.cost&&l.msrp)?Math.round((1-(+l.cost/+l.msrp))*100)+'%':'—'], ['Case pack', l.casePack||'—'],
+    ['UPC', l.upc||'—'], ['Storage', l.storageType||'—'],
+    ['Store count', l.storeCount||'—'], ['Distributor', b.distributor||'—']
+  ];
+
+  const log = (l.log||[]).map(e=>`<li><span class="ts">${esc(e.ts)}</span><span>${esc(e.text)}</span></li>`).join('') || `<li><span style="color:var(--text-mute)">No activity yet.</span></li>`;
+
+  $('#mpPanel').innerHTML = `
+    <div class="mp-panel-head">
+      <div class="row">
+        <div>
+          <div class="code">${esc(l.code||'')}</div>
+          <h2>${esc(l.name||'Untitled')}</h2>
+          <div class="brand">${esc(brandName(l.brandId))}</div>
+        </div>
+        <button class="mp-close" onclick="MP.closeDetail()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+      </div>
+      <div class="mp-stepper">${stepper}</div>
+    </div>
+    <div class="mp-panel-body">
+      <div class="mp-stage-row">
+        <span class="mp-ring">
+          <svg width="54" height="54"><circle cx="27" cy="27" r="23" stroke="var(--surface-2)" stroke-width="6" fill="none"/><circle cx="27" cy="27" r="23" stroke="${readyColor(r.overall)}" stroke-width="6" fill="none" stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${off}"/></svg>
+          <span class="pct">${r.overall}%</span>
+        </span>
+        <div style="flex:1">
+          <span class="mp-stage-chip" style="background:${cur.color}1a;color:${cur.color}">${esc(cur.label)}${cur.dept!=='—'?' · '+esc(cur.dept):''}</span>
+          <div style="font-size:12px;color:var(--text-3);margin-top:6px">${r.done}/${r.total} launch tasks complete</div>
+        </div>
+        ${next?`<button class="mp-btn primary" onclick="MP.advance('${l.id}','${next.key}')">${l.stage==='store'?'Go Live':'Advance'}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>`:
+          (l.stage==='live'?`<button class="mp-btn" onclick="MP.advance('${l.id}','review')">Start review</button>`:'')}
+      </div>
+
+      <div class="mp-sec">
+        <div class="mp-sec-title">Launch scorecard · cross-team checklist <span class="pct">${r.overall}%</span></div>
+        ${groups}
+      </div>
+
+      <div class="mp-sec">
+        <div class="mp-sec-title">Product & brand</div>
+        <div class="mp-specs">${specs.map(s=>`<div class="mp-spec"><div class="l">${esc(s[0])}</div><div class="v">${esc(s[1])}</div></div>`).join('')}</div>
+      </div>
+
+      <div class="mp-sec">
+        <div class="mp-sec-title">Activity</div>
+        <ul class="mp-log">${log}</ul>
+      </div>
+
+      <div class="mp-sec" style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="mp-btn" onclick="MP.editLaunch('${l.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4v16h16v-7"/><path d="M18.5 2.5a2.1 2.1 0 0 1 3 3L12 15l-4 1 1-4z"/></svg>Edit details</button>
+        <button class="mp-btn" style="color:var(--brand-orange-deep)" onclick="MP.deleteLaunch('${l.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg>Delete</button>
+      </div>
+    </div>`;
+}
+
+/* ---- team task dashboard ---- */
+function renderTeams(){
+  const pills = DEPTS.map(d=>{
+    const n = Object.values(state.launches).reduce((a,l)=>a+Object.values(l.tasks||{}).filter(t=>t.dept===d.key&&!t.done).length,0);
+    return `<button class="mp-team-pill ${teamFilter===d.key?'active':''}" onclick="MP.team('${d.key}')"><span class="dot" style="background:${d.color}"></span>${esc(d.key)}<span class="n">${n}</span></button>`;
+  }).join('');
+
+  // gather open tasks for selected team across all launches
+  const rows = [];
+  Object.values(state.launches).forEach(l=>{
+    Object.entries(l.tasks||{}).forEach(([tid,t])=>{
+      if(t.dept===teamFilter && !t.done){
+        const isCur = stageOf(l.stage).key===t.stage;
+        rows.push({ l, tid, t, isCur, d:daysUntil(l.launchDate) });
+      }
+    });
+  });
+  // active-stage tasks first, then by launch date
+  rows.sort((a,b)=> (b.isCur-a.isCur) || ((a.l.launchDate||'9').localeCompare(b.l.launchDate||'9')));
+
+  const list = rows.length ? rows.map(r=>`
+    <div class="mp-trow">
+      <div class="mp-check" onclick="MP.toggle('${r.l.id}','${r.tid}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" style="opacity:0"><polyline points="20 6 9 17 4 12"/></svg></div>
+      <div class="body">
+        <div class="lab">${esc(r.t.label)}</div>
+        <div class="ctx"><a href="#" onclick="MP.openDetail('${r.l.id}');return false">${esc(r.l.code)} · ${esc(r.l.name)}</a> · ${esc(brandName(r.l.brandId))}${r.l.launchDate?` · launches ${fmtDate(r.l.launchDate)}${r.d!=null&&r.d>=0?` (${r.d}d)`:''}`:''}</div>
+      </div>
+      ${r.isCur?`<span class="mp-pri High" style="background:var(--mp-light);color:var(--mp-deep)">Active stage</span>`:''}
+    </div>`).join('') : `<div class="mp-empty">No open tasks for ${esc(teamFilter)}. 🎉</div>`;
+
+  $('#tab-teams').innerHTML = `<div class="mp-team-bar">${pills}</div><div class="mp-tasklist">${list}</div>`;
+}
+
+/* ---- brands CRM ---- */
+function renderBrands(){
+  const brands = Object.values(state.brands).sort((a,b)=>(a.name||'').localeCompare(b.name||''));
+  const launchCount = id => Object.values(state.launches).filter(l=>l.brandId===id).length;
+  const rows = brands.length ? brands.map(b=>`
+    <tr class="clickable" onclick="MP.editBrand('${b.id}')">
+      <td class="bn">${esc(b.name)}</td>
+      <td>${esc(b.category||'—')}</td>
+      <td>${esc(b.contact||'—')}${b.email?`<br><span style="font-size:11px;color:var(--text-3)">${esc(b.email)}</span>`:''}</td>
+      <td>${esc(b.distributor||'—')}</td>
+      <td>${esc(b.source||'—')}</td>
+      <td><span class="mp-status ${esc(b.status||'Prospect')}">${esc(b.status||'Prospect')}</span></td>
+      <td style="font-family:var(--f-mono)">${launchCount(b.id)}</td>
+    </tr>`).join('') : `<tr><td colspan="7"><div class="mp-empty">No brands yet — add your discovery pipeline.</div></td></tr>`;
+  $('#tab-brands').innerHTML = `<div class="mp-table-wrap"><table class="mp-table">
+    <thead><tr><th>Brand</th><th>Category</th><th>Contact</th><th>Distributor</th><th>Source</th><th>Status</th><th>Launches</th></tr></thead>
+    <tbody>${rows}</tbody></table></div>`;
+}
+
+/* ---------------------------------------------------------------- MODALS --- */
+function openModal(html){ $('#mpModal').innerHTML = html; $('#mpModalOv').classList.add('open'); }
+function closeModal(){ $('#mpModalOv').classList.remove('open'); }
+$('#mpModalOv') && document.getElementById('mpModalOv').addEventListener('click', e=>{ if(e.target.id==='mpModalOv') closeModal(); });
+
+function brandOptions(sel){
+  const opts = Object.values(state.brands).sort((a,b)=>(a.name||'').localeCompare(b.name||''))
+    .map(b=>`<option value="${b.id}" ${sel===b.id?'selected':''}>${esc(b.name)}</option>`).join('');
+  return `<option value="">— select brand —</option>${opts}<option value="__new">+ New brand…</option>`;
+}
+
+function launchModal(l){
+  const isEdit = !!l;
+  openModal(`
+    <h3>${isEdit?'Edit launch':'New launch'}</h3>
+    <div class="sub">${isEdit?'Update product & launch details.':'Creates an NPI record with the full cross-team task checklist auto-generated.'}</div>
+    <div class="mp-field"><label>Product name</label><input id="f_name" value="${esc(l?.name||'')}" placeholder="Cotto Ranch Dip"></div>
+    <div class="mp-field"><label>Brand</label><select id="f_brand" onchange="MP._brandSel(this)">${brandOptions(l?.brandId)}</select></div>
+    <div class="mp-field" id="f_newbrand" style="display:none"><label>New brand name</label><input id="f_newbrandname" placeholder="Cotto"></div>
+    <div class="mp-field"><div class="two">
+      <div><label>Category</label><input id="f_cat" value="${esc(l?.category||'')}" placeholder="Refrigerated"></div>
+      <div><label>Launch date</label><input id="f_date" type="date" value="${esc(l?.launchDate||'')}"></div>
+    </div></div>
+    <div class="mp-field"><div class="two">
+      <div><label>Cost ($)</label><input id="f_cost" type="number" step="0.01" value="${esc(l?.cost||'')}" placeholder="3.25"></div>
+      <div><label>MSRP ($)</label><input id="f_msrp" type="number" step="0.01" value="${esc(l?.msrp||'')}" placeholder="6.99"></div>
+    </div></div>
+    <div class="mp-field"><div class="two">
+      <div><label>Case pack</label><input id="f_case" value="${esc(l?.casePack||'')}" placeholder="12"></div>
+      <div><label>Priority</label><select id="f_pri">
+        ${['High','Med','Low'].map(p=>`<option ${((l?.priority)||'Med')===p?'selected':''}>${p}</option>`).join('')}
+      </select></div>
+    </div></div>
+    <div class="mp-field"><div class="two">
+      <div><label>UPC</label><input id="f_upc" value="${esc(l?.upc||'')}" placeholder="123456789012"></div>
+      <div><label>Storage</label><input id="f_store" value="${esc(l?.storageType||'')}" placeholder="Refrigerated"></div>
+    </div></div>
+    <div class="mp-field"><label>Store count</label><input id="f_count" type="number" value="${esc(l?.storeCount||'')}" placeholder="6"></div>
+    <div class="mp-modal-foot">
+      <button class="mp-btn" onclick="MP.closeModal()">Cancel</button>
+      <button class="mp-btn primary" onclick="MP.saveLaunch(${isEdit?`'${l.id}'`:'null'})">${isEdit?'Save':'Create launch'}</button>
+    </div>`);
+}
+
+function brandModal(b){
+  const isEdit = !!b;
+  openModal(`
+    <h3>${isEdit?'Edit brand':'Add brand'}</h3>
+    <div class="sub">Your discovery / CRM pipeline — track relationships before they ever launch.</div>
+    <div class="mp-field"><label>Brand name</label><input id="b_name" value="${esc(b?.name||'')}" placeholder="Cotto"></div>
+    <div class="mp-field"><div class="two">
+      <div><label>Founder / contact</label><input id="b_contact" value="${esc(b?.contact||'')}" placeholder="Jane Doe"></div>
+      <div><label>Email</label><input id="b_email" value="${esc(b?.email||'')}" placeholder="jane@getcotto.com"></div>
+    </div></div>
+    <div class="mp-field"><div class="two">
+      <div><label>Website</label><input id="b_web" value="${esc(b?.website||'')}" placeholder="getcotto.com"></div>
+      <div><label>Distributor</label><input id="b_dist" value="${esc(b?.distributor||'')}" placeholder="KeHE"></div>
+    </div></div>
+    <div class="mp-field"><div class="two">
+      <div><label>Category</label><input id="b_cat" value="${esc(b?.category||'')}" placeholder="Refrigerated Dip"></div>
+      <div><label>Discovery source</label><input id="b_src" value="${esc(b?.source||'')}" placeholder="Expo West"></div>
+    </div></div>
+    <div class="mp-field"><label>Status</label><select id="b_status">
+      ${['Prospect','Testing','Approved','Active','Rejected'].map(s=>`<option ${((b?.status)||'Prospect')===s?'selected':''}>${s}</option>`).join('')}
+    </select></div>
+    <div class="mp-field"><label>Notes</label><textarea id="b_notes" rows="2" placeholder="West Coast exclusive…">${esc(b?.notes||'')}</textarea></div>
+    <div class="mp-modal-foot">
+      ${isEdit?`<button class="mp-btn" style="margin-right:auto;color:var(--brand-orange-deep)" onclick="MP.deleteBrand('${b.id}')">Delete</button>`:''}
+      <button class="mp-btn" onclick="MP.closeModal()">Cancel</button>
+      <button class="mp-btn primary" onclick="MP.saveBrand(${isEdit?`'${b.id}'`:'null'})">${isEdit?'Save':'Add brand'}</button>
+    </div>`);
+}
+
+/* ---------------------------------------------------------------- SEED ----- */
+function bootstrapIfEmpty(){
+  if(_bootstrapped) return;
+  if(Object.keys(state.brands).length || Object.keys(state.launches).length){ _bootstrapped=true; return; }
+  _bootstrapped = true;
+  // First-run sample data so the page is alive. Delete freely — it won't come back once you've added your own.
+  const bid1=uid('b'), bid2=uid('b'), bid3=uid('b');
+  state.brands[bid1]={ id:bid1, name:'Cotto', contact:'Jane Doe', email:'jane@getcotto.com', website:'getcotto.com', distributor:'KeHE', category:'Refrigerated Dip', source:'Expo West', status:'Approved', notes:'West Coast exclusive — sample.' };
+  state.brands[bid2]={ id:bid2, name:'Fishwife', contact:'Becca Millstein', email:'hi@fishwife.co', website:'fishwife.co', distributor:'UNFI', category:'Tinned Fish', source:'Founder intro', status:'Testing', notes:'Sample data.' };
+  state.brands[bid3]={ id:bid3, name:'Magic Spoon', contact:'Gabi Lewis', email:'team@magicspoon.com', website:'magicspoon.com', distributor:'Direct', category:'Cereal', source:'Inbound', status:'Prospect', notes:'Sample data.' };
+
+  function mk(over){
+    const id=uid('l'); const tasks=buildTasks();
+    // mark tasks done up to current stage for realism
+    const curIdx = stageIdx(over.stage);
+    Object.values(tasks).forEach(t=>{ if(stageIdx(t.stage)<curIdx) t.done=true, t.doneAt=Date.now(); });
+    const l = Object.assign({ id, code:'NPI-'+CONFIG.YEAR+'-'+String(Object.keys(state.launches).length+1).padStart(3,'0'),
+      tasks, log:[{ts:nowTs(),text:'Launch created (sample data)'}], priority:'Med', createdAt:Date.now() }, over);
+    state.launches[id]=l;
+  }
+  mk({ name:'Cotto Ranch Dip', brandId:bid1, category:'Refrigerated', launchDate:isoIn(21), stage:'operations', priority:'High', cost:'3.25', msrp:'6.99', casePack:'12', storageType:'Refrigerated', storeCount:'6', upc:'850001234567' });
+  mk({ name:'Fishwife Smoked Salmon', brandId:bid2, category:'Tinned Fish', launchDate:isoIn(35), stage:'commercial', priority:'Med', cost:'5.10', msrp:'10.99', casePack:'12', storageType:'Ambient', storeCount:'6' });
+  mk({ name:'Magic Spoon Cocoa', brandId:bid3, category:'Cereal', launchDate:isoIn(60), stage:'sample', priority:'Low', cost:'4.00', msrp:'8.99', casePack:'8', storageType:'Ambient', storeCount:'6' });
+  save();
+}
+function isoIn(days){ const d=new Date(); d.setDate(d.getDate()+days); return d.toISOString().slice(0,10); }
+
+/* ---------------------------------------------------------------- PUBLIC API */
+window.MP = {
+  tab(name){
+    document.querySelectorAll('.mp-tab').forEach(t=>t.classList.toggle('active', t.dataset.tab===name));
+    ['board','teams','brands'].forEach(n=>$('#tab-'+n).style.display = n===name?'':'none');
+    if(name==='teams') renderTeams(); if(name==='brands') renderBrands();
+  },
+  team(d){ teamFilter=d; renderTeams(); },
+  openDetail(id){ openLaunchId=id; renderDetail(id); $('#mpOverlay').classList.add('open'); $('#mpPanel').classList.add('open'); document.body.style.overflow='hidden'; },
+  closeDetail(){ openLaunchId=null; $('#mpOverlay').classList.remove('open'); $('#mpPanel').classList.remove('open'); document.body.style.overflow=''; },
+  toggle(id,tid){ toggleTask(id,tid); },
+  advance(id,to){ advanceStage(id,to); },
+  openLaunchModal(){ launchModal(null); },
+  editLaunch(id){ launchModal(state.launches[id]); },
+  openBrandModal(){ brandModal(null); },
+  editBrand(id){ brandModal(state.brands[id]); },
+  closeModal,
+  _brandSel(sel){ $('#f_newbrand').style.display = sel.value==='__new'?'block':'none'; },
+  saveLaunch(id){
+    const v = s => { const el=$('#'+s); return el?el.value.trim():''; };
+    const name = v('f_name'); if(!name){ toast('Product name required.',null,'#a32d2d'); return; }
+    let brandId = v('f_brand');
+    if(brandId==='__new'){
+      const nb = v('f_newbrandname'); if(!nb){ toast('Enter the new brand name.',null,'#a32d2d'); return; }
+      brandId = uid('b'); state.brands[brandId] = { id:brandId, name:nb, status:'Approved', notes:'' };
+    }
+    const fields = { name, brandId, category:v('f_cat'), launchDate:v('f_date'), cost:v('f_cost'), msrp:v('f_msrp'),
+      casePack:v('f_case'), priority:v('f_pri'), upc:v('f_upc'), storageType:v('f_store'), storeCount:v('f_count') };
+    if(id){ Object.assign(state.launches[id], fields); logEvent(state.launches[id],'Details updated'); }
+    else{
+      const nid=uid('l'); const n=Object.keys(state.launches).length+1;
+      state.launches[nid] = Object.assign({ id:nid, code:'NPI-'+CONFIG.YEAR+'-'+String(n).padStart(3,'0'),
+        stage:'discovery', tasks:buildTasks(), log:[{ts:nowTs(),text:'Launch created'}], createdAt:Date.now() }, fields);
+      logEvent(state.launches[nid], `Marketplace · Discovery activated`);
+      toast('Launch created — full checklist generated.');
+    }
+    save(); closeModal(); renderAll(); if(id&&openLaunchId===id) renderDetail(id);
+  },
+  saveBrand(id){
+    const v = s => { const el=$('#'+s); return el?el.value.trim():''; };
+    const name=v('b_name'); if(!name){ toast('Brand name required.',null,'#a32d2d'); return; }
+    const f={ name, contact:v('b_contact'), email:v('b_email'), website:v('b_web'), distributor:v('b_dist'),
+      category:v('b_cat'), source:v('b_src'), status:v('b_status'), notes:v('b_notes') };
+    if(id) Object.assign(state.brands[id], f);
+    else { const nid=uid('b'); state.brands[nid]=Object.assign({id:nid},f); }
+    save(); closeModal(); renderAll();
+  },
+  deleteLaunch(id){ if(!confirm('Delete this launch? This cannot be undone.')) return; delete state.launches[id]; save(); this.closeDetail(); renderAll(); },
+  deleteBrand(id){
+    const used = Object.values(state.launches).some(l=>l.brandId===id);
+    if(used){ toast('Can\'t delete — brand has launches.',null,'#a32d2d'); return; }
+    if(!confirm('Delete this brand?')) return; delete state.brands[id]; save(); closeModal(); renderAll();
+  }
+};
+
+/* ---------------------------------------------------------------- INIT ----- */
+if(CONFIG.EMAILJS.enabled && window.emailjs){ try{ emailjs.init(CONFIG.EMAILJS.publicKey); }catch(e){} }
+subscribe();
+
+})();
+</script>
+
+</body>
+</html>
