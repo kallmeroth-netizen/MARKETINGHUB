@@ -1414,10 +1414,11 @@ function pickCalDay(key) {
 }
 
 // When user selects a historical week we only have revenue total for,
-// render the dashboard cleanly: show the one number we have and blank
-// out every other category so users don't see stale values from the
-// previously selected week. No banner / status bar — the '—' placeholders
-// communicate "not available for this week" without copy.
+// render the dashboard cleanly: show the one number we have, blank
+// every other category so users don't see stale values from the
+// previously selected week, and surface one small note explaining
+// that the week hasn't been fully updated yet (e.g. June 8 the day
+// after the period ends, before paid-digital data is wired in).
 function _applyPartialWeekData(entry) {
   DATA.currentWeek = entry.label;
 
@@ -1449,13 +1450,30 @@ function _applyPartialWeekData(entry) {
   if (!DATA.revenue) DATA.revenue = {};
   DATA.revenue.total = { t4w:null, lw:null, cw:entry.revenue, pctT4W:null, pctPW:null };
 
-  // Remove any leftover note from a previous build that may still be
-  // sitting in the DOM (caches, prior render).
-  const stale = document.getElementById('weekDataNote');
-  if (stale) stale.remove();
+  // Surface a small note below the week badge so it's obvious this
+  // week isn't fully loaded yet. Removed automatically by switchWeek
+  // when the user picks a full-data week again.
+  let note = document.getElementById('weekDataNote');
+  if (!note) {
+    note = document.createElement('div');
+    note.id = 'weekDataNote';
+    note.style.cssText = 'font-size:11px;color:var(--brand-orange);margin-top:6px;display:flex;align-items:center;gap:6px;line-height:1.4';
+    note.innerHTML = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="flex-shrink:0"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><span></span>';
+    const badge = document.getElementById('weekBadge');
+    if (badge && badge.parentNode) badge.parentNode.insertBefore(note, badge.nextSibling);
+  }
+  note.querySelector('span').textContent = `Week of ${entry.label} hasn't been updated yet — only total revenue is available.`;
 
   renderDashboard();
 }
+
+// When the user picks a full-data week again, clear the partial note.
+const _origSwitchWeek = switchWeek;
+switchWeek = function(idx) {
+  const note = document.getElementById('weekDataNote');
+  if (note) note.remove();
+  _origSwitchWeek(idx);
+};
 
 // Close on Escape
 document.addEventListener('keydown', e => {
