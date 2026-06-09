@@ -875,16 +875,27 @@ function ThemeForm({open, onClose, monthIndex, themes, onSave}) {
       <div style={{marginBottom:11}}><div style={{fontSize:11.5,color:C.text2,marginBottom:3}}>Month heading</div><input value={tag} onChange={e=>setTag(e.target.value)} style={inpStyle} onFocus={focusO} onBlur={blurO}/></div>
       <div style={{marginBottom:11}}><div style={{fontSize:11.5,color:C.text2,marginBottom:3}}>Theme name</div><input value={theme} onChange={e=>setTheme(e.target.value)} style={inpStyle} onFocus={focusO} onBlur={blurO}/></div>
       <div style={{marginBottom:11}}><div style={{fontSize:11.5,color:C.text2,marginBottom:3}}>Description</div><textarea value={desc} onChange={e=>setDesc(e.target.value)} placeholder="Monthly theme description…" style={{...inpStyle,resize:'vertical',minHeight:56}} onFocus={focusO} onBlur={blurO}/></div>
-      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:8,marginBottom:16}}>
-        {[0,1,2].map(i => (
-          <div key={i}><div style={{fontSize:11.5,color:C.text2,marginBottom:3}}>Goal {i+1}</div>
-            <input value={goals[i]||''} placeholder="To be added" onChange={e=>setGoals(g=>{const ng=[...g];ng[i]=e.target.value;return ng;})} style={inpStyle} onFocus={focusO} onBlur={blurO}/>
-          </div>
-        ))}
+      <div style={{marginBottom:16}}>
+        <div style={{fontSize:11.5,color:C.text2,marginBottom:6,display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+          <span>Goals</span>
+          <button type="button" onClick={()=>setGoals(g=>[...g,''])} style={{background:'none',border:`0.5px solid ${C.borderStrong}`,borderRadius:6,padding:'3px 9px',fontSize:11,cursor:'pointer',color:C.text2,fontFamily:'inherit'}}>+ Add goal</button>
+        </div>
+        <div style={{display:'flex',flexDirection:'column',gap:6}}>
+          {goals.map((g,i) => (
+            <div key={i} style={{display:'flex',gap:6,alignItems:'center'}}>
+              <span style={{fontSize:11,color:C.text3,minWidth:14,textAlign:'right'}}>{i+1}.</span>
+              <input value={g||''} placeholder="To be added" onChange={e=>setGoals(gg=>{const ng=[...gg];ng[i]=e.target.value;return ng;})} style={{...inpStyle,flex:1}} onFocus={focusO} onBlur={blurO}/>
+              <button type="button" onClick={()=>setGoals(gg=>gg.filter((_,j)=>j!==i))} aria-label="Remove goal" style={{background:'none',border:'none',cursor:'pointer',color:C.text3,fontSize:16,lineHeight:1,padding:'2px 6px',borderRadius:6,fontFamily:'inherit'}}>×</button>
+            </div>
+          ))}
+          {goals.length === 0 && (
+            <div style={{fontSize:12,color:C.text3,fontStyle:'italic',padding:'6px 2px'}}>No goals yet — click "+ Add goal" to start.</div>
+          )}
+        </div>
       </div>
       <div style={{display:'flex',gap:8,justifyContent:'flex-end'}}>
         <button onClick={onClose} style={{background:'none',border:`0.5px solid ${C.borderStrong}`,borderRadius:8,padding:'7px 16px',fontSize:13,cursor:'pointer',color:C.text,fontFamily:'inherit'}}>Cancel</button>
-        <button onClick={() => { onSave(monthIndex,{tag,theme,desc,goals}); onClose(); }} style={{background:C.orange,border:'none',borderRadius:8,padding:'7px 16px',fontSize:13,cursor:'pointer',color:'#fff',fontWeight:500,fontFamily:'inherit'}}>Save theme</button>
+        <button onClick={() => { onSave(monthIndex,{tag,theme,desc,goals:goals.map(g=>g||'')}); onClose(); }} style={{background:C.orange,border:'none',borderRadius:8,padding:'7px 16px',fontSize:13,cursor:'pointer',color:'#fff',fontWeight:500,fontFamily:'inherit'}}>Save theme</button>
       </div>
     </Modal>
   );
@@ -960,6 +971,24 @@ function NeighborlyCalendar() {
     const ng = [...monthGoals]; ng[i] = !ng[i];
     saveEvents(events, {...goals, [mKey]: ng}, themes);
   };
+
+  // Bridge the inline DOM-overlay goal editor (function ug() near the bottom
+  // of this file) back to React state. The overlay renders editable inputs
+  // and an "+ Add goal" button outside the React tree; without this bridge
+  // typed text and added rows live only in the DOM and disappear on
+  // re-render or page refresh. We expose two functions on window so the
+  // overlay can persist:
+  //   __cal_setGoals(goalsArr): replace the current month's goal list
+  //   __cal_currentGoals(): read the current month's goal list
+  React.useEffect(() => {
+    window.__cal_setGoals = (arr) => {
+      const cleaned = (arr || []).map(g => (g == null ? '' : String(g)));
+      const baseTheme = themes[mo] || DEFAULT_THEMES[mo] || {};
+      saveEvents(events, goals, {...themes, [mo]: {...baseTheme, goals: cleaned}});
+    };
+    window.__cal_currentGoals = () => (theme.goals || []).slice();
+    return () => { try { delete window.__cal_setGoals; delete window.__cal_currentGoals; } catch(e) {} };
+  }, [events, goals, themes, mo, theme, saveEvents]);
 
   const changeMonth = d => {
     const nd = new Date(curDate);
@@ -1367,6 +1396,9 @@ ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(
 .nb-goal-text.completed{opacity:.45;text-decoration:line-through}
 .nb-goal-add{display:flex;align-items:center;gap:5px;padding:4px 8px;border-radius:6px;border:.5px dashed rgba(0,0,0,.18);background:transparent;color:#9E9C96;font-size:11.5px;font-weight:500;cursor:pointer;font-family:inherit;margin-top:2px;transition:all .12s;width:100%;text-align:left}
 .nb-goal-add:hover{border-color:rgba(0,0,0,.28);color:#6B6960}
+.nb-goal-remove{background:none;border:none;color:#C7C5BE;font-size:16px;line-height:1;padding:2px 6px;border-radius:6px;cursor:pointer;font-family:inherit;opacity:0;transition:opacity .12s,color .12s,background .12s;flex-shrink:0}
+.nb-goal-item:hover .nb-goal-remove{opacity:1}
+.nb-goal-remove:hover{color:#e87142;background:rgba(232,113,66,.08)}
 .nb-cat-grid{display:grid!important;grid-template-columns:repeat(4,1fr)!important;gap:6px!important;margin-top:4px!important}
 .nb-cat-tile{display:flex!important;flex-direction:column!important;align-items:center!important;gap:4px!important;padding:8px 4px 6px!important;border-radius:8px!important;border:1.5px solid transparent!important;cursor:pointer!important;transition:all .12s!important;font-family:inherit!important;background:var(--tile-bg,#f5f5f5)!important}
 .nb-cat-tile:hover{opacity:.85!important;transform:translateY(-1px)!important}
@@ -1411,7 +1443,82 @@ var os=document.createElement('style');os.id='nb-chip-overrides';document.head.a
 function eec(){if(!window.CATS)return;var root=document.getElementById('root');if(!root)return;for(var d of root.querySelectorAll('div')){var s=d.style;if(s.borderRadius==='6px'&&s.padding&&d.children.length>=2){var dot=d.querySelector('div[style*="border-radius: 50%"]');if(dot&&!d.classList.contains('nb-ev-chip')){d.classList.add('nb-ev-chip');var dc=dot.style.background,ck=null;for(var[k,v] of Object.entries(window.CATS)){var h=v.color.replace('#','');var rr=parseInt(h.substr(0,2),16),gg=parseInt(h.substr(2,2),16),bb=parseInt(h.substr(4,2),16);if(dc==='rgb('+rr+', '+gg+', '+bb+')'){ck=k;break;}}var bc=ck?window.CATS[ck].color:'#888780';d.setAttribute('data-border-color',bc);d.style.setProperty('--nb-bc',bc);if(s.borderStyle==='dashed')d.setAttribute('data-hold','true');}}}var chips=root.querySelectorAll('.nb-ev-chip[data-border-color]'),seen=new Set(),rules='';for(var c of chips){var col=c.getAttribute('data-border-color');if(!seen.has(col)){seen.add(col);rules+='[data-border-color="'+col+'"]{border-left:3px solid '+col+'!important;padding-left:6px!important}\n';}}rules+='[data-hold="true"]{opacity:.62!important;filter:grayscale(35%)!important}';os.textContent=rules;}
 function etc(){var root=document.getElementById('root');if(!root)return;root.querySelectorAll('.nb-today-cell').forEach(function(d){d.classList.remove('nb-today-cell');});for(var d of root.querySelectorAll('div')){var s=d.style;if(s.width==='22px'&&s.height==='22px'&&s.borderRadius==='50%'&&s.background&&s.background.includes('232, 113, 66')){var cell=d.closest('div[style*="min-height"]');if(cell)cell.classList.add('nb-today-cell');}}}
 function uth(){for(var d of(document.getElementById('root')||{querySelectorAll:function(){return[];}}).querySelectorAll('div')){if(d.children.length===0&&d.textContent.trim()==='Click to edit theme & goals'&&!d.classList.contains('nb-tu')){d.classList.add('nb-theme-edit-btn','nb-tu');d.innerHTML='<svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 1.5l2 2L4 10H2v-2L8.5 1.5z"/></svg> Edit theme & goals';d.style.fontSize='';d.style.color='';d.style.marginTop='';return;}}}
-function ug(){var root=document.getElementById('root');if(!root)return;for(var d of root.querySelectorAll('div')){if(d.children.length>0&&d.children[0]&&d.children[0].textContent.trim()==='Monthly goals'&&!d.classList.contains('nb-gd')){var labels=d.querySelectorAll('label'),wrap=document.createElement('div');wrap.className='nb-goals-wrap';for(var label of labels){var cb=label.querySelector('input[type="checkbox"]'),span=label.querySelector('span'),item=document.createElement('div');item.className='nb-goal-item';var nc=document.createElement('input');nc.type='checkbox';nc.className='nb-goal-checkbox';nc.checked=!!(cb&&cb.checked);var tx=document.createElement('input');tx.type='text';tx.className='nb-goal-text';var t=span?span.textContent.trim():'';tx.value=(t==='Insert Goal'||t==='')?'':t;tx.placeholder='Add a goal…';if(nc.checked)tx.classList.add('completed');(function(n2,t2,c2,s2){n2.addEventListener('change',function(){t2.classList.toggle('completed',n2.checked);if(c2){c2.checked=n2.checked;c2.dispatchEvent(new Event('change',{bubbles:true}));}});t2.addEventListener('input',function(){if(s2)s2.textContent=t2.value;});})(nc,tx,cb,span);item.append(nc,tx);wrap.appendChild(item);}var ab=document.createElement('button');ab.className='nb-goal-add';ab.innerHTML='<svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="6" y1="1" x2="6" y2="11"/><line x1="1" y1="6" x2="11" y2="6"/></svg> Add goal';ab.addEventListener('click',function(){var i2=document.createElement('div');i2.className='nb-goal-item';var c2=document.createElement('input');c2.type='checkbox';c2.className='nb-goal-checkbox';var t2=document.createElement('input');t2.type='text';t2.className='nb-goal-text';t2.placeholder='Add a goal…';c2.addEventListener('change',function(){t2.classList.toggle('completed',c2.checked);});i2.append(c2,t2);ab.parentElement.insertBefore(i2,ab);t2.focus();});while(d.children.length>1)d.removeChild(d.lastChild);d.append(wrap,ab);d.classList.add('nb-gd');return;}}}
+// Inline monthly-goals editor. Replaces the React-rendered goal list with
+// editable text inputs and an "+ Add goal" button. Persists through the
+// window.__cal_setGoals bridge installed by the React component, so edits
+// land in Firebase via the same saveEvents → saveToCloud path as everything
+// else. Without the bridge typed text and added rows would only exist in
+// the DOM and disappear on the next re-render.
+function ug(){
+  var root = document.getElementById('root');
+  if (!root) return;
+  for (var d of root.querySelectorAll('div')) {
+    if (!(d.children.length > 0 && d.children[0] && d.children[0].textContent.trim() === 'Monthly goals')) continue;
+    if (d.classList.contains('nb-gd')) continue;
+    var labels = d.querySelectorAll('label');
+    var wrap = document.createElement('div'); wrap.className = 'nb-goals-wrap';
+    // Collect any goal values that may already be cached on the dataset
+    // from a prior render — the cleanest source of truth is the bridge.
+    var initial = [];
+    if (typeof window.__cal_currentGoals === 'function') {
+      try { initial = window.__cal_currentGoals() || []; } catch(e) { initial = []; }
+    }
+    if (!initial.length) {
+      // Fallback: scrape from the React-rendered labels we're about to replace.
+      initial = Array.from(labels).map(function(l){
+        var s = l.querySelector('span'); var t = s ? s.textContent.trim() : '';
+        return (t === 'To be added' || t === 'Insert Goal') ? '' : t;
+      });
+    }
+    function commit() {
+      var arr = Array.from(wrap.querySelectorAll('.nb-goal-text')).map(function(i){ return i.value || ''; });
+      if (typeof window.__cal_setGoals === 'function') window.__cal_setGoals(arr);
+    }
+    function attachRow(value, checked) {
+      var item = document.createElement('div'); item.className = 'nb-goal-item';
+      var nc = document.createElement('input'); nc.type = 'checkbox'; nc.className = 'nb-goal-checkbox';
+      nc.checked = !!checked;
+      var tx = document.createElement('input'); tx.type = 'text'; tx.className = 'nb-goal-text';
+      tx.value = value || ''; tx.placeholder = 'Add a goal…';
+      if (nc.checked) tx.classList.add('completed');
+      var rm = document.createElement('button'); rm.type = 'button'; rm.className = 'nb-goal-remove';
+      rm.setAttribute('aria-label', 'Remove goal'); rm.textContent = '×';
+      nc.addEventListener('change', function(){
+        tx.classList.toggle('completed', nc.checked);
+        // Mirror the per-month "completed" state on the original React
+        // checkbox so toggleGoal() still fires and saves into goals[mKey].
+        var i = Array.from(wrap.children).indexOf(item);
+        var orig = labels && labels[i] ? labels[i].querySelector('input[type="checkbox"]') : null;
+        if (orig) { orig.checked = nc.checked; orig.dispatchEvent(new Event('change', {bubbles:true})); }
+      });
+      tx.addEventListener('blur', commit);
+      tx.addEventListener('keydown', function(e){
+        if (e.key === 'Enter') { e.preventDefault(); tx.blur(); }
+      });
+      rm.addEventListener('click', function(){ item.remove(); commit(); });
+      item.append(nc, tx, rm);
+      wrap.appendChild(item);
+      return tx;
+    }
+    initial.forEach(function(v, i){
+      var cb = labels && labels[i] ? labels[i].querySelector('input[type="checkbox"]') : null;
+      attachRow(v, cb && cb.checked);
+    });
+    var ab = document.createElement('button'); ab.type = 'button'; ab.className = 'nb-goal-add';
+    ab.innerHTML = '<svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="6" y1="1" x2="6" y2="11"/><line x1="1" y1="6" x2="11" y2="6"/></svg> Add goal';
+    ab.addEventListener('click', function(){
+      var tx = attachRow('', false);
+      // Persist the new empty row immediately so subsequent re-renders
+      // include it; user can fill it in and blur to update.
+      commit();
+      tx.focus();
+    });
+    while (d.children.length > 1) d.removeChild(d.lastChild);
+    d.append(wrap, ab);
+    d.classList.add('nb-gd');
+    return;
+  }
+}
 function cdp(inp){if(inp._dp)return;inp._dp=true;var wrap=document.createElement('div');wrap.className='nb-date-picker-wrap';inp.parentNode.insertBefore(wrap,inp);wrap.appendChild(inp);inp.style.display='none';var disp=document.createElement('button');disp.type='button';disp.className='nb-date-display';var pY=new Date().getFullYear(),pM=new Date().getMonth(),popup=null;var MN=['January','February','March','April','May','June','July','August','September','October','November','December'],MS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];function fmt(v){if(!v)return'';var p=v.split('-');return MS[+p[1]-1]+' '+parseInt(p[2])+', '+p[0];}function ud(){var v=inp.value;disp.className='nb-date-display '+(v?'has-value':'empty');disp.innerHTML=v?'<span>'+fmt(v)+'</span><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="2" width="10" height="9" rx="1"/><path d="M4 1v2M8 1v2M1 5h10"/></svg>':'<span>Select date…</span><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#9E9C96" stroke-width="1.5"><rect x="1" y="2" width="10" height="9" rx="1"/><path d="M4 1v2M8 1v2M1 5h10"/></svg>';}function bp(){if(popup)popup.remove();popup=document.createElement('div');popup.className='nb-cal-popup';var hdr=document.createElement('div');hdr.className='nb-cal-popup-header';var pv=document.createElement('button');pv.type='button';pv.className='nb-cal-popup-nav';pv.textContent='‹';pv.onclick=function(e){e.stopPropagation();pM--;if(pM<0){pM=11;pY--;}bp();};var lb=document.createElement('span');lb.className='nb-cal-popup-month';lb.textContent=MN[pM]+' '+pY;var nx=document.createElement('button');nx.type='button';nx.className='nb-cal-popup-nav';nx.textContent='›';nx.onclick=function(e){e.stopPropagation();pM++;if(pM>11){pM=0;pY++;}bp();};hdr.append(pv,lb,nx);var grid=document.createElement('div');grid.className='nb-cal-grid';'SMTWTFS'.split('').forEach(function(ch){var el=document.createElement('div');el.className='nb-cal-dow';el.textContent=ch;grid.appendChild(el);});var fd=new Date(pY,pM,1).getDay(),dim=new Date(pY,pM+1,0).getDate(),dip=new Date(pY,pM,0).getDate(),today=new Date();today.setHours(0,0,0,0);var sel=inp.value;for(var i=fd-1;i>=0;i--){var b=document.createElement('button');b.type='button';b.className='nb-cal-day other-month';b.textContent=dip-i;grid.appendChild(b);}for(var dd=1;dd<=dim;dd++){var b2=document.createElement('button');b2.type='button';b2.className='nb-cal-day';b2.textContent=dd;var dt=new Date(pY,pM,dd);dt.setHours(0,0,0,0);if(dt.getTime()===today.getTime())b2.classList.add('today');var ds=pY+'-'+String(pM+1).padStart(2,'0')+'-'+String(dd).padStart(2,'0');if(ds===sel)b2.classList.add('selected');(function(ds2,b3){b3.onclick=function(e){e.stopPropagation();inp.value=ds2;inp.dispatchEvent(new Event('input',{bubbles:true}));inp.dispatchEvent(new Event('change',{bubbles:true}));ud();popup.remove();popup=null;};})(ds,b2);grid.appendChild(b2);}popup.append(hdr,grid);wrap.appendChild(popup);}disp.onclick=function(e){e.stopPropagation();if(popup){popup.remove();popup=null;return;}if(inp.value){var p=inp.value.split('-');pY=+p[0];pM=+p[1]-1;}bp();};document.addEventListener('click',function(e){if(popup&&!wrap.contains(e.target)){popup.remove();popup=null;}});inp.addEventListener('change',ud);inp.addEventListener('input',ud);wrap.insertBefore(disp,inp);ud();}
 function ccc(inp){if(inp._cc)return;inp._cc=true;var tags=inp.value?inp.value.split(',').map(function(t){return t.trim();}).filter(Boolean):[];inp.style.display='none';var pr=document.createElement('div');pr.className='nb-channel-chips';CP.forEach(function(p){var chip=document.createElement('button');chip.type='button';chip.className='nb-channel-chip'+(tags.indexOf(p)>=0?' selected':'');chip.textContent=p;chip.onclick=function(e){e.stopPropagation();var ix=tags.indexOf(p);if(ix>=0)tags.splice(ix,1);else tags.push(p);chip.classList.toggle('selected',tags.indexOf(p)>=0);sync();ut();};pr.appendChild(chip);});var iw=document.createElement('div');iw.className='nb-channel-input-wrap';var tc=document.createElement('div');tc.style.cssText='display:flex;flex-wrap:wrap;gap:4px;flex:1;align-items:center;';var ci=document.createElement('input');ci.className='nb-channel-custom';ci.placeholder='Custom channel…';ci.onkeydown=function(e){if((e.key==='Enter'||e.key===',')&&ci.value.trim()){e.preventDefault();var v=ci.value.trim().replace(/,/g,'');if(tags.indexOf(v)<0){tags.push(v);ut();sync();}ci.value='';}if(e.key==='Backspace'&&!ci.value&&tags.length){tags.pop();ut();sync();}};iw.onclick=function(){ci.focus();};function ut(){tc.innerHTML='';pr.querySelectorAll('.nb-channel-chip').forEach(function(c){c.classList.toggle('selected',tags.indexOf(c.textContent)>=0);});tags.filter(function(t){return CP.indexOf(t)<0;}).forEach(function(tag){var el=document.createElement('span');el.className='nb-channel-selected-chip';el.innerHTML=tag+'<button type="button">×</button>';el.querySelector('button').onclick=function(e){e.stopPropagation();tags=tags.filter(function(t){return t!==tag;});ut();sync();};tc.appendChild(el);});tc.appendChild(ci);}function sync(){inp.value=tags.join(', ');inp.dispatchEvent(new Event('input',{bubbles:true}));inp.dispatchEvent(new Event('change',{bubbles:true}));}iw.append(tc);inp.parentNode.insertBefore(pr,inp.nextSibling);inp.parentNode.insertBefore(iw,pr.nextSibling);ut();}
 function cct(sel){if(sel._ct)return;sel._ct=true;if(!window.CATS)return;sel.style.display='none';var grid=document.createElement('div');grid.className='nb-cat-grid';['campaign','social','keydate','ops','event','bizupdate','launch'].forEach(function(k){var cat=window.CATS[k];if(!cat)return;var tile=document.createElement('button');tile.type='button';tile.className='nb-cat-tile'+(sel.value===k?' selected':'');tile.style.setProperty('--tile-bg',cat.bg);tile.style.setProperty('--tile-color',cat.color);tile.style.setProperty('--tile-text',cat.text);tile.setAttribute('data-cat-key',k);var icon=document.createElement('div');icon.className='nb-cat-icon';icon.innerHTML=CI[k]||'';var label=document.createElement('div');label.className='nb-cat-label';label.textContent=cat.label;tile.append(icon,label);tile.onclick=function(e){e.stopPropagation();grid.querySelectorAll('.nb-cat-tile').forEach(function(t){t.classList.remove('selected');});tile.classList.add('selected');sel.value=k;sel.dispatchEvent(new Event('change',{bubbles:true}));};grid.appendChild(tile);});sel.addEventListener('change',function(){grid.querySelectorAll('.nb-cat-tile').forEach(function(t){t.classList.toggle('selected',t.getAttribute('data-cat-key')===sel.value);});});sel.parentNode.insertBefore(grid,sel.nextSibling);}
