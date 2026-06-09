@@ -59,6 +59,26 @@
   .mp-head .eyebrow{ font-family:var(--f-eyebrow); font-size:var(--t-eyebrow); letter-spacing:.1em; text-transform:uppercase; color:var(--mp-deep); }
   .mp-actions{ display:flex; gap:8px; flex-wrap:wrap; }
 
+  /* ---- process overview strip (sleek, collapsible) ---- */
+  .mp-process{ background:var(--surface); border:1px solid var(--line-strong); border-radius:var(--r-lg); padding:14px 16px 5px; margin-bottom:16px; }
+  .mp-process-head{ display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:13px; }
+  .mp-process-title{ font-family:var(--f-eyebrow); font-size:var(--t-eyebrow); letter-spacing:.1em; text-transform:uppercase; color:var(--text-2); font-weight:600; display:flex; align-items:baseline; gap:11px; flex-wrap:wrap; }
+  .mp-process-sub{ font-family:var(--f-sans); font-size:11px; letter-spacing:0; text-transform:none; color:var(--text-3); font-weight:500; }
+  .mp-process-toggle{ border:1px solid var(--line-strong); background:var(--surface); color:var(--text-3); font-size:11px; font-weight:600; padding:5px 12px; border-radius:var(--r-pill); cursor:pointer; transition:.15s; white-space:nowrap; }
+  .mp-process-toggle:hover{ border-color:var(--line-bold); color:var(--text-2); }
+  .mp-process.collapsed .mp-process-flow{ display:none; }
+  .mp-process-flow{ display:flex; align-items:stretch; gap:0; overflow-x:auto; padding-bottom:12px; }
+  .mp-pstage{ flex:1 0 152px; min-width:152px; border-top:3px solid var(--c); background:var(--surface-2); border-radius:0 0 var(--r-md) var(--r-md); padding:10px 12px 11px; display:flex; flex-direction:column; }
+  .mp-pstage .pteam{ font-size:12px; font-weight:700; color:var(--text); display:flex; align-items:center; gap:7px; }
+  .mp-pstage .pteam .d{ width:8px; height:8px; border-radius:50%; background:var(--c); flex:0 0 auto; }
+  .mp-pstage .pstg{ font-size:10.5px; color:var(--text-3); margin:3px 0 10px 15px; }
+  .mp-pstage .ptrig{ margin-top:auto; font-size:10px; color:var(--text-2); display:flex; align-items:center; gap:5px; border-top:1px dashed var(--line-strong); padding-top:8px; }
+  .mp-pstage .ptrig .env{ color:var(--brand-orange); }
+  .mp-pstage .ptrig b{ color:var(--text); font-weight:700; }
+  .mp-parrow{ flex:0 0 22px; display:flex; align-items:center; justify-content:center; color:var(--text-mute); }
+  .mp-plive{ flex:0 0 auto; align-self:center; display:flex; align-items:center; gap:7px; background:var(--brand-green-light); color:var(--brand-green-deep); font-size:11px; font-weight:700; padding:9px 14px; border-radius:var(--r-pill); margin-left:4px; white-space:nowrap; }
+  .mp-plive .d{ width:7px; height:7px; border-radius:50%; background:var(--brand-green-deep); }
+
   .mp-btn{ display:inline-flex; align-items:center; gap:7px; border:1px solid var(--line-strong); background:var(--surface);
     color:var(--text); font-family:var(--f-sans); font-size:13px; font-weight:600; padding:9px 14px; border-radius:var(--r-pill);
     cursor:pointer; transition:.15s; white-space:nowrap; }
@@ -391,6 +411,14 @@
 </div>
 
 <main class="np-main">
+
+  <section class="mp-process" id="mpProcess">
+    <div class="mp-process-head">
+      <div class="mp-process-title">How it works <span class="mp-process-sub">Sample → shelf · each handoff auto-emails the next team</span></div>
+      <button class="mp-process-toggle" onclick="MP.toggleProcess()">Hide</button>
+    </div>
+    <div class="mp-process-flow" id="mpProcessFlow"></div>
+  </section>
 
   <div class="mp-head">
     <div>
@@ -746,6 +774,26 @@ function renderKpis(){
 }
 
 function readyColor(p){ return p>=90?'#7bbd91':p>=50?'#eace49':'#e87142'; }
+
+/* ---- process overview strip ---- */
+const PROCESS = [
+  { team:'Marketplace', stage:'Discovery & sample', emails:'Procurement' },
+  { team:'Procurement', stage:'Commercial setup',   emails:'Commissary'  },
+  { team:'Commissary',  stage:'Supply chain',       emails:'Operations'  },
+  { team:'Operations',  stage:'Retail readiness',   emails:'Marketing'   },
+  { team:'Marketing',   stage:'Launch prep',        emails:'Store Ops'   },
+  { team:'Store Ops',   stage:'Store launch',       emails:'Marketplace' }
+];
+function renderProcess(){
+  const host = $('#mpProcessFlow'); if(!host) return;
+  const arrow = '<div class="mp-parrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>';
+  const cards = PROCESS.map(p=>`<div class="mp-pstage" style="--c:${deptColor(p.team)}">
+    <div class="pteam"><span class="d"></span>${esc(p.team)}</div>
+    <div class="pstg">${esc(p.stage)}</div>
+    <div class="ptrig"><span class="env">✉</span>→ <b>${esc(p.emails)}</b></div>
+  </div>`).join(arrow);
+  host.innerHTML = cards + arrow + '<div class="mp-plive"><span class="d"></span>Live on shelf</div>';
+}
 
 function renderBoard(){
   const cols = STAGES.filter(s=>s.key!=='review'); // review handled in detail; keep board focused
@@ -1183,6 +1231,11 @@ window.MP = {
   },
   team(d){ teamFilter=d; renderTeams(); },
   ganttZoom(px){ ganttPx=px; renderTimeline(); },
+  toggleProcess(){
+    const el=$('#mpProcess'); const c=el.classList.toggle('collapsed');
+    try{ localStorage.setItem('mpProcessCollapsed', c?'1':'0'); }catch(e){}
+    el.querySelector('.mp-process-toggle').textContent = c?'Show':'Hide';
+  },
   scrollStage(key){
     const el = document.getElementById('mpcol-'+key);
     if(el){ el.scrollIntoView({behavior:'smooth', inline:'center', block:'nearest'}); el.style.transition='box-shadow .3s'; el.style.boxShadow='0 0 0 2px var(--mp)'; setTimeout(()=>el.style.boxShadow='',900); }
@@ -1258,6 +1311,8 @@ window.MP = {
 
 /* ---------------------------------------------------------------- INIT ----- */
 if(window.emailjs){ try{ emailjs.init({ publicKey: CONFIG.EMAILJS.publicKey }); }catch(e){} }
+renderProcess();
+(function(){ try{ if(localStorage.getItem('mpProcessCollapsed')==='1'){ const el=$('#mpProcess'); el.classList.add('collapsed'); el.querySelector('.mp-process-toggle').textContent='Show'; } }catch(e){} })();
 subscribe();
 
 })();
