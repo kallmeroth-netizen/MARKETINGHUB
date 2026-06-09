@@ -282,6 +282,7 @@
       <h1>New Product Introduction</h1>
     </div>
     <div class="mp-actions">
+      <button class="mp-btn" onclick="MP.openSettings()" title="Email notifications"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>Notifications</button>
       <button class="mp-btn" onclick="MP.openBrandModal()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>Add brand</button>
       <button class="mp-btn primary" onclick="MP.openLaunchModal()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>New launch</button>
     </div>
@@ -330,8 +331,10 @@ const CONFIG = {
   LAUNCH_GATE: 90,        // overall readiness % required before a launch can go Live
   AUTO_ADVANCE: true,     // when a stage's tasks hit 100%, offer 1-click advance
   YEAR: new Date().getFullYear(),
-  // EmailJS — outbound team notifications. Fill these in + set enabled:true to go live.
-  EMAILJS: { enabled:false, publicKey:'', serviceId:'', templateId:'' }
+  // EmailJS — reuses the hub's existing account (same as the calendar).
+  // Actual sending is gated by the in-app Notifications toggle + each team
+  // having an email on file, so nothing goes out until you turn it on.
+  EMAILJS: { publicKey:'pW4-kj71suA1OsbFa', serviceId:'service_v4jp7sp', templateId:'template_zmo0l7k' }
 };
 
 /* Pipeline stages — each owned by a team. color maps to brand tokens. */
@@ -412,7 +415,8 @@ const TASK_TEMPLATES = [
 ];
 
 /* ---------------------------------------------------------------- STATE ---- */
-let state = { brands:{}, launches:{} };
+function defaultSettings(){ return { notifyEmail:false, teamEmails:{} }; }
+let state = { brands:{}, launches:{}, settings:defaultSettings() };
 let openLaunchId = null;
 let teamFilter = 'Marketplace';
 let _bootstrapped = false;
@@ -438,7 +442,7 @@ function subscribe(){
   if(!window.__fbDb){ bootstrapIfEmpty(); renderAll(); return; }
   __fbDb.ref(CONFIG.FB_PATH).on('value', snap=>{
     const v = snap.val();
-    state = { brands:(v&&v.brands)||{}, launches:(v&&v.launches)||{} };
+    state = { brands:(v&&v.brands)||{}, launches:(v&&v.launches)||{}, settings:(v&&v.settings)||defaultSettings() };
     // normalise: ensure tasks object exists
     Object.values(state.launches).forEach(l=>{ if(!l.tasks) l.tasks={}; if(!l.log) l.log=[]; });
     bootstrapIfEmpty();
@@ -529,15 +533,24 @@ function toggleTask(id, taskId){
 
 function notifyTeam(l, dept, message){
   logEvent(l, `🔔 ${dept} notified`);
-  // outbound email (optional — wired, off by default)
-  if(CONFIG.EMAILJS.enabled && window.emailjs){
-    try{
-      emailjs.send(CONFIG.EMAILJS.serviceId, CONFIG.EMAILJS.templateId, {
-        team:dept, launch:l.name, brand:brandName(l.brandId), stage:stageOf(l.stage).label,
-        message, to_email:(l.deptOwners&&l.deptOwners[dept])||''
-      });
-    }catch(e){ console.warn('EmailJS send failed', e); }
-  }
+  // outbound email — only if alerts are ON and this team has an address on file
+  const s = state.settings || {};
+  if(!s.notifyEmail || !window.emailjs) return;
+  const to = (s.teamEmails && s.teamEmails[dept]) || '';
+  if(!to) return;
+  try{
+    emailjs.send(CONFIG.EMAILJS.serviceId, CONFIG.EMAILJS.templateId, {
+      to_email:       to,
+      to_name:        dept,
+      event_name:     `${l.name} — ${stageOf(l.stage).label} stage active`,
+      event_date:     l.launchDate ? fmtDate(l.launchDate) : 'TBD',
+      event_category: `${brandName(l.brandId)} · ${dept}`,
+      event_notes:    message
+    }).then(()=>toast(`📧 Emailed ${dept}`)).catch(err=>{
+      console.error('EmailJS error →', err);
+      toast(`⚠️ Email to ${dept} failed — check console`, null, '#a32d2d');
+    });
+  }catch(e){ console.warn('EmailJS send failed', e); }
 }
 
 /* ---------------------------------------------------------------- TOASTS --- */
@@ -844,6 +857,28 @@ function brandModal(b){
     </div>`);
 }
 
+function settingsModal(){
+  const s = state.settings || defaultSettings();
+  const rows = DEPTS.map((d,i)=>`
+    <div class="mp-field">
+      <label><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${d.color};margin-right:6px;vertical-align:middle"></span>${esc(d.key)}</label>
+      <input id="se_${i}" type="email" value="${esc((s.teamEmails||{})[d.key]||'')}" placeholder="${d.key.toLowerCase().replace(/[^a-z]/g,'')}@beneighborly.com">
+    </div>`).join('');
+  openModal(`
+    <h3>Team notifications</h3>
+    <div class="sub">When a launch enters a team's stage, that team gets auto-emailed. Uses the hub's existing email account — no setup needed.</div>
+    <label style="display:flex;align-items:center;gap:10px;background:var(--mp-light);border-radius:var(--r-md);padding:11px 14px;margin-bottom:16px;cursor:pointer;font-size:13px;font-weight:600;color:var(--mp-deep)">
+      <input id="se_toggle" type="checkbox" ${s.notifyEmail?'checked':''} style="width:18px;height:18px;accent-color:var(--mp)">
+      Email alerts are ${s.notifyEmail?'<b>ON</b>':'OFF'} — send emails on stage changes
+    </label>
+    ${rows}
+    <div class="mp-modal-foot">
+      <button class="mp-btn sm" style="margin-right:auto" onclick="MP.sendTest()">Send test</button>
+      <button class="mp-btn" onclick="MP.closeModal()">Cancel</button>
+      <button class="mp-btn primary" onclick="MP.saveSettings()">Save</button>
+    </div>`);
+}
+
 /* ---------------------------------------------------------------- SEED ----- */
 function bootstrapIfEmpty(){
   if(_bootstrapped) return;
@@ -887,6 +922,25 @@ window.MP = {
   editLaunch(id){ launchModal(state.launches[id]); },
   openBrandModal(){ brandModal(null); },
   editBrand(id){ brandModal(state.brands[id]); },
+  openSettings(){ settingsModal(); },
+  saveSettings(){
+    const s = state.settings = state.settings || defaultSettings();
+    s.notifyEmail = $('#se_toggle').checked;
+    s.teamEmails = s.teamEmails || {};
+    DEPTS.forEach((d,i)=>{ const el=$('#se_'+i); if(el) s.teamEmails[d.key]=el.value.trim(); });
+    save(); closeModal();
+    toast(s.notifyEmail ? 'Email alerts <b>ON</b>' : 'Settings saved — alerts off');
+  },
+  sendTest(){
+    if(!window.emailjs){ toast('EmailJS not loaded.',null,'#a32d2d'); return; }
+    let to=''; DEPTS.forEach((d,i)=>{ const el=$('#se_'+i); if(el && el.value.trim() && !to) to=el.value.trim(); });
+    if(!to){ toast('Enter at least one team email first.',null,'#a32d2d'); return; }
+    emailjs.send(CONFIG.EMAILJS.serviceId, CONFIG.EMAILJS.templateId, {
+      to_email:to, to_name:'Marketplace NPI', event_name:'Test notification',
+      event_date:fmtDate(isoIn(0)), event_category:'Marketplace NPI · test',
+      event_notes:'If you received this, NPI team email alerts are working. 🎉'
+    }).then(()=>toast(`📧 Test sent to ${esc(to)}`)).catch(err=>{ console.error(err); toast('Test failed — check console.',null,'#a32d2d'); });
+  },
   closeModal,
   _brandSel(sel){ $('#f_newbrand').style.display = sel.value==='__new'?'block':'none'; },
   saveLaunch(id){
@@ -927,7 +981,7 @@ window.MP = {
 };
 
 /* ---------------------------------------------------------------- INIT ----- */
-if(CONFIG.EMAILJS.enabled && window.emailjs){ try{ emailjs.init(CONFIG.EMAILJS.publicKey); }catch(e){} }
+if(window.emailjs){ try{ emailjs.init({ publicKey: CONFIG.EMAILJS.publicKey }); }catch(e){} }
 subscribe();
 
 })();
