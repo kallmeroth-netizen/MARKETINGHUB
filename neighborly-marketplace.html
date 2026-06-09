@@ -242,7 +242,39 @@
     .mp-specs{ grid-template-columns:1fr; }
     .mp-panel-head{ padding:16px 16px 12px; }
     .mp-panel-body{ padding:16px 16px 50px; }
+    .mp-gantt{ --gl-w:128px !important; }
   }
+
+  /* ---- gantt timeline ---- */
+  .mp-legend{ display:flex; gap:13px; flex-wrap:wrap; align-items:center; margin-bottom:12px; }
+  .mp-legend .it{ display:flex; align-items:center; gap:6px; font-size:11px; color:var(--text-3); white-space:nowrap; }
+  .mp-legend .sw{ width:11px; height:11px; border-radius:3px; flex:0 0 auto; }
+  .mp-zoom{ margin-left:auto; display:flex; gap:4px; }
+
+  .mp-gantt{ overflow-x:auto; border:1px solid var(--line-strong); border-radius:var(--r-lg); background:var(--surface); }
+  .mp-g-head{ display:flex; position:sticky; top:0; z-index:5; background:var(--surface); border-bottom:1px solid var(--line-strong); }
+  .mp-g-corner{ position:sticky; left:0; z-index:6; background:var(--surface); flex:0 0 var(--gl-w,200px); width:var(--gl-w,200px); border-right:1px solid var(--line-strong); }
+  .mp-g-axis{ position:relative; height:34px; flex:0 0 auto; }
+  .mp-g-tick{ position:absolute; top:0; bottom:0; border-left:1px solid var(--line); }
+  .mp-g-tick .lab{ position:absolute; top:9px; left:5px; font-size:10px; color:var(--text-3); font-family:var(--f-mono); white-space:nowrap; }
+  .mp-g-tick.month .lab{ color:var(--text-2); font-weight:700; }
+
+  .mp-g-row{ display:flex; border-bottom:1px solid var(--line); cursor:pointer; }
+  .mp-g-row:last-child{ border-bottom:none; }
+  .mp-g-row:hover .mp-g-label{ background:var(--surface-2); }
+  .mp-g-label{ position:sticky; left:0; z-index:4; background:var(--surface); flex:0 0 var(--gl-w,200px); width:var(--gl-w,200px); border-right:1px solid var(--line-strong); padding:8px 12px; }
+  .mp-g-label .br{ font-size:9.5px; color:var(--mp-deep); font-weight:700; text-transform:uppercase; letter-spacing:.03em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .mp-g-label .nm{ font-size:13px; font-weight:600; color:var(--text); line-height:1.2; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .mp-g-label .st{ font-size:10px; color:var(--text-3); margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .mp-g-track{ position:relative; flex:0 0 auto; height:48px; }
+  .mp-g-grid{ position:absolute; top:0; bottom:0; border-left:1px solid var(--line); }
+  .mp-seg{ position:absolute; top:10px; height:28px; border-radius:5px; display:flex; align-items:center; padding:0 6px; overflow:hidden;
+    font-size:10px; font-weight:700; color:#fff; white-space:nowrap; box-sizing:border-box; }
+  .mp-seg.future{ color:var(--text-2); }
+  .mp-seg.cur{ box-shadow:0 0 0 2px var(--surface), 0 0 0 4px currentColor; }
+  .mp-milestone{ position:absolute; top:15px; width:15px; height:15px; transform:translateX(-7px) rotate(45deg); border-radius:3px; z-index:2; }
+  .mp-today{ position:absolute; top:0; bottom:0; width:2px; background:var(--brand-orange); z-index:3; }
+  .mp-today .dot{ position:absolute; top:1px; left:-3px; width:8px; height:8px; border-radius:50%; background:var(--brand-orange); }
 </style>
 </head>
 <body>
@@ -292,11 +324,13 @@
 
   <div class="mp-tabs">
     <button class="mp-tab active" data-tab="board" onclick="MP.tab('board')">Pipeline <span class="count" id="cBoard">0</span></button>
+    <button class="mp-tab" data-tab="timeline" onclick="MP.tab('timeline')">Timeline</button>
     <button class="mp-tab" data-tab="teams" onclick="MP.tab('teams')">Team tasks <span class="count" id="cTeams">0</span></button>
     <button class="mp-tab" data-tab="brands" onclick="MP.tab('brands')">Brands <span class="count" id="cBrands">0</span></button>
   </div>
 
   <div id="tab-board"></div>
+  <div id="tab-timeline" style="display:none"></div>
   <div id="tab-teams" style="display:none"></div>
   <div id="tab-brands" style="display:none"></div>
 
@@ -419,6 +453,7 @@ function defaultSettings(){ return { notifyEmail:false, teamEmails:{} }; }
 let state = { brands:{}, launches:{}, settings:defaultSettings() };
 let openLaunchId = null;
 let teamFilter = 'Marketplace';
+let ganttPx = 18;
 let _bootstrapped = false;
 
 /* ---------------------------------------------------------------- UTIL ----- */
@@ -564,7 +599,10 @@ function toast(html, action, color, ms){
 }
 
 /* ---------------------------------------------------------------- RENDER --- */
-function renderAll(){ renderKpis(); renderCounts(); renderBoard(); if($('#tab-teams').style.display!=='none') renderTeams(); if($('#tab-brands').style.display!=='none') renderBrands(); }
+function renderAll(){ renderKpis(); renderCounts(); renderBoard();
+  if($('#tab-timeline').style.display!=='none') renderTimeline();
+  if($('#tab-teams').style.display!=='none') renderTeams();
+  if($('#tab-brands').style.display!=='none') renderBrands(); }
 
 function renderCounts(){
   const launches = Object.values(state.launches);
@@ -765,6 +803,95 @@ function renderTeams(){
   $('#tab-teams').innerHTML = `<div class="mp-team-bar">${pills}</div><div class="mp-tasklist">${list}</div>`;
 }
 
+/* ---- gantt timeline ---- */
+const STAGE_DUR = { discovery:5, sample:5, commercial:5, commissary:3, operations:3, marketing:4, store:2 };
+const GSTAGES = ['discovery','sample','commercial','commissary','operations','marketing','store'];
+const GSHORT  = { discovery:'Disc', sample:'Sample', commercial:"Comm'l", commissary:'Whse', operations:'Ops', marketing:'Mktg', store:'Store' };
+const DAYMS = 864e5;
+const gtotal = () => GSTAGES.reduce((a,k)=>a+STAGE_DUR[k],0);
+function hexA(h,a){ const n=parseInt(h.slice(1),16); return `rgba(${(n>>16)&255},${(n>>8)&255},${n&255},${a})`; }
+
+/* Back-schedule each launch: stages end at the launch date (countdown). If no
+   launch date, run forward from when it was created. */
+function scheduleOf(l){
+  const tot = gtotal();
+  let end = l.launchDate ? new Date(l.launchDate+'T12:00:00') : new Date((l.createdAt||Date.now())+tot*DAYMS);
+  end.setHours(12,0,0,0);
+  const start = new Date(end.getTime()-tot*DAYMS);
+  let cur=new Date(start); const segs=[];
+  GSTAGES.forEach(k=>{ const s=new Date(cur), e=new Date(cur.getTime()+STAGE_DUR[k]*DAYMS); segs.push({key:k,s,e}); cur=e; });
+  return { start, end, segs };
+}
+
+function renderTimeline(){
+  const host=$('#tab-timeline');
+  const launches=Object.values(state.launches);
+  if(!launches.length){ host.innerHTML=`<div class="mp-empty">No launches yet — create one to see the timeline.</div>`; return; }
+  const rows=launches.map(l=>({l,sc:scheduleOf(l)})).sort((a,b)=>a.sc.end-b.sc.end);
+  const today=new Date(); today.setHours(12,0,0,0);
+  const minMs=Math.min(today.getTime(), ...rows.map(r=>r.sc.start.getTime()));
+  const maxMs=Math.max(today.getTime(), ...rows.map(r=>r.sc.end.getTime()));
+  const startN=Math.floor(minMs/DAYMS)-3, endN=Math.ceil(maxMs/DAYMS)+5;
+  const PX=ganttPx, W=(endN-startN)*PX;
+  const x=ms=>(Math.floor(ms/DAYMS)-startN)*PX;
+  const todayX=x(today.getTime());
+
+  // axis ticks (month labels + weekly day numbers) and matching grid lines
+  let ticks='', grid='', lastMonth=-1;
+  for(let n=startN;n<=endN;n++){
+    const d=new Date(n*DAYMS), left=(n-startN)*PX, mo=d.getUTCMonth(), dow=d.getUTCDay();
+    if(mo!==lastMonth){ lastMonth=mo;
+      ticks+=`<div class="mp-g-tick month" style="left:${left}px"><span class="lab">${d.toLocaleDateString('en-US',{month:'short',timeZone:'UTC'})}</span></div>`;
+      grid+=`<div class="mp-g-grid" style="left:${left}px"></div>`;
+    } else if(dow===1){
+      ticks+=`<div class="mp-g-tick" style="left:${left}px"><span class="lab">${d.getUTCDate()}</span></div>`;
+      grid+=`<div class="mp-g-grid" style="left:${left}px"></div>`;
+    }
+  }
+
+  const body=rows.map(({l,sc})=>{
+    const ci=stageIdx(l.stage), launched=(l.stage==='live'||l.stage==='review'), r=readiness(l);
+    const segHtml=sc.segs.map(sg=>{
+      const left=x(sg.s.getTime()), w=Math.max((sg.e-sg.s)/DAYMS*PX-2,6), col=stageOf(sg.key).color, si=stageIdx(sg.key);
+      let cls,style;
+      if(launched||si<ci){ cls='done'; style=`background:${col}`; }
+      else if(si===ci){ cls='cur'; style=`background:${col};color:${col}`; }
+      else { cls='future'; style=`background:${hexA(col,.14)};border:1px solid ${hexA(col,.45)}`; }
+      const lbl = w>=34 ? GSHORT[sg.key] : '';
+      const inner = cls==='cur' ? `<span style="color:#fff">${lbl}</span>` : lbl;
+      return `<div class="mp-seg ${cls}" style="left:${left}px;width:${w}px;${style}" title="${esc(stageOf(sg.key).label)} · ${esc(stageOf(sg.key).dept)}">${inner}</div>`;
+    }).join('');
+    const mx=x(sc.end.getTime());
+    const milestone=`<div class="mp-milestone" title="Go live: ${l.launchDate?esc(fmtDate(l.launchDate)):'TBD'}" style="left:${mx}px;${launched?'background:var(--brand-green)':'background:#fff;border:2px solid '+stageOf('store').color}"></div>`;
+    const openCur=Object.values(l.tasks||{}).filter(t=>t.stage===l.stage&&!t.done).length;
+    const st = launched ? '🟢 Live' : `${stageOf(l.stage).label}${openCur?` · ${openCur} open`:''}`;
+    return `<div class="mp-g-row" onclick="MP.openDetail('${l.id}')">
+      <div class="mp-g-label">
+        <div class="br">${esc(brandName(l.brandId))}</div>
+        <div class="nm">${esc(l.name)}</div>
+        <div class="st">${esc(st)} · ${r.overall}%</div>
+      </div>
+      <div class="mp-g-track" style="width:${W}px">${grid}${segHtml}${milestone}<div class="mp-today" style="left:${todayX}px"></div></div>
+    </div>`;
+  }).join('');
+
+  const legend = GSTAGES.map(k=>`<span class="it"><span class="sw" style="background:${stageOf(k).color}"></span>${esc(stageOf(k).label)}</span>`).join('')
+    + `<span class="it"><span class="sw" style="transform:rotate(45deg);border-radius:2px;background:#fff;border:2px solid ${stageOf('store').color}"></span>Go-live</span>`
+    + `<span class="it"><span class="sw" style="background:var(--brand-orange)"></span>Today</span>`;
+  const zoom = `<span class="mp-zoom">
+      <button class="mp-btn sm ${PX<=14?'primary':''}" onclick="MP.ganttZoom(12)">Fit</button>
+      <button class="mp-btn sm ${PX>14&&PX<24?'primary':''}" onclick="MP.ganttZoom(18)">Comfort</button>
+      <button class="mp-btn sm ${PX>=24?'primary':''}" onclick="MP.ganttZoom(28)">Wide</button>
+    </span>`;
+
+  host.innerHTML = `
+    <div class="mp-legend">${legend}${zoom}</div>
+    <div class="mp-gantt" style="--gl-w:200px">
+      <div class="mp-g-head"><div class="mp-g-corner"></div><div class="mp-g-axis" style="width:${W}px">${ticks}<div class="mp-today" style="left:${todayX}px"><span class="dot"></span></div></div></div>
+      ${body}
+    </div>`;
+}
+
 /* ---- brands CRM ---- */
 function renderBrands(){
   const brands = Object.values(state.brands).sort((a,b)=>(a.name||'').localeCompare(b.name||''));
@@ -910,10 +1037,11 @@ function isoIn(days){ const d=new Date(); d.setDate(d.getDate()+days); return d.
 window.MP = {
   tab(name){
     document.querySelectorAll('.mp-tab').forEach(t=>t.classList.toggle('active', t.dataset.tab===name));
-    ['board','teams','brands'].forEach(n=>$('#tab-'+n).style.display = n===name?'':'none');
-    if(name==='teams') renderTeams(); if(name==='brands') renderBrands();
+    ['board','timeline','teams','brands'].forEach(n=>$('#tab-'+n).style.display = n===name?'':'none');
+    if(name==='timeline') renderTimeline(); if(name==='teams') renderTeams(); if(name==='brands') renderBrands();
   },
   team(d){ teamFilter=d; renderTeams(); },
+  ganttZoom(px){ ganttPx=px; renderTimeline(); },
   openDetail(id){ openLaunchId=id; renderDetail(id); $('#mpOverlay').classList.add('open'); $('#mpPanel').classList.add('open'); document.body.style.overflow='hidden'; },
   closeDetail(){ openLaunchId=null; $('#mpOverlay').classList.remove('open'); $('#mpPanel').classList.remove('open'); document.body.style.overflow=''; },
   toggle(id,tid){ toggleTask(id,tid); },
