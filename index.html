@@ -559,6 +559,14 @@
     .hero-divider { margin: 22px auto 22px !important; width: 80px !important; }
     footer.foot { padding: 20px 0 24px; font-size: 11px; letter-spacing: 0.28em; }
   }
+  /* Match ops nav logo sizing on the hub topbar: 31 desktop / 20 <=640 / 16 <=380.
+     Broadens the existing 520px breakpoint and adds the small-phone tier. */
+  @media (max-width: 640px) {
+    .nav-brand img { height: 20px; }
+  }
+  @media (max-width: 380px) {
+    .nav-brand img { height: 16px; }
+  }
   .track-center { display: inline-block; margin-right: -0.34em; }
 
 
