@@ -451,7 +451,7 @@ const C = {
 
 // ── CATEGORIES ────────────────────────────────────────────────────────────────
 const CATS = {
-  campaign:  {label:'Email', color:C.blue,   bg:C.bl,  text:C.bd,  icon:'M11 5.5a5.5 5.5 0 01-7.78 5.01L1 12l1.49-2.22A5.5 5.5 0 1111 5.5z'},
+  campaign:  {label:'Email / SMS', color:C.blue,   bg:C.bl,  text:C.bd,  icon:'M11 5.5a5.5 5.5 0 01-7.78 5.01L1 12l1.49-2.22A5.5 5.5 0 1111 5.5z'},
   social:    {label:'Social',      color:C.lav,    bg:C.ll,  text:C.ld,  icon:'M9 2H3a1 1 0 00-1 1v6a1 1 0 001 1h1v2l3-2h2a1 1 0 001-1V3a1 1 0 00-1-1z'},
   keydate:   {label:'Key date',    color:C.yellow, bg:C.yl,  text:C.yd,  icon:'M10 2H2a1 1 0 00-1 1v8a1 1 0 001 1h8a1 1 0 001-1V3a1 1 0 00-1-1zm-6 0V1m4 1V1M1 5h10'},
   ops:       {label:'Marketplace', color:'#888780',bg:'#F1EFE8',text:'#444441',icon:'M6 1a5 5 0 100 10A5 5 0 006 1zm0 3v2l1.5 1.5'},
@@ -1530,7 +1530,7 @@ function ra(){eec();etc();uth();ug();}var _t=null;new MutationObserver(function(
     if(allSpans.length<7)return;
     var filterRow=allSpans[0]&&allSpans[0].parentElement;if(!filterRow)return;
     filterRow.style.cssText='position:absolute;opacity:0;pointer-events:none;height:0;overflow:hidden;';
-    var CHIPS=[{label:'All',orig:'All',color:null,isAll:true},{label:'Email',orig:'Email / SMS',color:'#6280bd'},{label:'SMS',orig:'Email / SMS',color:'#888780'},{label:'Social',orig:'Social',color:'#cbc9d6'},{label:'Key date',orig:'Key date',color:'#eace49'},{label:'Marketplace',orig:'Marketplace',color:'#888780'},{label:'Event',orig:'Event',color:'#e87142'},{label:'Biz update',orig:'Biz update',color:'#6280bd'},{label:'Collateral',orig:'Launch',color:'#7bbd91'}];
+    var CHIPS=[{label:'All',orig:'All',color:null,isAll:true},{label:'Email / SMS',orig:'Email / SMS',color:'#6280bd'},{label:'Social',orig:'Social',color:'#cbc9d6'},{label:'Key date',orig:'Key date',color:'#eace49'},{label:'Marketplace',orig:'Marketplace',color:'#888780'},{label:'Event',orig:'Event',color:'#e87142'},{label:'Biz update',orig:'Biz update',color:'#6280bd'},{label:'Collateral',orig:'Launch',color:'#7bbd91'}];
     var row=document.createElement('div');row.id='nb-filter-enhanced';row.style.cssText='display:flex;flex-wrap:wrap;gap:5px;align-items:center;';
     CHIPS.forEach(function(cfg){
       var chip=document.createElement('span');chip.className='nb-chip-wrap';chip.setAttribute('data-orig',cfg.orig);chip.setAttribute('data-label',cfg.label);
