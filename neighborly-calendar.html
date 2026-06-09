@@ -507,7 +507,28 @@ const DEFAULT_THEMES = {
         // Local cache so the calendar always loads + persists, even if Firebase is unavailable.
         const rd = (key) => { try { const s = JSON.parse(localStorage.getItem(STORAGE_KEY)||'null'); return s ? s[key] : null; } catch(e) { return null; } };
         const wr = (data) => { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch(e) {} };
-        const saveToCloud = (data) => { wr(data); if (__calRef) { try { __calRef.set(data); } catch(e) {} } };
+        // Note: __calRef.set returns a Promise — the synchronous try/catch
+        // here only catches synchronous throws (e.g. circular JSON). Any
+        // Firebase rejection (auth, security rules, network) must be caught
+        // on the returned promise, otherwise saves fail silently.
+        const saveToCloud = (data) => {
+          wr(data);
+          if (!__calRef) return Promise.resolve();
+          try {
+            return __calRef.set(data).then(() => {
+              if (typeof showToast === 'function') showToast('Saved');
+            }).catch(err => {
+              console.error('[calendar] Firebase save failed:', err);
+              if (typeof showToast === 'function') {
+                showToast('Save failed — ' + (err && err.code ? err.code : 'check console'));
+              }
+              throw err;
+            });
+          } catch (e) {
+            console.error('[calendar] saveToCloud sync error:', e);
+            return Promise.reject(e);
+          }
+        };
 
 // ── HELPERS ───────────────────────────────────────────────────────────────────
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,6);
