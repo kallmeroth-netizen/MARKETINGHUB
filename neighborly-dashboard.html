@@ -4262,20 +4262,23 @@ document.addEventListener('DOMContentLoaded', function() {
     if (document.getElementById('page-alltime')?.classList.contains('active')) renderAllTime();
     if (document.getElementById('page-trends')?.classList.contains('active'))  renderTrends();
   }).catch(console.error);
-  // Land on the most recent fully-loaded week from WEEK_HISTORY rather than
-  // the in-progress fiscal week. Same Supabase RPC, just with an explicit
-  // p_week_start derived from WEEK_HISTORY[0]'s label — so when today is
-  // June 9 the page opens on May 27 (the last complete week with paid-
-  // digital wired in), not the partial June 3 week. Falls through to the
-  // function's own default (current week) if WEEK_HISTORY is empty.
-  const lastFullWeekStart = (() => {
-    const lbl = (typeof WEEK_HISTORY !== 'undefined') && WEEK_HISTORY[0] && WEEK_HISTORY[0].label;
+  // Land on the week PRIOR to WEEK_HISTORY[0] — i.e. WEEK_HISTORY[1] — so
+  // we open on the last fully-settled week, not on the most recent baked
+  // week (which is itself still considered "current" for paid digital
+  // freshness purposes). With WEEK_HISTORY[0] = May 27, WEEK_HISTORY[1] =
+  // May 20, opening the page lands on May 20. Falls through to the
+  // function's own default (current in-progress week) if WEEK_HISTORY
+  // has fewer than two entries.
+  const landingWeekStart = (() => {
+    const lbl = (typeof WEEK_HISTORY !== 'undefined')
+      && (WEEK_HISTORY[1] || WEEK_HISTORY[0])
+      && (WEEK_HISTORY[1] || WEEK_HISTORY[0]).label;
     if (!lbl) return undefined;
     const d = new Date(lbl + ' 12:00:00 UTC');
     if (isNaN(d)) return undefined;
     return d.toISOString().slice(0, 10);
   })();
-  _sbLoadWeeklyKPIs(lastFullWeekStart).catch(console.error);
+  _sbLoadWeeklyKPIs(landingWeekStart).catch(console.error);
 });
 </script>
 
