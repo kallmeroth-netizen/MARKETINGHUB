@@ -62,7 +62,7 @@
 
   /* ---- header row ---- */
   .mp-head{ display:flex; align-items:flex-end; justify-content:space-between; gap:16px; margin-bottom:var(--s-4); flex-wrap:wrap; }
-  .mp-head h1{ font-family:var(--f-eyebrow); font-size:var(--t-section); margin:0; line-height:1.1; letter-spacing:.005em; }
+  .mp-head h1{ font-family:var(--f-sans); font-weight:700; font-size:var(--t-section); margin:0; line-height:1.15; color:var(--ink); }
   .mp-head .eyebrow{ font-family:var(--f-eyebrow); font-size:var(--t-eyebrow); letter-spacing:.1em; text-transform:uppercase; color:var(--mp-deep); }
   .mp-actions{ display:flex; gap:8px; flex-wrap:wrap; }
 
@@ -333,9 +333,6 @@
     background:var(--brand-green-light); color:var(--brand-green-deep); font-family:var(--f-mono); font-size:9.5px;
     letter-spacing:.09em; text-transform:uppercase; vertical-align:middle; }
   .mp-live .d{ width:6px; height:6px; border-radius:50%; background:var(--brand-green-deep); animation:mpDot 1.6s ease-in-out infinite; }
-
-  /* gradient wordmark */
-  .mp-head h1{ background:linear-gradient(92deg,var(--ink) 30%,var(--mp-deep)); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; }
 
   /* richer hovers */
   .mp-card{ transition:transform .18s var(--easing), box-shadow .18s var(--easing), border-color .18s; will-change:transform; }
