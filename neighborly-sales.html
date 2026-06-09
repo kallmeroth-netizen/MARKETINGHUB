@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Sales &amp; Forecasting — Neighborly Ops</title>
+<title>Sales — Neighborly Ops</title>
 
 <link rel="manifest" href="/manifest.json">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -14,7 +14,6 @@
 
 <link rel="stylesheet" href="theme.css">
 <script src="chrome.js" defer></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 
 <style>
   /* ===== Ops accent (page-scoped, does not touch shared marketing theme) ===== */
@@ -25,34 +24,8 @@
   }
   .np-nav-page-tag.ops { background: var(--ops-light); color: var(--ops-deep); }
 
-  /* WIREFRAME banner — makes the mockup status unmistakable for the COO */
-  .wf-banner {
-    display: flex; align-items: flex-start; gap: 12px;
-    background: var(--ops-light); border: 1px dashed var(--ops);
-    border-radius: var(--r-lg); padding: 12px 16px; margin-bottom: var(--s-5);
-  }
-  .wf-banner .wf-ico { color: var(--ops-deep); flex: 0 0 auto; margin-top: 1px; }
-  .wf-banner b { color: var(--ops-deep); }
-  .wf-banner p { font-size: var(--t-caption); color: var(--text-2); line-height: 1.5; margin: 2px 0 0; }
-
-  /* COO data-source note attached under cards */
-  .src-note {
-    display: inline-flex; align-items: center; gap: 6px;
-    margin-top: var(--s-3); padding: 4px 10px;
-    background: var(--ops-light); color: var(--ops-deep);
-    border-radius: var(--r-pill);
-    font-family: var(--f-mono); font-size: var(--t-caption-sm); letter-spacing: 0.01em;
-  }
-  .src-note::before { content: "DATA →"; font-weight: 700; opacity: 0.7; }
-
-  .ops-grid { display: grid; grid-template-columns: 1.6fr 1fr; gap: var(--s-4); margin-bottom: var(--s-5); }
-  @media (max-width: 860px) { .ops-grid { grid-template-columns: 1fr; } }
-  .chart-wrap { position: relative; height: 280px; }
-  .chart-wrap.short { height: 220px; }
-
   .kpi-delta.up   { color: var(--brand-green-deep); }
   .kpi-delta.down { color: var(--brand-orange-deep); }
-  .seg-note { font-size: var(--t-caption-sm); color: var(--text-3); margin-top: var(--s-2); }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script src="np-data.js"></script>
@@ -65,7 +38,7 @@
     <img src="NeighborlyLogo.png" alt="Neighborly">
   </a>
   <div class="np-nav-right">
-    <span class="np-nav-page-tag ops">Sales &amp; Forecasting</span>
+    <span class="np-nav-page-tag ops">Sales</span>
     <a class="np-icon-btn" href="index.html" title="Back to home" aria-label="Back to home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></a>
   </div>
 </nav>
@@ -75,7 +48,7 @@
   <div class="np-hub-label"><span>Neighborly Operations Hub</span><a href="index.html" class="np-hub-back-home">&larr; Home</a></div>
   <div class="np-hub-grid">
     <a class="np-hub-card" href="index.html"><div class="np-hub-card-ico" style="background:var(--surface-2)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--text)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12l9-9 9 9"/><path d="M5 10v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V10"/></svg></div><div class="np-hub-card-title">Operations Hub</div><div class="np-hub-card-sub">Ops overview</div></a>
-    <a class="np-hub-card is-active" href="neighborly-sales.html"><div class="np-hub-card-ico" style="background:var(--ops-light)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--ops-deep)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l5-5 4 4 8-8"/><path d="M14 8h6v6"/></svg></div><div class="np-hub-card-title">Sales &amp; Forecasting</div><div class="np-hub-card-sub">Forecast vs. actual, check, comps</div></a>
+    <a class="np-hub-card is-active" href="neighborly-sales.html"><div class="np-hub-card-ico" style="background:var(--ops-light)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--ops-deep)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l5-5 4 4 8-8"/><path d="M14 8h6v6"/></svg></div><div class="np-hub-card-title">Sales</div><div class="np-hub-card-sub">Net sales, check, catering mix, comps</div></a>
     <a class="np-hub-card" href="neighborly-labor.html"><div class="np-hub-card-ico" style="background:var(--ops-light)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--ops-deep)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 13h4l3 7 4-16 3 9h4"/></svg></div><div class="np-hub-card-title">Labor &amp; SPLH</div><div class="np-hub-card-sub">SPLH, hours, OT, labor %</div></a>
     <a class="np-hub-card" href="neighborly-pmixops.html"><div class="np-hub-card-ico" style="background:var(--ops-light)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--ops-deep)" stroke-width="2" stroke-linecap="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></div><div class="np-hub-card-title">Product Mix &middot; Ops</div><div class="np-hub-card-sub">POS mix, computed once</div></a>
   </div>
@@ -83,42 +56,20 @@
 
 <main class="np-main">
 
-  <div class="wf-banner">
-    <span class="wf-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg></span>
-    <div>
-      <b>Wireframe — sample data.</b>
-      <p>Layout and metrics are final; numbers are placeholders. COO: each card carries a <b>DATA →</b> tag noting the source/field to wire in. Filters (timeframe, segment, comp view) are live and reshape the mock data so the interaction model is clear.</p>
-    </div>
-  </div>
-
-  <div class="np-page-header-row">
-    <div class="np-page-selectors">
-      <div class="np-toggle" id="tfToggle">
-        <button class="is-active" data-tf="day">Day</button>
-        <button data-tf="week">Week</button>
-        <button data-tf="period">Period</button>
-        <button data-tf="quarter">Quarter</button>
-        <button data-tf="year">Year</button>
-      </div>
-      <div class="np-toggle" id="segToggle">
-        <button class="is-active" data-seg="total">Total</button>
-        <button data-seg="restaurant">Restaurant</button>
-        <button data-seg="catering">Catering</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- KPI STRIP -->
+  <!-- KPI STRIP — current fiscal week, live from POS (nbly_weekly_kpis +
+       nbly_discounts_summary). Forecast tile / chart and the mock
+       comps breakdown have been removed; only metrics with real data
+       behind them are shown. -->
   <div class="np-kpi-grid">
     <div class="np-kpi">
       <div class="np-kpi-label">Net Sales</div>
       <div class="np-kpi-value" id="kpiSales">$—</div>
-      <div class="np-kpi-sub"><span class="kpi-delta" id="kpiSalesVar">—</span> vs forecast <span id="kpiSalesFc">$—</span></div>
+      <div class="np-kpi-sub"><span class="kpi-delta" id="kpiSalesVar">—</span> vs last week</div>
     </div>
     <div class="np-kpi">
       <div class="np-kpi-label">Average Check</div>
       <div class="np-kpi-value" id="kpiCheck">$—</div>
-      <div class="np-kpi-sub"><span class="kpi-delta" id="kpiCheckVar">—</span> vs prior</div>
+      <div class="np-kpi-sub"><span class="kpi-delta" id="kpiCheckVar">—</span> vs last week</div>
     </div>
     <div class="np-kpi">
       <div class="np-kpi-label">Catering Mix</div>
@@ -132,226 +83,41 @@
     </div>
   </div>
 
-  <!-- FORECAST VS ACTUAL + AVG CHECK -->
-  <div class="ops-grid">
-    <div class="np-card">
-      <div class="np-card-title">Forecast vs. Actual</div>
-      <div class="np-card-sub" id="fcSub">Net sales by day — forecast (line) against actual (bars).</div>
-      <div class="chart-wrap"><canvas id="fcChart"></canvas></div>
-      <span class="src-note">POS net sales by business day &middot; forecast from prior-year + trend model</span>
-    </div>
-    <div class="np-card">
-      <div class="np-card-title">Average Check</div>
-      <div class="np-card-sub">Trend across the selected window.</div>
-      <div class="chart-wrap short"><canvas id="checkChart"></canvas></div>
-      <span class="src-note">POS: net sales &divide; check count</span>
-    </div>
-  </div>
-
-  <!-- COMPS -->
-  <div class="np-card">
-    <div class="np-page-header" style="padding-bottom:var(--s-3)">
-      <div class="np-page-eyebrow">Comps</div>
-    </div>
-    <div class="np-tabs" id="compTabs" style="margin-bottom:var(--s-4)">
-      <a class="np-tab is-active" data-comp="item">By Item</a>
-      <a class="np-tab" data-comp="daypart">By Daypart</a>
-      <a class="np-tab" data-comp="day">By Day</a>
-    </div>
-    <div class="chart-wrap short"><canvas id="compChart"></canvas></div>
-    <span class="src-note" id="compSrc">POS comp/void log, grouped by menu item</span>
-  </div>
-
-<p id="ctxMeta" style="display:none" aria-hidden="true"></p>
 </main>
 
 
 <script>
-/* ============================================================
-   SALES & FORECASTING — wireframe mock
-   All numbers below are SAMPLE DATA. Replace the MOCK source with
-   live POS/forecast feeds (see DATA → tags + neighborly-ops-datamap.md).
-   ============================================================ */
-
-// Sample scale factors so each timeframe + segment feels distinct.
-var TF = {
-  day:     { label:'today',          pts:['6a','9a','12p','3p','6p','9p'], base: 7200,  fc: 7000 },
-  week:    { label:'this week',       pts:['Mon','Tue','Wed','Thu','Fri','Sat','Sun'], base: 48200, fc: 47000 },
-  period:  { label:'this period',     pts:['W1','W2','W3','W4'], base: 196000, fc: 188000 },
-  quarter: { label:'this quarter',    pts:['P1','P2','P3'], base: 612000, fc: 600000 },
-  year:    { label:'year to date',    pts:['Q1','Q2','Q3','Q4'], base: 2480000, fc: 2510000 }
-};
-var SEG = {
-  total:      { name:'Total',      cater: 0.18, check: 24.10, mult: 1.00 },
-  restaurant: { name:'Restaurant', cater: 0.00, check: 19.40, mult: 0.82 },
-  catering:   { name:'Catering',   cater: 1.00, check: 312.0, mult: 0.18 }
-};
-
-var state = { tf:'day', seg:'total', comp:'item' };
-var fcChart, checkChart, compChart;
-
-function fmt(n){ return '$' + Math.round(n).toLocaleString(); }
-function fmtK(n){ return n>=1000 ? '$'+(n/1000).toFixed(n>=100000?0:1)+'k' : '$'+Math.round(n); }
-function pct(n){ return (n*100).toFixed(n<0.1?1:0)+'%'; }
-
-// Deterministic pseudo-noise so charts look organic but stable per filter.
-function noise(seed, i){ var x = Math.sin(seed*99 + i*12.9898)*43758.5453; return x - Math.floor(x); }
-
-function seriesFor(tf, seg){
-  var t = TF[tf], s = SEG[seg];
-  var n = t.pts.length;
-  var actual = [], forecast = [], checks = [];
-  var seed = tf.length + seg.length;
-  for (var i=0;i<n;i++){
-    var share = (1/n) * (0.8 + noise(seed, i)*0.5);
-    var a = t.base * s.mult * share;
-    var f = t.fc   * s.mult * share * (0.94 + noise(seed+1, i)*0.12);
-    actual.push(a); forecast.push(f);
-    checks.push(s.check * (0.95 + noise(seed+2, i)*0.12));
-  }
-  return { pts:t.pts, actual:actual, forecast:forecast, checks:checks, seg:s, tfLabel:t.label };
-}
-
-function render(){
-  var d = seriesFor(state.tf, state.seg);
-  var sales = d.actual.reduce(function(a,b){return a+b;},0);
-  var fc    = d.forecast.reduce(function(a,b){return a+b;},0);
-  var varc  = (sales-fc)/fc;
-  var avgCheck = d.checks.reduce(function(a,b){return a+b;},0)/d.checks.length;
-  var comps = sales * (0.021 + noise(7, state.tf.length)*0.012);
-
-  document.getElementById('kpiSales').textContent = fmt(sales);
-  document.getElementById('kpiSalesFc').textContent = fmt(fc);
-  var sv = document.getElementById('kpiSalesVar');
-  sv.textContent = (varc>=0?'+':'') + (varc*100).toFixed(1) + '%';
-  sv.className = 'kpi-delta ' + (varc>=0?'up':'down');
-
-  document.getElementById('kpiCheck').textContent = '$' + avgCheck.toFixed(2);
-  var cv = document.getElementById('kpiCheckVar');
-  var checkVar = (noise(3, state.seg.length)-0.45)*0.08;
-  cv.textContent = (checkVar>=0?'+':'') + (checkVar*100).toFixed(1) + '%';
-  cv.className = 'kpi-delta ' + (checkVar>=0?'up':'down');
-
-  document.getElementById('kpiCater').textContent = (d.seg.cater*100).toFixed(0) + '%';
-  document.getElementById('kpiComps').textContent = fmt(comps);
-  document.getElementById('kpiCompsPct').textContent = (comps/sales*100).toFixed(1) + '%';
-
-  var _cm=document.getElementById('ctxMeta'); if(_cm) _cm.textContent =
-    d.seg.name + ' &middot; ' + d.tfLabel + ' — forecast vs. actual, average check and comps.';
-  if(_cm) _cm.innerHTML =
-    d.seg.name + ' &middot; ' + d.tfLabel + ' — forecast vs. actual, average check and comps.';
-  document.getElementById('fcSub').textContent = 'Net sales — forecast (line) vs. actual (bars), ' + d.tfLabel + '.';
-
-  drawForecast(d);
-  drawCheck(d);
-  drawComp();
-}
-
-var GRID = 'rgba(31,35,40,0.06)', INK = '#1f2328', OPS = '#7bbd91';
-function baseOpts(){
-  return {
-    responsive:true, maintainAspectRatio:false,
-    plugins:{ legend:{ display:true, labels:{ boxWidth:10, font:{family:'DM Sans', size:11} } } },
-    scales:{
-      x:{ grid:{display:false}, ticks:{ font:{family:'DM Sans', size:11} } },
-      y:{ grid:{color:GRID}, ticks:{ font:{family:'DM Mono', size:10}, callback:function(v){return fmtK(v);} } }
-    }
-  };
-}
-
-function drawForecast(d){
-  var ctx = document.getElementById('fcChart');
-  if (fcChart) fcChart.destroy();
-  fcChart = new Chart(ctx, {
-    type:'bar',
-    data:{ labels:d.pts, datasets:[
-      { label:'Actual', data:d.actual, backgroundColor:'rgba(123,189,145,0.85)', borderRadius:4, order:2 },
-      { label:'Forecast', data:d.forecast, type:'line', borderColor:'#e87142', backgroundColor:'#e87142', borderWidth:2, tension:0.35, pointRadius:3, order:1 }
-    ]},
-    options: baseOpts()
-  });
-}
-function drawCheck(d){
-  var ctx = document.getElementById('checkChart');
-  if (checkChart) checkChart.destroy();
-  var o = baseOpts(); o.plugins.legend.display = false;
-  o.scales.y.ticks.callback = function(v){ return '$'+v.toFixed(0); };
-  checkChart = new Chart(ctx, {
-    type:'line',
-    data:{ labels:d.pts, datasets:[
-      { label:'Avg check', data:d.checks, borderColor:OPS, backgroundColor:'rgba(123,189,145,0.10)', fill:true, tension:0.35, pointRadius:2, borderWidth:2 }
-    ]},
-    options:o
-  });
-}
-
-var COMP = {
-  item:    { src:'POS comp/void log, grouped by menu item',
-             labels:['Burger','Bowl','Wings','Fries','Shake','Salad'], vals:[820,610,540,430,310,260] },
-  daypart: { src:'POS comp/void log, grouped by daypart',
-             labels:['Breakfast','Lunch','Afternoon','Dinner','Late'], vals:[180,910,420,1180,360] },
-  day:     { src:'POS comp/void log, grouped by business day',
-             labels:['Mon','Tue','Wed','Thu','Fri','Sat','Sun'], vals:[310,280,300,360,520,640,470] }
-};
-function drawComp(){
-  var c = COMP[state.comp];
-  document.getElementById('compSrc').textContent = c.src;
-  var ctx = document.getElementById('compChart');
-  if (compChart) compChart.destroy();
-  var o = baseOpts(); o.indexAxis='y'; o.plugins.legend.display=false;
-  o.scales.x.ticks.callback = function(v){ return '$'+v; };
-  o.scales.x.grid = {color:GRID}; o.scales.y.grid = {display:false};
-  compChart = new Chart(ctx, {
-    type:'bar',
-    data:{ labels:c.labels, datasets:[{ data:c.vals, backgroundColor:'rgba(123,189,145,0.8)', borderRadius:4 }]},
-    options:o
-  });
-}
-
-// ---- Wire filters ----
-function wireToggle(id, key){
-  document.getElementById(id).addEventListener('click', function(e){
-    var b = e.target.closest('button'); if(!b) return;
-    this.querySelectorAll('button').forEach(function(x){x.classList.remove('is-active');});
-    b.classList.add('is-active');
-    state[key] = b.dataset[key==='tf'?'tf':'seg'];
-    render();
-  });
-}
-wireToggle('tfToggle','tf');
-wireToggle('segToggle','seg');
-document.getElementById('compTabs').addEventListener('click', function(e){
-  var t = e.target.closest('.np-tab'); if(!t) return;
-  this.querySelectorAll('.np-tab').forEach(function(x){x.classList.remove('is-active');});
-  t.classList.add('is-active'); state.comp = t.dataset.comp; drawComp();
-});
-
-render();
-</script>
-
-<script>
-// ── Live sales data seam — Phase 4 ───────────────────────────────────────────
-// Actuals via nbly_weekly_kpis + nbly_discounts_summary.
-// Forecast: no data source yet — explicit placeholder.
+// Live sales tiles. All four KPIs come from real Supabase data — current
+// fiscal week via nbly_weekly_kpis (net sales, check count, channel mix)
+// plus nbly_discounts_summary for comp dollars. Net sales and average
+// check show a vs-last-week delta computed against the same RPC for the
+// prior week. Forecast tile and mock charts were removed; only what
+// the data actually backs is rendered.
 (async function() {
   try {
     var sb = NPData.supabase;
-    var WLV = '417501a4-3ffb-41d2-9539-a1b87855a869', BW = '74dacac4-6208-4388-9612-39b46df05359';
+    var WLV = '417501a4-3ffb-41d2-9539-a1b87855a869',
+        BW  = '74dacac4-6208-4388-9612-39b46df05359';
+
     function fwStart(s) {
       var d = new Date(s+'T12:00:00Z'), cut = new Date('2026-01-07T00:00:00Z');
       var dow = d.getUTCDay(), back = d >= cut ? (dow+4)%7 : (dow+6)%7;
       d.setUTCDate(d.getUTCDate()-back); return d.toISOString().slice(0,10);
     }
     function addDays(s,n){ var d=new Date(s+'T12:00:00Z'); d.setUTCDate(d.getUTCDate()+n); return d.toISOString().slice(0,10); }
+
+    // Anchor on the LAST COMPLETE fiscal week (Wed → Tue), same as the
+    // marketing dashboard default — so partial in-progress days don't
+    // skew the tile.
     var cwStart = addDays(fwStart(new Date().toISOString().slice(0,10)), -7);
     var cwEnd   = addDays(cwStart, 6);
     var lwStart = addDays(cwStart, -7);
 
     var results = await Promise.all([
-      sb.rpc('nbly_weekly_kpis',      { p_location_id: WLV, p_week_start: cwStart }),
-      sb.rpc('nbly_weekly_kpis',      { p_location_id: BW,  p_week_start: cwStart }),
-      sb.rpc('nbly_weekly_kpis',      { p_location_id: WLV, p_week_start: lwStart }),
-      sb.rpc('nbly_weekly_kpis',      { p_location_id: BW,  p_week_start: lwStart }),
+      sb.rpc('nbly_weekly_kpis',       { p_location_id: WLV, p_week_start: cwStart }),
+      sb.rpc('nbly_weekly_kpis',       { p_location_id: BW,  p_week_start: cwStart }),
+      sb.rpc('nbly_weekly_kpis',       { p_location_id: WLV, p_week_start: lwStart }),
+      sb.rpc('nbly_weekly_kpis',       { p_location_id: BW,  p_week_start: lwStart }),
       sb.rpc('nbly_discounts_summary', { p_location_id: WLV, p_start_date: cwStart, p_end_date: cwEnd }),
       sb.rpc('nbly_discounts_summary', { p_location_id: BW,  p_start_date: cwStart, p_end_date: cwEnd }),
     ]);
@@ -363,37 +129,35 @@ render();
     var lwCks  = (wLK.data?.check_count || 0) + (bLK.data?.check_count || 0);
     var comps  = (wD.data?.total        || 0) + (bD.data?.total        || 0);
 
-    if (net > 0) {
-      var avgCheck   = checks > 0 ? net / checks : 0;
-      var lwAvgCheck = lwCks  > 0 ? lwNet / lwCks : 0;
-      var checkVar   = lwAvgCheck > 0 ? (avgCheck - lwAvgCheck) / lwAvgCheck * 100 : 0;
-      var wlvCh = wK.data?.channels || {}, bwCh = bK.data?.channels || {};
-      var catering = (wlvCh.catering || 0) + (bwCh.catering || 0);
+    if (net === 0) return;
 
-      document.getElementById('kpiSales').textContent = '$' + Math.round(net).toLocaleString();
-      document.getElementById('kpiSalesFc').textContent = 'No forecast yet';
-      var sv = document.getElementById('kpiSalesVar');
-      if (sv) { sv.textContent = '—'; sv.classList.remove('up','down'); }
+    var avgCheck   = checks > 0 ? net / checks : 0;
+    var lwAvgCheck = lwCks  > 0 ? lwNet / lwCks : 0;
+    var checkVar   = lwAvgCheck > 0 ? (avgCheck - lwAvgCheck) / lwAvgCheck * 100 : 0;
+    var netVar     = lwNet > 0 ? (net - lwNet) / lwNet * 100 : 0;
 
-      document.getElementById('kpiCheck').textContent = '$' + avgCheck.toFixed(2);
-      var cv = document.getElementById('kpiCheckVar');
-      if (cv) {
-        cv.textContent = (checkVar>=0?'+':'')+checkVar.toFixed(1)+'% vs last wk';
-        cv.classList.remove('up','down'); cv.classList.add(checkVar>=0?'up':'down');
-      }
+    var wlvCh = wK.data?.channels || {}, bwCh = bK.data?.channels || {};
+    var catering = (wlvCh.catering || 0) + (bwCh.catering || 0);
 
-      document.getElementById('kpiCater').textContent    = (net > 0 ? (catering/net*100).toFixed(0) : '—') + '%';
-      document.getElementById('kpiComps').textContent     = '$' + Math.round(comps).toLocaleString();
-      document.getElementById('kpiCompsPct').textContent  = (net > 0 ? (comps/net*100).toFixed(1) : '—') + '%';
-
-      // Forecast chart: label the forecast series as unavailable
-      var fcSub = document.getElementById('fcSub');
-      if (fcSub) fcSub.textContent = 'Net sales — actual (bars); forecast data not yet available.';
-
-      // Calibrate the schematic chart with real week base
-      if (typeof TF !== 'undefined') TF.week.base = Math.round(net);
+    function setDelta(el, pct) {
+      if (!el) return;
+      el.textContent = (pct >= 0 ? '+' : '') + pct.toFixed(1) + '%';
+      el.classList.remove('up','down');
+      el.classList.add(pct >= 0 ? 'up' : 'down');
     }
-  } catch(e) { console.error('Sales seam error:', e); }
+
+    document.getElementById('kpiSales').textContent = '$' + Math.round(net).toLocaleString();
+    setDelta(document.getElementById('kpiSalesVar'), netVar);
+
+    document.getElementById('kpiCheck').textContent = '$' + avgCheck.toFixed(2);
+    setDelta(document.getElementById('kpiCheckVar'), checkVar);
+
+    document.getElementById('kpiCater').textContent    = (catering / net * 100).toFixed(0) + '%';
+    document.getElementById('kpiComps').textContent    = '$' + Math.round(comps).toLocaleString();
+    document.getElementById('kpiCompsPct').textContent = (comps / net * 100).toFixed(1) + '%';
+  } catch (e) {
+    console.error('Sales seam error:', e);
+  }
 })();
 </script>
 

@@ -255,6 +255,142 @@
   .mix-bar-fill { height: 100%; border-radius: 3px; transition: width 0.4s ease, filter 0.15s; }
   .mix-bar-wrap:hover .mix-bar-fill { filter: brightness(0.92); }
 
+  /* PAID PERFORMANCE — modern card grid (one card per platform) */
+  .paid-perf-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    padding: 1.25rem 1.25rem 1rem;
+  }
+  @media (max-width: 880px) { .paid-perf-grid { grid-template-columns: 1fr; } }
+
+  .paid-card {
+    position: relative;
+    background: var(--surface);
+    border: 0.5px solid var(--border);
+    border-radius: 14px;
+    padding: 22px 22px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    overflow: hidden;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+  }
+  .paid-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--paid-accent, var(--border-strong));
+    border-radius: 14px 14px 0 0;
+  }
+  .paid-card:hover {
+    transform: translateY(-1px);
+    border-color: var(--border-strong);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.04);
+  }
+
+  .paid-card-head { display: flex; align-items: center; gap: 11px; }
+  .paid-card-icon {
+    width: 34px; height: 34px;
+    border-radius: 10px;
+    background: var(--paid-accent, var(--surface-2));
+    color: #fff;
+    font-family: var(--f-eyebrow), 'Futura PT Demi', 'Jost', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    letter-spacing: 0.02em;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .paid-card-id { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+  .paid-card-name {
+    font-family: var(--f-sans), 'DM Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: var(--ink);
+    line-height: 1.15;
+  }
+  .paid-card-sub {
+    font-size: 11px;
+    color: var(--text-3);
+    line-height: 1.3;
+  }
+
+  .paid-card-hero {
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    padding-bottom: 16px;
+    border-bottom: 0.5px solid var(--border);
+  }
+  .paid-card-hero-num {
+    font-family: var(--f-mono), 'DM Mono', monospace;
+    font-size: 36px;
+    font-weight: 500;
+    letter-spacing: -0.04em;
+    color: var(--ink);
+    line-height: 1;
+  }
+  .paid-card-hero-meta { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+  .paid-card-hero-tag {
+    font-family: var(--f-eyebrow), 'Futura PT Demi', 'Jost', sans-serif;
+    font-size: 9.5px;
+    font-weight: 600;
+    color: var(--text-3);
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+  }
+  .paid-card-hero-delta {
+    font-family: var(--f-mono), 'DM Mono', monospace;
+    font-size: 11.5px;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+  }
+
+  .paid-card-stats {
+    display: grid;
+    grid-template-columns: repeat(var(--paid-cols, 4), 1fr);
+    gap: 14px 18px;
+  }
+  @media (max-width: 520px) {
+    .paid-card { padding: 18px; gap: 14px; }
+    .paid-card-hero-num { font-size: 30px; }
+    .paid-card-stats { grid-template-columns: 1fr 1fr; }
+  }
+
+  .paid-stat { min-width: 0; }
+  .paid-stat-lbl {
+    font-family: var(--f-eyebrow), 'Futura PT Demi', 'Jost', sans-serif;
+    font-size: 9.5px;
+    font-weight: 600;
+    color: var(--text-3);
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    margin-bottom: 5px;
+  }
+  .paid-stat-val {
+    font-family: var(--f-mono), 'DM Mono', monospace;
+    font-size: 15.5px;
+    font-weight: 500;
+    color: var(--ink);
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+  }
+  .paid-stat-delta {
+    font-family: var(--f-mono), 'DM Mono', monospace;
+    font-size: 10.5px;
+    font-weight: 600;
+    margin-top: 4px;
+    display: inline-block;
+  }
+  .paid-card-hero-delta.pos, .paid-stat-delta.pos { color: #1e7d4a; }
+  .paid-card-hero-delta.neg, .paid-stat-delta.neg { color: #a32d2d; }
+  .paid-card-hero-delta.neu, .paid-stat-delta.neu { color: var(--text-3); }
+
   /* DATA PAGE */
   .data-page { padding: 2rem; max-width: 900px; margin: 0 auto; }
   .data-header { margin-bottom: 1.5rem; }
@@ -526,7 +662,7 @@
     <!-- PAID PERFORMANCE SCORECARD -->
     <div class="section-title">Paid performance scorecard</div>
     <div class="chart-card" style="margin-bottom:1.5rem;padding:0;overflow:hidden">
-      <div class="scorecard" id="paidScorecard"></div>
+      <div id="paidScorecard"></div>
       <div class="chart-source" style="padding:0 1.25rem 1rem">Source: Meta Ads Manager · Google Ads · Uber Eats + DoorDash Merchant Portals</div>
     </div>
 
@@ -821,72 +957,96 @@ function renderMixBars() {
 }
 
 // ── PAID PERFORMANCE SCORECARD ───────────────────────────────────────────────
-// Replaces 5 separate bar charts with a single scannable scorecard that shows
-// spend, clicks, CPC, net revenue, CAC, ROAS, and customers per platform —
-// each cell carries a small WoW delta pill in the same sentiment palette.
+// Replaces the dense 7-column table with a 2×2 card grid: each platform gets
+// its own card with a hero ROAS, a brand-accent stripe, and a stats row that
+// adapts to how many fields the platform actually has (Meta/Google have
+// netRev + spend + customers + cac; Sponsored/Promo only have netRev + spend).
+// Clicks / CPC are intentionally dropped — the underlying data has never
+// populated them, so they always rendered as '—' in the old layout.
 function renderScorecard() {
   const wrap = document.getElementById('paidScorecard');
   if (!wrap) return;
 
-  // Platform → display config
+  // Brand-real accent stripe colors. House palette is too pale for the
+  // 3-pixel rail at the top of each card — these are deeper variants
+  // (Meta blue, Google green, plus Neighborly tan/lavender deeps for 3PD).
   const platforms = [
-    { key: 'meta',      label: 'Meta',           sub: 'Facebook + Instagram Ads', color: '#eace49' },
-    { key: 'google',    label: 'Google',         sub: 'Search + Performance Max', color: '#7bbd91' },
-    { key: 'sponsored', label: '3PD Sponsored',  sub: 'Uber Eats + DoorDash',     color: '#dbc6a2' },
-    { key: 'promo',     label: '3PD Promo',      sub: 'Uber Eats + DoorDash',     color: '#cbc9d6' }
-  ];
-  // Metric → {label, getter from platform data, format fn, sentiment (does up = good?)}
-  const dash = '<span class="sc-empty">—</span>';
-  const metrics = [
-    { label: 'Spend',     k: 'spend',     fmt: fmt$,                neutral: true  },
-    { label: 'Clicks',    k: 'clicks',    fmt: fmtN,                lowerBetter: false },
-    { label: 'CPC',       k: 'cpc',       fmt: v => '$' + (+v).toFixed(2), lowerBetter: true  },
-    { label: 'Net rev',   k: 'netRev',    fmt: fmt$,                lowerBetter: false },
-    { label: 'ROAS',      k: 'roas',      fmt: v => (+v).toFixed(2) + 'x', lowerBetter: false },
-    { label: 'CAC',       k: 'cac',       fmt: v => '$' + (+v).toFixed(2), lowerBetter: true  },
-    { label: 'Customers', k: 'customers', fmt: fmtN,                lowerBetter: false }
+    { key: 'meta',      label: 'Meta',          sub: 'Facebook + Instagram Ads', icon: 'Ⓜ', accent: '#1877f2', full: true  },
+    { key: 'google',    label: 'Google',        sub: 'Search + Performance Max', icon: 'G',  accent: '#0f9d58', full: true  },
+    { key: 'sponsored', label: '3PD Sponsored', sub: 'Uber Eats + DoorDash',     icon: '★',  accent: '#9c7a3c', full: false },
+    { key: 'promo',     label: '3PD Promo',     sub: 'Uber Eats + DoorDash',     icon: '%',  accent: '#5a4a7a', full: false }
   ];
 
-  const headerRow = `
-    <div class="sc-row">
-      <div class="sc-h sc-h-row">Platform</div>
-      ${metrics.map(m => `<div class="sc-h">${m.label}</div>`).join('')}
-    </div>`;
-
-  const cell = (pdata, m) => {
-    const row = pdata[m.k];
-    if (!row || row.cw == null) return `<div class="sc-c" data-label="${m.label}"><div class="sc-val">${dash}</div></div>`;
-    const val = m.fmt(row.cw);
-    const pct    = getChange(row);
-    let cls = 'neu', txt = '—';
-    if (typeof pct === 'number') {
-      if (m.neutral) {
-        cls = 'neu';
-      } else {
-        const good = m.lowerBetter ? pct < 0 : pct > 0;
-        const bad  = m.lowerBetter ? pct > 0 : pct < 0;
-        cls = good ? 'pos' : (bad ? 'neg' : 'neu');
-      }
-      txt = `${pct > 0 ? '+' : ''}${pct}% ${changeLabel().replace('vs ', '')}`;
-    }
-    return `<div class="sc-c" data-label="${m.label}">
-      <div class="sc-val">${val}</div>
-      <div class="sc-delta ${cls}">${txt}</div>
-    </div>`;
+  // Stat metric library. lowerBetter null = neutral coloring on the delta.
+  const fmtMoney = v => fmt$(v);
+  const fmtDollarsCents = v => '$' + (+v).toFixed(2);
+  const fmtROAS = v => (+v).toFixed(2) + 'x';
+  const metricLib = {
+    spend:     { lbl: 'Spend',     fmt: fmtMoney,        lowerBetter: null  },
+    netRev:    { lbl: 'Net rev',   fmt: fmtMoney,        lowerBetter: false },
+    customers: { lbl: 'Customers', fmt: v => fmtN(v),    lowerBetter: false },
+    cac:       { lbl: 'CAC',       fmt: fmtDollarsCents, lowerBetter: true  }
   };
 
-  const platRows = platforms.map(p => {
-    const d = DATA[p.key] || {};
-    return `<div class="sc-row">
-      <div class="sc-h sc-h-row">
-        <div class="sc-row-name"><span class="sc-row-dot" style="background:${p.color}"></span>${p.label}</div>
-        <div class="sc-row-meta">${p.sub}</div>
-      </div>
-      ${metrics.map(m => cell(d, m)).join('')}
-    </div>`;
-  }).join('');
+  const changeSuffix = changeLabel(); // e.g. "vs last week" / "vs T4W avg"
 
-  wrap.innerHTML = headerRow + platRows;
+  function deltaParts(pct, lowerBetter) {
+    if (typeof pct !== 'number') return { cls: 'neu', txt: '—' };
+    if (lowerBetter == null) {
+      const sign = pct > 0 ? '+' : '';
+      return { cls: 'neu', txt: `${sign}${pct}%` };
+    }
+    const good = lowerBetter ? pct < 0 : pct > 0;
+    const cls = pct === 0 ? 'neu' : (good ? 'pos' : 'neg');
+    const arrow = pct > 0 ? '↑' : (pct < 0 ? '↓' : '·');
+    return { cls, txt: `${arrow} ${Math.abs(pct)}%` };
+  }
+
+  const card = (p) => {
+    const d = DATA[p.key] || {};
+
+    // Hero metric: ROAS (always shown — every platform tracks it).
+    const roasRow = d.roas || {};
+    const roasVal = (roasRow.cw != null) ? fmtROAS(roasRow.cw) : '—';
+    const roasDelta = deltaParts(getChange(roasRow), false);
+
+    // Stat row: 4 metrics for full platforms (Meta/Google), 2 for 3PD.
+    const statKeys = p.full ? ['spend', 'netRev', 'customers', 'cac']
+                            : ['spend', 'netRev'];
+
+    const stats = statKeys.map(k => {
+      const cfg = metricLib[k];
+      const row = d[k] || {};
+      const val = (row.cw != null) ? cfg.fmt(row.cw) : '—';
+      const dlt = deltaParts(getChange(row), cfg.lowerBetter);
+      return `<div class="paid-stat">
+        <div class="paid-stat-lbl">${cfg.lbl}</div>
+        <div class="paid-stat-val">${val}</div>
+        <div class="paid-stat-delta ${dlt.cls}">${dlt.txt}</div>
+      </div>`;
+    }).join('');
+
+    return `<article class="paid-card" data-platform="${p.key}"
+              style="--paid-accent:${p.accent};--paid-cols:${statKeys.length}">
+      <div class="paid-card-head">
+        <span class="paid-card-icon" aria-hidden="true">${p.icon}</span>
+        <div class="paid-card-id">
+          <div class="paid-card-name">${p.label}</div>
+          <div class="paid-card-sub">${p.sub}</div>
+        </div>
+      </div>
+      <div class="paid-card-hero">
+        <div class="paid-card-hero-num">${roasVal}</div>
+        <div class="paid-card-hero-meta">
+          <span class="paid-card-hero-tag">ROAS</span>
+          <span class="paid-card-hero-delta ${roasDelta.cls}">${roasDelta.txt} ${changeSuffix}</span>
+        </div>
+      </div>
+      <div class="paid-card-stats">${stats}</div>
+    </article>`;
+  };
+
+  wrap.innerHTML = `<div class="paid-perf-grid">${platforms.map(card).join('')}</div>`;
 }
 
 // ── METRICS TABLE ─────────────────────────────────────────────────────────────
@@ -1177,63 +1337,984 @@ function dropFile(e)  {
 // ── WEEK PICKER ──────────────────────────────────────────────────────────────
 // Weeks derived from HIST_TOTAL — one entry per data point we have
 const WEEK_HISTORY = [
-  // Each entry: { label, data } where data mirrors the DATA shape for that week.
-  // The two most recent weeks come from the KPI tracker; earlier weeks have
-  // partial data (total revenue only) from the historical dataset.
   {
     label: 'May 27, 2026',
     data: {
       currentWeek:'May 27, 2026', lastWeek:'May 20, 2026',
-      revenue:{ total:{t4w:324157,lw:320916,cw:324549,pctT4W:0,pctPW:1}, dineIn:{t4w:135292,lw:139740,cw:138018,pctT4W:2,pctPW:-1}, webPickup:{t4w:74661,lw:73763,cw:74226,pctT4W:-1,pctPW:1}, instore:{t4w:30524,lw:26398,cw:31306,pctT4W:3,pctPW:19}, delivery:{t4w:23879,lw:24366,cw:26039,pctT4W:9,pctPW:7}, catering:{t4w:15393,lw:16802,cw:8073,pctT4W:-48,pctPW:-52}, tpd:{t4w:37132,lw:33226,cw:39120,pctT4W:5,pctPW:18}, marketplace:{t4w:7276,lw:6621,cw:7767,pctT4W:7,pctPW:17} },
-      revMix:{ dineIn:{t4w:41.75,lw:43.5,cw:42.5}, webPickup:{t4w:23.03,lw:23.0,cw:22.9}, instore:{t4w:9.41,lw:8.2,cw:9.6}, delivery:{t4w:7.37,lw:7.6,cw:8.0}, catering:{t4w:4.74,lw:5.2,cw:2.5}, tpd:{t4w:11.46,lw:10.4,cw:12.1}, marketplace:{t4w:2.24,lw:2.1,cw:2.4} },
-      meta:{ netRev:{t4w:11188,lw:10159,cw:10236,pctT4W:-9,pctPW:1}, spend:{t4w:1384,lw:1407,cw:1375,pctT4W:-1,pctPW:-2}, customers:{t4w:309,lw:303,cw:333,pctT4W:8,pctPW:10}, cac:{t4w:4.70,lw:4.64,cw:4.13,pctT4W:-12,pctPW:-11}, roas:{t4w:9.09,lw:8.22,cw:8.44,pctT4W:-7,pctPW:3} },
-      google:{ netRev:{t4w:24089,lw:29547,cw:23056,pctT4W:-4,pctPW:-22}, spend:{t4w:804,lw:889,cw:1022,pctT4W:27,pctPW:15}, customers:{t4w:635,lw:637,cw:670,pctT4W:5,pctPW:5}, cac:{t4w:1.27,lw:1.39,cw:1.52,pctT4W:20,pctPW:9}, roas:{t4w:30.93,lw:34.25,cw:23.57,pctT4W:-24,pctPW:-31} },
-      sponsored:{ netRev:{t4w:9411,lw:8663,cw:20936,pctT4W:122,pctPW:142}, spend:{t4w:958,lw:905,cw:1555,pctT4W:62,pctPW:72}, roas:{t4w:9.81,lw:9.58,cw:13.46,pctT4W:37,pctPW:41} },
-      promo:{ netRev:{t4w:13395,lw:13190,cw:7426,pctT4W:-45,pctPW:-44}, spend:{t4w:1102,lw:1224,cw:1355,pctT4W:23,pctPW:11}, roas:{t4w:12.22,lw:10.77,cw:5.48,pctT4W:-55,pctPW:-49} },
-      blendedROAS:{t4w:13.7,lw:13.9,cw:11.6,pctT4W:-15,pctPW:-17},
-      contribution:{ sponsored:{t4w:3,lw:3,cw:6}, promo:{t4w:4,lw:4,cw:2}, meta:{t4w:3,lw:3,cw:3}, google:{t4w:7,lw:9,cw:7}, total:{t4w:17,lw:19,cw:18} }
+      revenue:{total:{t4w:319932,lw:320916,cw:324549,pctT4W:1,pctPW:1},dineIn:{t4w:135292,lw:139740,cw:138018,pctT4W:2,pctPW:-1},webPickup:{t4w:74661,lw:73763,cw:74226,pctT4W:-1,pctPW:1},instore:{t4w:30524,lw:26398,cw:31306,pctT4W:3,pctPW:19},delivery:{t4w:23879,lw:24366,cw:26039,pctT4W:9,pctPW:7},catering:{t4w:14890,lw:16802,cw:8073,pctT4W:-46,pctPW:-52},tpd:{t4w:37132,lw:33226,cw:39120,pctT4W:5,pctPW:18},marketplace:{t4w:7276,lw:6621,cw:7767,pctT4W:7,pctPW:17}},
+      revMix:{dineIn:{t4w:42.32,lw:43.5,cw:42.5},webPickup:{t4w:23.34,lw:23,cw:22.9},instore:{t4w:9.54,lw:8.2,cw:9.6},delivery:{t4w:7.47,lw:7.6,cw:8},catering:{t4w:4.58,lw:5.2,cw:2.5},tpd:{t4w:11.63,lw:10.4,cw:12.1},marketplace:{t4w:2.27,lw:2.1,cw:2.4}},
+      meta:{netRev:{t4w:11188,lw:10159,cw:10236,pctT4W:-9,pctPW:1},spend:{t4w:1384,lw:1407,cw:1375,pctT4W:-1,pctPW:-2},customers:{t4w:309,lw:303,cw:333,pctT4W:8,pctPW:10},cac:{t4w:4.7,lw:4.64,cw:4.13,pctT4W:-12,pctPW:-11},roas:{t4w:9.09,lw:8.22,cw:8.45,pctT4W:-7,pctPW:3}},
+      google:{netRev:{t4w:24089,lw:29547,cw:23056,pctT4W:-4,pctPW:-22},spend:{t4w:804,lw:889,cw:1022,pctT4W:27,pctPW:15},customers:{t4w:635,lw:638,cw:670,pctT4W:5,pctPW:5},cac:{t4w:1.26,lw:1.39,cw:1.52,pctT4W:20,pctPW:9},roas:{t4w:30.92,lw:34.24,cw:23.56,pctT4W:-24,pctPW:-31}},
+      sponsored:{netRev:{t4w:9412,lw:8663,cw:20936,pctT4W:122,pctPW:142},spend:{t4w:958,lw:905,cw:1555,pctT4W:62,pctPW:72},roas:{t4w:9.81,lw:9.58,cw:13.46,pctT4W:37,pctPW:41}},
+      promo:{netRev:{t4w:13394,lw:13190,cw:7426,pctT4W:-45,pctPW:-44},spend:{t4w:1102,lw:1224,cw:1355,pctT4W:23,pctPW:11},roas:{t4w:12.22,lw:10.77,cw:5.48,pctT4W:-55,pctPW:-49}},
+      blendedROAS:{t4w:13.7,lw:13.9,cw:11.6,pctT4W:-15,pctPW:-16},
+      contribution:{sponsored:{t4w:3,lw:3,cw:6},promo:{t4w:4,lw:4,cw:2},meta:{t4w:4,lw:3,cw:3},google:{t4w:8,lw:9,cw:7},total:{t4w:18,lw:19,cw:19}}
     }
   },
   {
     label: 'May 20, 2026',
     data: {
       currentWeek:'May 20, 2026', lastWeek:'May 13, 2026',
-      revenue:{ total:{t4w:315498,lw:320188,cw:320917,pctT4W:2,pctPW:0}, dineIn:{t4w:133561,lw:137309,cw:139740,pctT4W:5,pctPW:2}, webPickup:{t4w:73409,lw:73003,cw:73763,pctT4W:0,pctPW:1}, instore:{t4w:32851,lw:29206,cw:26398,pctT4W:-20,pctPW:-10}, delivery:{t4w:23010,lw:25346,cw:24366,pctT4W:6,pctPW:-4}, catering:{t4w:6967,lw:9060,cw:16802,pctT4W:141,pctPW:85}, tpd:{t4w:38629,lw:38279,cw:33226,pctT4W:-14,pctPW:-13}, marketplace:{t4w:7071,lw:7986,cw:6621,pctT4W:-6,pctPW:-17} },
-      revMix:{ dineIn:{t4w:42.33,lw:42.9,cw:43.5}, webPickup:{t4w:23.27,lw:22.8,cw:23.0}, instore:{t4w:10.41,lw:9.1,cw:8.2}, delivery:{t4w:7.29,lw:7.9,cw:7.6}, catering:{t4w:2.2,lw:2.8,cw:5.2}, tpd:{t4w:12.24,lw:12.0,cw:10.4}, marketplace:{t4w:2.24,lw:2.5,cw:2.1} },
-      meta:{ netRev:{t4w:11097,lw:12144,cw:10159,pctT4W:-8,pctPW:-16}, spend:{t4w:1373,lw:1389,cw:1407,pctT4W:2,pctPW:1}, customers:{t4w:309,lw:365,cw:303,pctT4W:-2,pctPW:-17}, cac:{t4w:4.67,lw:3.81,cw:4.64,pctT4W:-1,pctPW:22}, roas:{t4w:9.08,lw:9.74,cw:8.22,pctT4W:-9,pctPW:-16} },
-      google:{ netRev:{t4w:22742,lw:20499,cw:25034,pctT4W:10,pctPW:22}, spend:{t4w:755,lw:812,cw:889,pctT4W:18,pctPW:9}, customers:{t4w:637,lw:617,cw:637,pctT4W:0,pctPW:3}, cac:{t4w:1.00,lw:1.32,cw:1.39,pctT4W:17,pctPW:6}, roas:{t4w:31.33,lw:26.24,cw:29.17,pctT4W:-7,pctPW:11} },
-      sponsored:{ netRev:{t4w:9411,lw:9717,cw:8663,pctT4W:-8,pctPW:-11}, spend:{t4w:958,lw:941,cw:905,pctT4W:-6,pctPW:-4}, roas:{t4w:9.75,lw:10.32,cw:9.58,pctT4W:-2,pctPW:-7} },
-      promo:{ netRev:{t4w:14054,lw:12373,cw:13190,pctT4W:-6,pctPW:7}, spend:{t4w:1102,lw:926,cw:1224,pctT4W:11,pctPW:32}, roas:{t4w:12.76,lw:13.36,cw:10.77,pctT4W:-16,pctPW:-19} },
-      blendedROAS:{t4w:13.7,lw:13.5,cw:12.9,pctT4W:-6,pctPW:-4},
-      contribution:{ sponsored:{t4w:3,lw:3,cw:3}, promo:{t4w:4,lw:4,cw:4}, meta:{t4w:4,lw:4,cw:3}, google:{t4w:7,lw:6,cw:8}, total:{t4w:18,lw:17,cw:18} }
+      revenue:{total:{t4w:315498,lw:320189,cw:320916,pctT4W:2,pctPW:0},dineIn:{t4w:133561,lw:137309,cw:139740,pctT4W:5,pctPW:2},webPickup:{t4w:73410,lw:73003,cw:73763,pctT4W:0,pctPW:1},instore:{t4w:32851,lw:29206,cw:26398,pctT4W:-20,pctPW:-10},delivery:{t4w:23010,lw:25346,cw:24366,pctT4W:6,pctPW:-4},catering:{t4w:13934,lw:9060,cw:16802,pctT4W:21,pctPW:85},tpd:{t4w:38629,lw:38279,cw:33226,pctT4W:-14,pctPW:-13},marketplace:{t4w:7071,lw:7986,cw:6621,pctT4W:-6,pctPW:-17}},
+      revMix:{dineIn:{t4w:42.38,lw:42.9,cw:43.5},webPickup:{t4w:23.26,lw:22.8,cw:23},instore:{t4w:10.43,lw:9.1,cw:8.2},delivery:{t4w:7.29,lw:7.9,cw:7.6},catering:{t4w:4.25,lw:2.8,cw:5.2},tpd:{t4w:12.27,lw:12,cw:10.4},marketplace:{t4w:2.24,lw:2.5,cw:2.1}},
+      meta:{netRev:{t4w:11097,lw:12144,cw:10159,pctT4W:-8,pctPW:-16},spend:{t4w:1373,lw:1389,cw:1407,pctT4W:2,pctPW:1},customers:{t4w:309,lw:365,cw:303,pctT4W:-2,pctPW:-17},cac:{t4w:4.67,lw:3.81,cw:4.64,pctT4W:-1,pctPW:22},roas:{t4w:9.08,lw:9.74,cw:8.22,pctT4W:-9,pctPW:-16}},
+      google:{netRev:{t4w:22742,lw:20499,cw:29547,pctT4W:30,pctPW:44},spend:{t4w:755,lw:812,cw:889,pctT4W:18,pctPW:9},customers:{t4w:637,lw:617,cw:638,pctT4W:0,pctPW:3},cac:{t4w:1.19,lw:1.32,cw:1.39,pctT4W:17,pctPW:5},roas:{t4w:31.34,lw:26.25,cw:34.24,pctT4W:9,pctPW:30}},
+      sponsored:{netRev:{t4w:9991,lw:9717,cw:8663,pctT4W:-13,pctPW:-11},spend:{t4w:1027,lw:941,cw:905,pctT4W:-12,pctPW:-4},roas:{t4w:9.75,lw:10.32,cw:9.58,pctT4W:-2,pctPW:-7}},
+      promo:{netRev:{t4w:14054,lw:12373,cw:13190,pctT4W:-6,pctPW:7},spend:{t4w:1102,lw:926,cw:1224,pctT4W:11,pctPW:32},roas:{t4w:12.76,lw:13.36,cw:10.77,pctT4W:-16,pctPW:-19}},
+      blendedROAS:{t4w:13.6,lw:13.5,cw:13.9,pctT4W:2,pctPW:3},
+      contribution:{sponsored:{t4w:3,lw:3,cw:3},promo:{t4w:4,lw:4,cw:4},meta:{t4w:4,lw:4,cw:3},google:{t4w:7,lw:6,cw:9},total:{t4w:18,lw:17,cw:19}}
     }
   },
   {
     label: 'May 13, 2026',
     data: {
       currentWeek:'May 13, 2026', lastWeek:'May 6, 2026',
-      revenue:{ total:{t4w:311075,lw:331703,cw:320188,pctT4W:3,pctPW:-3}, dineIn:{t4w:130541,lw:131962,cw:137309,pctT4W:5,pctPW:4}, webPickup:{t4w:70122,lw:78713,cw:73003,pctT4W:4,pctPW:-7}, instore:{t4w:36773,lw:34322,cw:29206,pctT4W:-21,pctPW:-15}, delivery:{t4w:20448,lw:23436,cw:25346,pctT4W:24,pctPW:8}, catering:{t4w:7717,lw:18808,cw:9060,pctT4W:17,pctPW:-52}, tpd:{t4w:38570,lw:36796,cw:38279,pctT4W:-1,pctPW:4}, marketplace:{t4w:6903,lw:7666,cw:7986,pctT4W:16,pctPW:4} },
-      revMix:{ dineIn:{t4w:41.96,lw:39.8,cw:42.9}, webPickup:{t4w:22.54,lw:23.7,cw:22.8}, instore:{t4w:11.82,lw:10.3,cw:9.1}, delivery:{t4w:6.57,lw:7.1,cw:7.9}, catering:{t4w:2.5,lw:5.7,cw:2.8}, tpd:{t4w:12.40,lw:11.1,cw:12.0}, marketplace:{t4w:2.22,lw:2.3,cw:2.5} },
-      meta:{ netRev:{t4w:10190,lw:11010,cw:12144,pctT4W:19,pctPW:10}, spend:{t4w:1320,lw:1376,cw:1389,pctT4W:5,pctPW:1}, customers:{t4w:282,lw:360,cw:365,pctT4W:30,pctPW:1}, cac:{t4w:4.87,lw:3.82,cw:3.81,pctT4W:-22,pctPW:0}, roas:{t4w:8.70,lw:9.00,cw:9.74,pctT4W:12,pctPW:8} },
-      google:{ netRev:{t4w:22344,lw:23523,cw:20499,pctT4W:-8,pctPW:-13}, spend:{t4w:744,lw:790,cw:812,pctT4W:9,pctPW:3}, customers:{t4w:618,lw:625,cw:617,pctT4W:0,pctPW:-1}, cac:{t4w:1.00,lw:1.26,cw:1.32,pctT4W:8,pctPW:4}, roas:{t4w:31.16,lw:30.76,cw:26.24,pctT4W:-16,pctPW:-15} },
-      sponsored:{ netRev:{t4w:9411,lw:8674,cw:9717,pctT4W:3,pctPW:12}, spend:{t4w:958,lw:931,cw:941,pctT4W:-2,pctPW:1}, roas:{t4w:9.78,lw:9.32,cw:10.32,pctT4W:6,pctPW:11} },
-      promo:{ netRev:{t4w:14826,lw:12734,cw:12373,pctT4W:-17,pctPW:-3}, spend:{t4w:1114,lw:1061,cw:926,pctT4W:-17,pctPW:-13}, roas:{t4w:13.40,lw:12.00,cw:13.36,pctT4W:0,pctPW:11} },
-      blendedROAS:{t4w:13.7,lw:13.5,cw:13.5,pctT4W:-1,pctPW:0},
-      contribution:{ sponsored:{t4w:3,lw:3,cw:3}, promo:{t4w:5,lw:4,cw:4}, meta:{t4w:3,lw:3,cw:4}, google:{t4w:7,lw:7,cw:6}, total:{t4w:18,lw:17,cw:17} }
+      revenue:{total:{t4w:311075,lw:331703,cw:320189,pctT4W:3,pctPW:-3},dineIn:{t4w:130541,lw:131962,cw:137309,pctT4W:5,pctPW:4},webPickup:{t4w:70122,lw:78713,cw:73003,pctT4W:4,pctPW:-7},instore:{t4w:36773,lw:34322,cw:29206,pctT4W:-21,pctPW:-15},delivery:{t4w:20448,lw:23436,cw:25346,pctT4W:24,pctPW:8},catering:{t4w:15435,lw:18808,cw:9060,pctT4W:-41,pctPW:-52},tpd:{t4w:38570,lw:36796,cw:38279,pctT4W:-1,pctPW:4},marketplace:{t4w:6904,lw:7666,cw:7986,pctT4W:16,pctPW:4}},
+      revMix:{dineIn:{t4w:42.01,lw:39.8,cw:42.9},webPickup:{t4w:22.51,lw:23.7,cw:22.8},instore:{t4w:11.86,lw:10.3,cw:9.1},delivery:{t4w:6.56,lw:7.1,cw:7.9},catering:{t4w:4.83,lw:5.7,cw:2.8},tpd:{t4w:12.43,lw:11.1,cw:12},marketplace:{t4w:2.22,lw:2.3,cw:2.5}},
+      meta:{netRev:{t4w:10190,lw:11010,cw:12144,pctT4W:19,pctPW:10},spend:{t4w:1320,lw:1376,cw:1389,pctT4W:5,pctPW:1},customers:{t4w:282,lw:360,cw:365,pctT4W:30,pctPW:1},cac:{t4w:4.87,lw:3.82,cw:3.81,pctT4W:-22,pctPW:0},roas:{t4w:8.7,lw:9,cw:9.74,pctT4W:12,pctPW:8}},
+      google:{netRev:{t4w:22344,lw:23523,cw:20499,pctT4W:-8,pctPW:-13},spend:{t4w:744,lw:790,cw:812,pctT4W:9,pctPW:3},customers:{t4w:618,lw:625,cw:617,pctT4W:0,pctPW:-1},cac:{t4w:1.21,lw:1.26,cw:1.32,pctT4W:9,pctPW:5},roas:{t4w:31.17,lw:30.78,cw:26.25,pctT4W:-16,pctPW:-15}},
+      sponsored:{netRev:{t4w:10028,lw:8674,cw:9717,pctT4W:-3,pctPW:12},spend:{t4w:1028,lw:931,cw:941,pctT4W:-8,pctPW:1},roas:{t4w:9.78,lw:9.32,cw:10.32,pctT4W:6,pctPW:11}},
+      promo:{netRev:{t4w:14826,lw:12734,cw:12373,pctT4W:-17,pctPW:-3},spend:{t4w:1114,lw:1061,cw:926,pctT4W:-17,pctPW:-13},roas:{t4w:13.4,lw:12,cw:13.36,pctT4W:0,pctPW:11}},
+      blendedROAS:{t4w:13.6,lw:13.5,cw:13.5,pctT4W:-1,pctPW:0},
+      contribution:{sponsored:{t4w:3,lw:3,cw:3},promo:{t4w:5,lw:4,cw:4},meta:{t4w:3,lw:3,cw:4},google:{t4w:7,lw:7,cw:6},total:{t4w:18,lw:17,cw:17}}
     }
   },
   {
     label: 'May 6, 2026',
     data: {
       currentWeek:'May 6, 2026', lastWeek:'Apr 29, 2026',
-      revenue:{ total:{t4w:273528,lw:306920,cw:331703,pctT4W:21,pctPW:8}, dineIn:{t4w:111537,lw:132159,cw:131962,pctT4W:18,pctPW:0}, webPickup:{t4w:61872,lw:73165,cw:78713,pctT4W:27,pctPW:8}, instore:{t4w:34685,lw:32168,cw:34322,pctT4W:-1,pctPW:7}, delivery:{t4w:16678,lw:22368,cw:23436,pctT4W:41,pctPW:5}, catering:{t4w:4041,lw:0,cw:18808,pctT4W:365,pctPW:null}, tpd:{t4w:38454,lw:40228,cw:36796,pctT4W:-4,pctPW:-9}, marketplace:{t4w:6261,lw:6833,cw:7666,pctT4W:22,pctPW:12} },
-      revMix:{ dineIn:{t4w:40.78,lw:43.1,cw:39.8}, webPickup:{t4w:22.62,lw:23.8,cw:23.7}, instore:{t4w:12.68,lw:10.5,cw:10.3}, delivery:{t4w:6.10,lw:7.3,cw:7.1}, catering:{t4w:1.5,lw:0.0,cw:5.7}, tpd:{t4w:14.06,lw:13.1,cw:11.1}, marketplace:{t4w:2.29,lw:2.2,cw:2.3} },
-      meta:{ netRev:{t4w:8832,lw:11438,cw:11010,pctT4W:25,pctPW:-4}, spend:{t4w:1080,lw:1364,cw:1376,pctT4W:27,pctPW:1}, customers:{t4w:244,lw:209,cw:360,pctT4W:48,pctPW:72}, cac:{t4w:4.41,lw:6.53,cw:3.82,pctT4W:-13,pctPW:-41}, roas:{t4w:10.05,lw:9.39,cw:9.00,pctT4W:-10,pctPW:-4} },
-      google:{ netRev:{t4w:19662,lw:22788,cw:23523,pctT4W:20,pctPW:3}, spend:{t4w:686,lw:725,cw:790,pctT4W:15,pctPW:9}, customers:{t4w:548,lw:662,cw:625,pctT4W:14,pctPW:-6}, cac:{t4w:1.00,lw:1.09,cw:1.26,pctT4W:-3,pctPW:16}, roas:{t4w:29.48,lw:32.44,cw:30.76,pctT4W:4,pctPW:-5} },
-      sponsored:{ netRev:{t4w:10028,lw:10592,cw:8674,pctT4W:-14,pctPW:-18}, spend:{t4w:1028,lw:1056,cw:931,pctT4W:-9,pctPW:-12}, roas:{t4w:10.44,lw:10.03,cw:9.32,pctT4W:-11,pctPW:-7} },
-      promo:{ netRev:{t4w:14903,lw:15281,cw:12734,pctT4W:-15,pctPW:-17}, spend:{t4w:1087,lw:1197,cw:1061,pctT4W:-2,pctPW:-11}, roas:{t4w:13.82,lw:12.76,cw:12.00,pctT4W:-13,pctPW:-6} },
-      blendedROAS:{t4w:13.8,lw:13.8,cw:13.5,pctT4W:-2,pctPW:-2},
-      contribution:{ sponsored:{t4w:4,lw:3,cw:3}, promo:{t4w:5,lw:5,cw:4}, meta:{t4w:3,lw:4,cw:3}, google:{t4w:7,lw:7,cw:7}, total:{t4w:20,lw:20,cw:17} }
+      revenue:{total:{t4w:273527,lw:306921,cw:331703,pctT4W:21,pctPW:8},dineIn:{t4w:111537,lw:132159,cw:131962,pctT4W:18,pctPW:0},webPickup:{t4w:61872,lw:73165,cw:78713,pctT4W:27,pctPW:8},instore:{t4w:34684,lw:32168,cw:34322,pctT4W:-1,pctPW:7},delivery:{t4w:16678,lw:22368,cw:23436,pctT4W:41,pctPW:5},catering:{t4w:8082,lw:null,cw:18808,pctT4W:133,pctPW:null},tpd:{t4w:38454,lw:40228,cw:36796,pctT4W:-4,pctPW:-9},marketplace:{t4w:6261,lw:6833,cw:7666,pctT4W:22,pctPW:12}},
+      revMix:{dineIn:{t4w:39.77,lw:43.1,cw:39.8},webPickup:{t4w:22.87,lw:23.8,cw:23.7},instore:{t4w:12.85,lw:10.5,cw:10.3},delivery:{t4w:5.94,lw:7.3,cw:7.1},catering:{t4w:3.12,lw:null,cw:5.7},tpd:{t4w:14.66,lw:13.1,cw:11.1},marketplace:{t4w:2.34,lw:2.2,cw:2.3}},
+      meta:{netRev:{t4w:8832,lw:11438,cw:11010,pctT4W:25,pctPW:-4},spend:{t4w:1080,lw:1364,cw:1376,pctT4W:27,pctPW:1},customers:{t4w:244,lw:209,cw:360,pctT4W:48,pctPW:72},cac:{t4w:4.41,lw:6.53,cw:3.82,pctT4W:-13,pctPW:-42},roas:{t4w:10.05,lw:9.39,cw:9,pctT4W:-10,pctPW:-4}},
+      google:{netRev:{t4w:19662,lw:22788,cw:23523,pctT4W:20,pctPW:3},spend:{t4w:686,lw:725,cw:790,pctT4W:15,pctPW:9},customers:{t4w:548,lw:662,cw:625,pctT4W:14,pctPW:-6},cac:{t4w:1.3,lw:1.09,cw:1.26,pctT4W:-3,pctPW:16},roas:{t4w:29.49,lw:32.43,cw:30.78,pctT4W:4,pctPW:-5}},
+      sponsored:{netRev:{t4w:10935,lw:10592,cw:8674,pctT4W:-21,pctPW:-18},spend:{t4w:1052,lw:1056,cw:931,pctT4W:-11,pctPW:-12},roas:{t4w:10.45,lw:10.03,cw:9.32,pctT4W:-11,pctPW:-7}},
+      promo:{netRev:{t4w:14903,lw:15281,cw:12734,pctT4W:-15,pctPW:-17},spend:{t4w:1087,lw:1197,cw:1061,pctT4W:-2,pctPW:-11},roas:{t4w:13.82,lw:12.76,cw:12,pctT4W:-13,pctPW:-6}},
+      blendedROAS:{t4w:14,lw:13.8,cw:13.5,pctT4W:-4,pctPW:-3},
+      contribution:{sponsored:{t4w:4,lw:3,cw:3},promo:{t4w:6,lw:5,cw:4},meta:{t4w:3,lw:4,cw:3},google:{t4w:7,lw:7,cw:7},total:{t4w:20,lw:20,cw:17}}
+    }
+  },
+  {
+    label: 'Apr 29, 2026',
+    data: {
+      currentWeek:'Apr 29, 2026', lastWeek:'Apr 22, 2026',
+      revenue:{total:{t4w:230662,lw:303181,cw:306921,pctT4W:33,pctPW:1},dineIn:{t4w:89047,lw:132813,cw:132159,pctT4W:48,pctPW:0},webPickup:{t4w:51186,lw:68757,cw:73165,pctT4W:43,pctPW:6},instore:{t4w:30229,lw:35707,cw:32168,pctT4W:6,pctPW:-10},delivery:{t4w:12509,lw:20891,cw:22368,pctT4W:79,pctPW:7},catering:{t4w:7443,lw:null,cw:null,pctT4W:null,pctPW:null},tpd:{t4w:36642,lw:39214,cw:40228,pctT4W:10,pctPW:3},marketplace:{t4w:5467,lw:5799,cw:6833,pctT4W:25,pctPW:18}},
+      revMix:{dineIn:{t4w:36.79,lw:43.8,cw:43.1},webPickup:{t4w:22.53,lw:22.7,cw:23.8},instore:{t4w:12.88,lw:11.8,cw:10.5},delivery:{t4w:5.17,lw:6.9,cw:7.3},catering:{t4w:3.6,lw:null,cw:null},tpd:{t4w:17.47,lw:12.9,cw:13.1},marketplace:{t4w:2.46,lw:1.9,cw:2.2}},
+      meta:{netRev:{t4w:7353,lw:9797,cw:11438,pctT4W:56,pctPW:17},spend:{t4w:843,lw:1364,cw:1364,pctT4W:62,pctPW:0},customers:{t4w:227,lw:302,cw:209,pctT4W:-8,pctPW:-31},cac:{t4w:3.51,lw:4.52,cw:6.53,pctT4W:86,pctPW:44},roas:{t4w:11.28,lw:8.18,cw:9.39,pctT4W:-17,pctPW:15}},
+      google:{netRev:{t4w:16516,lw:24156,cw:22788,pctT4W:38,pctPW:-6},spend:{t4w:594,lw:692,cw:725,pctT4W:22,pctPW:5},customers:{t4w:448,lw:645,cw:662,pctT4W:48,pctPW:3},cac:{t4w:1.37,lw:1.07,cw:1.09,pctT4W:-20,pctPW:2},roas:{t4w:28.74,lw:35.91,cw:32.43,pctT4W:13,pctPW:-10}},
+      sponsored:{netRev:{t4w:11615,lw:10982,cw:10592,pctT4W:-9,pctPW:-4},spend:{t4w:1037,lw:1179,cw:1056,pctT4W:2,pctPW:-10},roas:{t4w:11.27,lw:9.31,cw:10.03,pctT4W:-11,pctPW:8}},
+      promo:{netRev:{t4w:14042,lw:15826,cw:15281,pctT4W:9,pctPW:-3},spend:{t4w:1019,lw:1225,cw:1197,pctT4W:17,pctPW:-2},roas:{t4w:13.82,lw:12.92,cw:12.76,pctT4W:-8,pctPW:-1}},
+      blendedROAS:{t4w:14.3,lw:13.6,cw:13.8,pctT4W:-3,pctPW:2},
+      contribution:{sponsored:{t4w:6,lw:4,cw:3},promo:{t4w:7,lw:5,cw:5},meta:{t4w:3,lw:3,cw:4},google:{t4w:7,lw:8,cw:7},total:{t4w:23,lw:20,cw:20}}
+    }
+  },
+  {
+    label: 'Apr 22, 2026',
+    data: {
+      currentWeek:'Apr 22, 2026', lastWeek:'Apr 15, 2026',
+      revenue:{total:{t4w:183960,lw:302495,cw:303181,pctT4W:65,pctPW:0},dineIn:{t4w:59513,lw:125229,cw:132813,pctT4W:123,pctPW:6},webPickup:{t4w:42086,lw:59854,cw:68757,pctT4W:63,pctPW:15},instore:{t4w:25096,lw:44895,cw:35707,pctT4W:42,pctPW:-20},delivery:{t4w:8789,lw:15097,cw:20891,pctT4W:138,pctPW:38},catering:{t4w:7742,lw:12062,cw:null,pctT4W:null,pctPW:null},tpd:{t4w:35664,lw:38042,cw:39214,pctT4W:10,pctPW:3},marketplace:{t4w:5071,lw:7316,cw:5799,pctT4W:14,pctPW:-21}},
+      revMix:{dineIn:{t4w:29,lw:41.4,cw:43.8},webPickup:{t4w:23.81,lw:19.8,cw:22.7},instore:{t4w:13.19,lw:14.8,cw:11.8},delivery:{t4w:4.74,lw:5,cw:6.9},catering:{t4w:4.56,lw:4,cw:null},tpd:{t4w:21.82,lw:12.6,cw:12.9},marketplace:{t4w:2.89,lw:2.4,cw:1.9}},
+      meta:{netRev:{t4w:5776,lw:8513,cw:9797,pctT4W:70,pctPW:15},spend:{t4w:606,lw:1177,cw:1364,pctT4W:125,pctPW:16},customers:{t4w:176,lw:256,cw:302,pctT4W:72,pctPW:18},cac:{t4w:3.44,lw:4.6,cw:4.52,pctT4W:31,pctPW:-2},roas:{t4w:11.57,lw:8.23,cw:8.18,pctT4W:-29,pctPW:-1}},
+      google:{netRev:{t4w:12836,lw:18909,cw:24156,pctT4W:88,pctPW:28},spend:{t4w:529,lw:770,cw:692,pctT4W:31,pctPW:-10},customers:{t4w:353,lw:539,cw:645,pctT4W:83,pctPW:20},cac:{t4w:1.51,lw:1.43,cw:1.07,pctT4W:-29,pctPW:-25},roas:{t4w:25.47,lw:25.56,cw:35.91,pctT4W:41,pctPW:40}},
+      sponsored:{netRev:{t4w:12363,lw:9864,cw:10982,pctT4W:-11,pctPW:11},spend:{t4w:964,lw:945,cw:1179,pctT4W:22,pctPW:25},roas:{t4w:12.89,lw:10.44,cw:9.31,pctT4W:-28,pctPW:-11}},
+      promo:{netRev:{t4w:12822,lw:15462,cw:15826,pctT4W:23,pctPW:2},spend:{t4w:946,lw:971,cw:1225,pctT4W:29,pctPW:26},roas:{t4w:13.52,lw:15.93,cw:12.92,pctT4W:-4,pctPW:-19}},
+      blendedROAS:{t4w:14.4,lw:13.7,cw:13.6,pctT4W:-6,pctPW:0},
+      contribution:{sponsored:{t4w:8,lw:3,cw:4},promo:{t4w:8,lw:5,cw:5},meta:{t4w:3,lw:3,cw:3},google:{t4w:7,lw:6,cw:8},total:{t4w:26,lw:17,cw:20}}
+    }
+  },
+  {
+    label: 'Apr 15, 2026',
+    data: {
+      currentWeek:'Apr 15, 2026', lastWeek:'Apr 8, 2026',
+      revenue:{total:{t4w:145748,lw:181512,cw:302495,pctT4W:108,pctPW:67},dineIn:{t4w:39620,lw:55947,cw:125229,pctT4W:216,pctPW:124},webPickup:{t4w:34922,lw:45712,cw:59854,pctT4W:71,pctPW:31},instore:{t4w:17880,lw:25968,cw:44895,pctT4W:151,pctPW:73},delivery:{t4w:6538,lw:8356,cw:15097,pctT4W:131,pctPW:81},catering:{t4w:6674,lw:4101,cw:12062,pctT4W:81,pctPW:194},tpd:{t4w:35891,lw:36333,cw:38042,pctT4W:6,pctPW:5},marketplace:{t4w:4221,lw:5095,cw:7316,pctT4W:73,pctPW:44}},
+      revMix:{dineIn:{t4w:26.27,lw:30.8,cw:41.4},webPickup:{t4w:24.07,lw:25.2,cw:19.8},instore:{t4w:12.16,lw:14.3,cw:14.8},delivery:{t4w:4.51,lw:4.6,cw:5},catering:{t4w:4.86,lw:2.3,cw:4},tpd:{t4w:25.18,lw:20,cw:12.6},marketplace:{t4w:2.94,lw:2.8,cw:2.4}},
+      meta:{netRev:{t4w:4084,lw:5581,cw:8513,pctT4W:108,pctPW:53},spend:{t4w:442,lw:417,cw:1177,pctT4W:166,pctPW:182},customers:{t4w:129,lw:208,cw:256,pctT4W:99,pctPW:23},cac:{t4w:4.22,lw:2,cw:4.6,pctT4W:9,pctPW:130},roas:{t4w:10.61,lw:14.38,cw:8.23,pctT4W:-22,pctPW:-43}},
+      google:{netRev:{t4w:10864,lw:12795,cw:18909,pctT4W:74,pctPW:48},spend:{t4w:425,lw:555,cw:770,pctT4W:81,pctPW:39},customers:{t4w:294,lw:348,cw:539,pctT4W:83,pctPW:55},cac:{t4w:1.44,lw:1.6,cw:1.43,pctT4W:-1,pctPW:-11},roas:{t4w:27.11,lw:24.05,cw:25.56,pctT4W:-6,pctPW:6}},
+      sponsored:{netRev:{t4w:12618,lw:12302,cw:9864,pctT4W:-22,pctPW:-20},spend:{t4w:898,lw:1026,cw:945,pctT4W:5,pctPW:-8},roas:{t4w:14.26,lw:12,cw:10.44,pctT4W:-27,pctPW:-13}},
+      promo:{netRev:{t4w:12094,lw:13044,cw:15462,pctT4W:28,pctPW:19},spend:{t4w:909,lw:954,cw:971,pctT4W:7,pctPW:2},roas:{t4w:13.36,lw:13.67,cw:15.93,pctT4W:19,pctPW:17}},
+      blendedROAS:{t4w:14.8,lw:14.8,cw:13.7,pctT4W:-8,pctPW:-8},
+      contribution:{sponsored:{t4w:9,lw:7,cw:3},promo:{t4w:8,lw:7,cw:5},meta:{t4w:3,lw:3,cw:3},google:{t4w:8,lw:7,cw:6},total:{t4w:28,lw:24,cw:17}}
+    }
+  },
+  {
+    label: 'Apr 8, 2026',
+    data: {
+      currentWeek:'Apr 8, 2026', lastWeek:'Apr 1, 2026',
+      revenue:{total:{t4w:137229,lw:135460,cw:181512,pctT4W:32,pctPW:34},dineIn:{t4w:36445,lw:42198,cw:55947,pctT4W:54,pctPW:33},webPickup:{t4w:31294,lw:30421,cw:45712,pctT4W:46,pctPW:50},instore:{t4w:15596,lw:14346,cw:25968,pctT4W:67,pctPW:81},delivery:{t4w:6698,lw:5692,cw:8356,pctT4W:25,pctPW:47},catering:{t4w:6646,lw:6167,cw:4101,pctT4W:-38,pctPW:-34},tpd:{t4w:36329,lw:32977,cw:36333,pctT4W:0,pctPW:10},marketplace:{t4w:4220,lw:3659,cw:5095,pctT4W:21,pctPW:39}},
+      revMix:{dineIn:{t4w:25.9,lw:31.2,cw:30.8},webPickup:{t4w:23.07,lw:22.5,cw:25.2},instore:{t4w:11.44,lw:10.6,cw:14.3},delivery:{t4w:4.89,lw:4.2,cw:4.6},catering:{t4w:4.97,lw:4.6,cw:2.3},tpd:{t4w:26.64,lw:24.3,cw:20},marketplace:{t4w:3.1,lw:2.7,cw:2.8}},
+      meta:{netRev:{t4w:3719,lw:5521,cw:5581,pctT4W:50,pctPW:1},spend:{t4w:490,lw:415,cw:417,pctT4W:-15,pctPW:0},customers:{t4w:104,lw:141,cw:208,pctT4W:100,pctPW:48},cac:{t4w:5.12,lw:2.94,cw:2,pctT4W:-61,pctPW:-32},roas:{t4w:8.95,lw:14.3,cw:14.38,pctT4W:61,pctPW:1}},
+      google:{netRev:{t4w:10246,lw:10206,cw:12795,pctT4W:25,pctPW:25},spend:{t4w:380,lw:359,cw:555,pctT4W:46,pctPW:55},customers:{t4w:280,lw:262,cw:348,pctT4W:24,pctPW:33},cac:{t4w:1.37,lw:1.37,cw:1.6,pctT4W:17,pctPW:17},roas:{t4w:28.2,lw:29.43,cw:24.05,pctT4W:-15,pctPW:-18}},
+      sponsored:{netRev:{t4w:12534,lw:13313,cw:12302,pctT4W:-2,pctPW:-8},spend:{t4w:788,lw:998,cw:1026,pctT4W:30,pctPW:3},roas:{t4w:16.37,lw:13.34,cw:12,pctT4W:-27,pctPW:-10}},
+      promo:{netRev:{t4w:11772,lw:11838,cw:13044,pctT4W:11,pctPW:10},spend:{t4w:906,lw:927,cw:954,pctT4W:5,pctPW:3},roas:{t4w:13.07,lw:12.77,cw:13.67,pctT4W:5,pctPW:7}},
+      blendedROAS:{t4w:14.9,lw:15.1,cw:14.8,pctT4W:-1,pctPW:-2},
+      contribution:{sponsored:{t4w:9,lw:10,cw:7},promo:{t4w:9,lw:9,cw:7},meta:{t4w:3,lw:4,cw:3},google:{t4w:8,lw:8,cw:7},total:{t4w:28,lw:30,cw:24}}
+    }
+  },
+  {
+    label: 'Apr 1, 2026',
+    data: {
+      currentWeek:'Apr 1, 2026', lastWeek:'Mar 25, 2026',
+      revenue:{total:{t4w:139933,lw:116371,cw:135460,pctT4W:-3,pctPW:16},dineIn:{t4w:37200,lw:14678,cw:42198,pctT4W:13,pctPW:187},webPickup:{t4w:32138,lw:32355,cw:30421,pctT4W:-5,pctPW:-6},instore:{t4w:16028,lw:15174,cw:14346,pctT4W:-10,pctPW:-5},delivery:{t4w:6791,lw:6010,cw:5692,pctT4W:-16,pctPW:-5},catering:{t4w:6372,lw:8637,cw:6167,pctT4W:-3,pctPW:-29},tpd:{t4w:36907,lw:35302,cw:32977,pctT4W:-11,pctPW:-7},marketplace:{t4w:4497,lw:4215,cw:3659,pctT4W:-19,pctPW:-13}},
+      revMix:{dineIn:{t4w:25.84,lw:12.6,cw:31.2},webPickup:{t4w:23.23,lw:27.8,cw:22.5},instore:{t4w:11.54,lw:13,cw:10.6},delivery:{t4w:4.87,lw:5.2,cw:4.2},catering:{t4w:4.7,lw:7.4,cw:4.6},tpd:{t4w:26.58,lw:30.3,cw:24.3},marketplace:{t4w:3.24,lw:3.6,cw:2.7}},
+      meta:{netRev:{t4w:3054,lw:3487,cw:5521,pctT4W:81,pctPW:58},spend:{t4w:504,lw:417,cw:415,pctT4W:-18,pctPW:0},customers:{t4w:88,lw:99,cw:141,pctT4W:59,pctPW:42},cac:{t4w:5.88,lw:4.21,cw:2.94,pctT4W:-50,pctPW:-30},roas:{t4w:7.14,lw:9.36,cw:14.3,pctT4W:100,pctPW:53}},
+      google:{netRev:{t4w:10141,lw:9432,cw:10206,pctT4W:1,pctPW:8},spend:{t4w:370,lw:432,cw:359,pctT4W:-3,pctPW:-17},customers:{t4w:280,lw:263,cw:262,pctT4W:-6,pctPW:0},cac:{t4w:1.33,lw:1.64,cw:1.37,pctT4W:3,pctPW:-16},roas:{t4w:28.76,lw:22.83,cw:29.43,pctT4W:2,pctPW:29}},
+      sponsored:{netRev:{t4w:11356,lw:13972,cw:13313,pctT4W:17,pctPW:-5},spend:{t4w:720,lw:885,cw:998,pctT4W:39,pctPW:13},roas:{t4w:16,lw:15.79,cw:13.34,pctT4W:-17,pctPW:-16}},
+      promo:{netRev:{t4w:11878,lw:10946,cw:11838,pctT4W:0,pctPW:8},spend:{t4w:940,lw:934,cw:927,pctT4W:-1,pctPW:-1},roas:{t4w:12.76,lw:11.72,cw:12.77,pctT4W:0,pctPW:9}},
+      blendedROAS:{t4w:14.4,lw:14.2,cw:15.1,pctT4W:5,pctPW:7},
+      contribution:{sponsored:{t4w:8,lw:12,cw:10},promo:{t4w:9,lw:9,cw:9},meta:{t4w:2,lw:3,cw:4},google:{t4w:7,lw:8,cw:8},total:{t4w:26,lw:33,cw:30}}
+    }
+  },
+  {
+    label: 'Mar 25, 2026',
+    data: {
+      currentWeek:'Mar 25, 2026', lastWeek:'Mar 18, 2026',
+      revenue:{total:{t4w:148532,lw:149648,cw:116371,pctT4W:-22,pctPW:-22},dineIn:{t4w:44450,lw:45659,cw:14678,pctT4W:-67,pctPW:-68},webPickup:{t4w:32200,lw:31201,cw:32355,pctT4W:0,pctPW:4},instore:{t4w:16376,lw:16033,cw:15174,pctT4W:-7,pctPW:-5},delivery:{t4w:7111,lw:6096,cw:6010,pctT4W:-15,pctPW:-1},catering:{t4w:6003,lw:7790,cw:8637,pctT4W:44,pctPW:11},tpd:{t4w:37834,lw:38953,cw:35302,pctT4W:-7,pctPW:-9},marketplace:{t4w:4558,lw:3916,cw:4215,pctT4W:-8,pctPW:8}},
+      revMix:{dineIn:{t4w:29.93,lw:30.5,cw:12.6},webPickup:{t4w:21.68,lw:20.8,cw:27.8},instore:{t4w:11.03,lw:10.7,cw:13},delivery:{t4w:4.79,lw:4.1,cw:5.2},catering:{t4w:4.03,lw:5.2,cw:7.4},tpd:{t4w:25.46,lw:26,cw:30.3},marketplace:{t4w:3.07,lw:2.6,cw:3.6}},
+      meta:{netRev:{t4w:3096,lw:1749,cw:3487,pctT4W:13,pctPW:99},spend:{t4w:533,lw:518,cw:417,pctT4W:-22,pctPW:-19},customers:{t4w:94,lw:67,cw:99,pctT4W:5,pctPW:48},cac:{t4w:5.91,lw:7.74,cw:4.21,pctT4W:-29,pctPW:-46},roas:{t4w:6.77,lw:4.38,cw:9.36,pctT4W:38,pctPW:114}},
+      google:{netRev:{t4w:10246,lw:11024,cw:9432,pctT4W:-8,pctPW:-14},spend:{t4w:378,lw:354,cw:432,pctT4W:14,pctPW:22},customers:{t4w:284,lw:305,cw:263,pctT4W:-7,pctPW:-14},cac:{t4w:1.33,lw:1.16,cw:1.64,pctT4W:23,pctPW:41},roas:{t4w:28.65,lw:32.14,cw:22.83,pctT4W:-20,pctPW:-29}},
+      sponsored:{netRev:{t4w:10472,lw:10885,cw:13972,pctT4W:33,pctPW:28},spend:{t4w:678,lw:684,cw:885,pctT4W:30,pctPW:29},roas:{t4w:15.68,lw:15.91,cw:15.79,pctT4W:1,pctPW:-1}},
+      promo:{netRev:{t4w:12909,lw:12548,cw:10946,pctT4W:-15,pctPW:-13},spend:{t4w:1024,lw:821,cw:934,pctT4W:-9,pctPW:14},roas:{t4w:12.79,lw:15.28,cw:11.72,pctT4W:-8,pctPW:-23}},
+      blendedROAS:{t4w:14.1,lw:15.2,cw:14.2,pctT4W:0,pctPW:-7},
+      contribution:{sponsored:{t4w:7,lw:7,cw:12},promo:{t4w:9,lw:8,cw:9},meta:{t4w:2,lw:1,cw:3},google:{t4w:7,lw:7,cw:8},total:{t4w:25,lw:24,cw:33}}
+    }
+  },
+  {
+    label: 'Mar 18, 2026',
+    data: {
+      currentWeek:'Mar 18, 2026', lastWeek:'Mar 11, 2026',
+      revenue:{total:{t4w:146029,lw:147436,cw:149648,pctT4W:2,pctPW:2},dineIn:{t4w:42348,lw:43246,cw:45659,pctT4W:8,pctPW:6},webPickup:{t4w:32380,lw:31201,cw:31201,pctT4W:-4,pctPW:0},instore:{t4w:16818,lw:16829,cw:16033,pctT4W:-5,pctPW:-5},delivery:{t4w:7458,lw:8995,cw:6096,pctT4W:-18,pctPW:-32},catering:{t4w:5117,lw:3988,cw:7790,pctT4W:52,pctPW:95},tpd:{t4w:37157,lw:38085,cw:38953,pctT4W:5,pctPW:2},marketplace:{t4w:4750,lw:5092,cw:3916,pctT4W:-18,pctPW:-23}},
+      revMix:{dineIn:{t4w:28.97,lw:29.3,cw:30.5},webPickup:{t4w:22.19,lw:21.2,cw:20.8},instore:{t4w:11.54,lw:11.4,cw:10.7},delivery:{t4w:5.11,lw:6.1,cw:4.1},catering:{t4w:3.49,lw:2.7,cw:5.2},tpd:{t4w:25.45,lw:25.8,cw:26},marketplace:{t4w:3.26,lw:3.5,cw:2.6}},
+      meta:{netRev:{t4w:3715,lw:4120,cw:1749,pctT4W:-53,pctPW:-58},spend:{t4w:538,lw:608,cw:518,pctT4W:-4,pctPW:-15},customers:{t4w:112,lw:109,cw:67,pctT4W:-40,pctPW:-39},cac:{t4w:4.96,lw:5.57,cw:7.74,pctT4W:56,pctPW:39},roas:{t4w:7.89,lw:7.77,cw:4.38,pctT4W:-45,pctPW:-44}},
+      google:{netRev:{t4w:10097,lw:10323,cw:11024,pctT4W:9,pctPW:7},spend:{t4w:389,lw:377,cw:354,pctT4W:-9,pctPW:-6},customers:{t4w:280,lw:290,cw:305,pctT4W:9,pctPW:5},cac:{t4w:1.38,lw:1.3,cw:1.16,pctT4W:-16,pctPW:-11},roas:{t4w:27.4,lw:28.38,cw:32.14,pctT4W:17,pctPW:13}},
+      sponsored:{netRev:{t4w:10487,lw:11965,cw:10885,pctT4W:4,pctPW:-9},spend:{t4w:697,lw:585,cw:684,pctT4W:-2,pctPW:17},roas:{t4w:15.31,lw:20.45,cw:15.91,pctT4W:4,pctPW:-22}},
+      promo:{netRev:{t4w:13146,lw:11757,cw:12548,pctT4W:-5,pctPW:7},spend:{t4w:1093,lw:940,cw:821,pctT4W:-25,pctPW:-13},roas:{t4w:12.05,lw:12.5,cw:15.28,pctT4W:27,pctPW:22}},
+      blendedROAS:{t4w:13.8,lw:15.2,cw:15.2,pctT4W:10,pctPW:0},
+      contribution:{sponsored:{t4w:7,lw:8,cw:7},promo:{t4w:9,lw:8,cw:8},meta:{t4w:3,lw:3,cw:1},google:{t4w:7,lw:7,cw:7},total:{t4w:26,lw:26,cw:24}}
+    }
+  },
+  {
+    label: 'Mar 11, 2026',
+    data: {
+      currentWeek:'Mar 11, 2026', lastWeek:'Mar 4, 2026',
+      revenue:{total:{t4w:141301,lw:146278,cw:147436,pctT4W:4,pctPW:1},dineIn:{t4w:40265,lw:45219,cw:43246,pctT4W:7,pctPW:-4},webPickup:{t4w:31942,lw:33794,cw:31201,pctT4W:-2,pctPW:-8},instore:{t4w:16101,lw:16077,cw:16829,pctT4W:5,pctPW:5},delivery:{t4w:6940,lw:6064,cw:8995,pctT4W:30,pctPW:48},catering:{t4w:5157,lw:5071,cw:3988,pctT4W:-23,pctPW:-21},tpd:{t4w:36070,lw:35289,cw:38085,pctT4W:6,pctPW:8},marketplace:{t4w:4826,lw:4764,cw:5092,pctT4W:6,pctPW:7}},
+      revMix:{dineIn:{t4w:28.43,lw:30.9,cw:29.3},webPickup:{t4w:22.63,lw:23.1,cw:21.2},instore:{t4w:11.4,lw:11,cw:11.4},delivery:{t4w:4.93,lw:4.1,cw:6.1},catering:{t4w:3.62,lw:3.5,cw:2.7},tpd:{t4w:25.55,lw:24.1,cw:25.8},marketplace:{t4w:3.44,lw:3.3,cw:3.5}},
+      meta:{netRev:{t4w:3915,lw:2860,cw:4120,pctT4W:5,pctPW:44},spend:{t4w:535,lw:474,cw:608,pctT4W:14,pctPW:28},customers:{t4w:120,lw:79,cw:109,pctT4W:-9,pctPW:38},cac:{t4w:4.62,lw:6,cw:5.57,pctT4W:21,pctPW:-7},roas:{t4w:8.25,lw:7.03,cw:7.77,pctT4W:-6,pctPW:11}},
+      google:{netRev:{t4w:9831,lw:9785,cw:10323,pctT4W:5,pctPW:5},spend:{t4w:416,lw:319,cw:377,pctT4W:-9,pctPW:18},customers:{t4w:271,lw:261,cw:290,pctT4W:7,pctPW:11},cac:{t4w:1.54,lw:1.22,cw:1.3,pctT4W:-16,pctPW:7},roas:{t4w:25.32,lw:31.67,cw:28.38,pctT4W:12,pctPW:-10}},
+      sponsored:{netRev:{t4w:9935,lw:8603,cw:11965,pctT4W:20,pctPW:39},spend:{t4w:714,lw:727,cw:585,pctT4W:-18,pctPW:-20},roas:{t4w:13.93,lw:11.84,cw:20.45,pctT4W:47,pctPW:73}},
+      promo:{netRev:{t4w:13486,lw:12262,cw:11757,pctT4W:-13,pctPW:-4},spend:{t4w:1154,lw:1064,cw:940,pctT4W:-19,pctPW:-12},roas:{t4w:11.7,lw:11.53,cw:12.5,pctT4W:7,pctPW:8}},
+      blendedROAS:{t4w:13.2,lw:13,cw:15.2,pctT4W:15,pctPW:17},
+      contribution:{sponsored:{t4w:7,lw:6,cw:8},promo:{t4w:10,lw:8,cw:8},meta:{t4w:3,lw:2,cw:3},google:{t4w:7,lw:7,cw:7},total:{t4w:26,lw:23,cw:26}}
+    }
+  },
+  {
+    label: 'Mar 4, 2026',
+    data: {
+      currentWeek:'Mar 4, 2026', lastWeek:'Feb 25, 2026',
+      revenue:{total:{t4w:139698,lw:150768,cw:146278,pctT4W:5,pctPW:-3},dineIn:{t4w:38171,lw:43677,cw:45219,pctT4W:18,pctPW:4},webPickup:{t4w:30814,lw:32604,cw:33794,pctT4W:10,pctPW:4},instore:{t4w:15810,lw:16567,cw:16077,pctT4W:2,pctPW:-3},delivery:{t4w:7111,lw:7290,cw:6064,pctT4W:-15,pctPW:-17},catering:{t4w:6352,lw:7164,cw:5071,pctT4W:-20,pctPW:-29},tpd:{t4w:36637,lw:39008,cw:35289,pctT4W:-4,pctPW:-10},marketplace:{t4w:4803,lw:4458,cw:4764,pctT4W:-1,pctPW:7}},
+      revMix:{dineIn:{t4w:27.29,lw:29,cw:30.9},webPickup:{t4w:22.08,lw:21.6,cw:23.1},instore:{t4w:11.31,lw:11,cw:11},delivery:{t4w:5.1,lw:4.8,cw:4.1},catering:{t4w:4.52,lw:4.8,cw:3.5},tpd:{t4w:26.23,lw:25.9,cw:24.1},marketplace:{t4w:3.46,lw:3,cw:3.3}},
+      meta:{netRev:{t4w:4169,lw:3657,cw:2860,pctT4W:-31,pctPW:-22},spend:{t4w:547,lw:532,cw:474,pctT4W:-13,pctPW:-11},customers:{t4w:130,lw:123,cw:79,pctT4W:-39,pctPW:-36},cac:{t4w:4.21,lw:4.33,cw:6,pctT4W:42,pctPW:39},roas:{t4w:8.61,lw:7.87,cw:7.03,pctT4W:-18,pctPW:-11}},
+      google:{netRev:{t4w:9864,lw:9851,cw:9785,pctT4W:-1,pctPW:-1},spend:{t4w:432,lw:460,cw:319,pctT4W:-26,pctPW:-31},customers:{t4w:275,lw:280,cw:261,pctT4W:-5,pctPW:-7},cac:{t4w:1.58,lw:1.64,cw:1.22,pctT4W:-23,pctPW:-26},roas:{t4w:24.09,lw:22.41,cw:31.67,pctT4W:31,pctPW:41}},
+      sponsored:{netRev:{t4w:9856,lw:10434,cw:8603,pctT4W:-13,pctPW:-18},spend:{t4w:692,lw:718,cw:727,pctT4W:5,pctPW:1},roas:{t4w:14.21,lw:14.53,cw:11.84,pctT4W:-17,pctPW:-19}},
+      promo:{netRev:{t4w:13398,lw:15070,cw:12262,pctT4W:-8,pctPW:-19},spend:{t4w:1154,lw:1271,cw:1064,pctT4W:-8,pctPW:-16},roas:{t4w:11.62,lw:11.86,cw:11.53,pctT4W:-1,pctPW:-3}},
+      blendedROAS:{t4w:13.2,lw:13.1,cw:13,pctT4W:-2,pctPW:-1},
+      contribution:{sponsored:{t4w:7,lw:7,cw:6},promo:{t4w:10,lw:10,cw:8},meta:{t4w:3,lw:2,cw:2},google:{t4w:7,lw:7,cw:7},total:{t4w:27,lw:26,cw:23}}
+    }
+  },
+  {
+    label: 'Feb 25, 2026',
+    data: {
+      currentWeek:'Feb 25, 2026', lastWeek:'Feb 18, 2026',
+      revenue:{total:{t4w:139230,lw:139633,cw:150768,pctT4W:8,pctPW:8},dineIn:{t4w:37554,lw:37248,cw:43677,pctT4W:16,pctPW:17},webPickup:{t4w:30610,lw:31923,cw:32604,pctT4W:7,pctPW:2},instore:{t4w:15647,lw:17799,cw:16567,pctT4W:6,pctPW:-7},delivery:{t4w:7211,lw:7485,cw:7290,pctT4W:1,pctPW:-3},catering:{t4w:6750,lw:4245,cw:7164,pctT4W:6,pctPW:69},tpd:{t4w:36450,lw:36245,cw:39008,pctT4W:7,pctPW:8},marketplace:{t4w:5008,lw:4688,cw:4458,pctT4W:-11,pctPW:-5}},
+      revMix:{dineIn:{t4w:26.96,lw:26.7,cw:29},webPickup:{t4w:22.01,lw:22.9,cw:21.6},instore:{t4w:11.24,lw:12.7,cw:11},delivery:{t4w:5.18,lw:5.4,cw:4.8},catering:{t4w:4.8,lw:3,cw:4.8},tpd:{t4w:26.19,lw:26,cw:25.9},marketplace:{t4w:3.61,lw:3.4,cw:3}},
+      meta:{netRev:{t4w:4390,lw:4223,cw:3657,pctT4W:-17,pctPW:-13},spend:{t4w:542,lw:536,cw:532,pctT4W:-2,pctPW:-1},customers:{t4w:132,lw:136,cw:123,pctT4W:-7,pctPW:-10},cac:{t4w:4.12,lw:3.94,cw:4.33,pctT4W:5,pctPW:10},roas:{t4w:9.1,lw:8.88,cw:7.87,pctT4W:-14,pctPW:-11}},
+      google:{netRev:{t4w:9974,lw:10430,cw:9851,pctT4W:-1,pctPW:-6},spend:{t4w:426,lw:399,cw:460,pctT4W:8,pctPW:15},customers:{t4w:273,lw:289,cw:280,pctT4W:3,pctPW:-3},cac:{t4w:1.57,lw:1.38,cw:1.64,pctT4W:4,pctPW:19},roas:{t4w:24.65,lw:27.14,cw:22.41,pctT4W:-9,pctPW:-17}},
+      sponsored:{netRev:{t4w:9954,lw:10947,cw:10434,pctT4W:5,pctPW:-5},spend:{t4w:690,lw:759,cw:718,pctT4W:4,pctPW:-5},roas:{t4w:14.41,lw:14.42,cw:14.53,pctT4W:1,pctPW:1}},
+      promo:{netRev:{t4w:13073,lw:13494,cw:15070,pctT4W:15,pctPW:12},spend:{t4w:1085,lw:1097,cw:1271,pctT4W:17,pctPW:16},roas:{t4w:12.11,lw:12.31,cw:11.86,pctT4W:-2,pctPW:-4}},
+      blendedROAS:{t4w:13.7,lw:14,cw:13.1,pctT4W:-4,pctPW:-7},
+      contribution:{sponsored:{t4w:7,lw:8,cw:7},promo:{t4w:9,lw:10,cw:10},meta:{t4w:3,lw:3,cw:2},google:{t4w:7,lw:7,cw:7},total:{t4w:27,lw:28,cw:26}}
+    }
+  },
+  {
+    label: 'Feb 18, 2026',
+    data: {
+      currentWeek:'Feb 18, 2026', lastWeek:'Feb 11, 2026',
+      revenue:{total:{t4w:138244,lw:128525,cw:139633,pctT4W:1,pctPW:9},dineIn:{t4w:37816,lw:34915,cw:37248,pctT4W:-2,pctPW:7},webPickup:{t4w:30102,lw:29449,cw:31923,pctT4W:6,pctPW:8},instore:{t4w:14788,lw:13962,cw:17799,pctT4W:20,pctPW:27},delivery:{t4w:7249,lw:6920,cw:7485,pctT4W:3,pctPW:8},catering:{t4w:6612,lw:4149,cw:4245,pctT4W:-36,pctPW:2},tpd:{t4w:36656,lw:33738,cw:36245,pctT4W:-1,pctPW:7},marketplace:{t4w:5021,lw:5392,cw:4688,pctT4W:-7,pctPW:-13}},
+      revMix:{dineIn:{t4w:27.35,lw:27.2,cw:26.7},webPickup:{t4w:21.81,lw:22.9,cw:22.9},instore:{t4w:10.7,lw:10.9,cw:12.7},delivery:{t4w:5.25,lw:5.4,cw:5.4},catering:{t4w:4.72,lw:3.2,cw:3},tpd:{t4w:26.53,lw:26.3,cw:26},marketplace:{t4w:3.64,lw:4.2,cw:3.4}},
+      meta:{netRev:{t4w:4466,lw:4919,cw:4223,pctT4W:-5,pctPW:-14},spend:{t4w:537,lw:598,cw:536,pctT4W:0,pctPW:-10},customers:{t4w:130,lw:142,cw:136,pctT4W:5,pctPW:-4},cac:{t4w:4.15,lw:4.21,cw:3.94,pctT4W:-5,pctPW:-6},roas:{t4w:9.32,lw:9.23,cw:8.88,pctT4W:-5,pctPW:-4}},
+      google:{netRev:{t4w:9658,lw:9257,cw:10430,pctT4W:8,pctPW:13},spend:{t4w:426,lw:486,cw:399,pctT4W:-6,pctPW:-18},customers:{t4w:263,lw:252,cw:289,pctT4W:10,pctPW:15},cac:{t4w:1.63,lw:1.93,cw:1.38,pctT4W:-15,pctPW:-28},roas:{t4w:23.86,lw:20.05,cw:27.14,pctT4W:14,pctPW:35}},
+      sponsored:{netRev:{t4w:9654,lw:9756,cw:10947,pctT4W:13,pctPW:12},spend:{t4w:671,lw:653,cw:759,pctT4W:13,pctPW:16},roas:{t4w:14.36,lw:14.94,cw:14.42,pctT4W:0,pctPW:-3}},
+      promo:{netRev:{t4w:12961,lw:13119,cw:13494,pctT4W:4,pctPW:3},spend:{t4w:1071,lw:1182,cw:1097,pctT4W:2,pctPW:-7},roas:{t4w:12.16,lw:11.1,cw:12.31,pctT4W:1,pctPW:11}},
+      blendedROAS:{t4w:13.6,lw:12.7,cw:14,pctT4W:3,pctPW:10},
+      contribution:{sponsored:{t4w:7,lw:8,cw:8},promo:{t4w:9,lw:10,cw:10},meta:{t4w:3,lw:4,cw:3},google:{t4w:7,lw:7,cw:7},total:{t4w:27,lw:29,cw:28}}
+    }
+  },
+  {
+    label: 'Feb 11, 2026',
+    data: {
+      currentWeek:'Feb 11, 2026', lastWeek:'Feb 4, 2026',
+      revenue:{total:{t4w:141023,lw:139865,cw:128525,pctT4W:-9,pctPW:-8},dineIn:{t4w:40404,lw:36843,cw:34915,pctT4W:-14,pctPW:-5},webPickup:{t4w:29571,lw:29280,cw:29449,pctT4W:0,pctPW:1},instore:{t4w:14872,lw:14910,cw:13962,pctT4W:-6,pctPW:-6},delivery:{t4w:7280,lw:6750,cw:6920,pctT4W:-5,pctPW:3},catering:{t4w:6944,lw:9852,cw:4149,pctT4W:-40,pctPW:-58},tpd:{t4w:36793,lw:37556,cw:33738,pctT4W:-8,pctPW:-10},marketplace:{t4w:5160,lw:4674,cw:5392,pctT4W:5,pctPW:15}},
+      revMix:{dineIn:{t4w:28.66,lw:26.3,cw:27.2},webPickup:{t4w:20.97,lw:20.9,cw:22.9},instore:{t4w:10.54,lw:10.7,cw:10.9},delivery:{t4w:5.17,lw:4.8,cw:5.4},catering:{t4w:4.89,lw:7,cw:3.2},tpd:{t4w:26.11,lw:26.9,cw:26.3},marketplace:{t4w:3.66,lw:3.3,cw:4.2}},
+      meta:{netRev:{t4w:4326,lw:3877,cw:4919,pctT4W:14,pctPW:27},spend:{t4w:512,lw:521,cw:598,pctT4W:17,pctPW:15},customers:{t4w:124,lw:119,cw:142,pctT4W:14,pctPW:19},cac:{t4w:4.12,lw:4.38,cw:4.21,pctT4W:2,pctPW:-4},roas:{t4w:9.45,lw:8.44,cw:9.23,pctT4W:-2,pctPW:9}},
+      google:{netRev:{t4w:9464,lw:9917,cw:9257,pctT4W:-2,pctPW:-7},spend:{t4w:373,lw:385,cw:486,pctT4W:30,pctPW:26},customers:{t4w:258,lw:279,cw:252,pctT4W:-2,pctPW:-10},cac:{t4w:1.44,lw:1.38,cw:1.93,pctT4W:34,pctPW:40},roas:{t4w:26.84,lw:26.76,cw:20.05,pctT4W:-25,pctPW:-25}},
+      sponsored:{netRev:{t4w:9810,lw:8288,cw:9756,pctT4W:-1,pctPW:18},spend:{t4w:666,lw:639,cw:653,pctT4W:-2,pctPW:2},roas:{t4w:14.72,lw:12.97,cw:14.94,pctT4W:1,pctPW:15}},
+      promo:{netRev:{t4w:12880,lw:11910,cw:13119,pctT4W:2,pctPW:10},spend:{t4w:1018,lw:1064,cw:1182,pctT4W:16,pctPW:11},roas:{t4w:12.69,lw:11.2,cw:11.1,pctT4W:-13,pctPW:-1}},
+      blendedROAS:{t4w:14.2,lw:13,cw:12.7,pctT4W:-11,pctPW:-3},
+      contribution:{sponsored:{t4w:7,lw:6,cw:8},promo:{t4w:9,lw:9,cw:10},meta:{t4w:3,lw:3,cw:4},google:{t4w:7,lw:7,cw:7},total:{t4w:26,lw:24,cw:29}}
+    }
+  },
+  {
+    label: 'Feb 4, 2026',
+    data: {
+      currentWeek:'Feb 4, 2026', lastWeek:'Jan 28, 2026',
+      revenue:{total:{t4w:138666,lw:148896,cw:139865,pctT4W:1,pctPW:-6},dineIn:{t4w:40430,lw:41208,cw:36843,pctT4W:-9,pctPW:-11},webPickup:{t4w:29392,lw:31789,cw:29280,pctT4W:0,pctPW:-8},instore:{t4w:14982,lw:15917,cw:14910,pctT4W:0,pctPW:-6},delivery:{t4w:7486,lw:7689,cw:6750,pctT4W:-10,pctPW:-12},catering:{t4w:5371,lw:8756,cw:9852,pctT4W:83,pctPW:13},tpd:{t4w:35786,lw:38261,cw:37556,pctT4W:5,pctPW:-2},marketplace:{t4w:5218,lw:5276,cw:4674,pctT4W:-10,pctPW:-11}},
+      revMix:{dineIn:{t4w:29.16,lw:27.7,cw:26.3},webPickup:{t4w:21.21,lw:21.3,cw:20.9},instore:{t4w:10.82,lw:10.7,cw:10.7},delivery:{t4w:5.41,lw:5.2,cw:4.8},catering:{t4w:3.81,lw:5.9,cw:7},tpd:{t4w:25.82,lw:25.7,cw:26.9},marketplace:{t4w:3.76,lw:3.5,cw:3.3}},
+      meta:{netRev:{t4w:4656,lw:4540,cw:3877,pctT4W:-17,pctPW:-15},spend:{t4w:513,lw:512,cw:521,pctT4W:2,pctPW:2},customers:{t4w:133,lw:130,cw:119,pctT4W:-11,pctPW:-8},cac:{t4w:3.88,lw:3.94,cw:4.38,pctT4W:13,pctPW:11},roas:{t4w:10.07,lw:9.87,cw:8.44,pctT4W:-16,pctPW:-14}},
+      google:{netRev:{t4w:9480,lw:10294,cw:9917,pctT4W:5,pctPW:-4},spend:{t4w:376,lw:435,cw:385,pctT4W:2,pctPW:-11},customers:{t4w:255,lw:272,cw:279,pctT4W:9,pctPW:3},cac:{t4w:1.47,lw:1.6,cw:1.38,pctT4W:-6,pctPW:-14},roas:{t4w:26.68,lw:24.67,cw:26.76,pctT4W:0,pctPW:8}},
+      sponsored:{netRev:{t4w:10457,lw:10827,cw:8288,pctT4W:-21,pctPW:-23},spend:{t4w:698,lw:708,cw:639,pctT4W:-8,pctPW:-10},roas:{t4w:15.02,lw:15.3,cw:12.97,pctT4W:-14,pctPW:-15}},
+      promo:{netRev:{t4w:13260,lw:13768,cw:11910,pctT4W:-10,pctPW:-13},spend:{t4w:1020,lw:996,cw:1064,pctT4W:4,pctPW:7},roas:{t4w:13.02,lw:13.83,cw:11.2,pctT4W:-14,pctPW:-19}},
+      blendedROAS:{t4w:14.5,lw:14.9,cw:13,pctT4W:-10,pctPW:-12},
+      contribution:{sponsored:{t4w:8,lw:7,cw:6},promo:{t4w:10,lw:9,cw:9},meta:{t4w:3,lw:3,cw:3},google:{t4w:7,lw:7,cw:7},total:{t4w:27,lw:26,cw:24}}
+    }
+  },
+  {
+    label: 'Jan 28, 2026',
+    data: {
+      currentWeek:'Jan 28, 2026', lastWeek:'Jan 21, 2026',
+      revenue:{total:{t4w:138252,lw:135692,cw:148896,pctT4W:8,pctPW:10},dineIn:{t4w:39961,lw:38298,cw:41208,pctT4W:3,pctPW:8},webPickup:{t4w:29371,lw:29892,cw:31789,pctT4W:8,pctPW:6},instore:{t4w:15318,lw:14362,cw:15917,pctT4W:4,pctPW:11},delivery:{t4w:7502,lw:7638,cw:7689,pctT4W:2,pctPW:1},catering:{t4w:4354,lw:3693,cw:8756,pctT4W:101,pctPW:137},tpd:{t4w:35906,lw:37068,cw:38261,pctT4W:7,pctPW:3},marketplace:{t4w:5840,lw:4741,cw:5276,pctT4W:-10,pctPW:11}},
+      revMix:{dineIn:{t4w:28.92,lw:28.2,cw:27.7},webPickup:{t4w:21.26,lw:22,cw:21.3},instore:{t4w:11.08,lw:10.6,cw:10.7},delivery:{t4w:5.44,lw:5.6,cw:5.2},catering:{t4w:3.14,lw:2.7,cw:5.9},tpd:{t4w:25.97,lw:27.3,cw:25.7},marketplace:{t4w:4.2,lw:3.5,cw:3.5}},
+      meta:{netRev:{t4w:4892,lw:4526,cw:4540,pctT4W:-7,pctPW:0},spend:{t4w:528,lw:517,cw:512,pctT4W:-3,pctPW:-1},customers:{t4w:138,lw:127,cw:130,pctT4W:-6,pctPW:2},cac:{t4w:3.85,lw:4.07,cw:3.94,pctT4W:2,pctPW:-3},roas:{t4w:10.26,lw:9.75,cw:9.87,pctT4W:-4,pctPW:1}},
+      google:{netRev:{t4w:9446,lw:9163,cw:10294,pctT4W:9,pctPW:12},spend:{t4w:404,lw:399,cw:435,pctT4W:8,pctPW:9},customers:{t4w:250,lw:247,cw:272,pctT4W:9,pctPW:10},cac:{t4w:1.61,lw:1.62,cw:1.6,pctT4W:-1,pctPW:-1},roas:{t4w:25.41,lw:23.97,cw:24.67,pctT4W:-3,pctPW:3}},
+      sponsored:{netRev:{t4w:11166,lw:9744,cw:10827,pctT4W:-3,pctPW:11},spend:{t4w:751,lw:685,cw:708,pctT4W:-6,pctPW:3},roas:{t4w:14.92,lw:14.23,cw:15.3,pctT4W:3,pctPW:8}},
+      promo:{netRev:{t4w:14013,lw:13048,cw:13768,pctT4W:-2,pctPW:6},spend:{t4w:1142,lw:1042,cw:996,pctT4W:-13,pctPW:-4},roas:{t4w:12.39,lw:12.52,cw:13.83,pctT4W:12,pctPW:10}},
+      blendedROAS:{t4w:14.1,lw:13.8,cw:14.9,pctT4W:6,pctPW:8},
+      contribution:{sponsored:{t4w:8,lw:7,cw:7},promo:{t4w:10,lw:10,cw:9},meta:{t4w:4,lw:3,cw:3},google:{t4w:7,lw:7,cw:7},total:{t4w:29,lw:27,cw:26}}
+    }
+  },
+  {
+    label: 'Jan 21, 2026',
+    data: {
+      currentWeek:'Jan 21, 2026', lastWeek:'Jan 14, 2026',
+      revenue:{total:{t4w:130495,lw:139640,cw:135692,pctT4W:4,pctPW:-3},dineIn:{t4w:37780,lw:45266,cw:38298,pctT4W:1,pctPW:-15},webPickup:{t4w:27500,lw:27322,cw:29892,pctT4W:9,pctPW:9},instore:{t4w:15204,lw:14297,cw:14362,pctT4W:-6,pctPW:0},delivery:{t4w:6796,lw:7042,cw:7638,pctT4W:12,pctPW:8},catering:{t4w:3670,lw:5477,cw:3693,pctT4W:1,pctPW:-33},tpd:{t4w:32788,lw:34288,cw:37068,pctT4W:13,pctPW:8},marketplace:{t4w:6756,lw:5948,cw:4741,pctT4W:-30,pctPW:-20}},
+      revMix:{dineIn:{t4w:28.93,lw:32.4,cw:28.2},webPickup:{t4w:21.1,lw:19.6,cw:22},instore:{t4w:11.75,lw:10.2,cw:10.6},delivery:{t4w:5.18,lw:5,cw:5.6},catering:{t4w:2.69,lw:3.9,cw:2.7},tpd:{t4w:25.02,lw:24.6,cw:27.3},marketplace:{t4w:5.33,lw:4.3,cw:3.5}},
+      meta:{netRev:{t4w:4423,lw:4361,cw:4526,pctT4W:2,pctPW:4},spend:{t4w:502,lw:500,cw:517,pctT4W:3,pctPW:3},customers:{t4w:123,lw:122,cw:127,pctT4W:3,pctPW:4},cac:{t4w:4.36,lw:4.1,cw:4.07,pctT4W:-7,pctPW:-1},roas:{t4w:9.66,lw:9.72,cw:9.75,pctT4W:1,pctPW:0}},
+      google:{netRev:{t4w:8960,lw:8482,cw:9163,pctT4W:2,pctPW:8},spend:{t4w:394,lw:274,cw:399,pctT4W:1,pctPW:46},customers:{t4w:232,lw:235,cw:247,pctT4W:6,pctPW:5},cac:{t4w:1.72,lw:1.17,cw:1.62,pctT4W:-6,pctPW:38},roas:{t4w:24.68,lw:31.96,cw:23.97,pctT4W:-3,pctPW:-25}},
+      sponsored:{netRev:{t4w:10838,lw:10379,cw:9744,pctT4W:-10,pctPW:-6},spend:{t4w:743,lw:633,cw:685,pctT4W:-8,pctPW:8},roas:{t4w:14.59,lw:16.39,cw:14.23,pctT4W:-2,pctPW:-13}},
+      promo:{netRev:{t4w:13487,lw:12794,cw:13048,pctT4W:-3,pctPW:2},spend:{t4w:1095,lw:969,cw:1042,pctT4W:-5,pctPW:8},roas:{t4w:12.46,lw:13.21,cw:12.52,pctT4W:0,pctPW:-5}},
+      blendedROAS:{t4w:13.8,lw:15.2,cw:13.8,pctT4W:0,pctPW:-9},
+      contribution:{sponsored:{t4w:8,lw:7,cw:7},promo:{t4w:10,lw:9,cw:10},meta:{t4w:3,lw:3,cw:3},google:{t4w:7,lw:6,cw:7},total:{t4w:29,lw:26,cw:27}}
+    }
+  },
+  {
+    label: 'Jan 14, 2026',
+    data: {
+      currentWeek:'Jan 14, 2026', lastWeek:'Jan 7, 2026',
+      revenue:{total:{t4w:129977,lw:130438,cw:139640,pctT4W:7,pctPW:7},dineIn:{t4w:36494,lw:36948,cw:45266,pctT4W:24,pctPW:23},webPickup:{t4w:28206,lw:28566,cw:27322,pctT4W:-3,pctPW:-4},instore:{t4w:15274,lw:15353,cw:14297,pctT4W:-6,pctPW:-7},delivery:{t4w:6522,lw:7577,cw:7042,pctT4W:8,pctPW:-7},catering:{t4w:3894,lw:3558,cw:5477,pctT4W:41,pctPW:54},tpd:{t4w:33076,lw:33529,cw:34288,pctT4W:4,pctPW:2},marketplace:{t4w:6512,lw:4907,cw:5948,pctT4W:-9,pctPW:21}},
+      revMix:{dineIn:{t4w:28.11,lw:28.3,cw:32.4},webPickup:{t4w:21.69,lw:21.9,cw:19.6},instore:{t4w:11.84,lw:11.8,cw:10.2},delivery:{t4w:5,lw:5.8,cw:5},catering:{t4w:2.87,lw:2.7,cw:3.9},tpd:{t4w:25.32,lw:25.7,cw:24.6},marketplace:{t4w:5.17,lw:3.8,cw:4.3}},
+      meta:{netRev:{t4w:4464,lw:5196,cw:4361,pctT4W:-2,pctPW:-16},spend:{t4w:536,lw:522,cw:500,pctT4W:-7,pctPW:-4},customers:{t4w:124,lw:153,cw:122,pctT4W:-2,pctPW:-20},cac:{t4w:4.61,lw:3.41,cw:4.1,pctT4W:-11,pctPW:20},roas:{t4w:9.26,lw:10.95,cw:9.72,pctT4W:5,pctPW:-11}},
+      google:{netRev:{t4w:9332,lw:9979,cw:8482,pctT4W:-9,pctPW:-15},spend:{t4w:420,lw:397,cw:274,pctT4W:-35,pctPW:-31},customers:{t4w:243,lw:266,cw:235,pctT4W:-3,pctPW:-12},cac:{t4w:1.77,lw:1.49,cw:1.17,pctT4W:-34,pctPW:-21},roas:{t4w:23.57,lw:26.14,cw:31.96,pctT4W:36,pctPW:22}},
+      sponsored:{netRev:{t4w:10626,lw:10877,cw:10379,pctT4W:-2,pctPW:-5},spend:{t4w:744,lw:767,cw:633,pctT4W:-15,pctPW:-17},roas:{t4w:14.24,lw:14.18,cw:16.39,pctT4W:15,pctPW:16}},
+      promo:{netRev:{t4w:13257,lw:13431,cw:12794,pctT4W:-3,pctPW:-5},spend:{t4w:1088,lw:1072,cw:969,pctT4W:-11,pctPW:-10},roas:{t4w:12.32,lw:12.53,cw:13.21,pctT4W:7,pctPW:5}},
+      blendedROAS:{t4w:13.5,lw:14.3,cw:15.2,pctT4W:12,pctPW:6},
+      contribution:{sponsored:{t4w:8,lw:8,cw:7},promo:{t4w:10,lw:10,cw:9},meta:{t4w:3,lw:4,cw:3},google:{t4w:7,lw:8,cw:6},total:{t4w:29,lw:30,cw:26}}
+    }
+  },
+  {
+    label: 'Jan 7, 2026',
+    data: {
+      currentWeek:'Jan 7, 2026', lastWeek:'Dec 29, 2025',
+      revenue:{total:{t4w:130104,lw:147237,cw:130438,pctT4W:0,pctPW:-11},dineIn:{t4w:37254,lw:39333,cw:36948,pctT4W:-1,pctPW:-6},webPickup:{t4w:28160,lw:31703,cw:28566,pctT4W:1,pctPW:-10},instore:{t4w:15385,lw:17259,cw:15353,pctT4W:0,pctPW:-11},delivery:{t4w:6054,lw:7751,cw:7577,pctT4W:25,pctPW:-2},catering:{t4w:4424,lw:4687,cw:3558,pctT4W:-20,pctPW:-24},tpd:{t4w:32496,lw:38739,cw:33529,pctT4W:3,pctPW:-13},marketplace:{t4w:6330,lw:7765,cw:4907,pctT4W:-22,pctPW:-37}},
+      revMix:{dineIn:{t4w:28.67,lw:26.7,cw:28.3},webPickup:{t4w:21.63,lw:21.5,cw:21.9},instore:{t4w:11.92,lw:11.7,cw:11.8},delivery:{t4w:4.64,lw:5.3,cw:5.8},catering:{t4w:3.27,lw:3.2,cw:2.7},tpd:{t4w:24.85,lw:26.3,cw:25.7},marketplace:{t4w:5.03,lw:5.3,cw:3.8}},
+      meta:{netRev:{t4w:4274,lw:5487,cw:5196,pctT4W:22,pctPW:-5},spend:{t4w:545,lw:571,cw:522,pctT4W:-4,pctPW:-9},customers:{t4w:115,lw:150,cw:153,pctT4W:33,pctPW:2},cac:{t4w:4.94,lw:3.81,cw:3.41,pctT4W:-31,pctPW:-10},roas:{t4w:8.76,lw:10.61,cw:10.95,pctT4W:25,pctPW:3}},
+      google:{netRev:{t4w:8920,lw:10162,cw:9979,pctT4W:12,pctPW:-2},spend:{t4w:378,lw:547,cw:397,pctT4W:5,pctPW:-27},customers:{t4w:231,lw:251,cw:266,pctT4W:15,pctPW:6},cac:{t4w:1.65,lw:2.18,cw:1.49,pctT4W:-10,pctPW:-32},roas:{t4w:26.34,lw:19.58,cw:26.14,pctT4W:-1,pctPW:33}},
+      sponsored:{netRev:{t4w:11302,lw:13663,cw:10877,pctT4W:-4,pctPW:-20},spend:{t4w:773,lw:919,cw:767,pctT4W:-1,pctPW:-17},roas:{t4w:14.54,lw:14.87,cw:14.18,pctT4W:-2,pctPW:-5}},
+      promo:{netRev:{t4w:12046,lw:16779,cw:13431,pctT4W:11,pctPW:-20},spend:{t4w:1036,lw:1484,cw:1072,pctT4W:3,pctPW:-28},roas:{t4w:11.67,lw:11.31,cw:12.53,pctT4W:7,pctPW:11}},
+      blendedROAS:{t4w:13.4,lw:13.1,cw:14.3,pctT4W:7,pctPW:9},
+      contribution:{sponsored:{t4w:9,lw:9,cw:8},promo:{t4w:9,lw:11,cw:10},meta:{t4w:3,lw:4,cw:4},google:{t4w:7,lw:7,cw:8},total:{t4w:28,lw:31,cw:30}}
+    }
+  },
+  {
+    label: 'Dec 29, 2025',
+    data: {
+      currentWeek:'Dec 29, 2025', lastWeek:'Dec 22, 2025',
+      revenue:{total:{t4w:125444,lw:104665,cw:147237,pctT4W:17,pctPW:41},dineIn:{t4w:36982,lw:29573,cw:39333,pctT4W:6,pctPW:33},webPickup:{t4w:26999,lw:22408,cw:31703,pctT4W:17,pctPW:41},instore:{t4w:14613,lw:13909,cw:17259,pctT4W:18,pctPW:24},delivery:{t4w:5634,lw:4814,cw:7751,pctT4W:38,pctPW:61},catering:{t4w:4836,lw:960,cw:4687,pctT4W:-3,pctPW:388},tpd:{t4w:31070,lw:24598,cw:38739,pctT4W:25,pctPW:57},marketplace:{t4w:5310,lw:8403,cw:7765,pctT4W:46,pctPW:-8}},
+      revMix:{dineIn:{t4w:29.42,lw:28.3,cw:26.7},webPickup:{t4w:21.51,lw:21.4,cw:21.5},instore:{t4w:11.74,lw:13.3,cw:11.7},delivery:{t4w:4.5,lw:4.6,cw:5.3},catering:{t4w:3.7,lw:0.9,cw:3.2},tpd:{t4w:24.7,lw:23.5,cw:26.3},marketplace:{t4w:4.42,lw:8,cw:5.3}},
+      meta:{netRev:{t4w:3681,lw:2649,cw:5487,pctT4W:49,pctPW:107},spend:{t4w:559,lw:417,cw:571,pctT4W:2,pctPW:37},customers:{t4w:106,lw:68,cw:150,pctT4W:41,pctPW:121},cac:{t4w:5.36,lw:6.13,cw:3.81,pctT4W:-29,pctPW:-38},roas:{t4w:7.6,lw:7.35,cw:10.61,pctT4W:40,pctPW:44}},
+      google:{netRev:{t4w:7982,lw:7217,cw:10162,pctT4W:27,pctPW:41},spend:{t4w:330,lw:360,cw:547,pctT4W:66,pctPW:52},customers:{t4w:212,lw:177,cw:251,pctT4W:19,pctPW:42},cac:{t4w:1.62,lw:2.03,cw:2.18,pctT4W:35,pctPW:7},roas:{t4w:26.22,lw:21.05,cw:19.58,pctT4W:-25,pctPW:-7}},
+      sponsored:{netRev:{t4w:9955,lw:8433,cw:13663,pctT4W:37,pctPW:62},spend:{t4w:714,lw:653,cw:919,pctT4W:29,pctPW:41},roas:{t4w:13.85,lw:12.92,cw:14.87,pctT4W:7,pctPW:15}},
+      promo:{netRev:{t4w:11173,lw:10945,cw:16779,pctT4W:50,pctPW:53},spend:{t4w:947,lw:856,cw:1484,pctT4W:57,pctPW:73},roas:{t4w:11.79,lw:12.79,cw:11.31,pctT4W:-4,pctPW:-12}},
+      blendedROAS:{t4w:12.9,lw:12.8,cw:13.1,pctT4W:2,pctPW:2},
+      contribution:{sponsored:{t4w:8,lw:8,cw:9},promo:{t4w:9,lw:10,cw:11},meta:{t4w:3,lw:3,cw:4},google:{t4w:6,lw:7,cw:7},total:{t4w:26,lw:28,cw:31}}
+    }
+  },
+  {
+    label: 'Dec 22, 2025',
+    data: {
+      currentWeek:'Dec 22, 2025', lastWeek:'Dec 15, 2025',
+      revenue:{total:{t4w:125794,lw:137567,cw:104665,pctT4W:-17,pctPW:-24},dineIn:{t4w:39323,lw:40121,cw:29573,pctT4W:-25,pctPW:-26},webPickup:{t4w:26957,lw:30145,cw:22408,pctT4W:-17,pctPW:-26},instore:{t4w:13826,lw:14573,cw:13909,pctT4W:1,pctPW:-5},delivery:{t4w:5510,lw:5944,cw:4814,pctT4W:-13,pctPW:-19},catering:{t4w:4786,lw:6373,cw:960,pctT4W:-80,pctPW:-85},tpd:{t4w:31195,lw:35437,cw:24598,pctT4W:-21,pctPW:-31},marketplace:{t4w:4196,lw:4974,cw:8403,pctT4W:100,pctPW:69}},
+      revMix:{dineIn:{t4w:31.54,lw:29.2,cw:28.3},webPickup:{t4w:21.4,lw:21.9,cw:21.4},instore:{t4w:10.96,lw:10.6,cw:13.3},delivery:{t4w:4.37,lw:4.3,cw:4.6},catering:{t4w:3.65,lw:4.6,cw:0.9},tpd:{t4w:24.74,lw:25.8,cw:23.5},marketplace:{t4w:3.35,lw:3.6,cw:8}},
+      meta:{netRev:{t4w:4009,lw:4522,cw:2649,pctT4W:-34,pctPW:-41},spend:{t4w:602,lw:635,cw:417,pctT4W:-31,pctPW:-34},customers:{t4w:117,lw:125,cw:68,pctT4W:-42,pctPW:-46},cac:{t4w:5.17,lw:5.08,cw:6.13,pctT4W:19,pctPW:21},roas:{t4w:7.69,lw:8.12,cw:7.35,pctT4W:-4,pctPW:-9}},
+      google:{netRev:{t4w:7333,lw:9970,cw:7217,pctT4W:-2,pctPW:-28},spend:{t4w:342,lw:376,cw:360,pctT4W:5,pctPW:-4},customers:{t4w:199,lw:277,cw:177,pctT4W:-11,pctPW:-36},cac:{t4w:1.92,lw:1.36,cw:2.03,pctT4W:6,pctPW:49},roas:{t4w:24.06,lw:27.52,cw:21.05,pctT4W:-13,pctPW:-24}},
+      sponsored:{netRev:{t4w:9649,lw:9529,cw:8433,pctT4W:-13,pctPW:-12},spend:{t4w:716,lw:636,cw:653,pctT4W:-9,pctPW:3},roas:{t4w:13.34,lw:14.99,cw:12.92,pctT4W:-3,pctPW:-14}},
+      promo:{netRev:{t4w:10953,lw:11873,cw:10945,pctT4W:0,pctPW:-8},spend:{t4w:966,lw:938,cw:856,pctT4W:-11,pctPW:-9},roas:{t4w:11.29,lw:12.66,cw:12.79,pctT4W:13,pctPW:1}},
+      blendedROAS:{t4w:12.2,lw:13.9,cw:12.8,pctT4W:5,pctPW:-8},
+      contribution:{sponsored:{t4w:8,lw:7,cw:8},promo:{t4w:9,lw:9,cw:10},meta:{t4w:3,lw:3,cw:3},google:{t4w:6,lw:7,cw:7},total:{t4w:25,lw:26,cw:28}}
+    }
+  },
+  {
+    label: 'Dec 15, 2025',
+    data: {
+      currentWeek:'Dec 15, 2025', lastWeek:'Dec 8, 2025',
+      revenue:{total:{t4w:117255,lw:130947,cw:137567,pctT4W:17,pctPW:5},dineIn:{t4w:36476,lw:39990,cw:40121,pctT4W:10,pctPW:0},webPickup:{t4w:25060,lw:28386,cw:30145,pctT4W:20,pctPW:6},instore:{t4w:13478,lw:15798,cw:14573,pctT4W:8,pctPW:-8},delivery:{t4w:5345,lw:5709,cw:5944,pctT4W:11,pctPW:4},catering:{t4w:4044,lw:5675,cw:6373,pctT4W:58,pctPW:12},tpd:{t4w:29034,lw:31212,cw:35437,pctT4W:22,pctPW:14},marketplace:{t4w:3819,lw:4177,cw:4974,pctT4W:30,pctPW:19}},
+      revMix:{dineIn:{t4w:31.19,lw:30.5,cw:29.2},webPickup:{t4w:21.38,lw:21.7,cw:21.9},instore:{t4w:11.49,lw:12.1,cw:10.6},delivery:{t4w:4.56,lw:4.4,cw:4.3},catering:{t4w:3.32,lw:4.3,cw:4.6},tpd:{t4w:24.77,lw:23.8,cw:25.8},marketplace:{t4w:3.28,lw:3.2,cw:3.6}},
+      meta:{netRev:{t4w:4060,lw:4440,cw:4522,pctT4W:11,pctPW:2},spend:{t4w:584,lw:557,cw:635,pctT4W:9,pctPW:14},customers:{t4w:119,lw:117,cw:125,pctT4W:5,pctPW:7},cac:{t4w:4.95,lw:4.76,cw:5.08,pctT4W:3,pctPW:7},roas:{t4w:8.02,lw:8.97,cw:8.12,pctT4W:1,pctPW:-9}},
+      google:{netRev:{t4w:6500,lw:8329,cw:9970,pctT4W:53,pctPW:20},spend:{t4w:347,lw:230,cw:376,pctT4W:8,pctPW:63},customers:{t4w:181,lw:219,cw:277,pctT4W:53,pctPW:27},cac:{t4w:2.06,lw:1.05,cw:1.36,pctT4W:-34,pctPW:30},roas:{t4w:21.6,lw:37.21,cw:27.52,pctT4W:27,pctPW:-26}},
+      sponsored:{netRev:{t4w:9220,lw:13583,cw:9529,pctT4W:3,pctPW:-30},spend:{t4w:728,lw:883,cw:636,pctT4W:-13,pctPW:-28},roas:{t4w:12.46,lw:15.39,cw:14.99,pctT4W:20,pctPW:-3}},
+      promo:{netRev:{t4w:10317,lw:8589,cw:11873,pctT4W:15,pctPW:38},spend:{t4w:950,lw:867,cw:938,pctT4W:-1,pctPW:8},roas:{t4w:10.79,lw:9.91,cw:12.66,pctT4W:17,pctPW:28}},
+      blendedROAS:{t4w:11.6,lw:13.8,cw:13.9,pctT4W:20,pctPW:1},
+      contribution:{sponsored:{t4w:8,lw:10,cw:7},promo:{t4w:9,lw:7,cw:9},meta:{t4w:4,lw:3,cw:3},google:{t4w:6,lw:6,cw:7},total:{t4w:26,lw:27,cw:26}}
+    }
+  },
+  {
+    label: 'Dec 8, 2025',
+    data: {
+      currentWeek:'Dec 8, 2025', lastWeek:'Dec 1, 2025',
+      revenue:{total:{t4w:110465,lw:128596,cw:130947,pctT4W:19,pctPW:2},dineIn:{t4w:32840,lw:38245,cw:39990,pctT4W:22,pctPW:5},webPickup:{t4w:24013,lw:27056,cw:28386,pctT4W:18,pctPW:5},instore:{t4w:12640,lw:14171,cw:15798,pctT4W:25,pctPW:11},delivery:{t4w:5071,lw:6070,cw:5709,pctT4W:13,pctPW:-6},catering:{t4w:3542,lw:6338,cw:5675,pctT4W:60,pctPW:-10},tpd:{t4w:28562,lw:33032,cw:31212,pctT4W:9,pctPW:-6},marketplace:{t4w:3796,lw:3684,cw:4177,pctT4W:10,pctPW:13}},
+      revMix:{dineIn:{t4w:29.69,lw:29.7,cw:30.5},webPickup:{t4w:21.78,lw:21,cw:21.7},instore:{t4w:11.48,lw:11,cw:12.1},delivery:{t4w:4.59,lw:4.7,cw:4.4},catering:{t4w:3.12,lw:4.9,cw:4.3},tpd:{t4w:25.88,lw:25.7,cw:23.8},marketplace:{t4w:3.47,lw:2.9,cw:3.2}},
+      meta:{netRev:{t4w:4184,lw:3112,cw:4440,pctT4W:6,pctPW:43},spend:{t4w:590,lw:628,cw:557,pctT4W:-6,pctPW:-11},customers:{t4w:126,lw:115,cw:117,pctT4W:-7,pctPW:2},cac:{t4w:4.75,lw:5.46,cw:4.76,pctT4W:0,pctPW:-13},roas:{t4w:8.15,lw:5.96,cw:8.97,pctT4W:10,pctPW:51}},
+      google:{netRev:{t4w:6390,lw:6414,cw:8329,pctT4W:30,pctPW:30},spend:{t4w:406,lw:354,cw:230,pctT4W:-43,pctPW:-35},customers:{t4w:180,lw:173,cw:219,pctT4W:22,pctPW:26},cac:{t4w:2.34,lw:2.04,cw:1.05,pctT4W:-55,pctPW:-49},roas:{t4w:16.77,lw:19.12,cw:37.21,pctT4W:122,pctPW:95}},
+      sponsored:{netRev:{t4w:7868,lw:8274,cw:13583,pctT4W:73,pctPW:64},spend:{t4w:664,lw:684,cw:883,pctT4W:33,pctPW:29},roas:{t4w:11.88,lw:12.1,cw:15.39,pctT4W:30,pctPW:27}},
+      promo:{netRev:{t4w:10716,lw:13285,cw:8589,pctT4W:-20,pctPW:-35},spend:{t4w:983,lw:1127,cw:867,pctT4W:-12,pctPW:-23},roas:{t4w:10.86,lw:11.79,cw:9.91,pctT4W:-9,pctPW:-16}},
+      blendedROAS:{t4w:11,lw:11.1,cw:13.8,pctT4W:25,pctPW:24},
+      contribution:{sponsored:{t4w:7,lw:6,cw:10},promo:{t4w:10,lw:10,cw:7},meta:{t4w:4,lw:2,cw:3},google:{t4w:6,lw:5,cw:6},total:{t4w:27,lw:24,cw:27}}
+    }
+  },
+  {
+    label: 'Dec 1, 2025',
+    data: {
+      currentWeek:'Dec 1, 2025', lastWeek:'Nov 24, 2025',
+      revenue:{total:{t4w:110257,lw:106065,cw:128596,pctT4W:17,pctPW:21},dineIn:{t4w:33212,lw:38937,cw:38245,pctT4W:15,pctPW:-2},webPickup:{t4w:23580,lw:22242,cw:27056,pctT4W:15,pctPW:22},instore:{t4w:12703,lw:10764,cw:14171,pctT4W:12,pctPW:32},delivery:{t4w:5064,lw:4317,cw:6070,pctT4W:20,pctPW:41},catering:{t4w:3874,lw:757,cw:6338,pctT4W:64,pctPW:737},tpd:{t4w:27935,lw:25098,cw:33032,pctT4W:18,pctPW:32},marketplace:{t4w:3889,lw:3950,cw:3684,pctT4W:-5,pctPW:-7}},
+      revMix:{dineIn:{t4w:30.03,lw:36.7,cw:29.7},webPickup:{t4w:21.48,lw:21,cw:21},instore:{t4w:11.54,lw:10.1,cw:11},delivery:{t4w:4.59,lw:4.1,cw:4.7},catering:{t4w:3.38,lw:0.7,cw:4.9},tpd:{t4w:25.43,lw:23.7,cw:25.7},marketplace:{t4w:3.55,lw:3.7,cw:2.9}},
+      meta:{netRev:{t4w:4720,lw:3963,cw:3112,pctT4W:-34,pctPW:-21},spend:{t4w:572,lw:590,cw:628,pctT4W:10,pctPW:6},customers:{t4w:136,lw:110,cw:115,pctT4W:-15,pctPW:5},cac:{t4w:4.29,lw:5.36,cw:5.46,pctT4W:27,pctPW:2},roas:{t4w:9.27,lw:7.72,cw:5.96,pctT4W:-36,pctPW:-23}},
+      google:{netRev:{t4w:6763,lw:4619,cw:6414,pctT4W:-5,pctPW:39},spend:{t4w:424,lw:406,cw:354,pctT4W:-17,pctPW:-13},customers:{t4w:191,lw:126,cw:173,pctT4W:-9,pctPW:38},cac:{t4w:2.32,lw:3.23,cw:2.04,pctT4W:-12,pctPW:-37},roas:{t4w:16.87,lw:12.38,cw:19.12,pctT4W:13,pctPW:54}},
+      sponsored:{netRev:{t4w:7954,lw:7210,cw:8274,pctT4W:4,pctPW:15},spend:{t4w:651,lw:662,cw:684,pctT4W:5,pctPW:3},roas:{t4w:12.25,lw:10.89,cw:12.1,pctT4W:-1,pctPW:11}},
+      promo:{netRev:{t4w:10245,lw:10064,cw:13285,pctT4W:30,pctPW:32},spend:{t4w:926,lw:933,cw:1127,pctT4W:22,pctPW:21},roas:{t4w:11.08,lw:10.79,cw:11.79,pctT4W:6,pctPW:9}},
+      blendedROAS:{t4w:11.5,lw:10,cw:11.1,pctT4W:-4,pctPW:12},
+      contribution:{sponsored:{t4w:7,lw:7,cw:6},promo:{t4w:9,lw:9,cw:10},meta:{t4w:4,lw:4,cw:2},google:{t4w:6,lw:4,cw:5},total:{t4w:27,lw:24,cw:24}}
+    }
+  },
+  {
+    label: 'Nov 24, 2025',
+    data: {
+      currentWeek:'Nov 24, 2025', lastWeek:'Nov 17, 2025',
+      revenue:{total:{t4w:116142,lw:103412,cw:106065,pctT4W:-9,pctPW:3},dineIn:{t4w:32488,lw:28730,cw:38937,pctT4W:20,pctPW:36},webPickup:{t4w:24870,lw:22558,cw:22242,pctT4W:-11,pctPW:-1},instore:{t4w:13460,lw:13178,cw:10764,pctT4W:-20,pctPW:-18},delivery:{t4w:5677,lw:5283,cw:4317,pctT4W:-24,pctPW:-18},catering:{t4w:5596,lw:3404,cw:757,pctT4W:-86,pctPW:-78},tpd:{t4w:29966,lw:26794,cw:25098,pctT4W:-16,pctPW:-6},marketplace:{t4w:4083,lw:3465,cw:3950,pctT4W:-3,pctPW:14}},
+      revMix:{dineIn:{t4w:27.8,lw:27.8,cw:36.7},webPickup:{t4w:21.52,lw:21.8,cw:21},instore:{t4w:11.67,lw:12.7,cw:10.1},delivery:{t4w:4.88,lw:5.1,cw:4.1},catering:{t4w:4.68,lw:3.3,cw:0.7},tpd:{t4w:25.92,lw:25.9,cw:23.7},marketplace:{t4w:3.53,lw:3.4,cw:3.7}},
+      meta:{netRev:{t4w:5207,lw:4726,cw:3963,pctT4W:-24,pctPW:-16},spend:{t4w:565,lw:560,cw:590,pctT4W:4,pctPW:5},customers:{t4w:153,lw:133,cw:110,pctT4W:-28,pctPW:-17},cac:{t4w:3.73,lw:4.21,cw:5.36,pctT4W:44,pctPW:27},roas:{t4w:10.23,lw:9.44,cw:7.72,pctT4W:-25,pctPW:-18}},
+      google:{netRev:{t4w:7418,lw:6636,cw:4619,pctT4W:-38,pctPW:-30},spend:{t4w:418,lw:398,cw:406,pctT4W:-3,pctPW:2},customers:{t4w:211,lw:205,cw:126,pctT4W:-40,pctPW:-39},cac:{t4w:1.98,lw:1.94,cw:3.23,pctT4W:63,pctPW:66},roas:{t4w:18.77,lw:17.68,cw:12.38,pctT4W:-34,pctPW:-30}},
+      sponsored:{netRev:{t4w:9051,lw:7811,cw:7210,pctT4W:-20,pctPW:-8},spend:{t4w:684,lw:683,cw:662,pctT4W:-3,pctPW:-3},roas:{t4w:13.18,lw:11.44,cw:10.89,pctT4W:-17,pctPW:-5}},
+      promo:{netRev:{t4w:11288,lw:9331,cw:10064,pctT4W:-11,pctPW:8},spend:{t4w:1006,lw:873,cw:933,pctT4W:-7,pctPW:7},roas:{t4w:11.23,lw:10.69,cw:10.79,pctT4W:-4,pctPW:1}},
+      blendedROAS:{t4w:12.3,lw:11.3,cw:10,pctT4W:-19,pctPW:-12},
+      contribution:{sponsored:{t4w:8,lw:8,cw:7},promo:{t4w:10,lw:9,cw:9},meta:{t4w:4,lw:5,cw:4},google:{t4w:6,lw:6,cw:4},total:{t4w:28,lw:28,cw:24}}
+    }
+  },
+  {
+    label: 'Nov 17, 2025',
+    data: {
+      currentWeek:'Nov 17, 2025', lastWeek:'Nov 10, 2025',
+      revenue:{total:{t4w:121238,lw:103786,cw:103412,pctT4W:-15,pctPW:0},dineIn:{t4w:34612,lw:25447,cw:28730,pctT4W:-17,pctPW:13},webPickup:{t4w:25372,lw:24197,cw:22558,pctT4W:-11,pctPW:-7},instore:{t4w:13776,lw:12448,cw:13178,pctT4W:-4,pctPW:6},delivery:{t4w:5646,lw:4614,cw:5283,pctT4W:-6,pctPW:14},catering:{t4w:6931,lw:3670,cw:3404,pctT4W:-51,pctPW:-7},tpd:{t4w:30404,lw:29325,cw:26794,pctT4W:-12,pctPW:-9},marketplace:{t4w:4497,lw:4085,cw:3465,pctT4W:-23,pctPW:-15}},
+      revMix:{dineIn:{t4w:28.37,lw:24.5,cw:27.8},webPickup:{t4w:21.03,lw:23.3,cw:21.8},instore:{t4w:11.4,lw:12,cw:12.7},delivery:{t4w:4.64,lw:4.4,cw:5.1},catering:{t4w:5.62,lw:3.5,cw:3.3},tpd:{t4w:25.21,lw:28.3,cw:25.9},marketplace:{t4w:3.72,lw:3.9,cw:3.4}},
+      meta:{netRev:{t4w:5144,lw:4933,cw:4726,pctT4W:-8,pctPW:-4},spend:{t4w:565,lw:582,cw:560,pctT4W:-1,pctPW:-4},customers:{t4w:155,lw:147,cw:133,pctT4W:-14,pctPW:-10},cac:{t4w:3.68,lw:3.96,cw:4.21,pctT4W:14,pctPW:6},roas:{t4w:10.11,lw:9.48,cw:9.44,pctT4W:-7,pctPW:0}},
+      google:{netRev:{t4w:7184,lw:7893,cw:6636,pctT4W:-8,pctPW:-16},spend:{t4w:416,lw:467,cw:398,pctT4W:-4,pctPW:-15},customers:{t4w:201,lw:215,cw:205,pctT4W:2,pctPW:-5},cac:{t4w:2.09,lw:2.17,cw:1.94,pctT4W:-7,pctPW:-11},roas:{t4w:18.25,lw:17.9,cw:17.68,pctT4W:-3,pctPW:-1}},
+      sponsored:{netRev:{t4w:9389,lw:8178,cw:7811,pctT4W:-17,pctPW:-4},spend:{t4w:678,lw:625,cw:683,pctT4W:1,pctPW:9},roas:{t4w:13.8,lw:13.08,cw:11.44,pctT4W:-17,pctPW:-13}},
+      promo:{netRev:{t4w:12082,lw:10182,cw:9331,pctT4W:-23,pctPW:-8},spend:{t4w:1074,lw:999,cw:873,pctT4W:-19,pctPW:-13},roas:{t4w:11.28,lw:10.19,cw:10.69,pctT4W:-5,pctPW:5}},
+      blendedROAS:{t4w:12.4,lw:11.7,cw:11.3,pctT4W:-8,pctPW:-3},
+      contribution:{sponsored:{t4w:8,lw:8,cw:8},promo:{t4w:10,lw:10,cw:9},meta:{t4w:4,lw:5,cw:5},google:{t4w:6,lw:8,cw:6},total:{t4w:28,lw:30,cw:28}}
+    }
+  },
+  {
+    label: 'Nov 10, 2025',
+    data: {
+      currentWeek:'Nov 10, 2025', lastWeek:'Nov 3, 2025',
+      revenue:{total:{t4w:124978,lw:127764,cw:103786,pctT4W:-17,pctPW:-19},dineIn:{t4w:37202,lw:39734,cw:25447,pctT4W:-32,pctPW:-36},webPickup:{t4w:24966,lw:25322,cw:24197,pctT4W:-3,pctPW:-4},instore:{t4w:13909,lw:14422,cw:12448,pctT4W:-11,pctPW:-14},delivery:{t4w:6202,lw:6044,cw:4614,pctT4W:-26,pctPW:-24},catering:{t4w:6860,lw:7663,cw:3670,pctT4W:-46,pctPW:-52},tpd:{t4w:31212,lw:30524,cw:29325,pctT4W:-6,pctPW:-4},marketplace:{t4w:4627,lw:4055,cw:4085,pctT4W:-12,pctPW:1}},
+      revMix:{dineIn:{t4w:29.78,lw:31.1,cw:24.5},webPickup:{t4w:19.95,lw:19.8,cw:23.3},instore:{t4w:11.13,lw:11.3,cw:12},delivery:{t4w:4.97,lw:4.7,cw:4.4},catering:{t4w:5.45,lw:6,cw:3.5},tpd:{t4w:25,lw:23.9,cw:28.3},marketplace:{t4w:3.71,lw:3.2,cw:3.9}},
+      meta:{netRev:{t4w:5201,lw:5260,cw:4933,pctT4W:-5,pctPW:-6},spend:{t4w:558,lw:557,cw:582,pctT4W:4,pctPW:4},customers:{t4w:154,lw:154,cw:147,pctT4W:-5,pctPW:-5},cac:{t4w:3.66,lw:3.61,cw:3.96,pctT4W:8,pctPW:10},roas:{t4w:10.31,lw:10.44,cw:9.48,pctT4W:-8,pctPW:-9}},
+      google:{netRev:{t4w:6800,lw:7903,cw:7893,pctT4W:16,pctPW:0},spend:{t4w:395,lw:427,cw:467,pctT4W:18,pctPW:9},customers:{t4w:193,lw:219,cw:215,pctT4W:11,pctPW:-2},cac:{t4w:2.06,lw:1.95,cw:2.17,pctT4W:5,pctPW:11},roas:{t4w:18.2,lw:19.51,cw:17.9,pctT4W:-2,pctPW:-8}},
+      sponsored:{netRev:{t4w:9767,lw:8619,cw:8178,pctT4W:-16,pctPW:-5},spend:{t4w:704,lw:634,cw:625,pctT4W:-11,pctPW:-1},roas:{t4w:13.86,lw:13.6,cw:13.08,pctT4W:-6,pctPW:-4}},
+      promo:{netRev:{t4w:12590,lw:11402,cw:10182,pctT4W:-19,pctPW:-11},spend:{t4w:1094,lw:901,cw:999,pctT4W:-9,pctPW:11},roas:{t4w:11.57,lw:12.65,cw:10.19,pctT4W:-12,pctPW:-19}},
+      blendedROAS:{t4w:12.5,lw:13.2,cw:11.7,pctT4W:-7,pctPW:-11},
+      contribution:{sponsored:{t4w:8,lw:7,cw:8},promo:{t4w:10,lw:9,cw:10},meta:{t4w:4,lw:4,cw:5},google:{t4w:5,lw:6,cw:8},total:{t4w:27,lw:26,cw:30}}
+    }
+  },
+  {
+    label: 'Nov 3, 2025',
+    data: {
+      currentWeek:'Nov 3, 2025', lastWeek:'Oct 27, 2025',
+      revenue:{total:{t4w:123844,lw:129606,cw:127764,pctT4W:3,pctPW:-1},dineIn:{t4w:37348,lw:36043,cw:39734,pctT4W:6,pctPW:10},webPickup:{t4w:24473,lw:27403,cw:25322,pctT4W:3,pctPW:-8},instore:{t4w:13488,lw:13794,cw:14422,pctT4W:7,pctPW:5},delivery:{t4w:6288,lw:6767,cw:6044,pctT4W:-4,pctPW:-11},catering:{t4w:6498,lw:7649,cw:7663,pctT4W:18,pctPW:0},tpd:{t4w:30913,lw:33222,cw:30524,pctT4W:-1,pctPW:-8},marketplace:{t4w:4837,lw:4728,cw:4055,pctT4W:-16,pctPW:-14}},
+      revMix:{dineIn:{t4w:30.19,lw:27.8,cw:31.1},webPickup:{t4w:19.74,lw:21.1,cw:19.8},instore:{t4w:10.89,lw:10.6,cw:11.3},delivery:{t4w:5.08,lw:5.2,cw:4.7},catering:{t4w:5.21,lw:5.9,cw:6},tpd:{t4w:24.98,lw:25.6,cw:23.9},marketplace:{t4w:3.91,lw:3.6,cw:3.2}},
+      meta:{netRev:{t4w:5184,lw:5909,cw:5260,pctT4W:1,pctPW:-11},spend:{t4w:559,lw:560,cw:557,pctT4W:0,pctPW:-1},customers:{t4w:153,lw:179,cw:154,pctT4W:1,pctPW:-14},cac:{t4w:3.7,lw:3.13,cw:3.61,pctT4W:-2,pctPW:15},roas:{t4w:10.27,lw:11.55,cw:10.44,pctT4W:2,pctPW:-10}},
+      google:{netRev:{t4w:6404,lw:7239,cw:7903,pctT4W:23,pctPW:9},spend:{t4w:405,lw:381,cw:427,pctT4W:5,pctPW:12},customers:{t4w:187,lw:206,cw:219,pctT4W:17,pctPW:7},cac:{t4w:2.18,lw:1.85,cw:1.95,pctT4W:-11,pctPW:5},roas:{t4w:16.95,lw:20,cw:19.51,pctT4W:15,pctPW:-2}},
+      sponsored:{netRev:{t4w:9770,lw:11597,cw:8619,pctT4W:-12,pctPW:-26},spend:{t4w:712,lw:793,cw:634,pctT4W:-11,pctPW:-20},roas:{t4w:13.69,lw:14.62,cw:13.6,pctT4W:-1,pctPW:-7}},
+      promo:{netRev:{t4w:12487,lw:14238,cw:11402,pctT4W:-9,pctPW:-20},spend:{t4w:1110,lw:1249,cw:901,pctT4W:-19,pctPW:-28},roas:{t4w:11.26,lw:11.4,cw:12.65,pctT4W:12,pctPW:11}},
+      blendedROAS:{t4w:12.1,lw:13.1,cw:13.2,pctT4W:9,pctPW:1},
+      contribution:{sponsored:{t4w:8,lw:9,cw:7},promo:{t4w:10,lw:11,cw:9},meta:{t4w:4,lw:5,cw:4},google:{t4w:5,lw:6,cw:6},total:{t4w:27,lw:30,cw:26}}
+    }
+  },
+  {
+    label: 'Oct 27, 2025',
+    data: {
+      currentWeek:'Oct 27, 2025', lastWeek:'Oct 20, 2025',
+      revenue:{total:{t4w:122624,lw:123794,cw:129606,pctT4W:6,pctPW:5},dineIn:{t4w:38849,lw:37223,cw:36043,pctT4W:-7,pctPW:-3},webPickup:{t4w:23628,lw:24568,cw:27403,pctT4W:16,pctPW:12},instore:{t4w:13104,lw:14440,cw:13794,pctT4W:5,pctPW:-4},delivery:{t4w:5916,lw:5158,cw:6767,pctT4W:14,pctPW:31},catering:{t4w:6612,lw:8741,cw:7649,pctT4W:16,pctPW:-12},tpd:{t4w:29894,lw:28544,cw:33222,pctT4W:11,pctPW:16},marketplace:{t4w:4620,lw:5120,cw:4728,pctT4W:2,pctPW:-8}},
+      revMix:{dineIn:{t4w:31.66,lw:30.1,cw:27.8},webPickup:{t4w:19.27,lw:19.8,cw:21.1},instore:{t4w:10.69,lw:11.7,cw:10.6},delivery:{t4w:4.84,lw:4.2,cw:5.2},catering:{t4w:5.36,lw:7.1,cw:5.9},tpd:{t4w:24.41,lw:23.1,cw:25.6},marketplace:{t4w:3.77,lw:4.1,cw:3.6}},
+      meta:{netRev:{t4w:4950,lw:4474,cw:5909,pctT4W:19,pctPW:32},spend:{t4w:616,lw:561,cw:560,pctT4W:-9,pctPW:0},customers:{t4w:149,lw:139,cw:179,pctT4W:20,pctPW:29},cac:{t4w:4.12,lw:4.04,cw:3.13,pctT4W:-24,pctPW:-23},roas:{t4w:9.21,lw:8.98,cw:11.55,pctT4W:25,pctPW:29}},
+      google:{netRev:{t4w:6110,lw:5700,cw:7239,pctT4W:18,pctPW:27},spend:{t4w:450,lw:391,cw:381,pctT4W:-15,pctPW:-3},customers:{t4w:177,lw:164,cw:206,pctT4W:16,pctPW:25},cac:{t4w:2.56,lw:2.39,cw:1.85,pctT4W:-28,pctPW:-23},roas:{t4w:14.9,lw:15.58,cw:20,pctT4W:34,pctPW:28}},
+      sponsored:{netRev:{t4w:8978,lw:9163,cw:11597,pctT4W:29,pctPW:27},spend:{t4w:689,lw:659,cw:793,pctT4W:15,pctPW:20},roas:{t4w:13.04,lw:13.9,cw:14.62,pctT4W:12,pctPW:5}},
+      promo:{netRev:{t4w:12960,lw:12505,cw:14238,pctT4W:10,pctPW:14},spend:{t4w:1053,lw:1149,cw:1249,pctT4W:19,pctPW:9},roas:{t4w:12.36,lw:10.89,cw:11.4,pctT4W:-8,pctPW:5}},
+      blendedROAS:{t4w:11.8,lw:11.5,cw:13.1,pctT4W:11,pctPW:13},
+      contribution:{sponsored:{t4w:7,lw:7,cw:9},promo:{t4w:11,lw:10,cw:11},meta:{t4w:4,lw:4,cw:5},google:{t4w:5,lw:5,cw:6},total:{t4w:27,lw:26,cw:30}}
+    }
+  },
+  {
+    label: 'Oct 20, 2025',
+    data: {
+      currentWeek:'Oct 20, 2025', lastWeek:'Oct 13, 2025',
+      revenue:{total:{t4w:121335,lw:118749,cw:123794,pctT4W:2,pctPW:4},dineIn:{t4w:40131,lw:35806,cw:37223,pctT4W:-7,pctPW:4},webPickup:{t4w:22823,lw:22572,cw:24568,pctT4W:8,pctPW:9},instore:{t4w:12757,lw:12979,cw:14440,pctT4W:13,pctPW:11},delivery:{t4w:5938,lw:6841,cw:5158,pctT4W:-13,pctPW:-25},catering:{t4w:5043,lw:3385,cw:8741,pctT4W:73,pctPW:158},tpd:{t4w:30130,lw:32560,cw:28544,pctT4W:-5,pctPW:-12},marketplace:{t4w:4513,lw:4606,cw:5120,pctT4W:13,pctPW:11}},
+      revMix:{dineIn:{t4w:33.07,lw:30.2,cw:30.1},webPickup:{t4w:18.8,lw:19,cw:19.8},instore:{t4w:10.52,lw:10.9,cw:11.7},delivery:{t4w:4.9,lw:5.8,cw:4.2},catering:{t4w:4.12,lw:2.9,cw:7.1},tpd:{t4w:24.86,lw:27.4,cw:23.1},marketplace:{t4w:3.72,lw:3.9,cw:4.1}},
+      meta:{netRev:{t4w:4933,lw:5161,cw:4474,pctT4W:-9,pctPW:-13},spend:{t4w:648,lw:556,cw:561,pctT4W:-13,pctPW:1},customers:{t4w:154,lw:144,cw:139,pctT4W:-10,pctPW:-3},cac:{t4w:4.18,lw:3.86,cw:4.04,pctT4W:-3,pctPW:5},roas:{t4w:8.82,lw:10.28,cw:8.98,pctT4W:2,pctPW:-13}},
+      google:{netRev:{t4w:6106,lw:6357,cw:5700,pctT4W:-7,pctPW:-10},spend:{t4w:485,lw:380,cw:391,pctT4W:-19,pctPW:3},customers:{t4w:179,lw:184,cw:164,pctT4W:-8,pctPW:-11},cac:{t4w:2.73,lw:2.06,cw:2.39,pctT4W:-13,pctPW:16},roas:{t4w:13.94,lw:17.73,cw:15.58,pctT4W:12,pctPW:-12}},
+      sponsored:{netRev:{t4w:8669,lw:9689,cw:9163,pctT4W:6,pctPW:-5},spend:{t4w:706,lw:728,cw:659,pctT4W:-7,pctPW:-9},roas:{t4w:12.29,lw:13.32,cw:13.9,pctT4W:13,pctPW:4}},
+      promo:{netRev:{t4w:13035,lw:12213,cw:12505,pctT4W:-4,pctPW:2},spend:{t4w:1002,lw:1078,cw:1149,pctT4W:15,pctPW:7},roas:{t4w:13.01,lw:11.33,cw:10.89,pctT4W:-16,pctPW:-4}},
+      blendedROAS:{t4w:11.5,lw:12.2,cw:11.5,pctT4W:0,pctPW:-5},
+      contribution:{sponsored:{t4w:7,lw:8,cw:7},promo:{t4w:11,lw:10,cw:10},meta:{t4w:4,lw:4,cw:4},google:{t4w:5,lw:5,cw:5},total:{t4w:27,lw:28,cw:26}}
+    }
+  },
+  {
+    label: 'Oct 13, 2025',
+    data: {
+      currentWeek:'Oct 13, 2025', lastWeek:'Oct 6, 2025',
+      revenue:{total:{t4w:120508,lw:123227,cw:118749,pctT4W:-1,pctPW:-4},dineIn:{t4w:41081,lw:40318,cw:35806,pctT4W:-13,pctPW:-11},webPickup:{t4w:22306,lw:23349,cw:22572,pctT4W:1,pctPW:-3},instore:{t4w:12781,lw:12741,cw:12979,pctT4W:2,pctPW:2},delivery:{t4w:5694,lw:6384,cw:6841,pctT4W:20,pctPW:7},catering:{t4w:5134,lw:6216,cw:3385,pctT4W:-34,pctPW:-46},tpd:{t4w:29063,lw:29326,cw:32560,pctT4W:12,pctPW:11},marketplace:{t4w:4449,lw:4893,cw:4606,pctT4W:4,pctPW:-6}},
+      revMix:{dineIn:{t4w:34.11,lw:32.7,cw:30.2},webPickup:{t4w:18.49,lw:18.9,cw:19},instore:{t4w:10.62,lw:10.3,cw:10.9},delivery:{t4w:4.73,lw:5.2,cw:5.8},catering:{t4w:4.22,lw:5,cw:2.9},tpd:{t4w:24.13,lw:23.8,cw:27.4},marketplace:{t4w:3.7,lw:4,cw:3.9}},
+      meta:{netRev:{t4w:4619,lw:5194,cw:5161,pctT4W:12,pctPW:-1},spend:{t4w:649,lw:560,cw:556,pctT4W:-14,pctPW:-1},customers:{t4w:152,lw:149,cw:144,pctT4W:-6,pctPW:-3},cac:{t4w:4.24,lw:3.76,cw:3.86,pctT4W:-9,pctPW:3},roas:{t4w:8.24,lw:10.28,cw:10.28,pctT4W:25,pctPW:0}},
+      google:{netRev:{t4w:5556,lw:6321,cw:6357,pctT4W:14,pctPW:1},spend:{t4w:526,lw:468,cw:380,pctT4W:-28,pctPW:-19},customers:{t4w:167,lw:193,cw:184,pctT4W:10,pctPW:-5},cac:{t4w:3.22,lw:2.43,cw:2.06,pctT4W:-36,pctPW:-15},roas:{t4w:11.67,lw:14.51,cw:17.73,pctT4W:52,pctPW:22}},
+      sponsored:{netRev:{t4w:8234,lw:8629,cw:9689,pctT4W:18,pctPW:12},spend:{t4w:699,lw:667,cw:728,pctT4W:4,pctPW:9},roas:{t4w:11.8,lw:12.94,cw:13.32,pctT4W:13,pctPW:3}},
+      promo:{netRev:{t4w:13062,lw:10993,cw:12213,pctT4W:-7,pctPW:11},spend:{t4w:964,lw:963,cw:1078,pctT4W:12,pctPW:12},roas:{t4w:13.51,lw:11.41,cw:11.33,pctT4W:-16,pctPW:-1}},
+      blendedROAS:{t4w:11.1,lw:11.7,cw:12.2,pctT4W:10,pctPW:4},
+      contribution:{sponsored:{t4w:7,lw:7,cw:8},promo:{t4w:11,lw:9,cw:10},meta:{t4w:4,lw:4,cw:4},google:{t4w:5,lw:5,cw:5},total:{t4w:26,lw:25,cw:28}}
+    }
+  },
+  {
+    label: 'Oct 6, 2025',
+    data: {
+      currentWeek:'Oct 6, 2025', lastWeek:'Sep 29, 2025',
+      revenue:{total:{t4w:120084,lw:124726,cw:123227,pctT4W:3,pctPW:-1},dineIn:{t4w:41356,lw:42049,cw:40318,pctT4W:-3,pctPW:-4},webPickup:{t4w:22527,lw:24023,cw:23349,pctT4W:4,pctPW:-3},instore:{t4w:13190,lw:12258,cw:12741,pctT4W:-3,pctPW:4},delivery:{t4w:5305,lw:5283,cw:6384,pctT4W:20,pctPW:21},catering:{t4w:4594,lw:8108,cw:6216,pctT4W:35,pctPW:-23},tpd:{t4w:28622,lw:29146,cw:29326,pctT4W:2,pctPW:1},marketplace:{t4w:4490,lw:3859,cw:4893,pctT4W:9,pctPW:27}},
+      revMix:{dineIn:{t4w:34.45,lw:33.7,cw:32.7},webPickup:{t4w:18.74,lw:19.3,cw:18.9},instore:{t4w:11,lw:9.8,cw:10.3},delivery:{t4w:4.43,lw:4.2,cw:5.2},catering:{t4w:3.79,lw:6.5,cw:5},tpd:{t4w:23.85,lw:23.4,cw:23.8},marketplace:{t4w:3.74,lw:3.1,cw:4}},
+      meta:{netRev:{t4w:4978,lw:4970,cw:5194,pctT4W:4,pctPW:5},spend:{t4w:652,lw:788,cw:560,pctT4W:-14,pctPW:-29},customers:{t4w:161,lw:163,cw:149,pctT4W:-8,pctPW:-9},cac:{t4w:4.07,lw:4.84,cw:3.76,pctT4W:-8,pctPW:-22},roas:{t4w:8.83,lw:7.31,cw:10.28,pctT4W:16,pctPW:41}},
+      google:{netRev:{t4w:5172,lw:6061,cw:6321,pctT4W:22,pctPW:4},spend:{t4w:574,lw:562,cw:468,pctT4W:-18,pctPW:-17},customers:{t4w:160,lw:167,cw:193,pctT4W:21,pctPW:16},cac:{t4w:3.61,lw:3.37,cw:2.43,pctT4W:-33,pctPW:-28},roas:{t4w:10.11,lw:11.78,cw:14.51,pctT4W:44,pctPW:23}},
+      sponsored:{netRev:{t4w:7944,lw:8431,cw:8629,pctT4W:9,pctPW:2},spend:{t4w:691,lw:702,cw:667,pctT4W:-3,pctPW:-5},roas:{t4w:11.51,lw:12.01,cw:12.94,pctT4W:12,pctPW:8}},
+      promo:{netRev:{t4w:12996,lw:16131,cw:10993,pctT4W:-15,pctPW:-32},spend:{t4w:930,lw:1021,cw:963,pctT4W:4,pctPW:-6},roas:{t4w:13.9,lw:15.8,cw:11.41,pctT4W:-18,pctPW:-28}},
+      blendedROAS:{t4w:10.9,lw:11.6,cw:11.7,pctT4W:7,pctPW:1},
+      contribution:{sponsored:{t4w:7,lw:7,cw:7},promo:{t4w:11,lw:13,cw:9},meta:{t4w:4,lw:4,cw:4},google:{t4w:4,lw:5,cw:5},total:{t4w:26,lw:29,cw:25}}
+    }
+  },
+  {
+    label: 'Sep 29, 2025',
+    data: {
+      currentWeek:'Sep 29, 2025', lastWeek:'Sep 22, 2025',
+      revenue:{total:{t4w:117715,lw:118639,cw:124726,pctT4W:6,pctPW:5},dineIn:{t4w:40407,lw:42352,cw:42049,pctT4W:4,pctPW:-1},webPickup:{t4w:21842,lw:21349,cw:24023,pctT4W:10,pctPW:13},instore:{t4w:13128,lw:13049,cw:12258,pctT4W:-7,pctPW:-6},delivery:{t4w:5216,lw:5244,cw:5283,pctT4W:1,pctPW:1},catering:{t4w:3675,lw:2463,cw:8108,pctT4W:121,pctPW:229},tpd:{t4w:28665,lw:29489,cw:29146,pctT4W:2,pctPW:-1},marketplace:{t4w:4781,lw:4693,cw:3859,pctT4W:-19,pctPW:-18}},
+      revMix:{dineIn:{t4w:34.32,lw:35.7,cw:33.7},webPickup:{t4w:18.54,lw:18,cw:19.3},instore:{t4w:11.14,lw:11,cw:9.8},delivery:{t4w:4.44,lw:4.4,cw:4.2},catering:{t4w:3.13,lw:2.1,cw:6.5},tpd:{t4w:24.37,lw:24.9,cw:23.4},marketplace:{t4w:4.06,lw:4,cw:3.1}},
+      meta:{netRev:{t4w:4885,lw:4408,cw:4970,pctT4W:2,pctPW:13},spend:{t4w:592,lw:686,cw:788,pctT4W:33,pctPW:15},customers:{t4w:154,lw:161,cw:163,pctT4W:6,pctPW:1},cac:{t4w:3.88,lw:4.26,cw:4.84,pctT4W:25,pctPW:14},roas:{t4w:9.34,lw:7.43,cw:7.31,pctT4W:-22,pctPW:-2}},
+      google:{netRev:{t4w:4754,lw:5684,cw:6061,pctT4W:27,pctPW:7},spend:{t4w:590,lw:529,cw:562,pctT4W:-5,pctPW:6},customers:{t4w:154,lw:172,cw:167,pctT4W:8,pctPW:-3},cac:{t4w:3.87,lw:3.07,cw:3.37,pctT4W:-13,pctPW:10},roas:{t4w:9.16,lw:11.74,cw:11.78,pctT4W:29,pctPW:0}},
+      sponsored:{netRev:{t4w:7976,lw:7927,cw:8431,pctT4W:6,pctPW:6},spend:{t4w:683,lw:729,cw:702,pctT4W:3,pctPW:-4},roas:{t4w:11.7,lw:10.87,cw:12.01,pctT4W:3,pctPW:10}},
+      promo:{netRev:{t4w:12113,lw:12803,cw:16131,pctT4W:33,pctPW:26},spend:{t4w:910,lw:947,cw:1021,pctT4W:12,pctPW:8},roas:{t4w:13.29,lw:13.51,cw:15.8,pctT4W:19,pctPW:17}},
+      blendedROAS:{t4w:10.7,lw:10.7,cw:11.6,pctT4W:8,pctPW:9},
+      contribution:{sponsored:{t4w:7,lw:7,cw:7},promo:{t4w:10,lw:11,cw:13},meta:{t4w:4,lw:4,cw:4},google:{t4w:4,lw:5,cw:5},total:{t4w:25,lw:26,cw:29}}
+    }
+  },
+  {
+    label: 'Sep 22, 2025',
+    data: {
+      currentWeek:'Sep 22, 2025', lastWeek:'Sep 15, 2025',
+      revenue:{total:{t4w:117590,lw:115440,cw:118639,pctT4W:1,pctPW:3},dineIn:{t4w:40100,lw:39604,cw:42352,pctT4W:6,pctPW:7},webPickup:{t4w:22089,lw:20504,cw:21349,pctT4W:-3,pctPW:4},instore:{t4w:13237,lw:13075,cw:13049,pctT4W:-1,pctPW:0},delivery:{t4w:5103,lw:5865,cw:5244,pctT4W:3,pctPW:-11},catering:{t4w:3857,lw:3751,cw:2463,pctT4W:-36,pctPW:-34},tpd:{t4w:28140,lw:28290,cw:29489,pctT4W:5,pctPW:4},marketplace:{t4w:5064,lw:4351,cw:4693,pctT4W:-7,pctPW:8}},
+      revMix:{dineIn:{t4w:34.1,lw:34.3,cw:35.7},webPickup:{t4w:18.77,lw:17.8,cw:18},instore:{t4w:11.25,lw:11.3,cw:11},delivery:{t4w:4.35,lw:5.1,cw:4.4},catering:{t4w:3.28,lw:3.2,cw:2.1},tpd:{t4w:23.95,lw:24.5,cw:24.9},marketplace:{t4w:4.3,lw:3.8,cw:4}},
+      meta:{netRev:{t4w:4872,lw:3903,cw:4408,pctT4W:-10,pctPW:13},spend:{t4w:560,lw:562,cw:686,pctT4W:23,pctPW:22},customers:{t4w:149,lw:137,cw:161,pctT4W:8,pctPW:18},cac:{t4w:3.82,lw:4.1,cw:4.26,pctT4W:12,pctPW:4},roas:{t4w:9.69,lw:7.94,cw:7.43,pctT4W:-23,pctPW:-7}},
+      google:{netRev:{t4w:4320,lw:4160,cw:5684,pctT4W:32,pctPW:37},spend:{t4w:584,lw:543,cw:529,pctT4W:-9,pctPW:-3},customers:{t4w:144,lw:135,cw:172,pctT4W:19,pctPW:28},cac:{t4w:4.04,lw:4.02,cw:3.07,pctT4W:-24,pctPW:-24},roas:{t4w:8.43,lw:8.66,cw:11.74,pctT4W:39,pctPW:36}},
+      sponsored:{netRev:{t4w:8508,lw:7949,cw:7927,pctT4W:-7,pctPW:0},spend:{t4w:758,lw:698,cw:729,pctT4W:-4,pctPW:4},roas:{t4w:11.42,lw:11.38,cw:10.87,pctT4W:-5,pctPW:-4}},
+      promo:{netRev:{t4w:11728,lw:12323,cw:12803,pctT4W:9,pctPW:4},spend:{t4w:920,lw:924,cw:947,pctT4W:3,pctPW:2},roas:{t4w:12.77,lw:13.33,cw:13.51,pctT4W:6,pctPW:1}},
+      blendedROAS:{t4w:10.5,lw:10.4,cw:10.7,pctT4W:2,pctPW:3},
+      contribution:{sponsored:{t4w:7,lw:7,cw:7},promo:{t4w:10,lw:11,cw:11},meta:{t4w:4,lw:3,cw:4},google:{t4w:4,lw:4,cw:5},total:{t4w:25,lw:25,cw:26}}
+    }
+  },
+  {
+    label: 'Sep 15, 2025',
+    data: {
+      currentWeek:'Sep 15, 2025', lastWeek:'Sep 8, 2025',
+      revenue:{total:{t4w:119038,lw:121531,cw:115440,pctT4W:-3,pctPW:-5},dineIn:{t4w:40407,lw:41420,cw:39604,pctT4W:-2,pctPW:-4},webPickup:{t4w:22797,lw:24233,cw:20504,pctT4W:-10,pctPW:-15},instore:{t4w:13582,lw:14379,cw:13075,pctT4W:-4,pctPW:-9},delivery:{t4w:4721,lw:4829,cw:5865,pctT4W:24,pctPW:21},catering:{t4w:3817,lw:4054,cw:3751,pctT4W:-2,pctPW:-7},tpd:{t4w:28550,lw:27561,cw:28290,pctT4W:-1,pctPW:3},marketplace:{t4w:5164,lw:5055,cw:4351,pctT4W:-16,pctPW:-14}},
+      revMix:{dineIn:{t4w:33.94,lw:34.1,cw:34.3},webPickup:{t4w:19.14,lw:19.9,cw:17.8},instore:{t4w:11.4,lw:11.8,cw:11.3},delivery:{t4w:3.97,lw:4,cw:5.1},catering:{t4w:3.21,lw:3.3,cw:3.2},tpd:{t4w:24,lw:22.7,cw:24.5},marketplace:{t4w:4.34,lw:4.2,cw:3.8}},
+      meta:{netRev:{t4w:5239,lw:6633,cw:3903,pctT4W:-25,pctPW:-41},spend:{t4w:560,lw:570,cw:562,pctT4W:0,pctPW:-1},customers:{t4w:157,lw:184,cw:137,pctT4W:-13,pctPW:-26},cac:{t4w:3.62,lw:3.1,cw:4.1,pctT4W:13,pctPW:32},roas:{t4w:10.34,lw:12.64,cw:7.94,pctT4W:-23,pctPW:-37}},
+      google:{netRev:{t4w:4516,lw:4784,cw:4160,pctT4W:-8,pctPW:-13},spend:{t4w:557,lw:661,cw:543,pctT4W:-3,pctPW:-18},customers:{t4w:149,lw:166,cw:135,pctT4W:-10,pctPW:-19},cac:{t4w:3.74,lw:3.99,cw:4.02,pctT4W:7,pctPW:1},roas:{t4w:9.35,lw:8.24,cw:8.66,pctT4W:-7,pctPW:5}},
+      sponsored:{netRev:{t4w:9292,lw:7469,cw:7949,pctT4W:-14,pctPW:6},spend:{t4w:894,lw:634,cw:698,pctT4W:-22,pctPW:10},roas:{t4w:10.81,lw:11.78,cw:11.38,pctT4W:5,pctPW:-3}},
+      promo:{netRev:{t4w:11819,lw:10726,cw:12323,pctT4W:4,pctPW:15},spend:{t4w:918,lw:827,cw:924,pctT4W:1,pctPW:12},roas:{t4w:12.9,lw:12.96,cw:13.33,pctT4W:3,pctPW:3}},
+      blendedROAS:{t4w:10.6,lw:11,cw:10.4,pctT4W:-2,pctPW:-6},
+      contribution:{sponsored:{t4w:8,lw:6,cw:7},promo:{t4w:10,lw:9,cw:11},meta:{t4w:4,lw:5,cw:3},google:{t4w:4,lw:4,cw:4},total:{t4w:26,lw:24,cw:25}}
+    }
+  },
+  {
+    label: 'Sep 8, 2025',
+    data: {
+      currentWeek:'Sep 8, 2025', lastWeek:'Sep 1, 2025',
+      revenue:{total:{t4w:119680,lw:115249,cw:121531,pctT4W:2,pctPW:5},dineIn:{t4w:41037,lw:38252,cw:41420,pctT4W:1,pctPW:8},webPickup:{t4w:22254,lw:21283,cw:24233,pctT4W:9,pctPW:14},instore:{t4w:13889,lw:12010,cw:14379,pctT4W:4,pctPW:20},delivery:{t4w:4924,lw:4925,cw:4829,pctT4W:-2,pctPW:-2},catering:{t4w:3038,lw:4433,cw:4054,pctT4W:33,pctPW:-9},tpd:{t4w:29440,lw:29321,cw:27561,pctT4W:-6,pctPW:-6},marketplace:{t4w:5098,lw:5025,cw:5055,pctT4W:-1,pctPW:1}},
+      revMix:{dineIn:{t4w:34.27,lw:33.2,cw:34.1},webPickup:{t4w:18.6,lw:18.5,cw:19.9},instore:{t4w:11.58,lw:10.4,cw:11.8},delivery:{t4w:4.11,lw:4.3,cw:4},catering:{t4w:2.57,lw:3.8,cw:3.3},tpd:{t4w:24.6,lw:25.4,cw:22.7},marketplace:{t4w:4.27,lw:4.4,cw:4.2}},
+      meta:{netRev:{t4w:5060,lw:4596,cw:6633,pctT4W:31,pctPW:44},spend:{t4w:558,lw:550,cw:570,pctT4W:2,pctPW:4},customers:{t4w:151,lw:136,cw:184,pctT4W:22,pctPW:35},cac:{t4w:3.73,lw:4.05,cw:3.1,pctT4W:-17,pctPW:-23},roas:{t4w:10.05,lw:9.36,cw:12.64,pctT4W:26,pctPW:35}},
+      google:{netRev:{t4w:4925,lw:4387,cw:4784,pctT4W:-3,pctPW:9},spend:{t4w:496,lw:627,cw:661,pctT4W:33,pctPW:5},customers:{t4w:152,lw:143,cw:166,pctT4W:9,pctPW:16},cac:{t4w:3.33,lw:4.38,cw:3.99,pctT4W:20,pctPW:-9},roas:{t4w:11.39,lw:8,cw:8.24,pctT4W:-28,pctPW:3}},
+      sponsored:{netRev:{t4w:10655,lw:8560,cw:7469,pctT4W:-30,pctPW:-13},spend:{t4w:1025,lw:671,cw:634,pctT4W:-38,pctPW:-6},roas:{t4w:10.65,lw:12.75,cw:11.78,pctT4W:11,pctPW:-8}},
+      promo:{netRev:{t4w:12222,lw:12601,cw:10726,pctT4W:-12,pctPW:-15},spend:{t4w:930,lw:944,cw:827,pctT4W:-11,pctPW:-12},roas:{t4w:13.18,lw:13.35,cw:12.96,pctT4W:-2,pctPW:-3}},
+      blendedROAS:{t4w:10.9,lw:10.8,cw:11,pctT4W:1,pctPW:2},
+      contribution:{sponsored:{t4w:9,lw:7,cw:6},promo:{t4w:10,lw:11,cw:9},meta:{t4w:4,lw:4,cw:5},google:{t4w:4,lw:4,cw:4},total:{t4w:27,lw:26,cw:24}}
+    }
+  },
+  {
+    label: 'Sep 1, 2025',
+    data: {
+      currentWeek:'Sep 1, 2025', lastWeek:'Aug 25, 2025',
+      revenue:{total:{t4w:121172,lw:118141,cw:115249,pctT4W:-5,pctPW:-2},dineIn:{t4w:42310,lw:41125,cw:38252,pctT4W:-10,pctPW:-7},webPickup:{t4w:22266,lw:22335,cw:21283,pctT4W:-4,pctPW:-5},instore:{t4w:15105,lw:13484,cw:12010,pctT4W:-20,pctPW:-11},delivery:{t4w:4992,lw:4793,cw:4925,pctT4W:-1,pctPW:3},catering:{t4w:2237,lw:3190,cw:4433,pctT4W:98,pctPW:39},tpd:{t4w:29541,lw:27390,cw:29321,pctT4W:-1,pctPW:7},marketplace:{t4w:4720,lw:5824,cw:5025,pctT4W:6,pctPW:-14}},
+      revMix:{dineIn:{t4w:34.91,lw:34.8,cw:33.2},webPickup:{t4w:18.38,lw:18.9,cw:18.5},instore:{t4w:12.46,lw:11.4,cw:10.4},delivery:{t4w:4.12,lw:4.1,cw:4.3},catering:{t4w:1.86,lw:2.7,cw:3.8},tpd:{t4w:24.37,lw:23.2,cw:25.4},marketplace:{t4w:3.9,lw:4.9,cw:4.4}},
+      meta:{netRev:{t4w:5056,lw:4354,cw:4596,pctT4W:-9,pctPW:6},spend:{t4w:562,lw:556,cw:550,pctT4W:-2,pctPW:-1},customers:{t4w:156,lw:138,cw:136,pctT4W:-13,pctPW:-1},cac:{t4w:3.64,lw:4.03,cw:4.05,pctT4W:11,pctPW:0},roas:{t4w:9.99,lw:8.83,cw:9.36,pctT4W:-6,pctPW:6}},
+      google:{netRev:{t4w:5364,lw:3951,cw:4387,pctT4W:-18,pctPW:11},spend:{t4w:444,lw:504,cw:627,pctT4W:41,pctPW:24},customers:{t4w:161,lw:134,cw:143,pctT4W:-11,pctPW:7},cac:{t4w:2.83,lw:3.77,cw:4.38,pctT4W:55,pctPW:16},roas:{t4w:13.29,lw:8.84,cw:8,pctT4W:-40,pctPW:-9}},
+      sponsored:{netRev:{t4w:11501,lw:10054,cw:8560,pctT4W:-26,pctPW:-15},spend:{t4w:1154,lw:1031,cw:671,pctT4W:-42,pctPW:-35},roas:{t4w:9.97,lw:9.76,cw:12.75,pctT4W:28,pctPW:31}},
+      promo:{netRev:{t4w:12956,lw:11264,cw:12601,pctT4W:-3,pctPW:12},spend:{t4w:961,lw:985,cw:944,pctT4W:-2,pctPW:-4},roas:{t4w:13.48,lw:11.43,cw:13.35,pctT4W:-1,pctPW:17}},
+      blendedROAS:{t4w:11.2,lw:9.6,cw:10.8,pctT4W:-3,pctPW:12},
+      contribution:{sponsored:{t4w:9,lw:9,cw:7},promo:{t4w:11,lw:10,cw:11},meta:{t4w:4,lw:4,cw:4},google:{t4w:4,lw:3,cw:4},total:{t4w:29,lw:25,cw:26}}
+    }
+  },
+  {
+    label: 'Aug 25, 2025',
+    data: {
+      currentWeek:'Aug 25, 2025', lastWeek:'Aug 18, 2025',
+      revenue:{total:{t4w:123074,lw:121229,cw:118141,pctT4W:-4,pctPW:-3},dineIn:{t4w:43371,lw:40831,cw:41125,pctT4W:-5,pctPW:1},webPickup:{t4w:22162,lw:23337,cw:22335,pctT4W:1,pctPW:-4},instore:{t4w:16042,lw:14453,cw:13484,pctT4W:-16,pctPW:-7},delivery:{t4w:5318,lw:4336,cw:4793,pctT4W:-10,pctPW:11},catering:{t4w:2146,lw:3592,cw:3190,pctT4W:49,pctPW:-11},tpd:{t4w:29888,lw:29926,cw:27390,pctT4W:-8,pctPW:-8},marketplace:{t4w:4145,lw:4754,cw:5824,pctT4W:40,pctPW:23}},
+      revMix:{dineIn:{t4w:35.23,lw:33.7,cw:34.8},webPickup:{t4w:18.01,lw:19.3,cw:18.9},instore:{t4w:13.03,lw:11.9,cw:11.4},delivery:{t4w:4.31,lw:3.6,cw:4.1},catering:{t4w:1.75,lw:3,cw:2.7},tpd:{t4w:24.29,lw:24.7,cw:23.2},marketplace:{t4w:3.37,lw:3.9,cw:4.9}},
+      meta:{netRev:{t4w:5253,lw:5372,cw:4354,pctT4W:-17,pctPW:-19},spend:{t4w:563,lw:564,cw:556,pctT4W:-1,pctPW:-1},customers:{t4w:160,lw:171,cw:138,pctT4W:-14,pctPW:-19},cac:{t4w:3.53,lw:3.3,cw:4.03,pctT4W:14,pctPW:22},roas:{t4w:10.33,lw:10.52,cw:8.83,pctT4W:-15,pctPW:-16}},
+      google:{netRev:{t4w:5678,lw:4942,cw:3951,pctT4W:-30,pctPW:-20},spend:{t4w:416,lw:437,cw:504,pctT4W:21,pctPW:15},customers:{t4w:166,lw:155,cw:134,pctT4W:-19,pctPW:-14},cac:{t4w:2.52,lw:2.82,cw:3.77,pctT4W:50,pctPW:34},roas:{t4w:14.65,lw:12.31,cw:8.84,pctT4W:-40,pctPW:-28}},
+      sponsored:{netRev:{t4w:11705,lw:11085,cw:10054,pctT4W:-14,pctPW:-9},spend:{t4w:1190,lw:1239,cw:1031,pctT4W:-13,pctPW:-17},roas:{t4w:9.86,lw:8.95,cw:9.76,pctT4W:-1,pctPW:9}},
+      promo:{netRev:{t4w:14165,lw:12685,cw:11264,pctT4W:-20,pctPW:-11},spend:{t4w:1113,lw:916,cw:985,pctT4W:-12,pctPW:8},roas:{t4w:13.15,lw:13.85,cw:11.43,pctT4W:-13,pctPW:-17}},
+      blendedROAS:{t4w:11.3,lw:10.8,cw:9.6,pctT4W:-15,pctPW:-11},
+      contribution:{sponsored:{t4w:10,lw:9,cw:9},promo:{t4w:12,lw:10,cw:10},meta:{t4w:4,lw:4,cw:4},google:{t4w:5,lw:4,cw:3},total:{t4w:30,lw:28,cw:25}}
+    }
+  },
+  {
+    label: 'Aug 18, 2025',
+    data: {
+      currentWeek:'Aug 18, 2025', lastWeek:'Aug 11, 2025',
+      revenue:{total:{t4w:121581,lw:124103,cw:121229,pctT4W:0,pctPW:-2},dineIn:{t4w:43837,lw:43940,cw:40831,pctT4W:-7,pctPW:-7},webPickup:{t4w:21627,lw:22059,cw:23337,pctT4W:8,pctPW:6},instore:{t4w:16176,lw:15608,cw:14453,pctT4W:-11,pctPW:-7},delivery:{t4w:5230,lw:5644,cw:4336,pctT4W:-17,pctPW:-23},catering:{t4w:1664,lw:939,cw:3592,pctT4W:116,pctPW:283},tpd:{t4w:29318,lw:31123,cw:29926,pctT4W:2,pctPW:-4},marketplace:{t4w:4145,lw:4790,cw:4754,pctT4W:15,pctPW:-1}},
+      revMix:{dineIn:{t4w:36.07,lw:35.4,cw:33.7},webPickup:{t4w:17.8,lw:17.8,cw:19.3},instore:{t4w:13.3,lw:12.6,cw:11.9},delivery:{t4w:4.28,lw:4.5,cw:3.6},catering:{t4w:1.34,lw:0.8,cw:3},tpd:{t4w:24.12,lw:25.1,cw:24.7},marketplace:{t4w:3.42,lw:3.9,cw:3.9}},
+      meta:{netRev:{t4w:4981,lw:5920,cw:5372,pctT4W:8,pctPW:-9},spend:{t4w:560,lw:564,cw:564,pctT4W:1,pctPW:0},customers:{t4w:151,lw:159,cw:171,pctT4W:13,pctPW:8},cac:{t4w:3.72,lw:3.55,cw:3.3,pctT4W:-11,pctPW:-7},roas:{t4w:9.89,lw:11.5,cw:10.52,pctT4W:6,pctPW:-8}},
+      google:{netRev:{t4w:5834,lw:6419,cw:4942,pctT4W:-15,pctPW:-23},spend:{t4w:410,lw:416,cw:437,pctT4W:7,pctPW:5},customers:{t4w:170,lw:175,cw:155,pctT4W:-9,pctPW:-12},cac:{t4w:2.41,lw:2.37,cw:2.82,pctT4W:17,pctPW:19},roas:{t4w:15.21,lw:16.43,cw:12.31,pctT4W:-19,pctPW:-25}},
+      sponsored:{netRev:{t4w:11298,lw:12920,cw:11085,pctT4W:-2,pctPW:-14},spend:{t4w:1134,lw:1159,cw:1239,pctT4W:9,pctPW:7},roas:{t4w:9.94,lw:11.15,cw:8.95,pctT4W:-10,pctPW:-20}},
+      promo:{netRev:{t4w:13002,lw:12340,cw:12685,pctT4W:-2,pctPW:3},spend:{t4w:987,lw:875,cw:916,pctT4W:-7,pctPW:5},roas:{t4w:14.56,lw:14.1,cw:13.85,pctT4W:-5,pctPW:-2}},
+      blendedROAS:{t4w:11.4,lw:12.5,cw:10.8,pctT4W:-6,pctPW:-13},
+      contribution:{sponsored:{t4w:9,lw:10,cw:9},promo:{t4w:11,lw:10,cw:10},meta:{t4w:4,lw:5,cw:4},google:{t4w:5,lw:5,cw:4},total:{t4w:29,lw:30,cw:28}}
+    }
+  },
+  {
+    label: 'Aug 11, 2025',
+    data: {
+      currentWeek:'Aug 11, 2025', lastWeek:'Aug 4, 2025',
+      revenue:{total:{t4w:118986,lw:121213,cw:124103,pctT4W:4,pctPW:2},dineIn:{t4w:43520,lw:43343,cw:43940,pctT4W:1,pctPW:1},webPickup:{t4w:21630,lw:21334,cw:22059,pctT4W:2,pctPW:3},instore:{t4w:16028,lw:16875,cw:15608,pctT4W:-3,pctPW:-8},delivery:{t4w:4802,lw:5194,cw:5644,pctT4W:18,pctPW:9},catering:{t4w:2027,lw:1227,cw:939,pctT4W:-54,pctPW:-23},tpd:{t4w:28078,lw:29726,cw:31123,pctT4W:11,pctPW:5},marketplace:{t4w:3916,lw:3514,cw:4790,pctT4W:22,pctPW:36}},
+      revMix:{dineIn:{t4w:36.6,lw:35.8,cw:35.4},webPickup:{t4w:18.21,lw:17.6,cw:17.8},instore:{t4w:13.46,lw:13.9,cw:12.6},delivery:{t4w:4.01,lw:4.3,cw:4.5},catering:{t4w:1.63,lw:1,cw:0.8},tpd:{t4w:23.6,lw:24.5,cw:25.1},marketplace:{t4w:3.31,lw:2.9,cw:3.9}},
+      meta:{netRev:{t4w:4575,lw:4580,cw:5920,pctT4W:29,pctPW:29},spend:{t4w:562,lw:566,cw:564,pctT4W:0,pctPW:0},customers:{t4w:146,lw:154,cw:159,pctT4W:9,pctPW:3},cac:{t4w:3.86,lw:3.68,cw:3.55,pctT4W:-8,pctPW:-4},roas:{t4w:9.14,lw:9.09,cw:11.5,pctT4W:26,pctPW:26}},
+      google:{netRev:{t4w:5758,lw:6142,cw:6419,pctT4W:11,pctPW:5},spend:{t4w:411,lw:421,cw:416,pctT4W:1,pctPW:-1},customers:{t4w:169,lw:179,cw:175,pctT4W:4,pctPW:-2},cac:{t4w:2.42,lw:2.36,cw:2.37,pctT4W:-2,pctPW:0},roas:{t4w:15,lw:15.59,cw:16.43,pctT4W:10,pctPW:5}},
+      sponsored:{netRev:{t4w:10568,lw:11946,cw:12920,pctT4W:22,pctPW:8},spend:{t4w:1076,lw:1189,cw:1159,pctT4W:8,pctPW:-3},roas:{t4w:9.85,lw:10.04,cw:11.15,pctT4W:13,pctPW:11}},
+      promo:{netRev:{t4w:11630,lw:15533,cw:12340,pctT4W:6,pctPW:-21},spend:{t4w:832,lw:1067,cw:875,pctT4W:5,pctPW:-18},roas:{t4w:17.8,lw:14.56,cw:14.1,pctT4W:-21,pctPW:-3}},
+      blendedROAS:{t4w:11.5,lw:11.8,cw:12.5,pctT4W:9,pctPW:6},
+      contribution:{sponsored:{t4w:9,lw:10,cw:10},promo:{t4w:10,lw:13,cw:10},meta:{t4w:4,lw:4,cw:5},google:{t4w:5,lw:5,cw:5},total:{t4w:27,lw:32,cw:30}}
+    }
+  },
+  {
+    label: 'Aug 4, 2025',
+    data: {
+      currentWeek:'Aug 4, 2025', lastWeek:'Jul 28, 2025',
+      revenue:{total:{t4w:116683,lw:125749,cw:121213,pctT4W:4,pctPW:-4},dineIn:{t4w:43157,lw:45370,cw:43343,pctT4W:0,pctPW:-4},webPickup:{t4w:21571,lw:21920,cw:21334,pctT4W:-1,pctPW:-3},instore:{t4w:15046,lw:17232,cw:16875,pctT4W:12,pctPW:-2},delivery:{t4w:4412,lw:6098,cw:5194,pctT4W:18,pctPW:-15},catering:{t4w:2827,lw:2827,cw:1227,pctT4W:-57,pctPW:-57},tpd:{t4w:27350,lw:28779,cw:29726,pctT4W:9,pctPW:3},marketplace:{t4w:4439,lw:3523,cw:3514,pctT4W:-21,pctPW:0}},
+      revMix:{dineIn:{t4w:37.01,lw:36.1,cw:35.8},webPickup:{t4w:18.52,lw:17.4,cw:17.6},instore:{t4w:12.87,lw:13.7,cw:13.9},delivery:{t4w:3.75,lw:4.8,cw:4.3},catering:{t4w:2.25,lw:2.2,cw:1},tpd:{t4w:23.45,lw:22.9,cw:24.5},marketplace:{t4w:3.83,lw:2.8,cw:2.9}},
+      meta:{netRev:{t4w:4212,lw:5140,cw:4580,pctT4W:9,pctPW:-11},spend:{t4w:604,lw:558,cw:566,pctT4W:-6,pctPW:1},customers:{t4w:137,lw:156,cw:154,pctT4W:12,pctPW:-1},cac:{t4w:4.48,lw:3.58,cw:3.68,pctT4W:-18,pctPW:3},roas:{t4w:8.19,lw:10.21,cw:9.09,pctT4W:11,pctPW:-11}},
+      google:{netRev:{t4w:5509,lw:5208,cw:6142,pctT4W:11,pctPW:18},spend:{t4w:410,lw:392,cw:421,pctT4W:3,pctPW:7},customers:{t4w:165,lw:155,cw:179,pctT4W:8,pctPW:15},cac:{t4w:2.48,lw:2.53,cw:2.36,pctT4W:-5,pctPW:-7},roas:{t4w:14.45,lw:14.29,cw:15.59,pctT4W:8,pctPW:9}},
+      sponsored:{netRev:{t4w:9372,lw:10868,cw:11946,pctT4W:27,pctPW:10},spend:{t4w:976,lw:1171,cw:1189,pctT4W:22,pctPW:2},roas:{t4w:9.62,lw:9.28,cw:10.04,pctT4W:4,pctPW:8}},
+      promo:{netRev:{t4w:10502,lw:16101,cw:15533,pctT4W:48,pctPW:-4},spend:{t4w:800,lw:1594,cw:1067,pctT4W:33,pctPW:-33},roas:{t4w:17.08,lw:10.1,cw:14.56,pctT4W:-15,pctPW:44}},
+      blendedROAS:{t4w:10.8,lw:10,cw:11.8,pctT4W:9,pctPW:17},
+      contribution:{sponsored:{t4w:8,lw:9,cw:10},promo:{t4w:9,lw:13,cw:13},meta:{t4w:4,lw:4,cw:4},google:{t4w:5,lw:4,cw:5},total:{t4w:25,lw:30,cw:32}}
+    }
+  },
+  {
+    label: 'Jul 28, 2025',
+    data: {
+      currentWeek:'Jul 28, 2025', lastWeek:'Jul 21, 2025',
+      revenue:{total:{t4w:110192,lw:115260,cw:125749,pctT4W:14,pctPW:9},dineIn:{t4w:41248,lw:42696,cw:45370,pctT4W:10,pctPW:6},webPickup:{t4w:20955,lw:21195,cw:21920,pctT4W:5,pctPW:3},instore:{t4w:13761,lw:14989,cw:17232,pctT4W:25,pctPW:15},delivery:{t4w:3852,lw:3983,cw:6098,pctT4W:58,pctPW:53},catering:{t4w:null,lw:null,cw:2827,pctT4W:null,pctPW:null},tpd:{t4w:25450,lw:27645,cw:28779,pctT4W:13,pctPW:4},marketplace:{t4w:4926,lw:4752,cw:3523,pctT4W:-28,pctPW:-26}},
+      revMix:{dineIn:{t4w:37.45,lw:37,cw:36.1},webPickup:{t4w:19.03,lw:18.4,cw:17.4},instore:{t4w:12.47,lw:13,cw:13.7},delivery:{t4w:3.51,lw:3.5,cw:4.8},catering:{t4w:null,lw:null,cw:2.2},tpd:{t4w:23.04,lw:24,cw:22.9},marketplace:{t4w:4.5,lw:4.1,cw:2.8}},
+      meta:{netRev:{t4w:4123,lw:4283,cw:5140,pctT4W:25,pctPW:20},spend:{t4w:586,lw:553,cw:558,pctT4W:-5,pctPW:1},customers:{t4w:130,lw:136,cw:156,pctT4W:20,pctPW:15},cac:{t4w:4.53,lw:4.06,cw:3.58,pctT4W:-21,pctPW:-12},roas:{t4w:8.33,lw:8.74,cw:10.21,pctT4W:23,pctPW:17}},
+      google:{netRev:{t4w:4998,lw:5566,cw:5208,pctT4W:4,pctPW:-6},spend:{t4w:418,lw:411,cw:392,pctT4W:-6,pctPW:-5},customers:{t4w:155,lw:172,cw:155,pctT4W:0,pctPW:-10},cac:{t4w:2.78,lw:2.38,cw:2.53,pctT4W:-9,pctPW:6},roas:{t4w:12.99,lw:14.54,cw:14.29,pctT4W:10,pctPW:-2}},
+      sponsored:{netRev:{t4w:8357,lw:9456,cw:10868,pctT4W:30,pctPW:15},spend:{t4w:893,lw:1017,cw:1171,pctT4W:31,pctPW:15},roas:{t4w:9.32,lw:9.3,cw:9.28,pctT4W:0,pctPW:0}},
+      promo:{netRev:{t4w:8723,lw:8032,cw:16101,pctT4W:85,pctPW:100},spend:{t4w:623,lw:413,cw:1594,pctT4W:156,pctPW:286},roas:{t4w:17.1,lw:19.46,cw:10.1,pctT4W:-41,pctPW:-48}},
+      blendedROAS:{t4w:10.5,lw:11.4,cw:10,pctT4W:-5,pctPW:-12},
+      contribution:{sponsored:{t4w:8,lw:8,cw:9},promo:{t4w:8,lw:7,cw:13},meta:{t4w:4,lw:4,cw:4},google:{t4w:4,lw:5,cw:4},total:{t4w:24,lw:24,cw:30}}
+    }
+  },
+  {
+    label: 'Jul 21, 2025',
+    data: {
+      currentWeek:'Jul 21, 2025', lastWeek:'Jul 14, 2025',
+      revenue:{total:{t4w:109454,lw:113723,cw:115260,pctT4W:5,pctPW:1},dineIn:{t4w:40723,lw:42670,cw:42696,pctT4W:5,pctPW:0},webPickup:{t4w:20750,lw:22072,cw:21195,pctT4W:2,pctPW:-4},instore:{t4w:13608,lw:15015,cw:14989,pctT4W:10,pctPW:0},delivery:{t4w:4181,lw:3933,cw:3983,pctT4W:-5,pctPW:1},catering:{t4w:null,lw:null,cw:null,pctT4W:null,pctPW:null},tpd:{t4w:25199,lw:26160,cw:27645,pctT4W:10,pctPW:6},marketplace:{t4w:4993,lw:3873,cw:4752,pctT4W:-5,pctPW:23}},
+      revMix:{dineIn:{t4w:37.22,lw:37.5,cw:37},webPickup:{t4w:18.97,lw:19.4,cw:18.4},instore:{t4w:12.42,lw:13.2,cw:13},delivery:{t4w:3.82,lw:3.5,cw:3.5},catering:{t4w:null,lw:null,cw:null},tpd:{t4w:22.97,lw:23,cw:24},marketplace:{t4w:4.59,lw:3.4,cw:4.1}},
+      meta:{netRev:{t4w:4543,lw:4298,cw:4283,pctT4W:-6,pctPW:0},spend:{t4w:582,lw:571,cw:553,pctT4W:-5,pctPW:-3},customers:{t4w:136,lw:138,cw:136,pctT4W:0,pctPW:-1},cac:{t4w:4.36,lw:4.14,cw:4.06,pctT4W:-7,pctPW:-2},roas:{t4w:9.19,lw:8.53,cw:8.74,pctT4W:-5,pctPW:3}},
+      google:{netRev:{t4w:4768,lw:6118,cw:5566,pctT4W:17,pctPW:-9},spend:{t4w:416,lw:419,cw:411,pctT4W:-1,pctPW:-2},customers:{t4w:150,lw:172,cw:172,pctT4W:15,pctPW:0},cac:{t4w:2.85,lw:2.43,cw:2.38,pctT4W:-16,pctPW:-2},roas:{t4w:12.47,lw:15.6,cw:14.54,pctT4W:17,pctPW:-7}},
+      sponsored:{netRev:{t4w:7941,lw:10003,cw:9456,pctT4W:19,pctPW:-5},spend:{t4w:876,lw:928,cw:1017,pctT4W:16,pctPW:10},roas:{t4w:9.05,lw:10.78,cw:9.3,pctT4W:3,pctPW:-14}},
+      promo:{netRev:{t4w:8708,lw:6856,cw:8032,pctT4W:-8,pctPW:17},spend:{t4w:742,lw:253,cw:413,pctT4W:-44,pctPW:63},roas:{t4w:14.48,lw:27.08,cw:19.46,pctT4W:34,pctPW:-28}},
+      blendedROAS:{t4w:10.1,lw:12.6,cw:11.4,pctT4W:13,pctPW:-9},
+      contribution:{sponsored:{t4w:7,lw:9,cw:8},promo:{t4w:8,lw:6,cw:7},meta:{t4w:4,lw:4,cw:4},google:{t4w:4,lw:5,cw:5},total:{t4w:24,lw:24,cw:24}}
+    }
+  },
+  {
+    label: 'Jul 14, 2025',
+    data: {
+      currentWeek:'Jul 14, 2025', lastWeek:'Jul 7, 2025',
+      revenue:{total:{t4w:109497,lw:112000,cw:113723,pctT4W:4,pctPW:2},dineIn:{t4w:40690,lw:41893,cw:42670,pctT4W:5,pctPW:2},webPickup:{t4w:20688,lw:21098,cw:22072,pctT4W:7,pctPW:5},instore:{t4w:13316,lw:12950,cw:15015,pctT4W:13,pctPW:16},delivery:{t4w:4358,lw:3633,cw:3933,pctT4W:-10,pctPW:8},catering:{t4w:null,lw:null,cw:null,pctT4W:null,pctPW:null},tpd:{t4w:25157,lw:26817,cw:26160,pctT4W:4,pctPW:-2},marketplace:{t4w:5288,lw:5609,cw:3873,pctT4W:-27,pctPW:-31}},
+      revMix:{dineIn:{t4w:37.18,lw:37.4,cw:37.5},webPickup:{t4w:18.91,lw:18.8,cw:19.4},instore:{t4w:12.16,lw:11.6,cw:13.2},delivery:{t4w:3.98,lw:3.2,cw:3.5},catering:{t4w:null,lw:null,cw:null},tpd:{t4w:22.93,lw:23.9,cw:23},marketplace:{t4w:4.85,lw:5,cw:3.4}},
+      meta:{netRev:{t4w:4873,lw:3127,cw:4298,pctT4W:-12,pctPW:37},spend:{t4w:599,lw:734,cw:571,pctT4W:-5,pctPW:-22},customers:{t4w:145,lw:119,cw:138,pctT4W:-5,pctPW:16},cac:{t4w:4.25,lw:6.16,cw:4.14,pctT4W:-2,pctPW:-33},roas:{t4w:9.5,lw:5.26,cw:8.53,pctT4W:-10,pctPW:62}},
+      google:{netRev:{t4w:4405,lw:5145,cw:6118,pctT4W:39,pctPW:19},spend:{t4w:418,lw:416,cw:419,pctT4W:0,pctPW:1},customers:{t4w:145,lw:162,cw:172,pctT4W:19,pctPW:6},cac:{t4w:2.94,lw:2.57,cw:2.43,pctT4W:-17,pctPW:-5},roas:{t4w:11.57,lw:13.37,cw:15.6,pctT4W:35,pctPW:17}},
+      sponsored:{netRev:{t4w:7343,lw:7162,cw:10003,pctT4W:36,pctPW:40},spend:{t4w:878,lw:787,cw:928,pctT4W:6,pctPW:18},roas:{t4w:8.38,lw:9.1,cw:10.78,pctT4W:29,pctPW:18}},
+      promo:{netRev:{t4w:9678,lw:11019,cw:6856,pctT4W:-29,pctPW:-38},spend:{t4w:918,lw:942,cw:253,pctT4W:-72,pctPW:-73},roas:{t4w:10.51,lw:11.69,cw:27.08,pctT4W:158,pctPW:132}},
+      blendedROAS:{t4w:9.3,lw:9.2,cw:12.6,pctT4W:34,pctPW:37},
+      contribution:{sponsored:{t4w:7,lw:6,cw:9},promo:{t4w:9,lw:10,cw:6},meta:{t4w:4,lw:3,cw:4},google:{t4w:4,lw:5,cw:5},total:{t4w:24,lw:24,cw:24}}
+    }
+  },
+  {
+    label: 'Jul 7, 2025',
+    data: {
+      currentWeek:'Jul 7, 2025', lastWeek:'Jun 30, 2025',
+      revenue:{total:{t4w:109694,lw:99785,cw:112000,pctT4W:2,pctPW:12},dineIn:{t4w:40011,lw:37735,cw:41893,pctT4W:5,pctPW:11},webPickup:{t4w:20790,lw:19454,cw:21098,pctT4W:1,pctPW:8},instore:{t4w:13722,lw:12089,cw:12950,pctT4W:-6,pctPW:7},delivery:{t4w:4546,lw:3857,cw:3633,pctT4W:-20,pctPW:-6},catering:{t4w:null,lw:null,cw:null,pctT4W:null,pctPW:null},tpd:{t4w:25146,lw:21179,cw:26817,pctT4W:7,pctPW:27},marketplace:{t4w:5480,lw:5471,cw:5609,pctT4W:2,pctPW:3}},
+      revMix:{dineIn:{t4w:36.51,lw:37.8,cw:37.4},webPickup:{t4w:18.97,lw:19.5,cw:18.8},instore:{t4w:12.5,lw:12.1,cw:11.6},delivery:{t4w:4.14,lw:3.9,cw:3.2},catering:{t4w:null,lw:null,cw:null},tpd:{t4w:22.88,lw:21.2,cw:23.9},marketplace:{t4w:5.01,lw:5.5,cw:5}},
+      meta:{netRev:{t4w:5286,lw:4785,cw:3127,pctT4W:-41,pctPW:-35},spend:{t4w:592,lw:488,cw:734,pctT4W:24,pctPW:50},customers:{t4w:156,lw:129,cw:119,pctT4W:-24,pctPW:-8},cac:{t4w:3.8,lw:3.78,cw:6.16,pctT4W:62,pctPW:63},roas:{t4w:10.12,lw:10.81,cw:5.26,pctT4W:-48,pctPW:-51}},
+      google:{netRev:{t4w:4352,lw:3162,cw:5145,pctT4W:18,pctPW:63},spend:{t4w:416,lw:425,cw:416,pctT4W:0,pctPW:-2},customers:{t4w:143,lw:114,cw:162,pctT4W:14,pctPW:42},cac:{t4w:2.97,lw:3.73,cw:2.57,pctT4W:-13,pctPW:-31},roas:{t4w:11.49,lw:8.44,cw:13.37,pctT4W:16,pctPW:58}},
+      sponsored:{netRev:{t4w:7172,lw:6806,cw:7162,pctT4W:0,pctPW:5},spend:{t4w:888,lw:841,cw:787,pctT4W:-11,pctPW:-6},roas:{t4w:8.07,lw:8.09,cw:9.1,pctT4W:13,pctPW:12}},
+      promo:{netRev:{t4w:9420,lw:8985,cw:11019,pctT4W:17,pctPW:23},spend:{t4w:918,lw:884,cw:942,pctT4W:3,pctPW:7},roas:{t4w:10.23,lw:10.16,cw:11.69,pctT4W:14,pctPW:15}},
+      blendedROAS:{t4w:9.3,lw:9,cw:9.2,pctT4W:-1,pctPW:2},
+      contribution:{sponsored:{t4w:7,lw:7,cw:6},promo:{t4w:9,lw:9,cw:10},meta:{t4w:5,lw:5,cw:3},google:{t4w:4,lw:3,cw:5},total:{t4w:24,lw:24,cw:24}}
+    }
+  },
+  {
+    label: 'Jun 30, 2025',
+    data: {
+      currentWeek:'Jun 30, 2025', lastWeek:'Jun 23, 2025',
+      revenue:{total:{t4w:113706,lw:112309,cw:99785,pctT4W:-12,pctPW:-11},dineIn:{t4w:40237,lw:40594,cw:37735,pctT4W:-6,pctPW:-7},webPickup:{t4w:21775,lw:20377,cw:19454,pctT4W:-11,pctPW:-5},instore:{t4w:14413,lw:14377,cw:12089,pctT4W:-16,pctPW:-16},delivery:{t4w:5215,lw:5301,cw:3857,pctT4W:-26,pctPW:-27},catering:{t4w:null,lw:null,cw:null,pctT4W:null,pctPW:null},tpd:{t4w:26684,lw:26640,cw:21179,pctT4W:-21,pctPW:-20},marketplace:{t4w:5382,lw:5020,cw:5471,pctT4W:2,pctPW:9}},
+      revMix:{dineIn:{t4w:35.4,lw:36.1,cw:37.8},webPickup:{t4w:19.14,lw:18.1,cw:19.5},instore:{t4w:12.68,lw:12.8,cw:12.1},delivery:{t4w:4.58,lw:4.7,cw:3.9},catering:{t4w:null,lw:null,cw:null},tpd:{t4w:23.47,lw:23.7,cw:21.2},marketplace:{t4w:4.74,lw:4.5,cw:5.5}},
+      meta:{netRev:{t4w:5630,lw:5963,cw:4785,pctT4W:-15,pctPW:-20},spend:{t4w:664,lw:534,cw:488,pctT4W:-26,pctPW:-9},customers:{t4w:170,lw:159,cw:129,pctT4W:-24,pctPW:-19},cac:{t4w:3.89,lw:3.36,cw:3.78,pctT4W:-3,pctPW:12},roas:{t4w:9.67,lw:12.16,cw:10.81,pctT4W:12,pctPW:-11}},
+      google:{netRev:{t4w:5190,lw:4647,cw:3162,pctT4W:-39,pctPW:-32},spend:{t4w:428,lw:405,cw:425,pctT4W:-1,pctPW:5},customers:{t4w:159,lw:152,cw:114,pctT4W:-28,pctPW:-25},cac:{t4w:2.69,lw:2.67,cw:3.73,pctT4W:39,pctPW:40},roas:{t4w:13.08,lw:12.47,cw:8.44,pctT4W:-35,pctPW:-32}},
+      sponsored:{netRev:{t4w:7458,lw:7794,cw:6806,pctT4W:-9,pctPW:-13},spend:{t4w:882,lw:946,cw:841,pctT4W:-5,pctPW:-11},roas:{t4w:8.47,lw:8.23,cw:8.09,pctT4W:-5,pctPW:-2}},
+      promo:{netRev:{t4w:10219,lw:7973,cw:8985,pctT4W:-12,pctPW:13},spend:{t4w:977,lw:887,cw:884,pctT4W:-10,pctPW:0},roas:{t4w:10.42,lw:8.99,cw:10.16,pctT4W:-2,pctPW:13}},
+      blendedROAS:{t4w:9.6,lw:9.5,cw:9,pctT4W:-7,pctPW:-5},
+      contribution:{sponsored:{t4w:7,lw:7,cw:7},promo:{t4w:9,lw:7,cw:9},meta:{t4w:5,lw:5,cw:5},google:{t4w:5,lw:4,cw:3},total:{t4w:25,lw:23,cw:24}}
+    }
+  },
+  {
+    label: 'Jun 23, 2025',
+    data: {
+      currentWeek:'Jun 23, 2025', lastWeek:'Jun 16, 2025',
+      revenue:{total:{t4w:114501,lw:113893,cw:112309,pctT4W:-2,pctPW:-1},dineIn:{t4w:40278,lw:42540,cw:40594,pctT4W:1,pctPW:-5},webPickup:{t4w:22156,lw:21822,cw:20377,pctT4W:-8,pctPW:-7},instore:{t4w:14383,lw:13847,cw:14377,pctT4W:0,pctPW:4},delivery:{t4w:5155,lw:4641,cw:5301,pctT4W:3,pctPW:14},catering:{t4w:null,lw:null,cw:null,pctT4W:null,pctPW:null},tpd:{t4w:26816,lw:25992,cw:26640,pctT4W:-1,pctPW:2},marketplace:{t4w:5714,lw:5051,cw:5020,pctT4W:-12,pctPW:-1}},
+      revMix:{dineIn:{t4w:35.18,lw:37.4,cw:36.1},webPickup:{t4w:19.35,lw:19.2,cw:18.1},instore:{t4w:12.56,lw:12.2,cw:12.8},delivery:{t4w:4.5,lw:4.1,cw:4.7},catering:{t4w:null,lw:null,cw:null},tpd:{t4w:23.42,lw:22.8,cw:23.7},marketplace:{t4w:4.99,lw:4.4,cw:4.5}},
+      meta:{netRev:{t4w:5454,lw:5617,cw:5963,pctT4W:9,pctPW:6},spend:{t4w:759,lw:640,cw:534,pctT4W:-30,pctPW:-17},customers:{t4w:171,lw:174,cw:159,pctT4W:-7,pctPW:-9},cac:{t4w:4.47,lw:3.68,cw:3.36,pctT4W:-25,pctPW:-9},roas:{t4w:8.31,lw:9.78,cw:12.16,pctT4W:46,pctPW:24}},
+      google:{netRev:{t4w:5419,lw:4667,cw:4647,pctT4W:-14,pctPW:0},spend:{t4w:448,lw:424,cw:405,pctT4W:-10,pctPW:-4},customers:{t4w:160,lw:152,cw:152,pctT4W:-5,pctPW:0},cac:{t4w:2.81,lw:2.79,cw:2.67,pctT4W:-5,pctPW:-4},roas:{t4w:13.06,lw:12.01,cw:12.47,pctT4W:-5,pctPW:4}},
+      sponsored:{netRev:{t4w:7296,lw:7610,cw:7794,pctT4W:7,pctPW:2},spend:{t4w:864,lw:939,cw:946,pctT4W:10,pctPW:1},roas:{t4w:8.46,lw:8.1,cw:8.23,pctT4W:-3,pctPW:2}},
+      promo:{netRev:{t4w:11545,lw:10737,cw:7973,pctT4W:-31,pctPW:-26},spend:{t4w:1087,lw:958,cw:887,pctT4W:-18,pctPW:-7},roas:{t4w:10.67,lw:11.21,cw:8.99,pctT4W:-16,pctPW:-20}},
+      blendedROAS:{t4w:9.4,lw:9.7,cw:9.5,pctT4W:1,pctPW:-2},
+      contribution:{sponsored:{t4w:6,lw:7,cw:7},promo:{t4w:10,lw:9,cw:7},meta:{t4w:5,lw:5,cw:5},google:{t4w:5,lw:4,cw:4},total:{t4w:26,lw:25,cw:23}}
+    }
+  },
+  {
+    label: 'Jun 16, 2025',
+    data: {
+      currentWeek:'Jun 16, 2025', lastWeek:'Jun 9, 2025',
+      revenue:{total:{t4w:112975,lw:112790,cw:113893,pctT4W:1,pctPW:1},dineIn:{t4w:39680,lw:39174,cw:42540,pctT4W:7,pctPW:9},webPickup:{t4w:21948,lw:21505,cw:21822,pctT4W:-1,pctPW:1},instore:{t4w:14391,lw:14573,cw:13847,pctT4W:-4,pctPW:-5},delivery:{t4w:4999,lw:4384,cw:4641,pctT4W:-7,pctPW:6},catering:{t4w:null,lw:null,cw:null,pctT4W:null,pctPW:null},tpd:{t4w:25779,lw:26775,cw:25992,pctT4W:1,pctPW:-3},marketplace:{t4w:6178,lw:6379,cw:5051,pctT4W:-18,pctPW:-21}},
+      revMix:{dineIn:{t4w:35.16,lw:34.7,cw:37.4},webPickup:{t4w:19.43,lw:19.1,cw:19.2},instore:{t4w:12.74,lw:12.9,cw:12.2},delivery:{t4w:4.41,lw:3.9,cw:4.1},catering:{t4w:null,lw:null,cw:null},tpd:{t4w:22.78,lw:23.7,cw:22.8},marketplace:{t4w:5.49,lw:5.7,cw:4.4}},
+      meta:{netRev:{t4w:5477,lw:4781,cw:5617,pctT4W:3,pctPW:17},spend:{t4w:825,lw:708,cw:640,pctT4W:-22,pctPW:-10},customers:{t4w:170,lw:162,cw:174,pctT4W:2,pctPW:7},cac:{t4w:4.87,lw:4.37,cw:3.68,pctT4W:-24,pctPW:-16},roas:{t4w:7.7,lw:7.75,cw:9.78,pctT4W:27,pctPW:26}},
+      google:{netRev:{t4w:5280,lw:4931,cw:4667,pctT4W:-12,pctPW:-5},spend:{t4w:468,lw:409,cw:424,pctT4W:-9,pctPW:4},customers:{t4w:154,lw:152,cw:152,pctT4W:-1,pctPW:0},cac:{t4w:3.09,lw:2.69,cw:2.79,pctT4W:-10,pctPW:4},roas:{t4w:12.35,lw:13.06,cw:12.01,pctT4W:-3,pctPW:-8}},
+      sponsored:{netRev:{t4w:6791,lw:6478,cw:7610,pctT4W:12,pctPW:17},spend:{t4w:825,lw:824,cw:939,pctT4W:14,pctPW:14},roas:{t4w:8.22,lw:7.87,cw:8.1,pctT4W:-2,pctPW:3}},
+      promo:{netRev:{t4w:11645,lw:9985,cw:10737,pctT4W:-8,pctPW:8},spend:{t4w:1128,lw:945,cw:958,pctT4W:-15,pctPW:1},roas:{t4w:10.35,lw:10.57,cw:11.21,pctT4W:8,pctPW:6}},
+      blendedROAS:{t4w:9,lw:9.1,cw:9.7,pctT4W:7,pctPW:7},
+      contribution:{sponsored:{t4w:6,lw:6,cw:7},promo:{t4w:10,lw:9,cw:9},meta:{t4w:5,lw:4,cw:5},google:{t4w:5,lw:4,cw:4},total:{t4w:26,lw:23,cw:25}}
+    }
+  },
+  {
+    label: 'Jun 9, 2025',
+    data: {
+      currentWeek:'Jun 9, 2025', lastWeek:'Jun 2, 2025',
+      revenue:{total:{t4w:107954,lw:115830,cw:112790,pctT4W:4,pctPW:-3},dineIn:{t4w:38192,lw:38641,cw:39174,pctT4W:3,pctPW:1},webPickup:{t4w:21214,lw:23395,cw:21505,pctT4W:1,pctPW:-8},instore:{t4w:14057,lw:14854,cw:14573,pctT4W:4,pctPW:-2},delivery:{t4w:4894,lw:6533,cw:4384,pctT4W:-10,pctPW:-33},catering:{t4w:null,lw:null,cw:null,pctT4W:null,pctPW:null},tpd:{t4w:23578,lw:27330,cw:26775,pctT4W:14,pctPW:-2},marketplace:{t4w:6019,lw:5077,cw:6379,pctT4W:6,pctPW:26}},
+      revMix:{dineIn:{t4w:35.43,lw:33.4,cw:34.7},webPickup:{t4w:19.67,lw:20.2,cw:19.1},instore:{t4w:13.08,lw:12.8,cw:12.9},delivery:{t4w:4.51,lw:5.6,cw:3.9},catering:{t4w:null,lw:null,cw:null},tpd:{t4w:21.69,lw:23.6,cw:23.7},marketplace:{t4w:5.62,lw:4.4,cw:5.7}},
+      meta:{netRev:{t4w:5192,lw:6161,cw:4781,pctT4W:-8,pctPW:-22},spend:{t4w:831,lw:773,cw:708,pctT4W:-15,pctPW:-8},customers:{t4w:165,lw:186,cw:162,pctT4W:-2,pctPW:-13},cac:{t4w:5.08,lw:4.16,cw:4.37,pctT4W:-14,pctPW:5},roas:{t4w:7.25,lw:8.97,cw:7.75,pctT4W:7,pctPW:-14}},
+      google:{netRev:{t4w:5188,lw:6514,cw:4931,pctT4W:-5,pctPW:-24},spend:{t4w:475,lw:473,cw:409,pctT4W:-14,pctPW:-14},customers:{t4w:150,lw:181,cw:152,pctT4W:1,pctPW:-16},cac:{t4w:3.22,lw:2.61,cw:2.69,pctT4W:-16,pctPW:3},roas:{t4w:11.95,lw:14.77,cw:13.06,pctT4W:9,pctPW:-12}},
+      sponsored:{netRev:{t4w:6046,lw:7948,cw:6478,pctT4W:7,pctPW:-18},spend:{t4w:787,lw:820,cw:824,pctT4W:5,pctPW:0},roas:{t4w:7.56,lw:9.69,cw:7.87,pctT4W:4,pctPW:-19}},
+      promo:{netRev:{t4w:11281,lw:12182,cw:9985,pctT4W:-11,pctPW:-18},spend:{t4w:1114,lw:1119,cw:945,pctT4W:-15,pctPW:-16},roas:{t4w:10.11,lw:10.89,cw:10.57,pctT4W:5,pctPW:-3}},
+      blendedROAS:{t4w:8.6,lw:10.3,cw:9.1,pctT4W:5,pctPW:-12},
+      contribution:{sponsored:{t4w:6,lw:7,cw:6},promo:{t4w:10,lw:11,cw:9},meta:{t4w:5,lw:5,cw:4},google:{t4w:5,lw:6,cw:4},total:{t4w:25,lw:28,cw:23}}
+    }
+  },
+  {
+    label: 'Jun 2, 2025',
+    data: {
+      currentWeek:'Jun 2, 2025', lastWeek:'May 26, 2025',
+      revenue:{total:{t4w:103342,lw:115491,cw:115830,pctT4W:12,pctPW:0},dineIn:{t4w:36324,lw:40757,cw:38641,pctT4W:6,pctPW:-5},webPickup:{t4w:20517,lw:21903,cw:23395,pctT4W:14,pctPW:7},instore:{t4w:13376,lw:14257,cw:14854,pctT4W:11,pctPW:4},delivery:{t4w:4438,lw:5062,cw:6533,pctT4W:47,pctPW:29},catering:{t4w:null,lw:null,cw:null,pctT4W:null,pctPW:null},tpd:{t4w:22314,lw:27165,cw:27330,pctT4W:22,pctPW:1},marketplace:{t4w:6373,lw:6347,cw:5077,pctT4W:-20,pctPW:-20}},
+      revMix:{dineIn:{t4w:35.09,lw:35.3,cw:33.4},webPickup:{t4w:19.91,lw:19,cw:20.2},instore:{t4w:12.99,lw:12.3,cw:12.8},delivery:{t4w:4.31,lw:4.4,cw:5.6},catering:{t4w:null,lw:null,cw:null},tpd:{t4w:21.51,lw:23.5,cw:23.6},marketplace:{t4w:6.19,lw:5.5,cw:4.4}},
+      meta:{netRev:{t4w:4781,lw:5255,cw:6161,pctT4W:29,pctPW:17},spend:{t4w:854,lw:916,cw:773,pctT4W:-9,pctPW:-16},customers:{t4w:156,lw:162,cw:186,pctT4W:20,pctPW:15},cac:{t4w:5.49,lw:5.66,cw:4.16,pctT4W:-24,pctPW:-27},roas:{t4w:6.57,lw:6.74,cw:8.97,pctT4W:37,pctPW:33}},
+      google:{netRev:{t4w:4661,lw:5565,cw:6514,pctT4W:40,pctPW:17},spend:{t4w:472,lw:488,cw:473,pctT4W:0,pctPW:-3},customers:{t4w:139,lw:155,cw:181,pctT4W:30,pctPW:17},cac:{t4w:3.41,lw:3.15,cw:2.61,pctT4W:-23,pctPW:-17},roas:{t4w:10.89,lw:12.41,cw:14.77,pctT4W:36,pctPW:19}},
+      sponsored:{netRev:{t4w:5590,lw:7146,cw:7948,pctT4W:42,pctPW:11},spend:{t4w:788,lw:872,cw:820,pctT4W:4,pctPW:-6},roas:{t4w:7,lw:8.2,cw:9.69,pctT4W:38,pctPW:18}},
+      promo:{netRev:{t4w:10190,lw:13275,cw:12182,pctT4W:20,pctPW:-8},spend:{t4w:1169,lw:1325,cw:1119,pctT4W:-4,pctPW:-16},roas:{t4w:8.84,lw:10.02,cw:10.89,pctT4W:23,pctPW:9}},
+      blendedROAS:{t4w:7.7,lw:8.7,cw:10.3,pctT4W:34,pctPW:19},
+      contribution:{sponsored:{t4w:5,lw:6,cw:7},promo:{t4w:10,lw:11,cw:11},meta:{t4w:5,lw:5,cw:5},google:{t4w:5,lw:5,cw:6},total:{t4w:24,lw:27,cw:28}}
+    }
+  },
+  {
+    label: 'May 26, 2025',
+    data: {
+      currentWeek:'May 26, 2025', lastWeek:'May 19, 2025',
+      revenue:{total:{t4w:97248,lw:107790,cw:115491,pctT4W:19,pctPW:7},dineIn:{t4w:33450,lw:40150,cw:40757,pctT4W:22,pctPW:2},webPickup:{t4w:19098,lw:20989,cw:21903,pctT4W:15,pctPW:4},instore:{t4w:13322,lw:13880,cw:14257,pctT4W:7,pctPW:3},delivery:{t4w:4234,lw:4017,cw:5062,pctT4W:20,pctPW:26},catering:{t4w:null,lw:null,cw:null,pctT4W:null,pctPW:null},tpd:{t4w:21063,lw:21847,cw:27165,pctT4W:29,pctPW:24},marketplace:{t4w:6080,lw:6907,cw:6347,pctT4W:4,pctPW:-8}},
+      revMix:{dineIn:{t4w:34.3,lw:37.2,cw:35.3},webPickup:{t4w:19.62,lw:19.5,cw:19},instore:{t4w:13.76,lw:12.9,cw:12.3},delivery:{t4w:4.38,lw:3.7,cw:4.4},catering:{t4w:null,lw:null,cw:null},tpd:{t4w:21.71,lw:20.3,cw:23.5},marketplace:{t4w:6.24,lw:6.4,cw:5.5}},
+      meta:{netRev:{t4w:4374,lw:5710,cw:5255,pctT4W:20,pctPW:-8},spend:{t4w:920,lw:903,cw:916,pctT4W:0,pctPW:1},customers:{t4w:145,lw:171,cw:162,pctT4W:12,pctPW:-5},cac:{t4w:6.56,lw:5.28,cw:5.66,pctT4W:-14,pctPW:7},roas:{t4w:5.9,lw:7.32,cw:6.74,pctT4W:14,pctPW:-8}},
+      google:{netRev:{t4w:4324,lw:4111,cw:5565,pctT4W:29,pctPW:35},spend:{t4w:469,lw:503,cw:488,pctT4W:4,pctPW:-3},customers:{t4w:133,lw:129,cw:155,pctT4W:16,pctPW:20},cac:{t4w:3.52,lw:3.9,cw:3.15,pctT4W:-11,pctPW:-19},roas:{t4w:10.26,lw:9.17,cw:12.41,pctT4W:21,pctPW:35}},
+      sponsored:{netRev:{t4w:5420,lw:5593,cw:7146,pctT4W:32,pctPW:28},spend:{t4w:766,lw:783,cw:872,pctT4W:14,pctPW:11},roas:{t4w:7.01,lw:7.14,cw:8.2,pctT4W:17,pctPW:15}},
+      promo:{netRev:{t4w:9617,lw:11137,cw:13275,pctT4W:38,pctPW:19},spend:{t4w:1185,lw:1124,cw:1325,pctT4W:12,pctPW:18},roas:{t4w:8.32,lw:9.91,cw:10.02,pctT4W:21,pctPW:1}},
+      blendedROAS:{t4w:7.1,lw:8,cw:8.7,pctT4W:21,pctPW:8},
+      contribution:{sponsored:{t4w:6,lw:5,cw:6},promo:{t4w:10,lw:10,cw:11},meta:{t4w:4,lw:5,cw:5},google:{t4w:4,lw:4,cw:5},total:{t4w:24,lw:25,cw:27}}
+    }
+  },
+  {
+    label: 'May 19, 2025',
+    data: {
+      currentWeek:'May 19, 2025', lastWeek:'May 12, 2025',
+      revenue:{total:{t4w:92149,lw:92707,cw:107790,pctT4W:17,pctPW:16},dineIn:{t4w:30359,lw:33218,cw:40150,pctT4W:32,pctPW:21},webPickup:{t4w:18122,lw:18571,cw:20989,pctT4W:16,pctPW:13},instore:{t4w:13528,lw:13237,cw:13880,pctT4W:3,pctPW:5},delivery:{t4w:4300,lw:3964,cw:4017,pctT4W:-7,pctPW:1},catering:{t4w:null,lw:null,cw:null,pctT4W:null,pctPW:null},tpd:{t4w:20333,lw:17971,cw:21847,pctT4W:7,pctPW:22},marketplace:{t4w:5507,lw:5746,cw:6907,pctT4W:25,pctPW:20}},
+      revMix:{dineIn:{t4w:32.94,lw:35.8,cw:37.2},webPickup:{t4w:19.64,lw:20,cw:19.5},instore:{t4w:14.74,lw:14.3,cw:12.9},delivery:{t4w:4.67,lw:4.3,cw:3.7},catering:{t4w:null,lw:null,cw:null},tpd:{t4w:22.06,lw:19.4,cw:20.3},marketplace:{t4w:5.96,lw:6.2,cw:6.4}},
+      meta:{netRev:{t4w:3969,lw:3641,cw:5710,pctT4W:44,pctPW:57},spend:{t4w:981,lw:733,cw:903,pctT4W:-8,pctPW:23},customers:{t4w:134,lw:140,cw:171,pctT4W:27,pctPW:22},cac:{t4w:7.44,lw:5.24,cw:5.28,pctT4W:-29,pctPW:1},roas:{t4w:5.21,lw:5.97,cw:7.32,pctT4W:41,pctPW:23}},
+      google:{netRev:{t4w:4436,lw:4560,cw:4111,pctT4W:-7,pctPW:-10},spend:{t4w:520,lw:437,cw:503,pctT4W:-3,pctPW:15},customers:{t4w:132,lw:136,cw:129,pctT4W:-2,pctPW:-5},cac:{t4w:3.97,lw:3.21,cw:3.9,pctT4W:-2,pctPW:21},roas:{t4w:9.83,lw:11.43,cw:9.17,pctT4W:-7,pctPW:-20}},
+      sponsored:{netRev:{t4w:5524,lw:3497,cw:5593,pctT4W:1,pctPW:60},spend:{t4w:778,lw:673,cw:783,pctT4W:1,pctPW:16},roas:{t4w:7.02,lw:5.2,cw:7.14,pctT4W:2,pctPW:37}},
+      promo:{netRev:{t4w:9149,lw:8531,cw:11137,pctT4W:22,pctPW:31},spend:{t4w:1185,lw:888,cw:1124,pctT4W:-5,pctPW:27},roas:{t4w:7.9,lw:9.61,cw:9.91,pctT4W:25,pctPW:3}},
+      blendedROAS:{t4w:6.7,lw:7.4,cw:8,pctT4W:19,pctPW:8},
+      contribution:{sponsored:{t4w:6,lw:4,cw:5},promo:{t4w:10,lw:9,cw:10},meta:{t4w:4,lw:4,cw:5},google:{t4w:5,lw:5,cw:4},total:{t4w:25,lw:22,cw:25}}
+    }
+  },
+  {
+    label: 'May 12, 2025',
+    data: {
+      currentWeek:'May 12, 2025', lastWeek:'May 5, 2025',
+      revenue:{total:{t4w:90377,lw:97381,cw:92707,pctT4W:3,pctPW:-5},dineIn:{t4w:29415,lw:31171,cw:33218,pctT4W:13,pctPW:7},webPickup:{t4w:17521,lw:20604,cw:18571,pctT4W:6,pctPW:-10},instore:{t4w:13232,lw:12128,cw:13237,pctT4W:0,pctPW:9},delivery:{t4w:4120,lw:4710,cw:3964,pctT4W:-4,pctPW:-16},catering:{t4w:null,lw:null,cw:null,pctT4W:null,pctPW:null},tpd:{t4w:20449,lw:22275,cw:17971,pctT4W:-12,pctPW:-19},marketplace:{t4w:5641,lw:6493,cw:5746,pctT4W:2,pctPW:-12}},
+      revMix:{dineIn:{t4w:32.58,lw:32,cw:35.8},webPickup:{t4w:19.35,lw:21.2,cw:20},instore:{t4w:14.69,lw:12.5,cw:14.3},delivery:{t4w:4.55,lw:4.8,cw:4.3},catering:{t4w:null,lw:null,cw:null},tpd:{t4w:22.6,lw:22.9,cw:19.4},marketplace:{t4w:6.24,lw:6.7,cw:6.2}},
+      meta:{netRev:{t4w:4072,lw:4518,cw:3641,pctT4W:-11,pctPW:-19},spend:{t4w:1112,lw:863,cw:733,pctT4W:-34,pctPW:-15},customers:{t4w:134,lw:149,cw:140,pctT4W:4,pctPW:-6},cac:{t4w:8.39,lw:5.79,cw:5.24,pctT4W:-38,pctPW:-9},roas:{t4w:4.78,lw:6.24,cw:5.97,pctT4W:25,pctPW:-4}},
+      google:{netRev:{t4w:4497,lw:4409,cw:4560,pctT4W:1,pctPW:3},spend:{t4w:586,lw:462,cw:437,pctT4W:-25,pctPW:-5},customers:{t4w:136,lw:136,cw:136,pctT4W:0,pctPW:0},cac:{t4w:4.33,lw:3.38,cw:3.21,pctT4W:-26,pctPW:-5},roas:{t4w:8.94,lw:10.54,cw:11.43,pctT4W:28,pctPW:8}},
+      sponsored:{netRev:{t4w:5900,lw:6125,cw:3497,pctT4W:-41,pctPW:-43},spend:{t4w:800,lw:822,cw:673,pctT4W:-16,pctPW:-18},roas:{t4w:7.37,lw:7.45,cw:5.2,pctT4W:-29,pctPW:-30}},
+      promo:{netRev:{t4w:9448,lw:7815,cw:8531,pctT4W:-10,pctPW:9},spend:{t4w:1196,lw:1340,cw:888,pctT4W:-26,pctPW:-34},roas:{t4w:8.1,lw:5.83,cw:9.61,pctT4W:19,pctPW:65}},
+      blendedROAS:{t4w:6.5,lw:6.6,cw:7.4,pctT4W:14,pctPW:13},
+      contribution:{sponsored:{t4w:7,lw:6,cw:4},promo:{t4w:11,lw:8,cw:9},meta:{t4w:5,lw:5,cw:4},google:{t4w:5,lw:5,cw:5},total:{t4w:27,lw:23,cw:22}}
+    }
+  },
+  {
+    label: 'May 5, 2025',
+    data: {
+      currentWeek:'May 5, 2025', lastWeek:'Apr 28, 2025',
+      revenue:{total:{t4w:88547,lw:91112,cw:97381,pctT4W:10,pctPW:7},dineIn:{t4w:30476,lw:29261,cw:31171,pctT4W:2,pctPW:7},webPickup:{t4w:16889,lw:16227,cw:20604,pctT4W:22,pctPW:27},instore:{t4w:13333,lw:14043,cw:12128,pctT4W:-9,pctPW:-14},delivery:{t4w:3808,lw:4247,cw:4710,pctT4W:24,pctPW:11},catering:{t4w:null,lw:null,cw:null,pctT4W:null,pctPW:null},tpd:{t4w:20024,lw:22160,cw:22275,pctT4W:11,pctPW:1},marketplace:{t4w:5357,lw:5174,cw:6493,pctT4W:21,pctPW:25}},
+      revMix:{dineIn:{t4w:34.41,lw:32.1,cw:32},webPickup:{t4w:19.08,lw:17.8,cw:21.2},instore:{t4w:15.06,lw:15.4,cw:12.5},delivery:{t4w:4.3,lw:4.7,cw:4.8},catering:{t4w:null,lw:null,cw:null},tpd:{t4w:22.59,lw:24.3,cw:22.9},marketplace:{t4w:6.1,lw:5.7,cw:6.7}},
+      meta:{netRev:{t4w:4220,lw:3627,cw:4518,pctT4W:7,pctPW:25},spend:{t4w:1210,lw:1181,cw:863,pctT4W:-29,pctPW:-27},customers:{t4w:139,lw:119,cw:149,pctT4W:7,pctPW:25},cac:{t4w:8.8,lw:9.93,cw:5.79,pctT4W:-34,pctPW:-42},roas:{t4w:4.48,lw:4.07,cw:6.24,pctT4W:39,pctPW:53}},
+      google:{netRev:{t4w:4414,lw:4216,cw:4409,pctT4W:0,pctPW:5},spend:{t4w:590,lw:474,cw:462,pctT4W:-22,pctPW:-3},customers:{t4w:132,lw:132,cw:136,pctT4W:4,pctPW:3},cac:{t4w:4.48,lw:3.59,cw:3.38,pctT4W:-25,pctPW:-6},roas:{t4w:8.68,lw:9.89,cw:10.54,pctT4W:21,pctPW:7}},
+      sponsored:{netRev:{t4w:5746,lw:6465,cw:6125,pctT4W:7,pctPW:-5},spend:{t4w:752,lw:784,cw:822,pctT4W:9,pctPW:5},roas:{t4w:7.69,lw:8.25,cw:7.45,pctT4W:-3,pctPW:-10}},
+      promo:{netRev:{t4w:9950,lw:10985,cw:7815,pctT4W:-21,pctPW:-29},spend:{t4w:1209,lw:1388,cw:1340,pctT4W:11,pctPW:-3},roas:{t4w:8.41,lw:7.91,cw:5.83,pctT4W:-31,pctPW:-26}},
+      blendedROAS:{t4w:6.5,lw:6.6,cw:6.6,pctT4W:1,pctPW:-1},
+      contribution:{sponsored:{t4w:6,lw:7,cw:6},promo:{t4w:11,lw:12,cw:8},meta:{t4w:5,lw:4,cw:5},google:{t4w:5,lw:5,cw:5},total:{t4w:27,lw:28,cw:23}}
+    }
+  },
+  {
+    label: 'Apr 28, 2025',
+    data: {
+      currentWeek:'Apr 28, 2025', lastWeek:'Apr 21, 2025',
+      revenue:{total:{t4w:88721,lw:87396,cw:91112,pctT4W:3,pctPW:4},dineIn:{t4w:31397,lw:27786,cw:29261,pctT4W:-7,pctPW:5},webPickup:{t4w:17394,lw:17086,cw:16227,pctT4W:-7,pctPW:-5},instore:{t4w:13019,lw:14705,cw:14043,pctT4W:8,pctPW:-5},delivery:{t4w:3589,lw:4278,cw:4247,pctT4W:18,pctPW:-1},catering:{t4w:null,lw:null,cw:null,pctT4W:null,pctPW:null},tpd:{t4w:19296,lw:18926,cw:22160,pctT4W:15,pctPW:17},marketplace:{t4w:5369,lw:4615,cw:5174,pctT4W:-4,pctPW:12}},
+      revMix:{dineIn:{t4w:35.35,lw:31.8,cw:32.1},webPickup:{t4w:19.59,lw:19.6,cw:17.8},instore:{t4w:14.69,lw:16.8,cw:15.4},delivery:{t4w:4.05,lw:4.9,cw:4.7},catering:{t4w:null,lw:null,cw:null},tpd:{t4w:21.75,lw:21.7,cw:24.3},marketplace:{t4w:6.1,lw:5.3,cw:5.7}},
+      meta:{netRev:{t4w:4359,lw:4091,cw:3627,pctT4W:-17,pctPW:-11},spend:{t4w:1123,lw:1146,cw:1181,pctT4W:5,pctPW:3},customers:{t4w:142,lw:130,cw:119,pctT4W:-16,pctPW:-8},cac:{t4w:7.94,lw:8.81,cw:9.93,pctT4W:25,pctPW:13},roas:{t4w:4.97,lw:4.57,cw:4.07,pctT4W:-18,pctPW:-11}},
+      google:{netRev:{t4w:4565,lw:4559,cw:4216,pctT4W:-8,pctPW:-8},spend:{t4w:578,lw:707,cw:474,pctT4W:-18,pctPW:-33},customers:{t4w:134,lw:124,cw:132,pctT4W:-2,pctPW:6},cac:{t4w:4.33,lw:5.7,cw:3.59,pctT4W:-17,pctPW:-37},roas:{t4w:9.29,lw:7.45,cw:9.89,pctT4W:6,pctPW:33}},
+      sponsored:{netRev:{t4w:5380,lw:6009,cw:6465,pctT4W:20,pctPW:8},spend:{t4w:722,lw:834,cw:784,pctT4W:9,pctPW:-6},roas:{t4w:7.51,lw:7.2,cw:8.25,pctT4W:10,pctPW:15}},
+      promo:{netRev:{t4w:10098,lw:9266,cw:10985,pctT4W:9,pctPW:19},spend:{t4w:1258,lw:1123,cw:1388,pctT4W:10,pctPW:24},roas:{t4w:8.26,lw:8.25,cw:7.91,pctT4W:-4,pctPW:-4}},
+      blendedROAS:{t4w:6.6,lw:6.3,cw:6.6,pctT4W:0,pctPW:5},
+      contribution:{sponsored:{t4w:6,lw:7,cw:7},promo:{t4w:11,lw:11,cw:12},meta:{t4w:5,lw:5,cw:4},google:{t4w:5,lw:5,cw:5},total:{t4w:28,lw:27,cw:28}}
+    }
+  },
+  {
+    label: 'Apr 21, 2025',
+    data: {
+      currentWeek:'Apr 21, 2025', lastWeek:'Apr 14, 2025',
+      revenue:{total:{t4w:89683,lw:85618,cw:87396,pctT4W:-3,pctPW:2},dineIn:{t4w:31440,lw:29441,cw:27786,pctT4W:-12,pctPW:-6},webPickup:{t4w:17491,lw:16166,cw:17086,pctT4W:-2,pctPW:6},instore:{t4w:13540,lw:12050,cw:14705,pctT4W:9,pctPW:22},delivery:{t4w:3445,lw:3244,cw:4278,pctT4W:24,pctPW:32},catering:{t4w:null,lw:null,cw:null,pctT4W:null,pctPW:null},tpd:{t4w:19666,lw:18436,cw:18926,pctT4W:-4,pctPW:3},marketplace:{t4w:5468,lw:6281,cw:4615,pctT4W:-16,pctPW:-27}},
+      revMix:{dineIn:{t4w:35.06,lw:34.4,cw:31.8},webPickup:{t4w:19.49,lw:18.9,cw:19.6},instore:{t4w:15.08,lw:14.1,cw:16.8},delivery:{t4w:3.84,lw:3.8,cw:4.9},catering:{t4w:null,lw:null,cw:null},tpd:{t4w:21.93,lw:21.5,cw:21.7},marketplace:{t4w:6.13,lw:7.3,cw:5.3}},
+      meta:{netRev:{t4w:3956,lw:4051,cw:4091,pctT4W:3,pctPW:1},spend:{t4w:1153,lw:1256,cw:1146,pctT4W:-1,pctPW:-9},customers:{t4w:136,lw:139,cw:130,pctT4W:-5,pctPW:-6},cac:{t4w:8.63,lw:9.03,cw:8.81,pctT4W:2,pctPW:-2},roas:{t4w:4.57,lw:4.22,cw:4.57,pctT4W:0,pctPW:8}},
+      google:{netRev:{t4w:4787,lw:4803,cw:4559,pctT4W:-5,pctPW:-5},spend:{t4w:544,lw:699,cw:707,pctT4W:30,pctPW:1},customers:{t4w:141,lw:150,cw:124,pctT4W:-12,pctPW:-17},cac:{t4w:3.84,lw:4.66,cw:5.7,pctT4W:48,pctPW:22},roas:{t4w:10.06,lw:7.87,cw:7.45,pctT4W:-26,pctPW:-5}},
+      sponsored:{netRev:{t4w:5206,lw:4999,cw:6009,pctT4W:15,pctPW:20},spend:{t4w:688,lw:760,cw:834,pctT4W:21,pctPW:10},roas:{t4w:7.61,lw:6.58,cw:7.2,pctT4W:-5,pctPW:9}},
+      promo:{netRev:{t4w:10890,lw:9728,cw:9266,pctT4W:-15,pctPW:-5},spend:{t4w:1328,lw:934,cw:1123,pctT4W:-15,pctPW:20},roas:{t4w:8.41,lw:10.41,cw:8.25,pctT4W:-2,pctPW:-21}},
+      blendedROAS:{t4w:6.7,lw:6.5,cw:6.3,pctT4W:-6,pctPW:-3},
+      contribution:{sponsored:{t4w:6,lw:6,cw:7},promo:{t4w:12,lw:11,cw:11},meta:{t4w:4,lw:5,cw:5},google:{t4w:5,lw:6,cw:5},total:{t4w:28,lw:28,cw:27}}
+    }
+  },
+  {
+    label: 'Apr 14, 2025',
+    data: {
+      currentWeek:'Apr 14, 2025', lastWeek:'Apr 7, 2025',
+      revenue:{total:{t4w:92571,lw:90063,cw:85618,pctT4W:-8,pctPW:-5},dineIn:{t4w:33164,lw:35418,cw:29441,pctT4W:-11,pctPW:-17},webPickup:{t4w:17572,lw:18077,cw:16166,pctT4W:-8,pctPW:-11},instore:{t4w:14196,lw:12533,cw:12050,pctT4W:-15,pctPW:-4},delivery:{t4w:3590,lw:3463,cw:3244,pctT4W:-10,pctPW:-6},catering:{t4w:null,lw:null,cw:null,pctT4W:null,pctPW:null},tpd:{t4w:19808,lw:20572,cw:18436,pctT4W:-7,pctPW:-10},marketplace:{t4w:5655,lw:null,cw:6281,pctT4W:11,pctPW:null}},
+      revMix:{dineIn:{t4w:35.81,lw:39.3,cw:34.4},webPickup:{t4w:19.02,lw:20.1,cw:18.9},instore:{t4w:15.34,lw:13.9,cw:14.1},delivery:{t4w:3.88,lw:3.8,cw:3.8},catering:{t4w:null,lw:null,cw:null},tpd:{t4w:21.43,lw:22.8,cw:21.5},marketplace:{t4w:6.03,lw:null,cw:7.3}},
+      meta:{netRev:{t4w:3605,lw:5109,cw:4051,pctT4W:12,pctPW:-21},spend:{t4w:1159,lw:1256,cw:1256,pctT4W:8,pctPW:0},customers:{t4w:127,lw:169,cw:139,pctT4W:9,pctPW:-18},cac:{t4w:9.51,lw:7.43,cw:9.03,pctT4W:-5,pctPW:22},roas:{t4w:4.28,lw:5.07,cw:4.22,pctT4W:-1,pctPW:-17}},
+      google:{netRev:{t4w:4799,lw:4079,cw:4803,pctT4W:0,pctPW:18},spend:{t4w:513,lw:479,cw:699,pctT4W:36,pctPW:46},customers:{t4w:139,lw:120,cw:150,pctT4W:8,pctPW:24},cac:{t4w:3.71,lw:3.98,cw:4.66,pctT4W:26,pctPW:17},roas:{t4w:10.44,lw:9.52,cw:7.87,pctT4W:-25,pctPW:-17}},
+      sponsored:{netRev:{t4w:5100,lw:5513,cw:4999,pctT4W:-2,pctPW:-9},spend:{t4w:664,lw:632,cw:760,pctT4W:14,pctPW:20},roas:{t4w:7.69,lw:8.72,cw:6.58,pctT4W:-14,pctPW:-25}},
+      promo:{netRev:{t4w:11235,lw:9820,cw:9728,pctT4W:-13,pctPW:-1},spend:{t4w:1436,lw:1390,cw:934,pctT4W:-35,pctPW:-33},roas:{t4w:7.84,lw:7.07,cw:10.41,pctT4W:33,pctPW:47}},
+      blendedROAS:{t4w:6.6,lw:6.5,cw:6.5,pctT4W:-2,pctPW:-1},
+      contribution:{sponsored:{t4w:6,lw:6,cw:6},promo:{t4w:12,lw:11,cw:11},meta:{t4w:4,lw:6,cw:5},google:{t4w:5,lw:5,cw:6},total:{t4w:27,lw:27,cw:28}}
+    }
+  },
+  {
+    label: 'Apr 7, 2025',
+    data: {
+      currentWeek:'Apr 7, 2025', lastWeek:'Mar 31, 2025',
+      revenue:{total:{t4w:91482,lw:91806,cw:90063,pctT4W:-2,pctPW:-2},dineIn:{t4w:30603,lw:32943,cw:35418,pctT4W:16,pctPW:8},webPickup:{t4w:17387,lw:18245,cw:18077,pctT4W:4,pctPW:-1},instore:{t4w:15530,lw:12788,cw:12533,pctT4W:-19,pctPW:-2},delivery:{t4w:3302,lw:3370,cw:3463,pctT4W:5,pctPW:3},catering:{t4w:null,lw:null,cw:null,pctT4W:null,pctPW:null},tpd:{t4w:19154,lw:19248,cw:20572,pctT4W:7,pctPW:7},marketplace:{t4w:5506,lw:5212,cw:null,pctT4W:null,pctPW:null}},
+      revMix:{dineIn:{t4w:33.32,lw:35.9,cw:39.3},webPickup:{t4w:19.06,lw:19.9,cw:20.1},instore:{t4w:17.07,lw:13.9,cw:13.9},delivery:{t4w:3.59,lw:3.7,cw:3.8},catering:{t4w:null,lw:null,cw:null},tpd:{t4w:20.96,lw:21,cw:22.8},marketplace:{t4w:6,lw:5.7,cw:null}},
+      meta:{netRev:{t4w:3373,lw:4186,cw:5109,pctT4W:51,pctPW:22},spend:{t4w:1199,lw:834,cw:1256,pctT4W:5,pctPW:51},customers:{t4w:116,lw:129,cw:169,pctT4W:45,pctPW:31},cac:{t4w:10.49,lw:6.47,cw:7.43,pctT4W:-29,pctPW:15},roas:{t4w:4,lw:6.02,cw:5.07,pctT4W:27,pctPW:-16}},
+      google:{netRev:{t4w:5312,lw:4819,cw:4079,pctT4W:-23,pctPW:-15},spend:{t4w:593,lw:425,cw:479,pctT4W:-19,pctPW:13},customers:{t4w:153,lw:144,cw:120,pctT4W:-21,pctPW:-16},cac:{t4w:3.84,lw:2.96,cw:3.98,pctT4W:4,pctPW:34},roas:{t4w:10.24,lw:12.34,cw:9.52,pctT4W:-7,pctPW:-23}},
+      sponsored:{netRev:{t4w:5082,lw:4998,cw:5513,pctT4W:8,pctPW:10},spend:{t4w:670,lw:663,cw:632,pctT4W:-6,pctPW:-5},roas:{t4w:7.58,lw:7.53,cw:8.72,pctT4W:15,pctPW:16}},
+      promo:{netRev:{t4w:11330,lw:11579,cw:9820,pctT4W:-13,pctPW:-15},spend:{t4w:1388,lw:1587,cw:1390,pctT4W:0,pctPW:-12},roas:{t4w:8.21,lw:7.3,cw:7.07,pctT4W:-14,pctPW:-3}},
+      blendedROAS:{t4w:6.5,lw:7.3,cw:6.5,pctT4W:0,pctPW:-10},
+      contribution:{sponsored:{t4w:6,lw:5,cw:6},promo:{t4w:12,lw:13,cw:11},meta:{t4w:4,lw:5,cw:6},google:{t4w:6,lw:5,cw:5},total:{t4w:28,lw:28,cw:27}}
+    }
+  },
+  {
+    label: 'Mar 31, 2025',
+    data: {
+      currentWeek:'Mar 31, 2025', lastWeek:'Mar 24, 2025',
+      revenue:{total:{t4w:88688,lw:91244,cw:91806,pctT4W:4,pctPW:1},dineIn:{t4w:29104,lw:27958,cw:32943,pctT4W:13,pctPW:18},webPickup:{t4w:16665,lw:17475,cw:18245,pctT4W:9,pctPW:4},instore:{t4w:15728,lw:16787,cw:12788,pctT4W:-19,pctPW:-24},delivery:{t4w:3358,lw:3704,cw:3370,pctT4W:0,pctPW:-9},catering:{t4w:null,lw:null,cw:null,pctT4W:null,pctPW:null},tpd:{t4w:18452,lw:20408,cw:19248,pctT4W:4,pctPW:-6},marketplace:{t4w:5382,lw:4912,cw:5212,pctT4W:-3,pctPW:6}},
+      revMix:{dineIn:{t4w:32.71,lw:30.6,cw:35.9},webPickup:{t4w:18.85,lw:19.2,cw:19.9},instore:{t4w:17.8,lw:18.4,cw:13.9},delivery:{t4w:3.79,lw:4.1,cw:3.7},catering:{t4w:null,lw:null,cw:null},tpd:{t4w:20.82,lw:22.4,cw:21},marketplace:{t4w:6.04,lw:5.4,cw:5.7}},
+      meta:{netRev:{t4w:3388,lw:2480,cw:4186,pctT4W:24,pctPW:69},spend:{t4w:1313,lw:1265,cw:834,pctT4W:-36,pctPW:-34},customers:{t4w:121,lw:109,cw:129,pctT4W:7,pctPW:18},cac:{t4w:11.05,lw:11.61,cw:6.47,pctT4W:-41,pctPW:-44},roas:{t4w:3.57,lw:2.96,cw:6.02,pctT4W:69,pctPW:103}},
+      google:{netRev:{t4w:5226,lw:5448,cw:4819,pctT4W:-8,pctPW:-12},spend:{t4w:626,lw:572,cw:425,pctT4W:-32,pctPW:-26},customers:{t4w:155,lw:152,cw:144,pctT4W:-8,pctPW:-5},cac:{t4w:4.02,lw:3.77,cw:2.96,pctT4W:-26,pctPW:-21},roas:{t4w:9.4,lw:10.52,cw:12.34,pctT4W:31,pctPW:17}},
+      sponsored:{netRev:{t4w:4772,lw:5316,cw:4998,pctT4W:5,pctPW:-6},spend:{t4w:658,lw:699,cw:663,pctT4W:1,pctPW:-5},roas:{t4w:7.24,lw:7.6,cw:7.53,pctT4W:4,pctPW:-1}},
+      promo:{netRev:{t4w:10616,lw:12431,cw:11579,pctT4W:9,pctPW:-7},spend:{t4w:1260,lw:1400,cw:1587,pctT4W:26,pctPW:13},roas:{t4w:8.41,lw:8.88,cw:7.3,pctT4W:-13,pctPW:-18}},
+      blendedROAS:{t4w:6.2,lw:6.5,cw:7.3,pctT4W:17,pctPW:12},
+      contribution:{sponsored:{t4w:5,lw:6,cw:5},promo:{t4w:12,lw:14,cw:13},meta:{t4w:4,lw:3,cw:5},google:{t4w:6,lw:6,cw:5},total:{t4w:27,lw:28,cw:28}}
+    }
+  },
+  {
+    label: 'Mar 24, 2025',
+    data: {
+      currentWeek:'Mar 24, 2025', lastWeek:'Mar 17, 2025',
+      revenue:{total:{t4w:87460,lw:97171,cw:91244,pctT4W:4,pctPW:-6},dineIn:{t4w:29704,lw:36337,cw:27958,pctT4W:-6,pctPW:-23},webPickup:{t4w:16598,lw:16492,cw:17475,pctT4W:5,pctPW:6},instore:{t4w:14636,lw:14676,cw:16787,pctT4W:15,pctPW:14},delivery:{t4w:3337,lw:3823,cw:3704,pctT4W:11,pctPW:-3},catering:{t4w:null,lw:null,cw:null,pctT4W:null,pctPW:null},tpd:{t4w:17948,lw:19002,cw:20408,pctT4W:14,pctPW:7},marketplace:{t4w:5236,lw:6841,cw:4912,pctT4W:-6,pctPW:-28}},
+      revMix:{dineIn:{t4w:33.84,lw:37.4,cw:30.6},webPickup:{t4w:19.04,lw:17,cw:19.2},instore:{t4w:16.79,lw:15.1,cw:18.4},delivery:{t4w:3.82,lw:3.9,cw:4.1},catering:{t4w:null,lw:null,cw:null},tpd:{t4w:20.55,lw:19.6,cw:22.4},marketplace:{t4w:5.95,lw:7,cw:5.4}},
+      meta:{netRev:{t4w:3484,lw:2645,cw:2480,pctT4W:-29,pctPW:-6},spend:{t4w:1191,lw:1280,cw:1265,pctT4W:6,pctPW:-1},customers:{t4w:118,lw:102,cw:109,pctT4W:-8,pctPW:7},cac:{t4w:10.11,lw:12.54,cw:11.61,pctT4W:15,pctPW:-7},roas:{t4w:4,lw:3.07,cw:2.96,pctT4W:-26,pctPW:-3}},
+      google:{netRev:{t4w:5118,lw:4849,cw:5448,pctT4W:6,pctPW:12},spend:{t4w:672,lw:577,cw:572,pctT4W:-15,pctPW:-1},customers:{t4w:158,lw:140,cw:152,pctT4W:-4,pctPW:8},cac:{t4w:4.24,lw:4.12,cw:3.77,pctT4W:-11,pctPW:-8},roas:{t4w:8.69,lw:9.4,cw:10.52,pctT4W:21,pctPW:12}},
+      sponsored:{netRev:{t4w:4718,lw:4571,cw:5316,pctT4W:13,pctPW:16},spend:{t4w:680,lw:663,cw:699,pctT4W:3,pctPW:5},roas:{t4w:6.95,lw:6.9,cw:7.6,pctT4W:9,pctPW:10}},
+      promo:{netRev:{t4w:10102,lw:11110,cw:12431,pctT4W:23,pctPW:12},spend:{t4w:1240,lw:1368,cw:1400,pctT4W:13,pctPW:2},roas:{t4w:8.16,lw:8.12,cw:8.88,pctT4W:9,pctPW:9}},
+      blendedROAS:{t4w:6.2,lw:6,cw:6.5,pctT4W:5,pctPW:9},
+      contribution:{sponsored:{t4w:5,lw:5,cw:6},promo:{t4w:12,lw:11,cw:14},meta:{t4w:4,lw:3,cw:3},google:{t4w:6,lw:5,cw:6},total:{t4w:27,lw:24,cw:28}}
+    }
+  },
+  {
+    label: 'Mar 17, 2025',
+    data: {
+      currentWeek:'Mar 17, 2025', lastWeek:'Mar 10, 2025',
+      revenue:{total:{t4w:83890,lw:85709,cw:97171,pctT4W:16,pctPW:13},dineIn:{t4w:28474,lw:25174,cw:36337,pctT4W:28,pctPW:44},webPickup:{t4w:16568,lw:17336,cw:16492,pctT4W:0,pctPW:-5},instore:{t4w:14273,lw:17870,cw:14676,pctT4W:3,pctPW:-18},delivery:{t4w:3176,lw:2310,cw:3823,pctT4W:20,pctPW:65},catering:{t4w:null,lw:null,cw:null,pctT4W:null,pctPW:null},tpd:{t4w:16830,lw:17959,cw:19002,pctT4W:13,pctPW:6},marketplace:{t4w:4569,lw:5060,cw:6841,pctT4W:50,pctPW:35}},
+      revMix:{dineIn:{t4w:33.96,lw:29.4,cw:37.4},webPickup:{t4w:19.74,lw:20.2,cw:17},instore:{t4w:17.01,lw:20.8,cw:15.1},delivery:{t4w:3.8,lw:2.7,cw:3.9},catering:{t4w:null,lw:null,cw:null},tpd:{t4w:20.04,lw:21,cw:19.6},marketplace:{t4w:5.45,lw:5.9,cw:7}},
+      meta:{netRev:{t4w:3642,lw:4180,cw:2645,pctT4W:-27,pctPW:-37},spend:{t4w:1011,lw:1417,cw:1280,pctT4W:27,pctPW:-10},customers:{t4w:118,lw:125,cw:102,pctT4W:-13,pctPW:-18},cac:{t4w:8.41,lw:11.34,cw:12.54,pctT4W:49,pctPW:11},roas:{t4w:4.94,lw:3.95,cw:3.07,pctT4W:-38,pctPW:-22}},
+      google:{netRev:{t4w:5161,lw:6131,cw:4849,pctT4W:-6,pctPW:-21},spend:{t4w:774,lw:798,cw:577,pctT4W:-26,pctPW:-28},customers:{t4w:164,lw:176,cw:140,pctT4W:-15,pctPW:-20},cac:{t4w:4.71,lw:4.53,cw:4.12,pctT4W:-13,pctPW:-9},roas:{t4w:7.86,lw:8.68,cw:9.4,pctT4W:20,pctPW:8}},
+      sponsored:{netRev:{t4w:4657,lw:5444,cw:4571,pctT4W:-2,pctPW:-16},spend:{t4w:704,lw:656,cw:663,pctT4W:-6,pctPW:1},roas:{t4w:6.65,lw:8.3,cw:6.9,pctT4W:4,pctPW:-17}},
+      promo:{netRev:{t4w:9837,lw:10200,cw:11110,pctT4W:13,pctPW:9},spend:{t4w:1284,lw:1195,cw:1368,pctT4W:7,pctPW:14},roas:{t4w:7.75,lw:8.54,cw:8.12,pctT4W:5,pctPW:-5}},
+      blendedROAS:{t4w:6.2,lw:6.4,cw:6,pctT4W:-3,pctPW:-7},
+      contribution:{sponsored:{t4w:6,lw:6,cw:5},promo:{t4w:12,lw:12,cw:11},meta:{t4w:4,lw:5,cw:3},google:{t4w:6,lw:7,cw:5},total:{t4w:28,lw:30,cw:24}}
+    }
+  },
+  {
+    label: 'Mar 10, 2025',
+    data: {
+      currentWeek:'Mar 10, 2025', lastWeek:'Mar 3, 2025',
+      revenue:{total:{t4w:80328,lw:80630,cw:85709,pctT4W:7,pctPW:6},dineIn:{t4w:27985,lw:26946,cw:25174,pctT4W:-10,pctPW:-7},webPickup:{t4w:16076,lw:15358,cw:17336,pctT4W:8,pctPW:13},instore:{t4w:12929,lw:13577,cw:17870,pctT4W:38,pctPW:32},delivery:{t4w:3410,lw:3596,cw:2310,pctT4W:-32,pctPW:-36},catering:{t4w:null,lw:null,cw:null,pctT4W:null,pctPW:null},tpd:{t4w:15437,lw:16438,cw:17959,pctT4W:16,pctPW:9},marketplace:{t4w:4490,lw:4715,cw:5060,pctT4W:13,pctPW:7}},
+      revMix:{dineIn:{t4w:34.74,lw:33.4,cw:29.4},webPickup:{t4w:20.06,lw:19,cw:20.2},instore:{t4w:16.17,lw:16.8,cw:20.8},delivery:{t4w:4.26,lw:4.5,cw:2.7},catering:{t4w:null,lw:null,cw:null},tpd:{t4w:19.14,lw:20.4,cw:21},marketplace:{t4w:5.63,lw:5.8,cw:5.9}},
+      meta:{netRev:{t4w:2908,lw:4249,cw:4180,pctT4W:44,pctPW:-2},spend:{t4w:725,lw:1290,cw:1417,pctT4W:96,pctPW:10},customers:{t4w:96,lw:148,cw:125,pctT4W:30,pctPW:-16},cac:{t4w:7.28,lw:8.72,cw:11.34,pctT4W:56,pctPW:30},roas:{t4w:5.35,lw:4.29,cw:3.95,pctT4W:-26,pctPW:-8}},
+      google:{netRev:{t4w:4628,lw:4474,cw:6131,pctT4W:32,pctPW:37},spend:{t4w:750,lw:559,cw:798,pctT4W:6,pctPW:43},customers:{t4w:155,lw:153,cw:176,pctT4W:13,pctPW:15},cac:{t4w:4.82,lw:3.65,cw:4.53,pctT4W:-6,pctPW:24},roas:{t4w:7.36,lw:9.01,cw:8.68,pctT4W:18,pctPW:-4}},
+      sponsored:{netRev:{t4w:4516,lw:3755,cw:5444,pctT4W:21,pctPW:45},spend:{t4w:735,lw:612,cw:656,pctT4W:-11,pctPW:7},roas:{t4w:6.14,lw:6.14,cw:8.3,pctT4W:35,pctPW:35}},
+      promo:{netRev:{t4w:9590,lw:8725,cw:10200,pctT4W:6,pctPW:17},spend:{t4w:1325,lw:1078,cw:1195,pctT4W:-10,pctPW:11},roas:{t4w:7.31,lw:8.09,cw:8.54,pctT4W:17,pctPW:6}},
+      blendedROAS:{t4w:6.1,lw:6,cw:6.4,pctT4W:4,pctPW:7},
+      contribution:{sponsored:{t4w:6,lw:5,cw:6},promo:{t4w:12,lw:11,cw:12},meta:{t4w:4,lw:5,cw:5},google:{t4w:6,lw:6,cw:7},total:{t4w:27,lw:26,cw:30}}
+    }
+  },
+  {
+    label: 'Mar 3, 2025',
+    data: {
+      currentWeek:'Mar 3, 2025', lastWeek:'Feb 24, 2025',
+      revenue:{total:{t4w:77445,lw:86328,cw:80630,pctT4W:4,pctPW:-7},dineIn:{t4w:27099,lw:30360,cw:26946,pctT4W:-1,pctPW:-11},webPickup:{t4w:16315,lw:17205,cw:15358,pctT4W:-6,pctPW:-11},instore:{t4w:12623,lw:12419,cw:13577,pctT4W:8,pctPW:9},delivery:{t4w:3244,lw:3620,cw:3596,pctT4W:11,pctPW:-1},catering:{t4w:null,lw:null,cw:null,pctT4W:null,pctPW:null},tpd:{t4w:13894,lw:18394,cw:16438,pctT4W:18,pctPW:-11},marketplace:{t4w:4270,lw:4330,cw:4715,pctT4W:10,pctPW:9}},
+      revMix:{dineIn:{t4w:34.86,lw:35.2,cw:33.4},webPickup:{t4w:21.2,lw:19.9,cw:19},instore:{t4w:16.43,lw:14.4,cw:16.8},delivery:{t4w:4.2,lw:4.2,cw:4.5},catering:{t4w:null,lw:null,cw:null},tpd:{t4w:17.76,lw:21.3,cw:20.4},marketplace:{t4w:5.56,lw:5,cw:5.8}},
+      meta:{netRev:{t4w:2461,lw:2860,cw:4249,pctT4W:73,pctPW:49},spend:{t4w:536,lw:776,cw:1290,pctT4W:141,pctPW:66},customers:{t4w:79,lw:99,cw:148,pctT4W:87,pctPW:49},cac:{t4w:6.79,lw:7.84,cw:8.72,pctT4W:28,pctPW:11},roas:{t4w:5.7,lw:4.69,cw:4.29,pctT4W:-25,pctPW:-8}},
+      google:{netRev:{t4w:4827,lw:5020,cw:4474,pctT4W:-7,pctPW:-11},spend:{t4w:805,lw:755,cw:559,pctT4W:-31,pctPW:-26},customers:{t4w:158,lw:162,cw:153,pctT4W:-3,pctPW:-6},cac:{t4w:5.09,lw:4.65,cw:3.65,pctT4W:-28,pctPW:-22},roas:{t4w:7.06,lw:7.65,cw:9.01,pctT4W:28,pctPW:18}},
+      sponsored:{netRev:{t4w:4825,lw:5104,cw:3755,pctT4W:-22,pctPW:-26},spend:{t4w:800,lw:790,cw:612,pctT4W:-23,pctPW:-23},roas:{t4w:6.04,lw:6.46,cw:6.14,pctT4W:2,pctPW:-5}},
+      promo:{netRev:{t4w:9452,lw:10374,cw:8725,pctT4W:-8,pctPW:-16},spend:{t4w:1354,lw:1317,cw:1078,pctT4W:-20,pctPW:-18},roas:{t4w:7,lw:7.88,cw:8.09,pctT4W:16,pctPW:3}},
+      blendedROAS:{t4w:6.2,lw:6.4,cw:6,pctT4W:-3,pctPW:-7},
+      contribution:{sponsored:{t4w:6,lw:6,cw:5},promo:{t4w:12,lw:12,cw:11},meta:{t4w:3,lw:3,cw:5},google:{t4w:6,lw:6,cw:6},total:{t4w:27,lw:27,cw:26}}
+    }
+  },
+  {
+    label: 'Feb 24, 2025',
+    data: {
+      currentWeek:'Feb 24, 2025', lastWeek:'Feb 17, 2025',
+      revenue:{total:{t4w:74164,lw:82891,cw:86328,pctT4W:16,pctPW:4},dineIn:{t4w:26356,lw:31415,cw:30360,pctT4W:15,pctPW:-3},webPickup:{t4w:15808,lw:16374,cw:17205,pctT4W:9,pctPW:5},instore:{t4w:13184,lw:13225,cw:12419,pctT4W:-6,pctPW:-6},delivery:{t4w:3143,lw:3178,cw:3620,pctT4W:15,pctPW:14},catering:{t4w:null,lw:null,cw:null,pctT4W:null,pctPW:null},tpd:{t4w:11304,lw:14529,cw:18394,pctT4W:63,pctPW:27},marketplace:{t4w:4370,lw:4170,cw:4330,pctT4W:-1,pctPW:4}},
+      revMix:{dineIn:{t4w:35.42,lw:37.9,cw:35.2},webPickup:{t4w:21.4,lw:19.8,cw:19.9},instore:{t4w:17.84,lw:16,cw:14.4},delivery:{t4w:4.25,lw:3.8,cw:4.2},catering:{t4w:null,lw:null,cw:null},tpd:{t4w:15.17,lw:17.5,cw:21.3},marketplace:{t4w:5.92,lw:5,cw:5}},
+      meta:{netRev:{t4w:2262,lw:3280,cw:2860,pctT4W:26,pctPW:-13},spend:{t4w:416,lw:561,cw:776,pctT4W:86,pctPW:38},customers:{t4w:69,lw:98,cw:99,pctT4W:43,pctPW:1},cac:{t4w:6.27,lw:5.73,cw:7.84,pctT4W:25,pctPW:37},roas:{t4w:6.21,lw:6.85,cw:4.69,pctT4W:-25,pctPW:-32}},
+      google:{netRev:{t4w:4229,lw:5018,cw:5020,pctT4W:19,pctPW:0},spend:{t4w:696,lw:986,cw:755,pctT4W:8,pctPW:-23},customers:{t4w:135,lw:164,cw:162,pctT4W:20,pctPW:-1},cac:{t4w:5.07,lw:6.01,cw:4.65,pctT4W:-8,pctPW:-23},roas:{t4w:7.43,lw:6.09,cw:7.65,pctT4W:3,pctPW:26}},
+      sponsored:{netRev:{t4w:3995,lw:4324,cw:5104,pctT4W:28,pctPW:18},spend:{t4w:718,lw:760,cw:790,pctT4W:10,pctPW:4},roas:{t4w:5.39,lw:5.69,cw:6.46,pctT4W:20,pctPW:14}},
+      promo:{netRev:{t4w:8775,lw:10050,cw:10374,pctT4W:18,pctPW:3},spend:{t4w:1292,lw:1548,cw:1317,pctT4W:2,pctPW:-15},roas:{t4w:6.82,lw:6.49,cw:7.88,pctT4W:16,pctPW:21}},
+      blendedROAS:{t4w:6,lw:5.9,cw:6.4,pctT4W:6,pctPW:9},
+      contribution:{sponsored:{t4w:5,lw:5,cw:6},promo:{t4w:12,lw:12,cw:12},meta:{t4w:3,lw:4,cw:3},google:{t4w:6,lw:6,cw:6},total:{t4w:27,lw:27,cw:27}}
+    }
+  },
+  {
+    label: 'Feb 17, 2025',
+    data: {
+      currentWeek:'Feb 17, 2025', lastWeek:'Feb 10, 2025',
+      revenue:{total:{t4w:71255,lw:71461,cw:82891,pctT4W:16,pctPW:16},dineIn:{t4w:24669,lw:23218,cw:31415,pctT4W:27,pctPW:35},webPickup:{t4w:15619,lw:15368,cw:16374,pctT4W:5,pctPW:7},instore:{t4w:13171,lw:12495,cw:13225,pctT4W:0,pctPW:6},delivery:{t4w:3131,lw:3248,cw:3178,pctT4W:2,pctPW:-2},catering:{t4w:null,lw:null,cw:null,pctT4W:null,pctPW:null},tpd:{t4w:10229,lw:12387,cw:14529,pctT4W:42,pctPW:17},marketplace:{t4w:4436,lw:4745,cw:4170,pctT4W:-6,pctPW:-12}},
+      revMix:{dineIn:{t4w:34.59,lw:32.5,cw:37.9},webPickup:{t4w:21.95,lw:21.5,cw:19.8},instore:{t4w:18.46,lw:17.5,cw:16},delivery:{t4w:4.39,lw:4.5,cw:3.8},catering:{t4w:null,lw:null,cw:null},tpd:{t4w:14.39,lw:17.3,cw:17.5},marketplace:{t4w:6.22,lw:6.6,cw:5}},
+      meta:{netRev:{t4w:1243,lw:1243,cw:3280,pctT4W:164,pctPW:164},spend:{t4w:272,lw:272,cw:561,pctT4W:106,pctPW:106},customers:{t4w:40,lw:40,cw:98,pctT4W:145,pctPW:145},cac:{t4w:6.81,lw:6.81,cw:5.73,pctT4W:-16,pctPW:-16},roas:{t4w:5.57,lw:5.57,cw:6.85,pctT4W:23,pctPW:23}},
+      google:{netRev:{t4w:3966,lw:4002,cw:5018,pctT4W:27,pctPW:25},spend:{t4w:600,lw:702,cw:986,pctT4W:64,pctPW:40},customers:{t4w:94,lw:142,cw:164,pctT4W:75,pctPW:15},cac:{t4w:4.76,lw:4.95,cw:6.01,pctT4W:26,pctPW:21},roas:{t4w:7.88,lw:6.7,cw:6.09,pctT4W:-23,pctPW:-9}},
+      sponsored:{netRev:{t4w:3886,lw:4883,cw:4324,pctT4W:11,pctPW:-11},spend:{t4w:703,lw:779,cw:760,pctT4W:8,pctPW:-2},roas:{t4w:3.97,lw:6.27,cw:5.69,pctT4W:43,pctPW:-9}},
+      promo:{netRev:{t4w:8350,lw:9211,cw:10050,pctT4W:20,pctPW:9},spend:{t4w:1207,lw:1357,cw:1548,pctT4W:28,pctPW:14},roas:{t4w:6.93,lw:6.79,cw:6.49,pctT4W:-6,pctPW:-4}},
+      blendedROAS:{t4w:6.2,lw:6.2,cw:5.9,pctT4W:-5,pctPW:-5},
+      contribution:{sponsored:{t4w:5,lw:7,cw:5},promo:{t4w:12,lw:13,cw:12},meta:{t4w:2,lw:2,cw:4},google:{t4w:6,lw:6,cw:6},total:{t4w:27,lw:27,cw:27}}
+    }
+  },
+  {
+    label: 'Feb 10, 2025',
+    data: {
+      currentWeek:'Feb 10, 2025', lastWeek:'Feb 3, 2025',
+      revenue:{total:{t4w:71152,lw:69099,cw:71461,pctT4W:0,pctPW:3},dineIn:{t4w:25395,lw:23404,cw:23218,pctT4W:-9,pctPW:-1},webPickup:{t4w:15744,lw:16312,cw:15368,pctT4W:-2,pctPW:-6},instore:{t4w:13508,lw:12353,cw:12495,pctT4W:-8,pctPW:1},delivery:{t4w:3072,lw:2929,cw:3248,pctT4W:6,pctPW:11},catering:{t4w:null,lw:null,cw:null,pctT4W:null,pctPW:null},tpd:{t4w:9150,lw:10264,cw:12387,pctT4W:35,pctPW:21},marketplace:{t4w:4282,lw:3837,cw:4745,pctT4W:11,pctPW:24}},
+      revMix:{dineIn:{t4w:35.64,lw:33.9,cw:32.5},webPickup:{t4w:22.17,lw:23.6,cw:21.5},instore:{t4w:18.95,lw:17.9,cw:17.5},delivery:{t4w:4.32,lw:4.2,cw:4.5},catering:{t4w:null,lw:null,cw:null},tpd:{t4w:12.92,lw:14.9,cw:17.3},marketplace:{t4w:6.01,lw:5.6,cw:6.6}},
+      meta:{netRev:{t4w:null,lw:null,cw:1243,pctT4W:null,pctPW:null},spend:{t4w:null,lw:null,cw:272,pctT4W:null,pctPW:null},customers:{t4w:null,lw:null,cw:40,pctT4W:null,pctPW:null},cac:{t4w:null,lw:null,cw:6.81,pctT4W:null,pctPW:null},roas:{t4w:null,lw:null,cw:5.57,pctT4W:null,pctPW:null}},
+      google:{netRev:{t4w:3948,lw:5269,cw:4002,pctT4W:1,pctPW:-24},spend:{t4w:549,lw:776,cw:702,pctT4W:28,pctPW:-10},customers:{t4w:58,lw:163,cw:142,pctT4W:143,pctPW:-13},cac:{t4w:4.67,lw:4.76,cw:4.95,pctT4W:6,pctPW:4},roas:{t4w:8.47,lw:7.79,cw:6.7,pctT4W:-21,pctPW:-14}},
+      sponsored:{netRev:{t4w:3387,lw:4990,cw:4883,pctT4W:44,pctPW:-2},spend:{t4w:666,lw:869,cw:779,pctT4W:17,pctPW:-10},roas:{t4w:2.4,lw:5.74,cw:6.27,pctT4W:161,pctPW:9}},
+      promo:{netRev:{t4w:7920,lw:8173,cw:9211,pctT4W:16,pctPW:13},spend:{t4w:1132,lw:1196,cw:1357,pctT4W:20,pctPW:13},roas:{t4w:7,lw:6.83,cw:6.79,pctT4W:-3,pctPW:-1}},
+      blendedROAS:{t4w:null,lw:null,cw:6.2,pctT4W:null,pctPW:null},
+      contribution:{sponsored:{t4w:5,lw:7,cw:7},promo:{t4w:11,lw:12,cw:13},meta:{t4w:null,lw:null,cw:2},google:{t4w:6,lw:8,cw:6},total:{t4w:null,lw:null,cw:27}}
+    }
+  },
+  {
+    label: 'Feb 3, 2025',
+    data: {
+      currentWeek:'Feb 3, 2025', lastWeek:'Jan 27, 2025',
+      revenue:{total:{t4w:73204,lw:73204,cw:69099,pctT4W:-6,pctPW:-6},dineIn:{t4w:27386,lw:27386,cw:23404,pctT4W:-15,pctPW:-15},webPickup:{t4w:15176,lw:15176,cw:16312,pctT4W:7,pctPW:7},instore:{t4w:14664,lw:14664,cw:12353,pctT4W:-16,pctPW:-16},delivery:{t4w:3216,lw:3216,cw:2929,pctT4W:-9,pctPW:-9},catering:{t4w:null,lw:null,cw:null,pctT4W:null,pctPW:null},tpd:{t4w:8035,lw:8035,cw:10264,pctT4W:28,pctPW:28},marketplace:{t4w:4727,lw:4727,cw:3837,pctT4W:-19,pctPW:-19}},
+      revMix:{dineIn:{t4w:37.41,lw:37.4,cw:33.9},webPickup:{t4w:20.73,lw:20.7,cw:23.6},instore:{t4w:20.03,lw:20,cw:17.9},delivery:{t4w:4.39,lw:4.4,cw:4.2},catering:{t4w:null,lw:null,cw:null},tpd:{t4w:10.98,lw:11,cw:14.9},marketplace:{t4w:6.46,lw:6.5,cw:5.6}},
+      meta:{netRev:{t4w:null,lw:null,cw:null,pctT4W:null,pctPW:null},spend:{t4w:null,lw:null,cw:null,pctT4W:null,pctPW:null},customers:{t4w:null,lw:null,cw:null,pctT4W:null,pctPW:null},cac:{t4w:null,lw:null,cw:null,pctT4W:null,pctPW:null},roas:{t4w:null,lw:null,cw:null,pctT4W:null,pctPW:null}},
+      google:{netRev:{t4w:2627,lw:2627,cw:5269,pctT4W:101,pctPW:101},spend:{t4w:322,lw:322,cw:776,pctT4W:141,pctPW:141},customers:{t4w:18,lw:70,cw:163,pctT4W:825,pctPW:131},cac:{t4w:4.57,lw:4.57,cw:4.76,pctT4W:4,pctPW:4},roas:{t4w:9.16,lw:9.16,cw:7.79,pctT4W:-15,pctPW:-15}},
+      sponsored:{netRev:{t4w:1784,lw:1784,cw:4990,pctT4W:180,pctPW:180},spend:{t4w:462,lw:462,cw:869,pctT4W:88,pctPW:88},roas:{t4w:0.96,lw:3.86,cw:5.74,pctT4W:495,pctPW:49}},
+      promo:{netRev:{t4w:7666,lw:7666,cw:8173,pctT4W:7,pctPW:7},spend:{t4w:1069,lw:1069,cw:1196,pctT4W:12,pctPW:12},roas:{t4w:7.17,lw:7.17,cw:6.83,pctT4W:-5,pctPW:-5}},
+      blendedROAS:{t4w:null,lw:null,cw:null,pctT4W:null,pctPW:null},
+      contribution:{sponsored:{t4w:2,lw:2,cw:7},promo:{t4w:10,lw:10,cw:12},meta:{t4w:null,lw:null,cw:null},google:{t4w:4,lw:4,cw:8},total:{t4w:null,lw:null,cw:null}}
+    }
+  },
+  {
+    label: 'Jan 27, 2025',
+    data: {
+      currentWeek:'Jan 27, 2025', lastWeek:'Jan 20, 2025',
+      revenue:{total:{t4w:null,lw:null,cw:73204,pctT4W:null,pctPW:null},dineIn:{t4w:null,lw:null,cw:27386,pctT4W:null,pctPW:null},webPickup:{t4w:null,lw:null,cw:15176,pctT4W:null,pctPW:null},instore:{t4w:null,lw:null,cw:14664,pctT4W:null,pctPW:null},delivery:{t4w:null,lw:null,cw:3216,pctT4W:null,pctPW:null},catering:{t4w:null,lw:null,cw:null,pctT4W:null,pctPW:null},tpd:{t4w:null,lw:null,cw:8035,pctT4W:null,pctPW:null},marketplace:{t4w:null,lw:null,cw:4727,pctT4W:null,pctPW:null}},
+      revMix:{dineIn:{t4w:null,lw:null,cw:37.4},webPickup:{t4w:null,lw:null,cw:20.7},instore:{t4w:null,lw:null,cw:20},delivery:{t4w:null,lw:null,cw:4.4},catering:{t4w:null,lw:null,cw:null},tpd:{t4w:null,lw:null,cw:11},marketplace:{t4w:null,lw:null,cw:6.5}},
+      meta:{netRev:{t4w:null,lw:null,cw:null,pctT4W:null,pctPW:null},spend:{t4w:null,lw:null,cw:null,pctT4W:null,pctPW:null},customers:{t4w:null,lw:null,cw:null,pctT4W:null,pctPW:null},cac:{t4w:null,lw:null,cw:null,pctT4W:null,pctPW:null},roas:{t4w:null,lw:null,cw:null,pctT4W:null,pctPW:null}},
+      google:{netRev:{t4w:null,lw:null,cw:2627,pctT4W:null,pctPW:null},spend:{t4w:null,lw:null,cw:322,pctT4W:null,pctPW:null},customers:{t4w:0,lw:0,cw:70,pctT4W:null,pctPW:null},cac:{t4w:null,lw:null,cw:4.57,pctT4W:null,pctPW:null},roas:{t4w:null,lw:null,cw:9.16,pctT4W:null,pctPW:null}},
+      sponsored:{netRev:{t4w:null,lw:null,cw:1784,pctT4W:null,pctPW:null},spend:{t4w:null,lw:null,cw:462,pctT4W:null,pctPW:null},roas:{t4w:0,lw:0,cw:3.86,pctT4W:null,pctPW:null}},
+      promo:{netRev:{t4w:null,lw:null,cw:7666,pctT4W:null,pctPW:null},spend:{t4w:null,lw:null,cw:1069,pctT4W:null,pctPW:null},roas:{t4w:null,lw:null,cw:7.17,pctT4W:null,pctPW:null}},
+      blendedROAS:{t4w:null,lw:null,cw:null,pctT4W:null,pctPW:null},
+      contribution:{sponsored:{t4w:null,lw:null,cw:2},promo:{t4w:null,lw:null,cw:10},meta:{t4w:null,lw:null,cw:null},google:{t4w:null,lw:null,cw:4},total:{t4w:null,lw:null,cw:null}}
     }
   }
 ];
@@ -1396,26 +2477,13 @@ function pickCalDay(key) {
   setTimeout(closeWeekCalendar, 180);
 }
 
-// Paid-digital figures (Meta/Google/Sponsored/Promo/blended ROAS/contribution)
-// have no live per-week RPC yet — they always come from WEEK_HISTORY[0]'s
-// static snapshot. Flag that explicitly whenever the selected week differs,
-// so those numbers aren't mistaken for the selected week's actual figures.
-function _noteDigitalFreshness(selectedLabel) {
-  let note = document.getElementById('weekDataNote');
-  if (selectedLabel === WEEK_HISTORY[0]?.label) {
-    if (note) note.remove();
-    return;
-  }
-  if (!note) {
-    note = document.createElement('div');
-    note.id = 'weekDataNote';
-    note.style.cssText = 'font-size:11px;color:var(--brand-orange);margin-top:6px;display:flex;align-items:center;gap:6px;line-height:1.4';
-    note.innerHTML = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="flex-shrink:0"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><span></span>';
-    const badge = document.getElementById('weekBadge');
-    if (badge && badge.parentNode) badge.parentNode.insertBefore(note, badge.nextSibling);
-  }
-  note.querySelector('span').textContent =
-    `Revenue and channel mix shown are live for the week of ${selectedLabel}. Paid-digital figures (Meta, Google, Sponsored, Promo) aren't yet wired to per-week history and still reflect the week of ${WEEK_HISTORY[0]?.label}.`;
+// Paid-digital freshness note removed at user request — never show it.
+// Keep the function as a no-op so existing call sites keep working and
+// don't need to be touched. If a stale note element is still in the DOM
+// from a cached prior build, sweep it out.
+function _noteDigitalFreshness() {
+  const note = document.getElementById('weekDataNote');
+  if (note) note.remove();
 }
 
 // Close on Escape
@@ -3323,7 +4391,14 @@ document.addEventListener('DOMContentLoaded', function() {
     if (document.getElementById('page-alltime')?.classList.contains('active')) renderAllTime();
     if (document.getElementById('page-trends')?.classList.contains('active'))  renderTrends();
   }).catch(console.error);
-  _sbLoadWeeklyKPIs().catch(console.error);
+  // Land on the Wednesday of the week BEFORE today's fiscal week — i.e.
+  // (current fiscal week start) − 7 days. _sbFiscalWeekStart returns the
+  // Wednesday on or before the given date (post-Jan 2026 fiscal cutover),
+  // so subtracting 7 walks back to the previous Wednesday. Today 6/9 →
+  // current week starts Wed 6/3 → landing week starts Wed 5/27.
+  const todayIso = new Date().toISOString().slice(0, 10);
+  const landingWeekStart = _sbAddDays(_sbFiscalWeekStart(todayIso), -7);
+  _sbLoadWeeklyKPIs(landingWeekStart).catch(console.error);
 });
 </script>
 
