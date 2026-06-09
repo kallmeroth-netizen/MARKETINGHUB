@@ -95,6 +95,8 @@
   .mp-tab.active{ color:var(--mp-deep); border-bottom-color:var(--mp); }
   .mp-tab .count{ background:var(--surface-2); color:var(--text-3); font-size:10px; font-weight:700; padding:1px 6px; border-radius:var(--r-pill); }
   .mp-tab.active .count{ background:var(--mp-light); color:var(--mp-deep); }
+  .mp-tab .ph{ display:inline-flex; align-items:center; justify-content:center; width:16px; height:16px; border-radius:50%; background:var(--surface-2); color:var(--text-3); font-family:var(--f-mono); font-size:9px; font-weight:700; margin-right:6px; }
+  .mp-tab.active .ph{ background:var(--mp); color:#fff; }
 
   /* ---- KPI strip ---- */
   .mp-kpis{ display:grid; grid-template-columns:repeat(5,1fr); gap:var(--s-3); margin-bottom:var(--s-4); }
@@ -434,16 +436,16 @@
   <div class="mp-kpis" id="mpKpis"></div>
 
   <div class="mp-tabs">
-    <button class="mp-tab active" data-tab="board" onclick="MP.tab('board')">Pipeline <span class="count" id="cBoard">0</span></button>
-    <button class="mp-tab" data-tab="timeline" onclick="MP.tab('timeline')">Timeline</button>
+    <button class="mp-tab" data-tab="brands" onclick="MP.tab('brands')"><span class="ph">1</span>Discovery <span class="count" id="cBrands">0</span></button>
+    <button class="mp-tab active" data-tab="board" onclick="MP.tab('board')"><span class="ph">2</span>Pipeline <span class="count" id="cBoard">0</span></button>
+    <button class="mp-tab" data-tab="timeline" onclick="MP.tab('timeline')"><span class="ph">3</span>Timeline</button>
     <button class="mp-tab" data-tab="teams" onclick="MP.tab('teams')">Team tasks <span class="count" id="cTeams">0</span></button>
-    <button class="mp-tab" data-tab="brands" onclick="MP.tab('brands')">Brands <span class="count" id="cBrands">0</span></button>
   </div>
 
+  <div id="tab-brands" style="display:none"></div>
   <div id="tab-board"></div>
   <div id="tab-timeline" style="display:none"></div>
   <div id="tab-teams" style="display:none"></div>
-  <div id="tab-brands" style="display:none"></div>
 
 </main>
 
