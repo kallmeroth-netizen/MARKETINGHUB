@@ -98,6 +98,45 @@
   .mp-tab .ph{ display:inline-flex; align-items:center; justify-content:center; width:16px; height:16px; border-radius:50%; background:var(--surface-2); color:var(--text-3); font-family:var(--f-mono); font-size:9px; font-weight:700; margin-right:6px; }
   .mp-tab.active .ph{ background:var(--mp); color:#fff; }
 
+  /* ---- persona focus panel (team queue / manager flow status) ---- */
+  .mp-focus-bar{ display:flex; align-items:center; gap:7px; flex-wrap:wrap; margin-bottom:12px; }
+  .mp-focus-lbl{ font-family:var(--f-eyebrow); font-size:var(--t-eyebrow); letter-spacing:.1em; text-transform:uppercase; color:var(--text-3); font-weight:600; margin-right:2px; }
+  .mp-vpill{ display:inline-flex; align-items:center; gap:7px; border:1px solid var(--line-strong); background:var(--surface); border-radius:var(--r-pill); padding:6px 13px; font-size:12px; font-weight:600; color:var(--text-2); cursor:pointer; transition:.15s; }
+  .mp-vpill:hover{ border-color:var(--line-bold); }
+  .mp-vpill.active{ border-color:var(--mp); background:var(--mp-light); color:var(--mp-deep); }
+  .mp-vpill .dot{ width:8px; height:8px; border-radius:50%; flex:0 0 auto; }
+  .mp-vpill .n{ font-family:var(--f-mono); font-size:10px; opacity:.85; }
+  .mp-focus-card{ background:var(--surface); border:1px solid var(--line-strong); border-radius:var(--r-lg); padding:16px 18px; margin-bottom:16px; }
+  .mp-focus-head{ font-size:13px; color:var(--text-3); margin-bottom:14px; line-height:1.5; display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+  .mp-focus-head b{ color:var(--text); font-size:14px; }
+  /* manager flow status */
+  .mp-bstage{ margin-bottom:13px; } .mp-bstage:last-child{ margin-bottom:0; }
+  .mp-bstage-h{ display:flex; align-items:center; gap:8px; font-size:12px; font-weight:700; color:var(--text); margin-bottom:7px; }
+  .mp-bstage-h .dot{ width:9px; height:9px; border-radius:50%; flex:0 0 auto; }
+  .mp-bstage-h em{ color:var(--text-3); font-weight:600; font-style:normal; }
+  .mp-bstage-h .mp-bcount{ margin-left:auto; font-family:var(--f-mono); font-size:11px; color:var(--text-3); font-weight:600; }
+  .mp-brow{ display:flex; align-items:center; gap:10px; padding:9px 12px; border:1px solid var(--line); border-radius:var(--r-md); margin-bottom:6px; cursor:pointer; transition:.15s; }
+  .mp-brow:last-child{ margin-bottom:0; }
+  .mp-brow:hover{ border-color:var(--line-bold); background:var(--surface-2); }
+  .mp-brow.hot{ border-color:rgba(163,45,45,.35); background:var(--brand-orange-light); }
+  .mp-bdot{ width:8px; height:8px; border-radius:50%; flex:0 0 auto; }
+  .mp-bname{ font-size:13px; font-weight:600; color:var(--text); }
+  .mp-bname small{ color:var(--mp-deep); font-weight:700; font-size:10px; text-transform:uppercase; letter-spacing:.03em; margin-left:5px; }
+  .mp-bmeta{ margin-left:auto; font-size:11px; color:var(--text-3); white-space:nowrap; }
+  .mp-flag{ font-size:9.5px; font-weight:800; padding:3px 8px; border-radius:var(--r-pill); text-transform:uppercase; letter-spacing:.03em; white-space:nowrap; flex:0 0 auto; }
+  .mp-flag.risk{ background:var(--brand-orange-light); color:var(--brand-orange-deep); }
+  .mp-flag.over{ background:#a32d2d; color:#fff; }
+  .mp-flag.ok{ background:var(--brand-green-light); color:var(--brand-green-deep); }
+  /* team queue */
+  .mp-qgroup{ border:1px solid var(--line); border-radius:var(--r-md); padding:11px 13px; margin-bottom:9px; }
+  .mp-qgroup:last-child{ margin-bottom:0; }
+  .mp-qhead{ display:flex; align-items:baseline; gap:7px; flex-wrap:wrap; cursor:pointer; margin-bottom:6px; }
+  .mp-qhead b{ font-size:14px; color:var(--text); }
+  .mp-qhead small{ color:var(--mp-deep); font-weight:700; font-size:10px; text-transform:uppercase; letter-spacing:.03em; }
+  .mp-qhead .mp-qmeta{ margin-left:auto; font-size:11px; color:var(--brand-orange-deep); font-weight:600; }
+  .mp-qtask{ display:flex; align-items:center; gap:10px; padding:5px 0; font-size:13px; color:var(--text); }
+  .mp-qup{ font-size:11px; color:var(--text-3); margin-top:6px; padding-top:8px; border-top:1px dashed var(--line-strong); }
+
   /* ---- KPI strip ---- */
   .mp-kpis{ display:grid; grid-template-columns:repeat(5,1fr); gap:var(--s-3); margin-bottom:var(--s-4); }
   @media(max-width:760px){ .mp-kpis{ grid-template-columns:repeat(2,1fr); } }
@@ -433,6 +472,8 @@
     </div>
   </div>
 
+  <section id="mpFocus"></section>
+
   <div class="mp-kpis" id="mpKpis"></div>
 
   <div class="mp-tabs">
@@ -569,6 +610,7 @@ let state = { brands:{}, launches:{}, settings:defaultSettings() };
 let openLaunchId = null;
 let teamFilter = 'Marketplace';
 let ganttPx = 18;
+let viewAs = (function(){ try{ return localStorage.getItem('mpViewAs') || 'Manager'; }catch(e){ return 'Manager'; } })();
 let _bootstrapped = false;
 const revealed = {};
 
@@ -732,7 +774,7 @@ function toast(html, action, color, ms){
 }
 
 /* ---------------------------------------------------------------- RENDER --- */
-function renderAll(){ renderKpis(); renderCounts(); renderBoard();
+function renderAll(){ renderFocus(); renderKpis(); renderCounts(); renderBoard();
   if($('#tab-timeline').style.display!=='none') renderTimeline();
   if($('#tab-teams').style.display!=='none') renderTeams();
   if($('#tab-brands').style.display!=='none') renderBrands();
@@ -795,6 +837,72 @@ function renderProcess(){
     <div class="ptrig"><span class="env">✉</span>→ <b>${esc(p.emails)}</b></div>
   </div>`).join(arrow);
   host.innerHTML = cards + arrow + '<div class="mp-plive"><span class="d"></span>Live on shelf</div>';
+}
+
+/* ---- persona focus panel ---- */
+const CHK = '<span class="mp-check" onclick="event.stopPropagation();MP.toggle(\'%L\',\'%T\')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>';
+function riskOf(l){ const d=daysUntil(l.launchDate), r=readiness(l).overall; if(d!=null&&d<0) return 'over'; if(d!=null&&d<=14&&r<CONFIG.LAUNCH_GATE) return 'risk'; return ''; }
+
+function renderFocus(){
+  const host=$('#mpFocus'); if(!host) return;
+  const launches=Object.values(state.launches);
+  const views=['Manager', ...DEPTS.map(d=>d.key)];
+  const pills=views.map(v=>{
+    const isMgr=v==='Manager';
+    const color=isMgr?'var(--mp)':deptColor(v);
+    let n='';
+    if(!isMgr){ const c=launches.reduce((a,l)=>a+Object.values(l.tasks||{}).filter(t=>t.dept===v&&!t.done&&stageIdx(t.stage)<=stageIdx(l.stage)).length,0); n=`<span class="n">${c}</span>`; }
+    return `<button class="mp-vpill ${viewAs===v?'active':''}" onclick="MP.setView('${v}')"><span class="dot" style="background:${color}"></span>${esc(isMgr?'Manager view':v)}${n}</button>`;
+  }).join('');
+  const body = viewAs==='Manager' ? managerFocus(launches) : deptFocus(launches, viewAs);
+  host.innerHTML = `<div class="mp-focus-bar"><span class="mp-focus-lbl">Viewing as</span>${pills}</div>${body}`;
+}
+
+function managerFocus(launches){
+  const active=launches.filter(l=>!['live','review'].includes(l.stage));
+  const atRisk=active.filter(l=>riskOf(l)).length;
+  const stages=STAGES.filter(s=>!['live','review'].includes(s.key));
+  let rows=stages.map(s=>{
+    const items=active.filter(l=>l.stage===s.key).sort((a,b)=>(a.launchDate||'9').localeCompare(b.launchDate||'9'));
+    if(!items.length) return '';
+    const cards=items.map(l=>{
+      const d=daysUntil(l.launchDate), rk=riskOf(l);
+      const openHere=Object.values(l.tasks).filter(t=>t.stage===l.stage&&!t.done).length;
+      const flag = rk==='over'?'<span class="mp-flag over">Overdue</span>':(rk==='risk'?'<span class="mp-flag risk">At risk</span>':'');
+      const when = l.launchDate ? (d>=0?d+'d to launch':'launch passed') : 'no date';
+      return `<div class="mp-brow ${rk?'hot':''}" onclick="MP.openDetail('${l.id}')">
+        <span class="mp-bdot" style="background:${s.color}"></span>
+        <span class="mp-bname">${esc(l.name)}<small>${esc(brandName(l.brandId))}</small></span>
+        <span class="mp-bmeta">${openHere} open · ${when}</span>${flag}</div>`;
+    }).join('');
+    return `<div class="mp-bstage"><div class="mp-bstage-h"><span class="dot" style="background:${s.color}"></span>${esc(s.label)} <em>· waiting on ${esc(s.dept)}</em><span class="mp-bcount">${items.length}</span></div>${cards}</div>`;
+  }).join('');
+  if(!rows) rows=`<div class="mp-empty">Nothing in the pipeline yet — add a launch to begin.</div>`;
+  const tag = atRisk ? `<span class="mp-flag risk">${atRisk} at risk</span>` : `<span class="mp-flag ok">On track</span>`;
+  return `<div class="mp-focus-card"><div class="mp-focus-head"><b>Flow status</b> — who the line is waiting on, by product. Click a product to open it. ${tag}</div>${rows}</div>`;
+}
+
+function deptFocus(launches, dept){
+  const doNow=[], upcoming=[];
+  launches.forEach(l=>{
+    if(['live','review'].includes(l.stage)) return;
+    Object.entries(l.tasks||{}).forEach(([tid,t])=>{
+      if(t.dept!==dept||t.done) return;
+      if(stageIdx(t.stage)<=stageIdx(l.stage)) doNow.push({l,tid,t}); else upcoming.push({l});
+    });
+  });
+  const byProd={}; doNow.forEach(x=>{ (byProd[x.l.id]=byProd[x.l.id]||[]).push(x); });
+  let groups=Object.keys(byProd).sort((a,b)=>(state.launches[a].launchDate||'9').localeCompare(state.launches[b].launchDate||'9')).map(pid=>{
+    const arr=byProd[pid], l=arr[0].l, d=daysUntil(l.launchDate), r=readiness(l).overall, rk=riskOf(l);
+    const waiting = l.stage===arr[0].t.stage ? 'waiting on you' : 'overdue from your team';
+    const tasks=arr.map(x=>`<div class="mp-qtask">${CHK.replace('%L',l.id).replace('%T',x.tid)}<span>${esc(x.t.label)}</span></div>`).join('');
+    const meta = `${l.launchDate?(d>=0?d+'d to launch':'launch passed')+' · ':''}${r}% ready · ${rk==='over'?'overdue':waiting}`;
+    return `<div class="mp-qgroup"><div class="mp-qhead" onclick="MP.openDetail('${l.id}')"><b>${esc(l.name)}</b> <small>${esc(brandName(l.brandId))}</small><span class="mp-qmeta">${esc(meta)}</span></div>${tasks}</div>`;
+  }).join('');
+  if(!groups) groups=`<div class="mp-empty">Nothing needs ${esc(dept)} right now. You're all caught up.</div>`;
+  const upN=new Set(upcoming.map(x=>x.l.id)).size;
+  const up = upN ? `<div class="mp-qup">Coming up · ${upcoming.length} task${upcoming.length!==1?'s':''} across ${upN} launch${upN!==1?'es':''} heading toward ${esc(dept)}.</div>` : '';
+  return `<div class="mp-focus-card"><div class="mp-focus-head"><b>Your queue — ${esc(dept)}</b> — products waiting on your team. Check items off to move each launch forward.</div>${groups}${up}</div>`;
 }
 
 function renderBoard(){
@@ -1233,6 +1341,7 @@ window.MP = {
   },
   team(d){ teamFilter=d; renderTeams(); },
   ganttZoom(px){ ganttPx=px; renderTimeline(); },
+  setView(v){ viewAs=v; try{ localStorage.setItem('mpViewAs', v); }catch(e){} renderFocus(); },
   toggleProcess(){
     const el=$('#mpProcess'); const c=el.classList.toggle('collapsed');
     try{ localStorage.setItem('mpProcessCollapsed', c?'1':'0'); }catch(e){}
