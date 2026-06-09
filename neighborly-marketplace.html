@@ -116,6 +116,26 @@
 
   .mp-card .advance{ margin-top:9px; width:100%; justify-content:center; }
 
+  /* per-card start→finish stepper */
+  .mp-card-steps{ display:flex; gap:3px; margin-top:10px; }
+  .mp-card-steps i{ flex:1; height:3px; border-radius:2px; background:var(--surface-2); transition:background .3s; }
+  .mp-card-steps i.done{ background:var(--brand-green); }
+
+  /* ---- pipeline overview rail (whole funnel, start → finish) ---- */
+  .mp-rail{ display:flex; align-items:center; gap:1px; overflow-x:auto; background:var(--surface); border:1px solid var(--line-strong);
+    border-radius:var(--r-lg); padding:12px 14px; margin-bottom:16px; }
+  .mp-rail-lead{ flex:0 0 auto; padding-right:14px; margin-right:8px; border-right:1px solid var(--line); text-align:center; }
+  .mp-rail-lead .t{ font-family:var(--f-eyebrow); font-size:9.5px; letter-spacing:.08em; text-transform:uppercase; color:var(--text-3); }
+  .mp-rail-lead .v{ font-family:var(--f-mono); font-size:22px; line-height:1; color:var(--mp-deep); margin-top:3px; }
+  .mp-rail-node{ flex:0 0 auto; min-width:78px; text-align:center; padding:4px 6px 5px; border-radius:var(--r-md); cursor:pointer; transition:background .15s, transform .15s; }
+  .mp-rail-node:hover{ background:var(--surface-2); transform:translateY(-1px); }
+  .mp-rail-node .cnt{ font-family:var(--f-mono); font-size:20px; line-height:1; font-weight:600; color:var(--text); }
+  .mp-rail-node.empty .cnt{ color:var(--text-mute); }
+  .mp-rail-node .lbl{ display:flex; align-items:center; justify-content:center; gap:5px; font-size:9.5px; font-weight:700; color:var(--text-3);
+    text-transform:uppercase; letter-spacing:.02em; margin-top:7px; white-space:nowrap; }
+  .mp-rail-node .lbl .d{ width:7px; height:7px; border-radius:50%; flex:0 0 auto; }
+  .mp-rail-arrow{ flex:0 0 auto; color:var(--text-mute); font-size:15px; padding:0 1px; align-self:flex-start; margin-top:5px; }
+
   /* ---- detail slide-over ---- */
   .mp-overlay{ position:fixed; inset:0; background:rgba(31,35,40,.32); opacity:0; pointer-events:none; transition:.2s; z-index:200; }
   .mp-overlay.open{ opacity:1; pointer-events:auto; }
@@ -749,10 +769,27 @@ function readyColor(p){ return p>=90?'#2a7a4b':p>=50?'#b89a00':'#a32d2d'; }
 function renderBoard(){
   const cols = STAGES.filter(s=>s.key!=='review'); // review handled in detail; keep board focused
   const launches = Object.values(state.launches);
+
+  // pipeline overview rail — the whole funnel, start → finish, with live counts
+  const counts = {}; launches.forEach(l=>{ counts[l.stage]=(counts[l.stage]||0)+1; });
+  const activeCount = launches.filter(l=>!['live','review'].includes(l.stage)).length;
+  const railNodes = STAGES.map((s,i)=>{
+    const c = counts[s.key]||0;
+    const node = `<div class="mp-rail-node ${c?'':'empty'}" onclick="MP.scrollStage('${s.key}')" title="${esc(s.label)}${s.dept!=='—'?' · '+esc(s.dept):''}">
+      <div class="cnt" style="${c?'color:'+s.color:''}">${c}</div>
+      <div class="lbl"><span class="d" style="background:${s.color}"></span>${esc(s.label)}</div>
+    </div>`;
+    return node + (i<STAGES.length-1 ? '<span class="mp-rail-arrow">›</span>' : '');
+  }).join('');
+  const rail = `<div class="mp-rail">
+    <div class="mp-rail-lead"><div class="t">In&nbsp;pipeline</div><div class="v">${activeCount}</div></div>
+    ${railNodes}
+  </div>`;
+
   const html = cols.map(s=>{
     const items = launches.filter(l=>l.stage===s.key).sort((a,b)=>(a.launchDate||'9').localeCompare(b.launchDate||'9'));
     const cards = items.map(l=>cardHtml(l)).join('') || `<div style="font-size:11px;color:var(--text-mute);text-align:center;padding:14px 0">—</div>`;
-    return `<div class="mp-col">
+    return `<div class="mp-col" id="mpcol-${s.key}">
       <div class="mp-col-head">
         <div class="mp-col-title"><span class="dot" style="background:${s.color}"></span>${esc(s.label)}</div>
         <span class="mp-col-count">${items.length}</span>
@@ -761,7 +798,7 @@ function renderBoard(){
       <div class="mp-col-body">${cards}</div>
     </div>`;
   }).join('');
-  $('#tab-board').innerHTML = `<div class="mp-board mp-stagger">${html}</div>`;
+  $('#tab-board').innerHTML = `${rail}<div class="mp-board mp-stagger">${html}</div>`;
 }
 
 function cardHtml(l){
@@ -769,6 +806,12 @@ function cardHtml(l){
   const si = stageIdx(l.stage), next = STAGES[si+1];
   const canAdvance = next && next.key!=='review';
   const dateCls = (d!=null && d>=0 && d<=14) ? 'soon' : '';
+  const steps = STAGES.filter(s=>s.key!=='review').map(s=>{
+    const idx=stageIdx(s.key);
+    if(idx<si) return '<i class="done"></i>';
+    if(idx===si) return `<i style="background:${stageOf(l.stage).color}"></i>`;
+    return '<i></i>';
+  }).join('');
   return `<div class="mp-card" onclick="MP.openDetail('${l.id}')">
     <div class="code">${esc(l.code||'')}</div>
     <div class="brand">${esc(brandName(l.brandId))}</div>
@@ -781,6 +824,7 @@ function cardHtml(l){
       <div class="track"><div class="fill" style="width:${r.overall}%;background:${readyColor(r.overall)}"></div></div>
       <div class="lbl"><span>Readiness</span><b>${r.overall}%</b></div>
     </div>
+    <div class="mp-card-steps" title="Stage ${si+1} of ${STAGES.length-1}">${steps}</div>
     ${canAdvance?`<button class="mp-btn sm advance" onclick="event.stopPropagation();MP.advance('${l.id}','${next.key}')">Advance → ${esc(next.label)}</button>`:
       (next&&next.key==='review'?`<button class="mp-btn sm advance" onclick="event.stopPropagation();MP.advance('${l.id}','review')">Start 30-day review</button>`:'')}
   </div>`;
@@ -1158,6 +1202,11 @@ window.MP = {
   },
   team(d){ teamFilter=d; renderTeams(); },
   ganttZoom(px){ ganttPx=px; renderTimeline(); },
+  scrollStage(key){
+    const el = document.getElementById('mpcol-'+key);
+    if(el){ el.scrollIntoView({behavior:'smooth', inline:'center', block:'nearest'}); el.style.transition='box-shadow .3s'; el.style.boxShadow='0 0 0 2px var(--mp)'; setTimeout(()=>el.style.boxShadow='',900); }
+    else { const b=document.querySelector('.mp-board'); if(b) b.scrollTo({left:b.scrollWidth, behavior:'smooth'}); } // review has no column
+  },
   openDetail(id){ openLaunchId=id; renderDetail(id); $('#mpOverlay').classList.add('open'); $('#mpPanel').classList.add('open'); document.body.style.overflow='hidden'; },
   closeDetail(){ openLaunchId=null; $('#mpOverlay').classList.remove('open'); $('#mpPanel').classList.remove('open'); document.body.style.overflow=''; },
   toggle(id,tid){ toggleTask(id,tid); },
