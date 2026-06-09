@@ -255,6 +255,142 @@
   .mix-bar-fill { height: 100%; border-radius: 3px; transition: width 0.4s ease, filter 0.15s; }
   .mix-bar-wrap:hover .mix-bar-fill { filter: brightness(0.92); }
 
+  /* PAID PERFORMANCE — modern card grid (one card per platform) */
+  .paid-perf-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    padding: 1.25rem 1.25rem 1rem;
+  }
+  @media (max-width: 880px) { .paid-perf-grid { grid-template-columns: 1fr; } }
+
+  .paid-card {
+    position: relative;
+    background: var(--surface);
+    border: 0.5px solid var(--border);
+    border-radius: 14px;
+    padding: 22px 22px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    overflow: hidden;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+  }
+  .paid-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--paid-accent, var(--border-strong));
+    border-radius: 14px 14px 0 0;
+  }
+  .paid-card:hover {
+    transform: translateY(-1px);
+    border-color: var(--border-strong);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.04);
+  }
+
+  .paid-card-head { display: flex; align-items: center; gap: 11px; }
+  .paid-card-icon {
+    width: 34px; height: 34px;
+    border-radius: 10px;
+    background: var(--paid-accent, var(--surface-2));
+    color: #fff;
+    font-family: var(--f-eyebrow), 'Futura PT Demi', 'Jost', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    letter-spacing: 0.02em;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .paid-card-id { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+  .paid-card-name {
+    font-family: var(--f-sans), 'DM Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: var(--ink);
+    line-height: 1.15;
+  }
+  .paid-card-sub {
+    font-size: 11px;
+    color: var(--text-3);
+    line-height: 1.3;
+  }
+
+  .paid-card-hero {
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    padding-bottom: 16px;
+    border-bottom: 0.5px solid var(--border);
+  }
+  .paid-card-hero-num {
+    font-family: var(--f-mono), 'DM Mono', monospace;
+    font-size: 36px;
+    font-weight: 500;
+    letter-spacing: -0.04em;
+    color: var(--ink);
+    line-height: 1;
+  }
+  .paid-card-hero-meta { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+  .paid-card-hero-tag {
+    font-family: var(--f-eyebrow), 'Futura PT Demi', 'Jost', sans-serif;
+    font-size: 9.5px;
+    font-weight: 600;
+    color: var(--text-3);
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+  }
+  .paid-card-hero-delta {
+    font-family: var(--f-mono), 'DM Mono', monospace;
+    font-size: 11.5px;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+  }
+
+  .paid-card-stats {
+    display: grid;
+    grid-template-columns: repeat(var(--paid-cols, 4), 1fr);
+    gap: 14px 18px;
+  }
+  @media (max-width: 520px) {
+    .paid-card { padding: 18px; gap: 14px; }
+    .paid-card-hero-num { font-size: 30px; }
+    .paid-card-stats { grid-template-columns: 1fr 1fr; }
+  }
+
+  .paid-stat { min-width: 0; }
+  .paid-stat-lbl {
+    font-family: var(--f-eyebrow), 'Futura PT Demi', 'Jost', sans-serif;
+    font-size: 9.5px;
+    font-weight: 600;
+    color: var(--text-3);
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    margin-bottom: 5px;
+  }
+  .paid-stat-val {
+    font-family: var(--f-mono), 'DM Mono', monospace;
+    font-size: 15.5px;
+    font-weight: 500;
+    color: var(--ink);
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+  }
+  .paid-stat-delta {
+    font-family: var(--f-mono), 'DM Mono', monospace;
+    font-size: 10.5px;
+    font-weight: 600;
+    margin-top: 4px;
+    display: inline-block;
+  }
+  .paid-card-hero-delta.pos, .paid-stat-delta.pos { color: #1e7d4a; }
+  .paid-card-hero-delta.neg, .paid-stat-delta.neg { color: #a32d2d; }
+  .paid-card-hero-delta.neu, .paid-stat-delta.neu { color: var(--text-3); }
+
   /* DATA PAGE */
   .data-page { padding: 2rem; max-width: 900px; margin: 0 auto; }
   .data-header { margin-bottom: 1.5rem; }
@@ -526,7 +662,7 @@
     <!-- PAID PERFORMANCE SCORECARD -->
     <div class="section-title">Paid performance scorecard</div>
     <div class="chart-card" style="margin-bottom:1.5rem;padding:0;overflow:hidden">
-      <div class="scorecard" id="paidScorecard"></div>
+      <div id="paidScorecard"></div>
       <div class="chart-source" style="padding:0 1.25rem 1rem">Source: Meta Ads Manager · Google Ads · Uber Eats + DoorDash Merchant Portals</div>
     </div>
 
@@ -821,72 +957,96 @@ function renderMixBars() {
 }
 
 // ── PAID PERFORMANCE SCORECARD ───────────────────────────────────────────────
-// Replaces 5 separate bar charts with a single scannable scorecard that shows
-// spend, clicks, CPC, net revenue, CAC, ROAS, and customers per platform —
-// each cell carries a small WoW delta pill in the same sentiment palette.
+// Replaces the dense 7-column table with a 2×2 card grid: each platform gets
+// its own card with a hero ROAS, a brand-accent stripe, and a stats row that
+// adapts to how many fields the platform actually has (Meta/Google have
+// netRev + spend + customers + cac; Sponsored/Promo only have netRev + spend).
+// Clicks / CPC are intentionally dropped — the underlying data has never
+// populated them, so they always rendered as '—' in the old layout.
 function renderScorecard() {
   const wrap = document.getElementById('paidScorecard');
   if (!wrap) return;
 
-  // Platform → display config
+  // Brand-real accent stripe colors. House palette is too pale for the
+  // 3-pixel rail at the top of each card — these are deeper variants
+  // (Meta blue, Google green, plus Neighborly tan/lavender deeps for 3PD).
   const platforms = [
-    { key: 'meta',      label: 'Meta',           sub: 'Facebook + Instagram Ads', color: '#eace49' },
-    { key: 'google',    label: 'Google',         sub: 'Search + Performance Max', color: '#7bbd91' },
-    { key: 'sponsored', label: '3PD Sponsored',  sub: 'Uber Eats + DoorDash',     color: '#dbc6a2' },
-    { key: 'promo',     label: '3PD Promo',      sub: 'Uber Eats + DoorDash',     color: '#cbc9d6' }
-  ];
-  // Metric → {label, getter from platform data, format fn, sentiment (does up = good?)}
-  const dash = '<span class="sc-empty">—</span>';
-  const metrics = [
-    { label: 'Spend',     k: 'spend',     fmt: fmt$,                neutral: true  },
-    { label: 'Clicks',    k: 'clicks',    fmt: fmtN,                lowerBetter: false },
-    { label: 'CPC',       k: 'cpc',       fmt: v => '$' + (+v).toFixed(2), lowerBetter: true  },
-    { label: 'Net rev',   k: 'netRev',    fmt: fmt$,                lowerBetter: false },
-    { label: 'ROAS',      k: 'roas',      fmt: v => (+v).toFixed(2) + 'x', lowerBetter: false },
-    { label: 'CAC',       k: 'cac',       fmt: v => '$' + (+v).toFixed(2), lowerBetter: true  },
-    { label: 'Customers', k: 'customers', fmt: fmtN,                lowerBetter: false }
+    { key: 'meta',      label: 'Meta',          sub: 'Facebook + Instagram Ads', icon: 'Ⓜ', accent: '#1877f2', full: true  },
+    { key: 'google',    label: 'Google',        sub: 'Search + Performance Max', icon: 'G',  accent: '#0f9d58', full: true  },
+    { key: 'sponsored', label: '3PD Sponsored', sub: 'Uber Eats + DoorDash',     icon: '★',  accent: '#9c7a3c', full: false },
+    { key: 'promo',     label: '3PD Promo',     sub: 'Uber Eats + DoorDash',     icon: '%',  accent: '#5a4a7a', full: false }
   ];
 
-  const headerRow = `
-    <div class="sc-row">
-      <div class="sc-h sc-h-row">Platform</div>
-      ${metrics.map(m => `<div class="sc-h">${m.label}</div>`).join('')}
-    </div>`;
-
-  const cell = (pdata, m) => {
-    const row = pdata[m.k];
-    if (!row || row.cw == null) return `<div class="sc-c" data-label="${m.label}"><div class="sc-val">${dash}</div></div>`;
-    const val = m.fmt(row.cw);
-    const pct    = getChange(row);
-    let cls = 'neu', txt = '—';
-    if (typeof pct === 'number') {
-      if (m.neutral) {
-        cls = 'neu';
-      } else {
-        const good = m.lowerBetter ? pct < 0 : pct > 0;
-        const bad  = m.lowerBetter ? pct > 0 : pct < 0;
-        cls = good ? 'pos' : (bad ? 'neg' : 'neu');
-      }
-      txt = `${pct > 0 ? '+' : ''}${pct}% ${changeLabel().replace('vs ', '')}`;
-    }
-    return `<div class="sc-c" data-label="${m.label}">
-      <div class="sc-val">${val}</div>
-      <div class="sc-delta ${cls}">${txt}</div>
-    </div>`;
+  // Stat metric library. lowerBetter null = neutral coloring on the delta.
+  const fmtMoney = v => fmt$(v);
+  const fmtDollarsCents = v => '$' + (+v).toFixed(2);
+  const fmtROAS = v => (+v).toFixed(2) + 'x';
+  const metricLib = {
+    spend:     { lbl: 'Spend',     fmt: fmtMoney,        lowerBetter: null  },
+    netRev:    { lbl: 'Net rev',   fmt: fmtMoney,        lowerBetter: false },
+    customers: { lbl: 'Customers', fmt: v => fmtN(v),    lowerBetter: false },
+    cac:       { lbl: 'CAC',       fmt: fmtDollarsCents, lowerBetter: true  }
   };
 
-  const platRows = platforms.map(p => {
-    const d = DATA[p.key] || {};
-    return `<div class="sc-row">
-      <div class="sc-h sc-h-row">
-        <div class="sc-row-name"><span class="sc-row-dot" style="background:${p.color}"></span>${p.label}</div>
-        <div class="sc-row-meta">${p.sub}</div>
-      </div>
-      ${metrics.map(m => cell(d, m)).join('')}
-    </div>`;
-  }).join('');
+  const changeSuffix = changeLabel(); // e.g. "vs last week" / "vs T4W avg"
 
-  wrap.innerHTML = headerRow + platRows;
+  function deltaParts(pct, lowerBetter) {
+    if (typeof pct !== 'number') return { cls: 'neu', txt: '—' };
+    if (lowerBetter == null) {
+      const sign = pct > 0 ? '+' : '';
+      return { cls: 'neu', txt: `${sign}${pct}%` };
+    }
+    const good = lowerBetter ? pct < 0 : pct > 0;
+    const cls = pct === 0 ? 'neu' : (good ? 'pos' : 'neg');
+    const arrow = pct > 0 ? '↑' : (pct < 0 ? '↓' : '·');
+    return { cls, txt: `${arrow} ${Math.abs(pct)}%` };
+  }
+
+  const card = (p) => {
+    const d = DATA[p.key] || {};
+
+    // Hero metric: ROAS (always shown — every platform tracks it).
+    const roasRow = d.roas || {};
+    const roasVal = (roasRow.cw != null) ? fmtROAS(roasRow.cw) : '—';
+    const roasDelta = deltaParts(getChange(roasRow), false);
+
+    // Stat row: 4 metrics for full platforms (Meta/Google), 2 for 3PD.
+    const statKeys = p.full ? ['spend', 'netRev', 'customers', 'cac']
+                            : ['spend', 'netRev'];
+
+    const stats = statKeys.map(k => {
+      const cfg = metricLib[k];
+      const row = d[k] || {};
+      const val = (row.cw != null) ? cfg.fmt(row.cw) : '—';
+      const dlt = deltaParts(getChange(row), cfg.lowerBetter);
+      return `<div class="paid-stat">
+        <div class="paid-stat-lbl">${cfg.lbl}</div>
+        <div class="paid-stat-val">${val}</div>
+        <div class="paid-stat-delta ${dlt.cls}">${dlt.txt}</div>
+      </div>`;
+    }).join('');
+
+    return `<article class="paid-card" data-platform="${p.key}"
+              style="--paid-accent:${p.accent};--paid-cols:${statKeys.length}">
+      <div class="paid-card-head">
+        <span class="paid-card-icon" aria-hidden="true">${p.icon}</span>
+        <div class="paid-card-id">
+          <div class="paid-card-name">${p.label}</div>
+          <div class="paid-card-sub">${p.sub}</div>
+        </div>
+      </div>
+      <div class="paid-card-hero">
+        <div class="paid-card-hero-num">${roasVal}</div>
+        <div class="paid-card-hero-meta">
+          <span class="paid-card-hero-tag">ROAS</span>
+          <span class="paid-card-hero-delta ${roasDelta.cls}">${roasDelta.txt} ${changeSuffix}</span>
+        </div>
+      </div>
+      <div class="paid-card-stats">${stats}</div>
+    </article>`;
+  };
+
+  wrap.innerHTML = `<div class="paid-perf-grid">${platforms.map(card).join('')}</div>`;
 }
 
 // ── METRICS TABLE ─────────────────────────────────────────────────────────────
