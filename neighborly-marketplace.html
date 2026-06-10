@@ -119,6 +119,9 @@
   .mp-pulse-row .what b{ color:var(--text); }
   .mp-pulse-row .days{ font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:.04em; padding:3px 9px; border-radius:var(--r-pill); background:var(--brand-orange-light); color:var(--brand-orange-deep); white-space:nowrap; }
   .mp-pulse-row .mp-btn{ flex:0 0 auto; }
+  .mp-pulse-clear{ display:flex; align-items:center; gap:9px; font-size:12.5px; color:var(--text-2); padding:2px 1px; }
+  .mp-pulse-clear .ok{ display:inline-flex; align-items:center; justify-content:center; width:20px; height:20px; border-radius:50%; background:var(--brand-green-light); color:var(--brand-green-deep); font-size:12px; font-weight:800; flex:0 0 auto; }
+  .mp-pulse.clear{ border-left-color:var(--brand-green); }
 
   /* ---- board ---- */
   .mp-board{ display:flex; gap:12px; overflow-x:auto; padding:8px 4px 18px; }
@@ -449,7 +452,7 @@
 
   <div class="mp-kpis" id="mpKpis"></div>
 
-  <section class="mp-pulse" id="mpPulse" style="display:none"></section>
+  <section class="mp-pulse" id="mpPulse"></section>
 
   <div class="mp-tabs">
     <button class="mp-tab" data-tab="brands" onclick="MP.tab('brands')"><span class="ph">1</span>Discovery <span class="count" id="cBrands">0</span></button>
@@ -674,9 +677,10 @@ function subscribe(){
   __fbDb.ref(CONFIG.FB_PATH).on('value', snap=>{
     const v = snap.val();
     state = { brands:(v&&v.brands)||{}, launches:(v&&v.launches)||{}, settings:(v&&v.settings)||defaultSettings() };
-    // normalise: ensure tasks object exists + backfill the stage clock so
-    // pre-existing launches start their staleness timer "now" (not flagged instantly)
-    Object.values(state.launches).forEach(l=>{ if(!l.tasks) l.tasks={}; if(!l.log) l.log=[]; if(!l.stageEnteredAt) l.stageEnteredAt=Date.now(); });
+    // normalise: ensure tasks object exists + backfill the stage clock. We never
+    // tracked stage-entry before, so estimate from createdAt (best available
+    // proxy for "how long this has been in flight") and fall back to now.
+    Object.values(state.launches).forEach(l=>{ if(!l.tasks) l.tasks={}; if(!l.log) l.log=[]; if(!l.stageEnteredAt) l.stageEnteredAt=l.createdAt||Date.now(); });
     bootstrapIfEmpty();
     renderAll();
     if(openLaunchId && state.launches[openLaunchId]) renderDetail(openLaunchId);
@@ -914,9 +918,18 @@ function pulseStalls(){
 }
 function renderPulse(){
   const host = $('#mpPulse'); if(!host) return;
+  host.style.display='';
   const stalls = pulseStalls();
-  if(!stalls.length){ host.style.display='none'; host.innerHTML=''; return; }
   const thr = Math.max(1, (state.settings && +state.settings.staleDays) || 3);
+  host.classList.toggle('clear', !stalls.length);
+  if(!stalls.length){
+    host.innerHTML = `
+      <div class="mp-pulse-head">
+        <div class="mp-pulse-title">⚡ Pulse check <span class="mp-pulse-sub">Re-notify radar · flags any team sitting on open tasks ≥ ${thr} business day${thr!==1?'s':''}</span></div>
+      </div>
+      <div class="mp-pulse-clear"><span class="ok">✓</span> All departments current — nothing stalled past ${thr} business day${thr!==1?'s':''}.</div>`;
+    return;
+  }
   const depts = [...new Set(stalls.map(s=>s.dept))].length;
   const rows = stalls.map(s=>`
     <div class="mp-pulse-row" style="--c:${deptColor(s.dept)}">
@@ -932,7 +945,6 @@ function renderPulse(){
       <div class="mp-pulse-title">⚡ Pulse check <span class="mp-pulse-sub">${stalls.length} launch${stalls.length!==1?'es':''} across ${depts} department${depts!==1?'s':''} sitting on open tasks ≥ ${thr} business day${thr!==1?'s':''}</span></div>
     </div>
     <div class="mp-pulse-grid">${rows}</div>`;
-  host.style.display='';
 }
 
 /* ---- process overview strip ---- */
