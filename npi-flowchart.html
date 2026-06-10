@@ -65,6 +65,15 @@
 
   .ft{ margin-top:26px; font-size:11px; color:var(--mute); line-height:1.5; }
 
+  /* pending / not-yet-approved parking lot */
+  .pending{ margin-top:30px; border:1px dashed #c9a23a; background:#fdf8e8; border-radius:14px; padding:16px 18px; }
+  .pending-head{ font-family:'Futura PT Demi','Jost',sans-serif; font-size:12px; font-weight:700; color:#8a6d12; text-transform:uppercase; letter-spacing:.06em; margin-bottom:11px; display:flex; flex-wrap:wrap; align-items:baseline; gap:10px; }
+  .pending-head span{ font-family:'DM Sans',sans-serif; font-size:11px; font-weight:500; letter-spacing:0; text-transform:none; color:#9a7c2a; }
+  .pending ul{ list-style:none; display:flex; flex-direction:column; gap:8px; }
+  .pending li{ font-size:12.5px; color:#3a3d44; line-height:1.45; padding-left:16px; position:relative; }
+  .pending li::before{ content:'▸'; position:absolute; left:0; top:0; color:#c9a23a; }
+  .pending b{ color:var(--ink); }
+
   @media print{
     @page{ size:portrait; margin:0.4in; }
     body{ background:#fff; padding:0; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
@@ -98,35 +107,50 @@
     Tip: leave the suggested tasks or rewrite them — the goal is to surface gaps and owners. The fields you most want to nail are <b>Owner</b>, <b>Target time</b>, and <b>How the hand-off happens</b> (automatic email vs. manual vs. meeting).
   </div>
 
+  <!-- ── PENDING · confirm with group — NOT YET APPROVED, not wired into the flow above ── -->
+  <div class="pending">
+    <div class="pending-head">⚠ Pending · confirm with group <span>Not yet approved — parked here for review, intentionally not wired into the flow above</span></div>
+    <ul>
+      <li><b>CPG vs Private Label item tag</b> — if Private Label, branch with slightly different tasks.</li>
+      <li><b>Marketplace setup notes</b> — set PARS w/ Culinary · assign target launch date · add item info to Jolt label-printing software.</li>
+      <li><b>Culinary notes</b> — R&amp;D; once approved: finalize recipe / ingredients / allergens (in R365) · final costing · packaging type/link · packaging size.</li>
+      <li><b>Ops / Training note</b> — TBD.</li>
+      <li><b>Sample shipment tracking</b> — share tracking link with Commissary; Commissary logs receipt and triggers back to Marketplace.</li>
+    </ul>
+  </div>
+
 </div>
 
 <script>
-const DEPTS = { Marketplace:'#cbc9d6', Procurement:'#6280bd', Commissary:'#dbc6a2', Operations:'#7bbd91', Marketing:'#e87142', 'Store Ops':'#eace49' };
+const DEPTS = { Marketplace:'#cbc9d6', Procurement:'#6280bd', Inventory:'#69b0a5', Commissary:'#dbc6a2', Operations:'#7bbd91', Marketing:'#e87142', 'Store Ops':'#eace49' };
 const esc = s => String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 
 const STEPS = [
-  { dept:'Marketplace', title:'Discovery & Sample Review',
-    tasks:'• Request & receive samples\n• Tasting + taste approval\n• Margin & assortment approval\n• Collect brand assets',
-    out:'Sample approved + brand assets in hand', next:'Procurement' },
+  { dept:'Marketplace', title:'Marketplace Approval & Launch Brief',
+    tasks:'• Product intake form (brand, product, assets)\n• Tasting + taste / margin / assortment approval\n• Assets: product images, brand logo, brand story\n• Compliance: W9, insurance, nutrition panel, ingredient statement, allergen info, spec sheet',
+    out:'Approved + brief: item name, free-fill case qty, suggested launch date (approval + 3 wks), price, distributor', next:'Procurement' },
   { dept:'Procurement', title:'Commercial Setup',
-    tasks:'• Vendor setup, W9, insurance\n• Terms & cost sheet\n• Case pack / MOQ\n• Secure free first fill',
-    out:'First fill confirmed, vendor live', next:'Commissary' },
+    tasks:'• Vendor setup\n• Confirm MOQ, lead times, case pack, shelf life\n• Terms, cost sheet, free first fill\n• Collect + upload initial invoice, W9, COI, nutrition facts',
+    out:'First fill confirmed, vendor live, docs uploaded', next:'Inventory' },
+  { dept:'Inventory', title:'ERP / Synergy Setup',
+    tasks:'• Create R365 item + recipe\n• Item Category 1 = Marketplace Item\n• Add to Marketplace / Commissary / WLV-BW guides\n• Attach to Toast item (after Marketing creates Toast item + rings up qty 1)',
+    out:'Item live in R365/Synergy & on order guides', next:'Commissary' },
   { dept:'Commissary', title:'Supply Chain',
-    tasks:'• Create warehouse SKU\n• Receiving setup & SOP\n• Storage location\n• Reorder point',
-    out:'Product received & slotted', next:'Operations' },
-  { dept:'Operations', title:'Retail Readiness',
-    tasks:'• Create POS / Toast item\n• Shelf label\n• Add to order guide\n• Establish pars',
-    out:'POS live, pars set, order guide ready', next:'Marketing' },
-  { dept:'Marketing', title:'Launch Readiness',
-    tasks:'• Product photography\n• Product story / description\n• Print shelf labels\n• Schedule social & email',
-    out:'Assets done, labels printed, posts scheduled', next:'Store Ops' },
+    tasks:'• Confirm sample received\n• Assign storage (Shelf 1 / Refrigerator 1 / Freezer 1)\n• Check R365 item / on order guide · confirm first fill\n• Set 2-week PAR · add ingredient PARS',
+    out:'Product received & slotted, PARs set', next:'Operations' },
+  { dept:'Operations', title:'Operational Readiness',
+    tasks:'• Confirm items on R365 order guide\n• Assign shelf space on planogram → notify Marketplace to approve\n• Confirm case/each qty · receive shelf tag · confirm PARS\n• Newsletter announce · add to store training materials',
+    out:'Order guide confirmed, planogram approved, pars set', next:'Marketing' },
+  { dept:'Marketing', title:'Marketing Readiness',
+    tasks:'• Create shelf tag (if needed)\n• Create POS Toast button / ring up qty 1 (syncs R365 → triggers ERP/Synergy)\n• Add to Olo Marketplace menu\n• Upload photos (front/back), ingredients, description to Olo',
+    out:'Toast button live, Olo menu updated, tags ready', next:'Store Ops' },
   { dept:'Store Ops', title:'Store Launch',
-    tasks:'• Receive & merchandise\n• Install shelf tags\n• Train team\n• Verify launch',
+    tasks:'• Store places first order → Commissary ships → store receives\n• Merchandise shelf · install shelf tags\n• Verify pricing · train team\n• Upload shelf photo',
     out:'Live on shelf', next:'Marketplace (recap)' }
 ];
 const DECISIONS = {
   0: { q:'Sample approved?', no:'Reject — notify brand, archive launch' },
-  4: { q:'Launch readiness ≥ 90%?', no:'Hold launch — assign remaining open tasks' }
+  5: { q:'Launch readiness ≥ 90%? (Launch Approval gate)', no:'Hold launch — assign remaining open tasks' }
 };
 
 const inp = (k,ph,val) => `<input class="f" data-k="${k}" placeholder="${esc(ph)}"${val?` value="${esc(val)}"`:''}>`;
