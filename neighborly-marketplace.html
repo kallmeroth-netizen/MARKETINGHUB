@@ -349,6 +349,18 @@ function recipientFor(dept){const te=(SETTINGS.teamEmails)||{};return te[dept]||
 function nowTs(){return new Date().toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'});}
 function toast(m){const t=$('toast');t.textContent=m;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2600);}
 
+const HUB_URL='https://beneighborly.team/neighborly-marketplace.html';
+/* "It's your turn" handoff copy — names the exact tasks, adds urgency, points
+   to the hub, and reminds them to check tasks off to advance the launch. */
+function actionMessage(launch,nm){
+  const todo=stageTasks(launch,nm.key).filter(x=>x.t.blocking!==false).map(x=>x.t.label);
+  const list=todo.length?` Your ${nm.label} checklist: ${todo.join('; ')}.`:'';
+  return `🔔 It's your turn, ${nm.dept}! ${launch.name||'A product'} (${brandName(launch)}) just advanced to the ${nm.label} stage — the whole launch is now waiting on your team.`
+    +list
+    +` ⏱️ Please jump on this today: nothing moves forward until your ${nm.label} tasks are done, and every day it sits here pushes ${launch.name||'the launch'}'s go-live date back.`
+    +` 👉 Click here to open the hub and work your checklist: ${HUB_URL}`
+    +` ✅ Don't forget — check off each task the moment you finish it. Completing them is what hands ${launch.name||'this product'} to the next team and keeps the launch on track.`;
+}
 async function sendEmail(toEmail,team,launch,vars){
   if(!NOTIFY) return {skipped:true};
   try{
@@ -356,7 +368,7 @@ async function sendEmail(toEmail,team,launch,vars){
       to_email:toEmail,to_name:team+' team',team:team,
       launch:launch.name||'',brand:brandName(launch),stage:vars.stage||'',
       launch_date:launch.launchDate||'',readiness:readiness(launch)+'%',
-      message:vars.message||'',link:'https://beneighborly.team/neighborly-marketplace.html',
+      message:vars.message||'',link:HUB_URL,
       accent:'#6280bd'
     },vars));
     return {ok:true};
@@ -525,7 +537,7 @@ async function toggleTask(id,ti,checked){
     fired.push(gid); upd['marketplace-npi/launches/'+id+'/triggersFired']=fired;
     const sm=stageMeta(sk);
     logEntry={text:`✓ Trigger fired — ${sm.label} · step ${gi+1} complete`,ts:nowTs()};
-    sendEmail(recipientFor(sm.dept),sm.dept,l,{stage:sm.label,message:`Trigger complete: ${sm.label} step ${gi+1} (${grp.map(x=>x.t.label).join(', ')}).`});
+    sendEmail(recipientFor(sm.dept),sm.dept,l,{stage:sm.label,message:`✅ Nice — ${sm.label} step ${gi+1} done for ${l.name} (${grp.map(x=>x.t.label).join(', ')}). Keep the momentum: open the hub and check off the rest of your ${sm.label} tasks so ${l.name} can move to the next team. ${HUB_URL}`});
   }
   if(logEntry){const log=(Array.isArray(l.log)?l.log:Object.values(l.log||{})).slice();log.push(logEntry);upd['marketplace-npi/launches/'+id+'/log']=log;}
   await db.ref().update(upd);
@@ -544,7 +556,7 @@ async function _advance(id){
   }
   log.push({text:`Stage → ${nm.label} · ${nm.dept} notified`,ts:nowTs()});
   await db.ref().update({['marketplace-npi/launches/'+id+'/stage']:nxt,['marketplace-npi/launches/'+id+'/stageEnteredAt']:Date.now(),['marketplace-npi/launches/'+id+'/log']:log});
-  const r=await sendEmail(recipientFor(nm.dept),nm.dept,l,{stage:nm.label,message:`${l.name} (${brandName(l)}) has advanced to ${nm.label}. Your team is up — open the pipeline to start your tasks.`});
+  const r=await sendEmail(recipientFor(nm.dept),nm.dept,l,{stage:nm.label,message:actionMessage(l,nm)});
   toast(r.ok?('Pushed to '+nm.dept+' · email sent'):('Pushed to '+nm.dept+(NOTIFY?' · email failed':' · notify off')));
 }
 window._advance=_advance;
