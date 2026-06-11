@@ -92,6 +92,8 @@
   .sb-h .dept{font-size:11px;color:var(--muted)}
   .sb-h .pct{margin-left:auto;font-size:11.5px;color:var(--muted);font-weight:600}
   .sb-body{padding:6px 14px 14px}
+  .cta{background:var(--green-bg);border:1px solid var(--green-br);color:#2f5d3f;font-size:13px;line-height:1.45;padding:10px 12px;border-radius:10px;margin:2px 0 12px}
+  .cta b{color:#234a31}
   .tg{border-top:1px dashed var(--line);padding:10px 0 4px}
   .tg:first-child{border-top:0}
   .tg .tgh{display:flex;align-items:center;gap:8px;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:6px}
@@ -335,9 +337,13 @@ let prodStatus='all', prodCat='All', brandSearch='';
 let NOTIFY=true;
 const $=id=>document.getElementById(id);
 
+let _hashOpened=false;
 db.ref('marketplace-npi').on('value',snap=>{
   const v=snap.val()||{}; LAUNCHES=v.launches||{}; BRANDS=v.brands||{}; SETTINGS=v.settings||{};
   render(); if(OPEN&&LAUNCHES[OPEN]) renderDrawer(OPEN);
+  // deep link: an email's "open the hub" link is .../neighborly-marketplace.html#<launchId>
+  // — open that product straight into the drawer the first time data arrives.
+  if(!_hashOpened && location.hash.length>1){ const hid=decodeURIComponent(location.hash.slice(1)); if(LAUNCHES[hid]){ _hashOpened=true; openDrawer(hid); } }
 });
 
 /* ---------------- helpers ---------------- */
@@ -358,7 +364,7 @@ function actionMessage(launch,nm){
   return `🔔 It's your turn, ${nm.dept}! ${launch.name||'A product'} (${brandName(launch)}) just advanced to the ${nm.label} stage — the whole launch is now waiting on your team.`
     +list
     +` ⏱️ Please jump on this today: nothing moves forward until your ${nm.label} tasks are done, and every day it sits here pushes ${launch.name||'the launch'}'s go-live date back.`
-    +` 👉 Click here to open the hub and work your checklist: ${HUB_URL}`
+    +` 👉 Click here to open ${launch.name||'this product'} in the hub and work your checklist: ${HUB_URL}#${launch.id}`
     +` ✅ Don't forget — check off each task the moment you finish it. Completing them is what hands ${launch.name||'this product'} to the next team and keeps the launch on track.`;
 }
 async function sendEmail(toEmail,team,launch,vars){
@@ -368,7 +374,7 @@ async function sendEmail(toEmail,team,launch,vars){
       to_email:toEmail,to_name:team+' team',team:team,
       launch:launch.name||'',brand:brandName(launch),stage:vars.stage||'',
       launch_date:launch.launchDate||'',readiness:readiness(launch)+'%',
-      message:vars.message||'',link:HUB_URL,
+      message:vars.message||'',link:HUB_URL+(launch&&launch.id?('#'+launch.id):''),
       accent:'#6280bd'
     },vars));
     return {ok:true};
@@ -457,7 +463,7 @@ function renderBrands(){
 
 /* ---------------- process tab ---------------- */
 function renderProcess(){
-  $('view').innerHTML=`<h1>Process</h1><p class="sub">Start-to-finish flow. Every trigger gates ≤3 tasks, then hands to the next department.</p>
+  $('view').innerHTML=`<h1>Process</h1><p class="sub">Start-to-finish flow. Each stage is owned by one department — finish its checklist, then hand off to the next team. Each handoff auto-emails the next department that it's their turn.</p>
     <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(260px,1fr))">${PIPE.map((s,i)=>{
       const nxt=PIPE[i+1]||stageMeta('live');
       return `<div class="card" style="cursor:default"><div class="name"><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${s.color};margin-right:7px"></span>${i+1}. ${esc(s.label)}</div>
@@ -487,11 +493,14 @@ function renderDrawer(id){
       return `<div class="tg"><div class="tgh">Trigger ${gi+1} <span class="${allDone?'fired':'pend'}">${allDone?'✓ fired':'pending'}</span></div>
         ${g.map(x=>{const t=x.t;const meta=[t.owner?`👤 ${esc(t.owner)}`:'',t.def?`✓ ${esc(t.def)}`:'',t.notify?`🔔 ${esc(t.notify)}`:''].filter(Boolean).join(' · ');return `<div class="task ${t.done?'done':''}"><input type="checkbox" ${t.done?'checked':''} data-id="${id}" data-ti="${x.i}"><div class="tbody"><label>${esc(t.label)}</label>${meta?`<div class="task-meta">${meta}</div>`:''}</div></div>`;}).join('')}</div>`;
     }).join('');
+    const nxtK=nextStageKey(s.key), nxtM=nxtK?stageMeta(nxtK):null;
+    const nextWho=nxtM?(nxtM.dept==='—'?'Live · on shelf':nxtM.dept):'the next team';
+    const cta=isCur?`<div class="cta">👉 <b>${esc(s.dept)}</b>, you're up on <b>${esc(l.name||'this product')}</b>. Check off your required tasks below${nxtK?` — then tap <b>Push to ${esc(nextWho)}</b>`:''} to keep the launch moving.</div>`:'';
     return `<div class="stagebox ${isCur?'cur':''}"><div class="sb-h" data-stg="${s.key}">
         <span class="dot" style="background:${s.color}"></span>
         <div><div class="lbl">${esc(s.label)}</div><div class="dept">${esc(s.dept)}</div></div>
         <span class="pct">${doneN}/${sts.length}</span></div>
-      <div class="sb-body" style="${isCur?'':'display:none'}">${groupsHtml}
+      <div class="sb-body" style="${isCur?'':'display:none'}">${cta}${groupsHtml}
         ${isCur?advanceBtn(l,s):''}</div></div>`;
   }).join('');
   const log=(Array.isArray(l.log)?l.log:Object.values(l.log||{})).slice().reverse().slice(0,8);
@@ -537,7 +546,7 @@ async function toggleTask(id,ti,checked){
     fired.push(gid); upd['marketplace-npi/launches/'+id+'/triggersFired']=fired;
     const sm=stageMeta(sk);
     logEntry={text:`✓ Trigger fired — ${sm.label} · step ${gi+1} complete`,ts:nowTs()};
-    sendEmail(recipientFor(sm.dept),sm.dept,l,{stage:sm.label,message:`✅ Nice — ${sm.label} step ${gi+1} done for ${l.name} (${grp.map(x=>x.t.label).join(', ')}). Keep the momentum: open the hub and check off the rest of your ${sm.label} tasks so ${l.name} can move to the next team. ${HUB_URL}`});
+    sendEmail(recipientFor(sm.dept),sm.dept,l,{stage:sm.label,message:`✅ Nice — ${sm.label} step ${gi+1} done for ${l.name} (${grp.map(x=>x.t.label).join(', ')}). Keep the momentum: open the hub and check off the rest of your ${sm.label} tasks so ${l.name} can move to the next team. ${HUB_URL}#${l.id}`});
   }
   if(logEntry){const log=(Array.isArray(l.log)?l.log:Object.values(l.log||{})).slice();log.push(logEntry);upd['marketplace-npi/launches/'+id+'/log']=log;}
   await db.ref().update(upd);
@@ -593,7 +602,8 @@ function renderGantt(){
   const inproc=Object.values(LAUNCHES).filter(l=>l.stage!=='live'&&l.stage!=='review')
     .sort((a,b)=>stageIdx(b.stage)-stageIdx(a.stage)||(a.name||'').localeCompare(b.name||''));
   const stale=SETTINGS.staleDays||3;
-  const head=`<div class="grow head"><div class="lbl">Product</div>${PIPE.map(s=>`<div>${esc(s.label.split(' ')[0])}</div>`).join('')}<div>Ready</div></div>`;
+  const gcols=`grid-template-columns:230px repeat(${PIPE.length},minmax(0,1fr)) 86px`;
+  const head=`<div class="grow head" style="${gcols}"><div class="lbl">Product</div>${PIPE.map(s=>`<div>${esc(s.label.split(' ')[0])}</div>`).join('')}<div>Ready</div></div>`;
   const rows=inproc.map(l=>{
     const ci=stageIdx(l.stage);
     const cells=PIPE.map((s,i)=>{
@@ -604,7 +614,7 @@ function renderGantt(){
     }).join('');
     const days=l.stageEnteredAt?Math.floor((Date.now()-l.stageEnteredAt)/86400000):0;
     const stall=days>stale;
-    return `<div class="grow" data-id="${l.id}" style="cursor:pointer"><div class="glabel">${esc(l.name||'')}<small>${esc(brandName(l))} · ${esc(l.code||'')}</small></div>${cells}<div class="gmeta"><span class="r">${readiness(l)}%</span><br><span class="${stall?'stall':''}">${days}d</span></div></div>`;
+    return `<div class="grow" data-id="${l.id}" style="cursor:pointer;${gcols}"><div class="glabel">${esc(l.name||'')}<small>${esc(brandName(l))} · ${esc(l.code||'')}</small></div>${cells}<div class="gmeta"><span class="r">${readiness(l)}%</span><br><span class="${stall?'stall':''}">${days}d</span></div></div>`;
   }).join('');
   $('view').innerHTML=`<h1>Pipeline Gantt</h1><p class="sub">${inproc.length} products in process · stage-by-stage progress. Filled = stage complete · striped = in progress now.</p>
     <div class="gantt">${head}${rows||'<div class="empty">No products in process.</div>'}</div>
