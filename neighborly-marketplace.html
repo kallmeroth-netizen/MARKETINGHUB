@@ -706,6 +706,10 @@ function renderSettings(){
     <div class="setbox" style="margin-top:18px">
       <p class="sethint" style="margin-bottom:10px"><b>Back-fill existing products</b> — give the products you already imported the new checklist (owners &amp; definitions-of-done) and the W-9 stage. Every completed task is preserved; nothing is deleted. Safe to run more than once.</p>
       <button class="savebtn" id="backfillBtn" style="background:#6a5a86">Back-fill existing products</button>
+    </div>
+    <div class="setbox" style="margin-top:18px">
+      <p class="sethint" style="margin-bottom:10px"><b>Send sample notifications</b> — emails one of every notification type (new-product broadcast, each stage's "it's your turn" handoff, a cross-team ping, and a stage-complete nudge) to <b>${esc(TEST_EMAIL)}</b> so you can see exactly what each team receives. Uses a fake "Test Product" — touches no real data.</p>
+      <button class="savebtn" id="testEmailBtn" style="background:#3f7a52">Email me sample notifications</button>
     </div>`;
   $('saveSet').onclick=async()=>{
     const te2={}; document.querySelectorAll('input[data-dept]').forEach(i=>{const v=i.value.trim(); if(v) te2[i.dataset.dept]=v;});
@@ -713,6 +717,34 @@ function renderSettings(){
     toast('Settings saved');
   };
   $('backfillBtn').onclick=backfillTasks;
+  $('testEmailBtn').onclick=sendTestEmails;
+}
+
+const TEST_EMAIL='kallmeroth@beneighborly.com';
+/* Send one of every notification type to TEST_EMAIL using a throwaway sample
+   launch — so you can preview exactly what each team gets. Sends sequentially
+   to respect EmailJS rate limits. Writes nothing to the database. */
+async function sendTestEmails(){
+  if(!window.emailjs){ toast('EmailJS not loaded'); return; }
+  if(!confirm(`Send a full set of sample emails to ${TEST_EMAIL}? (about a dozen, one of each type)`)) return;
+  const wasNotify=NOTIFY; NOTIFY=true;
+  const prevBrand=BRANDS['__testbrand']; BRANDS['__testbrand']={id:'__testbrand',name:'Sample Brand'};
+  const sample={id:'TESTLAUNCH',name:'Test Product',brandId:'__testbrand',category:'Pantry',launchDate:'',stage:'discovery',tasks:buildTasks()};
+  const jobs=[];
+  // new-product broadcast
+  jobs.push({team:'Marketplace',vars:{stage:'Discovery',message:`🚀 [TEST] New product added — ${sample.name} (Sample Brand). The launch process has officially begun. Each team will be notified automatically when it's your turn — nothing to do yet.`}});
+  // each stage's "it's your turn" handoff
+  STAGES.filter(s=>s.dept&&s.dept!=='—').forEach(s=>jobs.push({team:s.dept,vars:{stage:s.label,message:`[TEST · ${s.dept} handoff] `+actionMessage(sample,s)}}));
+  // a cross-team dependency ping
+  jobs.push({team:'Inventory',vars:{stage:'W-9',message:'[TEST · cross-team ping] Vendor documents cleared — safe to create the R365/Synergy item & SKU. '+HUB_URL+'#'+sample.id}});
+  // a stage-complete nudge
+  jobs.push({team:'Procurement',vars:{stage:'Commercial',message:`[TEST · stage complete] ✅ All your Commercial tasks for ${sample.name} are done — great work! Last step: open the hub and tap "Push to Compliance" to hand it to the next team. `+HUB_URL+'#'+sample.id}});
+  toast(`Sending ${jobs.length} sample emails to ${TEST_EMAIL}…`);
+  let ok=0,fail=0;
+  for(const j of jobs){ const r=await sendEmail(TEST_EMAIL,j.team,sample,j.vars); if(r&&r.ok)ok++; else fail++; await new Promise(res=>setTimeout(res,1200)); }
+  if(prevBrand) BRANDS['__testbrand']=prevBrand; else delete BRANDS['__testbrand'];
+  NOTIFY=wasNotify;
+  toast(`✓ ${ok} sample emails sent${fail?` · ${fail} failed`:''} to ${TEST_EMAIL}`,fail?'#a32d2d':'');
 }
 
 /* One-time migration: bring already-imported launches up to the v2 checklist.
