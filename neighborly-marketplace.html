@@ -151,6 +151,15 @@
   .setrow label{flex:0 0 150px;font-weight:600;font-size:13.5px}
   .setrow input[type=email],.setrow input[type=number]{flex:1;padding:9px 12px;border:1px solid var(--line);border-radius:9px;font-family:inherit;font-size:13.5px;color:var(--ink)}
   .setrow input:focus{outline:none;border-color:var(--accent)}
+  .setrow-emails{align-items:flex-start}
+  .emails{flex:1;display:flex;flex-direction:column;gap:8px;min-width:0}
+  .emailrow{display:flex;align-items:center;gap:8px}
+  .emailrow input[type=email]{flex:1;min-width:0;padding:9px 12px;border:1px solid var(--line);border-radius:9px;font-family:inherit;font-size:13.5px;color:var(--ink)}
+  .emailrow input:focus{outline:none;border-color:var(--accent)}
+  .rmmail{flex:0 0 auto;width:30px;height:30px;border:1px solid var(--line);background:#fff;border-radius:8px;color:var(--muted);font-size:17px;line-height:1;cursor:pointer}
+  .rmmail:hover{border-color:#a32d2d;color:#a32d2d}
+  .addmail{align-self:flex-start;border:1px dashed var(--line);background:transparent;color:var(--accent);font-family:inherit;font-size:12.5px;font-weight:600;padding:6px 10px;border-radius:8px;cursor:pointer}
+  .addmail:hover{border-color:var(--accent)}
   .savebtn{margin-top:16px;border:0;background:var(--accent);color:#fff;font-family:inherit;font-weight:700;font-size:14px;padding:11px 18px;border-radius:10px;cursor:pointer}
 
   /* ---------------- mobile ---------------- */
@@ -693,13 +702,18 @@ function renderGantt(){
 }
 
 /* ---------------- settings tab (edit notification emails here) ---------------- */
+function emailRowHtml(d,em){return `<div class="emailrow"><input type="email" data-dept="${esc(d)}" value="${esc(em||'')}" placeholder="name@beneighborly.com"><button type="button" class="rmmail" title="Remove">×</button></div>`;}
 function renderSettings(){
   const depts=DEPTS;
   const te=SETTINGS.teamEmails||{};
   $('view').innerHTML=`<h1>Settings</h1><p class="sub">Notification routing & pipeline rules.</p>
     <div class="setbox">
-      <p class="sethint">When a product is pushed to a department (or a trigger fires), the handoff email is sent to that department's address below. One EmailJS template powers them all — only the recipient and message change.</p>
-      ${depts.map(d=>`<div class="setrow"><label>${esc(d)}</label><input type="email" data-dept="${esc(d)}" value="${esc(te[d]||'')}" placeholder="name@beneighborly.com"></div>`).join('')}
+      <p class="sethint">When a product is pushed to a department (or a trigger fires), the handoff email is sent to that department's address(es) below. Add more than one to notify a whole team. One EmailJS template powers them all — only the recipient and message change.</p>
+      ${depts.map(d=>{
+        const list=String(te[d]||'').split(',').map(s=>s.trim()).filter(Boolean);
+        const rows=(list.length?list:['']).map(em=>emailRowHtml(d,em)).join('');
+        return `<div class="setrow setrow-emails"><label>${esc(d)}</label><div class="emails" data-dept-group="${esc(d)}">${rows}<button type="button" class="addmail" data-add="${esc(d)}">+ Add email</button></div></div>`;
+      }).join('')}
       <div class="setrow"><label>Stalled after</label><input type="number" id="staleInp" min="1" value="${SETTINGS.staleDays||3}" style="flex:0 0 90px"> <span style="color:var(--muted);font-size:13px">business days in a stage flags it as stalled</span></div>
       <button class="savebtn" id="saveSet">Save settings</button>
     </div>
@@ -711,8 +725,15 @@ function renderSettings(){
       <p class="sethint" style="margin-bottom:10px"><b>Send sample notifications</b> — emails one of every notification type (new-product broadcast, each stage's "it's your turn" handoff, a cross-team ping, and a stage-complete nudge) to <b>${esc(TEST_EMAIL)}</b> so you can see exactly what each team receives. Uses a fake "Test Product" — touches no real data.</p>
       <button class="savebtn" id="testEmailBtn" style="background:#3f7a52">Email me sample notifications</button>
     </div>`;
+  const bindRemove=btn=>{btn.onclick=()=>btn.closest('.emailrow').remove();};
+  document.querySelectorAll('.rmmail').forEach(bindRemove);
+  document.querySelectorAll('.addmail').forEach(b=>b.onclick=()=>{
+    const row=document.createElement('div'); row.innerHTML=emailRowHtml(b.dataset.add,'');
+    const el=row.firstElementChild; b.parentElement.insertBefore(el,b);
+    bindRemove(el.querySelector('.rmmail')); el.querySelector('input').focus();
+  });
   $('saveSet').onclick=async()=>{
-    const te2={}; document.querySelectorAll('input[data-dept]').forEach(i=>{const v=i.value.trim(); if(v) te2[i.dataset.dept]=v;});
+    const te2={}; document.querySelectorAll('input[data-dept]').forEach(i=>{const v=i.value.trim(); if(!v) return; const d=i.dataset.dept; te2[d]=te2[d]?te2[d]+', '+v:v;});
     await db.ref('marketplace-npi/settings').update({teamEmails:te2, staleDays:+($('staleInp').value)||3});
     toast('Settings saved');
   };
