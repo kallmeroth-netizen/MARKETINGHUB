@@ -100,6 +100,8 @@
   .task{display:flex;align-items:flex-start;gap:9px;padding:5px 0;font-size:13.5px}
   .task input{margin-top:2px;width:16px;height:16px;accent-color:var(--green-ink);cursor:pointer}
   .task.done label{color:var(--muted);text-decoration:line-through}
+  .task .tbody{flex:1;min-width:0}
+  .task-meta{font-size:11px;color:var(--muted);opacity:.9;margin-top:2px;line-height:1.45}
   .advance{width:100%;border:0;background:var(--accent);color:#fff;font-family:inherit;font-weight:700;font-size:14px;padding:13px;border-radius:11px;cursor:pointer;margin-top:6px}
   .advance:disabled{background:#d8d5cd;cursor:not-allowed}
   .advance.live{background:var(--green-ink)}
@@ -178,6 +180,7 @@ const STAGES=[
   {key:'discovery', label:'Discovery',     dept:'Marketplace', color:'#a9a6bd'},
   {key:'sample',    label:'Sample Review', dept:'Marketplace', color:'#cbb3d6'},
   {key:'commercial',label:'Commercial',    dept:'Procurement', color:'#6280bd'},
+  {key:'compliance',label:'W-9',           dept:'Compliance',  color:'#b88fb8'},
   {key:'erp',       label:'ERP / Synergy', dept:'Inventory',   color:'#69b0a5'},
   {key:'commissary',label:'Commissary',    dept:'Commissary',  color:'#dbc6a2'},
   {key:'operations',label:'Operations',    dept:'Operations',  color:'#7bbd91'},
@@ -191,6 +194,99 @@ const stageMeta=k=>STAGES.find(s=>s.key===k)||{label:k,dept:'—',color:'#ccc'};
 const stageIdx=k=>STAGES.findIndex(s=>s.key===k);
 const nextStageKey=k=>{const i=stageIdx(k);return i>=0&&i<STAGES.length-1?STAGES[i+1].key:null;};
 function chunk3(arr){const o=[];for(let i=0;i<arr.length;i+=3)o.push(arr.slice(i,i+3));return o;}
+
+/* Departments (drives Settings rows + new-product broadcast). Compliance owns
+   the W-9 / vendor-docs stage — set its email in Settings. */
+const DEPTS=['Marketplace','Procurement','Compliance','Inventory','Commissary','Operations','Marketing','Store Ops'];
+
+/* Curated NPI checklist. New products are built from this (owner = who's
+   accountable, def = definition of done that makes checking the box honest,
+   notify/notifyMsg = optional cross-team ping, blocking:false = doesn't gate
+   the stage). Existing launches keep whatever tasks they already have. */
+const TASK_TEMPLATES=[
+  /* Discovery — Marketplace */
+  {stage:'discovery',dept:'Marketplace',label:'Product intake form completed',owner:'Marketplace Lead',def:'Intake form submitted with brand, product, category & contact captured'},
+  {stage:'discovery',dept:'Marketplace',label:'Brand submitted & logged',owner:'Marketplace Lead',def:'Brand record created in the pipeline'},
+  {stage:'discovery',dept:'Marketplace',label:'Samples requested from brand',owner:'Marketplace Lead',def:'Sample request sent to vendor with ship-to address'},
+  {stage:'discovery',dept:'Marketplace',label:'Samples received',owner:'Marketplace Lead',def:'Physical samples in hand and logged'},
+  /* Sample Review — Marketplace */
+  {stage:'sample',dept:'Marketplace',label:'Tasting scheduled',owner:'Marketplace Lead',def:'Tasting date on the calendar with panel invited'},
+  {stage:'sample',dept:'Marketplace',label:'Taste approved',owner:'Marketplace Lead',def:'Tasting panel signed off on product quality'},
+  {stage:'sample',dept:'Marketplace',label:'Margin approved',owner:'Marketplace Lead',def:'Projected margin meets or exceeds threshold'},
+  {stage:'sample',dept:'Marketplace',label:'Assortment approved',owner:'Marketplace Lead',def:'SKU list confirmed for the assortment'},
+  {stage:'sample',dept:'Marketplace',label:'Asset: Product images received',owner:'Marketplace Lead',def:'Hi-res product images on file',blocking:false},
+  {stage:'sample',dept:'Marketplace',label:'Asset: Brand logo received',owner:'Marketplace Lead',def:'Vector/hi-res logo on file',blocking:false},
+  {stage:'sample',dept:'Marketplace',label:'Asset: Brand story received',owner:'Marketplace Lead',def:'Brand story copy on file',blocking:false,notify:'Marketing',notifyMsg:'Brand story received — available for Marketing to draft product copy.'},
+  /* Commercial — Procurement */
+  {stage:'commercial',dept:'Procurement',label:'Vendor setup started',owner:'Procurement Coordinator',def:'Vendor record opened in the system'},
+  {stage:'commercial',dept:'Procurement',label:'Confirm MOQ & case pack',owner:'Procurement Coordinator',def:'Minimum order qty and units-per-case confirmed with vendor in writing'},
+  {stage:'commercial',dept:'Procurement',label:'Confirm lead times & shelf life',owner:'Procurement Coordinator',def:'Production/ship lead time and shelf-life window documented'},
+  {stage:'commercial',dept:'Procurement',label:'Terms finalized',owner:'Procurement Coordinator',def:'Payment & trade terms agreed and recorded'},
+  {stage:'commercial',dept:'Procurement',label:'Cost sheet approved',owner:'Procurement Manager',def:'Landed cost sheet signed off by Procurement manager'},
+  {stage:'commercial',dept:'Procurement',label:'Free first fill secured',owner:'Procurement Coordinator',def:'Free first-fill agreement on file from vendor',notify:'Commissary',notifyMsg:'Free first fill secured — Commissary can expect the initial fill shipment.'},
+  {stage:'commercial',dept:'Procurement',label:'Collect + upload initial invoice',owner:'Procurement Coordinator',def:'First invoice received and uploaded'},
+  {stage:'commercial',dept:'Procurement',label:'Commercial terms complete — ready for vendor docs',owner:'Procurement Coordinator',def:'All commercial terms above confirmed',notify:'Compliance',notifyMsg:'Commercial terms finalized — please collect W-9 + COI before vendor goes live in the systems.'},
+  /* W-9 — Compliance (gates ERP/SKU creation) */
+  {stage:'compliance',dept:'Compliance',label:'Collect + upload W-9',owner:'AP Clerk',def:'W-9 PDF on file; TIN matches legal vendor name'},
+  {stage:'compliance',dept:'Compliance',label:'Collect + upload Insurance (COI)',owner:'AP Clerk',def:'COI on file naming Neighborly as additional insured; expiry after launch date'},
+  {stage:'compliance',dept:'Compliance',label:'Nutrition panel on file',owner:'AP Clerk',def:'Nutrition facts panel uploaded'},
+  {stage:'compliance',dept:'Compliance',label:'Ingredient statement on file',owner:'AP Clerk',def:'Full ingredient statement uploaded'},
+  {stage:'compliance',dept:'Compliance',label:'Allergen information on file',owner:'AP Clerk',def:'Allergen declaration uploaded'},
+  {stage:'compliance',dept:'Compliance',label:'Product spec sheet on file',owner:'AP Clerk',def:'Vendor product spec sheet uploaded'},
+  {stage:'compliance',dept:'Compliance',label:'Vendor documents cleared — vendor active',owner:'AP Clerk',def:'All compliance docs on file; vendor flagged active',notify:'Inventory',notifyMsg:'Vendor documents cleared — safe to create the R365/Synergy item & SKU.'},
+  /* ERP / Synergy — Inventory */
+  {stage:'erp',dept:'Inventory',label:'Create R365 item',owner:'Synergy Admin',def:'Item created in R365 with correct UOM'},
+  {stage:'erp',dept:'Inventory',label:'Create R365 recipe',owner:'Synergy Admin',def:'Recipe/build created in R365'},
+  {stage:'erp',dept:'Inventory',label:'Add Item Category 1 = Marketplace Item',owner:'Synergy Admin',def:'Category 1 set to "Marketplace Item"'},
+  {stage:'erp',dept:'Inventory',label:'Add to Marketplace order guide',owner:'Synergy Admin',def:'Item appears on the Marketplace order guide'},
+  {stage:'erp',dept:'Inventory',label:'Add to Commissary inventory guide',owner:'Synergy Admin',def:'Item on the Commissary inventory guide'},
+  {stage:'erp',dept:'Inventory',label:'Add to WLV/BW inventory guide',owner:'Synergy Admin',def:'Item on the WLV/BW inventory guide'},
+  {stage:'erp',dept:'Inventory',label:'Attach to Toast item (after Marketing rings up qty 1)',owner:'Synergy Admin',def:'R365 item linked to the Toast item once Marketing has created it'},
+  /* Commissary */
+  {stage:'commissary',dept:'Commissary',label:'Confirm sample received',owner:'Commissary Manager',def:'Sample physically received at commissary'},
+  {stage:'commissary',dept:'Commissary',label:'Assign storage location (Shelf / Refrigerator / Freezer)',owner:'Commissary Manager',def:'Specific storage location & class assigned'},
+  {stage:'commissary',dept:'Commissary',label:'Check R365 item created / on order guide',owner:'Commissary Manager',def:'Verified the R365 item exists and is on the guide'},
+  {stage:'commissary',dept:'Commissary',label:'Confirm first fill received',owner:'Commissary Manager',def:'First-fill quantity received and counted'},
+  {stage:'commissary',dept:'Commissary',label:'Set 2-week PAR',owner:'Commissary Manager',def:'2-week PAR level set in the system'},
+  {stage:'commissary',dept:'Commissary',label:'Add ingredient PARs',owner:'Commissary Manager',def:'Component/ingredient PARs entered'},
+  {stage:'commissary',dept:'Commissary',label:'Receiving SOP written',owner:'Commissary Manager',def:'Receiving SOP documented for this item',blocking:false},
+  /* Operations */
+  {stage:'operations',dept:'Operations',label:'Confirm items on R365 order guide',owner:'Operations Manager',def:'Item verified on the store order guide'},
+  {stage:'operations',dept:'Operations',label:'Assign shelf space on store planogram',owner:'Operations Manager',def:'Shelf location assigned on the planogram',notify:'Marketplace',notifyMsg:'Planogram shelf space assigned — please review & approve placement.'},
+  {stage:'operations',dept:'Operations',label:'Confirm initial case/each qty to receive',owner:'Operations Manager',def:'Opening order quantity confirmed'},
+  {stage:'operations',dept:'Operations',label:'Receive shelf tag (from Marketing)',owner:'Operations Manager',def:'Printed shelf tag received from Marketing'},
+  {stage:'operations',dept:'Operations',label:'Confirm PARs (min qty re-order trigger)',owner:'Operations Manager',def:'Store PAR / reorder point set'},
+  {stage:'operations',dept:'Operations',label:'Communicate upcoming launch via newsletter',owner:'Operations Manager',def:'Launch noted in the store/ops newsletter',blocking:false},
+  {stage:'operations',dept:'Operations',label:'Include in store training materials',owner:'Operations Manager',def:'Item added to store training materials'},
+  /* Marketing */
+  {stage:'marketing',dept:'Marketing',label:'Product photography',owner:'Marketing Manager',def:'Final product photos shot & edited'},
+  {stage:'marketing',dept:'Marketing',label:'Product story / description written',owner:'Marketing Manager',def:'Approved product copy written'},
+  {stage:'marketing',dept:'Marketing',label:'Create shelf tag (if needed)',owner:'Marketing Manager',def:'Shelf tag designed & sent to print',blocking:false},
+  {stage:'marketing',dept:'Marketing',label:'Create POS Toast button / ring up qty 1 (syncs to R365)',owner:'Marketing Manager',def:'Toast button created and qty 1 rung to sync',notify:'Inventory',notifyMsg:'Toast item created & rung up qty 1 — ready to attach to the R365/Synergy item (final Toast step).'},
+  {stage:'marketing',dept:'Marketing',label:'Add to Olo Marketplace menu',owner:'Marketing Manager',def:'Item live on the Olo Marketplace menu'},
+  {stage:'marketing',dept:'Marketing',label:'Upload photos/ingredients/description to Olo',owner:'Marketing Manager',def:'Front/back photos, ingredients & description on Olo'},
+  {stage:'marketing',dept:'Marketing',label:'Social scheduled',owner:'Marketing Manager',def:'Launch social posts scheduled',blocking:false},
+  {stage:'marketing',dept:'Marketing',label:'Email scheduled',owner:'Marketing Manager',def:'Launch email scheduled',blocking:false},
+  /* Store Launch — Store Ops */
+  {stage:'store',dept:'Store Ops',label:'Store places first order',owner:'Store Manager',def:'First order placed through the order guide'},
+  {stage:'store',dept:'Store Ops',label:'Commissary ships product',owner:'Commissary Manager',def:'Product shipped from commissary to store'},
+  {stage:'store',dept:'Store Ops',label:'Store receives product',owner:'Store Manager',def:'Product received & checked in at store'},
+  {stage:'store',dept:'Store Ops',label:'Merchandise shelf',owner:'Store Manager',def:'Product merchandised per planogram'},
+  {stage:'store',dept:'Store Ops',label:'Install shelf tags',owner:'Store Manager',def:'Shelf tags installed at the facing'},
+  {stage:'store',dept:'Store Ops',label:'Verify pricing',owner:'Store Manager',def:'POS price verified against the cost sheet'},
+  {stage:'store',dept:'Store Ops',label:'Train team',owner:'Store Manager',def:'Floor team briefed on the new item'},
+  {stage:'store',dept:'Store Ops',label:'Upload shelf photo',owner:'Store Manager',def:'Photo of the merchandised shelf uploaded',notify:'Marketplace',notifyMsg:'Store launch verified & shelf photo uploaded — product is LIVE.'},
+  /* 30-Day Review — Marketplace */
+  {stage:'review',dept:'Marketplace',label:'30-day sales reviewed',owner:'Marketplace Lead',def:'30-day sell-through pulled & reviewed'},
+  {stage:'review',dept:'Marketplace',label:'Velocity reviewed',owner:'Marketplace Lead',def:'Unit velocity vs. expectation reviewed'},
+  {stage:'review',dept:'Marketplace',label:'Margin reviewed',owner:'Marketplace Lead',def:'Realized margin vs. projected reviewed'},
+  {stage:'review',dept:'Marketplace',label:'Inventory turns & stockouts reviewed',owner:'Marketplace Lead',def:'Turns and any stockouts reviewed'},
+  {stage:'review',dept:'Marketplace',label:'Waste reviewed',owner:'Marketplace Lead',def:'Spoilage/waste reviewed',blocking:false},
+  {stage:'review',dept:'Marketplace',label:'Vendor performance reviewed',owner:'Marketplace Lead',def:'Fill rate & lead-time performance reviewed'},
+  {stage:'review',dept:'Marketplace',label:'Customer feedback reviewed',owner:'Marketplace Lead',def:'Guest feedback reviewed',blocking:false},
+  {stage:'review',dept:'Marketplace',label:'Disposition decided: Expand / Maintain / Exit',owner:'Marketplace Lead',def:'Expand, Maintain, or Exit decision recorded'}
+];
+function buildTasks(){return TASK_TEMPLATES.map(t=>({stage:t.stage,dept:t.dept,label:t.label,owner:t.owner||'',def:t.def||'',notify:t.notify||'',notifyMsg:t.notifyMsg||'',blocking:t.blocking!==false,done:false,doneAt:null}));}
 
 /* ---------------- state ---------------- */
 let LAUNCHES={}, BRANDS={}, SETTINGS={}, TAB='pipeline', OPEN=null;
@@ -336,7 +432,7 @@ function renderDrawer(id){
       const gid=s.key+'#'+gi;
       const allDone=g.every(x=>x.t.done);
       return `<div class="tg"><div class="tgh">Trigger ${gi+1} <span class="${allDone?'fired':'pend'}">${allDone?'✓ fired':'pending'}</span></div>
-        ${g.map(x=>`<div class="task ${x.t.done?'done':''}"><input type="checkbox" ${x.t.done?'checked':''} data-id="${id}" data-ti="${x.i}"><label>${esc(x.t.label)}</label></div>`).join('')}</div>`;
+        ${g.map(x=>{const t=x.t;const meta=[t.owner?`👤 ${esc(t.owner)}`:'',t.def?`✓ ${esc(t.def)}`:'',t.notify?`🔔 ${esc(t.notify)}`:''].filter(Boolean).join(' · ');return `<div class="task ${t.done?'done':''}"><input type="checkbox" ${t.done?'checked':''} data-id="${id}" data-ti="${x.i}"><div class="tbody"><label>${esc(t.label)}</label>${meta?`<div class="task-meta">${meta}</div>`:''}</div></div>`;}).join('')}</div>`;
     }).join('');
     return `<div class="stagebox ${isCur?'cur':''}"><div class="sb-h" data-stg="${s.key}">
         <span class="dot" style="background:${s.color}"></span>
@@ -359,12 +455,14 @@ window._close=closeDrawer;
 
 function advanceBtn(l,s){
   const sts=stageTasks(l,s.key);
-  const done=sts.every(x=>x.t.done);
+  // only "blocking" tasks gate the handoff; nice-to-haves (blocking:false) don't.
+  // existing launches have no blocking field, so they still require every task.
+  const done=sts.every(x=>x.t.done||x.t.blocking===false);
   const nxt=nextStageKey(s.key);
   const nxtMeta=nxt?stageMeta(nxt):null;
-  if(s.key==='store'){ return `<button class="advance live" ${done?'':'disabled'} onclick="window._advance('${l.id}')">${done?'✓ Mark LIVE on shelf':'Complete all tasks to go live'}</button>`; }
+  if(s.key==='store'){ return `<button class="advance live" ${done?'':'disabled'} onclick="window._advance('${l.id}')">${done?'✓ Mark LIVE on shelf':'Complete required tasks to go live'}</button>`; }
   if(!nxt) return '';
-  return `<button class="advance" ${done?'':'disabled'} onclick="window._advance('${l.id}')">${done?'Push to '+esc(nxtMeta.dept)+' →':'Complete all tasks to advance'}</button>`;
+  return `<button class="advance" ${done?'':'disabled'} onclick="window._advance('${l.id}')">${done?'Push to '+esc(nxtMeta.dept)+' →':'Complete required tasks to advance'}</button>`;
 }
 
 /* ---------------- actions ---------------- */
@@ -372,6 +470,8 @@ async function toggleTask(id,ti,checked){
   const l=LAUNCHES[id]; if(!l)return;
   const ts=tasksOf(l).map(t=>Object.assign({},t));
   ts[ti].done=checked; ts[ti].doneAt=checked?Date.now():null;
+  // per-task cross-team ping — fires the instant a task with a notify target is checked
+  if(checked && ts[ti].notify){ const nd=stageMeta(ts[ti].stage); sendEmail(recipientFor(ts[ti].notify),ts[ti].notify,l,{stage:nd.label,message:ts[ti].notifyMsg||`${ts[ti].label} completed for ${l.name}.`}); }
   // detect trigger-group completion to fire notification
   const sk=ts[ti].stage;
   const sts=ts.map((t,i)=>({t,i})).filter(x=>x.t.stage===sk);
@@ -418,14 +518,19 @@ async function addProduct(){
   const now=Date.now();
   const upd={};
   if(!brandId){brandId=uid('b');upd['marketplace-npi/brands/'+brandId]={id:brandId,name:brand,category:cat,status:'Proposed',source:'Added in app',createdAt:now,distributor:'',contact:'',email:'',website:'',notes:''};}
-  // build empty task set from any existing launch as template
-  const tmpl=tasksOf(Object.values(LAUNCHES)[0]||{tasks:[]}).map(t=>({stage:t.stage,dept:t.dept,label:t.label,owner:t.owner||'',notifyMsg:t.notifyMsg||'',done:false}));
+  // build the full curated checklist (owners + definitions-of-done) for the new product
+  const tmpl=buildTasks();
   let maxCode=0;Object.values(LAUNCHES).forEach(l=>{const m=/(\d+)\s*$/.exec(l.code||'');if(m)maxCode=Math.max(maxCode,+m[1]);});
   const id=uid('l');
   upd['marketplace-npi/launches/'+id]={id,brandId,name,code:'NPI-2026-'+String(maxCode+1).padStart(3,'0'),category:cat,cost:'',msrp:'',casePack:'',launchDate:'',priority:'Med',stage:'discovery',stageEnteredAt:now,createdAt:now,triggersFired:[],log:[{text:'🚀 New product added — process started',ts:nowTs()}],tasks:tmpl};
   await db.ref().update(upd);
-  // Trigger #0 broadcast (only if notify on)
-  if(NOTIFY){ const sm=stageMeta('discovery'); sendEmail(recipientFor('Marketplace'),'Marketplace',upd['marketplace-npi/launches/'+id],{stage:'Discovery',message:`🚀 New product added — ${name} (${brand}). The launch process has begun.`}); }
+  // Trigger #0 — broadcast "new product added" to every team (kickoff announcement,
+  // no task assignment; each team is pinged for real when its stage goes active)
+  if(NOTIFY){
+    const nl=upd['marketplace-npi/launches/'+id];
+    const msg=`🚀 New product added — ${name} (${brand}). The launch process has officially begun. Each team will be notified automatically when it's your turn — nothing to do yet. Follow progress on the NPI pipeline.`;
+    DEPTS.forEach(d=>sendEmail(recipientFor(d),d,nl,{stage:'Discovery',message:msg}));
+  }
   toast('Added '+name);
   openDrawer(id);
 }
@@ -456,7 +561,7 @@ function renderGantt(){
 
 /* ---------------- settings tab (edit notification emails here) ---------------- */
 function renderSettings(){
-  const depts=['Marketplace','Procurement','Inventory','Commissary','Operations','Marketing','Store Ops'];
+  const depts=DEPTS;
   const te=SETTINGS.teamEmails||{};
   $('view').innerHTML=`<h1>Settings</h1><p class="sub">Notification routing & pipeline rules.</p>
     <div class="setbox">
