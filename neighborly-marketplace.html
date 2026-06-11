@@ -142,11 +142,13 @@
   /* ---------------- mobile ---------------- */
   @media(max-width:720px){
     /* top bar: brand + controls on row 1, tabs become a scrollable strip on row 2 */
-    .top{flex-wrap:wrap;gap:9px 10px;padding:10px 13px}
-    .top .title{font-size:14px}
-    .top .right{order:1;gap:8px}
-    .top .toggle{font-size:11px}
-    .top .addbtn{padding:8px 12px;font-size:12.5px}
+    .top{flex-wrap:wrap;gap:8px 10px;padding:9px 12px}
+    .top img.logo{height:20px}
+    .top .title{display:none}                 /* redundant on mobile; tabs give context */
+    .top .right{order:1;margin-left:auto;gap:8px;min-width:0}
+    .top .toggle{font-size:11px;gap:5px}
+    .top .addbtn{font-size:0;padding:9px 13px;white-space:nowrap}
+    .top .addbtn::after{content:"＋ New";font-size:12.5px;font-weight:600}
     .top .tabs{order:2;flex-basis:100%;margin-left:0;gap:4px;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:2px}
     .top .tabs button{flex:0 0 auto;padding:7px 12px;font-size:13px}
     .top .tabs::-webkit-scrollbar{display:none}
@@ -154,9 +156,9 @@
     .wrap{padding:16px 13px 72px}
     h1{font-size:22px}
 
-    /* board: near-full-width, swipe-one-at-a-time columns */
-    .board{gap:10px;padding-bottom:10px}
-    .col{flex-basis:84vw;max-width:300px;max-height:none}
+    /* board: near-full-width, swipe-one-at-a-time columns with snap */
+    .board{gap:10px;padding-bottom:10px;scroll-snap-type:x proximity}
+    .col{flex-basis:86vw;max-width:320px;max-height:none;scroll-snap-align:start}
 
     /* product/brand toolbar + search go full width */
     .toolbar{gap:9px}
