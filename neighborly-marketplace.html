@@ -1427,8 +1427,16 @@ function settingsModal(){
       <div style="font-size:11px;color:var(--text-3);margin-top:5px">A department is flagged on the dashboard when its active stage holds open tasks longer than this.</div>
     </div>
     ${rows}
+    <div class="mp-field" style="margin-top:6px;border-top:1px solid var(--line);padding-top:14px">
+      <label>🧪 Send a test notification for every step</label>
+      <input id="se_testto" type="email" placeholder="your@email.com — where to receive the tests">
+      <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-3);font-weight:500;margin-top:8px;cursor:pointer">
+        <input id="se_testteam" type="checkbox" checked style="width:16px;height:16px;accent-color:var(--mp)">
+        Also send each step to the team address entered above
+      </label>
+    </div>
     <div class="mp-modal-foot">
-      <button class="mp-btn sm" style="margin-right:auto" onclick="MP.sendTest()">Send test</button>
+      <button class="mp-btn sm" style="margin-right:auto" onclick="MP.sendStepTests()">Test every step</button>
       <button class="mp-btn" onclick="MP.closeModal()">Cancel</button>
       <button class="mp-btn primary" onclick="MP.saveSettings()">Save</button>
     </div>`);
@@ -1521,6 +1529,40 @@ window.MP = {
       link:location.href.split('#')[0].split('?')[0], message:msg,
       event_name:'NPI test notification', event_date:fmtDate(isoIn(0)), event_category:'Marketplace NPI · test', event_notes:msg
     }).then(()=>toast(`📧 Test sent to ${esc(to)}`)).catch(err=>{ console.error(err); toast('Test failed — check console.',null,'#a32d2d'); });
+  },
+  // Fire one test handoff email per pipeline step (every stage that notifies a
+  // team), to the entered test address and optionally each team's own address.
+  sendStepTests(){
+    if(!window.emailjs){ toast('EmailJS not loaded.',null,'#a32d2d'); return; }
+    const testTo   = ($('#se_testto') && $('#se_testto').value.trim()) || '';
+    const alsoTeam = $('#se_testteam') ? $('#se_testteam').checked : false;
+    const teamEmails = {};
+    DEPTS.forEach((d,i)=>{ const el=$('#se_'+i); if(el && el.value.trim()) teamEmails[d.key]=el.value.trim(); });
+    const base  = location.href.split('#')[0].split('?')[0];
+    const steps = STAGES.filter(st=>st.dept && st.dept!=='—');
+    const jobs  = [];
+    steps.forEach(st=>{
+      const msg = `TEST — handoff into the ${st.label} step. In production the ${st.dept} team receives this the moment a launch reaches this stage.`;
+      const vars = {
+        to_name:st.dept, team:st.dept, launch:'Test Launch', brand:'Neighborly',
+        stage:st.label, launch_date:fmtDate(isoIn(21)), readiness:'42%', accent:deptColor(st.dept),
+        link:base, message:msg,
+        event_name:`Test — ${st.label} step active`, event_date:fmtDate(isoIn(0)),
+        event_category:`Marketplace NPI · ${st.dept} · test`, event_notes:msg
+      };
+      if(testTo) jobs.push(Object.assign({}, vars, { to_email:testTo }));
+      if(alsoTeam && teamEmails[st.dept]) jobs.push(Object.assign({}, vars, { to_email:teamEmails[st.dept] }));
+    });
+    if(!jobs.length){ toast('Enter a test email (or a team address) first.',null,'#a32d2d'); return; }
+    toast(`Sending ${jobs.length} test email${jobs.length!==1?'s':''} across ${steps.length} steps…`);
+    let i=0, ok=0, fail=0;
+    (function next(){
+      if(i>=jobs.length){ toast(`✅ ${ok} sent${fail?`, ${fail} failed`:''} — check inbox(es).`, null, fail?'#a32d2d':'', 5000); return; }
+      const v = jobs[i++];
+      emailjs.send(CONFIG.EMAILJS.serviceId, CONFIG.EMAILJS.templateId, v)
+        .then(()=>{ ok++; }).catch(err=>{ fail++; console.error('step test failed →', v.stage, v.to_email, err); })
+        .finally(()=>setTimeout(next, 1200));
+    })();
   },
   closeModal,
   _brandSel(sel){ $('#f_newbrand').style.display = sel.value==='__new'?'block':'none'; },
