@@ -34,12 +34,16 @@
   .wrap{max-width:1280px;margin:0 auto;padding:24px 22px 80px}
 
   /* pipeline board */
-  .board{display:flex;gap:14px;overflow-x:auto;padding-bottom:14px}
-  .col{flex:0 0 250px;background:#efece5;border-radius:14px;padding:10px;max-height:75vh;display:flex;flex-direction:column}
-  .col h3{margin:4px 6px 10px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;display:flex;align-items:center;gap:7px}
-  .col h3 .dot{width:9px;height:9px;border-radius:50%}
-  .col h3 .cnt{margin-left:auto;color:var(--muted);font-weight:600}
-  .col .list{overflow-y:auto;display:flex;flex-direction:column;gap:9px;padding:2px}
+  /* pipeline — horizontal swim-lanes (one row per stage) */
+  .lanes{display:flex;flex-direction:column;gap:12px}
+  .lane{display:flex;align-items:stretch;background:#efece5;border-radius:14px;overflow:hidden}
+  .lane-head{flex:0 0 165px;display:flex;flex-direction:column;justify-content:center;gap:5px;padding:12px 14px;border-right:1px solid var(--line-soft)}
+  .lane-head .lh-top{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;line-height:1.2}
+  .lane-head .dot{width:9px;height:9px;border-radius:50%;flex:0 0 auto}
+  .lane-head .cnt{color:var(--muted);font-weight:600;font-size:11px}
+  .lane-list{flex:1;min-width:0;display:flex;align-items:stretch;gap:9px;overflow-x:auto;padding:10px}
+  .lane-list .pcard{flex:0 0 215px}
+  .lane-empty{align-self:center;color:#9b988f;font-size:12px;padding:0 6px}
   .pcard{background:#fff;border:1px solid var(--line-soft);border-radius:11px;padding:11px 12px;box-shadow:var(--shadow);cursor:pointer}
   .pcard:hover{border-color:var(--accent)}
   .pcard .pn{font-weight:600;font-size:13.5px;line-height:1.25}
@@ -184,9 +188,11 @@
     .wrap{padding:16px 13px 72px}
     h1{font-size:22px}
 
-    /* board: near-full-width, swipe-one-at-a-time columns with snap */
-    .board{gap:10px;padding-bottom:10px;scroll-snap-type:x proximity}
-    .col{flex-basis:86vw;max-width:320px;max-height:none;scroll-snap-align:start}
+    /* pipeline lanes: stack the label above the cards so each stage stays wide */
+    .lane{flex-direction:column}
+    .lane-head{flex-basis:auto;flex-direction:row;align-items:center;justify-content:space-between;border-right:0;border-bottom:1px solid var(--line-soft);padding:10px 12px}
+    .lane-list{padding:9px;scroll-snap-type:x proximity}
+    .lane-list .pcard{flex-basis:78vw;max-width:300px;scroll-snap-align:start}
 
     /* product/brand toolbar + search go full width */
     .toolbar{gap:9px}
@@ -451,17 +457,17 @@ function render(){
 /* ---------------- pipeline board ---------------- */
 function renderPipeline(){
   const byStage={}; Object.values(LAUNCHES).forEach(l=>{(byStage[l.stage]=byStage[l.stage]||[]).push(l);});
-  const cols=[...PIPE,stageMeta('live')]; // active stages + Live column
-  $('view').innerHTML=`<div class="board">${cols.map(s=>{
+  const lanes=[...PIPE,stageMeta('live')]; // active stages + Live lane
+  $('view').innerHTML=`<div class="lanes">${lanes.map(s=>{
     const items=(byStage[s.key]||[]).sort((a,b)=>(a.name||'').localeCompare(b.name||''));
-    return `<div class="col"><h3><span class="dot" style="background:${s.color}"></span>${esc(s.label)}<span class="cnt">${items.length}</span></h3>
-      <div class="list">${items.map(l=>{
+    return `<div class="lane"><div class="lane-head"><div class="lh-top"><span class="dot" style="background:${s.color}"></span>${esc(s.label)}</div><span class="cnt">${items.length} ${items.length===1?'product':'products'}</span></div>
+      <div class="lane-list">${items.map(l=>{
         const r=readiness(l);
         return `<div class="pcard" data-id="${l.id}"><div class="pn">${esc(l.name||'')}</div>
           <div class="pb">${esc(brandName(l))} · ${esc(l.category||'')}</div>
           ${s.key!=='live'?`<div class="bar"><i style="width:${r}%;background:${s.color}"></i></div>`:''}
           <div class="code">${esc(l.code||'')}</div></div>`;
-      }).join('')||'<div style="color:#9b988f;font-size:12px;padding:8px 6px">—</div>'}</div></div>`;
+      }).join('')||'<div class="lane-empty">—</div>'}</div></div>`;
   }).join('')}</div>`;
   document.querySelectorAll('.pcard').forEach(c=>c.onclick=()=>openDrawer(c.dataset.id));
 }
