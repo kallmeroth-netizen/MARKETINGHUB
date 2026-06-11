@@ -54,9 +54,9 @@
   .np-nav-page-tag.mp{ background:var(--mp-light); color:var(--mp-deep); }
 
   /* ---- header row ---- */
-  .mp-head{ display:flex; align-items:flex-end; justify-content:space-between; gap:16px; margin-bottom:var(--s-4); flex-wrap:wrap; }
-  .mp-head h1{ font-family:var(--f-sans); font-weight:700; font-size:var(--t-section); margin:0; line-height:1.15; color:var(--ink); }
-  .mp-head .eyebrow{ font-family:var(--f-eyebrow); font-size:var(--t-eyebrow); letter-spacing:.1em; text-transform:uppercase; color:var(--mp-deep); }
+  .mp-head{ display:flex; align-items:flex-end; justify-content:space-between; gap:16px 20px; margin-bottom:var(--s-5); flex-wrap:wrap; }
+  .mp-head .np-page-header{ gap:6px; min-width:0; }
+  .mp-head .np-page-eyebrow{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
   .mp-actions{ display:flex; gap:8px; flex-wrap:wrap; }
 
   /* ---- process overview strip (sleek, collapsible) ---- */
@@ -473,6 +473,18 @@
 
 <main class="np-main">
 
+  <div class="mp-head">
+    <header class="np-page-header" style="padding-bottom:0">
+      <div class="np-page-eyebrow">Marketplace Operations <span class="mp-live"><span class="d"></span>Live sync</span></div>
+      <h1 class="np-page-title">New Product Introduction</h1>
+    </header>
+    <div class="mp-actions">
+      <button class="mp-btn" onclick="MP.openSettings()" title="Email notifications"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>Notifications</button>
+      <button class="mp-btn" onclick="MP.openBrandModal()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>Add brand</button>
+      <button class="mp-btn primary" onclick="MP.openLaunchModal()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>New launch</button>
+    </div>
+  </div>
+
   <section class="mp-process" id="mpProcess">
     <div class="mp-process-head">
       <div class="mp-process-title">How it works <span class="mp-process-sub">Sample → shelf · each handoff auto-emails the next team</span></div>
@@ -480,17 +492,6 @@
     </div>
     <div class="mp-process-flow" id="mpProcessFlow"></div>
   </section>
-
-  <div class="mp-head">
-    <div>
-      <div class="eyebrow">Marketplace Operations <span class="mp-live"><span class="d"></span>Live sync</span></div>
-    </div>
-    <div class="mp-actions">
-      <button class="mp-btn" onclick="MP.openSettings()" title="Email notifications"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>Notifications</button>
-      <button class="mp-btn" onclick="MP.openBrandModal()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>Add brand</button>
-      <button class="mp-btn primary" onclick="MP.openLaunchModal()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>New launch</button>
-    </div>
-  </div>
 
   <div class="mp-kpis" id="mpKpis"></div>
 
