@@ -99,11 +99,12 @@
   .mp-tab.active .ph{ background:var(--mp); color:#fff; }
 
   /* ---- KPI strip ---- */
-  .mp-kpis{ display:grid; grid-template-columns:repeat(5,1fr); gap:var(--s-3); margin-bottom:var(--s-4); }
-  @media(max-width:760px){ .mp-kpis{ grid-template-columns:repeat(2,1fr); } }
-  .mp-kpi{ background:var(--surface); border:1px solid var(--line-strong); border-radius:var(--r-lg); padding:12px 14px; }
+  .mp-kpis{ display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:var(--s-3); margin-bottom:var(--s-5); }
+  @media(max-width:1080px){ .mp-kpis{ grid-template-columns:repeat(3,minmax(0,1fr)); } }
+  @media(max-width:560px){ .mp-kpis{ grid-template-columns:repeat(2,minmax(0,1fr)); } }
+  .mp-kpi{ background:var(--surface); border:1px solid var(--line-strong); border-radius:var(--r-lg); padding:12px 14px; min-width:0; }
   .mp-kpi .l{ font-size:var(--t-caption-sm); color:var(--text-3); text-transform:uppercase; letter-spacing:.06em; font-weight:600; }
-  .mp-kpi .v{ font-family:var(--f-mono); font-size:24px; color:var(--text); margin-top:3px; line-height:1; }
+  .mp-kpi .v{ font-family:var(--f-mono); font-size:26px; letter-spacing:-.04em; color:var(--text); margin-top:3px; line-height:1; }
   .mp-kpi .s{ font-size:11px; color:var(--text-3); margin-top:3px; }
 
   /* ---- pulse check strip (stalled-department radar) ---- */
@@ -342,7 +343,6 @@
   }
 
   @media(max-width:400px){
-    .mp-kpis{ grid-template-columns:1fr; }
     .mp-col{ flex-basis:88vw; width:88vw; }
   }
 
