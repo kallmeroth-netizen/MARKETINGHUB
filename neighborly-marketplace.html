@@ -569,12 +569,48 @@ function renderSettings(){
       ${depts.map(d=>`<div class="setrow"><label>${esc(d)}</label><input type="email" data-dept="${esc(d)}" value="${esc(te[d]||'')}" placeholder="name@beneighborly.com"></div>`).join('')}
       <div class="setrow"><label>Stalled after</label><input type="number" id="staleInp" min="1" value="${SETTINGS.staleDays||3}" style="flex:0 0 90px"> <span style="color:var(--muted);font-size:13px">business days in a stage flags it as stalled</span></div>
       <button class="savebtn" id="saveSet">Save settings</button>
+    </div>
+    <div class="setbox" style="margin-top:18px">
+      <p class="sethint" style="margin-bottom:10px"><b>Back-fill existing products</b> — give the products you already imported the new checklist (owners &amp; definitions-of-done) and the W-9 stage. Every completed task is preserved; nothing is deleted. Safe to run more than once.</p>
+      <button class="savebtn" id="backfillBtn" style="background:#6a5a86">Back-fill existing products</button>
     </div>`;
   $('saveSet').onclick=async()=>{
     const te2={}; document.querySelectorAll('input[data-dept]').forEach(i=>{const v=i.value.trim(); if(v) te2[i.dataset.dept]=v;});
     await db.ref('marketplace-npi/settings').update({teamEmails:te2, staleDays:+($('staleInp').value)||3});
     toast('Settings saved');
   };
+  $('backfillBtn').onclick=backfillTasks;
+}
+
+/* One-time migration: bring already-imported launches up to the v2 checklist.
+   Conservative + idempotent — matches tasks by (stage,label), enriches matches
+   with owner/def/notify/blocking, ADDS any missing template tasks (incl. the
+   whole W-9 stage), and never removes a task or clears a completion. */
+async function backfillTasks(){
+  const launches=Object.values(LAUNCHES);
+  if(!launches.length){ toast('No products to back-fill.'); return; }
+  const upd={}; let patched=0, added=0, touched=0;
+  launches.forEach(l=>{
+    const cur=tasksOf(l).map(t=>Object.assign({},t)); let changed=false;
+    cur.forEach(t=>{
+      const tpl=TASK_TEMPLATES.find(x=>x.stage===t.stage&&x.label===t.label); if(!tpl) return;
+      const before=JSON.stringify([t.owner,t.def,t.notify,t.notifyMsg,t.blocking]);
+      t.owner=t.owner||tpl.owner||''; t.def=t.def||tpl.def||'';
+      t.notify=t.notify||tpl.notify||''; t.notifyMsg=t.notifyMsg||tpl.notifyMsg||'';
+      if(t.blocking===undefined) t.blocking=tpl.blocking!==false;
+      if(JSON.stringify([t.owner,t.def,t.notify,t.notifyMsg,t.blocking])!==before){ changed=true; patched++; }
+    });
+    TASK_TEMPLATES.forEach(tpl=>{
+      if(cur.some(t=>t.stage===tpl.stage&&t.label===tpl.label)) return;
+      cur.push({stage:tpl.stage,dept:tpl.dept,label:tpl.label,owner:tpl.owner||'',def:tpl.def||'',notify:tpl.notify||'',notifyMsg:tpl.notifyMsg||'',blocking:tpl.blocking!==false,done:false,doneAt:null});
+      changed=true; added++;
+    });
+    if(changed){ upd['marketplace-npi/launches/'+l.id+'/tasks']=cur; touched++; }
+  });
+  if(!touched){ toast('Already up to date — nothing to back-fill.'); return; }
+  if(!confirm(`Back-fill ${touched} product(s)?\n\n• ${patched} existing task(s) enriched with owner / definition-of-done\n• ${added} task(s) added (including the W-9 stage)\n\nEvery completed task is preserved. Safe to re-run.`)) return;
+  await db.ref().update(upd);
+  toast(`✓ Back-fill done · ${touched} products · ${patched} enriched · ${added} added`);
 }
 
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
