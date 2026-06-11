@@ -128,9 +128,9 @@
   .empty{color:var(--muted);padding:48px;text-align:center}
   /* gantt */
   .gantt{background:#fff;border:1px solid var(--line-soft);border-radius:14px;box-shadow:var(--shadow);overflow:hidden}
-  .grow{display:grid;grid-template-columns:230px repeat(8,1fr) 86px;align-items:center;border-top:1px solid var(--line-soft)}
+  .grow{display:grid;grid-template-columns:230px repeat(var(--gn,8),minmax(0,1fr)) 86px;align-items:center;border-top:1px solid var(--line-soft)}
   .grow.head{background:#fcfbf9;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.3px;color:#56524b;border-top:0}
-  .grow.head>div{padding:11px 6px;text-align:center}
+  .grow.head>div{padding:11px 6px;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .grow.head>div.lbl{text-align:left;padding-left:12px}
   .grow:not(.head):hover{background:#fcfbf9}
   .gcell{height:26px;margin:6px 2px;border-radius:6px;background:#f0ede6}
@@ -188,9 +188,9 @@
     .toolbar input{flex-basis:100%;min-width:0;width:100%}
     .stat{margin-left:0}
 
-    /* gantt scrolls horizontally instead of overflowing the page */
-    .gantt{overflow-x:auto}
-    .grow{min-width:680px}
+    /* gantt scrolls horizontally instead of crushing the stage columns */
+    .gantt{overflow-x:auto;-webkit-overflow-scrolling:touch}
+    .grow{grid-template-columns:150px repeat(var(--gn,8),minmax(62px,1fr)) 62px;width:max-content;min-width:100%}
 
     /* drawer fills the screen; tighter padding */
     .drawer{width:100vw}
@@ -681,7 +681,7 @@ function renderGantt(){
   const inproc=Object.values(LAUNCHES).filter(l=>l.stage!=='live'&&l.stage!=='review')
     .sort((a,b)=>stageIdx(b.stage)-stageIdx(a.stage)||(a.name||'').localeCompare(b.name||''));
   const stale=SETTINGS.staleDays||3;
-  const gcols=`grid-template-columns:230px repeat(${PIPE.length},minmax(0,1fr)) 86px`;
+  const gcols=`--gn:${PIPE.length}`;
   const head=`<div class="grow head" style="${gcols}"><div class="lbl">Product</div>${PIPE.map(s=>`<div>${esc(s.label.split(' ')[0])}</div>`).join('')}<div>Ready</div></div>`;
   const rows=inproc.map(l=>{
     const ci=stageIdx(l.stage);
