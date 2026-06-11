@@ -136,12 +136,36 @@
   .section-title::after { content: ''; flex: 1; height: 0.5px; background: var(--border-strong); }
 
   /* CHART CARDS */
-  .chart-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 1.5rem; }
-  .chart-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 1.5rem; }
-  .chart-card { background: var(--surface); border: 0.5px solid var(--border); border-radius: 12px; padding: 1.25rem; }
+  .chart-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 1.5rem; }
+  .chart-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin-bottom: 1.5rem; }
+  .chart-card {
+    background: var(--surface);
+    border: 0.5px solid var(--border);
+    border-radius: 14px;
+    padding: 22px 22px 20px;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+  }
+  /* Cards that opt in via inline style="--chart-accent:var(--brand-yellow-deep)"
+     get the same 3px brand-color top stripe as the paid performance cards
+     down the page — so the Revenue by Channel section reads in the same
+     visual language as the scorecard underneath. */
+  .chart-card[style*="--chart-accent"]::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--chart-accent);
+  }
+  .chart-card:hover {
+    transform: translateY(-1px);
+    border-color: var(--border-strong);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.04);
+  }
   .chart-card.wide { grid-column: 1 / -1; }
-  .chart-card-title { font-size: var(--t-body-sm); font-weight: 600; color: var(--text); margin-bottom: 4px; }
-  .chart-card-sub { font-size: var(--t-caption-sm); color: var(--text-3); margin-bottom: 1rem; }
+  .chart-card-title { font-size: 15px; font-weight: 600; color: var(--ink); letter-spacing: -0.01em; margin-bottom: 4px; }
+  .chart-card-sub { font-size: var(--t-caption-sm); color: var(--text-3); margin-bottom: 14px; }
   .chart-wrap { position: relative; }
 
   /* METRICS TABLE */
@@ -661,13 +685,13 @@
     <!-- REVENUE BY CHANNEL -->
     <div class="section-title">Revenue by channel</div>
     <div class="chart-grid-2" style="margin-bottom:1.5rem">
-      <div class="chart-card">
+      <div class="chart-card" style="--chart-accent:#b89a00">
         <div class="chart-card-title">Revenue center breakdown</div>
         <div class="chart-card-sub" id="revChartSub">Current week — $331,703 total</div>
         <div class="chart-wrap" style="height:220px"><canvas id="revChart"></canvas></div>
         <div class="chart-source">Source: Toast POS</div>
       </div>
-      <div class="chart-card">
+      <div class="chart-card" style="--chart-accent:#1e7d4a">
         <div class="chart-card-title">Channel mix %</div>
         <div class="chart-card-sub">Share of total revenue by channel</div>
         <div id="mixBars" style="margin-top:0.5rem"></div>
