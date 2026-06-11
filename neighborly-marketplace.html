@@ -94,6 +94,18 @@
   .sb-body{padding:6px 14px 14px}
   .cta{background:var(--green-bg);border:1px solid var(--green-br);color:#2f5d3f;font-size:13px;line-height:1.45;padding:10px 12px;border-radius:10px;margin:2px 0 12px}
   .cta b{color:#234a31}
+  /* named mini-steps (one focused batch at a time) */
+  .ministep{border:1px solid var(--line-soft);border-radius:10px;margin-bottom:8px;overflow:hidden;background:#fff}
+  .ministep.active{border-color:var(--accent);box-shadow:0 0 0 2px rgba(98,128,189,.10)}
+  .ministep.done{opacity:.7}
+  .ministep.upcoming{opacity:.62}
+  .ms-h{display:flex;align-items:center;gap:8px;padding:9px 12px;font-size:13px;font-weight:700;cursor:pointer;background:#fcfbf9;user-select:none}
+  .ministep.active .ms-h{color:var(--accent)}
+  .ms-ic{width:15px;text-align:center;flex:0 0 auto;color:var(--muted)}
+  .ministep.done .ms-ic{color:var(--green-ink)}
+  .ms-c{margin-left:auto;font-size:11px;font-weight:600;color:var(--muted)}
+  .ms-body{padding:4px 12px 10px}
+  .opt{font-size:9.5px;font-weight:700;color:var(--muted);background:#f1efe9;padding:1px 6px;border-radius:999px;margin-left:6px;text-transform:uppercase;letter-spacing:.3px}
   .tg{border-top:1px dashed var(--line);padding:10px 0 4px}
   .tg:first-child{border-top:0}
   .tg .tgh{display:flex;align-items:center;gap:8px;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:6px}
@@ -331,6 +343,31 @@ const TASK_TEMPLATES=[
 ];
 function buildTasks(){return TASK_TEMPLATES.map(t=>({stage:t.stage,dept:t.dept,label:t.label,owner:t.owner||'',def:t.def||'',notify:t.notify||'',notifyMsg:t.notifyMsg||'',blocking:t.blocking!==false,done:false,doneAt:null}));}
 
+/* Named mini-steps per stage: small, purposeful batches so a team member only
+   ever focuses on a short list. [label, taskCount] in template order. */
+const STAGE_GROUPS={
+  discovery:[['Intake',2],['Samples',2]],
+  sample:[['Tasting',2],['Approvals',2],['Brand assets',3]],
+  commercial:[['Vendor setup',3],['Terms & cost',3],['Docs & handoff',2]],
+  compliance:[['Vendor docs (W-9 & COI)',2],['Product docs',4],['Clear vendor',1]],
+  erp:[['Create item',3],['Order guides',3],['Toast link',1]],
+  commissary:[['Intake & storage',3],['PARs & fill',3],['Receiving SOP',1]],
+  operations:[['Planogram & order',3],['Tags & PARs',2],['Comms & training',2]],
+  marketing:[['Creative',3],['Systems',3],['Promotion',2]],
+  store:[['Order & receive',3],['Merchandise',3],['Launch day',2]],
+  review:[['Performance',4],['Quality & vendor',3],['Decision',1]]
+};
+/* Split a stage's task list (array of {t,i} in order) into its named mini-steps.
+   Any leftover tasks (e.g. on older launches) fall into a final "More" batch. */
+function splitGroups(stageKey,sts){
+  const defs=STAGE_GROUPS[stageKey]||[['Checklist',sts.length]];
+  const out=[]; let idx=0;
+  defs.forEach(([name,cnt])=>{ if(idx>=sts.length) return; out.push({name,items:sts.slice(idx,idx+cnt)}); idx+=cnt; });
+  if(idx<sts.length) out.push({name:'More',items:sts.slice(idx)});
+  return out.filter(g=>g.items.length);
+}
+const groupDone=g=>g.items.every(x=>x.t.done||x.t.blocking===false);
+
 /* ---------------- state ---------------- */
 let LAUNCHES={}, BRANDS={}, SETTINGS={}, TAB='pipeline', OPEN=null;
 let prodStatus='all', prodCat='All', brandSearch='';
@@ -484,23 +521,30 @@ function renderDrawer(id){
   const body=STAGES.filter(s=>s.key!=='live').map(s=>{
     const sts=stageTasks(l,s.key); if(!sts.length&&s.key!=='review'&&!sts.length) {}
     if(!sts.length) return '';
-    const groups=chunk3(sts);
     const isCur=s.key===l.stage;
     const doneN=sts.filter(x=>x.t.done).length;
-    const groupsHtml=groups.map((g,gi)=>{
-      const gid=s.key+'#'+gi;
-      const allDone=g.every(x=>x.t.done);
-      return `<div class="tg"><div class="tgh">Trigger ${gi+1} <span class="${allDone?'fired':'pend'}">${allDone?'✓ fired':'pending'}</span></div>
-        ${g.map(x=>{const t=x.t;const meta=[t.owner?`👤 ${esc(t.owner)}`:'',t.def?`✓ ${esc(t.def)}`:'',t.notify?`🔔 ${esc(t.notify)}`:''].filter(Boolean).join(' · ');return `<div class="task ${t.done?'done':''}"><input type="checkbox" ${t.done?'checked':''} data-id="${id}" data-ti="${x.i}"><div class="tbody"><label>${esc(t.label)}</label>${meta?`<div class="task-meta">${meta}</div>`:''}</div></div>`;}).join('')}</div>`;
+    const groups=splitGroups(s.key,sts);
+    let activeIdx=groups.findIndex(g=>!groupDone(g)); if(activeIdx<0) activeIdx=groups.length-1;
+    const stepsHtml=groups.map((g,gi)=>{
+      const gdone=groupDone(g);
+      const active=isCur&&gi===activeIdx&&!gdone;
+      const upcoming=isCur&&gi>activeIdx&&!gdone;
+      const open=active;                       // in the active stage only the current batch is open
+      const gN=g.items.filter(x=>x.t.done).length;
+      const ic=gdone?'✓':(active?'▸':(upcoming?'›':'·'));
+      const cls=gdone?'done':(active?'active':(upcoming?'upcoming':''));
+      const tasksHtml=g.items.map(x=>{const t=x.t;const meta=[t.owner?`👤 ${esc(t.owner)}`:'',t.def?`✓ ${esc(t.def)}`:'',t.notify?`🔔 notifies ${esc(t.notify)}`:''].filter(Boolean).join(' · ');return `<div class="task ${t.done?'done':''}"><input type="checkbox" ${t.done?'checked':''} data-id="${id}" data-ti="${x.i}"><div class="tbody"><label>${esc(t.label)}${t.blocking===false?' <span class="opt">optional</span>':''}</label>${meta?`<div class="task-meta">${meta}</div>`:''}</div></div>`;}).join('');
+      return `<div class="ministep ${cls}"><div class="ms-h"><span class="ms-ic">${ic}</span>${esc(g.name)}<span class="ms-c">${gN}/${g.items.length}</span></div><div class="ms-body" style="${open?'':'display:none'}">${tasksHtml}</div></div>`;
     }).join('');
     const nxtK=nextStageKey(s.key), nxtM=nxtK?stageMeta(nxtK):null;
     const nextWho=nxtM?(nxtM.dept==='—'?'Live · on shelf':nxtM.dept):'the next team';
-    const cta=isCur?`<div class="cta">👉 <b>${esc(s.dept)}</b>, you're up on <b>${esc(l.name||'this product')}</b>. Check off your required tasks below${nxtK?` — then tap <b>Push to ${esc(nextWho)}</b>`:''} to keep the launch moving.</div>`:'';
+    const activeName=isCur&&groups[activeIdx]?groups[activeIdx].name:'';
+    const cta=isCur?`<div class="cta">👉 <b>${esc(s.dept)}</b>, you're up on <b>${esc(l.name||'this product')}</b>.${activeName?` Current step: <b>${esc(activeName)}</b>.`:''} Work the open batch below${nxtK?`, then tap <b>Push to ${esc(nextWho)}</b>`:''} to keep the launch moving.</div>`:'';
     return `<div class="stagebox ${isCur?'cur':''}"><div class="sb-h" data-stg="${s.key}">
         <span class="dot" style="background:${s.color}"></span>
         <div><div class="lbl">${esc(s.label)}</div><div class="dept">${esc(s.dept)}</div></div>
         <span class="pct">${doneN}/${sts.length}</span></div>
-      <div class="sb-body" style="${isCur?'':'display:none'}">${cta}${groupsHtml}
+      <div class="sb-body" style="${isCur?'':'display:none'}">${cta}${stepsHtml}
         ${isCur?advanceBtn(l,s):''}</div></div>`;
   }).join('');
   const log=(Array.isArray(l.log)?l.log:Object.values(l.log||{})).slice().reverse().slice(0,8);
@@ -509,8 +553,10 @@ function renderDrawer(id){
       <div class="meta2"><span class="tag" style="background:${stageMeta(l.stage).color}22">${esc(stageMeta(l.stage).label)}</span>
         <span class="tag">${esc(l.code||'')}</span><span class="tag">${readiness(l)}% ready</span></div></div>
     <div class="dbody">${body||'<div class="empty">No tasks.</div>'}
+      ${l.stage==='live'?`<button class="advance" style="margin-top:6px" onclick="window._advance('${id}')">Start 30-Day Review →</button>`:''}
       <div class="log"><h4>Activity</h4>${log.map(e=>`<div class="e"><span class="t">${esc(e.ts||'')}</span><span>${esc(e.text||'')}</span></div>`).join('')||'<div style="color:#9b988f">No activity yet.</div>'}</div></div>`;
   $('drawer').querySelectorAll('.sb-h').forEach(h=>h.onclick=()=>{const b=h.nextElementSibling;b.style.display=b.style.display==='none'?'':'none';});
+  $('drawer').querySelectorAll('.ms-h').forEach(h=>h.onclick=()=>{const b=h.nextElementSibling;b.style.display=b.style.display==='none'?'':'none';});
   $('drawer').querySelectorAll('.task input').forEach(c=>c.onchange=()=>toggleTask(c.dataset.id,+c.dataset.ti,c.checked));
 }
 window._close=closeDrawer;
@@ -532,25 +578,49 @@ async function toggleTask(id,ti,checked){
   const l=LAUNCHES[id]; if(!l)return;
   const ts=tasksOf(l).map(t=>Object.assign({},t));
   ts[ti].done=checked; ts[ti].doneAt=checked?Date.now():null;
-  // per-task cross-team ping — fires the instant a task with a notify target is checked
-  if(checked && ts[ti].notify){ const nd=stageMeta(ts[ti].stage); sendEmail(recipientFor(ts[ti].notify),ts[ti].notify,l,{stage:nd.label,message:ts[ti].notifyMsg||`${ts[ti].label} completed for ${l.name}.`}); }
-  // detect trigger-group completion to fire notification
-  const sk=ts[ti].stage;
-  const sts=ts.map((t,i)=>({t,i})).filter(x=>x.t.stage===sk);
-  const groups=chunk3(sts); const gi=groups.findIndex(g=>g.some(x=>x.i===ti));
-  const grp=groups[gi]; const gid=sk+'#'+gi;
-  let fired=(l.triggersFired||[]).slice();
+  const sk=ts[ti].stage, sm=stageMeta(sk);
   const upd={['marketplace-npi/launches/'+id+'/tasks']:ts};
-  let logEntry=null;
-  if(grp&&grp.every(x=>x.t.done)&&!fired.includes(gid)){
-    fired.push(gid); upd['marketplace-npi/launches/'+id+'/triggersFired']=fired;
-    const sm=stageMeta(sk);
-    logEntry={text:`✓ Trigger fired — ${sm.label} · step ${gi+1} complete`,ts:nowTs()};
-    sendEmail(recipientFor(sm.dept),sm.dept,l,{stage:sm.label,message:`✅ Nice — ${sm.label} step ${gi+1} done for ${l.name} (${grp.map(x=>x.t.label).join(', ')}). Keep the momentum: open the hub and check off the rest of your ${sm.label} tasks so ${l.name} can move to the next team. ${HUB_URL}#${l.id}`});
+  // per-task cross-team ping — fires the instant a task with a notify target is checked
+  if(checked && ts[ti].notify){ sendEmail(recipientFor(ts[ti].notify),ts[ti].notify,l,{stage:sm.label,message:ts[ti].notifyMsg||`${ts[ti].label} completed for ${l.name}.`}); }
+  let fired=(l.triggersFired||[]).slice(), firedChg=false;
+  const logs=(Array.isArray(l.log)?l.log:Object.values(l.log||{})).slice(); let logChg=false, toastMsg=null;
+  if(checked){
+    const sts=ts.map((t,i)=>({t,i})).filter(x=>x.t.stage===sk);
+    const groups=splitGroups(sk,sts);
+    const grp=groups.find(g=>g.items.some(x=>x.i===ti));
+    // mini-step finished → in-app momentum (toast + activity); next batch opens on re-render
+    if(grp&&groupDone(grp)){
+      const gid=sk+'#'+grp.name;
+      if(!fired.includes(gid)){
+        fired.push(gid); firedChg=true;
+        const after=groups.slice(groups.indexOf(grp)+1).find(g=>!groupDone(g));
+        logs.push({text:`✓ ${sm.label}: “${grp.name}” done${after?` — next: ${after.name}`:''}`,ts:nowTs()}); logChg=true;
+        toastMsg=`✓ ${grp.name} done${after?` · next: ${after.name}`:''}`;
+      }
+    }
+    // whole stage's required tasks done → one hand-off nudge email to the owning dept
+    const stageReady=sts.every(x=>x.t.done||x.t.blocking===false);
+    const rid=sk+'#ready';
+    if(stageReady&&sk===l.stage&&!fired.includes(rid)){
+      fired.push(rid); firedChg=true;
+      const nxtK=nextStageKey(sk), nxtM=nxtK?stageMeta(nxtK):null;
+      if(!nxtK){ // terminal stage (30-Day Review)
+        logs.push({text:`✅ ${sm.label} complete`,ts:nowTs()}); logChg=true;
+        sendEmail(recipientFor(sm.dept),sm.dept,l,{stage:sm.label,message:`✅ ${sm.label} complete for ${l.name} (${brandName(l)}) — nice work closing the loop. ${HUB_URL}#${l.id}`});
+        toastMsg=`${sm.label} complete`;
+      } else {
+        const pushLbl=nxtM.dept!=='—'?('Push to '+nxtM.dept):'Mark LIVE on shelf';
+        const handTo=nxtM.dept!=='—'?('hand to '+nxtM.dept):'go live';
+        logs.push({text:`✅ ${sm.label} complete — ready to ${handTo}`,ts:nowTs()}); logChg=true;
+        sendEmail(recipientFor(sm.dept),sm.dept,l,{stage:sm.label,message:`✅ All your ${sm.label} tasks for ${l.name} (${brandName(l)}) are done — great work! Last step: open the hub and tap “${pushLbl}” to hand ${l.name} to the next team. ${HUB_URL}#${l.id}`});
+        toastMsg=`${sm.label} complete — tap “${pushLbl}”`;
+      }
+    }
   }
-  if(logEntry){const log=(Array.isArray(l.log)?l.log:Object.values(l.log||{})).slice();log.push(logEntry);upd['marketplace-npi/launches/'+id+'/log']=log;}
+  if(firedChg) upd['marketplace-npi/launches/'+id+'/triggersFired']=fired;
+  if(logChg) upd['marketplace-npi/launches/'+id+'/log']=logs;
   await db.ref().update(upd);
-  if(logEntry) toast('Trigger fired · '+stageMeta(sk).label+' step '+(gi+1));
+  if(toastMsg) toast(toastMsg);
 }
 
 async function _advance(id){
