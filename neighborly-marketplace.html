@@ -142,11 +142,13 @@
   /* ---------------- mobile ---------------- */
   @media(max-width:720px){
     /* top bar: brand + controls on row 1, tabs become a scrollable strip on row 2 */
-    .top{flex-wrap:wrap;gap:9px 10px;padding:10px 13px}
-    .top .title{font-size:14px}
-    .top .right{order:1;gap:8px}
-    .top .toggle{font-size:11px}
-    .top .addbtn{padding:8px 12px;font-size:12.5px}
+    .top{flex-wrap:wrap;gap:8px 10px;padding:9px 12px}
+    .top img.logo{height:20px}
+    .top .title{display:none}                 /* redundant on mobile; tabs give context */
+    .top .right{order:1;margin-left:auto;gap:8px;min-width:0}
+    .top .toggle{font-size:11px;gap:5px}
+    .top .addbtn{font-size:0;padding:9px 13px;white-space:nowrap}
+    .top .addbtn::after{content:"＋ New";font-size:12.5px;font-weight:600}
     .top .tabs{order:2;flex-basis:100%;margin-left:0;gap:4px;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:2px}
     .top .tabs button{flex:0 0 auto;padding:7px 12px;font-size:13px}
     .top .tabs::-webkit-scrollbar{display:none}
@@ -154,9 +156,9 @@
     .wrap{padding:16px 13px 72px}
     h1{font-size:22px}
 
-    /* board: near-full-width, swipe-one-at-a-time columns */
-    .board{gap:10px;padding-bottom:10px}
-    .col{flex-basis:84vw;max-width:300px;max-height:none}
+    /* board: near-full-width, swipe-one-at-a-time columns with snap */
+    .board{gap:10px;padding-bottom:10px;scroll-snap-type:x proximity}
+    .col{flex-basis:86vw;max-width:320px;max-height:none;scroll-snap-align:start}
 
     /* product/brand toolbar + search go full width */
     .toolbar{gap:9px}
@@ -347,6 +349,18 @@ function recipientFor(dept){const te=(SETTINGS.teamEmails)||{};return te[dept]||
 function nowTs(){return new Date().toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'});}
 function toast(m){const t=$('toast');t.textContent=m;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2600);}
 
+const HUB_URL='https://beneighborly.team/neighborly-marketplace.html';
+/* "It's your turn" handoff copy — names the exact tasks, adds urgency, points
+   to the hub, and reminds them to check tasks off to advance the launch. */
+function actionMessage(launch,nm){
+  const todo=stageTasks(launch,nm.key).filter(x=>x.t.blocking!==false).map(x=>x.t.label);
+  const list=todo.length?` Your ${nm.label} checklist: ${todo.join('; ')}.`:'';
+  return `🔔 It's your turn, ${nm.dept}! ${launch.name||'A product'} (${brandName(launch)}) just advanced to the ${nm.label} stage — the whole launch is now waiting on your team.`
+    +list
+    +` ⏱️ Please jump on this today: nothing moves forward until your ${nm.label} tasks are done, and every day it sits here pushes ${launch.name||'the launch'}'s go-live date back.`
+    +` 👉 Click here to open the hub and work your checklist: ${HUB_URL}`
+    +` ✅ Don't forget — check off each task the moment you finish it. Completing them is what hands ${launch.name||'this product'} to the next team and keeps the launch on track.`;
+}
 async function sendEmail(toEmail,team,launch,vars){
   if(!NOTIFY) return {skipped:true};
   try{
@@ -354,7 +368,7 @@ async function sendEmail(toEmail,team,launch,vars){
       to_email:toEmail,to_name:team+' team',team:team,
       launch:launch.name||'',brand:brandName(launch),stage:vars.stage||'',
       launch_date:launch.launchDate||'',readiness:readiness(launch)+'%',
-      message:vars.message||'',link:'https://beneighborly.team/neighborly-marketplace.html',
+      message:vars.message||'',link:HUB_URL,
       accent:'#6280bd'
     },vars));
     return {ok:true};
@@ -523,7 +537,7 @@ async function toggleTask(id,ti,checked){
     fired.push(gid); upd['marketplace-npi/launches/'+id+'/triggersFired']=fired;
     const sm=stageMeta(sk);
     logEntry={text:`✓ Trigger fired — ${sm.label} · step ${gi+1} complete`,ts:nowTs()};
-    sendEmail(recipientFor(sm.dept),sm.dept,l,{stage:sm.label,message:`Trigger complete: ${sm.label} step ${gi+1} (${grp.map(x=>x.t.label).join(', ')}).`});
+    sendEmail(recipientFor(sm.dept),sm.dept,l,{stage:sm.label,message:`✅ Nice — ${sm.label} step ${gi+1} done for ${l.name} (${grp.map(x=>x.t.label).join(', ')}). Keep the momentum: open the hub and check off the rest of your ${sm.label} tasks so ${l.name} can move to the next team. ${HUB_URL}`});
   }
   if(logEntry){const log=(Array.isArray(l.log)?l.log:Object.values(l.log||{})).slice();log.push(logEntry);upd['marketplace-npi/launches/'+id+'/log']=log;}
   await db.ref().update(upd);
@@ -542,7 +556,7 @@ async function _advance(id){
   }
   log.push({text:`Stage → ${nm.label} · ${nm.dept} notified`,ts:nowTs()});
   await db.ref().update({['marketplace-npi/launches/'+id+'/stage']:nxt,['marketplace-npi/launches/'+id+'/stageEnteredAt']:Date.now(),['marketplace-npi/launches/'+id+'/log']:log});
-  const r=await sendEmail(recipientFor(nm.dept),nm.dept,l,{stage:nm.label,message:`${l.name} (${brandName(l)}) has advanced to ${nm.label}. Your team is up — open the pipeline to start your tasks.`});
+  const r=await sendEmail(recipientFor(nm.dept),nm.dept,l,{stage:nm.label,message:actionMessage(l,nm)});
   toast(r.ok?('Pushed to '+nm.dept+' · email sent'):('Pushed to '+nm.dept+(NOTIFY?' · email failed':' · notify off')));
 }
 window._advance=_advance;
