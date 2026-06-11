@@ -302,6 +302,48 @@
     .mp-panel-head{ padding:16px 16px 12px; }
     .mp-panel-body{ padding:16px 16px 50px; }
     .mp-gantt{ --gl-w:128px !important; }
+
+    /* header: stack the title + make actions full-width, tappable */
+    .mp-head{ align-items:flex-start; gap:12px; }
+    .mp-actions{ width:100%; }
+    .mp-actions .mp-btn{ flex:1 1 auto; justify-content:center; }
+
+    /* KPIs: keep 2-up but ease the number size so it never clips */
+    .mp-kpi{ padding:11px 12px; }
+    .mp-kpi .v{ font-size:21px; }
+
+    /* process + rail eyebrows stay scrollable; tighten stage cards */
+    .mp-process{ padding:13px 13px 4px; }
+    .mp-pstage{ flex-basis:144px; min-width:144px; }
+
+    /* pulse rows: stack — summary on its own line, actions share a row */
+    .mp-pulse{ padding:12px 13px; }
+    .mp-pulse-head{ flex-wrap:wrap; }
+    .mp-pulse-row{ gap:8px 10px; }
+    .mp-pulse-row .who{ min-width:0; }
+    .mp-pulse-row .what{ flex-basis:100%; min-width:0; }
+    .mp-pulse-row .mp-btn{ flex:1 1 auto; justify-content:center; }
+
+    /* board: near-full-width, swipe-one-at-a-time columns */
+    .mp-board{ gap:10px; padding:8px 2px 18px; }
+    .mp-col{ flex-basis:82vw; width:82vw; max-width:300px; }
+
+    /* team-task rows + their meta wrap instead of overflowing */
+    .mp-trow{ flex-wrap:wrap; }
+    .mp-trow .body{ flex-basis:100%; }
+
+    /* modal: stack the two-up fields, trim padding */
+    .mp-modal{ padding:20px 18px; }
+    .mp-field .two{ grid-template-columns:1fr; }
+    .mp-modal-foot .mp-btn{ flex:1 1 auto; justify-content:center; }
+
+    /* detail stage row wraps cleanly around the ring */
+    .mp-stage-row{ gap:10px 12px; }
+  }
+
+  @media(max-width:400px){
+    .mp-kpis{ grid-template-columns:1fr; }
+    .mp-col{ flex-basis:88vw; width:88vw; }
   }
 
   /* ---- gantt timeline ---- */
