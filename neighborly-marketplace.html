@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <title>Marketplace NPI — Neighborly</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
@@ -111,18 +114,20 @@
   .pill.shelf{color:var(--green-ink);background:var(--green-bg);border:1px solid var(--green-br)}
   .pill.pipe{color:var(--amber-ink);background:var(--amber-bg);border:1px solid var(--amber-br)}
 
-  /* drawer */
-  .scrim{position:fixed;inset:0;background:rgba(31,35,40,.35);opacity:0;pointer-events:none;transition:.18s;z-index:40}
+  /* product drawer — centered modal so the task view sits front-and-center,
+     not as a tiny right-side rail. Matches the intake modal pattern. */
+  .scrim{position:fixed;inset:0;background:rgba(31,35,40,.40);opacity:0;pointer-events:none;transition:.18s;z-index:40}
   .scrim.show{opacity:1;pointer-events:auto}
-  .drawer{position:fixed;top:0;right:0;height:100%;width:min(560px,94vw);background:var(--bg);box-shadow:-12px 0 40px rgba(0,0,0,.18);transform:translateX(100%);transition:.22s;z-index:50;overflow-y:auto}
-  .drawer.show{transform:none}
-  .dh{position:sticky;top:0;background:#fff;border-bottom:1px solid var(--line);padding:18px 22px;z-index:2}
-  .dh .x{position:absolute;top:16px;right:18px;border:0;background:#f1efe9;width:30px;height:30px;border-radius:8px;font-size:16px;cursor:pointer;color:var(--muted)}
-  .dh .dn{font-size:18px;font-weight:700;padding-right:36px}
-  .dh .db{font-size:13px;color:var(--muted);margin-top:3px}
-  .dh .meta2{display:flex;gap:8px;flex-wrap:wrap;margin-top:11px;font-size:11.5px}
+  .drawer{position:fixed;top:50%;left:50%;transform:translate(-50%,calc(-50% + 24px));width:min(960px,calc(100vw - 32px));max-height:min(92vh,920px);background:var(--bg);box-shadow:0 32px 80px rgba(0,0,0,.32);border-radius:20px;opacity:0;pointer-events:none;transition:opacity .22s ease, transform .22s ease;z-index:50;overflow-y:auto;display:flex;flex-direction:column}
+  .drawer.show{transform:translate(-50%,-50%);opacity:1;pointer-events:auto}
+  .dh{position:sticky;top:0;background:#fff;border-bottom:1px solid var(--line);padding:22px 28px;z-index:2;border-radius:20px 20px 0 0}
+  .dh .x{position:absolute;top:18px;right:22px;border:0;background:#f1efe9;width:34px;height:34px;border-radius:9px;font-size:17px;cursor:pointer;color:var(--muted);transition:.12s}
+  .dh .x:hover{background:#e5e1d7;color:var(--ink)}
+  .dh .dn{font-size:20px;font-weight:700;padding-right:44px;letter-spacing:-.2px}
+  .dh .db{font-size:13.5px;color:var(--muted);margin-top:4px}
+  .dh .meta2{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;font-size:12px}
   .tag{background:#f1efe9;color:#56524b;padding:3px 9px;border-radius:999px;font-weight:600}
-  .dbody{padding:18px 22px}
+  .dbody{padding:22px 28px 28px}
   .stagebox{background:#fff;border:1px solid var(--line-soft);border-radius:12px;margin-bottom:12px;overflow:hidden}
   .stagebox.cur{border-color:var(--accent);box-shadow:0 0 0 2px rgba(98,128,189,.12)}
   .sb-h{display:flex;align-items:center;gap:9px;padding:12px 14px;cursor:pointer;background:#fcfbf9}
@@ -406,9 +411,11 @@
     .gantt{overflow-x:auto;-webkit-overflow-scrolling:touch}
     .grow{grid-template-columns:150px repeat(var(--gn,8),minmax(62px,1fr)) 62px;width:max-content;min-width:100%}
 
-    /* drawer fills the screen; tighter padding */
-    .drawer{width:100vw}
-    .dh,.dbody{padding-left:16px;padding-right:16px}
+    /* drawer: nearly full-screen but still centered, tighter padding */
+    .drawer{width:calc(100vw - 16px);max-height:calc(100vh - 24px);border-radius:14px}
+    .dh{padding:18px 18px;border-radius:14px 14px 0 0}
+    .dh .x{top:14px;right:14px}
+    .dbody{padding:18px 18px 22px}
 
     /* settings rows stack label over input */
     .setbox{padding:18px}
@@ -496,6 +503,20 @@
         <div class="intake-field"><label for="iStorage">Storage Type / Requirements</label><input id="iStorage" name="storageReq" type="text" placeholder="e.g. Refrigerated 36–40°F"></div>
         <div class="intake-field wide"><label for="iDist">Primary Distribution</label><input id="iDist" name="primaryDistribution" type="text" placeholder="e.g. UNFI, Direct, KeHE"></div>
         <div class="intake-field wide"><label for="iNotes">Notes</label><textarea id="iNotes" name="notes" rows="2" placeholder="Anything procurement / compliance should know"></textarea></div>
+      </div>
+    </div>
+
+    <!-- Sample tracking — captured up front so Commissary can track
+         the sample shipment from day zero. Auto-populates the
+         "Samples requested from brand" task's trackingLink value on
+         submit, and pre-ticks that task if both link + carrier are
+         filled. -->
+    <div class="intake-group">
+      <h4>Sample Tracking</h4>
+      <div class="intake-grid">
+        <div class="intake-field wide"><label for="iTrackingLink">Sample Tracking Link</label><input id="iTrackingLink" name="sampleTrackingLink" type="url" placeholder="https://…  (Commissary uses this to track the sample shipment)"></div>
+        <div class="intake-field"><label for="iTrackingCarrier">Carrier</label><input id="iTrackingCarrier" name="sampleCarrier" type="text" placeholder="UPS / FedEx / USPS"></div>
+        <div class="intake-field"><label for="iTrackingEta">Expected arrival</label><input id="iTrackingEta" name="sampleEta" type="date"></div>
       </div>
     </div>
 
@@ -1994,6 +2015,27 @@ async function submitIntake(){
       'Product spec sheet on file':           intakeCompliance.spec
     };
     tmpl.forEach(t=>{ if(preDoneMap[t.label]){ t.done=true; t.doneAt=nowDoneAt; } });
+
+    // Sample tracking captured at intake — auto-populate the "Samples
+    // requested from brand" / "Initial samples / R&D batch requested"
+    // task's input values so Commissary has the tracking link the moment
+    // the launch lands. If the link + carrier are both filled, the task
+    // checks off automatically since the required gate is satisfied.
+    const trackingLink=v('sampleTrackingLink');
+    const trackingCarrier=v('sampleCarrier');
+    const trackingEta=v('sampleEta');
+    if(trackingLink || trackingCarrier || trackingEta){
+      const sampleLabels=['Samples requested from brand','Initial samples / R&D batch requested'];
+      tmpl.forEach(t=>{
+        if(sampleLabels.includes(t.label)){
+          t.values=t.values||{};
+          if(trackingLink) t.values.trackingLink=trackingLink;
+          if(trackingCarrier) t.values.carrier=trackingCarrier;
+          if(trackingEta) t.values.eta=trackingEta;
+          if(trackingLink){ t.done=true; t.doneAt=nowDoneAt; }
+        }
+      });
+    }
 
     upd['marketplace-npi/launches/'+id]={
       id, brandId, name, type,
