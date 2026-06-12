@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <title>Marketplace NPI — Neighborly</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
@@ -500,6 +503,20 @@
         <div class="intake-field"><label for="iStorage">Storage Type / Requirements</label><input id="iStorage" name="storageReq" type="text" placeholder="e.g. Refrigerated 36–40°F"></div>
         <div class="intake-field wide"><label for="iDist">Primary Distribution</label><input id="iDist" name="primaryDistribution" type="text" placeholder="e.g. UNFI, Direct, KeHE"></div>
         <div class="intake-field wide"><label for="iNotes">Notes</label><textarea id="iNotes" name="notes" rows="2" placeholder="Anything procurement / compliance should know"></textarea></div>
+      </div>
+    </div>
+
+    <!-- Sample tracking — captured up front so Commissary can track
+         the sample shipment from day zero. Auto-populates the
+         "Samples requested from brand" task's trackingLink value on
+         submit, and pre-ticks that task if both link + carrier are
+         filled. -->
+    <div class="intake-group">
+      <h4>Sample Tracking</h4>
+      <div class="intake-grid">
+        <div class="intake-field wide"><label for="iTrackingLink">Sample Tracking Link</label><input id="iTrackingLink" name="sampleTrackingLink" type="url" placeholder="https://…  (Commissary uses this to track the sample shipment)"></div>
+        <div class="intake-field"><label for="iTrackingCarrier">Carrier</label><input id="iTrackingCarrier" name="sampleCarrier" type="text" placeholder="UPS / FedEx / USPS"></div>
+        <div class="intake-field"><label for="iTrackingEta">Expected arrival</label><input id="iTrackingEta" name="sampleEta" type="date"></div>
       </div>
     </div>
 
@@ -1998,6 +2015,27 @@ async function submitIntake(){
       'Product spec sheet on file':           intakeCompliance.spec
     };
     tmpl.forEach(t=>{ if(preDoneMap[t.label]){ t.done=true; t.doneAt=nowDoneAt; } });
+
+    // Sample tracking captured at intake — auto-populate the "Samples
+    // requested from brand" / "Initial samples / R&D batch requested"
+    // task's input values so Commissary has the tracking link the moment
+    // the launch lands. If the link + carrier are both filled, the task
+    // checks off automatically since the required gate is satisfied.
+    const trackingLink=v('sampleTrackingLink');
+    const trackingCarrier=v('sampleCarrier');
+    const trackingEta=v('sampleEta');
+    if(trackingLink || trackingCarrier || trackingEta){
+      const sampleLabels=['Samples requested from brand','Initial samples / R&D batch requested'];
+      tmpl.forEach(t=>{
+        if(sampleLabels.includes(t.label)){
+          t.values=t.values||{};
+          if(trackingLink) t.values.trackingLink=trackingLink;
+          if(trackingCarrier) t.values.carrier=trackingCarrier;
+          if(trackingEta) t.values.eta=trackingEta;
+          if(trackingLink){ t.done=true; t.doneAt=nowDoneAt; }
+        }
+      });
+    }
 
     upd['marketplace-npi/launches/'+id]={
       id, brandId, name, type,
