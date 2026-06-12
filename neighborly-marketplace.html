@@ -621,7 +621,8 @@ const TASK_TEMPLATES=[
   {stage:'discovery',dept:'Marketplace',label:'Brand submitted & logged',owner:'Marketplace Lead',def:'Brand record created in the pipeline'},
   {stage:'discovery',dept:'Marketplace',label:'Samples requested from brand',owner:'Marketplace Lead',def:'Sample request sent to vendor with ship-to address',notify:'Commissary',notifyMsg:'Sample shipment incoming — please track receipt and forward to Marketplace for tasting.',inputs:[
     {key:'trackingLink',label:'Tracking link',type:'url',placeholder:'https://… — Commissary uses this',required:true},
-    {key:'carrier',label:'Carrier',type:'text',placeholder:'UPS / FedEx / USPS'}
+    {key:'carrier',label:'Carrier',type:'text',placeholder:'UPS / FedEx / USPS'},
+    {key:'shipDate',label:'Ship / expected date',type:'date'}
   ]},
   {stage:'discovery',dept:'Marketplace',label:'Samples received',owner:'Marketplace Lead',def:'Physical samples in hand and logged at commissary, forwarded for tasting',notify:'Marketplace',notifyMsg:'Samples received and logged at commissary — ready for Marketplace tasting.',inputs:[
     {key:'receivedDate',label:'Date received',type:'date'}
@@ -765,7 +766,8 @@ const PL_TASK_TEMPLATES=[
   {stage:'discovery',dept:'Marketplace',label:'Co-packer NDA signed',owner:'Marketplace Lead',def:'NDA executed before sharing formulation / brand',file:true},
   {stage:'discovery',dept:'Marketplace',label:'Initial samples / R&D batch requested',owner:'Marketplace Lead',def:'First samples or R&D run requested from the co-packer',notify:'Commissary',notifyMsg:'R&D sample shipment incoming — please track receipt and forward to Marketplace for tasting.',inputs:[
     {key:'trackingLink',label:'Tracking link',type:'url',placeholder:'https://… — Commissary uses this',required:true},
-    {key:'carrier',label:'Carrier',type:'text',placeholder:'UPS / FedEx / freight'}
+    {key:'carrier',label:'Carrier',type:'text',placeholder:'UPS / FedEx / freight'},
+    {key:'shipDate',label:'Ship / expected date',type:'date'}
   ]},
   /* Sample Review — Marketplace */
   {stage:'sample',dept:'Marketplace',label:'Internal tasting / QC',owner:'Marketplace Lead',def:'Internal panel signs off on taste, texture, appearance',file:true,inputs:[
@@ -2031,7 +2033,7 @@ async function submitIntake(){
           t.values=t.values||{};
           if(trackingLink) t.values.trackingLink=trackingLink;
           if(trackingCarrier) t.values.carrier=trackingCarrier;
-          if(trackingEta) t.values.eta=trackingEta;
+          if(trackingEta) t.values.shipDate=trackingEta;
           if(trackingLink){ t.done=true; t.doneAt=nowDoneAt; }
         }
       });
@@ -2286,6 +2288,18 @@ async function backfillTasks(){
 }
 
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+
+/* Visible version stamp so you can tell at a glance whether you're
+   loading the fresh build vs a stale cache. If you don't see "v15"
+   in the corner after a hard refresh, the browser/CDN is still
+   serving an old HTML file. */
+(function stampBuild(){
+  const v='v16 · 2026-06-12 · tracking date input';
+  const el=document.createElement('div');
+  el.textContent=v;
+  el.style.cssText='position:fixed;bottom:6px;right:8px;font-family:ui-monospace,monospace;font-size:10px;color:#9b988f;background:rgba(255,255,255,.85);padding:3px 8px;border-radius:6px;z-index:9999;pointer-events:none;letter-spacing:.02em';
+  document.body.appendChild(el);
+})();
 </script>
 </body>
 </html>
