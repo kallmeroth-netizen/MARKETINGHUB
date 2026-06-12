@@ -64,6 +64,19 @@
   .pcard .bar{height:5px;background:#eee9e0;border-radius:999px;margin-top:9px;overflow:hidden}
   .pcard .bar i{display:block;height:100%;background:var(--accent);border-radius:999px}
   .pcard .code{font-size:10.5px;color:var(--muted);margin-top:6px;letter-spacing:.3px}
+  /* CPG vs Private Label badge — visible on every pipeline card + drawer
+     header so the launch type reads at a glance. Filterable via the
+     toggle at the top of the pipeline view. */
+  .type-badge{display:inline-flex;align-items:center;font-size:10px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;padding:2px 7px;border-radius:999px;line-height:1.4;margin-top:6px}
+  .type-badge.cpg{background:#eaeef8;color:#2d4480}
+  .type-badge.pl{background:#f0eff5;color:#4a4760}
+  .pcard .type-badge{margin-top:6px}
+  /* Type filter toggle above the lanes */
+  .pipe-filter{display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+  .pipe-filter-lbl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-right:2px}
+  .pipe-filter button{background:#fff;border:1px solid var(--line);color:var(--ink);font-family:inherit;font-weight:600;font-size:12px;padding:5px 11px;border-radius:999px;cursor:pointer;transition:.12s}
+  .pipe-filter button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+  .pipe-filter button:hover:not(.on){border-color:var(--line-bold,#c8c5bd)}
 
   /* products + brands */
   h1{font-size:25px;font-weight:700;margin:0 0 4px;letter-spacing:-.3px}
@@ -148,6 +161,93 @@
   .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:11px 18px;border-radius:11px;font-size:13.5px;font-weight:600;z-index:80;opacity:0;transition:.2s;box-shadow:var(--shadow)}
   .toast.show{opacity:1}
   .empty{color:var(--muted);padding:48px;text-align:center}
+
+  /* ===== Product Info & Documents cards inside the drawer ===== */
+  .info-card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin-bottom:14px;box-shadow:var(--shadow)}
+  .info-card .ic-h{display:flex;align-items:center;justify-content:space-between;gap:8px;cursor:pointer}
+  .info-card .ic-h h4{margin:0;font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);font-weight:700}
+  .info-card .ic-h .ic-c{font-size:11px;color:var(--muted);font-weight:600}
+  .info-card .ic-h .ic-x{font-size:13px;color:var(--muted);transition:transform .15s}
+  .info-card.collapsed .ic-x{transform:rotate(-90deg)}
+  .info-card .ic-b{margin-top:12px}
+  .info-card.collapsed .ic-b{display:none}
+  .info-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px 16px}
+  @media (max-width:560px){ .info-grid{grid-template-columns:1fr} }
+  .info-cell{min-width:0;font-size:12.5px;color:var(--ink);line-height:1.4}
+  .info-cell .k{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);display:block;margin-bottom:1px}
+  .info-cell .v{word-break:break-word}
+  .info-cell .v.empty{color:#bcb9b1;font-style:italic;font-weight:400}
+  .info-cell .v a{color:var(--accent);text-decoration:none}
+  .info-cell .v a:hover{text-decoration:underline}
+
+  .doc-list{display:flex;flex-direction:column;gap:6px}
+  .doc-row{display:flex;align-items:center;gap:10px;padding:8px 10px;background:#fbfaf7;border:1px solid var(--line-soft);border-radius:10px}
+  .doc-row .doc-ico{flex:0 0 auto;width:30px;height:30px;border-radius:8px;background:rgba(98,128,189,.10);color:var(--accent);display:flex;align-items:center;justify-content:center;font-size:14px}
+  .doc-row .doc-meta{flex:1;min-width:0;overflow:hidden}
+  .doc-row .doc-name{font-size:12.5px;font-weight:600;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .doc-row .doc-task{font-size:11px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .doc-row .doc-actions{display:flex;gap:6px;flex:0 0 auto}
+  .doc-row .doc-btn{font-family:inherit;font-size:11px;font-weight:600;padding:5px 10px;border-radius:8px;border:1px solid var(--line);background:#fff;color:var(--ink);cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:4px}
+  .doc-row .doc-btn:hover{border-color:var(--accent);color:var(--accent)}
+  .doc-row .doc-btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .doc-row .doc-btn.primary:hover{filter:brightness(0.94);color:#fff}
+  .doc-empty{font-size:12px;color:var(--muted);font-style:italic;padding:6px 4px}
+
+  /* ===== Inline document preview overlay (PDFs in an iframe, images
+     inline, anything else falls back to an "Open in new tab" link). */
+  .preview-overlay{position:fixed;inset:0;background:rgba(31,35,40,.78);opacity:0;pointer-events:none;transition:.18s;z-index:70;display:flex;align-items:center;justify-content:center;padding:24px}
+  .preview-overlay.show{opacity:1;pointer-events:auto}
+  .preview-sheet{background:#fff;border-radius:14px;width:min(960px,100%);height:min(86vh,820px);display:flex;flex-direction:column;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,.30)}
+  .preview-head{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--line);background:#fbfaf7}
+  .preview-head .ph-name{flex:1;min-width:0;font-size:13.5px;font-weight:600;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .preview-head .ph-task{font-size:11px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-right:6px}
+  .preview-head a.ph-open{font-size:11.5px;font-weight:600;color:var(--accent);text-decoration:none;padding:5px 10px;border:1px solid var(--line);border-radius:8px}
+  .preview-head a.ph-open:hover{border-color:var(--accent)}
+  .preview-head .ph-x{border:0;background:#f1efe9;width:30px;height:30px;border-radius:8px;font-size:15px;cursor:pointer;color:var(--muted)}
+  .preview-body{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;background:#1f2328;overflow:auto}
+  .preview-body iframe{width:100%;height:100%;border:0;background:#fff}
+  .preview-body img{max-width:100%;max-height:100%;display:block;object-fit:contain}
+  .preview-body .preview-fallback{color:#fff;font-size:13px;text-align:center;padding:32px 24px;line-height:1.5}
+  .preview-body .preview-fallback a{color:#fff;text-decoration:underline}
+
+  /* ===== Per-task value inputs (sample tracking link, free first fill
+     case pack qty, etc.) — siblings to the existing file-upload row.
+     Renders below the task label/meta when a task template declares
+     an `inputs:[{key,label,type,placeholder}]` array. Values persist
+     on the task itself (task.values[key]). */
+  .task-inputs{display:flex;flex-direction:column;gap:6px;margin-top:6px}
+  .task-input{display:flex;align-items:center;gap:8px;font-size:11.5px}
+  .task-input label{flex:0 0 130px;color:var(--muted);font-weight:600;letter-spacing:.02em}
+  .task-input input{flex:1;min-width:0;font-family:inherit;font-size:12.5px;padding:5px 9px;border:1px solid var(--line);border-radius:7px;background:#fff;color:var(--ink);outline:none;transition:border-color .12s}
+  .task-input input:focus{border-color:var(--accent)}
+
+  /* ===== Intake form modal — slides in like the drawer but opens
+     for the "+ New product" button instead of an existing record.
+     Captures the full Brand Info + Product Info up front so every
+     downstream step (procurement handoff, compliance, etc.) can
+     pull from one source. */
+  .intake{position:fixed;top:0;right:0;height:100%;width:min(620px,96vw);background:var(--bg);box-shadow:-12px 0 40px rgba(0,0,0,.18);transform:translateX(100%);transition:.22s;z-index:55;overflow-y:auto;display:flex;flex-direction:column}
+  .intake.show{transform:none}
+  .intake .ih{position:sticky;top:0;background:#fff;border-bottom:1px solid var(--line);padding:18px 24px;z-index:2}
+  .intake .ih .x{position:absolute;top:16px;right:18px;border:0;background:#f1efe9;width:30px;height:30px;border-radius:8px;font-size:16px;cursor:pointer;color:var(--muted)}
+  .intake .ih h3{margin:0;font-size:17px;font-weight:700;letter-spacing:-.2px}
+  .intake .ih p{margin:3px 0 0;font-size:12.5px;color:var(--muted)}
+  .intake .ib{padding:18px 24px 24px;display:flex;flex-direction:column;gap:22px}
+  .intake-group{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px 18px}
+  .intake-group h4{margin:0 0 12px;font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);font-weight:700}
+  .intake-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px 14px}
+  @media (max-width:600px){ .intake-grid{grid-template-columns:1fr} }
+  .intake-field{display:flex;flex-direction:column;gap:4px;min-width:0}
+  .intake-field.wide{grid-column:1 / -1}
+  .intake-field label{font-size:11px;font-weight:600;letter-spacing:.02em;color:var(--muted)}
+  .intake-field .req{color:var(--accent)}
+  .intake-field input,.intake-field select,.intake-field textarea{font-family:inherit;font-size:13.5px;padding:8px 11px;border:1px solid var(--line);border-radius:9px;background:#fff;color:var(--ink);outline:none;transition:border-color .12s;width:100%}
+  .intake-field input:focus,.intake-field select:focus,.intake-field textarea:focus{border-color:var(--accent)}
+  .intake-field textarea{resize:vertical;min-height:60px}
+  .intake-foot{display:flex;justify-content:flex-end;gap:8px;padding:14px 24px;border-top:1px solid var(--line);background:#fff;position:sticky;bottom:0}
+  .intake-foot .btn-secondary{background:#f1efe9;color:var(--ink);border:0;font-family:inherit;font-weight:600;font-size:13px;padding:9px 14px;border-radius:9px;cursor:pointer}
+  .intake-foot .btn-primary{background:var(--ink);color:#fff;border:0;font-family:inherit;font-weight:600;font-size:13px;padding:9px 16px;border-radius:9px;cursor:pointer}
+  .intake-foot .btn-primary:disabled{background:#9b988f;cursor:not-allowed}
   /* gantt */
   .gantt{background:#fff;border:1px solid var(--line-soft);border-radius:14px;box-shadow:var(--shadow);overflow:hidden}
   .grow{display:grid;grid-template-columns:230px repeat(var(--gn,8),minmax(0,1fr)) 86px;align-items:center;border-top:1px solid var(--line-soft)}
@@ -247,6 +347,84 @@
 
 <div class="scrim" id="scrim"></div>
 <div class="drawer" id="drawer"></div>
+
+<!-- Product Intake Form — opens from "+ New product". Captures the full
+     Brand Info + Product Info up front, plus a CPG vs Private Label tag
+     so the pipeline view can filter and badge each product by type. -->
+<div class="intake" id="intake" role="dialog" aria-label="Product Intake Form">
+  <div class="ih">
+    <button class="x" type="button" onclick="window._closeIntake()">✕</button>
+    <h3>Product Intake Form</h3>
+    <p>Fill in what's known now — every downstream team (Procurement, Compliance, Marketing) reads from this record.</p>
+  </div>
+  <form class="ib" id="intakeForm" autocomplete="off">
+
+    <div class="intake-group">
+      <h4>Product Type</h4>
+      <div class="intake-grid">
+        <div class="intake-field wide">
+          <label for="iType">Type <span class="req">*</span></label>
+          <select id="iType" name="type" required>
+            <option value="CPG">CPG (third-party brand)</option>
+            <option value="Private Label">Private Label (Neighborly own brand)</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="intake-group">
+      <h4>Brand Info</h4>
+      <div class="intake-grid">
+        <div class="intake-field"><label for="iBrandName">Brand Name <span class="req">*</span></label><input id="iBrandName" name="brandName" type="text" required></div>
+        <div class="intake-field"><label for="iFounderName">Founder Name</label><input id="iFounderName" name="founderName" type="text"></div>
+        <div class="intake-field"><label for="iEmail">Email</label><input id="iEmail" name="email" type="email"></div>
+        <div class="intake-field"><label for="iPhone">Phone</label><input id="iPhone" name="phone" type="tel"></div>
+        <div class="intake-field wide"><label for="iWebsite">Website</label><input id="iWebsite" name="website" type="url" placeholder="https://"></div>
+      </div>
+    </div>
+
+    <div class="intake-group">
+      <h4>Product Info</h4>
+      <div class="intake-grid">
+        <div class="intake-field"><label for="iSku">SKU Name <span class="req">*</span></label><input id="iSku" name="sku" type="text" required></div>
+        <div class="intake-field"><label for="iCategory">Category</label><input id="iCategory" name="category" type="text" placeholder="e.g. Pantry, Snacks"></div>
+        <div class="intake-field"><label for="iUpc">UPC</label><input id="iUpc" name="upc" type="text" inputmode="numeric"></div>
+        <div class="intake-field"><label for="iUnitSize">Unit Size</label><input id="iUnitSize" name="unitSize" type="text" placeholder="e.g. 12 oz"></div>
+        <div class="intake-field"><label for="iCasePack">Case Pack</label><input id="iCasePack" name="casePack" type="text" placeholder="units / case"></div>
+        <div class="intake-field"><label for="iProductDim">Product Dimension</label><input id="iProductDim" name="productDim" type="text" placeholder="L × W × H"></div>
+        <div class="intake-field"><label for="iCaseDim">Case Dimensions</label><input id="iCaseDim" name="caseDim" type="text" placeholder="L × W × H"></div>
+        <div class="intake-field"><label for="iCost">Wholesale Cost</label><input id="iCost" name="cost" type="text" placeholder="$"></div>
+        <div class="intake-field"><label for="iMsrp">MSRP</label><input id="iMsrp" name="msrp" type="text" placeholder="$"></div>
+        <div class="intake-field"><label for="iMoq">MOQ</label><input id="iMoq" name="moq" type="text" placeholder="minimum order qty"></div>
+        <div class="intake-field"><label for="iLeadTime">Lead Time</label><input id="iLeadTime" name="leadTime" type="text" placeholder="e.g. 4 weeks"></div>
+        <div class="intake-field"><label for="iShelfLife">Shelf Life / Spoilage Details</label><input id="iShelfLife" name="shelfLife" type="text" placeholder="e.g. 12 months refrigerated"></div>
+        <div class="intake-field"><label for="iStorage">Storage Type / Requirements</label><input id="iStorage" name="storageReq" type="text" placeholder="e.g. Refrigerated 36–40°F"></div>
+        <div class="intake-field wide"><label for="iDist">Primary Distribution</label><input id="iDist" name="primaryDistribution" type="text" placeholder="e.g. UNFI, Direct, KeHE"></div>
+        <div class="intake-field wide"><label for="iNotes">Notes</label><textarea id="iNotes" name="notes" rows="2" placeholder="Anything procurement / compliance should know"></textarea></div>
+      </div>
+    </div>
+  </form>
+  <div class="intake-foot">
+    <button type="button" class="btn-secondary" onclick="window._closeIntake()">Cancel</button>
+    <button type="button" class="btn-primary" id="intakeSubmit" onclick="window._submitIntake()">Add product</button>
+  </div>
+</div>
+
+<!-- Inline document preview — opens from any "Preview" button in the
+     drawer Documents section. PDFs render in an iframe, images inline,
+     unrecognized types fall back to an "Open in new tab" link. -->
+<div class="preview-overlay" id="previewOverlay" role="dialog" aria-label="Document preview">
+  <div class="preview-sheet">
+    <div class="preview-head">
+      <div class="ph-name" id="previewName">Document</div>
+      <div class="ph-task" id="previewTask"></div>
+      <a class="ph-open" id="previewOpen" href="#" target="_blank" rel="noopener">Open in new tab</a>
+      <button class="ph-x" type="button" onclick="window._closePreview()" aria-label="Close preview">✕</button>
+    </div>
+    <div class="preview-body" id="previewBody"></div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -294,8 +472,13 @@ const TASK_TEMPLATES=[
   /* Discovery — Marketplace */
   {stage:'discovery',dept:'Marketplace',label:'Product intake form completed',owner:'Marketplace Lead',def:'Intake form submitted with brand, product, category & contact captured'},
   {stage:'discovery',dept:'Marketplace',label:'Brand submitted & logged',owner:'Marketplace Lead',def:'Brand record created in the pipeline'},
-  {stage:'discovery',dept:'Marketplace',label:'Samples requested from brand',owner:'Marketplace Lead',def:'Sample request sent to vendor with ship-to address'},
-  {stage:'discovery',dept:'Marketplace',label:'Samples received',owner:'Marketplace Lead',def:'Physical samples in hand and logged'},
+  {stage:'discovery',dept:'Marketplace',label:'Samples requested from brand',owner:'Marketplace Lead',def:'Sample request sent to vendor with ship-to address',inputs:[
+    {key:'trackingLink',label:'Tracking link',type:'url',placeholder:'https://…'},
+    {key:'carrier',label:'Carrier',type:'text',placeholder:'UPS / FedEx / USPS'}
+  ]},
+  {stage:'discovery',dept:'Marketplace',label:'Samples received',owner:'Marketplace Lead',def:'Physical samples in hand and logged',inputs:[
+    {key:'receivedDate',label:'Date received',type:'date'}
+  ]},
   /* Sample Review — Marketplace */
   {stage:'sample',dept:'Marketplace',label:'Tasting scheduled',owner:'Marketplace Lead',def:'Tasting date on the calendar with panel invited'},
   {stage:'sample',dept:'Marketplace',label:'Taste approved',owner:'Marketplace Lead',def:'Tasting panel signed off on product quality'},
@@ -306,11 +489,24 @@ const TASK_TEMPLATES=[
   {stage:'sample',dept:'Marketplace',label:'Asset: Brand story received',owner:'Marketplace Lead',def:'Brand story copy on file',blocking:false,file:true,notify:'Marketing',notifyMsg:'Brand story received — available for Marketing to draft product copy.'},
   /* Commercial — Procurement */
   {stage:'commercial',dept:'Procurement',label:'Vendor setup started',owner:'Procurement Coordinator',def:'Vendor record opened in the system'},
-  {stage:'commercial',dept:'Procurement',label:'Confirm MOQ & case pack',owner:'Procurement Coordinator',def:'Minimum order qty and units-per-case confirmed with vendor in writing'},
-  {stage:'commercial',dept:'Procurement',label:'Confirm lead times & shelf life',owner:'Procurement Coordinator',def:'Production/ship lead time and shelf-life window documented'},
-  {stage:'commercial',dept:'Procurement',label:'Terms finalized',owner:'Procurement Coordinator',def:'Payment & trade terms agreed and recorded'},
-  {stage:'commercial',dept:'Procurement',label:'Cost sheet approved',owner:'Procurement Manager',def:'Landed cost sheet signed off by Procurement manager'},
-  {stage:'commercial',dept:'Procurement',label:'Free first fill secured',owner:'Procurement Coordinator',def:'Free first-fill agreement on file from vendor',notify:'Commissary',notifyMsg:'Free first fill secured — Commissary can expect the initial fill shipment.'},
+  {stage:'commercial',dept:'Procurement',label:'Confirm MOQ & case pack',owner:'Procurement Coordinator',def:'Minimum order qty and units-per-case confirmed with vendor in writing',inputs:[
+    {key:'confirmedMoq',label:'Confirmed MOQ',type:'text',placeholder:'units'},
+    {key:'confirmedCasePack',label:'Confirmed case pack',type:'text',placeholder:'units / case'}
+  ]},
+  {stage:'commercial',dept:'Procurement',label:'Confirm lead times & shelf life',owner:'Procurement Coordinator',def:'Production/ship lead time and shelf-life window documented',inputs:[
+    {key:'confirmedLeadTime',label:'Confirmed lead time',type:'text',placeholder:'e.g. 4 weeks'},
+    {key:'confirmedShelfLife',label:'Confirmed shelf life',type:'text',placeholder:'e.g. 12 months'}
+  ]},
+  {stage:'commercial',dept:'Procurement',label:'Terms finalized',owner:'Procurement Coordinator',def:'Payment & trade terms agreed and recorded',inputs:[
+    {key:'terms',label:'Payment terms',type:'text',placeholder:'Net 30 / 2% 10 Net 30 / etc.'}
+  ]},
+  {stage:'commercial',dept:'Procurement',label:'Cost sheet approved',owner:'Procurement Manager',def:'Landed cost sheet signed off by Procurement manager',inputs:[
+    {key:'landedCost',label:'Landed cost',type:'text',placeholder:'$ per unit'}
+  ]},
+  {stage:'commercial',dept:'Procurement',label:'Free first fill secured',owner:'Procurement Coordinator',def:'Free first-fill agreement on file from vendor',notify:'Commissary',notifyMsg:'Free first fill secured — Commissary can expect the initial fill shipment.',inputs:[
+    {key:'firstFillCasePacks',label:'Case packs (free fill)',type:'text',placeholder:'qty'},
+    {key:'firstFillEta',label:'Expected ship date',type:'date'}
+  ]},
   {stage:'commercial',dept:'Procurement',label:'Collect + upload initial invoice',owner:'Procurement Coordinator',def:'First invoice received and uploaded',file:true},
   {stage:'commercial',dept:'Procurement',label:'Commercial terms complete — ready for vendor docs',owner:'Procurement Coordinator',def:'All commercial terms above confirmed',notify:'Compliance',notifyMsg:'Commercial terms finalized — please collect W-9 + COI before vendor goes live in the systems.'},
   /* W-9 — Compliance (gates ERP/SKU creation) */
@@ -373,7 +569,7 @@ const TASK_TEMPLATES=[
   {stage:'review',dept:'Marketplace',label:'Customer feedback reviewed',owner:'Marketplace Lead',def:'Guest feedback reviewed',blocking:false},
   {stage:'review',dept:'Marketplace',label:'Disposition decided: Expand / Maintain / Exit',owner:'Marketplace Lead',def:'Expand, Maintain, or Exit decision recorded'}
 ];
-function buildTasks(){return TASK_TEMPLATES.map(t=>({stage:t.stage,dept:t.dept,label:t.label,owner:t.owner||'',def:t.def||'',notify:t.notify||'',notifyMsg:t.notifyMsg||'',blocking:t.blocking!==false,file:t.file===true,done:false,doneAt:null}));}
+function buildTasks(){return TASK_TEMPLATES.map(t=>({stage:t.stage,dept:t.dept,label:t.label,owner:t.owner||'',def:t.def||'',notify:t.notify||'',notifyMsg:t.notifyMsg||'',blocking:t.blocking!==false,file:t.file===true,inputs:Array.isArray(t.inputs)?t.inputs:[],values:{},done:false,doneAt:null}));}
 
 /* Named mini-steps per stage: small, purposeful batches so a team member only
    ever focuses on a short list. [label, taskCount] in template order. */
@@ -425,12 +621,40 @@ function nowTs(){return new Date().toLocaleString('en-US',{month:'short',day:'nu
 function toast(m){const t=$('toast');t.textContent=m;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2600);}
 
 const HUB_URL='https://beneighborly.team/neighborly-marketplace.html';
+/* Build a "Procurement handoff package" snippet using the captured Product
+   Info from intake + a suggested launch date 3 weeks from now. Called by
+   actionMessage() when the next stage is Procurement so the email arrives
+   pre-populated with everything procurement needs to act. */
+function procurementHandoff(launch){
+  const lines=[];
+  lines.push(`📦 Procurement handoff for ${launch.name||'this product'}:`);
+  lines.push(`• Approved item: ${launch.name||'—'}`);
+  if(launch.sku && launch.sku!==launch.name) lines.push(`• SKU: ${launch.sku}`);
+  if(launch.upc) lines.push(`• UPC: ${launch.upc}`);
+  if(launch.unitSize) lines.push(`• Unit size: ${launch.unitSize}`);
+  if(launch.casePack) lines.push(`• Case pack: ${launch.casePack}`);
+  if(launch.moq) lines.push(`• MOQ: ${launch.moq}`);
+  if(launch.cost) lines.push(`• Price (wholesale): ${launch.cost}`);
+  if(launch.msrp) lines.push(`• MSRP: ${launch.msrp}`);
+  if(launch.primaryDistribution) lines.push(`• Distributor: ${launch.primaryDistribution}`);
+  if(launch.leadTime) lines.push(`• Lead time: ${launch.leadTime}`);
+  if(launch.shelfLife) lines.push(`• Shelf life: ${launch.shelfLife}`);
+  if(launch.storageReq) lines.push(`• Storage: ${launch.storageReq}`);
+  // Suggested launch date = today + 3 weeks. Procurement can override.
+  const d=new Date(); d.setDate(d.getDate()+21);
+  const sug=d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+  lines.push(`• Suggested launch date: ${sug} (approval + 3 weeks)`);
+  return lines.join('\n');
+}
 /* "It's your turn" handoff copy — names the exact tasks, adds urgency, points
-   to the hub, and reminds them to check tasks off to advance the launch. */
+   to the hub, and reminds them to check tasks off to advance the launch.
+   When the next stage is Procurement (commercial) the message is prepended
+   with the full handoff package so they don't have to dig for the basics. */
 function actionMessage(launch,nm){
   const todo=stageTasks(launch,nm.key).filter(x=>x.t.blocking!==false).map(x=>x.t.label);
   const list=todo.length?` Your ${nm.label} checklist: ${todo.join('; ')}.`:'';
-  return `🔔 It's your turn, ${nm.dept}! ${launch.name||'A product'} (${brandName(launch)}) just advanced to the ${nm.label} stage — the whole launch is now waiting on your team.`
+  const handoff=(nm.key==='commercial')?(procurementHandoff(launch)+'\n\n'):'';
+  return handoff+`🔔 It's your turn, ${nm.dept}! ${launch.name||'A product'} (${brandName(launch)}) just advanced to the ${nm.label} stage — the whole launch is now waiting on your team.`
     +list
     +` ⏱️ Please jump on this today: nothing moves forward until your ${nm.label} tasks are done, and every day it sits here pushes ${launch.name||'the launch'}'s go-live date back.`
     +` 👉 Click here to open ${launch.name||'this product'} in the hub and work your checklist: ${HUB_URL}#${launch.id}`
@@ -465,21 +689,31 @@ function render(){
 }
 
 /* ---------------- pipeline board ---------------- */
+let PIPE_TYPE='all'; // 'all' | 'CPG' | 'Private Label' — pipeline view filter
+function typeClass(t){return t==='Private Label'?'pl':'cpg';}
+function typeBadge(t){const tt=t||'CPG'; return `<span class="type-badge ${typeClass(tt)}">${esc(tt)}</span>`;}
 function renderPipeline(){
-  const byStage={}; Object.values(LAUNCHES).forEach(l=>{(byStage[l.stage]=byStage[l.stage]||[]).push(l);});
+  const allItems=Object.values(LAUNCHES);
+  const filtered=PIPE_TYPE==='all'?allItems:allItems.filter(l=>(l.type||'CPG')===PIPE_TYPE);
+  const byStage={}; filtered.forEach(l=>{(byStage[l.stage]=byStage[l.stage]||[]).push(l);});
   const lanes=[...PIPE,stageMeta('live')]; // active stages + Live lane
-  $('view').innerHTML=`<div class="lanes">${lanes.map(s=>{
+  const counts={all:allItems.length,CPG:allItems.filter(l=>(l.type||'CPG')==='CPG').length,'Private Label':allItems.filter(l=>l.type==='Private Label').length};
+  const btn=(v,lbl)=>`<button data-type="${esc(v)}" class="${PIPE_TYPE===v?'on':''}">${esc(lbl)} <span style="opacity:.6;margin-left:2px">${counts[v]||0}</span></button>`;
+  const filterBar=`<div class="pipe-filter"><span class="pipe-filter-lbl">Type</span>${btn('all','All')}${btn('CPG','CPG')}${btn('Private Label','Private Label')}</div>`;
+  $('view').innerHTML=filterBar+`<div class="lanes">${lanes.map(s=>{
     const items=(byStage[s.key]||[]).sort((a,b)=>(a.name||'').localeCompare(b.name||''));
     return `<div class="lane"><div class="lane-head"><div class="lh-top"><span class="dot" style="background:${s.color}"></span>${esc(s.label)}</div><span class="cnt">${items.length} ${items.length===1?'product':'products'}</span></div>
       <div class="lane-list">${items.map(l=>{
         const r=readiness(l);
         return `<div class="pcard" data-id="${l.id}"><div class="pn">${esc(l.name||'')}</div>
           <div class="pb">${esc(brandName(l))} · ${esc(l.category||'')}</div>
+          ${typeBadge(l.type)}
           ${s.key!=='live'?`<div class="bar"><i style="width:${r}%;background:${s.color}"></i></div>`:''}
           <div class="code">${esc(l.code||'')}</div></div>`;
       }).join('')||'<div class="lane-empty">—</div>'}</div></div>`;
   }).join('')}</div>`;
   document.querySelectorAll('.pcard').forEach(c=>c.onclick=()=>openDrawer(c.dataset.id));
+  document.querySelectorAll('.pipe-filter button').forEach(b=>b.onclick=()=>{ PIPE_TYPE=b.dataset.type; renderPipeline(); });
 }
 
 /* ---------------- products tab ---------------- */
@@ -569,7 +803,13 @@ function renderDrawer(id){
         const fileHtml=t.file?`<div class="task-file">${t.fileUrl
           ?`<a class="file-link" href="${esc(t.fileUrl)}" target="_blank" rel="noopener">📎 ${esc(t.fileName||'View file')}</a><label class="file-btn">Replace<input type="file" hidden data-id="${id}" data-ti="${x.i}"></label>`
           :`<label class="file-btn">⬆ Upload file<input type="file" hidden data-id="${id}" data-ti="${x.i}"></label>`}</div>`:'';
-        return `<div class="task ${t.done?'done':''}"><input type="checkbox" ${t.done?'checked':''} data-id="${id}" data-ti="${x.i}"><div class="tbody"><label>${esc(t.label)}${t.blocking===false?' <span class="opt">optional</span>':''}</label>${meta?`<div class="task-meta">${meta}</div>`:''}${fileHtml}</div></div>`;}).join('');
+        // Per-task value inputs (sample tracking link, free-first-fill qty,
+        // landed cost, etc.) — declared on the template's inputs:[] array.
+        const inputsHtml=(Array.isArray(t.inputs)&&t.inputs.length)?`<div class="task-inputs">${t.inputs.map(f=>{
+          const cur=(t.values&&t.values[f.key])||'';
+          return `<div class="task-input"><label>${esc(f.label||f.key)}</label><input type="${esc(f.type||'text')}" placeholder="${esc(f.placeholder||'')}" value="${esc(cur)}" data-id="${id}" data-ti="${x.i}" data-vk="${esc(f.key)}"></div>`;
+        }).join('')}</div>`:'';
+        return `<div class="task ${t.done?'done':''}"><input type="checkbox" ${t.done?'checked':''} data-id="${id}" data-ti="${x.i}"><div class="tbody"><label>${esc(t.label)}${t.blocking===false?' <span class="opt">optional</span>':''}</label>${meta?`<div class="task-meta">${meta}</div>`:''}${fileHtml}${inputsHtml}</div></div>`;}).join('');
       return `<div class="ministep ${cls}"><div class="ms-h"><span class="ms-ic">${ic}</span>${esc(g.name)}<span class="ms-c">${gN}/${g.items.length}</span></div><div class="ms-body" style="${open?'':'display:none'}">${tasksHtml}</div></div>`;
     }).join('');
     const nxtK=nextStageKey(s.key), nxtM=nxtK?stageMeta(nxtK):null;
@@ -584,17 +824,164 @@ function renderDrawer(id){
         ${isCur?advanceBtn(l,s):''}</div></div>`;
   }).join('');
   const log=(Array.isArray(l.log)?l.log:Object.values(l.log||{})).slice().reverse().slice(0,8);
+  const infoHtml=renderProductInfo(l);
+  const docsHtml=renderDocs(l);
   $('drawer').innerHTML=`<div class="dh"><button class="x" onclick="window._close()">✕</button>
       <div class="dn">${esc(l.name||'')}</div><div class="db">${esc(brandName(l))} · ${esc(l.category||'')}</div>
       <div class="meta2"><span class="tag" style="background:${stageMeta(l.stage).color}22">${esc(stageMeta(l.stage).label)}</span>
-        <span class="tag">${esc(l.code||'')}</span><span class="tag">${readiness(l)}% ready</span></div></div>
-    <div class="dbody">${body||'<div class="empty">No tasks.</div>'}
+        <span class="tag">${esc(l.code||'')}</span><span class="tag">${readiness(l)}% ready</span>${typeBadge(l.type)}</div></div>
+    <div class="dbody">
+      ${infoHtml}
+      ${docsHtml}
+      ${body||'<div class="empty">No tasks.</div>'}
       ${l.stage==='live'?`<button class="advance" style="margin-top:6px" onclick="window._advance('${id}')">Start 30-Day Review →</button>`:''}
       <div class="log"><h4>Activity</h4>${log.map(e=>`<div class="e"><span class="t">${esc(e.ts||'')}</span><span>${esc(e.text||'')}</span></div>`).join('')||'<div style="color:#9b988f">No activity yet.</div>'}</div></div>`;
   $('drawer').querySelectorAll('.sb-h').forEach(h=>h.onclick=()=>{const b=h.nextElementSibling;b.style.display=b.style.display==='none'?'':'none';});
   $('drawer').querySelectorAll('.ms-h').forEach(h=>h.onclick=()=>{const b=h.nextElementSibling;b.style.display=b.style.display==='none'?'':'none';});
   $('drawer').querySelectorAll('.task input[type=checkbox]').forEach(c=>c.onchange=()=>toggleTask(c.dataset.id,+c.dataset.ti,c.checked));
   $('drawer').querySelectorAll('.task input[type=file]').forEach(f=>f.onchange=()=>uploadTaskFile(f.dataset.id,+f.dataset.ti,f));
+  // Persist per-task values (tracking link, free-fill qty, landed cost, etc.)
+  // on blur so users can tab through fields without firing a write each
+  // keystroke. Writes to launches/{id}/tasks/{ti}/values/{key}.
+  $('drawer').querySelectorAll('.task-input input').forEach(inp=>{
+    inp.onblur=()=>saveTaskValue(inp.dataset.id,+inp.dataset.ti,inp.dataset.vk,inp.value);
+    inp.onkeydown=e=>{ if(e.key==='Enter'){ e.preventDefault(); inp.blur(); } };
+  });
+  // Collapsible Product Info / Documents cards
+  $('drawer').querySelectorAll('.info-card .ic-h').forEach(h=>h.onclick=()=>h.parentElement.classList.toggle('collapsed'));
+  // Wire each Preview button to open the inline modal with the right URL/name
+  $('drawer').querySelectorAll('[data-preview-url]').forEach(btn=>{
+    btn.onclick=e=>{ e.preventDefault(); previewDoc(btn.dataset.previewUrl,btn.dataset.previewName,btn.dataset.previewTask); };
+  });
+}
+
+/* Build the Product Info summary block shown at the top of the drawer.
+   Reads from the launch record's intake fields. Collapsible. Each cell
+   shows label + value, with empty fields rendered as a quiet '—' so
+   the layout doesn't bounce when fields are partially filled. */
+function renderProductInfo(l){
+  const b=BRANDS[l.brandId]||{};
+  const cell=(k,v,opts)=>{
+    const o=opts||{};
+    let val=v;
+    const isEmpty=(val==null||String(val).trim()==='');
+    if(isEmpty){ val='—'; }
+    else if(o.link){
+      const href=o.link==='url'?(/^https?:\/\//.test(val)?val:'https://'+val):('mailto:'+val);
+      val=`<a href="${esc(href)}" target="_blank" rel="noopener">${esc(v)}</a>`;
+    } else if(o.tel){ val=`<a href="tel:${esc(v)}">${esc(v)}</a>`; }
+    else { val=esc(val); }
+    return `<div class="info-cell"><span class="k">${esc(k)}</span><span class="v${isEmpty?' empty':''}">${val}</span></div>`;
+  };
+  const brandBlock=`<div class="info-grid">
+    ${cell('Brand',b.name||brandName(l))}
+    ${cell('Founder',b.founderName||b.contact||'')}
+    ${cell('Email',b.email||'',{link:'email'})}
+    ${cell('Phone',b.phone||'',{tel:true})}
+    ${cell('Website',b.website||'',{link:'url'})}
+    ${cell('Type',l.type||'CPG')}
+  </div>`;
+  const prodBlock=`<div class="info-grid" style="margin-top:14px">
+    ${cell('SKU',l.sku||l.name||'')}
+    ${cell('Category',l.category||'')}
+    ${cell('UPC',l.upc||'')}
+    ${cell('Unit Size',l.unitSize||'')}
+    ${cell('Case Pack',l.casePack||'')}
+    ${cell('MOQ',l.moq||'')}
+    ${cell('Wholesale Cost',l.cost||'')}
+    ${cell('MSRP',l.msrp||'')}
+    ${cell('Lead Time',l.leadTime||'')}
+    ${cell('Shelf Life',l.shelfLife||'')}
+    ${cell('Storage',l.storageReq||'')}
+    ${cell('Primary Distribution',l.primaryDistribution||'')}
+    ${cell('Product Dimension',l.productDim||'')}
+    ${cell('Case Dimensions',l.caseDim||'')}
+  </div>`;
+  const notes=l.notes?`<div style="margin-top:12px;font-size:12.5px;color:var(--ink);line-height:1.45;padding-top:10px;border-top:1px dashed var(--line)"><span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);display:block;margin-bottom:3px">Notes</span>${esc(l.notes)}</div>`:'';
+  return `<div class="info-card" id="infoCard">
+    <div class="ic-h"><h4>Product Info</h4><span class="ic-c">Brand · Product</span><span class="ic-x">▾</span></div>
+    <div class="ic-b">
+      <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);margin-bottom:6px">Brand</div>
+      ${brandBlock}
+      <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);margin:14px 0 6px">Product</div>
+      ${prodBlock}
+      ${notes}
+    </div>
+  </div>`;
+}
+
+/* Gather every file that's been uploaded across this launch's tasks
+   (any task with task.fileUrl), build a list with a Preview button per
+   row. PDFs and images get inline preview; other types fall through
+   to a link. */
+function renderDocs(l){
+  const ts=tasksOf(l);
+  const docs=ts.map((t,i)=>t.fileUrl?{
+    name:t.fileName||'Document',
+    url:t.fileUrl,
+    task:t.label||'',
+    stage:t.stage||''
+  }:null).filter(Boolean);
+  const ext=name=>(name.split('.').pop()||'').toLowerCase();
+  const ico=name=>{const e=ext(name); if(e==='pdf')return '📄'; if(['png','jpg','jpeg','gif','webp','svg','heic'].includes(e)) return '🖼️'; if(['doc','docx'].includes(e))return '📝'; if(['xls','xlsx','csv'].includes(e))return '📊'; return '📎';};
+  const body=docs.length?`<div class="doc-list">${docs.map(d=>{
+    const tEsc=esc(d.task), uEsc=esc(d.url), nEsc=esc(d.name);
+    return `<div class="doc-row">
+      <span class="doc-ico">${ico(d.name)}</span>
+      <div class="doc-meta"><div class="doc-name">${nEsc}</div><div class="doc-task">From: ${tEsc}</div></div>
+      <div class="doc-actions">
+        <button type="button" class="doc-btn primary" data-preview-url="${uEsc}" data-preview-name="${nEsc}" data-preview-task="${tEsc}">Preview</button>
+        <a class="doc-btn" href="${uEsc}" target="_blank" rel="noopener" download>Download</a>
+      </div>
+    </div>`;
+  }).join('')}</div>`:'<div class="doc-empty">No documents uploaded yet. Files attached to tasks (W-9, COI, spec sheets, brand assets, etc.) will appear here for preview.</div>';
+  return `<div class="info-card${docs.length?'':' collapsed'}" id="docsCard">
+    <div class="ic-h"><h4>Documents</h4><span class="ic-c">${docs.length} file${docs.length===1?'':'s'}</span><span class="ic-x">▾</span></div>
+    <div class="ic-b">${body}</div>
+  </div>`;
+}
+
+/* Inline preview overlay. PDFs in an iframe (browser-native viewer),
+   images inline, anything else falls through to an "Open in new tab"
+   link inside the body so users still get to the file. */
+function previewDoc(url, name, task){
+  if(!url)return;
+  const ov=document.getElementById('previewOverlay');
+  const body=document.getElementById('previewBody');
+  const nameEl=document.getElementById('previewName');
+  const taskEl=document.getElementById('previewTask');
+  const openEl=document.getElementById('previewOpen');
+  nameEl.textContent=name||'Document';
+  taskEl.textContent=task?`from “${task}”`:'';
+  openEl.href=url;
+  const ext=(name||'').split('.').pop().toLowerCase().split('?')[0];
+  const isPdf=ext==='pdf'||/\.pdf(\?|$)/i.test(url);
+  const isImg=['png','jpg','jpeg','gif','webp','svg'].includes(ext)||/\.(png|jpe?g|gif|webp|svg)(\?|$)/i.test(url);
+  if(isPdf){
+    body.innerHTML=`<iframe src="${esc(url)}#toolbar=1" title="${esc(name||'PDF preview')}"></iframe>`;
+  } else if(isImg){
+    body.innerHTML=`<img src="${esc(url)}" alt="${esc(name||'Image preview')}">`;
+  } else {
+    body.innerHTML=`<div class="preview-fallback">Preview not supported for this file type.<br><a href="${esc(url)}" target="_blank" rel="noopener">Open ${esc(name||'document')} in a new tab →</a></div>`;
+  }
+  ov.classList.add('show');
+}
+function closePreview(){
+  const ov=document.getElementById('previewOverlay');
+  ov.classList.remove('show');
+  // Drop the iframe/img so we don't keep loading the file in the background.
+  setTimeout(()=>{ document.getElementById('previewBody').innerHTML=''; },180);
+}
+window._closePreview=closePreview;
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ const ov=document.getElementById('previewOverlay'); if(ov&&ov.classList.contains('show')) closePreview(); } });
+document.addEventListener('click',e=>{ const ov=document.getElementById('previewOverlay'); if(ov&&ov.classList.contains('show')&&e.target===ov) closePreview(); });
+
+async function saveTaskValue(id,ti,key,val){
+  if(!LAUNCHES[id])return;
+  const v=(val||'').trim();
+  const path=`marketplace-npi/launches/${id}/tasks/${ti}/values/${key}`;
+  try { await db.ref(path).set(v||null); }
+  catch(e){ console.error('[task value] save failed', e); toast('Couldn’t save — check console'); }
 }
 window._close=closeDrawer;
 
@@ -617,8 +1004,20 @@ async function toggleTask(id,ti,checked){
   ts[ti].done=checked; ts[ti].doneAt=checked?Date.now():null;
   const sk=ts[ti].stage, sm=stageMeta(sk);
   const upd={['marketplace-npi/launches/'+id+'/tasks']:ts};
-  // per-task cross-team ping — fires the instant a task with a notify target is checked
-  if(checked && ts[ti].notify){ sendEmail(recipientFor(ts[ti].notify),ts[ti].notify,l,{stage:sm.label,message:ts[ti].notifyMsg||`${ts[ti].label} completed for ${l.name}.`}); }
+  // per-task cross-team ping — fires the instant a task with a notify target is checked.
+  // Any per-task values captured in the task.values block (sample tracking link,
+  // free-fill case packs, landed cost, lead time, etc.) get appended so the
+  // receiving team gets the actual numbers, not just a "done" ping.
+  if(checked && ts[ti].notify){
+    const vs=ts[ti].values||{};
+    const vlines=Object.entries(vs).filter(([,v])=>v!=null&&String(v).trim()).map(([k,v])=>{
+      const inputs=Array.isArray(ts[ti].inputs)?ts[ti].inputs:[];
+      const def=inputs.find(i=>i.key===k);
+      return `• ${(def&&def.label)||k}: ${v}`;
+    });
+    const detail=vlines.length?`\n\nCaptured details:\n${vlines.join('\n')}`:'';
+    sendEmail(recipientFor(ts[ti].notify),ts[ti].notify,l,{stage:sm.label,message:(ts[ti].notifyMsg||`${ts[ti].label} completed for ${l.name}.`)+detail});
+  }
   let fired=(l.triggersFired||[]).slice(), firedChg=false;
   const logs=(Array.isArray(l.log)?l.log:Object.values(l.log||{})).slice(); let logChg=false, toastMsg=null;
   if(checked){
@@ -698,32 +1097,109 @@ async function _advance(id){
 }
 window._advance=_advance;
 
-async function addProduct(){
-  const name=prompt('Product / item name?'); if(!name)return;
-  const brand=prompt('Brand?')||'Unknown';
-  const cat=prompt('Category?')||'Uncategorized';
-  // reuse brand if exists
-  let brandId=Object.keys(BRANDS).find(id=>(BRANDS[id].name||'').toLowerCase()===brand.trim().toLowerCase());
-  const uid=p=>p+Math.random().toString(36).slice(2,11);
-  const now=Date.now();
-  const upd={};
-  if(!brandId){brandId=uid('b');upd['marketplace-npi/brands/'+brandId]={id:brandId,name:brand,category:cat,status:'Proposed',source:'Added in app',createdAt:now,distributor:'',contact:'',email:'',website:'',notes:''};}
-  // build the full curated checklist (owners + definitions-of-done) for the new product
-  const tmpl=buildTasks();
-  let maxCode=0;Object.values(LAUNCHES).forEach(l=>{const m=/(\d+)\s*$/.exec(l.code||'');if(m)maxCode=Math.max(maxCode,+m[1]);});
-  const id=uid('l');
-  upd['marketplace-npi/launches/'+id]={id,brandId,name,code:'NPI-2026-'+String(maxCode+1).padStart(3,'0'),category:cat,cost:'',msrp:'',casePack:'',launchDate:'',priority:'Med',stage:'discovery',stageEnteredAt:now,createdAt:now,triggersFired:[],log:[{text:'🚀 New product added — process started',ts:nowTs()}],tasks:tmpl};
-  await db.ref().update(upd);
-  // Trigger #0 — broadcast "new product added" to every team (kickoff announcement,
-  // no task assignment; each team is pinged for real when its stage goes active)
-  if(NOTIFY){
-    const nl=upd['marketplace-npi/launches/'+id];
-    const msg=`🚀 New product added — ${name} (${brand}). The launch process has officially begun. Each team will be notified automatically when it's your turn — nothing to do yet. Follow progress on the NPI pipeline.`;
-    DEPTS.forEach(d=>sendEmail(recipientFor(d),d,nl,{stage:'Discovery',message:msg}));
-  }
-  toast('Added '+name);
-  openDrawer(id);
+/* Open the Product Intake Form modal — replaces the legacy 3-prompt
+   addProduct so every Brand Info + Product Info field is captured up
+   front and persisted on the launch record. */
+function addProduct(){ openIntake(); }
+function openIntake(){
+  const f=document.getElementById('intakeForm');
+  if(f) f.reset();
+  document.getElementById('scrim').classList.add('show');
+  document.getElementById('intake').classList.add('show');
+  setTimeout(()=>{ const el=document.getElementById('iSku'); if(el) el.focus(); },120);
 }
+function closeIntake(){
+  document.getElementById('scrim').classList.remove('show');
+  document.getElementById('intake').classList.remove('show');
+}
+window._closeIntake=closeIntake;
+
+async function submitIntake(){
+  const f=document.getElementById('intakeForm');
+  const v=k=>{const el=f.elements.namedItem(k);return el?(el.value||'').trim():'';};
+  const name=v('sku');
+  if(!name){ toast('SKU Name required'); document.getElementById('iSku').focus(); return; }
+  const brand=v('brandName')||'Unknown';
+  const cat =v('category')||'Uncategorized';
+  const type=v('type')||'CPG';
+
+  const btn=document.getElementById('intakeSubmit');
+  if(btn) btn.disabled=true;
+  try {
+    const uid=p=>p+Math.random().toString(36).slice(2,11);
+    const now=Date.now();
+    const upd={};
+
+    // Reuse brand if name matches; otherwise create + populate full Brand Info.
+    let brandId=Object.keys(BRANDS).find(id=>(BRANDS[id].name||'').toLowerCase()===brand.toLowerCase());
+    if(!brandId){
+      brandId=uid('b');
+      upd['marketplace-npi/brands/'+brandId]={
+        id:brandId, name:brand, category:cat,
+        status:'Proposed', source:'Added in app', createdAt:now,
+        founderName:v('founderName'), email:v('email'), phone:v('phone'),
+        website:v('website'), distributor:v('primaryDistribution'),
+        contact:v('founderName'), notes:''
+      };
+    } else {
+      // Fold any newly-provided Brand Info into the existing brand record
+      // without clobbering fields the user left blank in this intake.
+      const merge={};
+      const fold=(k,val)=>{ if(val) merge['marketplace-npi/brands/'+brandId+'/'+k]=val; };
+      fold('founderName',v('founderName'));
+      fold('email',v('email'));
+      fold('phone',v('phone'));
+      fold('website',v('website'));
+      fold('distributor',v('primaryDistribution'));
+      Object.assign(upd,merge);
+    }
+
+    let maxCode=0;
+    Object.values(LAUNCHES).forEach(l=>{const m=/(\d+)\s*$/.exec(l.code||'');if(m)maxCode=Math.max(maxCode,+m[1]);});
+    const id=uid('l');
+    const tmpl=buildTasks();
+
+    upd['marketplace-npi/launches/'+id]={
+      id, brandId, name, type,
+      code:'NPI-2026-'+String(maxCode+1).padStart(3,'0'),
+      category:cat,
+      // Product Info (the full set from the intake form)
+      sku:name, upc:v('upc'),
+      unitSize:v('unitSize'), casePack:v('casePack'),
+      productDim:v('productDim'), caseDim:v('caseDim'),
+      cost:v('cost'), msrp:v('msrp'), moq:v('moq'),
+      shelfLife:v('shelfLife'), storageReq:v('storageReq'),
+      leadTime:v('leadTime'),
+      primaryDistribution:v('primaryDistribution'),
+      notes:v('notes'),
+      launchDate:'', priority:'Med',
+      stage:'discovery', stageEnteredAt:now, createdAt:now,
+      triggersFired:[],
+      log:[{text:`🚀 New ${type} product added — process started`,ts:nowTs()}],
+      tasks:tmpl
+    };
+
+    await db.ref().update(upd);
+
+    // Kickoff broadcast — every team is notified now, then again when its
+    // stage goes active. Keeps procurement / compliance heads-up so they
+    // can plan ahead.
+    if(NOTIFY){
+      const nl=upd['marketplace-npi/launches/'+id];
+      const msg=`🚀 New product added — ${name} (${brand}, ${type}). The launch process has officially begun. Each team will be notified automatically when it's your turn — nothing to do yet. Follow progress on the NPI pipeline.`;
+      DEPTS.forEach(d=>sendEmail(recipientFor(d),d,nl,{stage:'Discovery',message:msg}));
+    }
+    toast('Added '+name);
+    closeIntake();
+    openDrawer(id);
+  } catch(err) {
+    console.error('[intake] save failed', err);
+    toast('Save failed — check console');
+  } finally {
+    if(btn) btn.disabled=false;
+  }
+}
+window._submitIntake=submitIntake;
 
 /* ---------------- gantt tab ---------------- */
 function renderGantt(){
