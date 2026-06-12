@@ -285,16 +285,26 @@
   .intake-foot .btn-secondary{background:#f1efe9;color:var(--ink);border:0;font-family:inherit;font-weight:600;font-size:13px;padding:9px 14px;border-radius:9px;cursor:pointer}
   .intake-foot .btn-primary{background:var(--ink);color:#fff;border:0;font-family:inherit;font-weight:600;font-size:13px;padding:9px 16px;border-radius:9px;cursor:pointer}
   .intake-foot .btn-primary:disabled{background:#9b988f;cursor:not-allowed}
-  /* Checkbox grid for the "received from brand at intake?" flags
-     (Comment #5 in the FigJam catalog). Each toggle is a labelled
-     pill — sub-grid so they wrap cleanly across the 2-col layout. */
-  .intake-checks{display:grid;grid-template-columns:1fr 1fr;gap:8px 14px}
-  @media (max-width:520px){ .intake-checks{grid-template-columns:1fr} }
-  .intake-check{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--ink);background:#fbfaf7;border:1px solid var(--line-soft);border-radius:8px;padding:7px 11px;cursor:pointer;transition:.12s}
-  .intake-check:hover{border-color:var(--line)}
-  .intake-check input{accent-color:var(--green-ink);width:15px;height:15px;flex-shrink:0;cursor:pointer}
-  .intake-check input:checked + span{color:var(--green-ink);font-weight:600}
-  .intake-check span{font-weight:500}
+  /* Rows for the "received from brand at intake?" capture
+     (Comment #5 in the FigJam catalog + the file-upload-at-intake
+     follow-up). Each row has a checkbox to flag receipt + an "Add
+     file" picker so the actual document can ride along with the
+     intake form, get hosted in Firebase Storage, and appear in the
+     Documents panel like any other uploaded file. */
+  .intake-rows{display:flex;flex-direction:column;gap:6px}
+  .intake-row{display:flex;align-items:center;gap:10px;background:#fbfaf7;border:1px solid var(--line-soft);border-radius:8px;padding:7px 11px;font-size:12.5px;transition:.12s}
+  .intake-row:hover{border-color:var(--line)}
+  .intake-row > input[type=checkbox]{accent-color:var(--green-ink);width:15px;height:15px;flex-shrink:0;cursor:pointer;margin:0}
+  .intake-row-label{flex:1;color:var(--ink);font-weight:500;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .intake-row-label.checked{color:var(--green-ink);font-weight:600}
+  .intake-upload{font-size:11px;font-weight:600;color:var(--accent);border:1px dashed var(--line);border-radius:7px;padding:3px 9px;cursor:pointer;white-space:nowrap;flex-shrink:0}
+  .intake-upload:hover{border-color:var(--accent);background:rgba(98,128,189,.06)}
+  .intake-row.has-file .intake-upload{background:rgba(98,128,189,.10);border-style:solid}
+  .intake-row-file{font-size:11px;color:var(--accent);font-weight:600;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex-shrink:1;min-width:0}
+  @media (max-width:520px){
+    .intake-row{flex-wrap:wrap}
+    .intake-row-file{flex-basis:100%}
+  }
   /* gantt */
   .gantt{background:#fff;border:1px solid var(--line-soft);border-radius:14px;box-shadow:var(--shadow);overflow:hidden}
   .grow{display:grid;grid-template-columns:230px repeat(var(--gn,8),minmax(0,1fr)) 86px;align-items:center;border-top:1px solid var(--line-soft)}
@@ -452,32 +462,34 @@
     </div>
 
     <!-- Brand Assets received (Comment #5 in the Figma catalog).
-         Pre-flag which assets the brand handed over at intake so
-         downstream teams (Marketing, Compliance) know what's already
-         in hand before they open their stage tasks. -->
+         Each row: checkbox to flag receipt + Add file picker. Files
+         upload to Firebase Storage on submit and attach to the
+         matching task (Asset: Product images / Brand logo / Brand
+         story), so they show up in the Documents preview panel like
+         everything else. -->
     <div class="intake-group">
       <h4>Brand Assets received at intake</h4>
-      <div class="intake-checks">
-        <label class="intake-check"><input type="checkbox" name="assetImages"><span>Product Images</span></label>
-        <label class="intake-check"><input type="checkbox" name="assetLogo"><span>Brand Logo</span></label>
-        <label class="intake-check"><input type="checkbox" name="assetStory"><span>Brand Story</span></label>
+      <div class="intake-rows">
+        <label class="intake-row"><input type="checkbox" name="assetImages"><span class="intake-row-label">Product Images</span><span class="intake-row-file" data-for="assetImages"></span><label class="intake-upload">⬆ Add file<input type="file" hidden data-key="assetImages" data-group="asset" accept="image/*,.pdf"></label></label>
+        <label class="intake-row"><input type="checkbox" name="assetLogo"><span class="intake-row-label">Brand Logo</span><span class="intake-row-file" data-for="assetLogo"></span><label class="intake-upload">⬆ Add file<input type="file" hidden data-key="assetLogo" data-group="asset" accept="image/*,.pdf,.svg"></label></label>
+        <label class="intake-row"><input type="checkbox" name="assetStory"><span class="intake-row-label">Brand Story</span><span class="intake-row-file" data-for="assetStory"></span><label class="intake-upload">⬆ Add file<input type="file" hidden data-key="assetStory" data-group="asset" accept=".pdf,.doc,.docx,.txt"></label></label>
       </div>
     </div>
 
-    <!-- Compliance docs received at intake (Comment #5 in the Figma
-         catalog). Brand may have already provided some of these on
-         submission — checking them here pre-marks the matching tasks
-         in the Compliance stage so AP isn't chasing what's already on
-         file. -->
+    <!-- Approvals: Compliance docs received at intake (Comment #5).
+         Same checkbox + file-upload pattern as Brand Assets. Pre-marks
+         and pre-fills the matching Approvals-stage tasks (W-9, COI,
+         Nutrition, Ingredients, Allergens, Spec) so AP isn't chasing
+         what's already on file. -->
     <div class="intake-group">
-      <h4>Compliance docs received at intake</h4>
-      <div class="intake-checks">
-        <label class="intake-check"><input type="checkbox" name="compW9"><span>W-9</span></label>
-        <label class="intake-check"><input type="checkbox" name="compCoi"><span>Insurance (COI)</span></label>
-        <label class="intake-check"><input type="checkbox" name="compNutrition"><span>Nutrition Panel</span></label>
-        <label class="intake-check"><input type="checkbox" name="compIngredients"><span>Ingredient Statement</span></label>
-        <label class="intake-check"><input type="checkbox" name="compAllergen"><span>Allergen Info</span></label>
-        <label class="intake-check"><input type="checkbox" name="compSpec"><span>Product Spec Sheet</span></label>
+      <h4>Approvals — docs received at intake</h4>
+      <div class="intake-rows">
+        <label class="intake-row"><input type="checkbox" name="compW9"><span class="intake-row-label">W-9</span><span class="intake-row-file" data-for="compW9"></span><label class="intake-upload">⬆ Add file<input type="file" hidden data-key="compW9" data-group="compliance" accept=".pdf,image/*"></label></label>
+        <label class="intake-row"><input type="checkbox" name="compCoi"><span class="intake-row-label">Insurance (COI)</span><span class="intake-row-file" data-for="compCoi"></span><label class="intake-upload">⬆ Add file<input type="file" hidden data-key="compCoi" data-group="compliance" accept=".pdf,image/*"></label></label>
+        <label class="intake-row"><input type="checkbox" name="compNutrition"><span class="intake-row-label">Nutrition Panel</span><span class="intake-row-file" data-for="compNutrition"></span><label class="intake-upload">⬆ Add file<input type="file" hidden data-key="compNutrition" data-group="compliance" accept=".pdf,image/*"></label></label>
+        <label class="intake-row"><input type="checkbox" name="compIngredients"><span class="intake-row-label">Ingredient Statement</span><span class="intake-row-file" data-for="compIngredients"></span><label class="intake-upload">⬆ Add file<input type="file" hidden data-key="compIngredients" data-group="compliance" accept=".pdf,image/*"></label></label>
+        <label class="intake-row"><input type="checkbox" name="compAllergen"><span class="intake-row-label">Allergen Info</span><span class="intake-row-file" data-for="compAllergen"></span><label class="intake-upload">⬆ Add file<input type="file" hidden data-key="compAllergen" data-group="compliance" accept=".pdf,image/*"></label></label>
+        <label class="intake-row"><input type="checkbox" name="compSpec"><span class="intake-row-label">Product Spec Sheet</span><span class="intake-row-file" data-for="compSpec"></span><label class="intake-upload">⬆ Add file<input type="file" hidden data-key="compSpec" data-group="compliance" accept=".pdf,image/*"></label></label>
       </div>
     </div>
   </form>
@@ -522,7 +534,7 @@ const STAGES=[
   {key:'discovery', label:'Discovery',     dept:'Marketplace', color:'#a9a6bd'},
   {key:'sample',    label:'Sample Review', dept:'Marketplace', color:'#cbb3d6'},
   {key:'commercial',label:'Commercial',    dept:'Procurement', color:'#6280bd'},
-  {key:'compliance',label:'W-9',           dept:'Compliance',  color:'#b88fb8'},
+  {key:'compliance',label:'Approvals',     dept:'Compliance',  color:'#b88fb8'},
   {key:'erp',       label:'ERP / Synergy', dept:'Inventory',   color:'#69b0a5'},
   {key:'commissary',label:'Commissary',    dept:'Commissary',  color:'#dbc6a2'},
   {key:'operations',label:'Operations',    dept:'Operations',  color:'#7bbd91'},
@@ -557,10 +569,21 @@ const TASK_TEMPLATES=[
     {key:'receivedDate',label:'Date received',type:'date'}
   ]},
   /* Sample Review — Marketplace */
-  {stage:'sample',dept:'Marketplace',label:'Tasting scheduled',owner:'Marketplace Lead',def:'Tasting date on the calendar with panel invited'},
-  {stage:'sample',dept:'Marketplace',label:'Taste approved',owner:'Marketplace Lead',def:'Tasting panel signed off on product quality'},
-  {stage:'sample',dept:'Marketplace',label:'Margin approved',owner:'Marketplace Lead',def:'Projected margin meets or exceeds threshold'},
-  {stage:'sample',dept:'Marketplace',label:'Assortment approved',owner:'Marketplace Lead',def:'SKU list confirmed for the assortment'},
+  {stage:'sample',dept:'Marketplace',label:'Tasting scheduled',owner:'Marketplace Lead',def:'Tasting date on the calendar with panel invited',inputs:[
+    {key:'tastingDate',label:'Tasting date',type:'date',required:true}
+  ]},
+  {stage:'sample',dept:'Marketplace',label:'Taste approved',owner:'Marketplace Lead',def:'Tasting panel signed off on product quality',file:true,inputs:[
+    {key:'tastingNotes',label:'Tasting notes',type:'text',placeholder:'panel feedback, flavor profile, follow-ups…'}
+  ]},
+  {stage:'sample',dept:'Marketplace',label:'Margin approved',owner:'Marketplace Lead',def:'Projected margin meets or exceeds threshold',inputs:[
+    {key:'margin',label:'Margin %',type:'text',placeholder:'e.g. 42%',required:true}
+  ]},
+  {stage:'sample',dept:'Marketplace',label:'Assortment approved',owner:'Marketplace Lead',def:'SKU list confirmed for the assortment — including up to 4 variations',inputs:[
+    {key:'variation1',label:'Variation 1',type:'text',placeholder:'e.g. Original'},
+    {key:'variation2',label:'Variation 2',type:'text',placeholder:'(optional)'},
+    {key:'variation3',label:'Variation 3',type:'text',placeholder:'(optional)'},
+    {key:'variation4',label:'Variation 4',type:'text',placeholder:'(optional)'}
+  ]},
   {stage:'sample',dept:'Marketplace',label:'Asset: Product images received',owner:'Marketplace Lead',def:'Hi-res product images on file',blocking:false,file:true},
   {stage:'sample',dept:'Marketplace',label:'Asset: Brand logo received',owner:'Marketplace Lead',def:'Vector/hi-res logo on file',blocking:false,file:true},
   {stage:'sample',dept:'Marketplace',label:'Asset: Brand story received',owner:'Marketplace Lead',def:'Brand story copy on file',blocking:false,file:true,notify:'Marketing',notifyMsg:'Brand story received — available for Marketing to draft product copy.'},
@@ -671,10 +694,20 @@ const PL_TASK_TEMPLATES=[
     {key:'carrier',label:'Carrier',type:'text',placeholder:'UPS / FedEx / freight'}
   ]},
   /* Sample Review — Marketplace */
-  {stage:'sample',dept:'Marketplace',label:'Internal tasting / QC',owner:'Marketplace Lead',def:'Internal panel signs off on taste, texture, appearance'},
+  {stage:'sample',dept:'Marketplace',label:'Internal tasting / QC',owner:'Marketplace Lead',def:'Internal panel signs off on taste, texture, appearance',file:true,inputs:[
+    {key:'tastingDate',label:'Tasting date',type:'date'},
+    {key:'tastingNotes',label:'Tasting notes',type:'text',placeholder:'panel feedback, R&D follow-ups…'}
+  ]},
   {stage:'sample',dept:'Marketplace',label:'Final formulation locked',owner:'Marketplace Lead',def:'Formulation locked with the co-packer — no further changes',file:true},
-  {stage:'sample',dept:'Marketplace',label:'Margin model approved',owner:'Marketplace Lead',def:'Projected margin meets or exceeds threshold at locked landed cost'},
-  {stage:'sample',dept:'Marketplace',label:'Assortment fit confirmed',owner:'Marketplace Lead',def:'Confirmed this SKU complements (not cannibalizes) the assortment'},
+  {stage:'sample',dept:'Marketplace',label:'Margin model approved',owner:'Marketplace Lead',def:'Projected margin meets or exceeds threshold at locked landed cost',inputs:[
+    {key:'margin',label:'Margin %',type:'text',placeholder:'e.g. 42%',required:true}
+  ]},
+  {stage:'sample',dept:'Marketplace',label:'Assortment fit confirmed',owner:'Marketplace Lead',def:'Confirmed this SKU complements (not cannibalizes) the assortment — including up to 4 variations',inputs:[
+    {key:'variation1',label:'Variation 1',type:'text',placeholder:'e.g. Original'},
+    {key:'variation2',label:'Variation 2',type:'text',placeholder:'(optional)'},
+    {key:'variation3',label:'Variation 3',type:'text',placeholder:'(optional)'},
+    {key:'variation4',label:'Variation 4',type:'text',placeholder:'(optional)'}
+  ]},
   {stage:'sample',dept:'Marketplace',label:'Packaging design approved',owner:'Marketplace Lead',def:'Final packaging artwork approved internally',blocking:false,file:true,inputs:[
     {key:'packagingType',label:'Packaging type',type:'text',placeholder:'e.g. pouch, jar, carton'},
     {key:'packagingSize',label:'Packaging size',type:'text',placeholder:'e.g. 12 oz / 24 ct'},
@@ -1547,10 +1580,46 @@ window._reject=rejectLaunch;
 /* Open the Product Intake Form modal — replaces the legacy 3-prompt
    addProduct so every Brand Info + Product Info field is captured up
    front and persisted on the launch record. */
+/* Files staged by the user via the intake form's "Add file" pickers
+   (Brand Assets + Approvals — Compliance docs). Held in browser
+   memory until submitIntake runs; uploaded to Firebase Storage right
+   after the launch is created so they attach to the corresponding
+   task's fileUrl and surface in the Documents preview panel. */
+let _intakeFiles={};
+
 function addProduct(){ openIntake(); }
 function openIntake(){
   const f=document.getElementById('intakeForm');
   if(f) f.reset();
+  _intakeFiles={};
+  // Reset every staged "Selected:" label so a reopened modal looks fresh
+  document.querySelectorAll('#intakeForm .intake-row').forEach(r=>r.classList.remove('has-file'));
+  document.querySelectorAll('#intakeForm .intake-row-file').forEach(s=>s.textContent='');
+  // Wire each Add-file picker to stage the File in memory and auto-tick
+  // the row's checkbox (since the file IS the receipt). Re-runs every
+  // open so we don't accumulate stale handlers if the modal is reopened.
+  document.querySelectorAll('#intakeForm .intake-upload input[type=file]').forEach(inp=>{
+    inp.onchange=e=>{
+      const file=e.target.files&&e.target.files[0];
+      const key=inp.dataset.key;
+      const row=inp.closest('.intake-row');
+      if(!file||!key||!row) return;
+      _intakeFiles[key]=file;
+      row.classList.add('has-file');
+      const fileLabel=row.querySelector('.intake-row-file');
+      if(fileLabel) fileLabel.textContent='Selected: '+file.name;
+      const cb=row.querySelector('input[type=checkbox]');
+      if(cb){ cb.checked=true; const lbl=row.querySelector('.intake-row-label'); if(lbl) lbl.classList.add('checked'); }
+    };
+  });
+  // Mirror checked state on the row label so the green "received" copy
+  // reads even when the user clicks the checkbox without uploading.
+  document.querySelectorAll('#intakeForm .intake-row > input[type=checkbox]').forEach(cb=>{
+    cb.onchange=()=>{
+      const lbl=cb.closest('.intake-row').querySelector('.intake-row-label');
+      if(lbl) lbl.classList.toggle('checked',cb.checked);
+    };
+  });
   document.getElementById('scrim').classList.add('show');
   document.getElementById('intake').classList.add('show');
   setTimeout(()=>{ const el=document.getElementById('iSku'); if(el) el.focus(); },120);
@@ -1657,6 +1726,58 @@ async function submitIntake(){
     };
 
     await db.ref().update(upd);
+
+    // Upload any files the user attached via the intake "Add file"
+    // pickers (Brand Assets + Approvals). Each one goes to Firebase
+    // Storage at marketplace-npi/<launchId>/<taskIdx>-<ts>-<name>,
+    // then we patch the matching task's fileUrl / fileName / done so
+    // the upload reads the same as if it had happened from inside
+    // the drawer task UI later.
+    const stagedFiles=Object.entries(_intakeFiles||{}).filter(([,f])=>f);
+    if(stagedFiles.length){
+      // Pick the label set that matches this launch's type — task labels
+      // differ slightly between CPG and Private Label (PL has no W-9 /
+      // COI for instance, so those keys are intentionally absent).
+      const labelMapCPG={
+        assetImages:'Asset: Product images received',
+        assetLogo:'Asset: Brand logo received',
+        assetStory:'Asset: Brand story received',
+        compW9:'Collect + upload W-9',
+        compCoi:'Collect + upload Insurance (COI)',
+        compNutrition:'Nutrition panel on file',
+        compIngredients:'Ingredient statement on file',
+        compAllergen:'Allergen information on file',
+        compSpec:'Product spec sheet on file'
+      };
+      const labelMapPL={
+        assetImages:'Asset: Product images received',
+        assetStory:'Asset: Brand story written',
+        compNutrition:'Nutrition panel approved',
+        compIngredients:'Ingredient statement approved',
+        compAllergen:'Allergen information confirmed',
+        compSpec:'Product spec sheet on file'
+      };
+      const labelMap=(type==='Private Label')?labelMapPL:labelMapCPG;
+      toast('Uploading '+stagedFiles.length+' file'+(stagedFiles.length===1?'':'s')+'…');
+      const fileUpd={};
+      for(const [key,file] of stagedFiles){
+        const taskLabel=labelMap[key]; if(!taskLabel) continue;
+        const ti=tmpl.findIndex(t=>t.label===taskLabel); if(ti<0) continue;
+        try {
+          const safe=String(file.name).replace(/[^a-z0-9.\-_]/gi,'_');
+          const ref=storage.ref(`marketplace-npi/${id}/${ti}-${Date.now()}-${safe}`);
+          const snap=await ref.put(file);
+          const url=await snap.ref.getDownloadURL();
+          fileUpd[`marketplace-npi/launches/${id}/tasks/${ti}/fileUrl`]=url;
+          fileUpd[`marketplace-npi/launches/${id}/tasks/${ti}/fileName`]=file.name;
+          fileUpd[`marketplace-npi/launches/${id}/tasks/${ti}/done`]=true;
+          fileUpd[`marketplace-npi/launches/${id}/tasks/${ti}/doneAt`]=nowDoneAt;
+        } catch(uerr) {
+          console.error('[intake] upload failed for',key,uerr);
+        }
+      }
+      if(Object.keys(fileUpd).length) await db.ref().update(fileUpd);
+    }
 
     // Kickoff broadcast — every team is notified now, then again when its
     // stage goes active. Keeps procurement / compliance heads-up so they
