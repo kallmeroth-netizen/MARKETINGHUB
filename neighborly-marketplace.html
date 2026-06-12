@@ -242,6 +242,12 @@
   .task-input input{flex:1;min-width:0;font-family:inherit;font-size:12.5px;padding:6px 30px 6px 11px;border:1px solid var(--line);border-radius:7px;background:#fff;color:var(--ink);outline:none;transition:border-color .12s;text-overflow:ellipsis}
   .task-input input:focus{border-color:var(--accent)}
   .task-input input[type=url].has-value{background:rgba(98,128,189,.05)}
+  /* Required input — small red asterisk + red focus ring + soft-red
+     background when empty so it's obvious which field must be filled
+     before the task can be checked off. */
+  .task-input.required label::after{content:' *';color:#a32d2d;font-weight:700}
+  .task-input.required input:placeholder-shown{border-color:#e6c4be;background:#fdf6f4}
+  .task-input.required input:focus{border-color:#a32d2d;box-shadow:0 0 0 2px rgba(163,45,45,.10)}
   /* Brief "✓ saved" badge that fades in after a successful blur-save. */
   .task-input .ti-saved{position:absolute;right:10px;font-size:10px;font-weight:700;color:var(--green-ink);opacity:0;pointer-events:none;transition:opacity .15s}
   .task-input.saved .ti-saved{opacity:1}
@@ -544,7 +550,7 @@ const TASK_TEMPLATES=[
   {stage:'discovery',dept:'Marketplace',label:'Product intake form completed',owner:'Marketplace Lead',def:'Intake form submitted with brand, product, category & contact captured'},
   {stage:'discovery',dept:'Marketplace',label:'Brand submitted & logged',owner:'Marketplace Lead',def:'Brand record created in the pipeline'},
   {stage:'discovery',dept:'Marketplace',label:'Samples requested from brand',owner:'Marketplace Lead',def:'Sample request sent to vendor with ship-to address',notify:'Commissary',notifyMsg:'Sample shipment incoming — please track receipt and forward to Marketplace for tasting.',inputs:[
-    {key:'trackingLink',label:'Tracking link',type:'url',placeholder:'https://… — Commissary uses this'},
+    {key:'trackingLink',label:'Tracking link',type:'url',placeholder:'https://… — Commissary uses this',required:true},
     {key:'carrier',label:'Carrier',type:'text',placeholder:'UPS / FedEx / USPS'}
   ]},
   {stage:'discovery',dept:'Marketplace',label:'Samples received',owner:'Marketplace Lead',def:'Physical samples in hand and logged at commissary, forwarded for tasting',notify:'Marketplace',notifyMsg:'Samples received and logged at commissary — ready for Marketplace tasting.',inputs:[
@@ -661,7 +667,7 @@ const PL_TASK_TEMPLATES=[
   {stage:'discovery',dept:'Marketplace',label:'Co-packer / manufacturer identified',owner:'Marketplace Lead',def:'Short-list narrowed to a single co-packer or manufacturer',inputs:[{key:'coPacker',label:'Co-packer',type:'text',placeholder:'Vendor name'}]},
   {stage:'discovery',dept:'Marketplace',label:'Co-packer NDA signed',owner:'Marketplace Lead',def:'NDA executed before sharing formulation / brand',file:true},
   {stage:'discovery',dept:'Marketplace',label:'Initial samples / R&D batch requested',owner:'Marketplace Lead',def:'First samples or R&D run requested from the co-packer',notify:'Commissary',notifyMsg:'R&D sample shipment incoming — please track receipt and forward to Marketplace for tasting.',inputs:[
-    {key:'trackingLink',label:'Tracking link',type:'url',placeholder:'https://… — Commissary uses this'},
+    {key:'trackingLink',label:'Tracking link',type:'url',placeholder:'https://… — Commissary uses this',required:true},
     {key:'carrier',label:'Carrier',type:'text',placeholder:'UPS / FedEx / freight'}
   ]},
   /* Sample Review — Marketplace */
@@ -1126,7 +1132,8 @@ function renderDrawer(id){
           // Small inline icon per type so the field reads at a glance
           const ico={url:'🔗',date:'📅',email:'✉️',tel:'☎️',number:'#'}[type]||'';
           const hasValue=cur?'has-value':'';
-          return `<div class="task-input${cur?' has-saved':''}"><label>${ico?`<span class="ti-ico">${ico}</span>`:''}${esc(f.label||f.key)}</label><input type="${esc(type)}" class="${hasValue}" placeholder="${esc(f.placeholder||'')}" value="${esc(cur)}" data-id="${id}" data-ti="${x.i}" data-vk="${esc(f.key)}"><span class="ti-saved">✓ saved</span></div>`;
+          const reqCls=f.required?' required':'';
+          return `<div class="task-input${reqCls}${cur?' has-saved':''}"><label>${ico?`<span class="ti-ico">${ico}</span>`:''}${esc(f.label||f.key)}</label><input type="${esc(type)}" class="${hasValue}" placeholder="${esc(f.placeholder||'')}" value="${esc(cur)}" data-id="${id}" data-ti="${x.i}" data-vk="${esc(f.key)}"${f.required?' data-required="1"':''}><span class="ti-saved">✓ saved</span></div>`;
         }).join('')}</div>`:'';
         return `<div class="task ${t.done?'done':''}"><input type="checkbox" ${t.done?'checked':''} data-id="${id}" data-ti="${x.i}"><div class="tbody"><label>${esc(t.label)}${t.blocking===false?' <span class="opt">optional</span>':''}</label>${meta?`<div class="task-meta">${meta}</div>`:''}${fileHtml}${inputsHtml}</div></div>`;}).join('');
       return `<div class="ministep ${cls}"><div class="ms-h"><span class="ms-ic">${ic}</span>${esc(g.name)}<span class="ms-c">${gN}/${g.items.length}</span></div><div class="ms-body" style="${open?'':'display:none'}">${tasksHtml}</div></div>`;
@@ -1385,6 +1392,28 @@ function advanceBtn(l,s){
 async function toggleTask(id,ti,checked){
   const l=LAUNCHES[id]; if(!l)return;
   const ts=tasksOf(l).map(t=>Object.assign({},t));
+
+  // Gate completion on required per-task inputs (e.g. tracking link on
+  // "Samples requested from brand"). If the user tries to check the
+  // box without filling a required input, revert the checkbox, focus
+  // the missing field, and toast — so the task can never advance with
+  // its required capture-data empty.
+  if(checked){
+    const inputs=(Array.isArray(ts[ti].inputs)&&ts[ti].inputs.length)
+      ? ts[ti].inputs
+      : (templateInputsFor(l,ts[ti])||[]);
+    const vals=ts[ti].values||{};
+    const missing=inputs.filter(f=>f&&f.required&&!(vals[f.key]&&String(vals[f.key]).trim()));
+    if(missing.length){
+      const cb=document.querySelector(`.task input[type=checkbox][data-id="${id}"][data-ti="${ti}"]`);
+      if(cb) cb.checked=false;
+      const first=document.querySelector(`.task-input input[data-id="${id}"][data-ti="${ti}"][data-vk="${missing[0].key}"]`);
+      if(first){ first.focus(); first.classList.add('has-value'); /* visual nudge */ }
+      toast(`Please fill the ${missing[0].label||missing[0].key} before checking this off.`);
+      return;
+    }
+  }
+
   ts[ti].done=checked; ts[ti].doneAt=checked?Date.now():null;
   const sk=ts[ti].stage, sm=stageMeta(sk);
   const upd={['marketplace-npi/launches/'+id+'/tasks']:ts};
