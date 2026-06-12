@@ -13,18 +13,28 @@
 <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png">
 
 <link rel="stylesheet" href="theme.css">
-<script src="chrome.js" defer></script>
+<script src="chrome-v2.js" defer></script>
+<script>
+  // Aggressively clear any leftover service-worker + cache entries from
+  // older deployments. Without this, an SW registered before we ever
+  // shipped one can keep serving stale chrome.js / HTML for a long time.
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then(function (regs) {
+      regs.forEach(function (r) { r.unregister(); });
+    }).catch(function () {});
+  }
+  if (window.caches && caches.keys) {
+    caches.keys().then(function (keys) {
+      keys.forEach(function (k) { caches.delete(k); });
+    }).catch(function () {});
+  }
+</script>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 
 <style>
   :root { --ops:#7bbd91; --ops-deep:#1e5a37; --ops-light:#e4f5ea; }
   .np-nav-page-tag.ops { background: var(--ops-light); color: var(--ops-deep); }
-
-  .wf-banner { display:flex; align-items:flex-start; gap:12px; background:var(--ops-light);
-    border:1px dashed var(--ops); border-radius:var(--r-lg); padding:12px 16px; margin-bottom:var(--s-5); }
-  .wf-banner .wf-ico { color:var(--ops-deep); flex:0 0 auto; margin-top:1px; }
-  .wf-banner b { color:var(--ops-deep); }
-  .wf-banner p { font-size:var(--t-caption); color:var(--text-2); line-height:1.5; margin:2px 0 0; }
 
   .src-note { display:inline-flex; align-items:center; gap:6px; margin-top:var(--s-3); padding:4px 10px;
     background:var(--ops-light); color:var(--ops-deep); border-radius:var(--r-pill);
@@ -69,14 +79,6 @@
 </div>
 
 <main class="np-main">
-
-  <div class="wf-banner">
-    <span class="wf-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg></span>
-    <div>
-      <b>Wireframe — sample data.</b>
-      <p>Long operational list is intentionally <b>not</b> 12 dashboards — it's this one Labor view with filters. <b>Day→Year</b>, <b>FOH / Kitchen / Total</b> and <b>by job</b> are filter controls, not separate pages. COO: see the <b>DATA →</b> tags + neighborly-ops-datamap.md for sources.</p>
-    </div>
-  </div>
 
   <div class="np-page-header-row">
     <div class="np-page-selectors">
@@ -172,10 +174,10 @@
 
 
 <script>
-/* ============================================================
-   LABOR & SPLH — wireframe mock. All numbers are SAMPLE DATA.
-   Wire live POS + scheduling + payroll feeds per DATA → tags.
-   ============================================================ */
+/* LABOR & SPLH — initial render uses small seeded series so the
+   charts and tiles aren't blank while the Supabase seam below
+   (nbly_labor_summary + nbly_weekly_kpis) hydrates with real
+   labor cost / hours / sales data. */
 var TF = {
   day:     { pts:['6a','9a','12p','3p','6p','9p'], label:'today',        sales:7200,  hrs:78 },
   week:    { pts:['Mon','Tue','Wed','Thu','Fri','Sat','Sun'], label:'this week', sales:48200, hrs:540 },

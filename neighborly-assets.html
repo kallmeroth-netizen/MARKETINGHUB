@@ -210,21 +210,58 @@
     overflow: visible;
   }
   @media (max-width: 760px) { .quick { grid-template-columns: repeat(2, 1fr); gap: var(--s-2); } }
+  /* Each card carries an inline `style="--tone-bg:var(--<color>)"`
+     declaration that drives both the always-visible top accent stripe
+     and the hover fill. Inline custom-property declarations beat the
+     stylesheet, so every card hovers to its own brand color rather
+     than collapsing to a single shared tone. */
   .quick-cell {
-    background: var(--surface);
-    --tone-bg: var(--surface-2);
+    background: var(--surface, #ffffff);
+    --tone-bg: var(--surface-2, #f0eee9);
     padding: var(--s-4);
     min-height: 110px;
     border: 1px solid var(--line);
-    border-radius: var(--r-lg);
+    border-radius: var(--r-lg, 14px);
     display: flex; flex-direction: column; justify-content: space-between;
     text-decoration: none; color: var(--ink);
-    transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+    position: relative;
+    overflow: hidden;
+    transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
   }
-  .quick-cell:hover { background: var(--tone-bg); color: #fff; border-color: var(--tone-bg); transform: translateY(-1px); }
-  .quick-cell:hover .quick-name { color: #fff; }
-  .quick-cell:hover .quick-arrow { color: rgba(255,255,255,0.85); }
-  .quick-cell:hover .quick-dot { background: rgba(255,255,255,0.95) !important; }
+  /* Always-visible 3px accent stripe at the top of every card in its
+     own tone — gives the brand-identity cue even before hover and on
+     mobile where there's no hover state. */
+  .quick-cell::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--tone-bg);
+  }
+  .quick-cell:hover,
+  .quick-cell:focus-visible {
+    background: var(--tone-bg);
+    color: #fff;
+    border-color: var(--tone-bg);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+  }
+  .quick-cell:hover .quick-name,
+  .quick-cell:focus-visible .quick-name { color: #fff; }
+  .quick-cell:hover .quick-arrow,
+  .quick-cell:focus-visible .quick-arrow { color: rgba(255,255,255,0.85); }
+  .quick-cell:hover .quick-dot,
+  .quick-cell:focus-visible .quick-dot { background: rgba(255,255,255,0.95) !important; }
+  /* Touch devices: give an immediate color flash on tap so the
+     interaction model reads even without a hover state. */
+  .quick-cell:active {
+    background: var(--tone-bg);
+    color: #fff;
+    border-color: var(--tone-bg);
+  }
+  .quick-cell:active .quick-name { color: #fff; }
+  .quick-cell:active .quick-dot { background: rgba(255,255,255,0.95) !important; }
+
   .quick-cell.feature { background: var(--orange); color: #fff; border-color: var(--orange); }
   .quick-cell.feature .quick-arrow { color: rgba(255,255,255,0.78); }
   .quick-cell.feature .quick-dot { background: rgba(255,255,255,0.9) !important; }
@@ -464,9 +501,23 @@
     background: rgba(255,255,255,0.22);
     justify-self: center;
   }
-  /* Keep the desktop two-column specimen layout on phone */
   @media (max-width: 820px) {
     .specimen-row { column-gap: var(--s-4); padding: var(--s-5) 0; }
+  }
+  /* Phone: stack each row vertically — live creative on top, a
+     hairline divider, then the spec card below — so neither column
+     gets crushed into ~150px. */
+  @media (max-width: 720px) {
+    .specimen-row {
+      grid-template-columns: 1fr;
+      row-gap: var(--s-4);
+      padding: var(--s-5) 0;
+    }
+    .specimen-row::after {
+      grid-column: 1 / 2; grid-row: 2 / 3;
+      width: 60%; height: 1px;
+      justify-self: center;
+    }
   }
 
   .specimen-cell {
@@ -480,7 +531,14 @@
     justify-content: flex-start;
     text-align: left;
   }
-  /* specimen cells keep their desktop column placement on phone */
+  @media (max-width: 720px) {
+    .specimen-cell.specimen-live  { grid-column: 1 / 2; grid-row: 1 / 2; }
+    .specimen-cell.specimen-label { grid-column: 1 / 2; grid-row: 3 / 4; justify-content: center; text-align: center; }
+    .specimen-spec { padding-left: 0 !important; }
+    .spec-card, .spec-stack { max-width: 100%; align-items: center; }
+    .spec-name { text-align: center; }
+    .spec-meta { text-align: center; }
+  }
 
   /* Eyebrow — Futura PT Demi, slightly tracked caps */
   .specimen-eyebrow {
@@ -728,7 +786,23 @@
   }
 </style>
 <link rel="stylesheet" href="theme.css">
-<script src="chrome.js" defer></script>
+<script src="chrome-v2.js" defer></script>
+<script>
+  // Aggressively clear any leftover service-worker + cache entries from
+  // older deployments. Without this, an SW registered before we ever
+  // shipped one can keep serving stale chrome.js / HTML for a long time.
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then(function (regs) {
+      regs.forEach(function (r) { r.unregister(); });
+    }).catch(function () {});
+  }
+  if (window.caches && caches.keys) {
+    caches.keys().then(function (keys) {
+      keys.forEach(function (k) { caches.delete(k); });
+    }).catch(function () {});
+  }
+</script>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script src="np-data.js"></script>
 <script>NPData.guardPage(['team']);</script>

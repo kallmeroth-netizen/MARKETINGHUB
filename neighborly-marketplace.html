@@ -7,6 +7,22 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="theme.css">
+<script src="chrome-v2.js" defer></script>
+<script>
+  // Aggressively clear any leftover service-worker + cache entries from
+  // older deployments. Without this, an SW registered before we ever
+  // shipped one can keep serving stale chrome.js / HTML for a long time.
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then(function (regs) {
+      regs.forEach(function (r) { r.unregister(); });
+    }).catch(function () {});
+  }
+  if (window.caches && caches.keys) {
+    caches.keys().then(function (keys) {
+      keys.forEach(function (k) { caches.delete(k); });
+    }).catch(function () {});
+  }
+</script>
 <style>
   :root{
     --bg:#f7f6f3; --card:#fff; --ink:#1f2328; --muted:#6b7178;

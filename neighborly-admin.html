@@ -13,7 +13,23 @@
 <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png">
 
 <link rel="stylesheet" href="theme.css">
-<script src="chrome.js" defer></script>
+<script src="chrome-v2.js" defer></script>
+<script>
+  // Aggressively clear any leftover service-worker + cache entries from
+  // older deployments. Without this, an SW registered before we ever
+  // shipped one can keep serving stale chrome.js / HTML for a long time.
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then(function (regs) {
+      regs.forEach(function (r) { r.unregister(); });
+    }).catch(function () {});
+  }
+  if (window.caches && caches.keys) {
+    caches.keys().then(function (keys) {
+      keys.forEach(function (k) { caches.delete(k); });
+    }).catch(function () {});
+  }
+</script>
+
 
 <style>
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');

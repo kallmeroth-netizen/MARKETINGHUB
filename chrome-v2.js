@@ -114,8 +114,6 @@
       svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="4"/><path d="M2 21a7 7 0 0 1 14 0"/><path d="M16 3.5a4 4 0 0 1 0 8M22 21a7 7 0 0 0-5-6.7"/></svg>' },
     { key:'paidads',     label:'Paid Ads',              sub:'Meta & Google spend, ROAS',     href:'neighborly-paid-ads.html',    bg:'#ddeaff', stroke:'#1877f2', roles:['team','admin'],
       svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>' },
-    { key:'print',       label:'Print Production',      sub:'Posters, menus, signage',       href:'neighborly-print.html',       bg:'#f7f0e4', stroke:'#9c7a3c', roles:['team','admin'],
-      svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="3" width="12" height="6" rx="1"/><rect x="3" y="9" width="18" height="9" rx="2"/><rect x="6" y="14" width="12" height="7" rx="1"/></svg>' },
     { key:'opsforecast', label:'Sales',                 sub:'Net sales, check, catering, comps', href:'neighborly-sales.html',       bg:'#e4f5ea', stroke:'#1e5a37', roles:['ops','admin'],
       svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l5-5 4 4 8-8"/><path d="M14 8h6v6"/></svg>' },
     { key:'opslabor',    label:'Labor & SPLH',          sub:'SPLH, hours, OT, labor %',      href:'neighborly-labor.html',       bg:'#e4f5ea', stroke:'#1e5a37', roles:['ops','admin'],
