@@ -801,42 +801,13 @@ nav{background:var(--surface);border-bottom:.5px solid var(--border-strong);padd
 
 <script>
 // ── DATA ──────────────────────────────────────────────────────────────────────
-var COMPLAINTS = [
-  {id:'chicken',  cat:'food',       loc:'both',      pct:24.1, pcts:{all:24.1,westlake:24.0,brentwood:24.9}, name:'Chicken quality & prep',       icon:'🍗', desc:'Cold, dry, rubbery, overcooked — #1 complaint across both locations', quotes:['My chicken was cold, not sure if that\'s how it\'s supposed to be?','The bowl I ordered was fine. This time the chicken was tough and rubbery. Usually very tender.','Chicken thighs were so dried out the skin was inedible.','The crispy chicken sandwich was all crispy and no chicken — less than an eighth of an inch in some spots.','Chicken was undercooked. Very pink, should have been checked before packaging.'], actions:['Audit chicken hold times and heat lamp SOP across both kitchens','Add chicken temp check to shift manager closing checklist','Flag overcooked/undercooked complaints by station to identify repeat issues'], insight:'Chicken quality is the #1 complaint at 24.1% — consistent across both locations. Complaints cluster around dryness, rubberiness, and undercooking. A hold-time and temp SOP would reduce this significantly.'},
-  {id:'app',      cat:'ops',        loc:'both',      pct:17.8, pcts:{all:17.8,westlake:19.0,brentwood:12.0}, name:'Online ordering & app issues', icon:'📱', desc:'Coupon failures, checkout bugs, kiosk confusion, website UX', quotes:['When you place an order online it immediately assumes pickup — you have to get to checkout then change to delivery and start again.','The coupon code didn\'t work — said already been used when I haven\'t used it.','The app doesn\'t work. The website is passable but not great.','Website kept freezing — tried over 10 times.','More options for online ordering — the system is frustrating.'], actions:['Audit coupon redemption flow for edge cases','Fix checkout flow: prompt delivery vs pickup on first screen','Add real-time order status updates via SMS or push notification'], insight:'Online ordering friction affects 17.8% of all guests, concentrated at Westlake (19%). Coupon failures and app defaults are the top pain points. Quick UX fixes could meaningfully reduce this.'},
-  {id:'pickup',   cat:'experience', loc:'brentwood', pct:10.3, pcts:{all:10.3,westlake:7.8,brentwood:22.7}, name:'Pickup experience & flow',     icon:'🚶', desc:'Unacknowledged guests, no signage, chaotic area — especially Brentwood', quotes:['Better customer service at the front during pick up. Sat there quite a while — had to chase someone down.','No one even addresses me. I stood there 5 minutes watching staff talking to each other.','I went to pick up my order and was ignored.','Pickup area not clearly labeled if you walk in the far door — please do better on signage.','No one helped me and I had to search through a dozen bags myself.'], actions:['Install clear pickup zone signage at Brentwood entrance','Train team on proactive guest acknowledgment within 30 seconds','Designate a pickup lead during peak hours 12–1pm and 6–8pm'], insight:'Pickup friction hits Brentwood hardest at 22.7% vs 7.8% at Westlake. The shared entrance creates confusion. A designated pickup counter with clear signage would resolve most of these.'},
-  {id:'wait',     cat:'ops',        loc:'both',      pct:10.9, pcts:{all:10.9,westlake:9.8,brentwood:16.0}, name:'Wait times & order delays',    icon:'⏱',  desc:'Orders not ready on time, no communication on delays', quotes:['My order was supposed to be ready at 12:25 — it wasn\'t ready until 12:35.','Food ready 25 min late.','Arrived at the scheduled pickup time and still had to wait 15 minutes.','Email said food ready at 5:30pm — didn\'t get it until 6pm. Had to ask 3 times.','I set a specific time for my order to be ready. Not 15 minutes after.'], actions:['Set realistic ETAs in OLO based on actual kitchen throughput','Implement SMS/push update at 80% order completion','Staff a float during Fri/Sat 6–8pm rush at Brentwood'], insight:'Wait complaints are rising — up to 16.1% in May. Brentwood (16.0%) runs hotter than Westlake (9.8%). Accurate ETAs and proactive communication would dramatically reduce these.'},
-  {id:'missing',  cat:'ops',        loc:'both',      pct:9.3,  pcts:{all:9.3,westlake:9.2,brentwood:9.3},  name:'Missing items & ingredients',  icon:'📦', desc:'Sauces, sides, proteins, drinks left out of orders', quotes:['Did not receive the drink I ordered.','Got home and half the ingredients were missing — even after waiting 15 minutes past pickup time.','The Mexican Coke I ordered was not in my bag.','Ordered extra dressing and paid for it — not included.','Forgot my salmon!!'], actions:['Implement 3-point bag check before sealing every order','Add item-count visual checklist to packaging station','Flag high-miss items in POS for extra staff attention'], insight:'Missing items affect 9.3% of guests equally across both locations. Guests typically don\'t discover until home. A seal-after-check protocol would eliminate most of these.'},
-  {id:'fries',    cat:'food',       loc:'both',      pct:4.4,  pcts:{all:4.4,westlake:4.0,brentwood:6.2},  name:'Fries quality & temperature',  icon:'🍟', desc:'Cold, soggy, undercooked — spikes on pickup & delivery', quotes:['Fries were cold and soggy at pickup.','The fries from Mixtape were soggy — salad from Gaby\'s was delicious though.','The burgers and fries were cold when picked up.','Waffle fries don\'t travel too well. They get soft.','The french fries weren\'t cooked long enough today — noticeably undercooked.'], actions:['Audit fry hold time SOP: discard after 4 min under heat lamp','Add fries to shift manager quality spot-check','Use vented containers for fry orders on delivery'], insight:'Fry complaints skew heavily toward pickup and delivery — the product degrades fast in transit. A hold-time SOP and better packaging would cut complaints significantly.'},
-  {id:'portions', cat:'food',       loc:'both',      pct:5.2,  pcts:{all:5.2,westlake:5.1,brentwood:5.3},  name:'Portion size perception',      icon:'⚖️', desc:'Value-for-money concerns, inconsistency visit-to-visit', quotes:['Seems like it\'s got smaller from the original size a few weeks ago.','Paid $15.50 for lettuce and dressing with barely any chicken.','The salmon pieces were noticeably smaller and overcooked the last couple times.','Barely any chicken inside the wrap.','The market salad was 1/2 the size from last week — ordered double chicken, barely any.'], actions:['Standardize portioning with weight-based guides per item','Add portioning refresher to monthly retraining','Audit most-mentioned items monthly for portion drift'], insight:'Portion perception complaints affect 5.2% of guests and come mostly from loyal repeat visitors who notice change over time. Standardized portioning guides would rebuild trust.'},
-];
-
-var WINS = [
-  {id:'caesar',     loc:'both',      pct:22.4, name:'Chicken Caesar Wrap',       icon:'🥗', desc:'Most consistently loved item across both locations',  quotes:['The Chicken Caesar Wrap is addictive — I order it every week.','Best wrap in the area, nothing comes close.','I drive 20 minutes just for the Caesar Wrap.','Three of us ordered it on the same visit without knowing.','My go-to every single time. Never disappoints.'], insight:'The Caesar Wrap drives repeat visit intent more than any other item. Consider featuring it in campaigns and ensuring consistent execution.'},
-  {id:'team',       loc:'both',      pct:18.7, name:'Friendly team interactions',  icon:'🤝', desc:'Hospitality consistently recovers imperfect visits',  quotes:['Staff made our whole night even though the food was late.','The team is what makes Neighborly special.','I had an issue and they resolved it so warmly.','Best customer service I\'ve experienced at a restaurant.','The manager came out personally. Made all the difference.'], insight:'Team warmth is a top brand differentiator and frequently referenced as the reason guests return after a negative experience.'},
-  {id:'atmosphere', loc:'brentwood', pct:14.2, name:'Atmosphere & ambiance',       icon:'✨', desc:'Space, design, and vibe praised — especially Brentwood', quotes:['Such a beautiful space — feels elevated but relaxed.','Love the vibe. Great for a quick dinner or a catch-up.','The design really stands out.','It feels like a neighborhood place that actually cares.','Best looking food hall I\'ve been to.'], insight:'Atmosphere mentions are particularly strong in new guest reviews at Brentwood — the space is winning first impressions and driving discovery.'},
-  {id:'variety',    loc:'both',      pct:11.8, name:'Marketplace variety',          icon:'🛍', desc:'Breadth of brands and choices praised',               quotes:['So many great options under one roof.','Love that I can get something different every time.','The variety is unmatched.','Perfect for groups where everyone wants something different.','I love that they curate such interesting brands.'], insight:'Variety is a key brand pillar driving group visit behavior. Reinforce in marketing.'},
-  {id:'fresh',      loc:'both',      pct:9.4,  name:'Fresh, quality ingredients',   icon:'🌿', desc:'Clean, real, high-quality food acknowledged',         quotes:['You can taste the quality difference.','Finally a place where I can feel good about what I\'m eating.','Fresh ingredients, thoughtfully put together.','Everything tastes house-made.','The quality is consistent in a way most places aren\'t.'], insight:'Quality perception is tied to brand trust and repeat purchase. Guests who mention quality show 2x return visit rate.'},
-  {id:'kids',       loc:'westlake',  pct:6.1,  name:'Family & kid-friendly',        icon:'👨‍👩‍👧', desc:'Great for families and varied dietary needs — Westlake',  quotes:['My kids loved it and so did I.','So refreshing to find healthy kids options.','The whole family could order something they wanted.','My picky eater found something she loved.','Finally a place that works for everyone at the table.'], insight:'Family-friendly feedback is growing as Westlake matures. Lean into this in Q3/Q4 campaigns.'},
-];
-
-var TRENDS = [
-  {id:'chicken',  cat:'food',       loc:'both',      name:'Chicken quality & prep',     cur:24.1, pcts:{all:24.1,westlake:24.0,brentwood:24.9}, history:{all:[21.2,18.0,16.4,24.5,31.0,29.4,25.9,26.0],westlake:[21.0,18.0,16.0,24.0,31.0,29.0,26.0,26.0],brentwood:[22.0,18.0,17.0,26.0,31.0,30.0,25.0,25.0]}, vel:'up'},
-  {id:'app',      cat:'ops',        loc:'both',      name:'Online ordering & app',       cur:17.8, pcts:{all:17.8,westlake:19.0,brentwood:12.0}, history:{all:[19.2,6.0,19.2,22.6,15.5,20.6,12.4,14.1],westlake:[20.0,6.0,20.0,24.0,16.0,22.0,13.0,15.0],brentwood:[12.0,6.0,12.0,14.0,10.0,12.0,9.0,10.0]}, vel:'flat'},
-  {id:'pickup',   cat:'experience', loc:'brentwood', name:'Pickup experience & flow',    cur:10.3, pcts:{all:10.3,westlake:7.8,brentwood:22.7},  history:{all:[5.8,10.0,9.6,1.9,12.1,5.9,21.8,15.6],westlake:[4.0,7.0,7.0,1.5,8.0,4.0,12.0,9.0],brentwood:[15.0,22.0,20.0,5.0,28.0,15.0,48.0,35.0]}, vel:'up'},
-  {id:'wait',     cat:'ops',        loc:'both',      name:'Wait times & order delays',   cur:10.9, pcts:{all:10.9,westlake:9.8,brentwood:16.0},  history:{all:[7.7,4.0,15.1,1.9,10.3,11.8,15.0,16.1],westlake:[6.0,3.5,13.0,1.5,9.0,10.0,13.0,14.0],brentwood:[14.0,7.0,22.0,3.0,16.0,18.0,22.0,24.0]}, vel:'up'},
-  {id:'missing',  cat:'ops',        loc:'both',      name:'Missing items',               cur:9.3,  pcts:{all:9.3,westlake:9.2,brentwood:9.3},   history:{all:[17.3,2.0,17.8,9.4,10.3,9.8,9.3,8.3],westlake:[17.0,2.0,17.5,9.0,10.0,9.5,9.0,8.0],brentwood:[18.0,2.0,18.5,10.0,11.0,10.5,10.0,9.0]}, vel:'dn'},
-  {id:'fries',    cat:'food',       loc:'both',      name:'Fries quality & temperature', cur:4.4,  pcts:{all:4.4,westlake:4.0,brentwood:6.2},   history:{all:[1.9,4.0,4.1,5.7,8.6,7.8,4.7,7.3],westlake:[1.5,3.5,3.5,5.0,8.0,7.0,4.0,6.5],brentwood:[3.5,6.5,7.0,9.0,12.0,11.0,7.5,10.5]}, vel:'up'},
-  {id:'portions', cat:'food',       loc:'both',      name:'Portion perception',          cur:5.2,  pcts:{all:5.2,westlake:5.1,brentwood:5.3},   history:{all:[5.8,2.0,5.5,0.0,3.4,3.9,7.3,4.7],westlake:[5.5,2.0,5.0,0.0,3.0,3.5,7.0,4.5],brentwood:[7.0,2.5,7.0,0.0,4.5,5.0,8.5,5.5]}, vel:'flat'},
-  {id:'team',     cat:'experience', loc:'both',      name:'Team friendliness (win)',     cur:13.9, pcts:{all:13.9,westlake:12.7,brentwood:20.0}, history:{all:[14.0,15.0,16.0,16.5,17.0,17.5,13.5,14.0],westlake:[13.0,14.0,15.0,15.5,16.0,16.5,12.0,12.7],brentwood:[20.0,22.0,22.0,23.0,24.0,24.0,20.0,20.0]}, vel:'flat'},
-];
-
-// Per-location sentiment (5,196 Ovation responses · Dec 2024 – May 2026; native 1-5 scale)
-var LOC_SENTIMENT = {
-  all:       {rating:2.9, stars:[0,37,30,22,12], promoters:37, passives:30, detractors:34},
-  westlake:  {rating:2.9, stars:[0,37,29,22,12], promoters:37, passives:29, detractors:34},
-  brentwood: {rating:2.9, stars:[0,36,30,24,11], promoters:36, passives:30, detractors:35}
-};
+// THEME_LIB and ALL_ITEMS are populated at boot from Supabase:
+//  - review_theme_catalog  → THEME_LIB (id, label, kws, type, cat, icon)
+//  - review_theme_snapshots (latest row) → ALL_ITEMS (id, name, desc, insight,
+//    actions, quotes, pct, pcts) — Claude's weekly qualitative write-up,
+//    retained historically in Supabase.
+// See buildThemeLibAndItems() near the bottom of this file.
+var THEME_LIB = {};
 
 var manualEntries = [];
 var complaintCatFilter = 'all';
@@ -1111,15 +1082,15 @@ function wireQuoteExpanders(){
 }
 
 // ── DRAWER ────────────────────────────────────────────────────────────────────
+// Populated at boot from the latest review_theme_snapshots row — see
+// buildThemeLibAndItems().
 var ALL_ITEMS = {};
-COMPLAINTS.forEach(function(c){ ALL_ITEMS[c.id]=c; });
-WINS.forEach(function(w){ ALL_ITEMS[w.id]=w; });
 
 function openDrawer(id){
   var item = ALL_ITEMS[id];
   if(!item) return;
-  var isWin = !!WINS.find(function(w){return w.id===id;});
-  var catLabel = isWin ? 'Win' : (item.cat==='ops'?'Operations':item.cat==='food'?'Food quality':'Experience');
+  var isWin = item.type==='win';
+  var catLabel = isWin ? 'Win' : (item.cat==='ops'?'Operations':item.cat==='food'?'Food quality':item.cat==='brand'?'Brand':'Experience');
   var catCls   = isWin ? 'pill-pos' : (item.cat==='ops'?'pill-ops':'pill-neg');
 
   document.getElementById('drawerCat').className='pill '+catCls;
@@ -1129,10 +1100,20 @@ function openDrawer(id){
   document.getElementById('drawerSub').textContent=item.desc||'';
 
   var body='';
+  if(item.insight){
+    body+='<div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);margin-bottom:8px">Weekly analyst insight</div>';
+    body+='<div style="font-size:13px;color:var(--text2);line-height:1.5;margin-bottom:16px">'+item.insight+'</div>';
+  }
   body+='<div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);margin-bottom:8px">Guest quotes</div>';
   (item.quotes||[]).forEach(function(q){
     body+='<div class="quote-card '+(isWin?'pos':'neg')+'"><div class="quote-text">&ldquo;'+q+'&rdquo;</div></div>';
   });
+  if((item.actions||[]).length){
+    body+='<div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);margin:16px 0 8px">Recommended actions</div>';
+    body+='<ul style="margin:0;padding-left:18px;font-size:12.5px;color:var(--text2);line-height:1.6">';
+    item.actions.forEach(function(a){ body+='<li>'+a+'</li>'; });
+    body+='</ul>';
+  }
   document.getElementById('drawerBody').innerHTML=body;
   wireQuoteExpanders();
   document.getElementById('drawer').classList.add('open');
@@ -1173,26 +1154,6 @@ function publicReviewsAvg(loc){
     count:  weight
   };
 }
-
-// Theme keyword library used to detect complaints, wins, and dish mentions in feedback.
-var THEME_LIB = {
-  // Complaints — operational
-  app:       {label:'Online ordering / app',     kws:['app','online order','website','checkout','coupon','kiosk','order online','can\'t order'], type:'complaint', cat:'Operations', icon:'📱'},
-  accuracy:  {label:'Order accuracy',            kws:['wrong order','wrong item','wrong wrap','wrong salad','missing','forgot','left out','not in bag','didn\'t receive','did not receive'], type:'complaint', cat:'Operations', icon:'📦'},
-  wait:      {label:'Wait time / not ready',     kws:['wait','late','not ready','minutes past','behind','too long','25 min','30 min','45 min','past pickup'], type:'complaint', cat:'Operations', icon:'⏱'},
-  pickup:    {label:'Pickup experience',         kws:['pick up','pickup','acknowledged','stood','ignored','no one','signage','chaotic','where to stand'], type:'complaint', cat:'Experience', icon:'🚶'},
-  // Complaints — food
-  cold:      {label:'Cold food',                 kws:['cold','lukewarm','room temperature','room temp'], type:'complaint', cat:'Food', icon:'❄️'},
-  soggy:     {label:'Soggy / texture',           kws:['soggy','mushy','stale','wet sandwich'], type:'complaint', cat:'Food', icon:'🥪'},
-  chickenQ:  {label:'Chicken quality',           kws:['dry chicken','rubbery','chewy','overcooked','undercooked','tough chicken'], type:'complaint', cat:'Food', icon:'🍗'},
-  portion:   {label:'Portion size',              kws:['portion','smaller','barely any','not enough','tiny','small portion','less chicken'], type:'complaint', cat:'Food', icon:'⚖️'},
-  // Wins
-  team:      {label:'Team / hospitality',        kws:['staff','team','friendly','nice','helpful','warm','welcoming','accommodating','kind','manager'], type:'win', cat:'Experience', icon:'🤝'},
-  foodLove:  {label:'Food quality praise',       kws:['delicious','amazing','phenomenal','fantastic','great food','so good','excellent','outstanding','love'], type:'win', cat:'Food', icon:'🌟'},
-  variety:   {label:'Variety / concept',         kws:['variety','options','marketplace','concept','food hall','different brands'], type:'win', cat:'Brand', icon:'🛍'},
-  recovery:  {label:'Service recovery',          kws:['made it right','manager helped','comp','gift card','sent another','free cookie','fixed it'], type:'win', cat:'Experience', icon:'✨'},
-  loyal:     {label:'Loyal repeat guest',        kws:['every week','always','regular','weekly','multiple times','since opened'], type:'win', cat:'Brand', icon:'💛'},
-};
 
 var DISH_LIB = {
   chicken:    {label:'Chicken (any prep)',   kws:['chicken']},
@@ -1460,19 +1421,19 @@ function renderOverview(){
   // Small line-icon set (Feather/Lucide style, 14×14, stroke 1.8) keyed by
   // theme id so the rows read like clean glyphs instead of emoji noise.
   var THEME_SVG = {
-    app:       '<rect x="7" y="2" width="10" height="20" rx="2"/><line x1="11" y1="18" x2="13" y2="18"/>',
-    accuracy:  '<path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/>',
-    wait:      '<circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/>',
-    pickup:    '<path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>',
-    cold:      '<line x1="12" y1="2" x2="12" y2="22"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="5" y1="5" x2="19" y2="19"/><line x1="19" y1="5" x2="5" y2="19"/>',
-    soggy:     '<path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/>',
-    chickenQ:  '<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>',
-    portion:   '<line x1="12" y1="2" x2="12" y2="22"/><path d="M4 7h16"/><path d="M7 7l-3 7a4 4 0 0 0 6 0z"/><path d="M17 7l-3 7a4 4 0 0 0 6 0z"/>',
-    team:      '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
-    foodLove:  '<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>',
-    variety:   '<path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/>',
-    recovery:  '<path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>',
-    loyal:     '<path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>'
+    'online-ordering':     '<rect x="7" y="2" width="10" height="20" rx="2"/><line x1="11" y1="18" x2="13" y2="18"/>',
+    'order-accuracy':      '<path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/>',
+    'wait-times':          '<circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/>',
+    'pickup-flow':         '<path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>',
+    'cold-food':           '<line x1="12" y1="2" x2="12" y2="22"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="5" y1="5" x2="19" y2="19"/><line x1="19" y1="5" x2="5" y2="19"/>',
+    'soggy-texture':       '<path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/>',
+    'food-consistency':    '<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>',
+    'portion-size':        '<line x1="12" y1="2" x2="12" y2="22"/><path d="M4 7h16"/><path d="M7 7l-3 7a4 4 0 0 0 6 0z"/><path d="M17 7l-3 7a4 4 0 0 0 6 0z"/>',
+    'friendly-staff':      '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
+    'food-quality-taste':  '<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>',
+    'variety-concept':     '<path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/>',
+    'service-recovery':    '<path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>',
+    'loyal-repeat':        '<path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>'
   };
   function themeIconSvg(id, isWin){
     var paths = THEME_SVG[id] || '<circle cx="12" cy="12" r="9"/>';
@@ -1950,43 +1911,6 @@ function dateMatchReview(r){
   return true;
 }
 
-// Get effective % for a complaint/win — location and date aware
-function effectivePct(itemId, basePct){
-  var loc2=locationFilter==='all'?'all':locationFilter;
-  var allItems=COMPLAINTS.concat(WINS);
-  var item=allItems.find(function(x){return x.id===itemId;});
-  var locPct=(item&&item.pcts)?(item.pcts[loc2]||basePct):basePct;
-  if(!dateFrom && !dateTo) return locPct;
-  // With a date range, compute live from the actual filtered reviews
-  var pool=LIVE_REVIEWS.filter(function(r){return locMatch(r)&&dateMatchReview(r);});
-  if(!pool.length) return locPct;
-  var allItems2=COMPLAINTS.concat(WINS);
-  var item2=allItems2.find(function(x){return x.id===itemId;});
-  if(!item2) return locPct;
-  // Count theme matches in the filtered pool
-  var themeKws={'chicken':['chicken','rubbery','chewy','overcooked','dry chicken','tough'],'app':['app','online order','website','checkout','coupon','kiosk'],'pickup':['pick up','pickup','acknowledged','stood','ignored','no one','signage'],'wait':['wait','late','not ready','behind','too long','delayed'],'missing':['missing','forgot','left out','didn\'t receive','did not receive'],'fries':['fri','waffle fries','soggy fries'],'portions':['portion','smaller','not enough','barely'],'team':['staff','team','friendly','nice','helpful','warm','welcoming'],'caesar':['caesar wrap','caesar club','chicken caesar'],'variety':['variety','marketplace','food hall'],'fresh':['fresh','quality','phenomenal','amazing','love'],'kids':['kids','family','kid-friendly'],'wrong':['wrong order','wrong item','mix up','gave my order'],'atmosphere':['atmosphere','beautiful','vibe','space','design']};
-  var kws=themeKws[itemId];
-  if(!kws) return locPct;
-  var matches=pool.filter(function(r){var t=r.text.toLowerCase();return kws.some(function(k){return t.indexOf(k)>-1;});}).length;
-  return pool.length?+(matches/pool.length*100).toFixed(1):locPct;
-}
-
-// Derive avg rating from live reviews for the current filters
-function derivedRating(){
-  var pool = LIVE_REVIEWS.filter(function(r){ return locMatch(r) && dateMatchReview(r); });
-  if(!pool.length) return LOC_SENTIMENT[locationFilter].rating;
-  return Math.round(pool.reduce(function(s,r){return s+r.rating;},0)/pool.length*10)/10;
-}
-
-// Derive star distribution from live reviews
-function derivedStars(){
-  var pool = LIVE_REVIEWS.filter(function(r){ return locMatch(r) && dateMatchReview(r); });
-  if(!pool.length) return LOC_SENTIMENT[locationFilter].stars;
-  var counts=[0,0,0,0,0];
-  pool.forEach(function(r){counts[5-r.rating]++;});
-  return counts.map(function(c){return pool.length?Math.round(c/pool.length*100):0;});
-}
-
 // ── LIVE REVIEWS DATA — fetched at boot from Supabase `reviews` (source='ovation', OLO surveys) ──
 var LIVE_REVIEWS = [];
 
@@ -2032,14 +1956,12 @@ function renderLiveFeed(){
     +'</div>';
   }).join('');
 
-  // Theme breakdown
-  var themeKws={chicken:['chicken','rubbery','chewy','overcooked','dry chicken','tough'],app:['app','online order','website','checkout','coupon','kiosk'],pickup:['pick up','pickup','acknowledged','stood','ignored','no one','signage'],wait:['wait','late','not ready','behind','too long','delayed'],missing:['missing','forgot','left out','didn\'t receive','did not receive'],fries:['fri','waffle fries','soggy fries'],portions:['portion','smaller','not enough','barely'],team:['staff','team','friendly','nice','helpful','warm','welcoming'],caesar:['caesar wrap','caesar club','chicken caesar']};
-  var themeNames={chicken:'Chicken quality',app:'App & ordering',pickup:'Pickup flow',wait:'Wait times',missing:'Missing items',fries:'Fries',portions:'Portions',team:'Team (positive)',caesar:'Caesar Wrap (positive)'};
-  var themeColors={chicken:'var(--rd)',app:'var(--od)',pickup:'var(--od)',wait:'var(--od)',missing:'var(--rd)',fries:'var(--rd)',portions:'var(--od)',team:'var(--gd)',caesar:'var(--gd)'};
-  var themeRows = Object.keys(themeKws).map(function(tid){
-    var kws=themeKws[tid];
-    var n=pool.filter(function(r){var t=r.text.toLowerCase();return kws.some(function(k){return t.indexOf(k)>-1;});}).length;
-    return {id:tid, name:themeNames[tid], n:n, pct:+(n/pool.length*100).toFixed(1), color:themeColors[tid]};
+  // Theme breakdown — driven by THEME_LIB (Supabase review_theme_catalog)
+  var themeRows = Object.keys(THEME_LIB).map(function(tid){
+    var def=THEME_LIB[tid];
+    var n=pool.filter(function(r){return textMatches(r.text, def.kws);}).length;
+    var color = def.type==='win' ? 'var(--gd)' : (def.cat==='Food' ? 'var(--rd)' : 'var(--od)');
+    return {id:tid, name:def.label, n:n, pct:pool.length?+(n/pool.length*100).toFixed(1):0, color:color};
   }).filter(function(t){return t.n>0;}).sort(function(a,b){return b.n-a.n;}).slice(0,8);
   var maxTheme = themeRows[0]?themeRows[0].n:1;
   var themeHtml = themeRows.map(function(t){
@@ -2260,7 +2182,26 @@ function drawRatingChart(){
 // ── INIT ──────────────────────────────────────────────────────────────────────
 document.addEventListener('keydown',function(e){if(e.key==='Escape'){ closeDrawer(); closeHubNav(); }});
 
-// Load Ovation reviews from Supabase, populate LIVE_REVIEWS, derive trend buckets, then render.
+// Build THEME_LIB (live keyword matching, used by Overview/Trends/Live-feed
+// tabs) from review_theme_catalog, and ALL_ITEMS (drawer content — Claude's
+// weekly qualitative write-up, retained historically) from the latest
+// review_theme_snapshots row.
+var CAT_LABELS = {ops:'Operations', food:'Food', experience:'Experience', brand:'Brand'};
+
+function buildThemeLibAndItems(catalog, snapshotThemes){
+  catalog.forEach(function(t){
+    THEME_LIB[t.id] = {
+      label: t.name, kws: t.keywords, type: t.type,
+      cat: CAT_LABELS[t.cat] || 'Experience', icon: t.icon
+    };
+  });
+  (snapshotThemes || []).forEach(function(t){
+    ALL_ITEMS[t.id] = t;
+  });
+}
+
+// Load Ovation reviews + theme catalog + latest theme snapshot from Supabase,
+// populate LIVE_REVIEWS/THEME_LIB/ALL_ITEMS, derive trend buckets, then render.
 // PostgREST caps each response at 1000 rows, so page through with .range().
 (async function(){
   var LOC_SHORT_TO_KEY = {Westlake:'westlake', Brentwood:'brentwood'};
@@ -2286,10 +2227,22 @@ document.addEventListener('keydown',function(e){if(e.key==='Escape'){ closeDrawe
         text: r.text || ''
       };
     });
+
+    var catalogResp = await sb.from('review_theme_catalog').select('id,name,icon,cat,type,keywords');
+    if (catalogResp.error) throw catalogResp.error;
+
+    var snapResp = await sb.from('review_theme_snapshots')
+      .select('themes,generated_at')
+      .order('generated_at', {ascending:false})
+      .limit(1);
+    if (snapResp.error) throw snapResp.error;
+
+    buildThemeLibAndItems(catalogResp.data, snapResp.data[0] ? snapResp.data[0].themes : []);
+
     computeRatingTrends();
     refreshGuestDashboard();
   } catch(err) {
-    console.error('Could not load reviews from Supabase:', err);
+    console.error('Could not load reviews/themes from Supabase:', err);
     // Render empty state so the page doesn't appear broken
     computeRatingTrends();
     refreshGuestDashboard();
