@@ -260,12 +260,13 @@
      an `inputs:[{key,label,type,placeholder}]` array. Values persist
      on the task itself (task.values[key]) and write straight to
      Firebase on blur via saveTaskValue. */
-  .task-inputs{display:flex;flex-direction:column;gap:6px;margin-top:8px;padding:8px 10px;background:#fbfaf7;border:1px solid var(--line-soft);border-radius:9px}
-  .task-input{display:flex;align-items:center;gap:8px;font-size:11.5px;position:relative}
-  .task-input label{flex:0 0 130px;color:var(--muted);font-weight:600;letter-spacing:.02em;display:flex;align-items:center;gap:5px}
-  .task-input label .ti-ico{font-size:11px;opacity:.7}
-  .task-input input{flex:1;min-width:0;font-family:inherit;font-size:12.5px;padding:6px 30px 6px 11px;border:1px solid var(--line);border-radius:7px;background:#fff;color:var(--ink);outline:none;transition:border-color .12s;text-overflow:ellipsis}
-  .task-input input:focus{border-color:var(--accent)}
+  .task-inputs{display:flex;flex-direction:column;gap:9px;margin-top:10px;padding:11px 13px;background:#fbfaf7;border:1px solid var(--line-soft);border-radius:10px}
+  .task-input{display:flex;align-items:center;gap:10px;font-size:13px;position:relative}
+  .task-input label{flex:0 0 150px;color:var(--ink);font-weight:700;letter-spacing:.01em;display:flex;align-items:center;gap:6px;font-size:12.5px}
+  .task-input label .ti-ico{font-size:13px;opacity:.75}
+  .task-input input{flex:1;min-width:0;font-family:inherit;font-size:13.5px;padding:9px 36px 9px 13px;border:1.5px solid var(--line);border-radius:9px;background:#fff;color:var(--ink);outline:none;transition:border-color .12s, box-shadow .12s;text-overflow:ellipsis;line-height:1.3}
+  .task-input input:hover{border-color:#c8c5bd}
+  .task-input input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(98,128,189,.13)}
   .task-input input[type=url].has-value{background:rgba(98,128,189,.05)}
   /* Required input — small red asterisk + red focus ring + soft-red
      background when empty so it's obvious which field must be filled
@@ -274,7 +275,7 @@
   .task-input.required input:placeholder-shown{border-color:#e6c4be;background:#fdf6f4}
   .task-input.required input:focus{border-color:#a32d2d;box-shadow:0 0 0 2px rgba(163,45,45,.10)}
   /* Brief "✓ saved" badge that fades in after a successful blur-save. */
-  .task-input .ti-saved{position:absolute;right:10px;font-size:10px;font-weight:700;color:var(--green-ink);opacity:0;pointer-events:none;transition:opacity .15s}
+  .task-input .ti-saved{position:absolute;right:12px;font-size:11px;font-weight:700;color:var(--green-ink);opacity:0;pointer-events:none;transition:opacity .15s}
   .task-input.saved .ti-saved{opacity:1}
   @media (max-width:520px){
     .task-input{flex-direction:column;align-items:stretch;gap:3px}
@@ -289,7 +290,7 @@
      outside-to-close. Captures the full Brand Info + Product Info up
      front so every downstream step (procurement handoff, compliance,
      etc.) can pull from one source. */
-  .intake{position:fixed;top:50%;left:50%;transform:translate(-50%,calc(-50% + 24px));width:min(880px,calc(100vw - 32px));max-height:min(92vh,860px);background:#fff;box-shadow:0 28px 70px rgba(0,0,0,.30);border-radius:18px;opacity:0;pointer-events:none;transition:opacity .22s ease, transform .22s ease;z-index:55;overflow:hidden;display:flex;flex-direction:column}
+  .intake{position:fixed;top:50%;left:50%;transform:translate(-50%,calc(-50% + 24px));width:min(960px,calc(100vw - 32px));max-height:min(92vh,900px);background:#fff;box-shadow:0 32px 80px rgba(0,0,0,.32);border-radius:20px;opacity:0;pointer-events:none;transition:opacity .22s ease, transform .22s ease;z-index:55;overflow:hidden;display:flex;flex-direction:column}
   .intake.show{transform:translate(-50%,-50%);opacity:1;pointer-events:auto}
   .intake .ih{flex-shrink:0;background:#fff;border-bottom:1px solid var(--line);padding:22px 28px}
   .intake .ih .x{position:absolute;top:18px;right:22px;border:0;background:#f1efe9;width:32px;height:32px;border-radius:9px;font-size:17px;cursor:pointer;color:var(--muted)}
@@ -303,16 +304,17 @@
   .intake-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 18px}
   @media (min-width:760px){ .intake-grid{grid-template-columns:repeat(3,minmax(0,1fr))} }
   @media (max-width:520px){ .intake-grid{grid-template-columns:1fr} }
-  .intake-field{display:flex;flex-direction:column;gap:6px;min-width:0}
+  .intake-field{display:flex;flex-direction:column;gap:7px;min-width:0}
   .intake-field.wide{grid-column:1 / -1}
-  .intake-field label{font-size:11.5px;font-weight:600;letter-spacing:.02em;color:var(--muted);line-height:1.2}
-  .intake-field .req{color:var(--accent)}
+  .intake-field label{font-size:12.5px;font-weight:700;letter-spacing:.02em;color:var(--ink);line-height:1.2}
+  .intake-field .req{color:#a32d2d;margin-left:2px}
   /* Larger inputs — taller, bigger type, more left-padding — so the
      fields read as "easy to fill" not "data-entry tedious". */
-  .intake-field input,.intake-field select,.intake-field textarea{font-family:inherit;font-size:14.5px;padding:11px 14px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink);outline:none;transition:border-color .12s, box-shadow .12s;width:100%}
-  .intake-field input::placeholder,.intake-field textarea::placeholder{color:#bcb9b1}
-  .intake-field input:focus,.intake-field select:focus,.intake-field textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(98,128,189,.10)}
-  .intake-field textarea{resize:vertical;min-height:72px}
+  .intake-field input,.intake-field select,.intake-field textarea{font-family:inherit;font-size:15px;padding:13px 15px;border:1.5px solid var(--line);border-radius:11px;background:#fff;color:var(--ink);outline:none;transition:border-color .12s, box-shadow .12s;width:100%;line-height:1.3}
+  .intake-field input::placeholder,.intake-field textarea::placeholder{color:#b8b5ac}
+  .intake-field input:hover,.intake-field select:hover,.intake-field textarea:hover{border-color:#c8c5bd}
+  .intake-field input:focus,.intake-field select:focus,.intake-field textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(98,128,189,.13)}
+  .intake-field textarea{resize:vertical;min-height:84px}
   .intake-foot{flex-shrink:0;display:flex;justify-content:flex-end;gap:10px;padding:16px 28px;border-top:1px solid var(--line);background:#fff}
   .intake-foot .btn-secondary{background:#f1efe9;color:var(--ink);border:0;font-family:inherit;font-weight:600;font-size:13.5px;padding:11px 16px;border-radius:10px;cursor:pointer}
   .intake-foot .btn-primary{background:var(--ink);color:#fff;border:0;font-family:inherit;font-weight:600;font-size:13.5px;padding:11px 20px;border-radius:10px;cursor:pointer}
@@ -779,7 +781,8 @@ const PL_TASK_TEMPLATES=[
     {key:'joltLink',label:'Jolt item link',type:'url',placeholder:'https://… Jolt entry'}
   ]},
   {stage:'sample',dept:'Marketplace',label:'Asset: Product images received',owner:'Marketplace Lead',def:'Hi-res product images shot / on file',blocking:false,file:true},
-  {stage:'sample',dept:'Marketplace',label:'Asset: Brand story written',owner:'Marketplace Lead',def:'In-house brand story copy drafted',blocking:false,notify:'Marketing',notifyMsg:'Brand story written — available for Marketing to use in product copy.'},
+  {stage:'sample',dept:'Marketplace',label:'Asset: Brand logo on file',owner:'Marketplace Lead',def:'Vector / hi-res logo on file',blocking:false,file:true},
+  {stage:'sample',dept:'Marketplace',label:'Asset: Brand story written',owner:'Marketplace Lead',def:'In-house brand story copy drafted',blocking:false,file:true,notify:'Marketing',notifyMsg:'Brand story written — available for Marketing to use in product copy.'},
   /* Commercial — Procurement (co-packer terms in lieu of vendor docs) */
   {stage:'commercial',dept:'Procurement',label:'Co-packer pricing locked',owner:'Procurement Coordinator',def:'Per-unit cost + tiered MOQ pricing locked in writing',inputs:[{key:'landedCost',label:'Landed cost',type:'text',placeholder:'$ per unit'}]},
   {stage:'commercial',dept:'Procurement',label:'Confirm MOQ & case pack with co-packer',owner:'Procurement Coordinator',def:'Production MOQ + units-per-case confirmed in writing',inputs:[{key:'confirmedMoq',label:'Confirmed MOQ',type:'text'},{key:'confirmedCasePack',label:'Confirmed case pack',type:'text'}]},
@@ -925,7 +928,7 @@ const STAGE_GROUPS={
   review:[['Performance',4],['Quality & vendor',3],['Decision',1]]
 };
 const PL_STAGE_GROUPS={
-  sample:[['Tasting & formulation',3],['Approvals',2],['Launch prep',3],['Brand assets',2]],
+  sample:[['Tasting & formulation',3],['Approvals',2],['Launch prep',3],['Brand assets',3]],
   commercial:[['Terms',3],['Production',2],['Handoff',1]],
   compliance:[['Product docs',5],['Handoff',1]],
   commissary:[['Intake & storage',3],['PARs',2],['Receiving SOP',1]]
@@ -1923,7 +1926,9 @@ async function submitIntake(){
     const preDoneMap={
       'Asset: Product images received':       intakeAssets.images,
       'Asset: Brand logo received':           intakeAssets.logo,
+      'Asset: Brand logo on file':            intakeAssets.logo,
       'Asset: Brand story received':          intakeAssets.story,
+      'Asset: Brand story written':           intakeAssets.story,
       'Collect + upload W-9':                 intakeCompliance.w9,
       'Collect + upload Insurance (COI)':     intakeCompliance.coi,
       'Nutrition panel on file':              intakeCompliance.nutrition,
@@ -1983,6 +1988,7 @@ async function submitIntake(){
       };
       const labelMapPL={
         assetImages:'Asset: Product images received',
+        assetLogo:'Asset: Brand logo on file',
         assetStory:'Asset: Brand story written',
         compNutrition:'Nutrition panel approved',
         compIngredients:'Ingredient statement approved',
