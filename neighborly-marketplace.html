@@ -50,11 +50,17 @@
   /* pipeline board */
   /* pipeline — horizontal swim-lanes (one row per stage) */
   .lanes{display:flex;flex-direction:column;gap:12px}
-  .lane{display:flex;align-items:stretch;background:#efece5;border-radius:14px;overflow:hidden}
-  .lane-head{flex:0 0 165px;display:flex;flex-direction:column;justify-content:flex-start;gap:5px;padding:14px;border-right:1px solid var(--line-soft)}
+  .lane{display:flex;align-items:stretch;background:#efece5;border-radius:14px;overflow:hidden;transition:background .15s}
+  .lane-head{flex:0 0 165px;display:flex;flex-direction:column;justify-content:flex-start;gap:5px;padding:14px;border-right:1px solid var(--line-soft);cursor:pointer;user-select:none;position:relative}
+  .lane-head:hover{background:rgba(0,0,0,.025)}
   .lane-head .lh-top{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;line-height:1.2}
   .lane-head .dot{width:9px;height:9px;border-radius:50%;flex:0 0 auto}
   .lane-head .cnt{color:var(--muted);font-weight:600;font-size:11px}
+  .lane-head .chev{position:absolute;right:10px;top:14px;width:14px;height:14px;color:var(--muted);transition:transform .18s ease;flex:0 0 auto}
+  .lane.collapsed .lane-head .chev{transform:rotate(-90deg)}
+  .lane.collapsed .lane-list{display:none}
+  .lane.collapsed{background:#f5f3ed}
+  .lane.collapsed .lane-head{border-right:0}
   .lane-list{flex:1;min-width:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(205px,1fr));align-content:start;gap:9px;padding:10px}
   .lane-empty{align-self:center;color:#9b988f;font-size:12px;padding:0 6px}
   .pcard{background:#fff;border:1px solid var(--line-soft);border-radius:11px;padding:11px 12px;box-shadow:var(--shadow);cursor:pointer}
@@ -77,6 +83,9 @@
   .pipe-filter button{background:#fff;border:1px solid var(--line);color:var(--ink);font-family:inherit;font-weight:600;font-size:12px;padding:5px 11px;border-radius:999px;cursor:pointer;transition:.12s}
   .pipe-filter button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
   .pipe-filter button:hover:not(.on){border-color:var(--line-bold,#c8c5bd)}
+  .pipe-filter-sep{flex:1}
+  .pipe-filter button.pipe-collapse{font-size:11px;font-weight:600;color:var(--muted);background:transparent;border:1px solid transparent;padding:5px 9px}
+  .pipe-filter button.pipe-collapse:hover{color:var(--ink);border-color:var(--line)}
 
   /* products + brands */
   h1{font-size:25px;font-weight:700;margin:0 0 4px;letter-spacing:-.3px}
@@ -380,7 +389,10 @@
 
     /* pipeline lanes: stack the label above a wrapped card grid */
     .lane{flex-direction:column}
-    .lane-head{flex-basis:auto;flex-direction:row;align-items:center;justify-content:space-between;border-right:0;border-bottom:1px solid var(--line-soft);padding:10px 12px}
+    .lane-head{flex-basis:auto;flex-direction:row;align-items:center;justify-content:space-between;border-right:0;border-bottom:1px solid var(--line-soft);padding:10px 12px;padding-right:36px}
+    .lane-head .chev{top:50%;transform:translateY(-50%)}
+    .lane.collapsed .lane-head{border-bottom:0}
+    .lane.collapsed .lane-head .chev{transform:translateY(-50%) rotate(-90deg)}
     .lane-list{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));padding:9px}
 
     /* product/brand toolbar + search go full width */
@@ -1054,17 +1066,37 @@ function render(){
 let PIPE_TYPE='all'; // 'all' | 'CPG' | 'Private Label' — pipeline view filter
 function typeClass(t){return t==='Private Label'?'pl':'cpg';}
 function typeBadge(t){const tt=t||'CPG'; return `<span class="type-badge ${typeClass(tt)}">${esc(tt)}</span>`;}
+/* Collapsed-lane state for the pipeline. Persists to localStorage so a
+   user's collapsed stages survive reloads. Empty lanes default to
+   collapsed on first load to keep the board tight. */
+const LANE_LS_KEY='mp-pipeline-collapsed-v1';
+let LANE_COLLAPSED=(function(){
+  try{ const v=JSON.parse(localStorage.getItem(LANE_LS_KEY)||'{}'); return (v&&typeof v==='object')?v:{}; }
+  catch(_){ return {}; }
+})();
+function saveLaneState(){ try{ localStorage.setItem(LANE_LS_KEY,JSON.stringify(LANE_COLLAPSED)); }catch(_){} }
+
 function renderPipeline(){
   const allItems=Object.values(LAUNCHES);
   const filtered=PIPE_TYPE==='all'?allItems:allItems.filter(l=>(l.type||'CPG')===PIPE_TYPE);
   const byStage={}; filtered.forEach(l=>{(byStage[l.stage]=byStage[l.stage]||[]).push(l);});
   const lanes=[...PIPE,stageMeta('live')]; // active stages + Live lane
+  // Auto-collapse empty lanes on first encounter — record the decision so
+  // toggling them open is a one-click action and the choice sticks.
+  lanes.forEach(s=>{
+    if(LANE_COLLAPSED[s.key]===undefined && !(byStage[s.key]||[]).length){
+      LANE_COLLAPSED[s.key]=true;
+    }
+  });
   const counts={all:allItems.length,CPG:allItems.filter(l=>(l.type||'CPG')==='CPG').length,'Private Label':allItems.filter(l=>l.type==='Private Label').length};
   const btn=(v,lbl)=>`<button data-type="${esc(v)}" class="${PIPE_TYPE===v?'on':''}">${esc(lbl)} <span style="opacity:.6;margin-left:2px">${counts[v]||0}</span></button>`;
-  const filterBar=`<div class="pipe-filter"><span class="pipe-filter-lbl">Type</span>${btn('all','All')}${btn('CPG','CPG')}${btn('Private Label','Private Label')}</div>`;
+  const collapseAll=`<button class="pipe-collapse" data-act="collapse">Collapse all</button><button class="pipe-collapse" data-act="expand">Expand all</button>`;
+  const filterBar=`<div class="pipe-filter"><span class="pipe-filter-lbl">Type</span>${btn('all','All')}${btn('CPG','CPG')}${btn('Private Label','Private Label')}<span class="pipe-filter-sep"></span>${collapseAll}</div>`;
+  const chev='<svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>';
   $('view').innerHTML=filterBar+`<div class="lanes">${lanes.map(s=>{
     const items=(byStage[s.key]||[]).sort((a,b)=>(a.name||'').localeCompare(b.name||''));
-    return `<div class="lane"><div class="lane-head"><div class="lh-top"><span class="dot" style="background:${s.color}"></span>${esc(s.label)}</div><span class="cnt">${items.length} ${items.length===1?'product':'products'}</span></div>
+    const isCol=!!LANE_COLLAPSED[s.key];
+    return `<div class="lane${isCol?' collapsed':''}" data-stage="${esc(s.key)}"><div class="lane-head" data-stage="${esc(s.key)}" role="button" tabindex="0" aria-expanded="${isCol?'false':'true'}"><div class="lh-top"><span class="dot" style="background:${s.color}"></span>${esc(s.label)}</div><span class="cnt">${items.length} ${items.length===1?'product':'products'}</span>${chev}</div>
       <div class="lane-list">${items.map(l=>{
         const r=readiness(l);
         return `<div class="pcard" data-id="${l.id}"><div class="pn">${esc(l.name||'')}</div>
@@ -1074,8 +1106,18 @@ function renderPipeline(){
           <div class="code">${esc(l.code||'')}</div></div>`;
       }).join('')||'<div class="lane-empty">—</div>'}</div></div>`;
   }).join('')}</div>`;
-  document.querySelectorAll('.pcard').forEach(c=>c.onclick=()=>openDrawer(c.dataset.id));
-  document.querySelectorAll('.pipe-filter button').forEach(b=>b.onclick=()=>{ PIPE_TYPE=b.dataset.type; renderPipeline(); });
+  document.querySelectorAll('.pcard').forEach(c=>c.onclick=ev=>{ ev.stopPropagation(); openDrawer(c.dataset.id); });
+  document.querySelectorAll('.pipe-filter button[data-type]').forEach(b=>b.onclick=()=>{ PIPE_TYPE=b.dataset.type; renderPipeline(); });
+  document.querySelectorAll('.pipe-filter button[data-act]').forEach(b=>b.onclick=()=>{
+    const collapse=b.dataset.act==='collapse';
+    lanes.forEach(s=>{ LANE_COLLAPSED[s.key]=collapse; });
+    saveLaneState(); renderPipeline();
+  });
+  document.querySelectorAll('.lane-head').forEach(h=>{
+    const toggle=()=>{ const k=h.dataset.stage; LANE_COLLAPSED[k]=!LANE_COLLAPSED[k]; saveLaneState(); renderPipeline(); };
+    h.onclick=toggle;
+    h.onkeydown=ev=>{ if(ev.key==='Enter'||ev.key===' '){ ev.preventDefault(); toggle(); } };
+  });
 }
 
 /* ---------------- products tab ---------------- */
