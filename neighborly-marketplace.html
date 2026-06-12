@@ -154,6 +154,12 @@
   .advance{width:100%;border:0;background:var(--accent);color:#fff;font-family:inherit;font-weight:700;font-size:14px;padding:13px;border-radius:11px;cursor:pointer;margin-top:6px}
   .advance:disabled{background:#d8d5cd;cursor:not-allowed}
   .advance.live{background:var(--green-ink)}
+  /* Reject button — secondary action that auto-emails the brand using
+     their intake email and archives the launch (Comment #3). Discreet
+     styling so it doesn't compete with the primary Advance button. */
+  .reject-btn{width:100%;border:1px solid #d3a59a;background:#fbf2f0;color:#a32d2d;font-family:inherit;font-weight:600;font-size:12.5px;padding:9px 12px;border-radius:9px;cursor:pointer;margin-top:10px;transition:.15s}
+  .reject-btn:hover{background:#f4e3df;border-color:#a32d2d}
+  .rejected-banner{margin-top:8px;padding:9px 12px;background:#fbf2f0;border:1px solid #efd9d3;color:#a32d2d;border-radius:9px;font-size:12px;font-weight:600}
   .log{margin-top:18px;font-size:12px}
   .log h4{font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin:0 0 8px}
   .log .e{display:flex;gap:8px;padding:4px 0;color:#56524b}
@@ -273,6 +279,16 @@
   .intake-foot .btn-secondary{background:#f1efe9;color:var(--ink);border:0;font-family:inherit;font-weight:600;font-size:13px;padding:9px 14px;border-radius:9px;cursor:pointer}
   .intake-foot .btn-primary{background:var(--ink);color:#fff;border:0;font-family:inherit;font-weight:600;font-size:13px;padding:9px 16px;border-radius:9px;cursor:pointer}
   .intake-foot .btn-primary:disabled{background:#9b988f;cursor:not-allowed}
+  /* Checkbox grid for the "received from brand at intake?" flags
+     (Comment #5 in the FigJam catalog). Each toggle is a labelled
+     pill — sub-grid so they wrap cleanly across the 2-col layout. */
+  .intake-checks{display:grid;grid-template-columns:1fr 1fr;gap:8px 14px}
+  @media (max-width:520px){ .intake-checks{grid-template-columns:1fr} }
+  .intake-check{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--ink);background:#fbfaf7;border:1px solid var(--line-soft);border-radius:8px;padding:7px 11px;cursor:pointer;transition:.12s}
+  .intake-check:hover{border-color:var(--line)}
+  .intake-check input{accent-color:var(--green-ink);width:15px;height:15px;flex-shrink:0;cursor:pointer}
+  .intake-check input:checked + span{color:var(--green-ink);font-weight:600}
+  .intake-check span{font-weight:500}
   /* gantt */
   .gantt{background:#fff;border:1px solid var(--line-soft);border-radius:14px;box-shadow:var(--shadow);overflow:hidden}
   .grow{display:grid;grid-template-columns:230px repeat(var(--gn,8),minmax(0,1fr)) 86px;align-items:center;border-top:1px solid var(--line-soft)}
@@ -428,6 +444,36 @@
         <div class="intake-field wide"><label for="iNotes">Notes</label><textarea id="iNotes" name="notes" rows="2" placeholder="Anything procurement / compliance should know"></textarea></div>
       </div>
     </div>
+
+    <!-- Brand Assets received (Comment #5 in the Figma catalog).
+         Pre-flag which assets the brand handed over at intake so
+         downstream teams (Marketing, Compliance) know what's already
+         in hand before they open their stage tasks. -->
+    <div class="intake-group">
+      <h4>Brand Assets received at intake</h4>
+      <div class="intake-checks">
+        <label class="intake-check"><input type="checkbox" name="assetImages"><span>Product Images</span></label>
+        <label class="intake-check"><input type="checkbox" name="assetLogo"><span>Brand Logo</span></label>
+        <label class="intake-check"><input type="checkbox" name="assetStory"><span>Brand Story</span></label>
+      </div>
+    </div>
+
+    <!-- Compliance docs received at intake (Comment #5 in the Figma
+         catalog). Brand may have already provided some of these on
+         submission — checking them here pre-marks the matching tasks
+         in the Compliance stage so AP isn't chasing what's already on
+         file. -->
+    <div class="intake-group">
+      <h4>Compliance docs received at intake</h4>
+      <div class="intake-checks">
+        <label class="intake-check"><input type="checkbox" name="compW9"><span>W-9</span></label>
+        <label class="intake-check"><input type="checkbox" name="compCoi"><span>Insurance (COI)</span></label>
+        <label class="intake-check"><input type="checkbox" name="compNutrition"><span>Nutrition Panel</span></label>
+        <label class="intake-check"><input type="checkbox" name="compIngredients"><span>Ingredient Statement</span></label>
+        <label class="intake-check"><input type="checkbox" name="compAllergen"><span>Allergen Info</span></label>
+        <label class="intake-check"><input type="checkbox" name="compSpec"><span>Product Spec Sheet</span></label>
+      </div>
+    </div>
   </form>
   <div class="intake-foot">
     <button type="button" class="btn-secondary" onclick="window._closeIntake()">Cancel</button>
@@ -497,11 +543,11 @@ const TASK_TEMPLATES=[
   /* Discovery — Marketplace */
   {stage:'discovery',dept:'Marketplace',label:'Product intake form completed',owner:'Marketplace Lead',def:'Intake form submitted with brand, product, category & contact captured'},
   {stage:'discovery',dept:'Marketplace',label:'Brand submitted & logged',owner:'Marketplace Lead',def:'Brand record created in the pipeline'},
-  {stage:'discovery',dept:'Marketplace',label:'Samples requested from brand',owner:'Marketplace Lead',def:'Sample request sent to vendor with ship-to address',inputs:[
-    {key:'trackingLink',label:'Tracking link',type:'url',placeholder:'https://…'},
+  {stage:'discovery',dept:'Marketplace',label:'Samples requested from brand',owner:'Marketplace Lead',def:'Sample request sent to vendor with ship-to address',notify:'Commissary',notifyMsg:'Sample shipment incoming — please track receipt and forward to Marketplace for tasting.',inputs:[
+    {key:'trackingLink',label:'Tracking link',type:'url',placeholder:'https://… — Commissary uses this'},
     {key:'carrier',label:'Carrier',type:'text',placeholder:'UPS / FedEx / USPS'}
   ]},
-  {stage:'discovery',dept:'Marketplace',label:'Samples received',owner:'Marketplace Lead',def:'Physical samples in hand and logged',inputs:[
+  {stage:'discovery',dept:'Marketplace',label:'Samples received',owner:'Marketplace Lead',def:'Physical samples in hand and logged at commissary, forwarded for tasting',notify:'Marketplace',notifyMsg:'Samples received and logged at commissary — ready for Marketplace tasting.',inputs:[
     {key:'receivedDate',label:'Date received',type:'date'}
   ]},
   /* Sample Review — Marketplace */
@@ -614,13 +660,34 @@ const PL_TASK_TEMPLATES=[
   {stage:'discovery',dept:'Marketplace',label:'Concept brief approved',owner:'Marketplace Lead',def:'Product concept, positioning & target margin signed off'},
   {stage:'discovery',dept:'Marketplace',label:'Co-packer / manufacturer identified',owner:'Marketplace Lead',def:'Short-list narrowed to a single co-packer or manufacturer',inputs:[{key:'coPacker',label:'Co-packer',type:'text',placeholder:'Vendor name'}]},
   {stage:'discovery',dept:'Marketplace',label:'Co-packer NDA signed',owner:'Marketplace Lead',def:'NDA executed before sharing formulation / brand',file:true},
-  {stage:'discovery',dept:'Marketplace',label:'Initial samples / R&D batch requested',owner:'Marketplace Lead',def:'First samples or R&D run requested from the co-packer',inputs:[{key:'trackingLink',label:'Tracking link',type:'url',placeholder:'https://…'}]},
+  {stage:'discovery',dept:'Marketplace',label:'Initial samples / R&D batch requested',owner:'Marketplace Lead',def:'First samples or R&D run requested from the co-packer',notify:'Commissary',notifyMsg:'R&D sample shipment incoming — please track receipt and forward to Marketplace for tasting.',inputs:[
+    {key:'trackingLink',label:'Tracking link',type:'url',placeholder:'https://… — Commissary uses this'},
+    {key:'carrier',label:'Carrier',type:'text',placeholder:'UPS / FedEx / freight'}
+  ]},
   /* Sample Review — Marketplace */
   {stage:'sample',dept:'Marketplace',label:'Internal tasting / QC',owner:'Marketplace Lead',def:'Internal panel signs off on taste, texture, appearance'},
   {stage:'sample',dept:'Marketplace',label:'Final formulation locked',owner:'Marketplace Lead',def:'Formulation locked with the co-packer — no further changes',file:true},
   {stage:'sample',dept:'Marketplace',label:'Margin model approved',owner:'Marketplace Lead',def:'Projected margin meets or exceeds threshold at locked landed cost'},
   {stage:'sample',dept:'Marketplace',label:'Assortment fit confirmed',owner:'Marketplace Lead',def:'Confirmed this SKU complements (not cannibalizes) the assortment'},
-  {stage:'sample',dept:'Marketplace',label:'Packaging design approved',owner:'Marketplace Lead',def:'Final packaging artwork approved internally',blocking:false,file:true},
+  {stage:'sample',dept:'Marketplace',label:'Packaging design approved',owner:'Marketplace Lead',def:'Final packaging artwork approved internally',blocking:false,file:true,inputs:[
+    {key:'packagingType',label:'Packaging type',type:'text',placeholder:'e.g. pouch, jar, carton'},
+    {key:'packagingSize',label:'Packaging size',type:'text',placeholder:'e.g. 12 oz / 24 ct'},
+    {key:'packagingLink',label:'Packaging link',type:'url',placeholder:'https://… spec or supplier link'}
+  ]},
+  /* Private Label Marketplace follow-ups from Comment #14 — capturing
+     the target launch date, the PARs set with Culinary, and the Jolt
+     label-printing entry that PL launches need before they can ship
+     to stores. */
+  {stage:'sample',dept:'Marketplace',label:'Assign target launch date',owner:'Marketplace Lead',def:'Target launch date confirmed with Culinary + Ops',inputs:[
+    {key:'targetLaunchDate',label:'Target launch date',type:'date'}
+  ]},
+  {stage:'sample',dept:'Marketplace',label:'Set PARs with Culinary',owner:'Marketplace Lead',def:'Initial PARs set jointly with Culinary',inputs:[
+    {key:'parQty',label:'PAR (units)',type:'text',placeholder:'qty'},
+    {key:'parWindow',label:'PAR window',type:'text',placeholder:'e.g. 1 week / 2 weeks'}
+  ]},
+  {stage:'sample',dept:'Marketplace',label:'Add item info to Jolt Label Printing',owner:'Marketplace Lead',def:'Item entered in Jolt so kitchen labels print correctly',inputs:[
+    {key:'joltLink',label:'Jolt item link',type:'url',placeholder:'https://… Jolt entry'}
+  ]},
   {stage:'sample',dept:'Marketplace',label:'Asset: Product images received',owner:'Marketplace Lead',def:'Hi-res product images shot / on file',blocking:false,file:true},
   {stage:'sample',dept:'Marketplace',label:'Asset: Brand story written',owner:'Marketplace Lead',def:'In-house brand story copy drafted',blocking:false,notify:'Marketing',notifyMsg:'Brand story written — available for Marketing to use in product copy.'},
   /* Commercial — Procurement (co-packer terms in lieu of vendor docs) */
@@ -650,6 +717,11 @@ const PL_TASK_TEMPLATES=[
   {stage:'commissary',dept:'Commissary',label:'Assign storage location (Shelf / Refrigerator / Freezer)',owner:'Commissary Manager',def:'Specific storage location & class assigned'},
   {stage:'commissary',dept:'Commissary',label:'Check R365 item created / on order guide',owner:'Commissary Manager',def:'Verified the R365 item exists and is on the guide'},
   {stage:'commissary',dept:'Commissary',label:'Set 2-week PAR',owner:'Commissary Manager',def:'2-week PAR level set in the system'},
+  /* Private Label needs ingredient-level PARs too — for any component
+     produced in-house, each ingredient gets its own PAR (Comment #15). */
+  {stage:'commissary',dept:'Commissary',label:'Set ingredient PARs',owner:'Commissary Manager',def:'Per-ingredient PARs entered for each component of this PL recipe',inputs:[
+    {key:'ingredientParLink',label:'Ingredient PAR sheet',type:'url',placeholder:'https://… linked PAR doc'}
+  ]},
   {stage:'commissary',dept:'Commissary',label:'Receiving SOP written',owner:'Commissary Manager',def:'Receiving SOP documented for this item',blocking:false},
   /* Operations / Marketing / Store / Review — same flow as CPG */
   {stage:'operations',dept:'Operations',label:'Confirm items on R365 order guide',owner:'Operations Manager',def:'Item verified on the store order guide'},
@@ -1080,8 +1152,10 @@ function renderDrawer(id){
     <div class="dbody">
       ${infoHtml}
       ${docsHtml}
+      ${l.rejected?`<div class="rejected-banner">✕ Rejected · ${esc(l.rejectReason||'no reason recorded')}</div>`:''}
       ${body||'<div class="empty">No tasks.</div>'}
       ${l.stage==='live'?`<button class="advance" style="margin-top:6px" onclick="window._advance('${id}')">Start 30-Day Review →</button>`:''}
+      ${(!l.rejected && l.stage!=='live')?`<button class="reject-btn" onclick="window._reject('${id}')">✕ Reject — notify brand &amp; archive</button>`:''}
       <div class="log"><h4>Activity</h4>${log.map(e=>`<div class="e"><span class="t">${esc(e.ts||'')}</span><span>${esc(e.text||'')}</span></div>`).join('')||'<div style="color:#9b988f">No activity yet.</div>'}</div></div>`;
   $('drawer').querySelectorAll('.sb-h').forEach(h=>h.onclick=()=>{const b=h.nextElementSibling;b.style.display=b.style.display==='none'?'':'none';});
   $('drawer').querySelectorAll('.ms-h').forEach(h=>h.onclick=()=>{const b=h.nextElementSibling;b.style.display=b.style.display==='none'?'':'none';});
@@ -1164,6 +1238,26 @@ function renderProductInfo(l){
   // back into Product Info so the tracking links, landed cost, Toast
   // item ID, Olo URL, etc. all read in one place alongside intake.
   // Empty if nothing's been captured on any task yet.
+  // Compliance docs / brand assets the brand flagged at intake. These
+  // pre-mark the matching task checkboxes (handled in submitIntake),
+  // and we surface them in Product Info too so AP / Marketing can see
+  // up front what's already in hand.
+  const intakeFlagsSection=(function(){
+    const c=l.intakeCompliance||{}, a=l.intakeAssets||{};
+    const flagged=[];
+    if(c.w9)           flagged.push(['Compliance', 'W-9']);
+    if(c.coi)          flagged.push(['Compliance', 'Insurance (COI)']);
+    if(c.nutrition)    flagged.push(['Compliance', 'Nutrition Panel']);
+    if(c.ingredients)  flagged.push(['Compliance', 'Ingredient Statement']);
+    if(c.allergen)     flagged.push(['Compliance', 'Allergen Info']);
+    if(c.spec)         flagged.push(['Compliance', 'Product Spec Sheet']);
+    if(a.images)       flagged.push(['Assets', 'Product Images']);
+    if(a.logo)         flagged.push(['Assets', 'Brand Logo']);
+    if(a.story)        flagged.push(['Assets', 'Brand Story']);
+    if(!flagged.length) return '';
+    const cells=flagged.map(([g,n])=>`<div class="info-cell"><span class="k">${esc(g)}</span><span class="v">✓ ${esc(n)}</span></div>`);
+    return `<div class="info-sub">Received at intake</div><div class="info-grid">${cells.join('')}</div>`;
+  })();
   const captured=(function(){
     const ts=tasksOf(l);
     const cells=[];
@@ -1184,7 +1278,7 @@ function renderProductInfo(l){
 
   return `<div class="info-card" id="infoCard">
     <div class="ic-h"><h4>Product Info</h4><span class="ic-c">Brand · Product</span><span class="ic-x">▾</span></div>
-    <div class="ic-b">${brand}${ident}${pack}${commercial}${logistics}${captured}${notes}</div>
+    <div class="ic-b">${brand}${ident}${pack}${commercial}${logistics}${intakeFlagsSection}${captured}${notes}</div>
   </div>`;
 }
 
@@ -1387,6 +1481,40 @@ async function _advance(id){
 }
 window._advance=_advance;
 
+/* Reject a launch and notify the brand using the email captured at
+   intake (Comment #3 in the FigJam catalog). Prompts the user for an
+   optional reason, writes a rejection record + log entry, and fires
+   an EmailJS message to the brand contact so they hear back instead
+   of being ghosted. Idempotent: a second click on an already-rejected
+   launch just toasts "Already rejected". */
+async function rejectLaunch(id){
+  const l=LAUNCHES[id]; if(!l) return;
+  if(l.rejected) return toast('Already rejected.');
+  const reason=prompt(`Reason for rejecting ${l.name||'this product'}? (Included in the brand notification — can be brief.)`,'Doesn’t fit current assortment direction at this time.');
+  if(reason===null) return; // cancelled
+  const b=BRANDS[l.brandId]||{};
+  const brandEmail=(b.email||'').trim();
+  if(!brandEmail && !confirm('No brand email on file — reject without notifying the brand?')) return;
+  const now=Date.now();
+  const logs=(Array.isArray(l.log)?l.log:Object.values(l.log||{})).slice();
+  logs.push({text:`✕ Rejected — ${reason||'no reason given'}`,ts:nowTs()});
+  await db.ref().update({
+    ['marketplace-npi/launches/'+id+'/rejected']:true,
+    ['marketplace-npi/launches/'+id+'/rejectedAt']:now,
+    ['marketplace-npi/launches/'+id+'/rejectReason']:reason||'',
+    ['marketplace-npi/launches/'+id+'/log']:logs
+  });
+  if(brandEmail && NOTIFY){
+    const msg=`Thanks for sharing ${l.name||'your product'} with Neighborly. After review we won't be moving forward with this product at this time.`
+      +(reason?`\n\nNotes: ${reason}`:'')
+      +`\n\nWe appreciate the submission — please feel free to share future products as your assortment evolves. — Neighborly Marketplace`;
+    sendEmail(brandEmail,'Brand',l,{stage:'Rejected',message:msg});
+  }
+  toast(brandEmail?'Rejected — brand notified':'Rejected (no brand email on file)');
+  renderDrawer(id);
+}
+window._reject=rejectLaunch;
+
 /* Open the Product Intake Form modal — replaces the legacy 3-prompt
    addProduct so every Brand Info + Product Info field is captured up
    front and persisted on the launch record. */
@@ -1407,11 +1535,18 @@ window._closeIntake=closeIntake;
 async function submitIntake(){
   const f=document.getElementById('intakeForm');
   const v=k=>{const el=f.elements.namedItem(k);return el?(el.value||'').trim():'';};
+  const ck=k=>{const el=f.elements.namedItem(k);return !!(el&&el.checked);};
   const name=v('sku');
   if(!name){ toast('SKU Name required'); document.getElementById('iSku').focus(); return; }
   const brand=v('brandName')||'Unknown';
   const cat =v('category')||'Uncategorized';
   const type=v('type')||'CPG';
+
+  // Brand assets + compliance docs flagged at intake (Comment #5).
+  // Used both as launch metadata and to pre-mark the matching task
+  // checkboxes so AP doesn't chase docs the brand already handed over.
+  const intakeAssets={images:ck('assetImages'),logo:ck('assetLogo'),story:ck('assetStory')};
+  const intakeCompliance={w9:ck('compW9'),coi:ck('compCoi'),nutrition:ck('compNutrition'),ingredients:ck('compIngredients'),allergen:ck('compAllergen'),spec:ck('compSpec')};
 
   const btn=document.getElementById('intakeSubmit');
   if(btn) btn.disabled=true;
@@ -1451,6 +1586,26 @@ async function submitIntake(){
     // model) — buildTasks(type) picks the right template set.
     const tmpl=buildTasks(type);
 
+    // Pre-mark any tasks whose corresponding asset / compliance doc the
+    // brand already handed over at intake. Map by label so it works
+    // across both CPG and PL template sets.
+    const nowDoneAt=now;
+    const preDoneMap={
+      'Asset: Product images received':       intakeAssets.images,
+      'Asset: Brand logo received':           intakeAssets.logo,
+      'Asset: Brand story received':          intakeAssets.story,
+      'Collect + upload W-9':                 intakeCompliance.w9,
+      'Collect + upload Insurance (COI)':     intakeCompliance.coi,
+      'Nutrition panel on file':              intakeCompliance.nutrition,
+      'Nutrition panel approved':             intakeCompliance.nutrition,
+      'Ingredient statement on file':         intakeCompliance.ingredients,
+      'Ingredient statement approved':        intakeCompliance.ingredients,
+      'Allergen information on file':         intakeCompliance.allergen,
+      'Allergen information confirmed':       intakeCompliance.allergen,
+      'Product spec sheet on file':           intakeCompliance.spec
+    };
+    tmpl.forEach(t=>{ if(preDoneMap[t.label]){ t.done=true; t.doneAt=nowDoneAt; } });
+
     upd['marketplace-npi/launches/'+id]={
       id, brandId, name, type,
       code:'NPI-2026-'+String(maxCode+1).padStart(3,'0'),
@@ -1464,6 +1619,7 @@ async function submitIntake(){
       leadTime:v('leadTime'),
       primaryDistribution:v('primaryDistribution'),
       notes:v('notes'),
+      intakeAssets, intakeCompliance,
       launchDate:'', priority:'Med',
       stage:'discovery', stageEnteredAt:now, createdAt:now,
       triggersFired:[],
