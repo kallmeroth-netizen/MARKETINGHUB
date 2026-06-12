@@ -147,6 +147,11 @@
   .task .tbody{flex:1;min-width:0}
   .task-meta{font-size:11px;color:var(--muted);opacity:.9;margin-top:2px;line-height:1.45}
   .task-file{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:5px}
+  /* Reference link button next to a task — e.g. the "Open R365 →"
+     button on every R365 / Synergy task so the team doesn't have to
+     hunt for the login URL. Sits in line with the task meta row. */
+  .task-link{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;color:var(--accent);background:rgba(98,128,189,.08);border:1px solid rgba(98,128,189,.18);border-radius:7px;padding:3px 9px;text-decoration:none;margin-top:6px;width:max-content;transition:.12s}
+  .task-link:hover{background:rgba(98,128,189,.14);border-color:var(--accent)}
   .file-btn{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;color:var(--accent);border:1px dashed var(--line);border-radius:7px;padding:3px 9px;cursor:pointer}
   .file-btn:hover{border-color:var(--accent);background:rgba(98,128,189,.06)}
   .file-link{display:inline-flex;align-items:center;gap:4px;max-width:100%;font-size:11.5px;font-weight:600;color:var(--accent);text-decoration:none;background:rgba(98,128,189,.08);border-radius:7px;padding:3px 9px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -242,6 +247,12 @@
   .task-input input{flex:1;min-width:0;font-family:inherit;font-size:12.5px;padding:6px 30px 6px 11px;border:1px solid var(--line);border-radius:7px;background:#fff;color:var(--ink);outline:none;transition:border-color .12s;text-overflow:ellipsis}
   .task-input input:focus{border-color:var(--accent)}
   .task-input input[type=url].has-value{background:rgba(98,128,189,.05)}
+  /* Required input — small red asterisk + red focus ring + soft-red
+     background when empty so it's obvious which field must be filled
+     before the task can be checked off. */
+  .task-input.required label::after{content:' *';color:#a32d2d;font-weight:700}
+  .task-input.required input:placeholder-shown{border-color:#e6c4be;background:#fdf6f4}
+  .task-input.required input:focus{border-color:#a32d2d;box-shadow:0 0 0 2px rgba(163,45,45,.10)}
   /* Brief "✓ saved" badge that fades in after a successful blur-save. */
   .task-input .ti-saved{position:absolute;right:10px;font-size:10px;font-weight:700;color:var(--green-ink);opacity:0;pointer-events:none;transition:opacity .15s}
   .task-input.saved .ti-saved{opacity:1}
@@ -252,43 +263,60 @@
     .task-input .ti-saved{position:static;align-self:flex-end;margin-top:2px}
   }
 
-  /* ===== Intake form modal — slides in like the drawer but opens
-     for the "+ New product" button instead of an existing record.
-     Captures the full Brand Info + Product Info up front so every
-     downstream step (procurement handoff, compliance, etc.) can
-     pull from one source. */
-  .intake{position:fixed;top:0;right:0;height:100%;width:min(620px,96vw);background:var(--bg);box-shadow:-12px 0 40px rgba(0,0,0,.18);transform:translateX(100%);transition:.22s;z-index:55;overflow-y:auto;display:flex;flex-direction:column}
-  .intake.show{transform:none}
-  .intake .ih{position:sticky;top:0;background:#fff;border-bottom:1px solid var(--line);padding:18px 24px;z-index:2}
-  .intake .ih .x{position:absolute;top:16px;right:18px;border:0;background:#f1efe9;width:30px;height:30px;border-radius:8px;font-size:16px;cursor:pointer;color:var(--muted)}
-  .intake .ih h3{margin:0;font-size:17px;font-weight:700;letter-spacing:-.2px}
-  .intake .ih p{margin:3px 0 0;font-size:12.5px;color:var(--muted)}
-  .intake .ib{padding:18px 24px 24px;display:flex;flex-direction:column;gap:22px}
-  .intake-group{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px 18px}
-  .intake-group h4{margin:0 0 12px;font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);font-weight:700}
-  .intake-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px 14px}
-  @media (max-width:600px){ .intake-grid{grid-template-columns:1fr} }
-  .intake-field{display:flex;flex-direction:column;gap:4px;min-width:0}
+  /* ===== Intake form modal — centered overlay on top of the page so
+     the form has room to breathe. Larger fields + more spacing than
+     the old slide-in drawer. The page scrim sits behind it for click-
+     outside-to-close. Captures the full Brand Info + Product Info up
+     front so every downstream step (procurement handoff, compliance,
+     etc.) can pull from one source. */
+  .intake{position:fixed;top:50%;left:50%;transform:translate(-50%,calc(-50% + 24px));width:min(880px,calc(100vw - 32px));max-height:min(92vh,860px);background:#fff;box-shadow:0 28px 70px rgba(0,0,0,.30);border-radius:18px;opacity:0;pointer-events:none;transition:opacity .22s ease, transform .22s ease;z-index:55;overflow:hidden;display:flex;flex-direction:column}
+  .intake.show{transform:translate(-50%,-50%);opacity:1;pointer-events:auto}
+  .intake .ih{flex-shrink:0;background:#fff;border-bottom:1px solid var(--line);padding:22px 28px}
+  .intake .ih .x{position:absolute;top:18px;right:22px;border:0;background:#f1efe9;width:32px;height:32px;border-radius:9px;font-size:17px;cursor:pointer;color:var(--muted)}
+  .intake .ih h3{margin:0;font-size:19px;font-weight:700;letter-spacing:-.3px}
+  .intake .ih p{margin:5px 0 0;font-size:13px;color:var(--muted);line-height:1.45}
+  .intake .ib{flex:1;min-height:0;overflow-y:auto;padding:22px 28px 26px;display:flex;flex-direction:column;gap:22px}
+  .intake-group{background:#fff;border:1px solid var(--line);border-radius:14px;padding:20px 22px}
+  .intake-group h4{margin:0 0 16px;font-size:12px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);font-weight:700}
+  /* 2-col by default; 3-col on wider modal widths so the Product Info
+     block (14 fields) doesn't stretch into a tall ladder. */
+  .intake-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 18px}
+  @media (min-width:760px){ .intake-grid{grid-template-columns:repeat(3,minmax(0,1fr))} }
+  @media (max-width:520px){ .intake-grid{grid-template-columns:1fr} }
+  .intake-field{display:flex;flex-direction:column;gap:6px;min-width:0}
   .intake-field.wide{grid-column:1 / -1}
-  .intake-field label{font-size:11px;font-weight:600;letter-spacing:.02em;color:var(--muted)}
+  .intake-field label{font-size:11.5px;font-weight:600;letter-spacing:.02em;color:var(--muted);line-height:1.2}
   .intake-field .req{color:var(--accent)}
-  .intake-field input,.intake-field select,.intake-field textarea{font-family:inherit;font-size:13.5px;padding:8px 11px;border:1px solid var(--line);border-radius:9px;background:#fff;color:var(--ink);outline:none;transition:border-color .12s;width:100%}
-  .intake-field input:focus,.intake-field select:focus,.intake-field textarea:focus{border-color:var(--accent)}
-  .intake-field textarea{resize:vertical;min-height:60px}
-  .intake-foot{display:flex;justify-content:flex-end;gap:8px;padding:14px 24px;border-top:1px solid var(--line);background:#fff;position:sticky;bottom:0}
-  .intake-foot .btn-secondary{background:#f1efe9;color:var(--ink);border:0;font-family:inherit;font-weight:600;font-size:13px;padding:9px 14px;border-radius:9px;cursor:pointer}
-  .intake-foot .btn-primary{background:var(--ink);color:#fff;border:0;font-family:inherit;font-weight:600;font-size:13px;padding:9px 16px;border-radius:9px;cursor:pointer}
+  /* Larger inputs — taller, bigger type, more left-padding — so the
+     fields read as "easy to fill" not "data-entry tedious". */
+  .intake-field input,.intake-field select,.intake-field textarea{font-family:inherit;font-size:14.5px;padding:11px 14px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink);outline:none;transition:border-color .12s, box-shadow .12s;width:100%}
+  .intake-field input::placeholder,.intake-field textarea::placeholder{color:#bcb9b1}
+  .intake-field input:focus,.intake-field select:focus,.intake-field textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(98,128,189,.10)}
+  .intake-field textarea{resize:vertical;min-height:72px}
+  .intake-foot{flex-shrink:0;display:flex;justify-content:flex-end;gap:10px;padding:16px 28px;border-top:1px solid var(--line);background:#fff}
+  .intake-foot .btn-secondary{background:#f1efe9;color:var(--ink);border:0;font-family:inherit;font-weight:600;font-size:13.5px;padding:11px 16px;border-radius:10px;cursor:pointer}
+  .intake-foot .btn-primary{background:var(--ink);color:#fff;border:0;font-family:inherit;font-weight:600;font-size:13.5px;padding:11px 20px;border-radius:10px;cursor:pointer}
   .intake-foot .btn-primary:disabled{background:#9b988f;cursor:not-allowed}
-  /* Checkbox grid for the "received from brand at intake?" flags
-     (Comment #5 in the FigJam catalog). Each toggle is a labelled
-     pill — sub-grid so they wrap cleanly across the 2-col layout. */
-  .intake-checks{display:grid;grid-template-columns:1fr 1fr;gap:8px 14px}
-  @media (max-width:520px){ .intake-checks{grid-template-columns:1fr} }
-  .intake-check{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--ink);background:#fbfaf7;border:1px solid var(--line-soft);border-radius:8px;padding:7px 11px;cursor:pointer;transition:.12s}
-  .intake-check:hover{border-color:var(--line)}
-  .intake-check input{accent-color:var(--green-ink);width:15px;height:15px;flex-shrink:0;cursor:pointer}
-  .intake-check input:checked + span{color:var(--green-ink);font-weight:600}
-  .intake-check span{font-weight:500}
+  /* Rows for the "received from brand at intake?" capture
+     (Comment #5 in the FigJam catalog + the file-upload-at-intake
+     follow-up). Each row has a checkbox to flag receipt + an "Add
+     file" picker so the actual document can ride along with the
+     intake form, get hosted in Firebase Storage, and appear in the
+     Documents panel like any other uploaded file. */
+  .intake-rows{display:flex;flex-direction:column;gap:6px}
+  .intake-row{display:flex;align-items:center;gap:10px;background:#fbfaf7;border:1px solid var(--line-soft);border-radius:8px;padding:7px 11px;font-size:12.5px;transition:.12s}
+  .intake-row:hover{border-color:var(--line)}
+  .intake-row > input[type=checkbox]{accent-color:var(--green-ink);width:15px;height:15px;flex-shrink:0;cursor:pointer;margin:0}
+  .intake-row-label{flex:1;color:var(--ink);font-weight:500;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .intake-row-label.checked{color:var(--green-ink);font-weight:600}
+  .intake-upload{font-size:11px;font-weight:600;color:var(--accent);border:1px dashed var(--line);border-radius:7px;padding:3px 9px;cursor:pointer;white-space:nowrap;flex-shrink:0}
+  .intake-upload:hover{border-color:var(--accent);background:rgba(98,128,189,.06)}
+  .intake-row.has-file .intake-upload{background:rgba(98,128,189,.10);border-style:solid}
+  .intake-row-file{font-size:11px;color:var(--accent);font-weight:600;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex-shrink:1;min-width:0}
+  @media (max-width:520px){
+    .intake-row{flex-wrap:wrap}
+    .intake-row-file{flex-basis:100%}
+  }
   /* gantt */
   .gantt{background:#fff;border:1px solid var(--line-soft);border-radius:14px;box-shadow:var(--shadow);overflow:hidden}
   .grow{display:grid;grid-template-columns:230px repeat(var(--gn,8),minmax(0,1fr)) 86px;align-items:center;border-top:1px solid var(--line-soft)}
@@ -446,32 +474,34 @@
     </div>
 
     <!-- Brand Assets received (Comment #5 in the Figma catalog).
-         Pre-flag which assets the brand handed over at intake so
-         downstream teams (Marketing, Compliance) know what's already
-         in hand before they open their stage tasks. -->
+         Each row: checkbox to flag receipt + Add file picker. Files
+         upload to Firebase Storage on submit and attach to the
+         matching task (Asset: Product images / Brand logo / Brand
+         story), so they show up in the Documents preview panel like
+         everything else. -->
     <div class="intake-group">
       <h4>Brand Assets received at intake</h4>
-      <div class="intake-checks">
-        <label class="intake-check"><input type="checkbox" name="assetImages"><span>Product Images</span></label>
-        <label class="intake-check"><input type="checkbox" name="assetLogo"><span>Brand Logo</span></label>
-        <label class="intake-check"><input type="checkbox" name="assetStory"><span>Brand Story</span></label>
+      <div class="intake-rows">
+        <label class="intake-row"><input type="checkbox" name="assetImages"><span class="intake-row-label">Product Images</span><span class="intake-row-file" data-for="assetImages"></span><label class="intake-upload">⬆ Add file<input type="file" hidden data-key="assetImages" data-group="asset" accept="image/*,.pdf"></label></label>
+        <label class="intake-row"><input type="checkbox" name="assetLogo"><span class="intake-row-label">Brand Logo</span><span class="intake-row-file" data-for="assetLogo"></span><label class="intake-upload">⬆ Add file<input type="file" hidden data-key="assetLogo" data-group="asset" accept="image/*,.pdf,.svg"></label></label>
+        <label class="intake-row"><input type="checkbox" name="assetStory"><span class="intake-row-label">Brand Story</span><span class="intake-row-file" data-for="assetStory"></span><label class="intake-upload">⬆ Add file<input type="file" hidden data-key="assetStory" data-group="asset" accept=".pdf,.doc,.docx,.txt"></label></label>
       </div>
     </div>
 
-    <!-- Compliance docs received at intake (Comment #5 in the Figma
-         catalog). Brand may have already provided some of these on
-         submission — checking them here pre-marks the matching tasks
-         in the Compliance stage so AP isn't chasing what's already on
-         file. -->
+    <!-- Approvals: Compliance docs received at intake (Comment #5).
+         Same checkbox + file-upload pattern as Brand Assets. Pre-marks
+         and pre-fills the matching Approvals-stage tasks (W-9, COI,
+         Nutrition, Ingredients, Allergens, Spec) so AP isn't chasing
+         what's already on file. -->
     <div class="intake-group">
-      <h4>Compliance docs received at intake</h4>
-      <div class="intake-checks">
-        <label class="intake-check"><input type="checkbox" name="compW9"><span>W-9</span></label>
-        <label class="intake-check"><input type="checkbox" name="compCoi"><span>Insurance (COI)</span></label>
-        <label class="intake-check"><input type="checkbox" name="compNutrition"><span>Nutrition Panel</span></label>
-        <label class="intake-check"><input type="checkbox" name="compIngredients"><span>Ingredient Statement</span></label>
-        <label class="intake-check"><input type="checkbox" name="compAllergen"><span>Allergen Info</span></label>
-        <label class="intake-check"><input type="checkbox" name="compSpec"><span>Product Spec Sheet</span></label>
+      <h4>Approvals — docs received at intake</h4>
+      <div class="intake-rows">
+        <label class="intake-row"><input type="checkbox" name="compW9"><span class="intake-row-label">W-9</span><span class="intake-row-file" data-for="compW9"></span><label class="intake-upload">⬆ Add file<input type="file" hidden data-key="compW9" data-group="compliance" accept=".pdf,image/*"></label></label>
+        <label class="intake-row"><input type="checkbox" name="compCoi"><span class="intake-row-label">Insurance (COI)</span><span class="intake-row-file" data-for="compCoi"></span><label class="intake-upload">⬆ Add file<input type="file" hidden data-key="compCoi" data-group="compliance" accept=".pdf,image/*"></label></label>
+        <label class="intake-row"><input type="checkbox" name="compNutrition"><span class="intake-row-label">Nutrition Panel</span><span class="intake-row-file" data-for="compNutrition"></span><label class="intake-upload">⬆ Add file<input type="file" hidden data-key="compNutrition" data-group="compliance" accept=".pdf,image/*"></label></label>
+        <label class="intake-row"><input type="checkbox" name="compIngredients"><span class="intake-row-label">Ingredient Statement</span><span class="intake-row-file" data-for="compIngredients"></span><label class="intake-upload">⬆ Add file<input type="file" hidden data-key="compIngredients" data-group="compliance" accept=".pdf,image/*"></label></label>
+        <label class="intake-row"><input type="checkbox" name="compAllergen"><span class="intake-row-label">Allergen Info</span><span class="intake-row-file" data-for="compAllergen"></span><label class="intake-upload">⬆ Add file<input type="file" hidden data-key="compAllergen" data-group="compliance" accept=".pdf,image/*"></label></label>
+        <label class="intake-row"><input type="checkbox" name="compSpec"><span class="intake-row-label">Product Spec Sheet</span><span class="intake-row-file" data-for="compSpec"></span><label class="intake-upload">⬆ Add file<input type="file" hidden data-key="compSpec" data-group="compliance" accept=".pdf,image/*"></label></label>
       </div>
     </div>
   </form>
@@ -516,7 +546,7 @@ const STAGES=[
   {key:'discovery', label:'Discovery',     dept:'Marketplace', color:'#a9a6bd'},
   {key:'sample',    label:'Sample Review', dept:'Marketplace', color:'#cbb3d6'},
   {key:'commercial',label:'Commercial',    dept:'Procurement', color:'#6280bd'},
-  {key:'compliance',label:'W-9',           dept:'Compliance',  color:'#b88fb8'},
+  {key:'compliance',label:'Approvals',     dept:'Compliance',  color:'#b88fb8'},
   {key:'erp',       label:'ERP / Synergy', dept:'Inventory',   color:'#69b0a5'},
   {key:'commissary',label:'Commissary',    dept:'Commissary',  color:'#dbc6a2'},
   {key:'operations',label:'Operations',    dept:'Operations',  color:'#7bbd91'},
@@ -544,24 +574,32 @@ const TASK_TEMPLATES=[
   {stage:'discovery',dept:'Marketplace',label:'Product intake form completed',owner:'Marketplace Lead',def:'Intake form submitted with brand, product, category & contact captured'},
   {stage:'discovery',dept:'Marketplace',label:'Brand submitted & logged',owner:'Marketplace Lead',def:'Brand record created in the pipeline'},
   {stage:'discovery',dept:'Marketplace',label:'Samples requested from brand',owner:'Marketplace Lead',def:'Sample request sent to vendor with ship-to address',notify:'Commissary',notifyMsg:'Sample shipment incoming — please track receipt and forward to Marketplace for tasting.',inputs:[
-    {key:'trackingLink',label:'Tracking link',type:'url',placeholder:'https://… — Commissary uses this'},
+    {key:'trackingLink',label:'Tracking link',type:'url',placeholder:'https://… — Commissary uses this',required:true},
     {key:'carrier',label:'Carrier',type:'text',placeholder:'UPS / FedEx / USPS'}
   ]},
   {stage:'discovery',dept:'Marketplace',label:'Samples received',owner:'Marketplace Lead',def:'Physical samples in hand and logged at commissary, forwarded for tasting',notify:'Marketplace',notifyMsg:'Samples received and logged at commissary — ready for Marketplace tasting.',inputs:[
     {key:'receivedDate',label:'Date received',type:'date'}
   ]},
   /* Sample Review — Marketplace */
-  {stage:'sample',dept:'Marketplace',label:'Tasting scheduled',owner:'Marketplace Lead',def:'Tasting date on the calendar with panel invited'},
-  {stage:'sample',dept:'Marketplace',label:'Taste approved',owner:'Marketplace Lead',def:'Tasting panel signed off on product quality'},
-  {stage:'sample',dept:'Marketplace',label:'Margin approved',owner:'Marketplace Lead',def:'Projected margin meets or exceeds threshold'},
-  {stage:'sample',dept:'Marketplace',label:'Assortment approved',owner:'Marketplace Lead',def:'SKU list confirmed for the assortment'},
+  {stage:'sample',dept:'Marketplace',label:'Tasting scheduled',owner:'Marketplace Lead',def:'Tasting date on the calendar with panel invited',inputs:[
+    {key:'tastingDate',label:'Tasting date',type:'date',required:true}
+  ]},
+  {stage:'sample',dept:'Marketplace',label:'Taste approved',owner:'Marketplace Lead',def:'Tasting panel signed off on product quality',file:true,inputs:[
+    {key:'tastingNotes',label:'Tasting notes',type:'text',placeholder:'panel feedback, flavor profile, follow-ups…'}
+  ]},
+  {stage:'sample',dept:'Marketplace',label:'Margin approved',owner:'Marketplace Lead',def:'Projected margin meets or exceeds threshold',inputs:[
+    {key:'margin',label:'Margin %',type:'text',placeholder:'e.g. 42%',required:true}
+  ]},
+  {stage:'sample',dept:'Marketplace',label:'Assortment approved',owner:'Marketplace Lead',def:'SKU list confirmed for the assortment — including up to 4 variations',inputs:[
+    {key:'variation1',label:'Variation 1',type:'text',placeholder:'e.g. Original'},
+    {key:'variation2',label:'Variation 2',type:'text',placeholder:'(optional)'},
+    {key:'variation3',label:'Variation 3',type:'text',placeholder:'(optional)'},
+    {key:'variation4',label:'Variation 4',type:'text',placeholder:'(optional)'}
+  ]},
   {stage:'sample',dept:'Marketplace',label:'Asset: Product images received',owner:'Marketplace Lead',def:'Hi-res product images on file',blocking:false,file:true},
   {stage:'sample',dept:'Marketplace',label:'Asset: Brand logo received',owner:'Marketplace Lead',def:'Vector/hi-res logo on file',blocking:false,file:true},
   {stage:'sample',dept:'Marketplace',label:'Asset: Brand story received',owner:'Marketplace Lead',def:'Brand story copy on file',blocking:false,file:true,notify:'Marketing',notifyMsg:'Brand story received — available for Marketing to draft product copy.'},
   /* Commercial — Procurement */
-  {stage:'commercial',dept:'Procurement',label:'Vendor setup started',owner:'Procurement Coordinator',def:'Vendor record opened in the system',inputs:[
-    {key:'vendorId',label:'Vendor ID',type:'text',placeholder:'R365 / Synergy vendor ID'}
-  ]},
   {stage:'commercial',dept:'Procurement',label:'Confirm MOQ & case pack',owner:'Procurement Coordinator',def:'Minimum order qty and units-per-case confirmed with vendor in writing',inputs:[
     {key:'confirmedMoq',label:'Confirmed MOQ',type:'text',placeholder:'units'},
     {key:'confirmedCasePack',label:'Confirmed case pack',type:'text',placeholder:'units / case'}
@@ -593,27 +631,27 @@ const TASK_TEMPLATES=[
   {stage:'compliance',dept:'Compliance',label:'Product spec sheet on file',owner:'AP Clerk',def:'Vendor product spec sheet uploaded',file:true},
   {stage:'compliance',dept:'Compliance',label:'Vendor documents cleared — vendor active',owner:'AP Clerk',def:'All compliance docs on file; vendor flagged active',notify:'Inventory',notifyMsg:'Vendor documents cleared — safe to create the R365/Synergy item & SKU.'},
   /* ERP / Synergy — Inventory */
-  {stage:'erp',dept:'Inventory',label:'Create R365 item',owner:'Synergy Admin',def:'Item created in R365 with correct UOM',inputs:[
+  {stage:'erp',dept:'Inventory',label:'Create R365 item',owner:'Synergy Admin',def:'Item created in R365 with correct UOM',link:{href:'https://www.restaurant365.com/logins/',label:'Open R365 →'},inputs:[
     {key:'r365ItemId',label:'R365 item ID',type:'text',placeholder:'e.g. 12345'}
   ]},
-  {stage:'erp',dept:'Inventory',label:'Create R365 recipe',owner:'Synergy Admin',def:'Recipe/build created in R365'},
-  {stage:'erp',dept:'Inventory',label:'Add Item Category 1 = Marketplace Item',owner:'Synergy Admin',def:'Category 1 set to "Marketplace Item"'},
-  {stage:'erp',dept:'Inventory',label:'Add to Marketplace order guide',owner:'Synergy Admin',def:'Item appears on the Marketplace order guide'},
-  {stage:'erp',dept:'Inventory',label:'Add to Commissary inventory guide',owner:'Synergy Admin',def:'Item on the Commissary inventory guide'},
-  {stage:'erp',dept:'Inventory',label:'Add to WLV/BW inventory guide',owner:'Synergy Admin',def:'Item on the WLV/BW inventory guide'},
-  {stage:'erp',dept:'Inventory',label:'Attach to Toast item (after Marketing rings up qty 1)',owner:'Synergy Admin',def:'R365 item linked to the Toast item once Marketing has created it',inputs:[
+  {stage:'erp',dept:'Inventory',label:'Create R365 recipe',owner:'Synergy Admin',def:'Recipe/build created in R365',link:{href:'https://www.restaurant365.com/logins/',label:'Open R365 →'}},
+  {stage:'erp',dept:'Inventory',label:'Add Item Category 1 = Marketplace Item',owner:'Synergy Admin',def:'Category 1 set to "Marketplace Item"',link:{href:'https://www.restaurant365.com/logins/',label:'Open R365 →'}},
+  {stage:'erp',dept:'Inventory',label:'Add to Marketplace order guide',owner:'Synergy Admin',def:'Item appears on the Marketplace order guide',link:{href:'https://www.restaurant365.com/logins/',label:'Open R365 →'}},
+  {stage:'erp',dept:'Inventory',label:'Add to Commissary inventory guide',owner:'Synergy Admin',def:'Item on the Commissary inventory guide',link:{href:'https://www.restaurant365.com/logins/',label:'Open R365 →'}},
+  {stage:'erp',dept:'Inventory',label:'Add to WLV/BW inventory guide',owner:'Synergy Admin',def:'Item on the WLV/BW inventory guide',link:{href:'https://www.restaurant365.com/logins/',label:'Open R365 →'}},
+  {stage:'erp',dept:'Inventory',label:'Attach to Toast item (after Marketing rings up qty 1)',owner:'Synergy Admin',def:'R365 item linked to the Toast item once Marketing has created it',link:{href:'https://www.restaurant365.com/logins/',label:'Open R365 →'},inputs:[
     {key:'toastItemId',label:'Toast item ID',type:'text',placeholder:'Toast SKU / item ID'}
   ]},
   /* Commissary */
   {stage:'commissary',dept:'Commissary',label:'Confirm sample received',owner:'Commissary Manager',def:'Sample physically received at commissary'},
   {stage:'commissary',dept:'Commissary',label:'Assign storage location (Shelf / Refrigerator / Freezer)',owner:'Commissary Manager',def:'Specific storage location & class assigned'},
-  {stage:'commissary',dept:'Commissary',label:'Check R365 item created / on order guide',owner:'Commissary Manager',def:'Verified the R365 item exists and is on the guide'},
+  {stage:'commissary',dept:'Commissary',label:'Check R365 item created / on order guide',owner:'Commissary Manager',def:'Verified the R365 item exists and is on the guide',link:{href:'https://www.restaurant365.com/logins/',label:'Open R365 →'}},
   {stage:'commissary',dept:'Commissary',label:'Confirm first fill received',owner:'Commissary Manager',def:'First-fill quantity received and counted'},
   {stage:'commissary',dept:'Commissary',label:'Set 2-week PAR',owner:'Commissary Manager',def:'2-week PAR level set in the system'},
   {stage:'commissary',dept:'Commissary',label:'Add ingredient PARs',owner:'Commissary Manager',def:'Component/ingredient PARs entered'},
   {stage:'commissary',dept:'Commissary',label:'Receiving SOP written',owner:'Commissary Manager',def:'Receiving SOP documented for this item',blocking:false},
   /* Operations */
-  {stage:'operations',dept:'Operations',label:'Confirm items on R365 order guide',owner:'Operations Manager',def:'Item verified on the store order guide'},
+  {stage:'operations',dept:'Operations',label:'Confirm items on R365 order guide',owner:'Operations Manager',def:'Item verified on the store order guide',link:{href:'https://www.restaurant365.com/logins/',label:'Open R365 →'}},
   {stage:'operations',dept:'Operations',label:'Assign shelf space on store planogram',owner:'Operations Manager',def:'Shelf location assigned on the planogram',notify:'Marketplace',notifyMsg:'Planogram shelf space assigned — please review & approve placement.'},
   {stage:'operations',dept:'Operations',label:'Confirm initial case/each qty to receive',owner:'Operations Manager',def:'Opening order quantity confirmed'},
   {stage:'operations',dept:'Operations',label:'Receive shelf tag (from Marketing)',owner:'Operations Manager',def:'Printed shelf tag received from Marketing'},
@@ -661,14 +699,24 @@ const PL_TASK_TEMPLATES=[
   {stage:'discovery',dept:'Marketplace',label:'Co-packer / manufacturer identified',owner:'Marketplace Lead',def:'Short-list narrowed to a single co-packer or manufacturer',inputs:[{key:'coPacker',label:'Co-packer',type:'text',placeholder:'Vendor name'}]},
   {stage:'discovery',dept:'Marketplace',label:'Co-packer NDA signed',owner:'Marketplace Lead',def:'NDA executed before sharing formulation / brand',file:true},
   {stage:'discovery',dept:'Marketplace',label:'Initial samples / R&D batch requested',owner:'Marketplace Lead',def:'First samples or R&D run requested from the co-packer',notify:'Commissary',notifyMsg:'R&D sample shipment incoming — please track receipt and forward to Marketplace for tasting.',inputs:[
-    {key:'trackingLink',label:'Tracking link',type:'url',placeholder:'https://… — Commissary uses this'},
+    {key:'trackingLink',label:'Tracking link',type:'url',placeholder:'https://… — Commissary uses this',required:true},
     {key:'carrier',label:'Carrier',type:'text',placeholder:'UPS / FedEx / freight'}
   ]},
   /* Sample Review — Marketplace */
-  {stage:'sample',dept:'Marketplace',label:'Internal tasting / QC',owner:'Marketplace Lead',def:'Internal panel signs off on taste, texture, appearance'},
+  {stage:'sample',dept:'Marketplace',label:'Internal tasting / QC',owner:'Marketplace Lead',def:'Internal panel signs off on taste, texture, appearance',file:true,inputs:[
+    {key:'tastingDate',label:'Tasting date',type:'date'},
+    {key:'tastingNotes',label:'Tasting notes',type:'text',placeholder:'panel feedback, R&D follow-ups…'}
+  ]},
   {stage:'sample',dept:'Marketplace',label:'Final formulation locked',owner:'Marketplace Lead',def:'Formulation locked with the co-packer — no further changes',file:true},
-  {stage:'sample',dept:'Marketplace',label:'Margin model approved',owner:'Marketplace Lead',def:'Projected margin meets or exceeds threshold at locked landed cost'},
-  {stage:'sample',dept:'Marketplace',label:'Assortment fit confirmed',owner:'Marketplace Lead',def:'Confirmed this SKU complements (not cannibalizes) the assortment'},
+  {stage:'sample',dept:'Marketplace',label:'Margin model approved',owner:'Marketplace Lead',def:'Projected margin meets or exceeds threshold at locked landed cost',inputs:[
+    {key:'margin',label:'Margin %',type:'text',placeholder:'e.g. 42%',required:true}
+  ]},
+  {stage:'sample',dept:'Marketplace',label:'Assortment fit confirmed',owner:'Marketplace Lead',def:'Confirmed this SKU complements (not cannibalizes) the assortment — including up to 4 variations',inputs:[
+    {key:'variation1',label:'Variation 1',type:'text',placeholder:'e.g. Original'},
+    {key:'variation2',label:'Variation 2',type:'text',placeholder:'(optional)'},
+    {key:'variation3',label:'Variation 3',type:'text',placeholder:'(optional)'},
+    {key:'variation4',label:'Variation 4',type:'text',placeholder:'(optional)'}
+  ]},
   {stage:'sample',dept:'Marketplace',label:'Packaging design approved',owner:'Marketplace Lead',def:'Final packaging artwork approved internally',blocking:false,file:true,inputs:[
     {key:'packagingType',label:'Packaging type',type:'text',placeholder:'e.g. pouch, jar, carton'},
     {key:'packagingSize',label:'Packaging size',type:'text',placeholder:'e.g. 12 oz / 24 ct'},
@@ -705,17 +753,17 @@ const PL_TASK_TEMPLATES=[
   {stage:'compliance',dept:'Compliance',label:'Product spec sheet on file',owner:'AP Clerk',def:'Internal product spec sheet uploaded',file:true},
   {stage:'compliance',dept:'Compliance',label:'Product docs cleared — ready for ERP',owner:'AP Clerk',def:'All product compliance docs on file',notify:'Inventory',notifyMsg:'Product compliance docs cleared — safe to create the R365 / Synergy item & SKU.'},
   /* ERP / Synergy — Inventory (mirrors CPG; same R365 / Synergy work) */
-  {stage:'erp',dept:'Inventory',label:'Create R365 item',owner:'Synergy Admin',def:'Item created in R365 with correct UOM'},
-  {stage:'erp',dept:'Inventory',label:'Create R365 recipe',owner:'Synergy Admin',def:'Recipe / build created in R365'},
-  {stage:'erp',dept:'Inventory',label:'Add Item Category 1 = Private Label',owner:'Synergy Admin',def:'Category 1 set to "Private Label"'},
-  {stage:'erp',dept:'Inventory',label:'Add to Marketplace order guide',owner:'Synergy Admin',def:'Item appears on the Marketplace order guide'},
-  {stage:'erp',dept:'Inventory',label:'Add to Commissary inventory guide',owner:'Synergy Admin',def:'Item on the Commissary inventory guide'},
-  {stage:'erp',dept:'Inventory',label:'Add to WLV/BW inventory guide',owner:'Synergy Admin',def:'Item on the WLV / BW inventory guide'},
-  {stage:'erp',dept:'Inventory',label:'Attach to Toast item (after Marketing rings up qty 1)',owner:'Synergy Admin',def:'R365 item linked to the Toast item once Marketing has created it'},
+  {stage:'erp',dept:'Inventory',label:'Create R365 item',owner:'Synergy Admin',def:'Item created in R365 with correct UOM',link:{href:'https://www.restaurant365.com/logins/',label:'Open R365 →'}},
+  {stage:'erp',dept:'Inventory',label:'Create R365 recipe',owner:'Synergy Admin',def:'Recipe / build created in R365',link:{href:'https://www.restaurant365.com/logins/',label:'Open R365 →'}},
+  {stage:'erp',dept:'Inventory',label:'Add Item Category 1 = Private Label',owner:'Synergy Admin',def:'Category 1 set to "Private Label"',link:{href:'https://www.restaurant365.com/logins/',label:'Open R365 →'}},
+  {stage:'erp',dept:'Inventory',label:'Add to Marketplace order guide',owner:'Synergy Admin',def:'Item appears on the Marketplace order guide',link:{href:'https://www.restaurant365.com/logins/',label:'Open R365 →'}},
+  {stage:'erp',dept:'Inventory',label:'Add to Commissary inventory guide',owner:'Synergy Admin',def:'Item on the Commissary inventory guide',link:{href:'https://www.restaurant365.com/logins/',label:'Open R365 →'}},
+  {stage:'erp',dept:'Inventory',label:'Add to WLV/BW inventory guide',owner:'Synergy Admin',def:'Item on the WLV / BW inventory guide',link:{href:'https://www.restaurant365.com/logins/',label:'Open R365 →'}},
+  {stage:'erp',dept:'Inventory',label:'Attach to Toast item (after Marketing rings up qty 1)',owner:'Synergy Admin',def:'R365 item linked to the Toast item once Marketing has created it',link:{href:'https://www.restaurant365.com/logins/',label:'Open R365 →'}},
   /* Commissary */
   {stage:'commissary',dept:'Commissary',label:'Confirm first production run received',owner:'Commissary Manager',def:'First run physically received at commissary'},
   {stage:'commissary',dept:'Commissary',label:'Assign storage location (Shelf / Refrigerator / Freezer)',owner:'Commissary Manager',def:'Specific storage location & class assigned'},
-  {stage:'commissary',dept:'Commissary',label:'Check R365 item created / on order guide',owner:'Commissary Manager',def:'Verified the R365 item exists and is on the guide'},
+  {stage:'commissary',dept:'Commissary',label:'Check R365 item created / on order guide',owner:'Commissary Manager',def:'Verified the R365 item exists and is on the guide',link:{href:'https://www.restaurant365.com/logins/',label:'Open R365 →'}},
   {stage:'commissary',dept:'Commissary',label:'Set 2-week PAR',owner:'Commissary Manager',def:'2-week PAR level set in the system'},
   /* Private Label needs ingredient-level PARs too — for any component
      produced in-house, each ingredient gets its own PAR (Comment #15). */
@@ -724,7 +772,7 @@ const PL_TASK_TEMPLATES=[
   ]},
   {stage:'commissary',dept:'Commissary',label:'Receiving SOP written',owner:'Commissary Manager',def:'Receiving SOP documented for this item',blocking:false},
   /* Operations / Marketing / Store / Review — same flow as CPG */
-  {stage:'operations',dept:'Operations',label:'Confirm items on R365 order guide',owner:'Operations Manager',def:'Item verified on the store order guide'},
+  {stage:'operations',dept:'Operations',label:'Confirm items on R365 order guide',owner:'Operations Manager',def:'Item verified on the store order guide',link:{href:'https://www.restaurant365.com/logins/',label:'Open R365 →'}},
   {stage:'operations',dept:'Operations',label:'Assign shelf space on store planogram',owner:'Operations Manager',def:'Shelf location assigned on the planogram',notify:'Marketplace',notifyMsg:'Planogram shelf space assigned — please review & approve placement.'},
   {stage:'operations',dept:'Operations',label:'Confirm initial case/each qty to receive',owner:'Operations Manager',def:'Opening order quantity confirmed'},
   {stage:'operations',dept:'Operations',label:'Receive shelf tag (from Marketing)',owner:'Operations Manager',def:'Printed shelf tag received from Marketing'},
@@ -765,7 +813,18 @@ const PL_TASK_TEMPLATES=[
    logic all keep working unchanged. */
 function buildTasks(type){
   const src=(type==='Private Label')?PL_TASK_TEMPLATES:TASK_TEMPLATES;
-  return src.map(t=>({stage:t.stage,dept:t.dept,label:t.label,owner:t.owner||'',def:t.def||'',notify:t.notify||'',notifyMsg:t.notifyMsg||'',blocking:t.blocking!==false,file:t.file===true,inputs:Array.isArray(t.inputs)?t.inputs:[],values:{},done:false,doneAt:null}));
+  return src.map(t=>({stage:t.stage,dept:t.dept,label:t.label,owner:t.owner||'',def:t.def||'',notify:t.notify||'',notifyMsg:t.notifyMsg||'',blocking:t.blocking!==false,file:t.file===true,inputs:Array.isArray(t.inputs)?t.inputs:[],link:t.link||null,values:{},done:false,doneAt:null}));
+}
+
+/* Look up a task's reference link from the live template — same
+   fallback pattern as templateInputsFor so existing launches pick up
+   the R365 "Open R365 →" button (etc.) without a back-fill. */
+function templateLinkFor(launch,task){
+  if(!task) return null;
+  if(task.link) return task.link;
+  const src=(launch&&launch.type==='Private Label')?PL_TASK_TEMPLATES:TASK_TEMPLATES;
+  const tpl=src.find(x=>x.stage===task.stage&&x.label===task.label);
+  return (tpl&&tpl.link)?tpl.link:null;
 }
 
 /* Look up the live template that matches a saved task and return its
@@ -1087,7 +1146,14 @@ function renderProcess(){
 /* ---------------- drawer ---------------- */
 function openDrawer(id){OPEN=id;$('scrim').classList.add('show');$('drawer').classList.add('show');renderDrawer(id);}
 function closeDrawer(){OPEN=null;$('scrim').classList.remove('show');$('drawer').classList.remove('show');}
-$('scrim').onclick=closeDrawer;
+// Scrim click closes whichever overlay is currently open — drawer
+// (per-launch view) or the centered intake modal. Without this, the
+// intake form was trapped open if you clicked the dimmed background.
+$('scrim').onclick=function(){
+  const intk=document.getElementById('intake');
+  if(intk && intk.classList.contains('show')) closeIntake();
+  else closeDrawer();
+};
 
 function renderDrawer(id){
   const l=LAUNCHES[id]; if(!l)return;
@@ -1109,6 +1175,11 @@ function renderDrawer(id){
       const ic=gdone?'✓':(active?'▸':(upcoming?'›':'·'));
       const cls=gdone?'done':(active?'active':(upcoming?'upcoming':''));
       const tasksHtml=g.items.map(x=>{const t=x.t;const meta=[t.owner?`👤 ${esc(t.owner)}`:'',t.def?`✓ ${esc(t.def)}`:'',t.notify?`🔔 notifies ${esc(t.notify)}`:''].filter(Boolean).join(' · ');
+        // Reference link button (e.g. "Open R365 →" on every R365 task)
+        // — falls back to the live template if the saved task predates
+        // the link field, same pattern as inputs.
+        const lnk=t.link||templateLinkFor(l,t);
+        const linkHtml=lnk?`<a class="task-link" href="${esc(lnk.href)}" target="_blank" rel="noopener">${esc(lnk.label||'Open →')}</a>`:'';
         const fileHtml=t.file?`<div class="task-file">${t.fileUrl
           ?`<a class="file-link" href="${esc(t.fileUrl)}" target="_blank" rel="noopener">📎 ${esc(t.fileName||'View file')}</a><label class="file-btn">Replace<input type="file" hidden data-id="${id}" data-ti="${x.i}"></label>`
           :`<label class="file-btn">⬆ Upload file<input type="file" hidden data-id="${id}" data-ti="${x.i}"></label>`}</div>`:'';
@@ -1126,9 +1197,10 @@ function renderDrawer(id){
           // Small inline icon per type so the field reads at a glance
           const ico={url:'🔗',date:'📅',email:'✉️',tel:'☎️',number:'#'}[type]||'';
           const hasValue=cur?'has-value':'';
-          return `<div class="task-input${cur?' has-saved':''}"><label>${ico?`<span class="ti-ico">${ico}</span>`:''}${esc(f.label||f.key)}</label><input type="${esc(type)}" class="${hasValue}" placeholder="${esc(f.placeholder||'')}" value="${esc(cur)}" data-id="${id}" data-ti="${x.i}" data-vk="${esc(f.key)}"><span class="ti-saved">✓ saved</span></div>`;
+          const reqCls=f.required?' required':'';
+          return `<div class="task-input${reqCls}${cur?' has-saved':''}"><label>${ico?`<span class="ti-ico">${ico}</span>`:''}${esc(f.label||f.key)}</label><input type="${esc(type)}" class="${hasValue}" placeholder="${esc(f.placeholder||'')}" value="${esc(cur)}" data-id="${id}" data-ti="${x.i}" data-vk="${esc(f.key)}"${f.required?' data-required="1"':''}><span class="ti-saved">✓ saved</span></div>`;
         }).join('')}</div>`:'';
-        return `<div class="task ${t.done?'done':''}"><input type="checkbox" ${t.done?'checked':''} data-id="${id}" data-ti="${x.i}"><div class="tbody"><label>${esc(t.label)}${t.blocking===false?' <span class="opt">optional</span>':''}</label>${meta?`<div class="task-meta">${meta}</div>`:''}${fileHtml}${inputsHtml}</div></div>`;}).join('');
+        return `<div class="task ${t.done?'done':''}"><input type="checkbox" ${t.done?'checked':''} data-id="${id}" data-ti="${x.i}"><div class="tbody"><label>${esc(t.label)}${t.blocking===false?' <span class="opt">optional</span>':''}</label>${meta?`<div class="task-meta">${meta}</div>`:''}${linkHtml}${fileHtml}${inputsHtml}</div></div>`;}).join('');
       return `<div class="ministep ${cls}"><div class="ms-h"><span class="ms-ic">${ic}</span>${esc(g.name)}<span class="ms-c">${gN}/${g.items.length}</span></div><div class="ms-body" style="${open?'':'display:none'}">${tasksHtml}</div></div>`;
     }).join('');
     const nxtK=nextStageKey(s.key), nxtM=nxtK?stageMeta(nxtK):null;
@@ -1385,6 +1457,28 @@ function advanceBtn(l,s){
 async function toggleTask(id,ti,checked){
   const l=LAUNCHES[id]; if(!l)return;
   const ts=tasksOf(l).map(t=>Object.assign({},t));
+
+  // Gate completion on required per-task inputs (e.g. tracking link on
+  // "Samples requested from brand"). If the user tries to check the
+  // box without filling a required input, revert the checkbox, focus
+  // the missing field, and toast — so the task can never advance with
+  // its required capture-data empty.
+  if(checked){
+    const inputs=(Array.isArray(ts[ti].inputs)&&ts[ti].inputs.length)
+      ? ts[ti].inputs
+      : (templateInputsFor(l,ts[ti])||[]);
+    const vals=ts[ti].values||{};
+    const missing=inputs.filter(f=>f&&f.required&&!(vals[f.key]&&String(vals[f.key]).trim()));
+    if(missing.length){
+      const cb=document.querySelector(`.task input[type=checkbox][data-id="${id}"][data-ti="${ti}"]`);
+      if(cb) cb.checked=false;
+      const first=document.querySelector(`.task-input input[data-id="${id}"][data-ti="${ti}"][data-vk="${missing[0].key}"]`);
+      if(first){ first.focus(); first.classList.add('has-value'); /* visual nudge */ }
+      toast(`Please fill the ${missing[0].label||missing[0].key} before checking this off.`);
+      return;
+    }
+  }
+
   ts[ti].done=checked; ts[ti].doneAt=checked?Date.now():null;
   const sk=ts[ti].stage, sm=stageMeta(sk);
   const upd={['marketplace-npi/launches/'+id+'/tasks']:ts};
@@ -1518,10 +1612,46 @@ window._reject=rejectLaunch;
 /* Open the Product Intake Form modal — replaces the legacy 3-prompt
    addProduct so every Brand Info + Product Info field is captured up
    front and persisted on the launch record. */
+/* Files staged by the user via the intake form's "Add file" pickers
+   (Brand Assets + Approvals — Compliance docs). Held in browser
+   memory until submitIntake runs; uploaded to Firebase Storage right
+   after the launch is created so they attach to the corresponding
+   task's fileUrl and surface in the Documents preview panel. */
+let _intakeFiles={};
+
 function addProduct(){ openIntake(); }
 function openIntake(){
   const f=document.getElementById('intakeForm');
   if(f) f.reset();
+  _intakeFiles={};
+  // Reset every staged "Selected:" label so a reopened modal looks fresh
+  document.querySelectorAll('#intakeForm .intake-row').forEach(r=>r.classList.remove('has-file'));
+  document.querySelectorAll('#intakeForm .intake-row-file').forEach(s=>s.textContent='');
+  // Wire each Add-file picker to stage the File in memory and auto-tick
+  // the row's checkbox (since the file IS the receipt). Re-runs every
+  // open so we don't accumulate stale handlers if the modal is reopened.
+  document.querySelectorAll('#intakeForm .intake-upload input[type=file]').forEach(inp=>{
+    inp.onchange=e=>{
+      const file=e.target.files&&e.target.files[0];
+      const key=inp.dataset.key;
+      const row=inp.closest('.intake-row');
+      if(!file||!key||!row) return;
+      _intakeFiles[key]=file;
+      row.classList.add('has-file');
+      const fileLabel=row.querySelector('.intake-row-file');
+      if(fileLabel) fileLabel.textContent='Selected: '+file.name;
+      const cb=row.querySelector('input[type=checkbox]');
+      if(cb){ cb.checked=true; const lbl=row.querySelector('.intake-row-label'); if(lbl) lbl.classList.add('checked'); }
+    };
+  });
+  // Mirror checked state on the row label so the green "received" copy
+  // reads even when the user clicks the checkbox without uploading.
+  document.querySelectorAll('#intakeForm .intake-row > input[type=checkbox]').forEach(cb=>{
+    cb.onchange=()=>{
+      const lbl=cb.closest('.intake-row').querySelector('.intake-row-label');
+      if(lbl) lbl.classList.toggle('checked',cb.checked);
+    };
+  });
   document.getElementById('scrim').classList.add('show');
   document.getElementById('intake').classList.add('show');
   setTimeout(()=>{ const el=document.getElementById('iSku'); if(el) el.focus(); },120);
@@ -1628,6 +1758,58 @@ async function submitIntake(){
     };
 
     await db.ref().update(upd);
+
+    // Upload any files the user attached via the intake "Add file"
+    // pickers (Brand Assets + Approvals). Each one goes to Firebase
+    // Storage at marketplace-npi/<launchId>/<taskIdx>-<ts>-<name>,
+    // then we patch the matching task's fileUrl / fileName / done so
+    // the upload reads the same as if it had happened from inside
+    // the drawer task UI later.
+    const stagedFiles=Object.entries(_intakeFiles||{}).filter(([,f])=>f);
+    if(stagedFiles.length){
+      // Pick the label set that matches this launch's type — task labels
+      // differ slightly between CPG and Private Label (PL has no W-9 /
+      // COI for instance, so those keys are intentionally absent).
+      const labelMapCPG={
+        assetImages:'Asset: Product images received',
+        assetLogo:'Asset: Brand logo received',
+        assetStory:'Asset: Brand story received',
+        compW9:'Collect + upload W-9',
+        compCoi:'Collect + upload Insurance (COI)',
+        compNutrition:'Nutrition panel on file',
+        compIngredients:'Ingredient statement on file',
+        compAllergen:'Allergen information on file',
+        compSpec:'Product spec sheet on file'
+      };
+      const labelMapPL={
+        assetImages:'Asset: Product images received',
+        assetStory:'Asset: Brand story written',
+        compNutrition:'Nutrition panel approved',
+        compIngredients:'Ingredient statement approved',
+        compAllergen:'Allergen information confirmed',
+        compSpec:'Product spec sheet on file'
+      };
+      const labelMap=(type==='Private Label')?labelMapPL:labelMapCPG;
+      toast('Uploading '+stagedFiles.length+' file'+(stagedFiles.length===1?'':'s')+'…');
+      const fileUpd={};
+      for(const [key,file] of stagedFiles){
+        const taskLabel=labelMap[key]; if(!taskLabel) continue;
+        const ti=tmpl.findIndex(t=>t.label===taskLabel); if(ti<0) continue;
+        try {
+          const safe=String(file.name).replace(/[^a-z0-9.\-_]/gi,'_');
+          const ref=storage.ref(`marketplace-npi/${id}/${ti}-${Date.now()}-${safe}`);
+          const snap=await ref.put(file);
+          const url=await snap.ref.getDownloadURL();
+          fileUpd[`marketplace-npi/launches/${id}/tasks/${ti}/fileUrl`]=url;
+          fileUpd[`marketplace-npi/launches/${id}/tasks/${ti}/fileName`]=file.name;
+          fileUpd[`marketplace-npi/launches/${id}/tasks/${ti}/done`]=true;
+          fileUpd[`marketplace-npi/launches/${id}/tasks/${ti}/doneAt`]=nowDoneAt;
+        } catch(uerr) {
+          console.error('[intake] upload failed for',key,uerr);
+        }
+      }
+      if(Object.keys(fileUpd).length) await db.ref().update(fileUpd);
+    }
 
     // Kickoff broadcast — every team is notified now, then again when its
     // stage goes active. Keeps procurement / compliance heads-up so they
