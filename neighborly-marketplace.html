@@ -148,10 +148,21 @@
   .task-meta{font-size:11px;color:var(--muted);opacity:.9;margin-top:2px;line-height:1.45}
   .task-file{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:5px}
   /* Reference link button next to a task — e.g. the "Open R365 →"
-     button on every R365 / Synergy task so the team doesn't have to
+     button on every R365 task so the team doesn't have to
      hunt for the login URL. Sits in line with the task meta row. */
   .task-link{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;color:var(--accent);background:rgba(98,128,189,.08);border:1px solid rgba(98,128,189,.18);border-radius:7px;padding:3px 9px;text-decoration:none;margin-top:6px;width:max-content;transition:.12s}
   .task-link:hover{background:rgba(98,128,189,.14);border-color:var(--accent)}
+  /* Click-to-select decision tiles — used on the 30-day review
+     "Disposition: Expand / Maintain / Exit" task and any future
+     binary/triary decision. The selected option lights up green
+     (Expand/Maintain) or amber (Exit) so the trend reads from the
+     pipeline view at a glance. */
+  .task-decision{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+  .task-decision button{flex:1;min-width:80px;background:#fff;border:1.5px solid var(--line);color:var(--ink);font-family:inherit;font-weight:600;font-size:12px;padding:8px 10px;border-radius:9px;cursor:pointer;transition:.12s}
+  .task-decision button:hover{border-color:var(--accent)}
+  .task-decision button.on[data-opt="Expand"]  {background:var(--green-bg);border-color:var(--green-ink);color:var(--green-ink)}
+  .task-decision button.on[data-opt="Maintain"]{background:#eaeef8;border-color:var(--accent);color:var(--accent)}
+  .task-decision button.on[data-opt="Exit"]    {background:var(--amber-bg);border-color:var(--amber-ink);color:var(--amber-ink)}
   .file-btn{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;color:var(--accent);border:1px dashed var(--line);border-radius:7px;padding:3px 9px;cursor:pointer}
   .file-btn:hover{border-color:var(--accent);background:rgba(98,128,189,.06)}
   .file-link{display:inline-flex;align-items:center;gap:4px;max-width:100%;font-size:11.5px;font-weight:600;color:var(--accent);text-decoration:none;background:rgba(98,128,189,.08);border-radius:7px;padding:3px 9px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -306,7 +317,8 @@
   .intake-rows{display:flex;flex-direction:column;gap:6px}
   .intake-row{display:flex;align-items:center;gap:10px;background:#fbfaf7;border:1px solid var(--line-soft);border-radius:8px;padding:7px 11px;font-size:12.5px;transition:.12s}
   .intake-row:hover{border-color:var(--line)}
-  .intake-row > input[type=checkbox]{accent-color:var(--green-ink);width:15px;height:15px;flex-shrink:0;cursor:pointer;margin:0}
+  .intake-row-check{display:flex;align-items:center;gap:8px;flex:1;min-width:0;cursor:pointer;margin:0}
+  .intake-row-check input[type=checkbox]{accent-color:var(--green-ink);width:15px;height:15px;flex-shrink:0;cursor:pointer;margin:0}
   .intake-row-label{flex:1;color:var(--ink);font-weight:500;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .intake-row-label.checked{color:var(--green-ink);font-weight:600}
   .intake-upload{font-size:11px;font-weight:600;color:var(--accent);border:1px dashed var(--line);border-radius:7px;padding:3px 9px;cursor:pointer;white-space:nowrap;flex-shrink:0}
@@ -474,34 +486,33 @@
     </div>
 
     <!-- Brand Assets received (Comment #5 in the Figma catalog).
-         Each row: checkbox to flag receipt + Add file picker. Files
-         upload to Firebase Storage on submit and attach to the
-         matching task (Asset: Product images / Brand logo / Brand
-         story), so they show up in the Documents preview panel like
-         everything else. -->
+         Each row uses a <div> wrapper (not nested <label>s — that
+         was triggering the parent checkbox to fire when the user
+         clicked the inner Add-file label, eating their clicks).
+         Files upload to Firebase Storage on submit and attach to
+         the matching task (Asset: Product images / Brand logo /
+         Brand story) so they appear in Documents like everything
+         else. -->
     <div class="intake-group">
       <h4>Brand Assets received at intake</h4>
       <div class="intake-rows">
-        <label class="intake-row"><input type="checkbox" name="assetImages"><span class="intake-row-label">Product Images</span><span class="intake-row-file" data-for="assetImages"></span><label class="intake-upload">⬆ Add file<input type="file" hidden data-key="assetImages" data-group="asset" accept="image/*,.pdf"></label></label>
-        <label class="intake-row"><input type="checkbox" name="assetLogo"><span class="intake-row-label">Brand Logo</span><span class="intake-row-file" data-for="assetLogo"></span><label class="intake-upload">⬆ Add file<input type="file" hidden data-key="assetLogo" data-group="asset" accept="image/*,.pdf,.svg"></label></label>
-        <label class="intake-row"><input type="checkbox" name="assetStory"><span class="intake-row-label">Brand Story</span><span class="intake-row-file" data-for="assetStory"></span><label class="intake-upload">⬆ Add file<input type="file" hidden data-key="assetStory" data-group="asset" accept=".pdf,.doc,.docx,.txt"></label></label>
+        <div class="intake-row"><label class="intake-row-check"><input type="checkbox" name="assetImages"><span class="intake-row-label">Product Images</span></label><span class="intake-row-file" data-for="assetImages"></span><label class="intake-upload">⬆ Add file<input type="file" hidden data-key="assetImages" data-group="asset" accept="image/*,.pdf"></label></div>
+        <div class="intake-row"><label class="intake-row-check"><input type="checkbox" name="assetLogo"><span class="intake-row-label">Brand Logo</span></label><span class="intake-row-file" data-for="assetLogo"></span><label class="intake-upload">⬆ Add file<input type="file" hidden data-key="assetLogo" data-group="asset" accept="image/*,.pdf,.svg"></label></div>
+        <div class="intake-row"><label class="intake-row-check"><input type="checkbox" name="assetStory"><span class="intake-row-label">Brand Story</span></label><span class="intake-row-file" data-for="assetStory"></span><label class="intake-upload">⬆ Add file<input type="file" hidden data-key="assetStory" data-group="asset" accept=".pdf,.doc,.docx,.txt"></label></div>
       </div>
     </div>
 
     <!-- Approvals: Compliance docs received at intake (Comment #5).
-         Same checkbox + file-upload pattern as Brand Assets. Pre-marks
-         and pre-fills the matching Approvals-stage tasks (W-9, COI,
-         Nutrition, Ingredients, Allergens, Spec) so AP isn't chasing
-         what's already on file. -->
+         Same checkbox + file-upload pattern as Brand Assets. -->
     <div class="intake-group">
       <h4>Approvals — docs received at intake</h4>
       <div class="intake-rows">
-        <label class="intake-row"><input type="checkbox" name="compW9"><span class="intake-row-label">W-9</span><span class="intake-row-file" data-for="compW9"></span><label class="intake-upload">⬆ Add file<input type="file" hidden data-key="compW9" data-group="compliance" accept=".pdf,image/*"></label></label>
-        <label class="intake-row"><input type="checkbox" name="compCoi"><span class="intake-row-label">Insurance (COI)</span><span class="intake-row-file" data-for="compCoi"></span><label class="intake-upload">⬆ Add file<input type="file" hidden data-key="compCoi" data-group="compliance" accept=".pdf,image/*"></label></label>
-        <label class="intake-row"><input type="checkbox" name="compNutrition"><span class="intake-row-label">Nutrition Panel</span><span class="intake-row-file" data-for="compNutrition"></span><label class="intake-upload">⬆ Add file<input type="file" hidden data-key="compNutrition" data-group="compliance" accept=".pdf,image/*"></label></label>
-        <label class="intake-row"><input type="checkbox" name="compIngredients"><span class="intake-row-label">Ingredient Statement</span><span class="intake-row-file" data-for="compIngredients"></span><label class="intake-upload">⬆ Add file<input type="file" hidden data-key="compIngredients" data-group="compliance" accept=".pdf,image/*"></label></label>
-        <label class="intake-row"><input type="checkbox" name="compAllergen"><span class="intake-row-label">Allergen Info</span><span class="intake-row-file" data-for="compAllergen"></span><label class="intake-upload">⬆ Add file<input type="file" hidden data-key="compAllergen" data-group="compliance" accept=".pdf,image/*"></label></label>
-        <label class="intake-row"><input type="checkbox" name="compSpec"><span class="intake-row-label">Product Spec Sheet</span><span class="intake-row-file" data-for="compSpec"></span><label class="intake-upload">⬆ Add file<input type="file" hidden data-key="compSpec" data-group="compliance" accept=".pdf,image/*"></label></label>
+        <div class="intake-row"><label class="intake-row-check"><input type="checkbox" name="compW9"><span class="intake-row-label">W-9</span></label><span class="intake-row-file" data-for="compW9"></span><label class="intake-upload">⬆ Add file<input type="file" hidden data-key="compW9" data-group="compliance" accept=".pdf,image/*"></label></div>
+        <div class="intake-row"><label class="intake-row-check"><input type="checkbox" name="compCoi"><span class="intake-row-label">Insurance (COI)</span></label><span class="intake-row-file" data-for="compCoi"></span><label class="intake-upload">⬆ Add file<input type="file" hidden data-key="compCoi" data-group="compliance" accept=".pdf,image/*"></label></div>
+        <div class="intake-row"><label class="intake-row-check"><input type="checkbox" name="compNutrition"><span class="intake-row-label">Nutrition Panel</span></label><span class="intake-row-file" data-for="compNutrition"></span><label class="intake-upload">⬆ Add file<input type="file" hidden data-key="compNutrition" data-group="compliance" accept=".pdf,image/*"></label></div>
+        <div class="intake-row"><label class="intake-row-check"><input type="checkbox" name="compIngredients"><span class="intake-row-label">Ingredient Statement</span></label><span class="intake-row-file" data-for="compIngredients"></span><label class="intake-upload">⬆ Add file<input type="file" hidden data-key="compIngredients" data-group="compliance" accept=".pdf,image/*"></label></div>
+        <div class="intake-row"><label class="intake-row-check"><input type="checkbox" name="compAllergen"><span class="intake-row-label">Allergen Info</span></label><span class="intake-row-file" data-for="compAllergen"></span><label class="intake-upload">⬆ Add file<input type="file" hidden data-key="compAllergen" data-group="compliance" accept=".pdf,image/*"></label></div>
+        <div class="intake-row"><label class="intake-row-check"><input type="checkbox" name="compSpec"><span class="intake-row-label">Product Spec Sheet</span></label><span class="intake-row-file" data-for="compSpec"></span><label class="intake-upload">⬆ Add file<input type="file" hidden data-key="compSpec" data-group="compliance" accept=".pdf,image/*"></label></div>
       </div>
     </div>
   </form>
@@ -547,7 +558,7 @@ const STAGES=[
   {key:'sample',    label:'Sample Review', dept:'Marketplace', color:'#cbb3d6'},
   {key:'commercial',label:'Commercial',    dept:'Procurement', color:'#6280bd'},
   {key:'compliance',label:'Approvals',     dept:'Compliance',  color:'#b88fb8'},
-  {key:'erp',       label:'ERP / Synergy', dept:'Inventory',   color:'#69b0a5'},
+  {key:'erp',       label:'R365 Setup',    dept:'Inventory',   color:'#69b0a5'},
   {key:'commissary',label:'Commissary',    dept:'Commissary',  color:'#dbc6a2'},
   {key:'operations',label:'Operations',    dept:'Operations',  color:'#7bbd91'},
   {key:'marketing', label:'Marketing',     dept:'Marketing',   color:'#e87142'},
@@ -622,34 +633,45 @@ const TASK_TEMPLATES=[
   ]},
   {stage:'commercial',dept:'Procurement',label:'Collect + upload initial invoice',owner:'Procurement Coordinator',def:'First invoice received and uploaded',file:true},
   {stage:'commercial',dept:'Procurement',label:'Commercial terms complete — ready for vendor docs',owner:'Procurement Coordinator',def:'All commercial terms above confirmed',notify:'Compliance',notifyMsg:'Commercial terms finalized — please collect W-9 + COI before vendor goes live in the systems.'},
-  /* W-9 — Compliance (gates ERP/SKU creation) */
+  /* W-9 — Compliance (gates R365/SKU creation) */
   {stage:'compliance',dept:'Compliance',label:'Collect + upload W-9',owner:'AP Clerk',def:'W-9 PDF on file; TIN matches legal vendor name',file:true},
   {stage:'compliance',dept:'Compliance',label:'Collect + upload Insurance (COI)',owner:'AP Clerk',def:'COI on file naming Neighborly as additional insured; expiry after launch date',file:true},
   {stage:'compliance',dept:'Compliance',label:'Nutrition panel on file',owner:'AP Clerk',def:'Nutrition facts panel uploaded',file:true},
   {stage:'compliance',dept:'Compliance',label:'Ingredient statement on file',owner:'AP Clerk',def:'Full ingredient statement uploaded',file:true},
   {stage:'compliance',dept:'Compliance',label:'Allergen information on file',owner:'AP Clerk',def:'Allergen declaration uploaded',file:true},
   {stage:'compliance',dept:'Compliance',label:'Product spec sheet on file',owner:'AP Clerk',def:'Vendor product spec sheet uploaded',file:true},
-  {stage:'compliance',dept:'Compliance',label:'Vendor documents cleared — vendor active',owner:'AP Clerk',def:'All compliance docs on file; vendor flagged active',notify:'Inventory',notifyMsg:'Vendor documents cleared — safe to create the R365/Synergy item & SKU.'},
-  /* ERP / Synergy — Inventory */
-  {stage:'erp',dept:'Inventory',label:'Create R365 item',owner:'Synergy Admin',def:'Item created in R365 with correct UOM',link:{href:'https://www.restaurant365.com/logins/',label:'Open R365 →'},inputs:[
+  {stage:'compliance',dept:'Compliance',label:'Vendor documents cleared — vendor active',owner:'AP Clerk',def:'All compliance docs on file; vendor flagged active',notify:'Inventory',notifyMsg:'Vendor documents cleared — safe to create the R365 item & SKU.'},
+  /* R365 Setup — Inventory */
+  {stage:'erp',dept:'Inventory',label:'Create R365 item',owner:'Inventory Admin',def:'Item created in R365 with correct UOM',link:{href:'https://www.restaurant365.com/logins/',label:'Open R365 →'},inputs:[
     {key:'r365ItemId',label:'R365 item ID',type:'text',placeholder:'e.g. 12345'}
   ]},
-  {stage:'erp',dept:'Inventory',label:'Create R365 recipe',owner:'Synergy Admin',def:'Recipe/build created in R365',link:{href:'https://www.restaurant365.com/logins/',label:'Open R365 →'}},
-  {stage:'erp',dept:'Inventory',label:'Add Item Category 1 = Marketplace Item',owner:'Synergy Admin',def:'Category 1 set to "Marketplace Item"',link:{href:'https://www.restaurant365.com/logins/',label:'Open R365 →'}},
-  {stage:'erp',dept:'Inventory',label:'Add to Marketplace order guide',owner:'Synergy Admin',def:'Item appears on the Marketplace order guide',link:{href:'https://www.restaurant365.com/logins/',label:'Open R365 →'}},
-  {stage:'erp',dept:'Inventory',label:'Add to Commissary inventory guide',owner:'Synergy Admin',def:'Item on the Commissary inventory guide',link:{href:'https://www.restaurant365.com/logins/',label:'Open R365 →'}},
-  {stage:'erp',dept:'Inventory',label:'Add to WLV/BW inventory guide',owner:'Synergy Admin',def:'Item on the WLV/BW inventory guide',link:{href:'https://www.restaurant365.com/logins/',label:'Open R365 →'}},
-  {stage:'erp',dept:'Inventory',label:'Attach to Toast item (after Marketing rings up qty 1)',owner:'Synergy Admin',def:'R365 item linked to the Toast item once Marketing has created it',link:{href:'https://www.restaurant365.com/logins/',label:'Open R365 →'},inputs:[
+  {stage:'erp',dept:'Inventory',label:'Create R365 recipe',owner:'Inventory Admin',def:'Recipe/build created in R365',link:{href:'https://www.restaurant365.com/logins/',label:'Open R365 →'}},
+  {stage:'erp',dept:'Inventory',label:'Add Item Category 1 = Marketplace Item',owner:'Inventory Admin',def:'Category 1 set to "Marketplace Item"',link:{href:'https://www.restaurant365.com/logins/',label:'Open R365 →'}},
+  {stage:'erp',dept:'Inventory',label:'Add to Marketplace order guide',owner:'Inventory Admin',def:'Item appears on the Marketplace order guide',link:{href:'https://www.restaurant365.com/logins/',label:'Open R365 →'}},
+  {stage:'erp',dept:'Inventory',label:'Add to Commissary inventory guide',owner:'Inventory Admin',def:'Item on the Commissary inventory guide',link:{href:'https://www.restaurant365.com/logins/',label:'Open R365 →'}},
+  {stage:'erp',dept:'Inventory',label:'Add to WLV/BW inventory guide',owner:'Inventory Admin',def:'Item on the WLV/BW inventory guide',link:{href:'https://www.restaurant365.com/logins/',label:'Open R365 →'}},
+  {stage:'erp',dept:'Inventory',label:'Attach to Toast item (after Marketing rings up qty 1)',owner:'Inventory Admin',def:'R365 item linked to the Toast item once Marketing has created it',link:{href:'https://www.restaurant365.com/logins/',label:'Open R365 →'},inputs:[
     {key:'toastItemId',label:'Toast item ID',type:'text',placeholder:'Toast SKU / item ID'}
   ]},
   /* Commissary */
-  {stage:'commissary',dept:'Commissary',label:'Confirm sample received',owner:'Commissary Manager',def:'Sample physically received at commissary'},
-  {stage:'commissary',dept:'Commissary',label:'Assign storage location (Shelf / Refrigerator / Freezer)',owner:'Commissary Manager',def:'Specific storage location & class assigned'},
+  {stage:'commissary',dept:'Commissary',label:'Confirm sample received',owner:'Commissary Manager',def:'Sample physically received at commissary',inputs:[
+    {key:'sampleReceivedDate',label:'Date received',type:'date'}
+  ]},
+  {stage:'commissary',dept:'Commissary',label:'Assign storage location (Shelf / Refrigerator / Freezer)',owner:'Commissary Manager',def:'Specific storage location & class assigned',inputs:[
+    {key:'storageLocation',label:'Location',type:'text',placeholder:'e.g. Refrigerator 1 / Shelf B-3'}
+  ]},
   {stage:'commissary',dept:'Commissary',label:'Check R365 item created / on order guide',owner:'Commissary Manager',def:'Verified the R365 item exists and is on the guide',link:{href:'https://www.restaurant365.com/logins/',label:'Open R365 →'}},
-  {stage:'commissary',dept:'Commissary',label:'Confirm first fill received',owner:'Commissary Manager',def:'First-fill quantity received and counted'},
-  {stage:'commissary',dept:'Commissary',label:'Set 2-week PAR',owner:'Commissary Manager',def:'2-week PAR level set in the system'},
-  {stage:'commissary',dept:'Commissary',label:'Add ingredient PARs',owner:'Commissary Manager',def:'Component/ingredient PARs entered'},
-  {stage:'commissary',dept:'Commissary',label:'Receiving SOP written',owner:'Commissary Manager',def:'Receiving SOP documented for this item',blocking:false},
+  {stage:'commissary',dept:'Commissary',label:'Confirm first fill received',owner:'Commissary Manager',def:'First-fill quantity received and counted',inputs:[
+    {key:'firstFillReceivedDate',label:'Date received',type:'date'},
+    {key:'firstFillQty',label:'Quantity counted',type:'text',placeholder:'units'}
+  ]},
+  {stage:'commissary',dept:'Commissary',label:'Set 2-week PAR',owner:'Commissary Manager',def:'2-week PAR level set in the system',inputs:[
+    {key:'twoWeekPar',label:'2-week PAR (units)',type:'text',placeholder:'qty'}
+  ]},
+  {stage:'commissary',dept:'Commissary',label:'Add ingredient PARs',owner:'Commissary Manager',def:'Component/ingredient PARs entered in R365 — open R365 to add each ingredient',link:{href:'https://www.restaurant365.com/logins/',label:'Open R365 →'},inputs:[
+    {key:'ingredientParLink',label:'Linked PAR sheet',type:'url',placeholder:'https://… reference doc'}
+  ]},
+  {stage:'commissary',dept:'Commissary',label:'Receiving SOP written',owner:'Commissary Manager',def:'Receiving SOP documented for this item — upload the SOP file',blocking:false,file:true},
   /* Operations */
   {stage:'operations',dept:'Operations',label:'Confirm items on R365 order guide',owner:'Operations Manager',def:'Item verified on the store order guide',link:{href:'https://www.restaurant365.com/logins/',label:'Open R365 →'}},
   {stage:'operations',dept:'Operations',label:'Assign shelf space on store planogram',owner:'Operations Manager',def:'Shelf location assigned on the planogram',notify:'Marketplace',notifyMsg:'Planogram shelf space assigned — please review & approve placement.'},
@@ -657,12 +679,14 @@ const TASK_TEMPLATES=[
   {stage:'operations',dept:'Operations',label:'Receive shelf tag (from Marketing)',owner:'Operations Manager',def:'Printed shelf tag received from Marketing'},
   {stage:'operations',dept:'Operations',label:'Confirm PARs (min qty re-order trigger)',owner:'Operations Manager',def:'Store PAR / reorder point set'},
   {stage:'operations',dept:'Operations',label:'Communicate upcoming launch via newsletter',owner:'Operations Manager',def:'Launch noted in the store/ops newsletter',blocking:false},
-  {stage:'operations',dept:'Operations',label:'Include in store training materials',owner:'Operations Manager',def:'Item added to store training materials'},
+  {stage:'operations',dept:'Operations',label:'Include in store training materials',owner:'Operations Manager',def:'Item added to store training materials — upload the training doc',file:true},
   /* Marketing */
-  {stage:'marketing',dept:'Marketing',label:'Product photography',owner:'Marketing Manager',def:'Final product photos shot & edited'},
+  {stage:'marketing',dept:'Marketing',label:'Product photography',owner:'Marketing Manager',def:'Final product photos shot & edited — link the Drive folder',file:true,inputs:[
+    {key:'photosDriveLink',label:'Photos (Drive)',type:'url',placeholder:'https://drive.google.com/…'}
+  ]},
   {stage:'marketing',dept:'Marketing',label:'Product story / description written',owner:'Marketing Manager',def:'Approved product copy written'},
   {stage:'marketing',dept:'Marketing',label:'Create shelf tag (if needed)',owner:'Marketing Manager',def:'Shelf tag designed & sent to print',blocking:false},
-  {stage:'marketing',dept:'Marketing',label:'Create POS Toast button / ring up qty 1 (syncs to R365)',owner:'Marketing Manager',def:'Toast button created and qty 1 rung to sync',notify:'Inventory',notifyMsg:'Toast item created & rung up qty 1 — ready to attach to the R365/Synergy item (final Toast step).'},
+  {stage:'marketing',dept:'Marketing',label:'Create POS Toast button / ring up qty 1 (syncs to R365)',owner:'Marketing Manager',def:'Toast button created and qty 1 rung to sync',notify:'Inventory',notifyMsg:'Toast item created & rung up qty 1 — ready to attach to the R365 item (final Toast step).'},
   {stage:'marketing',dept:'Marketing',label:'Add to Olo Marketplace menu',owner:'Marketing Manager',def:'Item live on the Olo Marketplace menu',inputs:[
     {key:'oloUrl',label:'Olo menu link',type:'url',placeholder:'https://…'}
   ]},
@@ -670,14 +694,20 @@ const TASK_TEMPLATES=[
   {stage:'marketing',dept:'Marketing',label:'Social scheduled',owner:'Marketing Manager',def:'Launch social posts scheduled',blocking:false},
   {stage:'marketing',dept:'Marketing',label:'Email scheduled',owner:'Marketing Manager',def:'Launch email scheduled',blocking:false},
   /* Store Launch — Store Ops */
-  {stage:'store',dept:'Store Ops',label:'Store places first order',owner:'Store Manager',def:'First order placed through the order guide'},
-  {stage:'store',dept:'Store Ops',label:'Commissary ships product',owner:'Commissary Manager',def:'Product shipped from commissary to store'},
-  {stage:'store',dept:'Store Ops',label:'Store receives product',owner:'Store Manager',def:'Product received & checked in at store'},
+  {stage:'store',dept:'Store Ops',label:'Store places first order',owner:'Store Manager',def:'First order placed through the order guide',inputs:[
+    {key:'firstOrderDate',label:'Order placed',type:'date'}
+  ]},
+  {stage:'store',dept:'Store Ops',label:'Commissary ships product',owner:'Commissary Manager',def:'Product shipped from commissary to store',inputs:[
+    {key:'shippedDate',label:'Ship date',type:'date'}
+  ]},
+  {stage:'store',dept:'Store Ops',label:'Store receives product',owner:'Store Manager',def:'Product received & checked in at store',inputs:[
+    {key:'receivedDate',label:'Date received',type:'date'}
+  ]},
   {stage:'store',dept:'Store Ops',label:'Merchandise shelf',owner:'Store Manager',def:'Product merchandised per planogram'},
   {stage:'store',dept:'Store Ops',label:'Install shelf tags',owner:'Store Manager',def:'Shelf tags installed at the facing'},
   {stage:'store',dept:'Store Ops',label:'Verify pricing',owner:'Store Manager',def:'POS price verified against the cost sheet'},
   {stage:'store',dept:'Store Ops',label:'Train team',owner:'Store Manager',def:'Floor team briefed on the new item'},
-  {stage:'store',dept:'Store Ops',label:'Upload shelf photo',owner:'Store Manager',def:'Photo of the merchandised shelf uploaded',notify:'Marketplace',notifyMsg:'Store launch verified & shelf photo uploaded — product is LIVE.'},
+  {stage:'store',dept:'Store Ops',label:'Upload shelf photo',owner:'Store Manager',def:'Photo of the merchandised shelf uploaded',notify:'Marketplace',notifyMsg:'Store launch verified & shelf photo uploaded — product is LIVE.',file:true},
   /* 30-Day Review — Marketplace */
   {stage:'review',dept:'Marketplace',label:'30-day sales reviewed',owner:'Marketplace Lead',def:'30-day sell-through pulled & reviewed'},
   {stage:'review',dept:'Marketplace',label:'Velocity reviewed',owner:'Marketplace Lead',def:'Unit velocity vs. expectation reviewed'},
@@ -686,7 +716,7 @@ const TASK_TEMPLATES=[
   {stage:'review',dept:'Marketplace',label:'Waste reviewed',owner:'Marketplace Lead',def:'Spoilage/waste reviewed',blocking:false},
   {stage:'review',dept:'Marketplace',label:'Vendor performance reviewed',owner:'Marketplace Lead',def:'Fill rate & lead-time performance reviewed'},
   {stage:'review',dept:'Marketplace',label:'Customer feedback reviewed',owner:'Marketplace Lead',def:'Guest feedback reviewed',blocking:false},
-  {stage:'review',dept:'Marketplace',label:'Disposition decided: Expand / Maintain / Exit',owner:'Marketplace Lead',def:'Expand, Maintain, or Exit decision recorded'}
+  {stage:'review',dept:'Marketplace',label:'Disposition decided: Expand / Maintain / Exit',owner:'Marketplace Lead',def:'Click one to record the reorder decision — saves to the product so the trend is visible across the assortment',decision:{key:'disposition',options:['Expand','Maintain','Exit']}}
 ];
 /* Private Label task templates. Same STAGES as CPG so the pipeline /
    swimlanes / Gantt all keep working, but the checklist inside each
@@ -751,26 +781,33 @@ const PL_TASK_TEMPLATES=[
   {stage:'compliance',dept:'Compliance',label:'Allergen information confirmed',owner:'AP Clerk',def:'Allergen declaration verified',file:true},
   {stage:'compliance',dept:'Compliance',label:'Label artwork approved by Compliance',owner:'AP Clerk',def:'Final label artwork verified for regulatory compliance',file:true},
   {stage:'compliance',dept:'Compliance',label:'Product spec sheet on file',owner:'AP Clerk',def:'Internal product spec sheet uploaded',file:true},
-  {stage:'compliance',dept:'Compliance',label:'Product docs cleared — ready for ERP',owner:'AP Clerk',def:'All product compliance docs on file',notify:'Inventory',notifyMsg:'Product compliance docs cleared — safe to create the R365 / Synergy item & SKU.'},
-  /* ERP / Synergy — Inventory (mirrors CPG; same R365 / Synergy work) */
-  {stage:'erp',dept:'Inventory',label:'Create R365 item',owner:'Synergy Admin',def:'Item created in R365 with correct UOM',link:{href:'https://www.restaurant365.com/logins/',label:'Open R365 →'}},
-  {stage:'erp',dept:'Inventory',label:'Create R365 recipe',owner:'Synergy Admin',def:'Recipe / build created in R365',link:{href:'https://www.restaurant365.com/logins/',label:'Open R365 →'}},
-  {stage:'erp',dept:'Inventory',label:'Add Item Category 1 = Private Label',owner:'Synergy Admin',def:'Category 1 set to "Private Label"',link:{href:'https://www.restaurant365.com/logins/',label:'Open R365 →'}},
-  {stage:'erp',dept:'Inventory',label:'Add to Marketplace order guide',owner:'Synergy Admin',def:'Item appears on the Marketplace order guide',link:{href:'https://www.restaurant365.com/logins/',label:'Open R365 →'}},
-  {stage:'erp',dept:'Inventory',label:'Add to Commissary inventory guide',owner:'Synergy Admin',def:'Item on the Commissary inventory guide',link:{href:'https://www.restaurant365.com/logins/',label:'Open R365 →'}},
-  {stage:'erp',dept:'Inventory',label:'Add to WLV/BW inventory guide',owner:'Synergy Admin',def:'Item on the WLV / BW inventory guide',link:{href:'https://www.restaurant365.com/logins/',label:'Open R365 →'}},
-  {stage:'erp',dept:'Inventory',label:'Attach to Toast item (after Marketing rings up qty 1)',owner:'Synergy Admin',def:'R365 item linked to the Toast item once Marketing has created it',link:{href:'https://www.restaurant365.com/logins/',label:'Open R365 →'}},
+  {stage:'compliance',dept:'Compliance',label:'Product docs cleared — ready for R365 setup',owner:'AP Clerk',def:'All product compliance docs on file',notify:'Inventory',notifyMsg:'Product compliance docs cleared — safe to create the R365 item & SKU.'},
+  /* R365 Setup — Inventory (mirrors CPG; same R365 work) */
+  {stage:'erp',dept:'Inventory',label:'Create R365 item',owner:'Inventory Admin',def:'Item created in R365 with correct UOM',link:{href:'https://www.restaurant365.com/logins/',label:'Open R365 →'}},
+  {stage:'erp',dept:'Inventory',label:'Create R365 recipe',owner:'Inventory Admin',def:'Recipe / build created in R365',link:{href:'https://www.restaurant365.com/logins/',label:'Open R365 →'}},
+  {stage:'erp',dept:'Inventory',label:'Add Item Category 1 = Private Label',owner:'Inventory Admin',def:'Category 1 set to "Private Label"',link:{href:'https://www.restaurant365.com/logins/',label:'Open R365 →'}},
+  {stage:'erp',dept:'Inventory',label:'Add to Marketplace order guide',owner:'Inventory Admin',def:'Item appears on the Marketplace order guide',link:{href:'https://www.restaurant365.com/logins/',label:'Open R365 →'}},
+  {stage:'erp',dept:'Inventory',label:'Add to Commissary inventory guide',owner:'Inventory Admin',def:'Item on the Commissary inventory guide',link:{href:'https://www.restaurant365.com/logins/',label:'Open R365 →'}},
+  {stage:'erp',dept:'Inventory',label:'Add to WLV/BW inventory guide',owner:'Inventory Admin',def:'Item on the WLV / BW inventory guide',link:{href:'https://www.restaurant365.com/logins/',label:'Open R365 →'}},
+  {stage:'erp',dept:'Inventory',label:'Attach to Toast item (after Marketing rings up qty 1)',owner:'Inventory Admin',def:'R365 item linked to the Toast item once Marketing has created it',link:{href:'https://www.restaurant365.com/logins/',label:'Open R365 →'}},
   /* Commissary */
-  {stage:'commissary',dept:'Commissary',label:'Confirm first production run received',owner:'Commissary Manager',def:'First run physically received at commissary'},
-  {stage:'commissary',dept:'Commissary',label:'Assign storage location (Shelf / Refrigerator / Freezer)',owner:'Commissary Manager',def:'Specific storage location & class assigned'},
+  {stage:'commissary',dept:'Commissary',label:'Confirm first production run received',owner:'Commissary Manager',def:'First run physically received at commissary',inputs:[
+    {key:'firstFillReceivedDate',label:'Date received',type:'date'},
+    {key:'firstFillQty',label:'Quantity counted',type:'text',placeholder:'units'}
+  ]},
+  {stage:'commissary',dept:'Commissary',label:'Assign storage location (Shelf / Refrigerator / Freezer)',owner:'Commissary Manager',def:'Specific storage location & class assigned',inputs:[
+    {key:'storageLocation',label:'Location',type:'text',placeholder:'e.g. Refrigerator 1 / Shelf B-3'}
+  ]},
   {stage:'commissary',dept:'Commissary',label:'Check R365 item created / on order guide',owner:'Commissary Manager',def:'Verified the R365 item exists and is on the guide',link:{href:'https://www.restaurant365.com/logins/',label:'Open R365 →'}},
-  {stage:'commissary',dept:'Commissary',label:'Set 2-week PAR',owner:'Commissary Manager',def:'2-week PAR level set in the system'},
+  {stage:'commissary',dept:'Commissary',label:'Set 2-week PAR',owner:'Commissary Manager',def:'2-week PAR level set in the system',inputs:[
+    {key:'twoWeekPar',label:'2-week PAR (units)',type:'text',placeholder:'qty'}
+  ]},
   /* Private Label needs ingredient-level PARs too — for any component
      produced in-house, each ingredient gets its own PAR (Comment #15). */
-  {stage:'commissary',dept:'Commissary',label:'Set ingredient PARs',owner:'Commissary Manager',def:'Per-ingredient PARs entered for each component of this PL recipe',inputs:[
+  {stage:'commissary',dept:'Commissary',label:'Set ingredient PARs',owner:'Commissary Manager',def:'Per-ingredient PARs entered in R365 for each component of this PL recipe',link:{href:'https://www.restaurant365.com/logins/',label:'Open R365 →'},inputs:[
     {key:'ingredientParLink',label:'Ingredient PAR sheet',type:'url',placeholder:'https://… linked PAR doc'}
   ]},
-  {stage:'commissary',dept:'Commissary',label:'Receiving SOP written',owner:'Commissary Manager',def:'Receiving SOP documented for this item',blocking:false},
+  {stage:'commissary',dept:'Commissary',label:'Receiving SOP written',owner:'Commissary Manager',def:'Receiving SOP documented for this item — upload the SOP file',blocking:false,file:true},
   /* Operations / Marketing / Store / Review — same flow as CPG */
   {stage:'operations',dept:'Operations',label:'Confirm items on R365 order guide',owner:'Operations Manager',def:'Item verified on the store order guide',link:{href:'https://www.restaurant365.com/logins/',label:'Open R365 →'}},
   {stage:'operations',dept:'Operations',label:'Assign shelf space on store planogram',owner:'Operations Manager',def:'Shelf location assigned on the planogram',notify:'Marketplace',notifyMsg:'Planogram shelf space assigned — please review & approve placement.'},
@@ -778,25 +815,33 @@ const PL_TASK_TEMPLATES=[
   {stage:'operations',dept:'Operations',label:'Receive shelf tag (from Marketing)',owner:'Operations Manager',def:'Printed shelf tag received from Marketing'},
   {stage:'operations',dept:'Operations',label:'Confirm PARs (min qty re-order trigger)',owner:'Operations Manager',def:'Store PAR / reorder point set'},
   {stage:'operations',dept:'Operations',label:'Communicate upcoming launch via newsletter',owner:'Operations Manager',def:'Launch noted in the store/ops newsletter',blocking:false},
-  {stage:'operations',dept:'Operations',label:'Include in store training materials',owner:'Operations Manager',def:'Item added to store training materials'},
-  {stage:'marketing',dept:'Marketing',label:'Product photography',owner:'Marketing Manager',def:'Final product photos shot & edited'},
+  {stage:'operations',dept:'Operations',label:'Include in store training materials',owner:'Operations Manager',def:'Item added to store training materials — upload the training doc',file:true},
+  {stage:'marketing',dept:'Marketing',label:'Product photography',owner:'Marketing Manager',def:'Final product photos shot & edited — link the Drive folder',file:true,inputs:[
+    {key:'photosDriveLink',label:'Photos (Drive)',type:'url',placeholder:'https://drive.google.com/…'}
+  ]},
   {stage:'marketing',dept:'Marketing',label:'Product story / description written',owner:'Marketing Manager',def:'Approved product copy written'},
   {stage:'marketing',dept:'Marketing',label:'Create shelf tag',owner:'Marketing Manager',def:'Shelf tag designed & sent to print',blocking:false},
-  {stage:'marketing',dept:'Marketing',label:'Create POS Toast button / ring up qty 1',owner:'Marketing Manager',def:'Toast button created and qty 1 rung to sync',notify:'Inventory',notifyMsg:'Toast item created & rung up qty 1 — ready to attach to the R365 / Synergy item.'},
+  {stage:'marketing',dept:'Marketing',label:'Create POS Toast button / ring up qty 1',owner:'Marketing Manager',def:'Toast button created and qty 1 rung to sync',notify:'Inventory',notifyMsg:'Toast item created & rung up qty 1 — ready to attach to the R365 item.'},
   {stage:'marketing',dept:'Marketing',label:'Add to Olo Marketplace menu',owner:'Marketing Manager',def:'Item live on the Olo Marketplace menu',inputs:[
     {key:'oloUrl',label:'Olo menu link',type:'url',placeholder:'https://…'}
   ]},
   {stage:'marketing',dept:'Marketing',label:'Upload photos / ingredients / description to Olo',owner:'Marketing Manager',def:'Front/back photos, ingredients & description on Olo'},
   {stage:'marketing',dept:'Marketing',label:'Social scheduled',owner:'Marketing Manager',def:'Launch social posts scheduled',blocking:false},
   {stage:'marketing',dept:'Marketing',label:'Email scheduled',owner:'Marketing Manager',def:'Launch email scheduled',blocking:false},
-  {stage:'store',dept:'Store Ops',label:'Store places first order',owner:'Store Manager',def:'First order placed through the order guide'},
-  {stage:'store',dept:'Store Ops',label:'Commissary ships product',owner:'Commissary Manager',def:'Product shipped from commissary to store'},
-  {stage:'store',dept:'Store Ops',label:'Store receives product',owner:'Store Manager',def:'Product received & checked in at store'},
+  {stage:'store',dept:'Store Ops',label:'Store places first order',owner:'Store Manager',def:'First order placed through the order guide',inputs:[
+    {key:'firstOrderDate',label:'Order placed',type:'date'}
+  ]},
+  {stage:'store',dept:'Store Ops',label:'Commissary ships product',owner:'Commissary Manager',def:'Product shipped from commissary to store',inputs:[
+    {key:'shippedDate',label:'Ship date',type:'date'}
+  ]},
+  {stage:'store',dept:'Store Ops',label:'Store receives product',owner:'Store Manager',def:'Product received & checked in at store',inputs:[
+    {key:'receivedDate',label:'Date received',type:'date'}
+  ]},
   {stage:'store',dept:'Store Ops',label:'Merchandise shelf',owner:'Store Manager',def:'Product merchandised per planogram'},
   {stage:'store',dept:'Store Ops',label:'Install shelf tags',owner:'Store Manager',def:'Shelf tags installed at the facing'},
   {stage:'store',dept:'Store Ops',label:'Verify pricing',owner:'Store Manager',def:'POS price verified against the cost sheet'},
   {stage:'store',dept:'Store Ops',label:'Train team',owner:'Store Manager',def:'Floor team briefed on the new item'},
-  {stage:'store',dept:'Store Ops',label:'Upload shelf photo',owner:'Store Manager',def:'Photo of the merchandised shelf uploaded',notify:'Marketplace',notifyMsg:'Store launch verified & shelf photo uploaded — product is LIVE.'},
+  {stage:'store',dept:'Store Ops',label:'Upload shelf photo',owner:'Store Manager',def:'Photo of the merchandised shelf uploaded',notify:'Marketplace',notifyMsg:'Store launch verified & shelf photo uploaded — product is LIVE.',file:true},
   {stage:'review',dept:'Marketplace',label:'30-day sales reviewed',owner:'Marketplace Lead',def:'30-day sell-through pulled & reviewed'},
   {stage:'review',dept:'Marketplace',label:'Velocity reviewed',owner:'Marketplace Lead',def:'Unit velocity vs. expectation reviewed'},
   {stage:'review',dept:'Marketplace',label:'Margin reviewed',owner:'Marketplace Lead',def:'Realized margin vs. projected reviewed'},
@@ -804,7 +849,7 @@ const PL_TASK_TEMPLATES=[
   {stage:'review',dept:'Marketplace',label:'Waste reviewed',owner:'Marketplace Lead',def:'Spoilage/waste reviewed',blocking:false},
   {stage:'review',dept:'Marketplace',label:'Co-packer performance reviewed',owner:'Marketplace Lead',def:'Fill rate & lead-time performance reviewed'},
   {stage:'review',dept:'Marketplace',label:'Customer feedback reviewed',owner:'Marketplace Lead',def:'Guest feedback reviewed',blocking:false},
-  {stage:'review',dept:'Marketplace',label:'Disposition decided: Expand / Maintain / Exit',owner:'Marketplace Lead',def:'Expand, Maintain, or Exit decision recorded'}
+  {stage:'review',dept:'Marketplace',label:'Disposition decided: Expand / Maintain / Exit',owner:'Marketplace Lead',def:'Click one to record the reorder decision — saves to the product so the trend is visible across the assortment',decision:{key:'disposition',options:['Expand','Maintain','Exit']}}
 ];
 
 /* Pick the right template per product type so CPG and Private Label run
@@ -813,7 +858,18 @@ const PL_TASK_TEMPLATES=[
    logic all keep working unchanged. */
 function buildTasks(type){
   const src=(type==='Private Label')?PL_TASK_TEMPLATES:TASK_TEMPLATES;
-  return src.map(t=>({stage:t.stage,dept:t.dept,label:t.label,owner:t.owner||'',def:t.def||'',notify:t.notify||'',notifyMsg:t.notifyMsg||'',blocking:t.blocking!==false,file:t.file===true,inputs:Array.isArray(t.inputs)?t.inputs:[],link:t.link||null,values:{},done:false,doneAt:null}));
+  return src.map(t=>({stage:t.stage,dept:t.dept,label:t.label,owner:t.owner||'',def:t.def||'',notify:t.notify||'',notifyMsg:t.notifyMsg||'',blocking:t.blocking!==false,file:t.file===true,inputs:Array.isArray(t.inputs)?t.inputs:[],link:t.link||null,decision:t.decision||null,values:{},done:false,doneAt:null}));
+}
+
+/* Look up a task's decision config from the live template (same
+   fallback pattern as inputs/link) so older launches pick up the
+   30-day review chooser without a back-fill. */
+function templateDecisionFor(launch,task){
+  if(!task) return null;
+  if(task.decision) return task.decision;
+  const src=(launch&&launch.type==='Private Label')?PL_TASK_TEMPLATES:TASK_TEMPLATES;
+  const tpl=src.find(x=>x.stage===task.stage&&x.label===task.label);
+  return (tpl&&tpl.decision)?tpl.decision:null;
 }
 
 /* Look up a task's reference link from the live template — same
@@ -894,39 +950,67 @@ const HUB_URL='https://beneighborly.team/neighborly-marketplace.html';
    actionMessage() when the next stage is Procurement so the email arrives
    pre-populated with everything procurement needs to act. */
 function procurementHandoff(launch){
-  const lines=[];
-  lines.push(`📦 Procurement handoff for ${launch.name||'this product'}:`);
-  lines.push(`• Approved item: ${launch.name||'—'}`);
-  if(launch.sku && launch.sku!==launch.name) lines.push(`• SKU: ${launch.sku}`);
-  if(launch.upc) lines.push(`• UPC: ${launch.upc}`);
-  if(launch.unitSize) lines.push(`• Unit size: ${launch.unitSize}`);
-  if(launch.casePack) lines.push(`• Case pack: ${launch.casePack}`);
-  if(launch.moq) lines.push(`• MOQ: ${launch.moq}`);
-  if(launch.cost) lines.push(`• Price (wholesale): ${launch.cost}`);
-  if(launch.msrp) lines.push(`• MSRP: ${launch.msrp}`);
-  if(launch.primaryDistribution) lines.push(`• Distributor: ${launch.primaryDistribution}`);
-  if(launch.leadTime) lines.push(`• Lead time: ${launch.leadTime}`);
-  if(launch.shelfLife) lines.push(`• Shelf life: ${launch.shelfLife}`);
-  if(launch.storageReq) lines.push(`• Storage: ${launch.storageReq}`);
-  // Suggested launch date = today + 3 weeks. Procurement can override.
+  // Compact bulleted handoff so Procurement sees the basics at a glance.
+  // Empty fields are skipped instead of rendering "—" lines.
+  const lines=['Product details on file:'];
+  const add=(k,v)=>{ if(v!=null && String(v).trim()) lines.push(`• ${k}: ${v}`); };
+  add('Item',launch.name);
+  if(launch.sku && launch.sku!==launch.name) add('SKU',launch.sku);
+  add('UPC',launch.upc);
+  add('Unit size',launch.unitSize);
+  add('Case pack',launch.casePack);
+  add('MOQ',launch.moq);
+  add('Wholesale',launch.cost);
+  add('MSRP',launch.msrp);
+  add('Distributor',launch.primaryDistribution);
+  add('Lead time',launch.leadTime);
+  add('Shelf life',launch.shelfLife);
+  add('Storage',launch.storageReq);
   const d=new Date(); d.setDate(d.getDate()+21);
-  const sug=d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
-  lines.push(`• Suggested launch date: ${sug} (approval + 3 weeks)`);
+  add('Suggested launch date', d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) + ' (approval + 3 weeks)');
   return lines.join('\n');
 }
-/* "It's your turn" handoff copy — names the exact tasks, adds urgency, points
-   to the hub, and reminds them to check tasks off to advance the launch.
-   When the next stage is Procurement (commercial) the message is prepended
-   with the full handoff package so they don't have to dig for the basics. */
+/* Handoff email body. Clean bullets, soft tone — names the tasks waiting,
+   surfaces what's already captured in the portal, and links straight to
+   the product in the hub. When handing to Procurement (commercial) the
+   product details block is prepended so they don't have to dig. */
 function actionMessage(launch,nm){
   const todo=stageTasks(launch,nm.key).filter(x=>x.t.blocking!==false).map(x=>x.t.label);
-  const list=todo.length?` Your ${nm.label} checklist: ${todo.join('; ')}.`:'';
-  const handoff=(nm.key==='commercial')?(procurementHandoff(launch)+'\n\n'):'';
-  return handoff+`🔔 It's your turn, ${nm.dept}! ${launch.name||'A product'} (${brandName(launch)}) just advanced to the ${nm.label} stage — the whole launch is now waiting on your team.`
-    +list
-    +` ⏱️ Please jump on this today: nothing moves forward until your ${nm.label} tasks are done, and every day it sits here pushes ${launch.name||'the launch'}'s go-live date back.`
-    +` 👉 Click here to open ${launch.name||'this product'} in the hub and work your checklist: ${HUB_URL}#${launch.id}`
-    +` ✅ Don't forget — check off each task the moment you finish it. Completing them is what hands ${launch.name||'this product'} to the next team and keeps the launch on track.`;
+  const ts=tasksOf(launch);
+  // Surface every per-task value captured so far (tracking links, sample
+  // dates, margin %, etc.) — gives the receiving team the running record
+  // from the portal in one place.
+  const captured=[];
+  ts.forEach(t=>{
+    if(!t.values) return;
+    const inputs=(Array.isArray(t.inputs)&&t.inputs.length)?t.inputs:(templateInputsFor(launch,t)||[]);
+    const byKey={}; inputs.forEach(i=>{byKey[i.key]=i;});
+    Object.entries(t.values).forEach(([k,v])=>{
+      if(v==null||String(v).trim()==='') return;
+      const def=byKey[k]||{label:k};
+      captured.push(`• ${def.label||k}: ${v}`);
+    });
+  });
+  const lines=[];
+  lines.push(`${launch.name||'A product'} (${brandName(launch)}) just moved to ${nm.label}.`);
+  lines.push('');
+  if(nm.key==='commercial'){
+    lines.push(procurementHandoff(launch));
+    lines.push('');
+  }
+  if(todo.length){
+    lines.push(`What ${nm.dept} needs to do:`);
+    todo.forEach(t=>lines.push(`• ${t}`));
+    lines.push('');
+  }
+  if(captured.length){
+    lines.push('Already captured in the portal:');
+    captured.forEach(l=>lines.push(l));
+    lines.push('');
+  }
+  lines.push(`Open the product: ${HUB_URL}#${launch.id}`);
+  lines.push('Tick each task in the hub as you finish — that\'s what hands the launch to the next team.');
+  return lines.join('\n');
 }
 async function sendEmail(toEmail,team,launch,vars){
   if(!NOTIFY) return {skipped:true};
@@ -1180,6 +1264,14 @@ function renderDrawer(id){
         // the link field, same pattern as inputs.
         const lnk=t.link||templateLinkFor(l,t);
         const linkHtml=lnk?`<a class="task-link" href="${esc(lnk.href)}" target="_blank" rel="noopener">${esc(lnk.label||'Open →')}</a>`:'';
+        // Click-to-select decision tiles (e.g. 30-day review:
+        // Expand / Maintain / Exit). Click one → saves to task.values
+        // [key] AND auto-ticks the task done. Re-clicking the same
+        // option un-selects (and unticks). Falls back to the live
+        // template's decision config for old launches.
+        const dec=t.decision||templateDecisionFor(l,t);
+        const cur=(t.values&&dec&&t.values[dec.key])||'';
+        const decisionHtml=(dec&&Array.isArray(dec.options))?`<div class="task-decision">${dec.options.map(o=>`<button type="button" data-opt="${esc(o)}" class="${cur===o?'on':''}" data-id="${id}" data-ti="${x.i}" data-dk="${esc(dec.key)}">${esc(o)}</button>`).join('')}</div>`:'';
         const fileHtml=t.file?`<div class="task-file">${t.fileUrl
           ?`<a class="file-link" href="${esc(t.fileUrl)}" target="_blank" rel="noopener">📎 ${esc(t.fileName||'View file')}</a><label class="file-btn">Replace<input type="file" hidden data-id="${id}" data-ti="${x.i}"></label>`
           :`<label class="file-btn">⬆ Upload file<input type="file" hidden data-id="${id}" data-ti="${x.i}"></label>`}</div>`:'';
@@ -1200,7 +1292,7 @@ function renderDrawer(id){
           const reqCls=f.required?' required':'';
           return `<div class="task-input${reqCls}${cur?' has-saved':''}"><label>${ico?`<span class="ti-ico">${ico}</span>`:''}${esc(f.label||f.key)}</label><input type="${esc(type)}" class="${hasValue}" placeholder="${esc(f.placeholder||'')}" value="${esc(cur)}" data-id="${id}" data-ti="${x.i}" data-vk="${esc(f.key)}"${f.required?' data-required="1"':''}><span class="ti-saved">✓ saved</span></div>`;
         }).join('')}</div>`:'';
-        return `<div class="task ${t.done?'done':''}"><input type="checkbox" ${t.done?'checked':''} data-id="${id}" data-ti="${x.i}"><div class="tbody"><label>${esc(t.label)}${t.blocking===false?' <span class="opt">optional</span>':''}</label>${meta?`<div class="task-meta">${meta}</div>`:''}${linkHtml}${fileHtml}${inputsHtml}</div></div>`;}).join('');
+        return `<div class="task ${t.done?'done':''}"><input type="checkbox" ${t.done?'checked':''} data-id="${id}" data-ti="${x.i}"><div class="tbody"><label>${esc(t.label)}${t.blocking===false?' <span class="opt">optional</span>':''}</label>${meta?`<div class="task-meta">${meta}</div>`:''}${linkHtml}${decisionHtml}${fileHtml}${inputsHtml}</div></div>`;}).join('');
       return `<div class="ministep ${cls}"><div class="ms-h"><span class="ms-ic">${ic}</span>${esc(g.name)}<span class="ms-c">${gN}/${g.items.length}</span></div><div class="ms-body" style="${open?'':'display:none'}">${tasksHtml}</div></div>`;
     }).join('');
     const nxtK=nextStageKey(s.key), nxtM=nxtK?stageMeta(nxtK):null;
@@ -1233,6 +1325,15 @@ function renderDrawer(id){
   $('drawer').querySelectorAll('.ms-h').forEach(h=>h.onclick=()=>{const b=h.nextElementSibling;b.style.display=b.style.display==='none'?'':'none';});
   $('drawer').querySelectorAll('.task input[type=checkbox]').forEach(c=>c.onchange=()=>toggleTask(c.dataset.id,+c.dataset.ti,c.checked));
   $('drawer').querySelectorAll('.task input[type=file]').forEach(f=>f.onchange=()=>uploadTaskFile(f.dataset.id,+f.dataset.ti,f));
+  // Decision tiles (Expand / Maintain / Exit on the 30-Day Review).
+  // Click a tile to save the choice + auto-tick the task; click again to clear.
+  $('drawer').querySelectorAll('.task-decision button').forEach(b=>{
+    b.onclick=()=>{
+      const id=b.dataset.id, ti=+b.dataset.ti, dk=b.dataset.dk, opt=b.dataset.opt;
+      const wasOn=b.classList.contains('on');
+      saveDecision(id,ti,dk,wasOn?'':opt);
+    };
+  });
   // Persist per-task values (tracking link, free-fill qty, landed cost, etc.)
   // on blur so users can tab through fields without firing a write each
   // keystroke. Writes to launches/{id}/tasks/{ti}/values/{key}.
@@ -1441,6 +1542,28 @@ async function saveTaskValue(id,ti,key,val,inputEl){
 }
 window._close=closeDrawer;
 
+/* Save a 30-day review decision (Expand / Maintain / Exit). Writes
+   the choice to task.values[dk] AND auto-ticks the task done — so
+   the click IS the disposition. Re-clicking the active option clears
+   it and un-ticks. The disposition is also surfaced into Product Info
+   via the Captured-during-process pull, giving us a database-wide
+   trend view across the assortment. */
+async function saveDecision(id,ti,dk,opt){
+  const l=LAUNCHES[id]; if(!l) return;
+  const ts=tasksOf(l).map(t=>Object.assign({},t,{values:Object.assign({},t.values||{})}));
+  ts[ti].values[dk]=opt||null;
+  ts[ti].done=!!opt;
+  ts[ti].doneAt=opt?Date.now():null;
+  const logs=(Array.isArray(l.log)?l.log:Object.values(l.log||{})).slice();
+  if(opt) logs.push({text:`📊 30-Day Review · ${l.name||'product'}: ${opt}`,ts:nowTs()});
+  await db.ref().update({
+    ['marketplace-npi/launches/'+id+'/tasks']:ts,
+    ['marketplace-npi/launches/'+id+'/log']:logs,
+    ['marketplace-npi/launches/'+id+'/disposition']:opt||null
+  });
+  toast(opt?(`Disposition: ${opt}`):'Disposition cleared');
+}
+
 function advanceBtn(l,s){
   const sts=stageTasks(l,s.key);
   // only "blocking" tasks gate the handoff; nice-to-haves (blocking:false) don't.
@@ -1493,8 +1616,17 @@ async function toggleTask(id,ti,checked){
       const def=inputs.find(i=>i.key===k);
       return `• ${(def&&def.label)||k}: ${v}`;
     });
-    const detail=vlines.length?`\n\nCaptured details:\n${vlines.join('\n')}`:'';
-    sendEmail(recipientFor(ts[ti].notify),ts[ti].notify,l,{stage:sm.label,message:(ts[ti].notifyMsg||`${ts[ti].label} completed for ${l.name}.`)+detail});
+    const body=[
+      ts[ti].notifyMsg||`${ts[ti].label} just completed on ${l.name}.`
+    ];
+    if(vlines.length){
+      body.push('');
+      body.push('Captured in the portal:');
+      vlines.forEach(v=>body.push(v));
+    }
+    body.push('');
+    body.push(`Open the product: ${HUB_URL}#${l.id}`);
+    sendEmail(recipientFor(ts[ti].notify),ts[ti].notify,l,{stage:sm.label,message:body.join('\n')});
   }
   let fired=(l.triggersFired||[]).slice(), firedChg=false;
   const logs=(Array.isArray(l.log)?l.log:Object.values(l.log||{})).slice(); let logChg=false, toastMsg=null;
@@ -1520,14 +1652,24 @@ async function toggleTask(id,ti,checked){
       const nxtK=nextStageKey(sk), nxtM=nxtK?stageMeta(nxtK):null;
       if(!nxtK){ // terminal stage (30-Day Review)
         logs.push({text:`✅ ${sm.label} complete`,ts:nowTs()}); logChg=true;
-        sendEmail(recipientFor(sm.dept),sm.dept,l,{stage:sm.label,message:`✅ ${sm.label} complete for ${l.name} (${brandName(l)}) — nice work closing the loop. ${HUB_URL}#${l.id}`});
+        sendEmail(recipientFor(sm.dept),sm.dept,l,{stage:sm.label,message:[
+          `${sm.label} is complete for ${l.name} (${brandName(l)}).`,
+          '',
+          `Open the product: ${HUB_URL}#${l.id}`
+        ].join('\n')});
         toastMsg=`${sm.label} complete`;
       } else {
         const pushLbl=nxtM.dept!=='—'?('Push to '+nxtM.dept):'Mark LIVE on shelf';
         const handTo=nxtM.dept!=='—'?('hand to '+nxtM.dept):'go live';
         logs.push({text:`✅ ${sm.label} complete — ready to ${handTo}`,ts:nowTs()}); logChg=true;
-        sendEmail(recipientFor(sm.dept),sm.dept,l,{stage:sm.label,message:`✅ All your ${sm.label} tasks for ${l.name} (${brandName(l)}) are done — great work! Last step: open the hub and tap “${pushLbl}” to hand ${l.name} to the next team. ${HUB_URL}#${l.id}`});
-        toastMsg=`${sm.label} complete — tap “${pushLbl}”`;
+        sendEmail(recipientFor(sm.dept),sm.dept,l,{stage:sm.label,message:[
+          `All ${sm.label} tasks are done for ${l.name} (${brandName(l)}).`,
+          '',
+          `Next step: open the product in the hub and tap "${pushLbl}" to ${handTo}.`,
+          '',
+          `Open the product: ${HUB_URL}#${l.id}`
+        ].join('\n')});
+        toastMsg=`${sm.label} complete — tap "${pushLbl}"`;
       }
     }
   }
@@ -1568,8 +1710,14 @@ async function _advance(id){
     await db.ref().update({['marketplace-npi/launches/'+id+'/stage']:'live',['marketplace-npi/launches/'+id+'/log']:log,['marketplace-npi/launches/'+id+'/liveDate']:Date.now()});
     toast(l.name+' is LIVE on shelf 🎉'); return;
   }
-  log.push({text:`Stage → ${nm.label} · ${nm.dept} notified`,ts:nowTs()});
+  // R365 Setup is an Inventory back-office step that already gets pinged
+  // from the prior Compliance task ("Vendor documents cleared — safe to
+  // create the R365 item & SKU"). Skip the duplicate stage-handoff
+  // email so Inventory doesn't get pinged twice for the same hand-off.
+  const skipEmail = (nxt === 'erp');
+  log.push({text:`Stage → ${nm.label}${skipEmail?'':' · '+nm.dept+' notified'}`,ts:nowTs()});
   await db.ref().update({['marketplace-npi/launches/'+id+'/stage']:nxt,['marketplace-npi/launches/'+id+'/stageEnteredAt']:Date.now(),['marketplace-npi/launches/'+id+'/log']:log});
+  if(skipEmail){ toast('Pushed to '+nm.dept); return; }
   const r=await sendEmail(recipientFor(nm.dept),nm.dept,l,{stage:nm.label,message:actionMessage(l,nm)});
   toast(r.ok?('Pushed to '+nm.dept+' · email sent'):('Pushed to '+nm.dept+(NOTIFY?' · email failed':' · notify off')));
 }
@@ -1646,7 +1794,7 @@ function openIntake(){
   });
   // Mirror checked state on the row label so the green "received" copy
   // reads even when the user clicks the checkbox without uploading.
-  document.querySelectorAll('#intakeForm .intake-row > input[type=checkbox]').forEach(cb=>{
+  document.querySelectorAll('#intakeForm .intake-row-check input[type=checkbox]').forEach(cb=>{
     cb.onchange=()=>{
       const lbl=cb.closest('.intake-row').querySelector('.intake-row-label');
       if(lbl) lbl.classList.toggle('checked',cb.checked);
@@ -1816,7 +1964,13 @@ async function submitIntake(){
     // can plan ahead.
     if(NOTIFY){
       const nl=upd['marketplace-npi/launches/'+id];
-      const msg=`🚀 New product added — ${name} (${brand}, ${type}). The launch process has officially begun. Each team will be notified automatically when it's your turn — nothing to do yet. Follow progress on the NPI pipeline.`;
+      const msg=[
+        `New product added: ${name} (${brand}, ${type}).`,
+        '',
+        'Heads up only — each team will be notified automatically when its stage goes active.',
+        '',
+        `Follow progress in the hub: ${HUB_URL}#${id}`
+      ].join('\n');
       DEPTS.forEach(d=>sendEmail(recipientFor(d),d,nl,{stage:'Discovery',message:msg}));
     }
     toast('Added '+name);
@@ -1908,13 +2062,31 @@ async function sendTestEmails(){
   const sample={id:'TESTLAUNCH',name:'Test Product',brandId:'__testbrand',category:'Pantry',launchDate:'',stage:'discovery',tasks:buildTasks()};
   const jobs=[];
   // new-product broadcast
-  jobs.push({team:'Marketplace',vars:{stage:'Discovery',message:`🚀 [TEST] New product added — ${sample.name} (Sample Brand). The launch process has officially begun. Each team will be notified automatically when it's your turn — nothing to do yet.`}});
-  // each stage's "it's your turn" handoff
-  STAGES.filter(s=>s.dept&&s.dept!=='—').forEach(s=>jobs.push({team:s.dept,vars:{stage:s.label,message:`[TEST · ${s.dept} handoff] `+actionMessage(sample,s)}}));
+  jobs.push({team:'Marketplace',vars:{stage:'Discovery',message:[
+    `[TEST] New product added — ${sample.name} (Sample Brand).`,
+    '',
+    'Each team will be notified automatically when it is their turn — nothing to do yet.'
+  ].join('\n')}});
+  // each stage's handoff
+  STAGES.filter(s=>s.dept&&s.dept!=='—').forEach(s=>jobs.push({team:s.dept,vars:{stage:s.label,message:`[TEST · ${s.dept} handoff]\n\n`+actionMessage(sample,s)}}));
   // a cross-team dependency ping
-  jobs.push({team:'Inventory',vars:{stage:'W-9',message:'[TEST · cross-team ping] Vendor documents cleared — safe to create the R365/Synergy item & SKU. '+HUB_URL+'#'+sample.id}});
+  jobs.push({team:'Inventory',vars:{stage:'Approvals',message:[
+    '[TEST · cross-team ping]',
+    '',
+    'Vendor documents cleared — safe to create the R365 item and SKU.',
+    '',
+    `Open the product: ${HUB_URL}#${sample.id}`
+  ].join('\n')}});
   // a stage-complete nudge
-  jobs.push({team:'Procurement',vars:{stage:'Commercial',message:`[TEST · stage complete] ✅ All your Commercial tasks for ${sample.name} are done — great work! Last step: open the hub and tap "Push to Compliance" to hand it to the next team. `+HUB_URL+'#'+sample.id}});
+  jobs.push({team:'Procurement',vars:{stage:'Commercial',message:[
+    '[TEST · stage complete]',
+    '',
+    `All Commercial tasks are done for ${sample.name}.`,
+    '',
+    'Next step: open the product in the hub and tap "Push to Compliance".',
+    '',
+    `Open the product: ${HUB_URL}#${sample.id}`
+  ].join('\n')}});
   toast(`Sending ${jobs.length} sample emails to ${TEST_EMAIL}…`);
   let ok=0,fail=0;
   for(const j of jobs){ const r=await sendEmail(TEST_EMAIL,j.team,sample,j.vars); if(r&&r.ok)ok++; else fail++; await new Promise(res=>setTimeout(res,1200)); }
