@@ -896,12 +896,15 @@ function templateInputsFor(launch,task){
 }
 
 /* Named mini-steps per stage: small, purposeful batches so a team member only
-   ever focuses on a short list. [label, taskCount] in template order. */
+   ever focuses on a short list. [label, taskCount] in template order.
+   CPG default. PL-specific overrides live in PL_STAGE_GROUPS — picked
+   by splitGroups based on the launch's type so PL's different task counts
+   and labels don't end up jammed under CPG headers. */
 const STAGE_GROUPS={
   discovery:[['Intake',2],['Samples',2]],
   sample:[['Tasting',2],['Approvals',2],['Brand assets',3]],
-  commercial:[['Vendor setup',3],['Terms & cost',3],['Docs & handoff',2]],
-  compliance:[['Vendor docs (W-9 & COI)',2],['Product docs',4],['Clear vendor',1]],
+  commercial:[['Terms',3],['Cost & fill',3],['Handoff',1]],
+  compliance:[['Vendor docs',2],['Product docs',4],['Clear vendor',1]],
   erp:[['Create item',3],['Order guides',3],['Toast link',1]],
   commissary:[['Intake & storage',3],['PARs & fill',3],['Receiving SOP',1]],
   operations:[['Planogram & order',3],['Tags & PARs',2],['Comms & training',2]],
@@ -909,10 +912,17 @@ const STAGE_GROUPS={
   store:[['Order & receive',3],['Merchandise',3],['Launch day',2]],
   review:[['Performance',4],['Quality & vendor',3],['Decision',1]]
 };
+const PL_STAGE_GROUPS={
+  sample:[['Tasting & formulation',3],['Approvals',2],['Launch prep',3],['Brand assets',2]],
+  commercial:[['Terms',3],['Production',2],['Handoff',1]],
+  compliance:[['Product docs',5],['Handoff',1]],
+  commissary:[['Intake & storage',3],['PARs',2],['Receiving SOP',1]]
+};
 /* Split a stage's task list (array of {t,i} in order) into its named mini-steps.
    Any leftover tasks (e.g. on older launches) fall into a final "More" batch. */
-function splitGroups(stageKey,sts){
-  const defs=STAGE_GROUPS[stageKey]||[['Checklist',sts.length]];
+function splitGroups(stageKey,sts,type){
+  const pl=(type==='Private Label')?(PL_STAGE_GROUPS[stageKey]||null):null;
+  const defs=pl||STAGE_GROUPS[stageKey]||[['Checklist',sts.length]];
   const out=[]; let idx=0;
   defs.forEach(([name,cnt])=>{ if(idx>=sts.length) return; out.push({name,items:sts.slice(idx,idx+cnt)}); idx+=cnt; });
   if(idx<sts.length) out.push({name:'More',items:sts.slice(idx)});
@@ -1244,11 +1254,11 @@ function renderDrawer(id){
   const fired=l.triggersFired||[];
   const curIdx=stageIdx(l.stage);
   const body=STAGES.filter(s=>s.key!=='live').map(s=>{
-    const sts=stageTasks(l,s.key); if(!sts.length&&s.key!=='review'&&!sts.length) {}
+    const sts=stageTasks(l,s.key);
     if(!sts.length) return '';
     const isCur=s.key===l.stage;
     const doneN=sts.filter(x=>x.t.done).length;
-    const groups=splitGroups(s.key,sts);
+    const groups=splitGroups(s.key,sts,l.type);
     let activeIdx=groups.findIndex(g=>!groupDone(g)); if(activeIdx<0) activeIdx=groups.length-1;
     const stepsHtml=groups.map((g,gi)=>{
       const gdone=groupDone(g);
@@ -1632,7 +1642,7 @@ async function toggleTask(id,ti,checked){
   const logs=(Array.isArray(l.log)?l.log:Object.values(l.log||{})).slice(); let logChg=false, toastMsg=null;
   if(checked){
     const sts=ts.map((t,i)=>({t,i})).filter(x=>x.t.stage===sk);
-    const groups=splitGroups(sk,sts);
+    const groups=splitGroups(sk,sts,l.type);
     const grp=groups.find(g=>g.items.some(x=>x.i===ti));
     // mini-step finished → in-app momentum (toast + activity); next batch opens on re-render
     if(grp&&groupDone(grp)){
@@ -2092,7 +2102,7 @@ async function sendTestEmails(){
   for(const j of jobs){ const r=await sendEmail(TEST_EMAIL,j.team,sample,j.vars); if(r&&r.ok)ok++; else fail++; await new Promise(res=>setTimeout(res,1200)); }
   if(prevBrand) BRANDS['__testbrand']=prevBrand; else delete BRANDS['__testbrand'];
   NOTIFY=wasNotify;
-  toast(`✓ ${ok} sample emails sent${fail?` · ${fail} failed`:''} to ${TEST_EMAIL}`,fail?'#a32d2d':'');
+  toast(`✓ ${ok} sample emails sent${fail?` · ${fail} failed`:''} to ${TEST_EMAIL}`);
 }
 
 /* One-time migration: bring already-imported launches up to the v2 checklist.
