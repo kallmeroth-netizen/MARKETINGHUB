@@ -161,6 +161,55 @@
   .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:11px 18px;border-radius:11px;font-size:13.5px;font-weight:600;z-index:80;opacity:0;transition:.2s;box-shadow:var(--shadow)}
   .toast.show{opacity:1}
   .empty{color:var(--muted);padding:48px;text-align:center}
+
+  /* ===== Product Info & Documents cards inside the drawer ===== */
+  .info-card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin-bottom:14px;box-shadow:var(--shadow)}
+  .info-card .ic-h{display:flex;align-items:center;justify-content:space-between;gap:8px;cursor:pointer}
+  .info-card .ic-h h4{margin:0;font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);font-weight:700}
+  .info-card .ic-h .ic-c{font-size:11px;color:var(--muted);font-weight:600}
+  .info-card .ic-h .ic-x{font-size:13px;color:var(--muted);transition:transform .15s}
+  .info-card.collapsed .ic-x{transform:rotate(-90deg)}
+  .info-card .ic-b{margin-top:12px}
+  .info-card.collapsed .ic-b{display:none}
+  .info-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px 16px}
+  @media (max-width:560px){ .info-grid{grid-template-columns:1fr} }
+  .info-cell{min-width:0;font-size:12.5px;color:var(--ink);line-height:1.4}
+  .info-cell .k{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);display:block;margin-bottom:1px}
+  .info-cell .v{word-break:break-word}
+  .info-cell .v.empty{color:#bcb9b1;font-style:italic;font-weight:400}
+  .info-cell .v a{color:var(--accent);text-decoration:none}
+  .info-cell .v a:hover{text-decoration:underline}
+
+  .doc-list{display:flex;flex-direction:column;gap:6px}
+  .doc-row{display:flex;align-items:center;gap:10px;padding:8px 10px;background:#fbfaf7;border:1px solid var(--line-soft);border-radius:10px}
+  .doc-row .doc-ico{flex:0 0 auto;width:30px;height:30px;border-radius:8px;background:rgba(98,128,189,.10);color:var(--accent);display:flex;align-items:center;justify-content:center;font-size:14px}
+  .doc-row .doc-meta{flex:1;min-width:0;overflow:hidden}
+  .doc-row .doc-name{font-size:12.5px;font-weight:600;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .doc-row .doc-task{font-size:11px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .doc-row .doc-actions{display:flex;gap:6px;flex:0 0 auto}
+  .doc-row .doc-btn{font-family:inherit;font-size:11px;font-weight:600;padding:5px 10px;border-radius:8px;border:1px solid var(--line);background:#fff;color:var(--ink);cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:4px}
+  .doc-row .doc-btn:hover{border-color:var(--accent);color:var(--accent)}
+  .doc-row .doc-btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .doc-row .doc-btn.primary:hover{filter:brightness(0.94);color:#fff}
+  .doc-empty{font-size:12px;color:var(--muted);font-style:italic;padding:6px 4px}
+
+  /* ===== Inline document preview overlay (PDFs in an iframe, images
+     inline, anything else falls back to an "Open in new tab" link). */
+  .preview-overlay{position:fixed;inset:0;background:rgba(31,35,40,.78);opacity:0;pointer-events:none;transition:.18s;z-index:70;display:flex;align-items:center;justify-content:center;padding:24px}
+  .preview-overlay.show{opacity:1;pointer-events:auto}
+  .preview-sheet{background:#fff;border-radius:14px;width:min(960px,100%);height:min(86vh,820px);display:flex;flex-direction:column;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,.30)}
+  .preview-head{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--line);background:#fbfaf7}
+  .preview-head .ph-name{flex:1;min-width:0;font-size:13.5px;font-weight:600;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .preview-head .ph-task{font-size:11px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-right:6px}
+  .preview-head a.ph-open{font-size:11.5px;font-weight:600;color:var(--accent);text-decoration:none;padding:5px 10px;border:1px solid var(--line);border-radius:8px}
+  .preview-head a.ph-open:hover{border-color:var(--accent)}
+  .preview-head .ph-x{border:0;background:#f1efe9;width:30px;height:30px;border-radius:8px;font-size:15px;cursor:pointer;color:var(--muted)}
+  .preview-body{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;background:#1f2328;overflow:auto}
+  .preview-body iframe{width:100%;height:100%;border:0;background:#fff}
+  .preview-body img{max-width:100%;max-height:100%;display:block;object-fit:contain}
+  .preview-body .preview-fallback{color:#fff;font-size:13px;text-align:center;padding:32px 24px;line-height:1.5}
+  .preview-body .preview-fallback a{color:#fff;text-decoration:underline}
+
   /* ===== Per-task value inputs (sample tracking link, free first fill
      case pack qty, etc.) — siblings to the existing file-upload row.
      Renders below the task label/meta when a task template declares
@@ -358,6 +407,21 @@
   <div class="intake-foot">
     <button type="button" class="btn-secondary" onclick="window._closeIntake()">Cancel</button>
     <button type="button" class="btn-primary" id="intakeSubmit" onclick="window._submitIntake()">Add product</button>
+  </div>
+</div>
+
+<!-- Inline document preview — opens from any "Preview" button in the
+     drawer Documents section. PDFs render in an iframe, images inline,
+     unrecognized types fall back to an "Open in new tab" link. -->
+<div class="preview-overlay" id="previewOverlay" role="dialog" aria-label="Document preview">
+  <div class="preview-sheet">
+    <div class="preview-head">
+      <div class="ph-name" id="previewName">Document</div>
+      <div class="ph-task" id="previewTask"></div>
+      <a class="ph-open" id="previewOpen" href="#" target="_blank" rel="noopener">Open in new tab</a>
+      <button class="ph-x" type="button" onclick="window._closePreview()" aria-label="Close preview">✕</button>
+    </div>
+    <div class="preview-body" id="previewBody"></div>
   </div>
 </div>
 
@@ -760,11 +824,16 @@ function renderDrawer(id){
         ${isCur?advanceBtn(l,s):''}</div></div>`;
   }).join('');
   const log=(Array.isArray(l.log)?l.log:Object.values(l.log||{})).slice().reverse().slice(0,8);
+  const infoHtml=renderProductInfo(l);
+  const docsHtml=renderDocs(l);
   $('drawer').innerHTML=`<div class="dh"><button class="x" onclick="window._close()">✕</button>
       <div class="dn">${esc(l.name||'')}</div><div class="db">${esc(brandName(l))} · ${esc(l.category||'')}</div>
       <div class="meta2"><span class="tag" style="background:${stageMeta(l.stage).color}22">${esc(stageMeta(l.stage).label)}</span>
         <span class="tag">${esc(l.code||'')}</span><span class="tag">${readiness(l)}% ready</span>${typeBadge(l.type)}</div></div>
-    <div class="dbody">${body||'<div class="empty">No tasks.</div>'}
+    <div class="dbody">
+      ${infoHtml}
+      ${docsHtml}
+      ${body||'<div class="empty">No tasks.</div>'}
       ${l.stage==='live'?`<button class="advance" style="margin-top:6px" onclick="window._advance('${id}')">Start 30-Day Review →</button>`:''}
       <div class="log"><h4>Activity</h4>${log.map(e=>`<div class="e"><span class="t">${esc(e.ts||'')}</span><span>${esc(e.text||'')}</span></div>`).join('')||'<div style="color:#9b988f">No activity yet.</div>'}</div></div>`;
   $('drawer').querySelectorAll('.sb-h').forEach(h=>h.onclick=()=>{const b=h.nextElementSibling;b.style.display=b.style.display==='none'?'':'none';});
@@ -778,7 +847,134 @@ function renderDrawer(id){
     inp.onblur=()=>saveTaskValue(inp.dataset.id,+inp.dataset.ti,inp.dataset.vk,inp.value);
     inp.onkeydown=e=>{ if(e.key==='Enter'){ e.preventDefault(); inp.blur(); } };
   });
+  // Collapsible Product Info / Documents cards
+  $('drawer').querySelectorAll('.info-card .ic-h').forEach(h=>h.onclick=()=>h.parentElement.classList.toggle('collapsed'));
+  // Wire each Preview button to open the inline modal with the right URL/name
+  $('drawer').querySelectorAll('[data-preview-url]').forEach(btn=>{
+    btn.onclick=e=>{ e.preventDefault(); previewDoc(btn.dataset.previewUrl,btn.dataset.previewName,btn.dataset.previewTask); };
+  });
 }
+
+/* Build the Product Info summary block shown at the top of the drawer.
+   Reads from the launch record's intake fields. Collapsible. Each cell
+   shows label + value, with empty fields rendered as a quiet '—' so
+   the layout doesn't bounce when fields are partially filled. */
+function renderProductInfo(l){
+  const b=BRANDS[l.brandId]||{};
+  const cell=(k,v,opts)=>{
+    const o=opts||{};
+    let val=v;
+    const isEmpty=(val==null||String(val).trim()==='');
+    if(isEmpty){ val='—'; }
+    else if(o.link){
+      const href=o.link==='url'?(/^https?:\/\//.test(val)?val:'https://'+val):('mailto:'+val);
+      val=`<a href="${esc(href)}" target="_blank" rel="noopener">${esc(v)}</a>`;
+    } else if(o.tel){ val=`<a href="tel:${esc(v)}">${esc(v)}</a>`; }
+    else { val=esc(val); }
+    return `<div class="info-cell"><span class="k">${esc(k)}</span><span class="v${isEmpty?' empty':''}">${val}</span></div>`;
+  };
+  const brandBlock=`<div class="info-grid">
+    ${cell('Brand',b.name||brandName(l))}
+    ${cell('Founder',b.founderName||b.contact||'')}
+    ${cell('Email',b.email||'',{link:'email'})}
+    ${cell('Phone',b.phone||'',{tel:true})}
+    ${cell('Website',b.website||'',{link:'url'})}
+    ${cell('Type',l.type||'CPG')}
+  </div>`;
+  const prodBlock=`<div class="info-grid" style="margin-top:14px">
+    ${cell('SKU',l.sku||l.name||'')}
+    ${cell('Category',l.category||'')}
+    ${cell('UPC',l.upc||'')}
+    ${cell('Unit Size',l.unitSize||'')}
+    ${cell('Case Pack',l.casePack||'')}
+    ${cell('MOQ',l.moq||'')}
+    ${cell('Wholesale Cost',l.cost||'')}
+    ${cell('MSRP',l.msrp||'')}
+    ${cell('Lead Time',l.leadTime||'')}
+    ${cell('Shelf Life',l.shelfLife||'')}
+    ${cell('Storage',l.storageReq||'')}
+    ${cell('Primary Distribution',l.primaryDistribution||'')}
+    ${cell('Product Dimension',l.productDim||'')}
+    ${cell('Case Dimensions',l.caseDim||'')}
+  </div>`;
+  const notes=l.notes?`<div style="margin-top:12px;font-size:12.5px;color:var(--ink);line-height:1.45;padding-top:10px;border-top:1px dashed var(--line)"><span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);display:block;margin-bottom:3px">Notes</span>${esc(l.notes)}</div>`:'';
+  return `<div class="info-card" id="infoCard">
+    <div class="ic-h"><h4>Product Info</h4><span class="ic-c">Brand · Product</span><span class="ic-x">▾</span></div>
+    <div class="ic-b">
+      <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);margin-bottom:6px">Brand</div>
+      ${brandBlock}
+      <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);margin:14px 0 6px">Product</div>
+      ${prodBlock}
+      ${notes}
+    </div>
+  </div>`;
+}
+
+/* Gather every file that's been uploaded across this launch's tasks
+   (any task with task.fileUrl), build a list with a Preview button per
+   row. PDFs and images get inline preview; other types fall through
+   to a link. */
+function renderDocs(l){
+  const ts=tasksOf(l);
+  const docs=ts.map((t,i)=>t.fileUrl?{
+    name:t.fileName||'Document',
+    url:t.fileUrl,
+    task:t.label||'',
+    stage:t.stage||''
+  }:null).filter(Boolean);
+  const ext=name=>(name.split('.').pop()||'').toLowerCase();
+  const ico=name=>{const e=ext(name); if(e==='pdf')return '📄'; if(['png','jpg','jpeg','gif','webp','svg','heic'].includes(e)) return '🖼️'; if(['doc','docx'].includes(e))return '📝'; if(['xls','xlsx','csv'].includes(e))return '📊'; return '📎';};
+  const body=docs.length?`<div class="doc-list">${docs.map(d=>{
+    const tEsc=esc(d.task), uEsc=esc(d.url), nEsc=esc(d.name);
+    return `<div class="doc-row">
+      <span class="doc-ico">${ico(d.name)}</span>
+      <div class="doc-meta"><div class="doc-name">${nEsc}</div><div class="doc-task">From: ${tEsc}</div></div>
+      <div class="doc-actions">
+        <button type="button" class="doc-btn primary" data-preview-url="${uEsc}" data-preview-name="${nEsc}" data-preview-task="${tEsc}">Preview</button>
+        <a class="doc-btn" href="${uEsc}" target="_blank" rel="noopener" download>Download</a>
+      </div>
+    </div>`;
+  }).join('')}</div>`:'<div class="doc-empty">No documents uploaded yet. Files attached to tasks (W-9, COI, spec sheets, brand assets, etc.) will appear here for preview.</div>';
+  return `<div class="info-card${docs.length?'':' collapsed'}" id="docsCard">
+    <div class="ic-h"><h4>Documents</h4><span class="ic-c">${docs.length} file${docs.length===1?'':'s'}</span><span class="ic-x">▾</span></div>
+    <div class="ic-b">${body}</div>
+  </div>`;
+}
+
+/* Inline preview overlay. PDFs in an iframe (browser-native viewer),
+   images inline, anything else falls through to an "Open in new tab"
+   link inside the body so users still get to the file. */
+function previewDoc(url, name, task){
+  if(!url)return;
+  const ov=document.getElementById('previewOverlay');
+  const body=document.getElementById('previewBody');
+  const nameEl=document.getElementById('previewName');
+  const taskEl=document.getElementById('previewTask');
+  const openEl=document.getElementById('previewOpen');
+  nameEl.textContent=name||'Document';
+  taskEl.textContent=task?`from “${task}”`:'';
+  openEl.href=url;
+  const ext=(name||'').split('.').pop().toLowerCase().split('?')[0];
+  const isPdf=ext==='pdf'||/\.pdf(\?|$)/i.test(url);
+  const isImg=['png','jpg','jpeg','gif','webp','svg'].includes(ext)||/\.(png|jpe?g|gif|webp|svg)(\?|$)/i.test(url);
+  if(isPdf){
+    body.innerHTML=`<iframe src="${esc(url)}#toolbar=1" title="${esc(name||'PDF preview')}"></iframe>`;
+  } else if(isImg){
+    body.innerHTML=`<img src="${esc(url)}" alt="${esc(name||'Image preview')}">`;
+  } else {
+    body.innerHTML=`<div class="preview-fallback">Preview not supported for this file type.<br><a href="${esc(url)}" target="_blank" rel="noopener">Open ${esc(name||'document')} in a new tab →</a></div>`;
+  }
+  ov.classList.add('show');
+}
+function closePreview(){
+  const ov=document.getElementById('previewOverlay');
+  ov.classList.remove('show');
+  // Drop the iframe/img so we don't keep loading the file in the background.
+  setTimeout(()=>{ document.getElementById('previewBody').innerHTML=''; },180);
+}
+window._closePreview=closePreview;
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ const ov=document.getElementById('previewOverlay'); if(ov&&ov.classList.contains('show')) closePreview(); } });
+document.addEventListener('click',e=>{ const ov=document.getElementById('previewOverlay'); if(ov&&ov.classList.contains('show')&&e.target===ov) closePreview(); });
 
 async function saveTaskValue(id,ti,key,val){
   if(!LAUNCHES[id])return;
