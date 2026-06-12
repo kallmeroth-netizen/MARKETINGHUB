@@ -535,6 +535,9 @@
         <div class="intake-row"><label class="intake-row-check"><input type="checkbox" name="assetLogo"><span class="intake-row-label">Brand Logo</span></label><span class="intake-row-file" data-for="assetLogo"></span><label class="intake-upload">⬆ Add file<input type="file" hidden data-key="assetLogo" data-group="asset" accept="image/*,.pdf,.svg"></label></div>
         <div class="intake-row"><label class="intake-row-check"><input type="checkbox" name="assetStory"><span class="intake-row-label">Brand Story</span></label><span class="intake-row-file" data-for="assetStory"></span><label class="intake-upload">⬆ Add file<input type="file" hidden data-key="assetStory" data-group="asset" accept=".pdf,.doc,.docx,.txt"></label></div>
       </div>
+      <div class="intake-grid" style="margin-top:14px">
+        <div class="intake-field wide"><label for="iAssetsDriveLink">Brand Assets — Google Drive link</label><input id="iAssetsDriveLink" name="assetsDriveLink" type="url" placeholder="https://drive.google.com/…  (folder with logos, photos, brand story, etc.)"></div>
+      </div>
     </div>
 
     <!-- Approvals: Compliance docs received at intake (Comment #5).
@@ -1559,8 +1562,10 @@ function renderProductInfo(l){
     if(a.images)       flagged.push(['Assets', 'Product Images']);
     if(a.logo)         flagged.push(['Assets', 'Brand Logo']);
     if(a.story)        flagged.push(['Assets', 'Brand Story']);
-    if(!flagged.length) return '';
+    const driveCell=l.assetsDriveLink?cell('Brand Assets — Drive', l.assetsDriveLink, {link:'url'}):'';
+    if(!flagged.length && !driveCell) return '';
     const cells=flagged.map(([g,n])=>`<div class="info-cell"><span class="k">${esc(g)}</span><span class="v">✓ ${esc(n)}</span></div>`);
+    if(driveCell) cells.push(driveCell);
     return `<div class="info-sub">Received at intake</div><div class="info-grid">${cells.join('')}</div>`;
   })();
   const captured=(function(){
@@ -2053,6 +2058,7 @@ async function submitIntake(){
       primaryDistribution:v('primaryDistribution'),
       notes:v('notes'),
       intakeAssets, intakeCompliance,
+      assetsDriveLink:v('assetsDriveLink'),
       launchDate:'', priority:'Med',
       stage:'discovery', stageEnteredAt:now, createdAt:now,
       triggersFired:[],
@@ -2294,7 +2300,7 @@ function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','
    in the corner after a hard refresh, the browser/CDN is still
    serving an old HTML file. */
 (function stampBuild(){
-  const v='v16 · 2026-06-12 · tracking date input';
+  const v='v17 · 2026-06-12 · brand assets drive link';
   const el=document.createElement('div');
   el.textContent=v;
   el.style.cssText='position:fixed;bottom:6px;right:8px;font-family:ui-monospace,monospace;font-size:10px;color:#9b988f;background:rgba(255,255,255,.85);padding:3px 8px;border-radius:6px;z-index:9999;pointer-events:none;letter-spacing:.02em';
