@@ -292,6 +292,71 @@
   .cal-day.muted { opacity: 0.35; }
   .cal-foot { font-size: 10px; color: var(--text-3); margin-top: 10px; padding-top: 10px; border-top: 0.5px solid var(--line); line-height: 1.4; }
   .cal-foot strong { color: var(--text-2); font-weight: 600; }
+
+  /* === AI Query section === */
+  .ai-query-row {
+    display: flex; gap: var(--s-2); align-items: center; margin-bottom: var(--s-3);
+  }
+  .ai-query-input {
+    flex: 1 1 0; min-width: 0;
+    padding: 10px 16px;
+    border: 1.5px solid var(--line-strong); border-radius: var(--r-pill);
+    background: var(--surface); font-size: var(--t-body-sm); color: var(--text);
+    outline: none; transition: border-color 0.15s;
+  }
+  .ai-query-input:focus { border-color: var(--ink); }
+  .ai-query-btn {
+    padding: 10px 20px; border: none; border-radius: var(--r-pill);
+    background: var(--ink); color: var(--surface); font-size: var(--t-body-sm);
+    font-weight: 600; cursor: pointer; white-space: nowrap; flex-shrink: 0;
+    transition: opacity 0.15s;
+  }
+  .ai-query-btn:hover { opacity: 0.82; }
+  .ai-query-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+  .ai-chips { display: flex; flex-wrap: wrap; gap: var(--s-2); margin-bottom: var(--s-3); }
+  .ai-chip {
+    padding: 5px 12px; border: 1px solid var(--line-strong); border-radius: var(--r-pill);
+    background: var(--surface); font-size: var(--t-caption); color: var(--text-2);
+    cursor: pointer; transition: all 0.12s;
+  }
+  .ai-chip:hover { border-color: var(--ink); color: var(--ink); background: var(--surface-2); }
+  .ai-loading {
+    display: none; align-items: center; gap: var(--s-3);
+    color: var(--text-3); font-size: var(--t-body-sm); padding: var(--s-3) 0;
+  }
+  .ai-loading.visible { display: flex; }
+  .ai-spinner {
+    width: 18px; height: 18px; border-radius: 50%;
+    border: 2px solid var(--line-bold); border-top-color: var(--ink);
+    animation: ai-spin 0.7s linear infinite; flex-shrink: 0;
+  }
+  @keyframes ai-spin { to { transform: rotate(360deg); } }
+  .ai-result { display: none; }
+  .ai-result.visible { display: block; }
+  .ai-result-title {
+    font-size: 15px; font-weight: 600; color: var(--ink); margin-bottom: var(--s-3);
+  }
+  .ai-findings { list-style: none; padding: 0; margin: 0 0 var(--s-4); }
+  .ai-findings li {
+    padding: 7px 0; border-bottom: 1px solid var(--line);
+    font-size: var(--t-body-sm); color: var(--text); line-height: 1.5;
+  }
+  .ai-findings li:last-child { border-bottom: none; }
+  .ai-finding-key { font-weight: 600; color: var(--ink); }
+  .ai-download-btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 10px 20px; border-radius: var(--r-pill);
+    background: var(--brand-orange); color: #fff;
+    font-size: var(--t-body-sm); font-weight: 600; text-decoration: none;
+    transition: opacity 0.15s;
+  }
+  .ai-download-btn:hover { opacity: 0.88; }
+  .ai-error {
+    display: none; padding: var(--s-3) var(--s-4);
+    background: #fff0f0; border: 1px solid #f5c6c6; border-radius: var(--r-md);
+    color: #b00000; font-size: var(--t-body-sm);
+  }
+  .ai-error.visible { display: block; }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script src="np-data.js"></script>
@@ -464,6 +529,43 @@
         </thead>
         <tbody id="itemTbody"></tbody>
       </table>
+    </div>
+  </section>
+
+  <!-- AI PMIX QUERY -->
+  <section class="np-card" id="aiQuerySection" style="margin-top: var(--s-4)">
+    <div class="np-card-title">Ask AI about your PMIX data</div>
+    <div class="np-card-sub">Type a question or pick a preset — get back a written analysis and downloadable PDF report</div>
+
+    <div style="margin-top: var(--s-4)">
+      <div class="ai-query-row">
+        <input id="aiInput" class="ai-query-input" type="text"
+          placeholder="e.g. What are the biggest movers this week?" autocomplete="off" maxlength="280">
+        <button id="aiSubmitBtn" class="ai-query-btn" type="button">Analyze →</button>
+      </div>
+
+      <div class="ai-chips">
+        <button class="ai-chip" data-q="Biggest movers this week">Biggest movers this week</button>
+        <button class="ai-chip" data-q="Compare BRT vs WLV this week">Compare BRT vs WLV this week</button>
+        <button class="ai-chip" data-q="Flag anything unusual">Flag anything unusual</button>
+        <button class="ai-chip" data-q="Top items by revenue, last 4 weeks">Top items by revenue, last 4 weeks</button>
+      </div>
+
+      <div class="ai-loading" id="aiLoading">
+        <div class="ai-spinner"></div>
+        <span>Generating your analysis — this usually takes 15–25 seconds…</span>
+      </div>
+
+      <div class="ai-error" id="aiError"></div>
+
+      <div class="ai-result" id="aiResult">
+        <div class="ai-result-title" id="aiResultTitle"></div>
+        <ul class="ai-findings" id="aiFindings"></ul>
+        <a class="ai-download-btn" id="aiDownloadBtn" href="#" target="_blank" rel="noopener">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download Report (PDF)
+        </a>
+      </div>
     </div>
   </section>
 
@@ -1149,6 +1251,80 @@
   });
 
   loadPMIX();
+
+  // ── AI PMIX Query ──────────────────────────────────────────────────────────
+  (function () {
+    const input      = document.getElementById('aiInput');
+    const submitBtn  = document.getElementById('aiSubmitBtn');
+    const loading    = document.getElementById('aiLoading');
+    const result     = document.getElementById('aiResult');
+    const errorEl    = document.getElementById('aiError');
+    const titleEl    = document.getElementById('aiResultTitle');
+    const findingsEl = document.getElementById('aiFindings');
+    const downloadEl = document.getElementById('aiDownloadBtn');
+
+    function setLoading(on) {
+      loading.classList.toggle('visible', on);
+      submitBtn.disabled = on;
+      input.disabled = on;
+      if (on) { result.classList.remove('visible'); errorEl.classList.remove('visible'); }
+    }
+
+    function showError(msg) {
+      errorEl.textContent = msg;
+      errorEl.classList.add('visible');
+    }
+
+    function renderFinding(text) {
+      // "KEY PHRASE: rest of text" — bold the key phrase
+      const li = document.createElement('li');
+      const colonIdx = text.indexOf(':');
+      if (colonIdx > 0 && colonIdx < 50) {
+        const key  = document.createElement('span');
+        key.className = 'ai-finding-key';
+        key.textContent = text.slice(0, colonIdx + 1) + ' ';
+        li.appendChild(key);
+        li.appendChild(document.createTextNode(text.slice(colonIdx + 1).trim()));
+      } else {
+        li.textContent = text;
+      }
+      return li;
+    }
+
+    async function runAnalysis(question) {
+      if (!question.trim()) return;
+      setLoading(true);
+
+      try {
+        const { data, error } = await NPData.supabase.functions.invoke('pmix-analyze', {
+          body: { question: question.trim() },
+        });
+        if (error) throw new Error(error.message ?? String(error));
+
+        titleEl.textContent = data.summary?.title ?? 'Analysis';
+        findingsEl.innerHTML = '';
+        for (const f of data.summary?.findings ?? []) {
+          findingsEl.appendChild(renderFinding(f));
+        }
+        downloadEl.href = data.pdf_url;
+        result.classList.add('visible');
+      } catch (err) {
+        showError('Analysis failed: ' + (err.message ?? String(err)));
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    submitBtn.addEventListener('click', () => runAnalysis(input.value));
+    input.addEventListener('keydown', e => { if (e.key === 'Enter') runAnalysis(input.value); });
+
+    document.querySelectorAll('.ai-chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        input.value = chip.dataset.q;
+        runAnalysis(chip.dataset.q);
+      });
+    });
+  })();
 </script>
 
 

@@ -912,8 +912,8 @@
         </span>
       </a>
 
-      <!-- Marketplace NPI — admin-only (hidden pilot) -->
-      <a class="tile" data-roles="admin" data-key="marketplace" href="neighborly-marketplace.html" style="border-color:rgba(90,74,122,0.28)">
+      <!-- Marketplace NPI — open to everyone -->
+      <a class="tile" data-roles="team,guest,ops,admin" data-key="marketplace" href="neighborly-marketplace.html" style="border-color:rgba(90,74,122,0.28)">
         <span class="tile-ico" style="background:#f0eff5;color:#5a4a7a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l1-5h16l1 5"/><path d="M4 9v11a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1V9"/><path d="M9 21v-6h6v6"/></svg></span>
         <span class="tile-body">
           <span class="tile-label">Marketplace NPI</span>
@@ -1122,7 +1122,7 @@
       svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 13h4l3 7 4-16 3 9h4"/></svg>' },
     { key: 'opspmix', label: 'Product Mix · Ops', sub: 'POS mix, computed once', bg:'#e4f5ea', stroke:'#1e5a37', roles:['ops','admin'],
       svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>' },
-    { key: 'marketplace', label: 'Marketplace NPI', sub: 'New product introduction', bg:'#f0eff5', stroke:'#5a4a7a', roles:['admin'],
+    { key: 'marketplace', label: 'Marketplace NPI', sub: 'New product introduction', bg:'#f0eff5', stroke:'#5a4a7a', roles:['team','guest','ops','admin'],
       svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l1-5h16l1 5"/><path d="M4 9v11a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1V9"/><path d="M9 21v-6h6v6"/></svg>' },
     { key: 'admin', label: 'Admin', sub: 'User management', bg:'#efece2', stroke:'#1f2328', roles:['admin'],
       svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/><path d="M18 14l1.5 1.5L22 13"/></svg>' }

@@ -4,14 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Marketplace NPI — Neighborly</title>
-
-<link rel="manifest" href="/manifest.json">
-<link rel="apple-touch-icon" href="/apple-touch-icon.png">
-<meta name="theme-color" content="#5a4a7a">
-<link rel="icon" href="/favicon.ico" sizes="any">
-<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png">
-
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="theme.css">
 <script src="chrome-v2.js" defer></script>
 <script>
@@ -29,1255 +23,833 @@
     }).catch(function () {});
   }
 </script>
-
-
-<!-- Firebase (live multi-user sync — same project as calendar/gantt) -->
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
-<script>
-  var __fbDb = null;
-  try {
-    firebase.initializeApp({apiKey:"AIzaSyAiHIQuw3eiyY305sDqc_CoV_MoEG9CQpw",authDomain:"neighborly-hub-53e4b.firebaseapp.com",databaseURL:"https://neighborly-hub-53e4b-default-rtdb.firebaseio.com",projectId:"neighborly-hub-53e4b",storageBucket:"neighborly-hub-53e4b.firebasestorage.app",messagingSenderId:"847761939455",appId:"1:847761939455:web:d0d5dbe1795bb4f05f25ca"});
-    __fbDb = firebase.database();
-  } catch (e) { console.warn('Firebase unavailable — Marketplace NPI falling back to local memory only.', e); }
-</script>
-
-<!-- EmailJS (optional outbound notifications — flip on in CONFIG below) -->
-<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
-
-<!-- Auth / role gate -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-<script src="np-data.js"></script>
-<script>
-  /* HIDDEN FOR NOW: only the admin role can reach this page and no tile is
-     shown on the hub home. To open it up later, change the line below to e.g.
-     ['admin','marketplace'] and add a data-roles="marketplace" tile in index.html. */
-  NPData.guardPage(['admin']);
-</script>
-
 <style>
   :root{
-    --mp:#5a4a7a; --mp-light:#f0eff5; --mp-deep:#5a4a7a;
+    --bg:#f7f6f3; --card:#fff; --ink:#1f2328; --muted:#6b7178;
+    --line:rgba(31,35,40,.08); --line-soft:rgba(31,35,40,.06);
+    --accent:#6280bd; --radius:14px; --shadow:0 1px 2px rgba(31,35,40,.04),0 8px 24px rgba(31,35,40,.05);
+    --green-ink:#3f7a52; --green-bg:#e9f4ee; --green-br:#cfe9da;
+    --amber-ink:#9a6a16; --amber-bg:#fbf2e2; --amber-br:#efe0c2;
   }
-  *{box-sizing:border-box;}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:"DM Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
+  /* top bar — adopts the hub's shared .np-nav look (theme.css), standalone (no hub launcher) */
+  .np-nav{z-index:30}                          /* keep the drawer/scrim (z40-50) above the nav */
+  .np-nav-brand{cursor:default}
+  .np-nav-brand img{height:24px}
+  .np-nav .np-tab{font-size:14px;padding:7px 13px}
+  .np-nav-right{gap:10px}
+  .addbtn{border:0;background:var(--ink);color:#fff;font-family:inherit;font-weight:600;font-size:13px;padding:9px 14px;border-radius:10px;cursor:pointer}
+  .toggle{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--muted)}
+  .switch{position:relative;width:36px;height:20px;background:#d8d5cd;border-radius:999px;cursor:pointer;transition:.15s}
+  .switch.on{background:var(--green-ink)}
+  .switch::after{content:'';position:absolute;top:2px;left:2px;width:16px;height:16px;background:#fff;border-radius:50%;transition:.15s}
+  .switch.on::after{left:18px}
+  .wrap{max-width:1280px;margin:0 auto;padding:24px 22px 80px}
 
-  /* Neighborly-orange scrollbars (this page only) */
-  *{ scrollbar-width:thin; scrollbar-color:var(--brand-orange) transparent; }
-  ::-webkit-scrollbar{ width:10px; height:10px; }
-  ::-webkit-scrollbar-track{ background:transparent; }
-  ::-webkit-scrollbar-thumb{ background:var(--brand-orange); border-radius:10px; }
-  ::-webkit-scrollbar-thumb:hover{ background:var(--brand-orange-deep); }
-  .np-nav-page-tag.mp{ background:var(--mp-light); color:var(--mp-deep); }
+  /* pipeline board */
+  /* pipeline — horizontal swim-lanes (one row per stage) */
+  .lanes{display:flex;flex-direction:column;gap:12px}
+  .lane{display:flex;align-items:stretch;background:#efece5;border-radius:14px;overflow:hidden}
+  .lane-head{flex:0 0 165px;display:flex;flex-direction:column;justify-content:flex-start;gap:5px;padding:14px;border-right:1px solid var(--line-soft)}
+  .lane-head .lh-top{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;line-height:1.2}
+  .lane-head .dot{width:9px;height:9px;border-radius:50%;flex:0 0 auto}
+  .lane-head .cnt{color:var(--muted);font-weight:600;font-size:11px}
+  .lane-list{flex:1;min-width:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(205px,1fr));align-content:start;gap:9px;padding:10px}
+  .lane-empty{align-self:center;color:#9b988f;font-size:12px;padding:0 6px}
+  .pcard{background:#fff;border:1px solid var(--line-soft);border-radius:11px;padding:11px 12px;box-shadow:var(--shadow);cursor:pointer}
+  .pcard:hover{border-color:var(--accent)}
+  .pcard .pn{font-weight:600;font-size:13.5px;line-height:1.25}
+  .pcard .pb{font-size:11.5px;color:var(--muted);margin-top:2px}
+  .pcard .bar{height:5px;background:#eee9e0;border-radius:999px;margin-top:9px;overflow:hidden}
+  .pcard .bar i{display:block;height:100%;background:var(--accent);border-radius:999px}
+  .pcard .code{font-size:10.5px;color:var(--muted);margin-top:6px;letter-spacing:.3px}
 
-  /* ---- header row ---- */
-  .mp-head{ display:flex; align-items:flex-end; justify-content:space-between; gap:16px; margin-bottom:var(--s-4); flex-wrap:wrap; }
-  .mp-head h1{ font-family:var(--f-sans); font-weight:700; font-size:var(--t-section); margin:0; line-height:1.15; color:var(--ink); }
-  .mp-head .eyebrow{ font-family:var(--f-eyebrow); font-size:var(--t-eyebrow); letter-spacing:.1em; text-transform:uppercase; color:var(--mp-deep); }
-  .mp-actions{ display:flex; gap:8px; flex-wrap:wrap; }
+  /* products + brands */
+  h1{font-size:25px;font-weight:700;margin:0 0 4px;letter-spacing:-.3px}
+  .sub{color:var(--muted);margin:0 0 20px;font-size:14px}
+  .segmented{display:inline-flex;background:#eceae4;border-radius:11px;padding:3px;margin-bottom:16px;gap:2px}
+  .segmented button{border:0;background:transparent;font-family:inherit;font-size:13px;font-weight:600;color:var(--muted);padding:7px 15px;border-radius:9px;cursor:pointer}
+  .segmented button.active{background:#fff;color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.08)}
+  .toolbar{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+  .toolbar input{flex:1;min-width:240px;padding:11px 14px;border:1px solid var(--line);border-radius:11px;font-size:14px;font-family:inherit;background:#fff;color:var(--ink)}
+  .toolbar input:focus{outline:none;border-color:var(--accent)}
+  .stat{font-size:13px;color:var(--muted);margin-left:auto}
+  .chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:22px}
+  .chip{padding:6px 13px;border:1px solid var(--line);border-radius:999px;background:#fff;font-size:13px;font-weight:500;cursor:pointer;color:var(--muted)}
+  .chip.active{background:var(--ink);border-color:var(--ink);color:#fff}
+  .cat-head{display:flex;align-items:baseline;gap:10px;margin:0 0 12px}
+  .cat-head h2{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;margin:0;color:#56524b}
+  .cat-head .n{color:var(--muted);font-size:12px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px;margin-bottom:28px}
+  .card{background:var(--card);border:1px solid var(--line-soft);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:5px;cursor:pointer}
+  .card .name{font-weight:600;font-size:15px;line-height:1.3}
+  .card .meta{font-size:12px;color:var(--muted)}
+  .pill{align-self:flex-start;margin-top:8px;font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px}
+  .pill.shelf{color:var(--green-ink);background:var(--green-bg);border:1px solid var(--green-br)}
+  .pill.pipe{color:var(--amber-ink);background:var(--amber-bg);border:1px solid var(--amber-br)}
 
-  .mp-btn{ display:inline-flex; align-items:center; gap:7px; border:1px solid var(--line-strong); background:var(--surface);
-    color:var(--text); font-family:var(--f-sans); font-size:13px; font-weight:600; padding:9px 14px; border-radius:var(--r-pill);
-    cursor:pointer; transition:.15s; white-space:nowrap; }
-  .mp-btn:hover{ border-color:var(--line-bold); background:var(--surface-2); }
-  .mp-btn.primary{ background:var(--mp); border-color:var(--mp); color:#fff; }
-  .mp-btn.primary:hover{ background:var(--mp-deep); }
-  .mp-btn.sm{ padding:6px 11px; font-size:12px; }
-  .mp-btn svg{ width:15px; height:15px; }
+  /* drawer */
+  .scrim{position:fixed;inset:0;background:rgba(31,35,40,.35);opacity:0;pointer-events:none;transition:.18s;z-index:40}
+  .scrim.show{opacity:1;pointer-events:auto}
+  .drawer{position:fixed;top:0;right:0;height:100%;width:min(560px,94vw);background:var(--bg);box-shadow:-12px 0 40px rgba(0,0,0,.18);transform:translateX(100%);transition:.22s;z-index:50;overflow-y:auto}
+  .drawer.show{transform:none}
+  .dh{position:sticky;top:0;background:#fff;border-bottom:1px solid var(--line);padding:18px 22px;z-index:2}
+  .dh .x{position:absolute;top:16px;right:18px;border:0;background:#f1efe9;width:30px;height:30px;border-radius:8px;font-size:16px;cursor:pointer;color:var(--muted)}
+  .dh .dn{font-size:18px;font-weight:700;padding-right:36px}
+  .dh .db{font-size:13px;color:var(--muted);margin-top:3px}
+  .dh .meta2{display:flex;gap:8px;flex-wrap:wrap;margin-top:11px;font-size:11.5px}
+  .tag{background:#f1efe9;color:#56524b;padding:3px 9px;border-radius:999px;font-weight:600}
+  .dbody{padding:18px 22px}
+  .stagebox{background:#fff;border:1px solid var(--line-soft);border-radius:12px;margin-bottom:12px;overflow:hidden}
+  .stagebox.cur{border-color:var(--accent);box-shadow:0 0 0 2px rgba(98,128,189,.12)}
+  .sb-h{display:flex;align-items:center;gap:9px;padding:12px 14px;cursor:pointer;background:#fcfbf9}
+  .sb-h .dot{width:9px;height:9px;border-radius:50%}
+  .sb-h .lbl{font-weight:700;font-size:13.5px}
+  .sb-h .dept{font-size:11px;color:var(--muted)}
+  .sb-h .pct{margin-left:auto;font-size:11.5px;color:var(--muted);font-weight:600}
+  .sb-body{padding:6px 14px 14px}
+  .cta{background:var(--green-bg);border:1px solid var(--green-br);color:#2f5d3f;font-size:13px;line-height:1.45;padding:10px 12px;border-radius:10px;margin:2px 0 12px}
+  .cta b{color:#234a31}
+  /* named mini-steps (one focused batch at a time) */
+  .ministep{border:1px solid var(--line-soft);border-radius:10px;margin-bottom:8px;overflow:hidden;background:#fff}
+  .ministep.active{border-color:var(--accent);box-shadow:0 0 0 2px rgba(98,128,189,.10)}
+  .ministep.done{opacity:.7}
+  .ministep.upcoming{opacity:.62}
+  .ms-h{display:flex;align-items:center;gap:8px;padding:9px 12px;font-size:13px;font-weight:700;cursor:pointer;background:#fcfbf9;user-select:none}
+  .ministep.active .ms-h{color:var(--accent)}
+  .ms-ic{width:15px;text-align:center;flex:0 0 auto;color:var(--muted)}
+  .ministep.done .ms-ic{color:var(--green-ink)}
+  .ms-c{margin-left:auto;font-size:11px;font-weight:600;color:var(--muted)}
+  .ms-body{padding:4px 12px 10px}
+  .opt{font-size:9.5px;font-weight:700;color:var(--muted);background:#f1efe9;padding:1px 6px;border-radius:999px;margin-left:6px;text-transform:uppercase;letter-spacing:.3px}
+  .tg{border-top:1px dashed var(--line);padding:10px 0 4px}
+  .tg:first-child{border-top:0}
+  .tg .tgh{display:flex;align-items:center;gap:8px;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:6px}
+  .tg .tgh .fired{color:var(--green-ink);background:var(--green-bg);border:1px solid var(--green-br);padding:1px 7px;border-radius:999px;letter-spacing:.2px}
+  .tg .tgh .pend{color:var(--amber-ink);background:var(--amber-bg);border:1px solid var(--amber-br);padding:1px 7px;border-radius:999px;letter-spacing:.2px}
+  .task{display:flex;align-items:flex-start;gap:9px;padding:5px 0;font-size:13.5px}
+  .task input{margin-top:2px;width:16px;height:16px;accent-color:var(--green-ink);cursor:pointer}
+  .task.done label{color:var(--muted);text-decoration:line-through}
+  .task .tbody{flex:1;min-width:0}
+  .task-meta{font-size:11px;color:var(--muted);opacity:.9;margin-top:2px;line-height:1.45}
+  .task-file{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:5px}
+  .file-btn{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;color:var(--accent);border:1px dashed var(--line);border-radius:7px;padding:3px 9px;cursor:pointer}
+  .file-btn:hover{border-color:var(--accent);background:rgba(98,128,189,.06)}
+  .file-link{display:inline-flex;align-items:center;gap:4px;max-width:100%;font-size:11.5px;font-weight:600;color:var(--accent);text-decoration:none;background:rgba(98,128,189,.08);border-radius:7px;padding:3px 9px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .file-link:hover{text-decoration:underline}
+  .advance{width:100%;border:0;background:var(--accent);color:#fff;font-family:inherit;font-weight:700;font-size:14px;padding:13px;border-radius:11px;cursor:pointer;margin-top:6px}
+  .advance:disabled{background:#d8d5cd;cursor:not-allowed}
+  .advance.live{background:var(--green-ink)}
+  .log{margin-top:18px;font-size:12px}
+  .log h4{font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin:0 0 8px}
+  .log .e{display:flex;gap:8px;padding:4px 0;color:#56524b}
+  .log .e .t{color:var(--muted);white-space:nowrap}
+  .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:11px 18px;border-radius:11px;font-size:13.5px;font-weight:600;z-index:80;opacity:0;transition:.2s;box-shadow:var(--shadow)}
+  .toast.show{opacity:1}
+  .empty{color:var(--muted);padding:48px;text-align:center}
+  /* gantt */
+  .gantt{background:#fff;border:1px solid var(--line-soft);border-radius:14px;box-shadow:var(--shadow);overflow:hidden}
+  .grow{display:grid;grid-template-columns:230px repeat(var(--gn,8),minmax(0,1fr)) 86px;align-items:center;border-top:1px solid var(--line-soft)}
+  .grow.head{background:#fcfbf9;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.3px;color:#56524b;border-top:0}
+  .grow.head>div{padding:11px 6px;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .grow.head>div.lbl{text-align:left;padding-left:12px}
+  .grow:not(.head):hover{background:#fcfbf9}
+  .gcell{height:26px;margin:6px 2px;border-radius:6px;background:#f0ede6}
+  .gcell.cur{background-image:repeating-linear-gradient(45deg,rgba(255,255,255,.45) 0 6px,transparent 6px 12px);box-shadow:0 0 0 2px rgba(98,128,189,.18) inset}
+  .glabel{padding:10px 12px;font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .glabel small{display:block;font-weight:400;color:var(--muted);font-size:11px;margin-top:1px}
+  .gmeta{padding:0 10px;text-align:right;font-size:11px;color:var(--muted);line-height:1.5}
+  .gmeta .r{font-weight:700;color:var(--ink);font-size:12.5px}
+  .gmeta .stall{color:#b4493b;font-weight:700}
+  .legend{display:flex;gap:14px;flex-wrap:wrap;margin:14px 2px 0;font-size:11.5px;color:var(--muted)}
+  .legend span{display:inline-flex;align-items:center;gap:5px}
+  .legend i{width:11px;height:11px;border-radius:3px;display:inline-block}
+  /* settings */
+  .setbox{background:#fff;border:1px solid var(--line-soft);border-radius:14px;box-shadow:var(--shadow);padding:22px;max-width:660px}
+  .sethint{font-size:12.5px;color:var(--muted);margin:0 0 16px;line-height:1.5}
+  .setrow{display:flex;align-items:center;gap:12px;padding:9px 0;border-top:1px solid var(--line-soft)}
+  .setrow:first-of-type{border-top:0}
+  .setrow label{flex:0 0 150px;font-weight:600;font-size:13.5px}
+  .setrow input[type=email],.setrow input[type=number]{flex:1;padding:9px 12px;border:1px solid var(--line);border-radius:9px;font-family:inherit;font-size:13.5px;color:var(--ink)}
+  .setrow input:focus{outline:none;border-color:var(--accent)}
+  .setrow-emails{align-items:flex-start}
+  .emails{flex:1;display:flex;flex-direction:column;gap:8px;min-width:0}
+  .emailrow{display:flex;align-items:center;gap:8px}
+  .emailrow input[type=email]{flex:1;min-width:0;padding:9px 12px;border:1px solid var(--line);border-radius:9px;font-family:inherit;font-size:13.5px;color:var(--ink)}
+  .emailrow input:focus{outline:none;border-color:var(--accent)}
+  .rmmail{flex:0 0 auto;width:30px;height:30px;border:1px solid var(--line);background:#fff;border-radius:8px;color:var(--muted);font-size:17px;line-height:1;cursor:pointer}
+  .rmmail:hover{border-color:#a32d2d;color:#a32d2d}
+  .addmail{align-self:flex-start;border:1px dashed var(--line);background:transparent;color:var(--accent);font-family:inherit;font-size:12.5px;font-weight:600;padding:6px 10px;border-radius:8px;cursor:pointer}
+  .addmail:hover{border-color:var(--accent)}
+  .savebtn{margin-top:16px;border:0;background:var(--accent);color:#fff;font-family:inherit;font-weight:700;font-size:14px;padding:11px 18px;border-radius:10px;cursor:pointer}
 
-  /* ---- tabs ---- */
-  .mp-tabs{ display:flex; gap:4px; border-bottom:1px solid var(--line-strong); margin-bottom:var(--s-4); overflow-x:auto; }
-  .mp-tab{ border:none; background:none; font-family:var(--f-sans); font-size:13px; font-weight:600; color:var(--text-3);
-    padding:10px 14px; cursor:pointer; border-bottom:2px solid transparent; white-space:nowrap; display:flex; align-items:center; gap:6px; }
-  .mp-tab.active{ color:var(--mp-deep); border-bottom-color:var(--mp); }
-  .mp-tab .count{ background:var(--surface-2); color:var(--text-3); font-size:10px; font-weight:700; padding:1px 6px; border-radius:var(--r-pill); }
-  .mp-tab.active .count{ background:var(--mp-light); color:var(--mp-deep); }
+  /* ---------------- mobile ---------------- */
+  @media(max-width:720px){
+    /* nav: theme.css already drops brand+right to row 1 and tabs to row 2;
+       just tidy the marketplace-specific right-cluster controls */
+    .np-nav-page-tag{display:none}            /* redundant on mobile; tabs give context */
+    .np-nav-right{gap:8px;min-width:0}
+    .toggle{font-size:11px;gap:5px}
+    .addbtn{font-size:0;padding:9px 13px;white-space:nowrap}
+    .addbtn::after{content:"＋ New";font-size:12.5px;font-weight:600}
 
-  /* ---- KPI strip ---- */
-  .mp-kpis{ display:grid; grid-template-columns:repeat(5,1fr); gap:var(--s-3); margin-bottom:var(--s-4); }
-  @media(max-width:760px){ .mp-kpis{ grid-template-columns:repeat(2,1fr); } }
-  .mp-kpi{ background:var(--surface); border:1px solid var(--line-strong); border-radius:var(--r-lg); padding:12px 14px; }
-  .mp-kpi .l{ font-size:var(--t-caption-sm); color:var(--text-3); text-transform:uppercase; letter-spacing:.06em; font-weight:600; }
-  .mp-kpi .v{ font-family:var(--f-mono); font-size:24px; color:var(--text); margin-top:3px; line-height:1; }
-  .mp-kpi .s{ font-size:11px; color:var(--text-3); margin-top:3px; }
+    .wrap{padding:16px 13px 72px}
+    h1{font-size:22px}
 
-  /* ---- board ---- */
-  .mp-board{ display:flex; gap:12px; overflow-x:auto; padding:8px 4px 18px; }
-  .mp-col{ flex:0 0 268px; width:268px; background:var(--surface-2); border-radius:var(--r-lg); padding:10px; display:flex; flex-direction:column; }
-  .mp-col-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; padding:0 2px; }
-  .mp-col-title{ display:flex; align-items:center; gap:7px; font-size:12px; font-weight:700; color:var(--text); }
-  .mp-col-title .dot{ width:9px; height:9px; border-radius:50%; flex:0 0 auto; }
-  .mp-col-owner{ font-size:10px; color:var(--text-3); font-weight:600; text-transform:uppercase; letter-spacing:.04em; }
-  .mp-col-count{ font-size:11px; font-weight:700; color:var(--text-3); }
-  .mp-col-body{ display:flex; flex-direction:column; gap:8px; min-height:24px; }
+    /* pipeline lanes: stack the label above a wrapped card grid */
+    .lane{flex-direction:column}
+    .lane-head{flex-basis:auto;flex-direction:row;align-items:center;justify-content:space-between;border-right:0;border-bottom:1px solid var(--line-soft);padding:10px 12px}
+    .lane-list{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));padding:9px}
 
-  .mp-card{ background:var(--surface); border:1px solid var(--line-strong); border-radius:var(--r-md); padding:11px 12px; cursor:pointer; transition:.15s; }
-  .mp-card:hover{ border-color:var(--line-bold); box-shadow:0 4px 14px rgba(31,35,40,.06); }
-  .mp-card .code{ font-family:var(--f-mono); font-size:10px; color:var(--text-3); letter-spacing:.02em; }
-  .mp-card .brand{ font-size:11px; color:var(--mp-deep); font-weight:700; text-transform:uppercase; letter-spacing:.03em; margin-top:2px; }
-  .mp-card .name{ font-size:14px; font-weight:600; color:var(--text); line-height:1.25; margin-top:1px; }
-  .mp-card .meta{ display:flex; align-items:center; gap:8px; margin-top:9px; flex-wrap:wrap; }
-  .mp-pri{ font-size:9.5px; font-weight:800; padding:2px 7px; border-radius:var(--r-pill); text-transform:uppercase; letter-spacing:.04em; }
-  .mp-pri.High{ background:var(--brand-orange-light); color:var(--brand-orange-deep); }
-  .mp-pri.Med{ background:var(--brand-yellow-light); color:var(--brand-yellow-deep); }
-  .mp-pri.Low{ background:var(--surface-2); color:var(--text-3); }
-  .mp-date{ font-size:11px; color:var(--text-3); display:inline-flex; align-items:center; gap:4px; }
-  .mp-date.soon{ color:var(--brand-orange-deep); font-weight:700; }
+    /* product/brand toolbar + search go full width */
+    .toolbar{gap:9px}
+    .toolbar input{flex-basis:100%;min-width:0;width:100%}
+    .stat{margin-left:0}
 
-  /* readiness bar */
-  .mp-ready{ margin-top:9px; }
-  .mp-ready .track{ height:5px; background:var(--surface-2); border-radius:var(--r-pill); overflow:hidden; }
-  .mp-ready .fill{ height:100%; border-radius:var(--r-pill); transition:width .3s; }
-  .mp-ready .lbl{ display:flex; justify-content:space-between; font-size:10px; color:var(--text-3); margin-top:4px; }
-  .mp-ready .lbl b{ color:var(--text-2); font-family:var(--f-mono); }
+    /* gantt scrolls horizontally instead of crushing the stage columns */
+    .gantt{overflow-x:auto;-webkit-overflow-scrolling:touch}
+    .grow{grid-template-columns:150px repeat(var(--gn,8),minmax(62px,1fr)) 62px;width:max-content;min-width:100%}
 
-  .mp-card .advance{ margin-top:9px; width:100%; justify-content:center; }
+    /* drawer fills the screen; tighter padding */
+    .drawer{width:100vw}
+    .dh,.dbody{padding-left:16px;padding-right:16px}
 
-  /* per-card start→finish stepper */
-  .mp-card-steps{ display:flex; gap:3px; margin-top:10px; }
-  .mp-card-steps i{ flex:1; height:3px; border-radius:2px; background:var(--surface-2); transition:background .3s; }
-  .mp-card-steps i.done{ background:var(--brand-green); }
-
-  /* ---- pipeline overview rail (whole funnel, start → finish) ---- */
-  .mp-rail{ display:flex; align-items:center; gap:1px; overflow-x:auto; background:var(--surface); border:1px solid var(--line-strong);
-    border-radius:var(--r-lg); padding:12px 14px; margin-bottom:16px; }
-  .mp-rail-lead{ flex:0 0 auto; padding-right:14px; margin-right:8px; border-right:1px solid var(--line); text-align:center; }
-  .mp-rail-lead .t{ font-family:var(--f-eyebrow); font-size:9.5px; letter-spacing:.08em; text-transform:uppercase; color:var(--text-3); }
-  .mp-rail-lead .v{ font-family:var(--f-mono); font-size:22px; line-height:1; color:var(--mp-deep); margin-top:3px; }
-  .mp-rail-node{ flex:0 0 auto; min-width:78px; text-align:center; padding:4px 6px 5px; border-radius:var(--r-md); cursor:pointer; transition:background .15s, transform .15s; }
-  .mp-rail-node:hover{ background:var(--surface-2); transform:translateY(-1px); }
-  .mp-rail-node .cnt{ font-family:var(--f-mono); font-size:20px; line-height:1; font-weight:600; color:var(--text); }
-  .mp-rail-node.empty .cnt{ color:var(--text-mute); }
-  .mp-rail-node .lbl{ display:flex; align-items:center; justify-content:center; gap:5px; font-size:9.5px; font-weight:700; color:var(--text-3);
-    text-transform:uppercase; letter-spacing:.02em; margin-top:7px; white-space:nowrap; }
-  .mp-rail-node .lbl .d{ width:7px; height:7px; border-radius:50%; flex:0 0 auto; }
-  .mp-rail-arrow{ flex:0 0 auto; color:var(--text-mute); font-size:15px; padding:0 1px; align-self:flex-start; margin-top:5px; }
-
-  /* ---- detail slide-over ---- */
-  .mp-overlay{ position:fixed; inset:0; background:rgba(31,35,40,.32); opacity:0; pointer-events:none; transition:.2s; z-index:200; }
-  .mp-overlay.open{ opacity:1; pointer-events:auto; }
-  .mp-panel{ position:fixed; top:0; right:0; height:100%; width:min(560px,100%); background:var(--surface);
-    box-shadow:-10px 0 40px rgba(31,35,40,.14); transform:translateX(100%); transition:transform .25s var(--easing); z-index:201; overflow-y:auto; }
-  .mp-panel.open{ transform:translateX(0); }
-  .mp-panel-head{ position:sticky; top:0; background:var(--surface); border-bottom:1px solid var(--line); padding:18px 22px 14px; z-index:2; }
-  .mp-panel-head .row{ display:flex; align-items:flex-start; justify-content:space-between; gap:12px; }
-  .mp-panel-head .code{ font-family:var(--f-mono); font-size:11px; color:var(--text-3); }
-  .mp-panel-head h2{ font-family:var(--f-amp); font-size:22px; margin:3px 0 0; line-height:1.1; }
-  .mp-panel-head .brand{ font-size:12px; color:var(--mp-deep); font-weight:700; text-transform:uppercase; letter-spacing:.04em; margin-top:3px; }
-  .mp-close{ border:none; background:var(--surface-2); width:32px; height:32px; border-radius:50%; cursor:pointer; flex:0 0 auto; display:flex; align-items:center; justify-content:center; color:var(--text-2); }
-  .mp-close:hover{ background:var(--line-strong); }
-  .mp-panel-body{ padding:18px 22px 60px; }
-
-  /* stage stepper */
-  .mp-stepper{ display:flex; gap:4px; margin:14px 0 6px; overflow-x:auto; padding-bottom:4px; }
-  .mp-step{ flex:1 0 auto; min-width:0; }
-  .mp-step .bar{ height:5px; border-radius:var(--r-pill); background:var(--surface-2); }
-  .mp-step.done .bar{ background:var(--brand-green); }
-  .mp-step.cur .bar{ background:var(--mp); }
-  .mp-step .t{ font-size:9px; color:var(--text-3); margin-top:4px; white-space:nowrap; }
-  .mp-step.cur .t{ color:var(--mp-deep); font-weight:700; }
-
-  .mp-stage-row{ display:flex; align-items:center; gap:10px; margin:14px 0; flex-wrap:wrap; }
-  .mp-stage-chip{ display:inline-flex; align-items:center; gap:7px; font-size:13px; font-weight:700; padding:7px 14px; border-radius:var(--r-pill); }
-  .mp-ring{ position:relative; width:54px; height:54px; flex:0 0 auto; }
-  .mp-ring svg{ transform:rotate(-90deg); }
-  .mp-ring .pct{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-family:var(--f-mono); font-size:14px; font-weight:600; }
-
-  .mp-sec{ margin-top:22px; }
-  .mp-sec-title{ font-family:var(--f-eyebrow); font-size:var(--t-eyebrow); letter-spacing:.1em; text-transform:uppercase; color:var(--text-3); margin-bottom:10px; display:flex; align-items:center; gap:8px; }
-  .mp-sec-title .pct{ font-family:var(--f-mono); margin-left:auto; color:var(--text-2); }
-
-  /* dept task group */
-  .mp-dept{ border:1px solid var(--line-strong); border-radius:var(--r-lg); margin-bottom:10px; overflow:hidden; }
-  .mp-dept-head{ display:flex; align-items:center; gap:9px; padding:11px 14px; cursor:pointer; background:var(--surface); }
-  .mp-dept-head:hover{ background:var(--surface-2); }
-  .mp-dept-head .dot{ width:9px; height:9px; border-radius:50%; }
-  .mp-dept-head .nm{ font-size:13px; font-weight:700; color:var(--text); }
-  .mp-dept-head .mini{ margin-left:auto; display:flex; align-items:center; gap:9px; }
-  .mp-dept-head .minibar{ width:64px; height:5px; background:var(--surface-2); border-radius:var(--r-pill); overflow:hidden; }
-  .mp-dept-head .minibar i{ display:block; height:100%; }
-  .mp-dept-head .mpct{ font-family:var(--f-mono); font-size:11px; color:var(--text-3); min-width:34px; text-align:right; }
-  .mp-dept-head .chev{ width:14px; height:14px; color:var(--text-3); transition:transform .2s; }
-  .mp-dept.open .chev{ transform:rotate(90deg); }
-  .mp-tasks{ display:none; padding:4px 14px 12px; border-top:1px solid var(--line); }
-  .mp-dept.open .mp-tasks{ display:block; }
-  .mp-task{ display:flex; align-items:flex-start; gap:10px; padding:8px 0; border-bottom:1px solid var(--line); }
-  .mp-task:last-child{ border-bottom:none; }
-  .mp-check{ width:19px; height:19px; border:2px solid var(--line-bold); border-radius:6px; flex:0 0 auto; cursor:pointer; margin-top:1px; display:flex; align-items:center; justify-content:center; background:var(--surface); transition:.15s; }
-  .mp-check.on{ background:var(--brand-green-deep); border-color:var(--brand-green-deep); }
-  .mp-check svg{ width:12px; height:12px; color:#fff; opacity:0; }
-  .mp-check.on svg{ opacity:1; }
-  .mp-task .body{ flex:1; min-width:0; }
-  .mp-task .lab{ font-size:13px; color:var(--text); line-height:1.3; }
-  .mp-task.done .lab{ color:var(--text-3); text-decoration:line-through; }
-  .mp-task .sub{ font-size:10.5px; color:var(--text-3); margin-top:2px; }
-
-  /* spec grid */
-  .mp-specs{ display:grid; grid-template-columns:1fr 1fr; gap:1px; background:var(--line-strong); border:1px solid var(--line-strong); border-radius:var(--r-lg); overflow:hidden; }
-  .mp-spec{ background:var(--surface); padding:10px 13px; }
-  .mp-spec .l{ font-size:10px; color:var(--text-3); text-transform:uppercase; letter-spacing:.05em; font-weight:600; }
-  .mp-spec .v{ font-size:13px; color:var(--text); margin-top:2px; font-weight:500; }
-
-  /* activity log */
-  .mp-log{ list-style:none; padding:0; margin:0; }
-  .mp-log li{ display:flex; gap:10px; padding:8px 0; border-bottom:1px solid var(--line); font-size:12px; color:var(--text-2); }
-  .mp-log li:last-child{ border-bottom:none; }
-  .mp-log .ts{ font-family:var(--f-mono); font-size:10px; color:var(--text-3); flex:0 0 92px; }
-
-  /* ---- brand CRM table ---- */
-  .mp-table-wrap{ background:var(--surface); border:1px solid var(--line-strong); border-radius:var(--r-lg); overflow:hidden; overflow-x:auto; }
-  table.mp-table{ width:100%; border-collapse:collapse; font-size:13px; min-width:680px; }
-  .mp-table th{ text-align:left; font-size:10px; text-transform:uppercase; letter-spacing:.05em; color:var(--text-3); font-weight:700; padding:11px 14px; border-bottom:1px solid var(--line-strong); white-space:nowrap; }
-  .mp-table td{ padding:11px 14px; border-bottom:1px solid var(--line); color:var(--text-2); vertical-align:middle; }
-  .mp-table tr:last-child td{ border-bottom:none; }
-  .mp-table tr.clickable{ cursor:pointer; }
-  .mp-table tr.clickable:hover td{ background:var(--surface-2); }
-  .mp-table .bn{ font-weight:700; color:var(--text); }
-  .mp-status{ font-size:10px; font-weight:800; padding:3px 9px; border-radius:var(--r-pill); text-transform:uppercase; letter-spacing:.03em; white-space:nowrap; }
-  .mp-status.Prospect{ background:var(--surface-2); color:var(--text-3); }
-  .mp-status.Testing{ background:var(--brand-yellow-light); color:var(--brand-yellow-deep); }
-  .mp-status.Approved{ background:var(--brand-blue-light); color:var(--brand-blue-deep); }
-  .mp-status.Active{ background:var(--brand-green-light); color:var(--brand-green-deep); }
-  .mp-status.Rejected{ background:var(--brand-orange-light); color:var(--brand-orange-deep); }
-
-  /* ---- team dashboard ---- */
-  .mp-team-bar{ display:flex; align-items:center; gap:8px; margin-bottom:var(--s-4); flex-wrap:wrap; }
-  .mp-team-pill{ border:1px solid var(--line-strong); background:var(--surface); border-radius:var(--r-pill); padding:7px 14px; font-size:12px; font-weight:600; cursor:pointer; color:var(--text-2); display:inline-flex; align-items:center; gap:7px; }
-  .mp-team-pill .dot{ width:8px; height:8px; border-radius:50%; }
-  .mp-team-pill.active{ border-color:var(--mp); background:var(--mp-light); color:var(--mp-deep); }
-  .mp-team-pill .n{ font-family:var(--f-mono); font-size:11px; opacity:.8; }
-  .mp-tasklist{ display:flex; flex-direction:column; gap:8px; }
-  .mp-trow{ display:flex; align-items:center; gap:12px; background:var(--surface); border:1px solid var(--line-strong); border-radius:var(--r-md); padding:11px 14px; }
-  .mp-trow .body{ flex:1; min-width:0; }
-  .mp-trow .lab{ font-size:14px; font-weight:600; color:var(--text); }
-  .mp-trow .ctx{ font-size:11px; color:var(--text-3); margin-top:2px; }
-  .mp-trow .ctx a{ color:var(--mp-deep); font-weight:600; text-decoration:none; }
-  .mp-empty{ text-align:center; color:var(--text-3); font-size:13px; padding:40px 20px; }
-
-  /* ---- modal ---- */
-  .mp-modal-ov{ position:fixed; inset:0; background:rgba(31,35,40,.4); opacity:0; pointer-events:none; transition:.2s; z-index:210; display:flex; align-items:center; justify-content:center; padding:20px; }
-  .mp-modal-ov.open{ opacity:1; pointer-events:auto; }
-  .mp-modal{ background:var(--surface); border-radius:var(--r-xl); width:min(480px,100%); max-height:90vh; overflow-y:auto; padding:24px; transform:translateY(12px); transition:.2s; }
-  .mp-modal-ov.open .mp-modal{ transform:translateY(0); }
-  .mp-modal h3{ font-family:var(--f-amp); font-size:20px; margin:0 0 4px; }
-  .mp-modal .sub{ font-size:12px; color:var(--text-3); margin-bottom:18px; }
-  .mp-field{ margin-bottom:14px; }
-  .mp-field label{ display:block; font-size:11px; font-weight:700; color:var(--text-2); text-transform:uppercase; letter-spacing:.04em; margin-bottom:5px; }
-  .mp-field input, .mp-field select, .mp-field textarea{ width:100%; border:1px solid var(--line-strong); border-radius:var(--r-md); padding:9px 12px; font-family:var(--f-sans); font-size:14px; color:var(--text); background:var(--surface); }
-  .mp-field input:focus, .mp-field select:focus, .mp-field textarea:focus{ outline:none; border-color:var(--mp); }
-  .mp-field .two{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
-  .mp-modal-foot{ display:flex; gap:8px; justify-content:flex-end; margin-top:8px; }
-
-  /* toast */
-  .mp-toasts{ position:fixed; bottom:20px; left:50%; transform:translateX(-50%); z-index:300; display:flex; flex-direction:column; gap:8px; align-items:center; pointer-events:none; }
-  .mp-toast{ background:var(--ink); color:#fff; font-size:13px; padding:11px 18px; border-radius:var(--r-pill); box-shadow:0 8px 24px rgba(0,0,0,.18); display:flex; align-items:center; gap:10px; opacity:0; transform:translateY(8px); transition:.2s; max-width:90vw; }
-  .mp-toast.show{ opacity:1; transform:translateY(0); }
-  .mp-toast b{ color:var(--brand-green); }
-  .mp-toast .act{ pointer-events:auto; color:var(--brand-yellow); font-weight:700; cursor:pointer; text-decoration:underline; }
-
-  @media(max-width:640px){
-    .mp-specs{ grid-template-columns:1fr; }
-    .mp-panel-head{ padding:16px 16px 12px; }
-    .mp-panel-body{ padding:16px 16px 50px; }
-    .mp-gantt{ --gl-w:128px !important; }
-  }
-
-  /* ---- gantt timeline ---- */
-  .mp-legend{ display:flex; gap:13px; flex-wrap:wrap; align-items:center; margin-bottom:12px; }
-  .mp-legend .it{ display:flex; align-items:center; gap:6px; font-size:11px; color:var(--text-3); white-space:nowrap; }
-  .mp-legend .sw{ width:11px; height:11px; border-radius:3px; flex:0 0 auto; }
-  .mp-zoom{ margin-left:auto; display:flex; gap:4px; }
-
-  .mp-gantt{ overflow-x:auto; border:1px solid var(--line-strong); border-radius:var(--r-lg); background:var(--surface); }
-  .mp-g-head{ display:flex; position:sticky; top:0; z-index:5; background:var(--surface); border-bottom:1px solid var(--line-strong); }
-  .mp-g-rows{ width:max-content; min-width:100%; }
-  .mp-g-corner{ position:sticky; left:0; z-index:6; background:var(--surface); flex:0 0 var(--gl-w,200px); width:var(--gl-w,200px); border-right:1px solid var(--line-strong); }
-  .mp-g-axis{ position:relative; height:34px; flex:0 0 auto; }
-  .mp-g-tick{ position:absolute; top:0; bottom:0; border-left:1px solid var(--line); }
-  .mp-g-tick .lab{ position:absolute; top:9px; left:5px; font-size:10px; color:var(--text-3); font-family:var(--f-mono); white-space:nowrap; }
-  .mp-g-tick.month .lab{ color:var(--text-2); font-weight:700; }
-
-  .mp-g-row{ display:flex; border-bottom:1px solid var(--line); cursor:pointer; }
-  .mp-g-row:last-child{ border-bottom:none; }
-  .mp-g-row:hover .mp-g-label{ background:var(--surface-2); }
-  .mp-g-label{ position:sticky; left:0; z-index:4; background:var(--surface); flex:0 0 var(--gl-w,200px); width:var(--gl-w,200px); border-right:1px solid var(--line-strong); padding:8px 12px; }
-  .mp-g-label .br{ font-size:9.5px; color:var(--mp-deep); font-weight:700; text-transform:uppercase; letter-spacing:.03em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-  .mp-g-label .nm{ font-size:13px; font-weight:600; color:var(--text); line-height:1.2; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-  .mp-g-label .st{ font-size:10px; color:var(--text-3); margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-  .mp-g-track{ position:relative; flex:0 0 auto; height:48px; }
-  .mp-g-grid{ position:absolute; top:0; bottom:0; border-left:1px solid var(--line); }
-  .mp-seg{ position:absolute; top:10px; height:28px; border-radius:5px; display:flex; align-items:center; padding:0 6px; overflow:hidden;
-    font-size:10px; font-weight:700; color:#1f2328; white-space:nowrap; box-sizing:border-box; }
-  .mp-seg.future{ color:var(--text-2); }
-  .mp-seg.cur{ box-shadow:0 0 0 2px var(--surface), 0 0 0 4px currentColor; }
-  .mp-milestone{ position:absolute; top:15px; width:15px; height:15px; transform:translateX(-7px) rotate(45deg); border-radius:3px; z-index:2; }
-  .mp-today{ position:absolute; top:0; bottom:0; width:2px; background:var(--brand-orange); z-index:3; }
-  .mp-today .dot{ position:absolute; top:1px; left:-3px; width:8px; height:8px; border-radius:50%; background:var(--brand-orange); }
-
-  /* ============ TECH-FORWARD MOTION & POLISH ============ */
-  @keyframes mpUp     { from { opacity:0; transform:translateY(11px); } to { opacity:1; transform:none; } }
-  @keyframes mpGrow   { from { width:0 !important; } }
-  @keyframes mpRing   { from { stroke-dashoffset: var(--c0); } }
-  @keyframes mpDot    { 0%,100%{ opacity:1; transform:scale(1); } 50%{ opacity:.3; transform:scale(.7); } }
-  @keyframes mpFade   { from { opacity:0; } to { opacity:1; } }
-
-  /* staggered entrance — only while a tab carries .mp-anim (added on reveal,
-     removed after, so data re-renders never replay) */
-  .mp-anim .mp-stagger > *,
-  .mp-kpis.mp-anim > * { animation: mpUp .5s cubic-bezier(.22,1,.36,1) both; }
-  .mp-anim .mp-stagger>*:nth-child(1),.mp-kpis.mp-anim>*:nth-child(1){animation-delay:0s}
-  .mp-anim .mp-stagger>*:nth-child(2),.mp-kpis.mp-anim>*:nth-child(2){animation-delay:.04s}
-  .mp-anim .mp-stagger>*:nth-child(3),.mp-kpis.mp-anim>*:nth-child(3){animation-delay:.08s}
-  .mp-anim .mp-stagger>*:nth-child(4),.mp-kpis.mp-anim>*:nth-child(4){animation-delay:.12s}
-  .mp-anim .mp-stagger>*:nth-child(5),.mp-kpis.mp-anim>*:nth-child(5){animation-delay:.16s}
-  .mp-anim .mp-stagger>*:nth-child(6){animation-delay:.20s}
-  .mp-anim .mp-stagger>*:nth-child(7){animation-delay:.24s}
-  .mp-anim .mp-stagger>*:nth-child(8){animation-delay:.28s}
-  .mp-anim .mp-stagger>*:nth-child(9){animation-delay:.32s}
-  .mp-anim .mp-stagger>*:nth-child(10){animation-delay:.36s}
-  .mp-anim .mp-stagger>*:nth-child(n+11){animation-delay:.40s}
-  .mp-anim .mp-ready .fill{ animation: mpGrow .8s cubic-bezier(.22,1,.36,1) both; }
-
-  /* live-sync pulse pill in the eyebrow */
-  .mp-live{ display:inline-flex; align-items:center; gap:6px; margin-left:10px; padding:2px 9px; border-radius:var(--r-pill);
-    background:var(--brand-green-light); color:var(--brand-green-deep); font-family:var(--f-mono); font-size:9.5px;
-    letter-spacing:.09em; text-transform:uppercase; vertical-align:middle; }
-  .mp-live .d{ width:6px; height:6px; border-radius:50%; background:var(--brand-green-deep); animation:mpDot 1.6s ease-in-out infinite; }
-
-  /* richer hovers */
-  .mp-card{ transition:transform .18s var(--easing), box-shadow .18s var(--easing), border-color .18s; will-change:transform; }
-  .mp-card:hover{ transform:translateY(-3px); box-shadow:0 10px 26px rgba(31,35,40,.10); }
-  .mp-card:active{ transform:translateY(-1px); }
-  .mp-kpi{ transition:transform .18s var(--easing), box-shadow .18s; position:relative; overflow:hidden; }
-  .mp-kpi:hover{ transform:translateY(-2px); box-shadow:0 8px 20px rgba(31,35,40,.07); }
-  .mp-kpi::after{ content:''; position:absolute; left:0; top:0; height:3px; width:100%; background:linear-gradient(90deg,var(--mp),transparent); opacity:0; transition:opacity .2s; }
-  .mp-kpi:hover::after{ opacity:.9; }
-  .mp-kpi .v{ font-variant-numeric:tabular-nums; }
-  .mp-btn{ transition:transform .12s var(--easing), background .15s, border-color .15s; }
-  .mp-btn:active{ transform:translateY(1px) scale(.98); }
-  .mp-g-row{ transition:background .15s; }
-  .mp-g-row:hover{ background:rgba(90,74,122,.035); }
-  .mp-seg{ transition:filter .15s, transform .15s; }
-  .mp-seg:hover{ filter:brightness(1.07); }
-  .mp-trow,.mp-table tr.clickable{ transition:transform .15s var(--easing), box-shadow .15s, background .15s; }
-  .mp-trow:hover{ transform:translateX(2px); box-shadow:0 6px 16px rgba(31,35,40,.06); border-color:var(--line-bold); }
-
-  /* detail ring sweeps in on open */
-  .mp-ring .prog{ animation:mpRing .9s cubic-bezier(.22,1,.36,1) both; }
-
-  /* frosted slide-over + animated overlay */
-  .mp-overlay{ backdrop-filter:blur(3px); -webkit-backdrop-filter:blur(3px); }
-  .mp-panel{ box-shadow:-18px 0 60px rgba(31,35,40,.20); }
-  .mp-dept{ transition:border-color .15s, box-shadow .2s; }
-  .mp-dept.open{ box-shadow:0 6px 20px rgba(31,35,40,.05); }
-  .mp-check{ transition:transform .12s var(--easing), background .15s, border-color .15s; }
-  .mp-check:hover{ transform:scale(1.12); border-color:var(--brand-green-deep); }
-  .mp-check:active{ transform:scale(.9); }
-
-  /* tab underline glides */
-  .mp-tab{ position:relative; transition:color .15s; }
-  .mp-tab::after{ content:''; position:absolute; left:10px; right:10px; bottom:-1px; height:2px; background:var(--mp); border-radius:2px; transform:scaleX(0); transform-origin:center; transition:transform .22s var(--easing); }
-  .mp-tab.active::after{ transform:scaleX(1); }
-
-  @media (prefers-reduced-motion: reduce){
-    .mp-anim .mp-stagger>*, .mp-kpis.mp-anim>*, .mp-anim .mp-ready .fill,
-    .mp-ring .prog, .mp-live .d{ animation:none !important; }
-    .mp-card:hover, .mp-trow:hover, .mp-kpi:hover{ transform:none; }
+    /* settings rows stack label over input */
+    .setbox{padding:18px}
+    .setrow{flex-wrap:wrap;gap:6px}
+    .setrow label{flex-basis:100%}
+    .setrow input[type=email]{flex-basis:100%}
   }
 </style>
 </head>
 <body>
-
 <nav class="np-nav">
-  <a class="np-nav-brand" onclick="toggleHubNav(event)" aria-label="Open hub">
-    <img src="NeighborlyLogo.png" alt="Neighborly">
-  </a>
+  <span class="np-nav-brand" aria-label="Neighborly Marketplace NPI">
+    <img src="https://beneighborly.team/NeighborlyLogo.png" alt="Neighborly">
+  </span>
+  <div class="np-tabs">
+    <button class="np-tab is-active" data-tab="pipeline">Pipeline</button>
+    <button class="np-tab" data-tab="gantt">Gantt</button>
+    <button class="np-tab" data-tab="products">Products</button>
+    <button class="np-tab" data-tab="brands">Brands</button>
+    <button class="np-tab" data-tab="process">Process</button>
+    <button class="np-tab" data-tab="settings">Settings</button>
+  </div>
   <div class="np-nav-right">
-    <span class="np-nav-page-tag mp">Marketplace · NPI</span>
-    <a class="np-icon-btn" href="index.html" title="Back to home" aria-label="Back to home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></a>
+    <span class="np-nav-page-tag">Marketplace NPI</span>
+    <div class="toggle">Notify <span id="notifySwitch" class="switch on"></span></div>
+    <button class="addbtn" id="addBtn">+ New product</button>
   </div>
 </nav>
 
-<div class="np-hub-overlay" aria-hidden="true"></div>
-<div class="np-hub" role="dialog" aria-label="Marketplace Hub">
-  <div class="np-hub-label"><span>Neighborly Marketplace · NPI</span><a href="index.html" class="np-hub-back-home">&larr; Home</a></div>
-  <div class="np-hub-grid">
-    <a class="np-hub-card" href="index.html"><div class="np-hub-card-ico" style="background:var(--surface-2)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--text)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12l9-9 9 9"/><path d="M5 10v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V10"/></svg></div><div class="np-hub-card-title">Home</div><div class="np-hub-card-sub">Back to hub</div></a>
-    <a class="np-hub-card is-active" href="neighborly-marketplace.html"><div class="np-hub-card-ico" style="background:var(--mp-light)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--mp-deep)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l1-5h16l1 5"/><path d="M4 9v11a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1V9"/><path d="M9 21v-6h6v6"/></svg></div><div class="np-hub-card-title">Marketplace NPI</div><div class="np-hub-card-sub">New product introduction</div></a>
-  </div>
-</div>
+<div class="wrap" id="view"></div>
 
-<main class="np-main">
+<div class="scrim" id="scrim"></div>
+<div class="drawer" id="drawer"></div>
+<div class="toast" id="toast"></div>
 
-  <div class="mp-head">
-    <div>
-      <div class="eyebrow">Marketplace Operations <span class="mp-live"><span class="d"></span>Live sync</span></div>
-    </div>
-    <div class="mp-actions">
-      <button class="mp-btn" onclick="MP.openSettings()" title="Email notifications"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>Notifications</button>
-      <button class="mp-btn" onclick="MP.openBrandModal()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>Add brand</button>
-      <button class="mp-btn primary" onclick="MP.openLaunchModal()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>New launch</button>
-    </div>
-  </div>
-
-  <div class="mp-kpis" id="mpKpis"></div>
-
-  <div class="mp-tabs">
-    <button class="mp-tab active" data-tab="board" onclick="MP.tab('board')">Pipeline <span class="count" id="cBoard">0</span></button>
-    <button class="mp-tab" data-tab="timeline" onclick="MP.tab('timeline')">Timeline</button>
-    <button class="mp-tab" data-tab="teams" onclick="MP.tab('teams')">Team tasks <span class="count" id="cTeams">0</span></button>
-    <button class="mp-tab" data-tab="brands" onclick="MP.tab('brands')">Brands <span class="count" id="cBrands">0</span></button>
-  </div>
-
-  <div id="tab-board"></div>
-  <div id="tab-timeline" style="display:none"></div>
-  <div id="tab-teams" style="display:none"></div>
-  <div id="tab-brands" style="display:none"></div>
-
-</main>
-
-<!-- detail slide-over -->
-<div class="mp-overlay" id="mpOverlay" onclick="MP.closeDetail()"></div>
-<div class="mp-panel" id="mpPanel"></div>
-
-<!-- modal host -->
-<div class="mp-modal-ov" id="mpModalOv"><div class="mp-modal" id="mpModal"></div></div>
-
-<!-- toasts -->
-<div class="mp-toasts" id="mpToasts"></div>
-
-<footer class="np-footer" aria-label="Neighbors Only Hub">
-  <img src="./NeighborlyLogo.png" alt="Neighborly">
-  <div class="np-footer-text">Neighbors Only Hub</div>
-</footer>
-
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <script>
-/* ============================================================================
-   Marketplace NPI — New Product Introduction command center
-   Single-file, vanilla JS, Firebase Realtime DB live sync (path: marketplace-npi)
-   ========================================================================== */
-(function(){
-'use strict';
+/* ---------------- config (same Neighborly project) ---------------- */
+const firebaseConfig={apiKey:"AIzaSyAiHIQuw3eiyY305sDqc_CoV_MoEG9CQpw",authDomain:"neighborly-hub-53e4b.firebaseapp.com",databaseURL:"https://neighborly-hub-53e4b-default-rtdb.firebaseio.com",projectId:"neighborly-hub-53e4b",storageBucket:"neighborly-hub-53e4b.firebasestorage.app",messagingSenderId:"847761939455",appId:"1:847761939455:web:d0d5dbe1795bb4f05f25ca"};
+firebase.initializeApp(firebaseConfig);
+const db=firebase.database();
+const storage=firebase.storage();
+const EMAILJS={service:"service_v4jp7sp",template:"template_eyefcer",key:"pW4-kj71suA1OsbFa"};
+try{ emailjs.init(EMAILJS.key); }catch(e){}
 
-/* ---------------------------------------------------------------- CONFIG --- */
-const CONFIG = {
-  FB_PATH: 'marketplace-npi',
-  LAUNCH_GATE: 90,        // overall readiness % required before a launch can go Live
-  AUTO_ADVANCE: true,     // when a stage's tasks hit 100%, offer 1-click advance
-  YEAR: new Date().getFullYear(),
-  // EmailJS — reuses the hub's existing account (same as the calendar).
-  // Actual sending is gated by the in-app Notifications toggle + each team
-  // having an email on file, so nothing goes out until you turn it on.
-  // For branded NPI emails, paste npi-email-template.html into a new EmailJS
-  // template and swap the templateId below for that new template's ID.
-  EMAILJS: { publicKey:'pW4-kj71suA1OsbFa', serviceId:'service_v4jp7sp', templateId:'template_eyefcer' }
+/* ---------------- process model ---------------- */
+const STAGES=[
+  {key:'discovery', label:'Discovery',     dept:'Marketplace', color:'#a9a6bd'},
+  {key:'sample',    label:'Sample Review', dept:'Marketplace', color:'#cbb3d6'},
+  {key:'commercial',label:'Commercial',    dept:'Procurement', color:'#6280bd'},
+  {key:'compliance',label:'W-9',           dept:'Compliance',  color:'#b88fb8'},
+  {key:'erp',       label:'ERP / Synergy', dept:'Inventory',   color:'#69b0a5'},
+  {key:'commissary',label:'Commissary',    dept:'Commissary',  color:'#dbc6a2'},
+  {key:'operations',label:'Operations',    dept:'Operations',  color:'#7bbd91'},
+  {key:'marketing', label:'Marketing',     dept:'Marketing',   color:'#e87142'},
+  {key:'store',     label:'Store Launch',  dept:'Store Ops',   color:'#eace49'},
+  {key:'live',      label:'Live · On Shelf',dept:'—',          color:'#3f7a52'},
+  {key:'review',    label:'30-Day Review', dept:'Marketplace', color:'#a9a6bd'}
+];
+const PIPE=STAGES.filter(s=>s.key!=='live'&&s.key!=='review'); // active board columns
+const stageMeta=k=>STAGES.find(s=>s.key===k)||{label:k,dept:'—',color:'#ccc'};
+const stageIdx=k=>STAGES.findIndex(s=>s.key===k);
+const nextStageKey=k=>{const i=stageIdx(k);return i>=0&&i<STAGES.length-1?STAGES[i+1].key:null;};
+function chunk3(arr){const o=[];for(let i=0;i<arr.length;i+=3)o.push(arr.slice(i,i+3));return o;}
+
+/* Departments (drives Settings rows + new-product broadcast). Compliance owns
+   the W-9 / vendor-docs stage — set its email in Settings. */
+const DEPTS=['Marketplace','Procurement','Compliance','Inventory','Commissary','Operations','Marketing','Store Ops'];
+
+/* Curated NPI checklist. New products are built from this (owner = who's
+   accountable, def = definition of done that makes checking the box honest,
+   notify/notifyMsg = optional cross-team ping, blocking:false = doesn't gate
+   the stage). Existing launches keep whatever tasks they already have. */
+const TASK_TEMPLATES=[
+  /* Discovery — Marketplace */
+  {stage:'discovery',dept:'Marketplace',label:'Product intake form completed',owner:'Marketplace Lead',def:'Intake form submitted with brand, product, category & contact captured'},
+  {stage:'discovery',dept:'Marketplace',label:'Brand submitted & logged',owner:'Marketplace Lead',def:'Brand record created in the pipeline'},
+  {stage:'discovery',dept:'Marketplace',label:'Samples requested from brand',owner:'Marketplace Lead',def:'Sample request sent to vendor with ship-to address'},
+  {stage:'discovery',dept:'Marketplace',label:'Samples received',owner:'Marketplace Lead',def:'Physical samples in hand and logged'},
+  /* Sample Review — Marketplace */
+  {stage:'sample',dept:'Marketplace',label:'Tasting scheduled',owner:'Marketplace Lead',def:'Tasting date on the calendar with panel invited'},
+  {stage:'sample',dept:'Marketplace',label:'Taste approved',owner:'Marketplace Lead',def:'Tasting panel signed off on product quality'},
+  {stage:'sample',dept:'Marketplace',label:'Margin approved',owner:'Marketplace Lead',def:'Projected margin meets or exceeds threshold'},
+  {stage:'sample',dept:'Marketplace',label:'Assortment approved',owner:'Marketplace Lead',def:'SKU list confirmed for the assortment'},
+  {stage:'sample',dept:'Marketplace',label:'Asset: Product images received',owner:'Marketplace Lead',def:'Hi-res product images on file',blocking:false,file:true},
+  {stage:'sample',dept:'Marketplace',label:'Asset: Brand logo received',owner:'Marketplace Lead',def:'Vector/hi-res logo on file',blocking:false,file:true},
+  {stage:'sample',dept:'Marketplace',label:'Asset: Brand story received',owner:'Marketplace Lead',def:'Brand story copy on file',blocking:false,file:true,notify:'Marketing',notifyMsg:'Brand story received — available for Marketing to draft product copy.'},
+  /* Commercial — Procurement */
+  {stage:'commercial',dept:'Procurement',label:'Vendor setup started',owner:'Procurement Coordinator',def:'Vendor record opened in the system'},
+  {stage:'commercial',dept:'Procurement',label:'Confirm MOQ & case pack',owner:'Procurement Coordinator',def:'Minimum order qty and units-per-case confirmed with vendor in writing'},
+  {stage:'commercial',dept:'Procurement',label:'Confirm lead times & shelf life',owner:'Procurement Coordinator',def:'Production/ship lead time and shelf-life window documented'},
+  {stage:'commercial',dept:'Procurement',label:'Terms finalized',owner:'Procurement Coordinator',def:'Payment & trade terms agreed and recorded'},
+  {stage:'commercial',dept:'Procurement',label:'Cost sheet approved',owner:'Procurement Manager',def:'Landed cost sheet signed off by Procurement manager'},
+  {stage:'commercial',dept:'Procurement',label:'Free first fill secured',owner:'Procurement Coordinator',def:'Free first-fill agreement on file from vendor',notify:'Commissary',notifyMsg:'Free first fill secured — Commissary can expect the initial fill shipment.'},
+  {stage:'commercial',dept:'Procurement',label:'Collect + upload initial invoice',owner:'Procurement Coordinator',def:'First invoice received and uploaded',file:true},
+  {stage:'commercial',dept:'Procurement',label:'Commercial terms complete — ready for vendor docs',owner:'Procurement Coordinator',def:'All commercial terms above confirmed',notify:'Compliance',notifyMsg:'Commercial terms finalized — please collect W-9 + COI before vendor goes live in the systems.'},
+  /* W-9 — Compliance (gates ERP/SKU creation) */
+  {stage:'compliance',dept:'Compliance',label:'Collect + upload W-9',owner:'AP Clerk',def:'W-9 PDF on file; TIN matches legal vendor name',file:true},
+  {stage:'compliance',dept:'Compliance',label:'Collect + upload Insurance (COI)',owner:'AP Clerk',def:'COI on file naming Neighborly as additional insured; expiry after launch date',file:true},
+  {stage:'compliance',dept:'Compliance',label:'Nutrition panel on file',owner:'AP Clerk',def:'Nutrition facts panel uploaded',file:true},
+  {stage:'compliance',dept:'Compliance',label:'Ingredient statement on file',owner:'AP Clerk',def:'Full ingredient statement uploaded',file:true},
+  {stage:'compliance',dept:'Compliance',label:'Allergen information on file',owner:'AP Clerk',def:'Allergen declaration uploaded',file:true},
+  {stage:'compliance',dept:'Compliance',label:'Product spec sheet on file',owner:'AP Clerk',def:'Vendor product spec sheet uploaded',file:true},
+  {stage:'compliance',dept:'Compliance',label:'Vendor documents cleared — vendor active',owner:'AP Clerk',def:'All compliance docs on file; vendor flagged active',notify:'Inventory',notifyMsg:'Vendor documents cleared — safe to create the R365/Synergy item & SKU.'},
+  /* ERP / Synergy — Inventory */
+  {stage:'erp',dept:'Inventory',label:'Create R365 item',owner:'Synergy Admin',def:'Item created in R365 with correct UOM'},
+  {stage:'erp',dept:'Inventory',label:'Create R365 recipe',owner:'Synergy Admin',def:'Recipe/build created in R365'},
+  {stage:'erp',dept:'Inventory',label:'Add Item Category 1 = Marketplace Item',owner:'Synergy Admin',def:'Category 1 set to "Marketplace Item"'},
+  {stage:'erp',dept:'Inventory',label:'Add to Marketplace order guide',owner:'Synergy Admin',def:'Item appears on the Marketplace order guide'},
+  {stage:'erp',dept:'Inventory',label:'Add to Commissary inventory guide',owner:'Synergy Admin',def:'Item on the Commissary inventory guide'},
+  {stage:'erp',dept:'Inventory',label:'Add to WLV/BW inventory guide',owner:'Synergy Admin',def:'Item on the WLV/BW inventory guide'},
+  {stage:'erp',dept:'Inventory',label:'Attach to Toast item (after Marketing rings up qty 1)',owner:'Synergy Admin',def:'R365 item linked to the Toast item once Marketing has created it'},
+  /* Commissary */
+  {stage:'commissary',dept:'Commissary',label:'Confirm sample received',owner:'Commissary Manager',def:'Sample physically received at commissary'},
+  {stage:'commissary',dept:'Commissary',label:'Assign storage location (Shelf / Refrigerator / Freezer)',owner:'Commissary Manager',def:'Specific storage location & class assigned'},
+  {stage:'commissary',dept:'Commissary',label:'Check R365 item created / on order guide',owner:'Commissary Manager',def:'Verified the R365 item exists and is on the guide'},
+  {stage:'commissary',dept:'Commissary',label:'Confirm first fill received',owner:'Commissary Manager',def:'First-fill quantity received and counted'},
+  {stage:'commissary',dept:'Commissary',label:'Set 2-week PAR',owner:'Commissary Manager',def:'2-week PAR level set in the system'},
+  {stage:'commissary',dept:'Commissary',label:'Add ingredient PARs',owner:'Commissary Manager',def:'Component/ingredient PARs entered'},
+  {stage:'commissary',dept:'Commissary',label:'Receiving SOP written',owner:'Commissary Manager',def:'Receiving SOP documented for this item',blocking:false},
+  /* Operations */
+  {stage:'operations',dept:'Operations',label:'Confirm items on R365 order guide',owner:'Operations Manager',def:'Item verified on the store order guide'},
+  {stage:'operations',dept:'Operations',label:'Assign shelf space on store planogram',owner:'Operations Manager',def:'Shelf location assigned on the planogram',notify:'Marketplace',notifyMsg:'Planogram shelf space assigned — please review & approve placement.'},
+  {stage:'operations',dept:'Operations',label:'Confirm initial case/each qty to receive',owner:'Operations Manager',def:'Opening order quantity confirmed'},
+  {stage:'operations',dept:'Operations',label:'Receive shelf tag (from Marketing)',owner:'Operations Manager',def:'Printed shelf tag received from Marketing'},
+  {stage:'operations',dept:'Operations',label:'Confirm PARs (min qty re-order trigger)',owner:'Operations Manager',def:'Store PAR / reorder point set'},
+  {stage:'operations',dept:'Operations',label:'Communicate upcoming launch via newsletter',owner:'Operations Manager',def:'Launch noted in the store/ops newsletter',blocking:false},
+  {stage:'operations',dept:'Operations',label:'Include in store training materials',owner:'Operations Manager',def:'Item added to store training materials'},
+  /* Marketing */
+  {stage:'marketing',dept:'Marketing',label:'Product photography',owner:'Marketing Manager',def:'Final product photos shot & edited'},
+  {stage:'marketing',dept:'Marketing',label:'Product story / description written',owner:'Marketing Manager',def:'Approved product copy written'},
+  {stage:'marketing',dept:'Marketing',label:'Create shelf tag (if needed)',owner:'Marketing Manager',def:'Shelf tag designed & sent to print',blocking:false},
+  {stage:'marketing',dept:'Marketing',label:'Create POS Toast button / ring up qty 1 (syncs to R365)',owner:'Marketing Manager',def:'Toast button created and qty 1 rung to sync',notify:'Inventory',notifyMsg:'Toast item created & rung up qty 1 — ready to attach to the R365/Synergy item (final Toast step).'},
+  {stage:'marketing',dept:'Marketing',label:'Add to Olo Marketplace menu',owner:'Marketing Manager',def:'Item live on the Olo Marketplace menu'},
+  {stage:'marketing',dept:'Marketing',label:'Upload photos/ingredients/description to Olo',owner:'Marketing Manager',def:'Front/back photos, ingredients & description on Olo'},
+  {stage:'marketing',dept:'Marketing',label:'Social scheduled',owner:'Marketing Manager',def:'Launch social posts scheduled',blocking:false},
+  {stage:'marketing',dept:'Marketing',label:'Email scheduled',owner:'Marketing Manager',def:'Launch email scheduled',blocking:false},
+  /* Store Launch — Store Ops */
+  {stage:'store',dept:'Store Ops',label:'Store places first order',owner:'Store Manager',def:'First order placed through the order guide'},
+  {stage:'store',dept:'Store Ops',label:'Commissary ships product',owner:'Commissary Manager',def:'Product shipped from commissary to store'},
+  {stage:'store',dept:'Store Ops',label:'Store receives product',owner:'Store Manager',def:'Product received & checked in at store'},
+  {stage:'store',dept:'Store Ops',label:'Merchandise shelf',owner:'Store Manager',def:'Product merchandised per planogram'},
+  {stage:'store',dept:'Store Ops',label:'Install shelf tags',owner:'Store Manager',def:'Shelf tags installed at the facing'},
+  {stage:'store',dept:'Store Ops',label:'Verify pricing',owner:'Store Manager',def:'POS price verified against the cost sheet'},
+  {stage:'store',dept:'Store Ops',label:'Train team',owner:'Store Manager',def:'Floor team briefed on the new item'},
+  {stage:'store',dept:'Store Ops',label:'Upload shelf photo',owner:'Store Manager',def:'Photo of the merchandised shelf uploaded',notify:'Marketplace',notifyMsg:'Store launch verified & shelf photo uploaded — product is LIVE.'},
+  /* 30-Day Review — Marketplace */
+  {stage:'review',dept:'Marketplace',label:'30-day sales reviewed',owner:'Marketplace Lead',def:'30-day sell-through pulled & reviewed'},
+  {stage:'review',dept:'Marketplace',label:'Velocity reviewed',owner:'Marketplace Lead',def:'Unit velocity vs. expectation reviewed'},
+  {stage:'review',dept:'Marketplace',label:'Margin reviewed',owner:'Marketplace Lead',def:'Realized margin vs. projected reviewed'},
+  {stage:'review',dept:'Marketplace',label:'Inventory turns & stockouts reviewed',owner:'Marketplace Lead',def:'Turns and any stockouts reviewed'},
+  {stage:'review',dept:'Marketplace',label:'Waste reviewed',owner:'Marketplace Lead',def:'Spoilage/waste reviewed',blocking:false},
+  {stage:'review',dept:'Marketplace',label:'Vendor performance reviewed',owner:'Marketplace Lead',def:'Fill rate & lead-time performance reviewed'},
+  {stage:'review',dept:'Marketplace',label:'Customer feedback reviewed',owner:'Marketplace Lead',def:'Guest feedback reviewed',blocking:false},
+  {stage:'review',dept:'Marketplace',label:'Disposition decided: Expand / Maintain / Exit',owner:'Marketplace Lead',def:'Expand, Maintain, or Exit decision recorded'}
+];
+function buildTasks(){return TASK_TEMPLATES.map(t=>({stage:t.stage,dept:t.dept,label:t.label,owner:t.owner||'',def:t.def||'',notify:t.notify||'',notifyMsg:t.notifyMsg||'',blocking:t.blocking!==false,file:t.file===true,done:false,doneAt:null}));}
+
+/* Named mini-steps per stage: small, purposeful batches so a team member only
+   ever focuses on a short list. [label, taskCount] in template order. */
+const STAGE_GROUPS={
+  discovery:[['Intake',2],['Samples',2]],
+  sample:[['Tasting',2],['Approvals',2],['Brand assets',3]],
+  commercial:[['Vendor setup',3],['Terms & cost',3],['Docs & handoff',2]],
+  compliance:[['Vendor docs (W-9 & COI)',2],['Product docs',4],['Clear vendor',1]],
+  erp:[['Create item',3],['Order guides',3],['Toast link',1]],
+  commissary:[['Intake & storage',3],['PARs & fill',3],['Receiving SOP',1]],
+  operations:[['Planogram & order',3],['Tags & PARs',2],['Comms & training',2]],
+  marketing:[['Creative',3],['Systems',3],['Promotion',2]],
+  store:[['Order & receive',3],['Merchandise',3],['Launch day',2]],
+  review:[['Performance',4],['Quality & vendor',3],['Decision',1]]
 };
-
-/* Pipeline stages — each owned by a team. color maps to brand tokens. */
-const STAGES = [
-  { key:'discovery',  label:'Discovery',      dept:'Marketplace', color:'#cbc9d6' },
-  { key:'sample',     label:'Sample Review',  dept:'Marketplace', color:'#cbc9d6' },
-  { key:'commercial', label:'Commercial',     dept:'Procurement', color:'#6280bd' },
-  { key:'commissary', label:'Commissary',     dept:'Commissary',  color:'#dbc6a2' },
-  { key:'operations', label:'Operations',     dept:'Operations',  color:'#7bbd91' },
-  { key:'marketing',  label:'Marketing',      dept:'Marketing',   color:'#e87142' },
-  { key:'store',      label:'Store Launch',   dept:'Store Ops',   color:'#eace49' },
-  { key:'live',       label:'Live',           dept:'—',           color:'#7bbd91' },
-  { key:'review',     label:'30-Day Review',  dept:'Marketplace', color:'#cbc9d6' }
-];
-const stageIdx = k => STAGES.findIndex(s=>s.key===k);
-const stageOf  = k => STAGES[stageIdx(k)] || STAGES[0];
-
-/* Departments + colors (for task grouping & dashboards) */
-const DEPTS = [
-  { key:'Marketplace', color:'#cbc9d6' },
-  { key:'Procurement', color:'#6280bd' },
-  { key:'Commissary',  color:'#dbc6a2' },
-  { key:'Operations',  color:'#7bbd91' },
-  { key:'Marketing',   color:'#e87142' },
-  { key:'Store Ops',   color:'#eace49' }
-];
-const deptColor = d => (DEPTS.find(x=>x.key===d)||{}).color || '#7a7770';
-
-/* Task templates — auto-generated for every launch. Each task is owned by a
-   department and "gated" by the stage it belongs to. This is the launch
-   scorecard / checklist. Edit freely — new launches pick up changes. */
-const TASK_TEMPLATES = [
-  // Marketplace — Discovery
-  { stage:'discovery',  dept:'Marketplace', label:'Brand submitted & logged' },
-  { stage:'discovery',  dept:'Marketplace', label:'Samples requested' },
-  { stage:'discovery',  dept:'Marketplace', label:'Samples received' },
-  // Marketplace — Sample review
-  { stage:'sample',     dept:'Marketplace', label:'Tasting scheduled' },
-  { stage:'sample',     dept:'Marketplace', label:'Taste approved' },
-  { stage:'sample',     dept:'Marketplace', label:'Margin approved' },
-  { stage:'sample',     dept:'Marketplace', label:'Assortment approved' },
-  { stage:'sample',     dept:'Marketplace', label:'Brand assets obtained' },
-  // Procurement — Commercial setup
-  { stage:'commercial', dept:'Procurement', label:'Vendor setup' },
-  { stage:'commercial', dept:'Procurement', label:'W9 received' },
-  { stage:'commercial', dept:'Procurement', label:'Insurance received' },
-  { stage:'commercial', dept:'Procurement', label:'Terms finalized' },
-  { stage:'commercial', dept:'Procurement', label:'Cost sheet approved' },
-  { stage:'commercial', dept:'Procurement', label:'Case pack & MOQ confirmed' },
-  { stage:'commercial', dept:'Procurement', label:'Free first fill secured' },
-  // Commissary — Supply chain
-  { stage:'commissary', dept:'Commissary',  label:'SKU created in warehouse' },
-  { stage:'commissary', dept:'Commissary',  label:'Receiving setup' },
-  { stage:'commissary', dept:'Commissary',  label:'Storage location assigned' },
-  { stage:'commissary', dept:'Commissary',  label:'Reorder point set' },
-  { stage:'commissary', dept:'Commissary',  label:'Receiving SOP written' },
-  // Operations — Retail readiness
-  { stage:'operations', dept:'Operations',  label:'POS / Toast item created' },
-  { stage:'operations', dept:'Operations',  label:'Shelf label created' },
-  { stage:'operations', dept:'Operations',  label:'Added to store order guide' },
-  { stage:'operations', dept:'Operations',  label:'Pars established' },
-  // Marketing — Launch readiness
-  { stage:'marketing',  dept:'Marketing',   label:'Product photography' },
-  { stage:'marketing',  dept:'Marketing',   label:'Product story / description written' },
-  { stage:'marketing',  dept:'Marketing',   label:'Shelf labels printed' },
-  { stage:'marketing',  dept:'Marketing',   label:'Social scheduled' },
-  { stage:'marketing',  dept:'Marketing',   label:'Email scheduled' },
-  // Store Ops — Store launch
-  { stage:'store',      dept:'Store Ops',   label:'Product received at store' },
-  { stage:'store',      dept:'Store Ops',   label:'Merchandised on shelf' },
-  { stage:'store',      dept:'Store Ops',   label:'Shelf tags installed' },
-  { stage:'store',      dept:'Store Ops',   label:'Team trained' },
-  { stage:'store',      dept:'Store Ops',   label:'Launch verified' },
-  // Review
-  { stage:'review',     dept:'Marketplace', label:'30-day sales reviewed' },
-  { stage:'review',     dept:'Marketplace', label:'Velocity reviewed' },
-  { stage:'review',     dept:'Marketplace', label:'Reorder decision (Expand / Maintain / Exit)' }
-];
-
-/* ---------------------------------------------------------------- STATE ---- */
-function defaultSettings(){ return { notifyEmail:false, teamEmails:{} }; }
-let state = { brands:{}, launches:{}, settings:defaultSettings() };
-let openLaunchId = null;
-let teamFilter = 'Marketplace';
-let ganttPx = 18;
-let _bootstrapped = false;
-const revealed = {};
-
-/* ---------------------------------------------------------------- UTIL ----- */
-const $ = s => document.querySelector(s);
-const uid = p => p + Math.random().toString(36).slice(2,8) + Date.now().toString(36).slice(-3);
-const esc = s => String(s==null?'':s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-function fmtDate(d){ if(!d) return '—'; const x=new Date(d+'T12:00:00'); return isNaN(x)?'—':x.toLocaleDateString('en-US',{month:'short',day:'numeric'}); }
-function daysUntil(d){ if(!d) return null; const x=new Date(d+'T12:00:00'), n=new Date(); n.setHours(12,0,0,0); return Math.round((x-n)/864e5); }
-function nowTs(){ return new Date().toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}); }
-function brandName(id){ return (state.brands[id]||{}).name || '—'; }
-
-/* ---------------------------------------------------------------- FIREBASE - */
-let _saveT = null;
-function save(){
-  if(_saveT) clearTimeout(_saveT);
-  _saveT = setTimeout(()=>{
-    if(window.__fbDb){ try { __fbDb.ref(CONFIG.FB_PATH).set(state); } catch(e){ console.warn('save failed',e); } }
-  }, 250);
+/* Split a stage's task list (array of {t,i} in order) into its named mini-steps.
+   Any leftover tasks (e.g. on older launches) fall into a final "More" batch. */
+function splitGroups(stageKey,sts){
+  const defs=STAGE_GROUPS[stageKey]||[['Checklist',sts.length]];
+  const out=[]; let idx=0;
+  defs.forEach(([name,cnt])=>{ if(idx>=sts.length) return; out.push({name,items:sts.slice(idx,idx+cnt)}); idx+=cnt; });
+  if(idx<sts.length) out.push({name:'More',items:sts.slice(idx)});
+  return out.filter(g=>g.items.length);
 }
-function subscribe(){
-  if(!window.__fbDb){ bootstrapIfEmpty(); renderAll(); return; }
-  __fbDb.ref(CONFIG.FB_PATH).on('value', snap=>{
-    const v = snap.val();
-    state = { brands:(v&&v.brands)||{}, launches:(v&&v.launches)||{}, settings:(v&&v.settings)||defaultSettings() };
-    // normalise: ensure tasks object exists
-    Object.values(state.launches).forEach(l=>{ if(!l.tasks) l.tasks={}; if(!l.log) l.log=[]; });
-    bootstrapIfEmpty();
-    renderAll();
-    if(openLaunchId && state.launches[openLaunchId]) renderDetail(openLaunchId);
-  });
+const groupDone=g=>g.items.every(x=>x.t.done||x.t.blocking===false);
+
+/* ---------------- state ---------------- */
+let LAUNCHES={}, BRANDS={}, SETTINGS={}, TAB='pipeline', OPEN=null;
+let prodStatus='all', prodCat='All', brandSearch='';
+let NOTIFY=true;
+const $=id=>document.getElementById(id);
+
+let _hashOpened=false;
+db.ref('marketplace-npi').on('value',snap=>{
+  const v=snap.val()||{}; LAUNCHES=v.launches||{}; BRANDS=v.brands||{}; SETTINGS=v.settings||{};
+  render(); if(OPEN&&LAUNCHES[OPEN]) renderDrawer(OPEN);
+  // deep link: an email's "open the hub" link is .../neighborly-marketplace.html#<launchId>
+  // — open that product straight into the drawer the first time data arrives.
+  if(!_hashOpened && location.hash.length>1){ const hid=decodeURIComponent(location.hash.slice(1)); if(LAUNCHES[hid]){ _hashOpened=true; openDrawer(hid); } }
+});
+
+/* ---------------- helpers ---------------- */
+function tasksOf(l){return Array.isArray(l.tasks)?l.tasks:Object.values(l.tasks||{});}
+function stageTasks(l,sk){return tasksOf(l).map((t,i)=>({t,i})).filter(x=>x.t.stage===sk);}
+function readiness(l){const ts=tasksOf(l);if(!ts.length)return 0;return Math.round(100*ts.filter(t=>t.done).length/ts.length);}
+function brandName(l){const b=BRANDS[l.brandId];return b?b.name:'';}
+function recipientFor(dept){const te=(SETTINGS.teamEmails)||{};return te[dept]||SETTINGS.notifyEmailAddr||'Kallmeroth@beneighborly.com';}
+function nowTs(){return new Date().toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'});}
+function toast(m){const t=$('toast');t.textContent=m;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2600);}
+
+const HUB_URL='https://beneighborly.team/neighborly-marketplace.html';
+/* "It's your turn" handoff copy — names the exact tasks, adds urgency, points
+   to the hub, and reminds them to check tasks off to advance the launch. */
+function actionMessage(launch,nm){
+  const todo=stageTasks(launch,nm.key).filter(x=>x.t.blocking!==false).map(x=>x.t.label);
+  const list=todo.length?` Your ${nm.label} checklist: ${todo.join('; ')}.`:'';
+  return `🔔 It's your turn, ${nm.dept}! ${launch.name||'A product'} (${brandName(launch)}) just advanced to the ${nm.label} stage — the whole launch is now waiting on your team.`
+    +list
+    +` ⏱️ Please jump on this today: nothing moves forward until your ${nm.label} tasks are done, and every day it sits here pushes ${launch.name||'the launch'}'s go-live date back.`
+    +` 👉 Click here to open ${launch.name||'this product'} in the hub and work your checklist: ${HUB_URL}#${launch.id}`
+    +` ✅ Don't forget — check off each task the moment you finish it. Completing them is what hands ${launch.name||'this product'} to the next team and keeps the launch on track.`;
 }
-
-/* ---------------------------------------------------------------- TASKS ---- */
-function buildTasks(){
-  const t = {};
-  TASK_TEMPLATES.forEach((tpl,i)=>{
-    t['t'+i] = { label:tpl.label, dept:tpl.dept, stage:tpl.stage, done:false, owner:'', doneAt:null };
-  });
-  return t;
-}
-function readiness(l){
-  const tasks = Object.values(l.tasks||{});
-  const live = tasks.filter(t=>t.stage!=='review'); // review tasks excluded from launch readiness
-  const done = live.filter(t=>t.done).length;
-  const overall = live.length ? Math.round(done/live.length*100) : 0;
-  const byDept = {};
-  DEPTS.forEach(d=>{
-    const dt = tasks.filter(t=>t.dept===d.key);
-    byDept[d.key] = { total:dt.length, done:dt.filter(t=>t.done).length };
-  });
-  return { overall, byDept, done, total:live.length };
-}
-function stageReady(l, stageKey){
-  const dt = Object.values(l.tasks||{}).filter(t=>t.stage===stageKey);
-  if(!dt.length) return true;
-  return dt.every(t=>t.done);
-}
-
-/* ---------------------------------------------------------------- AUTOMATION */
-function logEvent(l, text){ (l.log = l.log||[]).unshift({ ts:nowTs(), text }); if(l.log.length>40) l.log.length=40; }
-
-function advanceStage(id, toKey){
-  const l = state.launches[id]; if(!l) return;
-  const from = stageOf(l.stage), to = stageOf(toKey);
-  const toIdx = stageIdx(toKey);
-
-  // gate: can't reach Live until overall readiness >= LAUNCH_GATE
-  if(toKey==='live'){
-    const r = readiness(l);
-    if(r.overall < CONFIG.LAUNCH_GATE){
-      toast(`Can't launch yet — ${r.overall}% ready (need ${CONFIG.LAUNCH_GATE}%).`, null, '#a32d2d');
-      return;
-    }
-  }
-  l.stage = toKey;
-  logEvent(l, `Stage → ${to.label}${to.dept!=='—'?'  ·  '+to.dept+' activated':''}`);
-
-  // AUTOMATION: notify the newly-responsible team & surface their tasks
-  if(to.dept && to.dept!=='—'){
-    const dt = Object.values(l.tasks).filter(t=>t.stage===toKey);
-    const open = dt.filter(t=>!t.done).length;
-    notifyTeam(l, to.dept, `${to.label} stage is now active for ${l.name} (${brandName(l.brandId)}). ${open} task${open!==1?'s':''} assigned to ${to.dept}.`);
-  }
-  if(toKey==='live'){ logEvent(l, '🎉 Product is LIVE on shelf'); notifyTeam(l,'Marketplace',`${l.name} is LIVE.`); }
-  save();
-  renderAll();
-  if(openLaunchId===id) renderDetail(id);
-  toast(`Advanced to <b>${to.label}</b>`);
-}
-
-function toggleTask(id, taskId){
-  const l = state.launches[id]; if(!l||!l.tasks[taskId]) return;
-  const t = l.tasks[taskId];
-  t.done = !t.done; t.doneAt = t.done ? Date.now() : null;
-  save();
-  // AUTOMATION: when a stage's tasks all complete, offer 1-click advance to next stage
-  if(t.done && CONFIG.AUTO_ADVANCE){
-    const sk = t.stage;
-    if(stageReady(l, sk) && l.stage===sk){
-      const ni = stageIdx(sk)+1;
-      if(ni < STAGES.length){
-        const next = STAGES[ni];
-        const nextLabel = next.key;
-        toast(`<b>${stageOf(sk).dept}</b> done for ${esc(l.name)} → advance to ${next.label}?`,
-              { label:'Advance', fn:()=>advanceStage(id, nextLabel) }, null, 6000);
-      }
-    }
-  }
-  renderAll();
-  if(openLaunchId===id) renderDetail(id);
-}
-
-function emailVars(l, dept, message){
-  const base = location.href.split('#')[0].split('?')[0];
-  return {
-    to_name:     dept,
-    team:        dept,
-    launch:      l.name,
-    brand:       brandName(l.brandId),
-    stage:       stageOf(l.stage).label,
-    launch_date: l.launchDate ? fmtDate(l.launchDate) : 'TBD',
-    readiness:   readiness(l).overall + '%',
-    accent:      deptColor(dept),
-    link:        base,
-    message:     message,
-    // backward-compat with the existing calendar template's variable names:
-    event_name:     `${l.name} — ${stageOf(l.stage).label} stage active`,
-    event_date:     l.launchDate ? fmtDate(l.launchDate) : 'TBD',
-    event_category: `${brandName(l.brandId)} · ${dept}`,
-    event_notes:    message
-  };
-}
-
-function notifyTeam(l, dept, message){
-  logEvent(l, `🔔 ${dept} notified`);
-  // outbound email — only if alerts are ON and this team has an address on file
-  const s = state.settings || {};
-  if(!s.notifyEmail || !window.emailjs) return;
-  const to = (s.teamEmails && s.teamEmails[dept]) || '';
-  if(!to) return;
-  const vars = emailVars(l, dept, message); vars.to_email = to;
+async function sendEmail(toEmail,team,launch,vars){
+  if(!NOTIFY) return {skipped:true};
   try{
-    emailjs.send(CONFIG.EMAILJS.serviceId, CONFIG.EMAILJS.templateId, vars)
-      .then(()=>toast(`📧 Emailed ${dept}`))
-      .catch(err=>{
-        console.error('EmailJS error →', err);
-        toast(`⚠️ Email to ${dept} failed — check console`, null, '#a32d2d');
-      });
-  }catch(e){ console.warn('EmailJS send failed', e); }
+    await emailjs.send(EMAILJS.service,EMAILJS.template,Object.assign({
+      to_email:toEmail,to_name:team+' team',team:team,
+      launch:launch.name||'',brand:brandName(launch),stage:vars.stage||'',
+      launch_date:launch.launchDate||'',readiness:readiness(launch)+'%',
+      message:vars.message||'',link:HUB_URL+(launch&&launch.id?('#'+launch.id):''),
+      accent:'#6280bd'
+    },vars));
+    return {ok:true};
+  }catch(e){ return {err:String(e)}; }
 }
 
-/* ---------------------------------------------------------------- TOASTS --- */
-function toast(html, action, color, ms){
-  const wrap = $('#mpToasts'); const el = document.createElement('div');
-  el.className='mp-toast'; if(color) el.style.background=color;
-  el.innerHTML = html;
-  if(action){ const a=document.createElement('span'); a.className='act'; a.textContent=action.label; a.onclick=()=>{ action.fn(); el.remove(); }; el.appendChild(a); }
-  wrap.appendChild(el); requestAnimationFrame(()=>el.classList.add('show'));
-  setTimeout(()=>{ el.classList.remove('show'); setTimeout(()=>el.remove(),250); }, ms||3600);
+/* ---------------- render: tabs ---------------- */
+document.querySelectorAll('.np-tabs .np-tab').forEach(b=>b.onclick=()=>{TAB=b.dataset.tab;document.querySelectorAll('.np-tabs .np-tab').forEach(x=>x.classList.toggle('is-active',x===b));render();});
+$('notifySwitch').onclick=function(){NOTIFY=!NOTIFY;this.classList.toggle('on',NOTIFY);toast(NOTIFY?'Notifications ON — handoffs will email the dept owner':'Notifications OFF');};
+$('addBtn').onclick=addProduct;
+
+function render(){
+  if(TAB==='pipeline') renderPipeline();
+  else if(TAB==='gantt') renderGantt();
+  else if(TAB==='products') renderProducts();
+  else if(TAB==='brands') renderBrands();
+  else if(TAB==='settings') renderSettings();
+  else renderProcess();
 }
 
-/* ---------------------------------------------------------------- RENDER --- */
-function renderAll(){ renderKpis(); renderCounts(); renderBoard();
-  if($('#tab-timeline').style.display!=='none') renderTimeline();
-  if($('#tab-teams').style.display!=='none') renderTeams();
-  if($('#tab-brands').style.display!=='none') renderBrands();
-  if(!revealed._init){ revealed._init=true; setTimeout(()=>revealTab('board'),30); } }
-
-/* add .mp-anim to a tab so its stagger animation plays once, then strip it so
-   subsequent in-place re-renders (task toggles, advances) stay static */
-function revealTab(name){ const el=$('#tab-'+name); if(!el) return; el.classList.add('mp-anim'); setTimeout(()=>el.classList.remove('mp-anim'),950); }
-function countUp(el,to,suf,dur){ const t0=performance.now(); (function f(t){ const p=Math.min((t-t0)/dur,1); const e=1-Math.pow(1-p,3); el.textContent=Math.round(to*e)+(suf||''); if(p<1) requestAnimationFrame(f); })(performance.now()); }
-
-function renderCounts(){
-  const launches = Object.values(state.launches);
-  $('#cBoard').textContent = launches.filter(l=>l.stage!=='review'||true).length;
-  let openTasks=0; launches.forEach(l=>Object.values(l.tasks||{}).forEach(t=>{ if(!t.done) openTasks++; }));
-  $('#cTeams').textContent = openTasks;
-  $('#cBrands').textContent = Object.keys(state.brands).length;
+/* ---------------- pipeline board ---------------- */
+function renderPipeline(){
+  const byStage={}; Object.values(LAUNCHES).forEach(l=>{(byStage[l.stage]=byStage[l.stage]||[]).push(l);});
+  const lanes=[...PIPE,stageMeta('live')]; // active stages + Live lane
+  $('view').innerHTML=`<div class="lanes">${lanes.map(s=>{
+    const items=(byStage[s.key]||[]).sort((a,b)=>(a.name||'').localeCompare(b.name||''));
+    return `<div class="lane"><div class="lane-head"><div class="lh-top"><span class="dot" style="background:${s.color}"></span>${esc(s.label)}</div><span class="cnt">${items.length} ${items.length===1?'product':'products'}</span></div>
+      <div class="lane-list">${items.map(l=>{
+        const r=readiness(l);
+        return `<div class="pcard" data-id="${l.id}"><div class="pn">${esc(l.name||'')}</div>
+          <div class="pb">${esc(brandName(l))} · ${esc(l.category||'')}</div>
+          ${s.key!=='live'?`<div class="bar"><i style="width:${r}%;background:${s.color}"></i></div>`:''}
+          <div class="code">${esc(l.code||'')}</div></div>`;
+      }).join('')||'<div class="lane-empty">—</div>'}</div></div>`;
+  }).join('')}</div>`;
+  document.querySelectorAll('.pcard').forEach(c=>c.onclick=()=>openDrawer(c.dataset.id));
 }
 
-function renderKpis(){
-  const launches = Object.values(state.launches);
-  const active = launches.filter(l=>!['live','review'].includes(l.stage));
-  const live30 = launches.filter(l=>{ const d=daysUntil(l.launchDate); return d!=null && d>=0 && d<=30 && l.stage!=='live'; });
-  const atRisk = active.filter(l=>{ const d=daysUntil(l.launchDate); return d!=null && d<7 && readiness(l).overall<CONFIG.LAUNCH_GATE; });
-  const avgReady = active.length ? Math.round(active.reduce((a,l)=>a+readiness(l).overall,0)/active.length) : 0;
-  const liveCount = launches.filter(l=>l.stage==='live').length;
-  const k = [
-    { l:'In pipeline', v:active.length, suf:'', s:'active launches' },
-    { l:'Launching ≤30d', v:live30.length, suf:'', s:'next 30 days' },
-    { l:'Avg readiness', v:avgReady, suf:'%', s:'across active' },
-    { l:'At risk', v:atRisk.length, suf:'', s:'<7d & under gate' },
-    { l:'Live', v:liveCount, suf:'', s:'on shelf' }
-  ];
-  const first = !revealed.kpi;
-  const wrap = $('#mpKpis');
-  wrap.innerHTML = k.map(x=>`<div class="mp-kpi"><div class="l">${x.l}</div><div class="v" data-to="${x.v}" data-suf="${x.suf}">${first?('0'+x.suf):(x.v+x.suf)}</div><div class="s">${x.s}</div></div>`).join('');
-  if(first){
-    revealed.kpi = true;
-    wrap.classList.add('mp-anim'); setTimeout(()=>wrap.classList.remove('mp-anim'),950);
-    wrap.querySelectorAll('.v').forEach(el=>countUp(el, +el.dataset.to, el.dataset.suf, 850));
-  }
+/* ---------------- products tab ---------------- */
+function renderProducts(){
+  const STAGE_LABEL={}; STAGES.forEach(s=>STAGE_LABEL[s.key]=s.label);
+  const all=Object.values(LAUNCHES).filter(l=>l.name).map(l=>({id:l.id,name:l.name,category:l.category||'Uncategorized',stage:l.stage,live:l.stage==='live',code:l.code||''})).sort((a,b)=>a.name.localeCompare(b.name));
+  const pool=all.filter(p=>prodStatus==='all'||(prodStatus==='shelf'?p.live:!p.live));
+  const cats=['All',...Array.from(new Set(pool.map(p=>p.category))).sort()];
+  if(!cats.includes(prodCat))prodCat='All';
+  $('view').innerHTML=`<h1>Products</h1><p class="sub">Every brand in the marketplace — on shelf and in the pipeline.</p>
+    <div class="segmented" id="seg">
+      <button data-s="all" class="${prodStatus==='all'?'active':''}">All</button>
+      <button data-s="shelf" class="${prodStatus==='shelf'?'active':''}">On shelf</button>
+      <button data-s="pipe" class="${prodStatus==='pipe'?'active':''}">In pipeline</button></div>
+    <div class="toolbar"><input id="pq" type="search" placeholder="Search brand or category…"><span class="stat" id="pcount"></span></div>
+    <div class="chips" id="pchips">${cats.map(c=>`<span class="chip ${c===prodCat?'active':''}" data-c="${esc(c)}">${esc(c)}</span>`).join('')}</div>
+    <div id="plist"></div>`;
+  $('seg').querySelectorAll('button').forEach(b=>b.onclick=()=>{prodStatus=b.dataset.s;renderProducts();});
+  $('pchips').querySelectorAll('.chip').forEach(c=>c.onclick=()=>{prodCat=c.dataset.c;renderProducts();});
+  const q0=$('pq'); q0.oninput=()=>drawProducts(pool,STAGE_LABEL,q0.value);
+  drawProducts(pool,STAGE_LABEL,'');
+}
+function drawProducts(pool,LBL,q){
+  q=(q||'').trim().toLowerCase();
+  const items=pool.filter(p=>(prodCat==='All'||p.category===prodCat)&&(!q||p.name.toLowerCase().includes(q)||p.category.toLowerCase().includes(q)));
+  const shelf=items.filter(p=>p.live).length;
+  $('pcount').textContent=`${items.length} products · ${shelf} on shelf · ${items.length-shelf} in pipeline`;
+  const byCat={}; items.forEach(p=>{(byCat[p.category]=byCat[p.category]||[]).push(p);});
+  $('plist').innerHTML=items.length?Object.keys(byCat).sort().map(cat=>`
+    <div class="cat-head"><h2>${esc(cat)}</h2><span class="n">${byCat[cat].length}</span></div>
+    <div class="grid">${byCat[cat].map(p=>`<div class="card" data-id="${p.id}"><div class="name">${esc(p.name)}</div>
+      <div class="meta">${esc(p.category)}${p.code?' · '+esc(p.code):''}</div>
+      ${p.live?'<span class="pill shelf">On shelf</span>':'<span class="pill pipe">In pipeline · '+esc(LBL[p.stage]||p.stage)+'</span>'}</div>`).join('')}</div>`).join(''):'<div class="empty">No products match.</div>';
+  document.querySelectorAll('#plist .card').forEach(c=>c.onclick=()=>openDrawer(c.dataset.id));
 }
 
-function readyColor(p){ return p>=90?'#7bbd91':p>=50?'#eace49':'#e87142'; }
-
-function renderBoard(){
-  const cols = STAGES.filter(s=>s.key!=='review'); // review handled in detail; keep board focused
-  const launches = Object.values(state.launches);
-
-  // pipeline overview rail — the whole funnel, start → finish, with live counts
-  const counts = {}; launches.forEach(l=>{ counts[l.stage]=(counts[l.stage]||0)+1; });
-  const activeCount = launches.filter(l=>!['live','review'].includes(l.stage)).length;
-  const railNodes = STAGES.map((s,i)=>{
-    const c = counts[s.key]||0;
-    const node = `<div class="mp-rail-node ${c?'':'empty'}" onclick="MP.scrollStage('${s.key}')" title="${esc(s.label)}${s.dept!=='—'?' · '+esc(s.dept):''}">
-      <div class="cnt">${c}</div>
-      <div class="lbl"><span class="d" style="background:${s.color}"></span>${esc(s.label)}</div>
-    </div>`;
-    return node + (i<STAGES.length-1 ? '<span class="mp-rail-arrow">›</span>' : '');
-  }).join('');
-  const rail = `<div class="mp-rail">
-    <div class="mp-rail-lead"><div class="t">In&nbsp;pipeline</div><div class="v">${activeCount}</div></div>
-    ${railNodes}
-  </div>`;
-
-  const html = cols.map(s=>{
-    const items = launches.filter(l=>l.stage===s.key).sort((a,b)=>(a.launchDate||'9').localeCompare(b.launchDate||'9'));
-    const cards = items.map(l=>cardHtml(l)).join('') || `<div style="font-size:11px;color:var(--text-mute);text-align:center;padding:14px 0">—</div>`;
-    return `<div class="mp-col" id="mpcol-${s.key}">
-      <div class="mp-col-head">
-        <div class="mp-col-title"><span class="dot" style="background:${s.color}"></span>${esc(s.label)}</div>
-        <span class="mp-col-count">${items.length}</span>
-      </div>
-      <div class="mp-col-owner" style="margin:-4px 0 8px 16px">${s.dept==='—'?'':esc(s.dept)}</div>
-      <div class="mp-col-body">${cards}</div>
-    </div>`;
-  }).join('');
-  $('#tab-board').innerHTML = `${rail}<div class="mp-board mp-stagger">${html}</div>`;
-}
-
-function cardHtml(l){
-  const r = readiness(l); const d = daysUntil(l.launchDate);
-  const si = stageIdx(l.stage), next = STAGES[si+1];
-  const canAdvance = next && next.key!=='review';
-  const dateCls = (d!=null && d>=0 && d<=14) ? 'soon' : '';
-  const steps = STAGES.filter(s=>s.key!=='review').map(s=>{
-    const idx=stageIdx(s.key);
-    if(idx<si) return '<i class="done"></i>';
-    if(idx===si) return `<i style="background:${stageOf(l.stage).color}"></i>`;
-    return '<i></i>';
-  }).join('');
-  return `<div class="mp-card" onclick="MP.openDetail('${l.id}')">
-    <div class="code">${esc(l.code||'')}</div>
-    <div class="brand">${esc(brandName(l.brandId))}</div>
-    <div class="name">${esc(l.name||'Untitled')}</div>
-    <div class="meta">
-      ${l.priority?`<span class="mp-pri ${esc(l.priority)}">${esc(l.priority)}</span>`:''}
-      ${l.launchDate?`<span class="mp-date ${dateCls}"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>${fmtDate(l.launchDate)}${d!=null&&d>=0?` · ${d}d`:''}</span>`:''}
-    </div>
-    <div class="mp-ready">
-      <div class="track"><div class="fill" style="width:${r.overall}%;background:${readyColor(r.overall)}"></div></div>
-      <div class="lbl"><span>Readiness</span><b>${r.overall}%</b></div>
-    </div>
-    <div class="mp-card-steps" title="Stage ${si+1} of ${STAGES.length-1}">${steps}</div>
-    ${canAdvance?`<button class="mp-btn sm advance" onclick="event.stopPropagation();MP.advance('${l.id}','${next.key}')">Advance → ${esc(next.label)}</button>`:
-      (next&&next.key==='review'?`<button class="mp-btn sm advance" onclick="event.stopPropagation();MP.advance('${l.id}','review')">Start 30-day review</button>`:'')}
-  </div>`;
-}
-
-/* ---- detail slide-over ---- */
-function renderDetail(id){
-  const l = state.launches[id]; if(!l) return;
-  const r = readiness(l); const si = stageIdx(l.stage); const cur = stageOf(l.stage);
-  const C = 2*Math.PI*23; const off = C*(1-r.overall/100);
-
-  const stepper = STAGES.filter(s=>s.key!=='review').map((s,i)=>{
-    const cls = i<si?'done':(i===si?'cur':'');
-    return `<div class="mp-step ${cls}"><div class="bar"></div><div class="t">${esc(s.label)}</div></div>`;
-  }).join('');
-
-  // department task groups (ordered as the pipeline flows)
-  const deptOrder = ['Marketplace','Procurement','Commissary','Operations','Marketing','Store Ops'];
-  const groups = deptOrder.map(dep=>{
-    const tasks = Object.entries(l.tasks).filter(([,t])=>t.dept===dep);
-    if(!tasks.length) return '';
-    const done = tasks.filter(([,t])=>t.done).length, tot=tasks.length;
-    const pct = tot?Math.round(done/tot*100):0;
-    const isCur = cur.dept===dep;
-    const rows = tasks.map(([tid,t])=>`
-      <div class="mp-task ${t.done?'done':''}">
-        <div class="mp-check ${t.done?'on':''}" onclick="MP.toggle('${l.id}','${tid}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
-        <div class="body"><div class="lab">${esc(t.label)}</div>${t.done&&t.doneAt?`<div class="sub">done ${new Date(t.doneAt).toLocaleDateString('en-US',{month:'short',day:'numeric'})}</div>`:''}</div>
-      </div>`).join('');
-    return `<div class="mp-dept ${isCur?'open':''}">
-      <div class="mp-dept-head" onclick="this.parentNode.classList.toggle('open')">
-        <span class="dot" style="background:${deptColor(dep)}"></span>
-        <span class="nm">${esc(dep)}</span>
-        <span class="mini">
-          <span class="minibar"><i style="width:${pct}%;background:${readyColor(pct)}"></i></span>
-          <span class="mpct">${done}/${tot}</span>
-          <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
-        </span>
-      </div>
-      <div class="mp-tasks">${rows}</div>
-    </div>`;
-  }).join('');
-
-  const next = STAGES[si+1];
-  const b = state.brands[l.brandId] || {};
-  const specs = [
-    ['Brand', brandName(l.brandId)], ['Category', l.category||'—'],
-    ['Launch date', l.launchDate?fmtDate(l.launchDate):'—'], ['Priority', l.priority||'—'],
-    ['Cost', l.cost?'$'+l.cost:'—'], ['MSRP', l.msrp?'$'+l.msrp:'—'],
-    ['Margin', (l.cost&&l.msrp)?Math.round((1-(+l.cost/+l.msrp))*100)+'%':'—'], ['Case pack', l.casePack||'—'],
-    ['UPC', l.upc||'—'], ['Storage', l.storageType||'—'],
-    ['Store count', l.storeCount||'—'], ['Distributor', b.distributor||'—']
-  ];
-
-  const log = (l.log||[]).map(e=>`<li><span class="ts">${esc(e.ts)}</span><span>${esc(e.text)}</span></li>`).join('') || `<li><span style="color:var(--text-mute)">No activity yet.</span></li>`;
-
-  $('#mpPanel').innerHTML = `
-    <div class="mp-panel-head">
-      <div class="row">
-        <div>
-          <div class="code">${esc(l.code||'')}</div>
-          <h2>${esc(l.name||'Untitled')}</h2>
-          <div class="brand">${esc(brandName(l.brandId))}</div>
-        </div>
-        <button class="mp-close" onclick="MP.closeDetail()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
-      </div>
-      <div class="mp-stepper">${stepper}</div>
-    </div>
-    <div class="mp-panel-body">
-      <div class="mp-stage-row">
-        <span class="mp-ring">
-          <svg width="54" height="54"><circle cx="27" cy="27" r="23" stroke="var(--surface-2)" stroke-width="6" fill="none"/><circle class="prog" cx="27" cy="27" r="23" stroke="${readyColor(r.overall)}" stroke-width="6" fill="none" stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${off}" style="--c0:${C}"/></svg>
-          <span class="pct">${r.overall}%</span>
-        </span>
-        <div style="flex:1">
-          <span class="mp-stage-chip" style="background:${cur.color};color:#1f2328">${esc(cur.label)}${cur.dept!=='—'?' · '+esc(cur.dept):''}</span>
-          <div style="font-size:12px;color:var(--text-3);margin-top:6px">${r.done}/${r.total} launch tasks complete</div>
-        </div>
-        ${next?`<button class="mp-btn primary" onclick="MP.advance('${l.id}','${next.key}')">${l.stage==='store'?'Go Live':'Advance'}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>`:
-          (l.stage==='live'?`<button class="mp-btn" onclick="MP.advance('${l.id}','review')">Start review</button>`:'')}
-      </div>
-
-      <div class="mp-sec">
-        <div class="mp-sec-title">Launch scorecard · cross-team checklist <span class="pct">${r.overall}%</span></div>
-        ${groups}
-      </div>
-
-      <div class="mp-sec">
-        <div class="mp-sec-title">Product & brand</div>
-        <div class="mp-specs">${specs.map(s=>`<div class="mp-spec"><div class="l">${esc(s[0])}</div><div class="v">${esc(s[1])}</div></div>`).join('')}</div>
-      </div>
-
-      <div class="mp-sec">
-        <div class="mp-sec-title">Activity</div>
-        <ul class="mp-log">${log}</ul>
-      </div>
-
-      <div class="mp-sec" style="display:flex;gap:8px;flex-wrap:wrap">
-        <button class="mp-btn" onclick="MP.editLaunch('${l.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4v16h16v-7"/><path d="M18.5 2.5a2.1 2.1 0 0 1 3 3L12 15l-4 1 1-4z"/></svg>Edit details</button>
-        <button class="mp-btn" style="color:var(--brand-orange-deep)" onclick="MP.deleteLaunch('${l.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg>Delete</button>
-      </div>
-    </div>`;
-}
-
-/* ---- team task dashboard ---- */
-function renderTeams(){
-  const pills = DEPTS.map(d=>{
-    const n = Object.values(state.launches).reduce((a,l)=>a+Object.values(l.tasks||{}).filter(t=>t.dept===d.key&&!t.done).length,0);
-    return `<button class="mp-team-pill ${teamFilter===d.key?'active':''}" onclick="MP.team('${d.key}')"><span class="dot" style="background:${d.color}"></span>${esc(d.key)}<span class="n">${n}</span></button>`;
-  }).join('');
-
-  // gather open tasks for selected team across all launches
-  const rows = [];
-  Object.values(state.launches).forEach(l=>{
-    Object.entries(l.tasks||{}).forEach(([tid,t])=>{
-      if(t.dept===teamFilter && !t.done){
-        const isCur = stageOf(l.stage).key===t.stage;
-        rows.push({ l, tid, t, isCur, d:daysUntil(l.launchDate) });
-      }
-    });
-  });
-  // active-stage tasks first, then by launch date
-  rows.sort((a,b)=> (b.isCur-a.isCur) || ((a.l.launchDate||'9').localeCompare(b.l.launchDate||'9')));
-
-  const list = rows.length ? rows.map(r=>`
-    <div class="mp-trow">
-      <div class="mp-check" onclick="MP.toggle('${r.l.id}','${r.tid}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" style="opacity:0"><polyline points="20 6 9 17 4 12"/></svg></div>
-      <div class="body">
-        <div class="lab">${esc(r.t.label)}</div>
-        <div class="ctx"><a href="#" onclick="MP.openDetail('${r.l.id}');return false">${esc(r.l.code)} · ${esc(r.l.name)}</a> · ${esc(brandName(r.l.brandId))}${r.l.launchDate?` · launches ${fmtDate(r.l.launchDate)}${r.d!=null&&r.d>=0?` (${r.d}d)`:''}`:''}</div>
-      </div>
-      ${r.isCur?`<span class="mp-pri High" style="background:var(--mp-light);color:var(--mp-deep)">Active stage</span>`:''}
-    </div>`).join('') : `<div class="mp-empty">No open tasks for ${esc(teamFilter)}. 🎉</div>`;
-
-  $('#tab-teams').innerHTML = `<div class="mp-team-bar">${pills}</div><div class="mp-tasklist mp-stagger">${list}</div>`;
-}
-
-/* ---- gantt timeline ---- */
-const STAGE_DUR = { discovery:5, sample:5, commercial:5, commissary:3, operations:3, marketing:4, store:2 };
-const GSTAGES = ['discovery','sample','commercial','commissary','operations','marketing','store'];
-const GSHORT  = { discovery:'Disc', sample:'Sample', commercial:"Comm'l", commissary:'Whse', operations:'Ops', marketing:'Mktg', store:'Store' };
-const DAYMS = 864e5;
-const gtotal = () => GSTAGES.reduce((a,k)=>a+STAGE_DUR[k],0);
-function hexA(h,a){ const n=parseInt(h.slice(1),16); return `rgba(${(n>>16)&255},${(n>>8)&255},${n&255},${a})`; }
-
-/* Back-schedule each launch: stages end at the launch date (countdown). If no
-   launch date, run forward from when it was created. */
-function scheduleOf(l){
-  const tot = gtotal();
-  let end = l.launchDate ? new Date(l.launchDate+'T12:00:00') : new Date((l.createdAt||Date.now())+tot*DAYMS);
-  end.setHours(12,0,0,0);
-  const start = new Date(end.getTime()-tot*DAYMS);
-  let cur=new Date(start); const segs=[];
-  GSTAGES.forEach(k=>{ const s=new Date(cur), e=new Date(cur.getTime()+STAGE_DUR[k]*DAYMS); segs.push({key:k,s,e}); cur=e; });
-  return { start, end, segs };
-}
-
-function renderTimeline(){
-  const host=$('#tab-timeline');
-  const launches=Object.values(state.launches);
-  if(!launches.length){ host.innerHTML=`<div class="mp-empty">No launches yet — create one to see the timeline.</div>`; return; }
-  const rows=launches.map(l=>({l,sc:scheduleOf(l)})).sort((a,b)=>a.sc.end-b.sc.end);
-  const today=new Date(); today.setHours(12,0,0,0);
-  const minMs=Math.min(today.getTime(), ...rows.map(r=>r.sc.start.getTime()));
-  const maxMs=Math.max(today.getTime(), ...rows.map(r=>r.sc.end.getTime()));
-  const startN=Math.floor(minMs/DAYMS)-3, endN=Math.ceil(maxMs/DAYMS)+5;
-  const PX=ganttPx, W=(endN-startN)*PX;
-  const x=ms=>(Math.floor(ms/DAYMS)-startN)*PX;
-  const todayX=x(today.getTime());
-
-  // axis ticks (month labels + weekly day numbers) and matching grid lines
-  let ticks='', grid='', lastMonth=-1;
-  for(let n=startN;n<=endN;n++){
-    const d=new Date(n*DAYMS), left=(n-startN)*PX, mo=d.getUTCMonth(), dow=d.getUTCDay();
-    if(mo!==lastMonth){ lastMonth=mo;
-      ticks+=`<div class="mp-g-tick month" style="left:${left}px"><span class="lab">${d.toLocaleDateString('en-US',{month:'short',timeZone:'UTC'})}</span></div>`;
-      grid+=`<div class="mp-g-grid" style="left:${left}px"></div>`;
-    } else if(dow===1){
-      ticks+=`<div class="mp-g-tick" style="left:${left}px"><span class="lab">${d.getUTCDate()}</span></div>`;
-      grid+=`<div class="mp-g-grid" style="left:${left}px"></div>`;
-    }
-  }
-
-  const body=rows.map(({l,sc})=>{
-    const ci=stageIdx(l.stage), launched=(l.stage==='live'||l.stage==='review'), r=readiness(l);
-    const segHtml=sc.segs.map(sg=>{
-      const left=x(sg.s.getTime()), w=Math.max((sg.e-sg.s)/DAYMS*PX-2,6), col=stageOf(sg.key).color, si=stageIdx(sg.key);
-      let cls,style;
-      if(launched||si<ci){ cls='done'; style=`background:${col}`; }
-      else if(si===ci){ cls='cur'; style=`background:${col};color:${col}`; }
-      else { cls='future'; style=`background:${hexA(col,.14)};border:1px solid ${hexA(col,.45)}`; }
-      const lbl = w>=34 ? GSHORT[sg.key] : '';
-      const inner = cls==='cur' ? `<span style="color:#1f2328">${lbl}</span>` : lbl;
-      return `<div class="mp-seg ${cls}" style="left:${left}px;width:${w}px;${style}" title="${esc(stageOf(sg.key).label)} · ${esc(stageOf(sg.key).dept)}">${inner}</div>`;
-    }).join('');
-    const mx=x(sc.end.getTime());
-    const milestone=`<div class="mp-milestone" title="Go live: ${l.launchDate?esc(fmtDate(l.launchDate)):'TBD'}" style="left:${mx}px;${launched?'background:var(--brand-green)':'background:#fff;border:2px solid '+stageOf('store').color}"></div>`;
-    const openCur=Object.values(l.tasks||{}).filter(t=>t.stage===l.stage&&!t.done).length;
-    const st = launched ? '🟢 Live' : `${stageOf(l.stage).label}${openCur?` · ${openCur} open`:''}`;
-    return `<div class="mp-g-row" onclick="MP.openDetail('${l.id}')">
-      <div class="mp-g-label">
-        <div class="br">${esc(brandName(l.brandId))}</div>
-        <div class="nm">${esc(l.name)}</div>
-        <div class="st">${esc(st)} · ${r.overall}%</div>
-      </div>
-      <div class="mp-g-track" style="width:${W}px">${grid}${segHtml}${milestone}<div class="mp-today" style="left:${todayX}px"></div></div>
-    </div>`;
-  }).join('');
-
-  const legend = GSTAGES.map(k=>`<span class="it"><span class="sw" style="background:${stageOf(k).color}"></span>${esc(stageOf(k).label)}</span>`).join('')
-    + `<span class="it"><span class="sw" style="transform:rotate(45deg);border-radius:2px;background:#fff;border:2px solid ${stageOf('store').color}"></span>Go-live</span>`
-    + `<span class="it"><span class="sw" style="background:var(--brand-orange)"></span>Today</span>`;
-  const zoom = `<span class="mp-zoom">
-      <button class="mp-btn sm ${PX<=14?'primary':''}" onclick="MP.ganttZoom(12)">Fit</button>
-      <button class="mp-btn sm ${PX>14&&PX<24?'primary':''}" onclick="MP.ganttZoom(18)">Comfort</button>
-      <button class="mp-btn sm ${PX>=24?'primary':''}" onclick="MP.ganttZoom(28)">Wide</button>
-    </span>`;
-
-  host.innerHTML = `
-    <div class="mp-legend">${legend}${zoom}</div>
-    <div class="mp-gantt" style="--gl-w:200px">
-      <div class="mp-g-head"><div class="mp-g-corner"></div><div class="mp-g-axis" style="width:${W}px">${ticks}<div class="mp-today" style="left:${todayX}px"><span class="dot"></span></div></div></div>
-      <div class="mp-g-rows mp-stagger">${body}</div>
-    </div>`;
-}
-
-/* ---- brands CRM ---- */
+/* ---------------- brands tab ---------------- */
 function renderBrands(){
-  const brands = Object.values(state.brands).sort((a,b)=>(a.name||'').localeCompare(b.name||''));
-  const launchCount = id => Object.values(state.launches).filter(l=>l.brandId===id).length;
-  const rows = brands.length ? brands.map(b=>`
-    <tr class="clickable" onclick="MP.editBrand('${b.id}')">
-      <td class="bn">${esc(b.name)}</td>
-      <td>${esc(b.category||'—')}</td>
-      <td>${esc(b.contact||'—')}${b.email?`<br><span style="font-size:11px;color:var(--text-3)">${esc(b.email)}</span>`:''}</td>
-      <td>${esc(b.distributor||'—')}</td>
-      <td>${esc(b.source||'—')}</td>
-      <td><span class="mp-status ${esc(b.status||'Prospect')}">${esc(b.status||'Prospect')}</span></td>
-      <td style="font-family:var(--f-mono)">${launchCount(b.id)}</td>
-    </tr>`).join('') : `<tr><td colspan="7"><div class="mp-empty">No brands yet — add your discovery pipeline.</div></td></tr>`;
-  $('#tab-brands').innerHTML = `<div class="mp-table-wrap"><table class="mp-table">
-    <thead><tr><th>Brand</th><th>Category</th><th>Contact</th><th>Distributor</th><th>Source</th><th>Status</th><th>Launches</th></tr></thead>
-    <tbody class="mp-stagger">${rows}</tbody></table></div>`;
+  const byBrand={}; Object.values(LAUNCHES).forEach(l=>{(byBrand[l.brandId]=byBrand[l.brandId]||[]).push(l);});
+  let rows=Object.values(BRANDS).map(b=>{const ls=byBrand[b.id]||[];return {name:b.name,category:b.category||'',total:ls.length,shelf:ls.filter(l=>l.stage==='live').length};}).filter(b=>b.total>0).sort((a,b)=>a.name.localeCompare(b.name));
+  $('view').innerHTML=`<h1>Brands</h1><p class="sub">${rows.length} brands · ${Object.values(LAUNCHES).length} total products.</p>
+    <div class="toolbar"><input id="bq" type="search" placeholder="Search brands…"></div>
+    <div class="grid" id="blist"></div>`;
+  const draw=()=>{const q=($('bq').value||'').trim().toLowerCase();
+    $('blist').innerHTML=rows.filter(b=>!q||b.name.toLowerCase().includes(q)).map(b=>`<div class="card"><div class="name">${esc(b.name)}</div>
+      <div class="meta">${esc(b.category)} · ${b.total} ${b.total===1?'product':'products'}</div>
+      <span class="pill ${b.shelf?'shelf':'pipe'}">${b.shelf} on shelf · ${b.total-b.shelf} in pipeline</span></div>`).join('')||'<div class="empty">No brands.</div>';};
+  $('bq').oninput=draw; draw();
 }
 
-/* ---------------------------------------------------------------- MODALS --- */
-function openModal(html){ $('#mpModal').innerHTML = html; $('#mpModalOv').classList.add('open'); }
-function closeModal(){ $('#mpModalOv').classList.remove('open'); }
-$('#mpModalOv') && document.getElementById('mpModalOv').addEventListener('click', e=>{ if(e.target.id==='mpModalOv') closeModal(); });
-
-function brandOptions(sel){
-  const opts = Object.values(state.brands).sort((a,b)=>(a.name||'').localeCompare(b.name||''))
-    .map(b=>`<option value="${b.id}" ${sel===b.id?'selected':''}>${esc(b.name)}</option>`).join('');
-  return `<option value="">— select brand —</option>${opts}<option value="__new">+ New brand…</option>`;
+/* ---------------- process tab ---------------- */
+function renderProcess(){
+  $('view').innerHTML=`<h1>Process</h1><p class="sub">Start-to-finish flow. Each stage is owned by one department — finish its checklist, then hand off to the next team. Each handoff auto-emails the next department that it's their turn.</p>
+    <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(260px,1fr))">${PIPE.map((s,i)=>{
+      const nxt=PIPE[i+1]||stageMeta('live');
+      return `<div class="card" style="cursor:default"><div class="name"><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${s.color};margin-right:7px"></span>${i+1}. ${esc(s.label)}</div>
+        <div class="meta">Owner: ${esc(s.dept)}</div>
+        <div class="meta" style="margin-top:6px">→ hands off to <b>${esc(nxt.dept==='—'?'Live · On shelf':nxt.dept)}</b></div></div>`;
+    }).join('')}</div>`;
 }
 
-function launchModal(l){
-  const isEdit = !!l;
-  openModal(`
-    <h3>${isEdit?'Edit launch':'New launch'}</h3>
-    <div class="sub">${isEdit?'Update product & launch details.':'Creates an NPI record with the full cross-team task checklist auto-generated.'}</div>
-    <div class="mp-field"><label>Product name</label><input id="f_name" value="${esc(l?.name||'')}" placeholder="Cotto Ranch Dip"></div>
-    <div class="mp-field"><label>Brand</label><select id="f_brand" onchange="MP._brandSel(this)">${brandOptions(l?.brandId)}</select></div>
-    <div class="mp-field" id="f_newbrand" style="display:none"><label>New brand name</label><input id="f_newbrandname" placeholder="Cotto"></div>
-    <div class="mp-field"><div class="two">
-      <div><label>Category</label><input id="f_cat" value="${esc(l?.category||'')}" placeholder="Refrigerated"></div>
-      <div><label>Launch date</label><input id="f_date" type="date" value="${esc(l?.launchDate||'')}"></div>
-    </div></div>
-    <div class="mp-field"><div class="two">
-      <div><label>Cost ($)</label><input id="f_cost" type="number" step="0.01" value="${esc(l?.cost||'')}" placeholder="3.25"></div>
-      <div><label>MSRP ($)</label><input id="f_msrp" type="number" step="0.01" value="${esc(l?.msrp||'')}" placeholder="6.99"></div>
-    </div></div>
-    <div class="mp-field"><div class="two">
-      <div><label>Case pack</label><input id="f_case" value="${esc(l?.casePack||'')}" placeholder="12"></div>
-      <div><label>Priority</label><select id="f_pri">
-        ${['High','Med','Low'].map(p=>`<option ${((l?.priority)||'Med')===p?'selected':''}>${p}</option>`).join('')}
-      </select></div>
-    </div></div>
-    <div class="mp-field"><div class="two">
-      <div><label>UPC</label><input id="f_upc" value="${esc(l?.upc||'')}" placeholder="123456789012"></div>
-      <div><label>Storage</label><input id="f_store" value="${esc(l?.storageType||'')}" placeholder="Refrigerated"></div>
-    </div></div>
-    <div class="mp-field"><label>Store count</label><input id="f_count" type="number" value="${esc(l?.storeCount||'')}" placeholder="6"></div>
-    <div class="mp-modal-foot">
-      <button class="mp-btn" onclick="MP.closeModal()">Cancel</button>
-      <button class="mp-btn primary" onclick="MP.saveLaunch(${isEdit?`'${l.id}'`:'null'})">${isEdit?'Save':'Create launch'}</button>
-    </div>`);
+/* ---------------- drawer ---------------- */
+function openDrawer(id){OPEN=id;$('scrim').classList.add('show');$('drawer').classList.add('show');renderDrawer(id);}
+function closeDrawer(){OPEN=null;$('scrim').classList.remove('show');$('drawer').classList.remove('show');}
+$('scrim').onclick=closeDrawer;
+
+function renderDrawer(id){
+  const l=LAUNCHES[id]; if(!l)return;
+  const fired=l.triggersFired||[];
+  const curIdx=stageIdx(l.stage);
+  const body=STAGES.filter(s=>s.key!=='live').map(s=>{
+    const sts=stageTasks(l,s.key); if(!sts.length&&s.key!=='review'&&!sts.length) {}
+    if(!sts.length) return '';
+    const isCur=s.key===l.stage;
+    const doneN=sts.filter(x=>x.t.done).length;
+    const groups=splitGroups(s.key,sts);
+    let activeIdx=groups.findIndex(g=>!groupDone(g)); if(activeIdx<0) activeIdx=groups.length-1;
+    const stepsHtml=groups.map((g,gi)=>{
+      const gdone=groupDone(g);
+      const active=isCur&&gi===activeIdx&&!gdone;
+      const upcoming=isCur&&gi>activeIdx&&!gdone;
+      const open=active;                       // in the active stage only the current batch is open
+      const gN=g.items.filter(x=>x.t.done).length;
+      const ic=gdone?'✓':(active?'▸':(upcoming?'›':'·'));
+      const cls=gdone?'done':(active?'active':(upcoming?'upcoming':''));
+      const tasksHtml=g.items.map(x=>{const t=x.t;const meta=[t.owner?`👤 ${esc(t.owner)}`:'',t.def?`✓ ${esc(t.def)}`:'',t.notify?`🔔 notifies ${esc(t.notify)}`:''].filter(Boolean).join(' · ');
+        const fileHtml=t.file?`<div class="task-file">${t.fileUrl
+          ?`<a class="file-link" href="${esc(t.fileUrl)}" target="_blank" rel="noopener">📎 ${esc(t.fileName||'View file')}</a><label class="file-btn">Replace<input type="file" hidden data-id="${id}" data-ti="${x.i}"></label>`
+          :`<label class="file-btn">⬆ Upload file<input type="file" hidden data-id="${id}" data-ti="${x.i}"></label>`}</div>`:'';
+        return `<div class="task ${t.done?'done':''}"><input type="checkbox" ${t.done?'checked':''} data-id="${id}" data-ti="${x.i}"><div class="tbody"><label>${esc(t.label)}${t.blocking===false?' <span class="opt">optional</span>':''}</label>${meta?`<div class="task-meta">${meta}</div>`:''}${fileHtml}</div></div>`;}).join('');
+      return `<div class="ministep ${cls}"><div class="ms-h"><span class="ms-ic">${ic}</span>${esc(g.name)}<span class="ms-c">${gN}/${g.items.length}</span></div><div class="ms-body" style="${open?'':'display:none'}">${tasksHtml}</div></div>`;
+    }).join('');
+    const nxtK=nextStageKey(s.key), nxtM=nxtK?stageMeta(nxtK):null;
+    const nextWho=nxtM?(nxtM.dept==='—'?'Live · on shelf':nxtM.dept):'the next team';
+    const activeName=isCur&&groups[activeIdx]?groups[activeIdx].name:'';
+    const cta=isCur?`<div class="cta">👉 <b>${esc(s.dept)}</b>, you're up on <b>${esc(l.name||'this product')}</b>.${activeName?` Current step: <b>${esc(activeName)}</b>.`:''} Work the open batch below${nxtK?`, then tap <b>Push to ${esc(nextWho)}</b>`:''} to keep the launch moving.</div>`:'';
+    return `<div class="stagebox ${isCur?'cur':''}"><div class="sb-h" data-stg="${s.key}">
+        <span class="dot" style="background:${s.color}"></span>
+        <div><div class="lbl">${esc(s.label)}</div><div class="dept">${esc(s.dept)}</div></div>
+        <span class="pct">${doneN}/${sts.length}</span></div>
+      <div class="sb-body" style="${isCur?'':'display:none'}">${cta}${stepsHtml}
+        ${isCur?advanceBtn(l,s):''}</div></div>`;
+  }).join('');
+  const log=(Array.isArray(l.log)?l.log:Object.values(l.log||{})).slice().reverse().slice(0,8);
+  $('drawer').innerHTML=`<div class="dh"><button class="x" onclick="window._close()">✕</button>
+      <div class="dn">${esc(l.name||'')}</div><div class="db">${esc(brandName(l))} · ${esc(l.category||'')}</div>
+      <div class="meta2"><span class="tag" style="background:${stageMeta(l.stage).color}22">${esc(stageMeta(l.stage).label)}</span>
+        <span class="tag">${esc(l.code||'')}</span><span class="tag">${readiness(l)}% ready</span></div></div>
+    <div class="dbody">${body||'<div class="empty">No tasks.</div>'}
+      ${l.stage==='live'?`<button class="advance" style="margin-top:6px" onclick="window._advance('${id}')">Start 30-Day Review →</button>`:''}
+      <div class="log"><h4>Activity</h4>${log.map(e=>`<div class="e"><span class="t">${esc(e.ts||'')}</span><span>${esc(e.text||'')}</span></div>`).join('')||'<div style="color:#9b988f">No activity yet.</div>'}</div></div>`;
+  $('drawer').querySelectorAll('.sb-h').forEach(h=>h.onclick=()=>{const b=h.nextElementSibling;b.style.display=b.style.display==='none'?'':'none';});
+  $('drawer').querySelectorAll('.ms-h').forEach(h=>h.onclick=()=>{const b=h.nextElementSibling;b.style.display=b.style.display==='none'?'':'none';});
+  $('drawer').querySelectorAll('.task input[type=checkbox]').forEach(c=>c.onchange=()=>toggleTask(c.dataset.id,+c.dataset.ti,c.checked));
+  $('drawer').querySelectorAll('.task input[type=file]').forEach(f=>f.onchange=()=>uploadTaskFile(f.dataset.id,+f.dataset.ti,f));
+}
+window._close=closeDrawer;
+
+function advanceBtn(l,s){
+  const sts=stageTasks(l,s.key);
+  // only "blocking" tasks gate the handoff; nice-to-haves (blocking:false) don't.
+  // existing launches have no blocking field, so they still require every task.
+  const done=sts.every(x=>x.t.done||x.t.blocking===false);
+  const nxt=nextStageKey(s.key);
+  const nxtMeta=nxt?stageMeta(nxt):null;
+  if(s.key==='store'){ return `<button class="advance live" ${done?'':'disabled'} onclick="window._advance('${l.id}')">${done?'✓ Mark LIVE on shelf':'Complete required tasks to go live'}</button>`; }
+  if(!nxt) return '';
+  return `<button class="advance" ${done?'':'disabled'} onclick="window._advance('${l.id}')">${done?'Push to '+esc(nxtMeta.dept)+' →':'Complete required tasks to advance'}</button>`;
 }
 
-function brandModal(b){
-  const isEdit = !!b;
-  openModal(`
-    <h3>${isEdit?'Edit brand':'Add brand'}</h3>
-    <div class="sub">Your discovery / CRM pipeline — track relationships before they ever launch.</div>
-    <div class="mp-field"><label>Brand name</label><input id="b_name" value="${esc(b?.name||'')}" placeholder="Cotto"></div>
-    <div class="mp-field"><div class="two">
-      <div><label>Founder / contact</label><input id="b_contact" value="${esc(b?.contact||'')}" placeholder="Jane Doe"></div>
-      <div><label>Email</label><input id="b_email" value="${esc(b?.email||'')}" placeholder="jane@getcotto.com"></div>
-    </div></div>
-    <div class="mp-field"><div class="two">
-      <div><label>Website</label><input id="b_web" value="${esc(b?.website||'')}" placeholder="getcotto.com"></div>
-      <div><label>Distributor</label><input id="b_dist" value="${esc(b?.distributor||'')}" placeholder="KeHE"></div>
-    </div></div>
-    <div class="mp-field"><div class="two">
-      <div><label>Category</label><input id="b_cat" value="${esc(b?.category||'')}" placeholder="Refrigerated Dip"></div>
-      <div><label>Discovery source</label><input id="b_src" value="${esc(b?.source||'')}" placeholder="Expo West"></div>
-    </div></div>
-    <div class="mp-field"><label>Status</label><select id="b_status">
-      ${['Prospect','Testing','Approved','Active','Rejected'].map(s=>`<option ${((b?.status)||'Prospect')===s?'selected':''}>${s}</option>`).join('')}
-    </select></div>
-    <div class="mp-field"><label>Notes</label><textarea id="b_notes" rows="2" placeholder="West Coast exclusive…">${esc(b?.notes||'')}</textarea></div>
-    <div class="mp-modal-foot">
-      ${isEdit?`<button class="mp-btn" style="margin-right:auto;color:var(--brand-orange-deep)" onclick="MP.deleteBrand('${b.id}')">Delete</button>`:''}
-      <button class="mp-btn" onclick="MP.closeModal()">Cancel</button>
-      <button class="mp-btn primary" onclick="MP.saveBrand(${isEdit?`'${b.id}'`:'null'})">${isEdit?'Save':'Add brand'}</button>
-    </div>`);
-}
-
-function settingsModal(){
-  const s = state.settings || defaultSettings();
-  const rows = DEPTS.map((d,i)=>`
-    <div class="mp-field">
-      <label><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${d.color};margin-right:6px;vertical-align:middle"></span>${esc(d.key)}</label>
-      <input id="se_${i}" type="email" value="${esc((s.teamEmails||{})[d.key]||'')}" placeholder="${d.key.toLowerCase().replace(/[^a-z]/g,'')}@beneighborly.com">
-    </div>`).join('');
-  openModal(`
-    <h3>Team notifications</h3>
-    <div class="sub">When a launch enters a team's stage, that team gets auto-emailed. Uses the hub's existing email account — no setup needed.</div>
-    <label style="display:flex;align-items:center;gap:10px;background:var(--mp-light);border-radius:var(--r-md);padding:11px 14px;margin-bottom:16px;cursor:pointer;font-size:13px;font-weight:600;color:var(--mp-deep)">
-      <input id="se_toggle" type="checkbox" ${s.notifyEmail?'checked':''} style="width:18px;height:18px;accent-color:var(--mp)">
-      Email alerts are ${s.notifyEmail?'<b>ON</b>':'OFF'} — send emails on stage changes
-    </label>
-    ${rows}
-    <div class="mp-modal-foot">
-      <button class="mp-btn sm" style="margin-right:auto" onclick="MP.sendTest()">Send test</button>
-      <button class="mp-btn" onclick="MP.closeModal()">Cancel</button>
-      <button class="mp-btn primary" onclick="MP.saveSettings()">Save</button>
-    </div>`);
-}
-
-/* ---------------------------------------------------------------- SEED ----- */
-function bootstrapIfEmpty(){
-  if(_bootstrapped) return;
-  if(Object.keys(state.brands).length || Object.keys(state.launches).length){ _bootstrapped=true; return; }
-  _bootstrapped = true;
-  // First-run sample data so the page is alive. Delete freely — it won't come back once you've added your own.
-  const bid1=uid('b'), bid2=uid('b'), bid3=uid('b');
-  state.brands[bid1]={ id:bid1, name:'Cotto', contact:'Jane Doe', email:'jane@getcotto.com', website:'getcotto.com', distributor:'KeHE', category:'Refrigerated Dip', source:'Expo West', status:'Approved', notes:'West Coast exclusive — sample.' };
-  state.brands[bid2]={ id:bid2, name:'Fishwife', contact:'Becca Millstein', email:'hi@fishwife.co', website:'fishwife.co', distributor:'UNFI', category:'Tinned Fish', source:'Founder intro', status:'Testing', notes:'Sample data.' };
-  state.brands[bid3]={ id:bid3, name:'Magic Spoon', contact:'Gabi Lewis', email:'team@magicspoon.com', website:'magicspoon.com', distributor:'Direct', category:'Cereal', source:'Inbound', status:'Prospect', notes:'Sample data.' };
-
-  function mk(over){
-    const id=uid('l'); const tasks=buildTasks();
-    // mark tasks done up to current stage for realism
-    const curIdx = stageIdx(over.stage);
-    Object.values(tasks).forEach(t=>{ if(stageIdx(t.stage)<curIdx) t.done=true, t.doneAt=Date.now(); });
-    const l = Object.assign({ id, code:'NPI-'+CONFIG.YEAR+'-'+String(Object.keys(state.launches).length+1).padStart(3,'0'),
-      tasks, log:[{ts:nowTs(),text:'Launch created (sample data)'}], priority:'Med', createdAt:Date.now() }, over);
-    state.launches[id]=l;
-  }
-  mk({ name:'Cotto Ranch Dip', brandId:bid1, category:'Refrigerated', launchDate:isoIn(21), stage:'operations', priority:'High', cost:'3.25', msrp:'6.99', casePack:'12', storageType:'Refrigerated', storeCount:'6', upc:'850001234567' });
-  mk({ name:'Fishwife Smoked Salmon', brandId:bid2, category:'Tinned Fish', launchDate:isoIn(35), stage:'commercial', priority:'Med', cost:'5.10', msrp:'10.99', casePack:'12', storageType:'Ambient', storeCount:'6' });
-  mk({ name:'Magic Spoon Cocoa', brandId:bid3, category:'Cereal', launchDate:isoIn(60), stage:'sample', priority:'Low', cost:'4.00', msrp:'8.99', casePack:'8', storageType:'Ambient', storeCount:'6' });
-  save();
-}
-function isoIn(days){ const d=new Date(); d.setDate(d.getDate()+days); return d.toISOString().slice(0,10); }
-
-/* ---------------------------------------------------------------- PUBLIC API */
-window.MP = {
-  tab(name){
-    document.querySelectorAll('.mp-tab').forEach(t=>t.classList.toggle('active', t.dataset.tab===name));
-    ['board','timeline','teams','brands'].forEach(n=>$('#tab-'+n).style.display = n===name?'':'none');
-    if(name==='timeline') renderTimeline(); if(name==='teams') renderTeams(); if(name==='brands') renderBrands();
-    revealTab(name);
-  },
-  team(d){ teamFilter=d; renderTeams(); },
-  ganttZoom(px){ ganttPx=px; renderTimeline(); },
-  scrollStage(key){
-    const el = document.getElementById('mpcol-'+key);
-    if(el){ el.scrollIntoView({behavior:'smooth', inline:'center', block:'nearest'}); el.style.transition='box-shadow .3s'; el.style.boxShadow='0 0 0 2px var(--mp)'; setTimeout(()=>el.style.boxShadow='',900); }
-    else { const b=document.querySelector('.mp-board'); if(b) b.scrollTo({left:b.scrollWidth, behavior:'smooth'}); } // review has no column
-  },
-  openDetail(id){ openLaunchId=id; renderDetail(id); $('#mpOverlay').classList.add('open'); $('#mpPanel').classList.add('open'); document.body.style.overflow='hidden'; },
-  closeDetail(){ openLaunchId=null; $('#mpOverlay').classList.remove('open'); $('#mpPanel').classList.remove('open'); document.body.style.overflow=''; },
-  toggle(id,tid){ toggleTask(id,tid); },
-  advance(id,to){ advanceStage(id,to); },
-  openLaunchModal(){ launchModal(null); },
-  editLaunch(id){ launchModal(state.launches[id]); },
-  openBrandModal(){ brandModal(null); },
-  editBrand(id){ brandModal(state.brands[id]); },
-  openSettings(){ settingsModal(); },
-  saveSettings(){
-    const s = state.settings = state.settings || defaultSettings();
-    s.notifyEmail = $('#se_toggle').checked;
-    s.teamEmails = s.teamEmails || {};
-    DEPTS.forEach((d,i)=>{ const el=$('#se_'+i); if(el) s.teamEmails[d.key]=el.value.trim(); });
-    save(); closeModal();
-    toast(s.notifyEmail ? 'Email alerts <b>ON</b>' : 'Settings saved — alerts off');
-  },
-  sendTest(){
-    if(!window.emailjs){ toast('EmailJS not loaded.',null,'#a32d2d'); return; }
-    let to=''; DEPTS.forEach((d,i)=>{ const el=$('#se_'+i); if(el && el.value.trim() && !to) to=el.value.trim(); });
-    if(!to){ toast('Enter at least one team email first.',null,'#a32d2d'); return; }
-    const msg = 'If you received this, NPI team email alerts are working. 🎉';
-    emailjs.send(CONFIG.EMAILJS.serviceId, CONFIG.EMAILJS.templateId, {
-      to_email:to, to_name:'Marketplace team', team:'Marketplace', launch:'Test Launch', brand:'Neighborly',
-      stage:'Sample Review', launch_date:fmtDate(isoIn(21)), readiness:'42%', accent:'#5a4a7a',
-      link:location.href.split('#')[0].split('?')[0], message:msg,
-      event_name:'NPI test notification', event_date:fmtDate(isoIn(0)), event_category:'Marketplace NPI · test', event_notes:msg
-    }).then(()=>toast(`📧 Test sent to ${esc(to)}`)).catch(err=>{ console.error(err); toast('Test failed — check console.',null,'#a32d2d'); });
-  },
-  closeModal,
-  _brandSel(sel){ $('#f_newbrand').style.display = sel.value==='__new'?'block':'none'; },
-  saveLaunch(id){
-    const v = s => { const el=$('#'+s); return el?el.value.trim():''; };
-    const name = v('f_name'); if(!name){ toast('Product name required.',null,'#a32d2d'); return; }
-    let brandId = v('f_brand');
-    if(brandId==='__new'){
-      const nb = v('f_newbrandname'); if(!nb){ toast('Enter the new brand name.',null,'#a32d2d'); return; }
-      brandId = uid('b'); state.brands[brandId] = { id:brandId, name:nb, status:'Approved', notes:'' };
+/* ---------------- actions ---------------- */
+async function toggleTask(id,ti,checked){
+  const l=LAUNCHES[id]; if(!l)return;
+  const ts=tasksOf(l).map(t=>Object.assign({},t));
+  ts[ti].done=checked; ts[ti].doneAt=checked?Date.now():null;
+  const sk=ts[ti].stage, sm=stageMeta(sk);
+  const upd={['marketplace-npi/launches/'+id+'/tasks']:ts};
+  // per-task cross-team ping — fires the instant a task with a notify target is checked
+  if(checked && ts[ti].notify){ sendEmail(recipientFor(ts[ti].notify),ts[ti].notify,l,{stage:sm.label,message:ts[ti].notifyMsg||`${ts[ti].label} completed for ${l.name}.`}); }
+  let fired=(l.triggersFired||[]).slice(), firedChg=false;
+  const logs=(Array.isArray(l.log)?l.log:Object.values(l.log||{})).slice(); let logChg=false, toastMsg=null;
+  if(checked){
+    const sts=ts.map((t,i)=>({t,i})).filter(x=>x.t.stage===sk);
+    const groups=splitGroups(sk,sts);
+    const grp=groups.find(g=>g.items.some(x=>x.i===ti));
+    // mini-step finished → in-app momentum (toast + activity); next batch opens on re-render
+    if(grp&&groupDone(grp)){
+      const gid=sk+'#'+grp.name;
+      if(!fired.includes(gid)){
+        fired.push(gid); firedChg=true;
+        const after=groups.slice(groups.indexOf(grp)+1).find(g=>!groupDone(g));
+        logs.push({text:`✓ ${sm.label}: “${grp.name}” done${after?` — next: ${after.name}`:''}`,ts:nowTs()}); logChg=true;
+        toastMsg=`✓ ${grp.name} done${after?` · next: ${after.name}`:''}`;
+      }
     }
-    const fields = { name, brandId, category:v('f_cat'), launchDate:v('f_date'), cost:v('f_cost'), msrp:v('f_msrp'),
-      casePack:v('f_case'), priority:v('f_pri'), upc:v('f_upc'), storageType:v('f_store'), storeCount:v('f_count') };
-    if(id){ Object.assign(state.launches[id], fields); logEvent(state.launches[id],'Details updated'); }
-    else{
-      const nid=uid('l'); const n=Object.keys(state.launches).length+1;
-      state.launches[nid] = Object.assign({ id:nid, code:'NPI-'+CONFIG.YEAR+'-'+String(n).padStart(3,'0'),
-        stage:'discovery', tasks:buildTasks(), log:[{ts:nowTs(),text:'Launch created'}], createdAt:Date.now() }, fields);
-      logEvent(state.launches[nid], `Marketplace · Discovery activated`);
-      toast('Launch created — full checklist generated.');
+    // whole stage's required tasks done → one hand-off nudge email to the owning dept
+    const stageReady=sts.every(x=>x.t.done||x.t.blocking===false);
+    const rid=sk+'#ready';
+    if(stageReady&&sk===l.stage&&!fired.includes(rid)){
+      fired.push(rid); firedChg=true;
+      const nxtK=nextStageKey(sk), nxtM=nxtK?stageMeta(nxtK):null;
+      if(!nxtK){ // terminal stage (30-Day Review)
+        logs.push({text:`✅ ${sm.label} complete`,ts:nowTs()}); logChg=true;
+        sendEmail(recipientFor(sm.dept),sm.dept,l,{stage:sm.label,message:`✅ ${sm.label} complete for ${l.name} (${brandName(l)}) — nice work closing the loop. ${HUB_URL}#${l.id}`});
+        toastMsg=`${sm.label} complete`;
+      } else {
+        const pushLbl=nxtM.dept!=='—'?('Push to '+nxtM.dept):'Mark LIVE on shelf';
+        const handTo=nxtM.dept!=='—'?('hand to '+nxtM.dept):'go live';
+        logs.push({text:`✅ ${sm.label} complete — ready to ${handTo}`,ts:nowTs()}); logChg=true;
+        sendEmail(recipientFor(sm.dept),sm.dept,l,{stage:sm.label,message:`✅ All your ${sm.label} tasks for ${l.name} (${brandName(l)}) are done — great work! Last step: open the hub and tap “${pushLbl}” to hand ${l.name} to the next team. ${HUB_URL}#${l.id}`});
+        toastMsg=`${sm.label} complete — tap “${pushLbl}”`;
+      }
     }
-    save(); closeModal(); renderAll(); if(id&&openLaunchId===id) renderDetail(id);
-  },
-  saveBrand(id){
-    const v = s => { const el=$('#'+s); return el?el.value.trim():''; };
-    const name=v('b_name'); if(!name){ toast('Brand name required.',null,'#a32d2d'); return; }
-    const f={ name, contact:v('b_contact'), email:v('b_email'), website:v('b_web'), distributor:v('b_dist'),
-      category:v('b_cat'), source:v('b_src'), status:v('b_status'), notes:v('b_notes') };
-    if(id) Object.assign(state.brands[id], f);
-    else { const nid=uid('b'); state.brands[nid]=Object.assign({id:nid},f); }
-    save(); closeModal(); renderAll();
-  },
-  deleteLaunch(id){ if(!confirm('Delete this launch? This cannot be undone.')) return; delete state.launches[id]; save(); this.closeDetail(); renderAll(); },
-  deleteBrand(id){
-    const used = Object.values(state.launches).some(l=>l.brandId===id);
-    if(used){ toast('Can\'t delete — brand has launches.',null,'#a32d2d'); return; }
-    if(!confirm('Delete this brand?')) return; delete state.brands[id]; save(); closeModal(); renderAll();
   }
-};
+  if(firedChg) upd['marketplace-npi/launches/'+id+'/triggersFired']=fired;
+  if(logChg) upd['marketplace-npi/launches/'+id+'/log']=logs;
+  await db.ref().update(upd);
+  if(toastMsg) toast(toastMsg);
+}
 
-/* ---------------------------------------------------------------- INIT ----- */
-if(window.emailjs){ try{ emailjs.init({ publicKey: CONFIG.EMAILJS.publicKey }); }catch(e){} }
-subscribe();
+/* Upload a supporting document for a file-flagged task to Firebase Storage,
+   then save its download URL + name onto the task so the whole team can open it. */
+async function uploadTaskFile(id,ti,fileEl){
+  const file=fileEl.files&&fileEl.files[0]; if(!file)return;
+  const l=LAUNCHES[id]; if(!l)return;
+  if(file.size>15*1024*1024){ toast('File too large — 15MB max'); fileEl.value=''; return; }
+  toast(`Uploading ${file.name}…`);
+  try{
+    const safe=file.name.replace(/[^\w.\-]+/g,'_');
+    const ref=storage.ref(`marketplace-npi/${id}/${ti}-${Date.now()}-${safe}`);
+    await ref.put(file);
+    const url=await ref.getDownloadURL();
+    const ts=tasksOf(l).map(t=>Object.assign({},t));
+    ts[ti].fileUrl=url; ts[ti].fileName=file.name;
+    const logs=(Array.isArray(l.log)?l.log:Object.values(l.log||{})).slice();
+    logs.push({text:`📎 File uploaded for “${ts[ti].label}”: ${file.name}`,ts:nowTs()});
+    await db.ref().update({['marketplace-npi/launches/'+id+'/tasks']:ts,['marketplace-npi/launches/'+id+'/log']:logs});
+    toast(`✓ Uploaded ${file.name}`);
+  }catch(e){ console.error(e); toast('Upload failed — '+((e&&e.code)||e)); fileEl.value=''; }
+}
 
-})();
+async function _advance(id){
+  const l=LAUNCHES[id]; if(!l)return;
+  const cur=l.stage, nxt=nextStageKey(cur); if(!nxt)return;
+  const sm=stageMeta(cur), nm=stageMeta(nxt);
+  const log=(Array.isArray(l.log)?l.log:Object.values(l.log||{})).slice();
+  if(nxt==='live'){
+    log.push({text:'🎉 LIVE on shelf',ts:nowTs()});
+    await db.ref().update({['marketplace-npi/launches/'+id+'/stage']:'live',['marketplace-npi/launches/'+id+'/log']:log,['marketplace-npi/launches/'+id+'/liveDate']:Date.now()});
+    toast(l.name+' is LIVE on shelf 🎉'); return;
+  }
+  log.push({text:`Stage → ${nm.label} · ${nm.dept} notified`,ts:nowTs()});
+  await db.ref().update({['marketplace-npi/launches/'+id+'/stage']:nxt,['marketplace-npi/launches/'+id+'/stageEnteredAt']:Date.now(),['marketplace-npi/launches/'+id+'/log']:log});
+  const r=await sendEmail(recipientFor(nm.dept),nm.dept,l,{stage:nm.label,message:actionMessage(l,nm)});
+  toast(r.ok?('Pushed to '+nm.dept+' · email sent'):('Pushed to '+nm.dept+(NOTIFY?' · email failed':' · notify off')));
+}
+window._advance=_advance;
+
+async function addProduct(){
+  const name=prompt('Product / item name?'); if(!name)return;
+  const brand=prompt('Brand?')||'Unknown';
+  const cat=prompt('Category?')||'Uncategorized';
+  // reuse brand if exists
+  let brandId=Object.keys(BRANDS).find(id=>(BRANDS[id].name||'').toLowerCase()===brand.trim().toLowerCase());
+  const uid=p=>p+Math.random().toString(36).slice(2,11);
+  const now=Date.now();
+  const upd={};
+  if(!brandId){brandId=uid('b');upd['marketplace-npi/brands/'+brandId]={id:brandId,name:brand,category:cat,status:'Proposed',source:'Added in app',createdAt:now,distributor:'',contact:'',email:'',website:'',notes:''};}
+  // build the full curated checklist (owners + definitions-of-done) for the new product
+  const tmpl=buildTasks();
+  let maxCode=0;Object.values(LAUNCHES).forEach(l=>{const m=/(\d+)\s*$/.exec(l.code||'');if(m)maxCode=Math.max(maxCode,+m[1]);});
+  const id=uid('l');
+  upd['marketplace-npi/launches/'+id]={id,brandId,name,code:'NPI-2026-'+String(maxCode+1).padStart(3,'0'),category:cat,cost:'',msrp:'',casePack:'',launchDate:'',priority:'Med',stage:'discovery',stageEnteredAt:now,createdAt:now,triggersFired:[],log:[{text:'🚀 New product added — process started',ts:nowTs()}],tasks:tmpl};
+  await db.ref().update(upd);
+  // Trigger #0 — broadcast "new product added" to every team (kickoff announcement,
+  // no task assignment; each team is pinged for real when its stage goes active)
+  if(NOTIFY){
+    const nl=upd['marketplace-npi/launches/'+id];
+    const msg=`🚀 New product added — ${name} (${brand}). The launch process has officially begun. Each team will be notified automatically when it's your turn — nothing to do yet. Follow progress on the NPI pipeline.`;
+    DEPTS.forEach(d=>sendEmail(recipientFor(d),d,nl,{stage:'Discovery',message:msg}));
+  }
+  toast('Added '+name);
+  openDrawer(id);
+}
+
+/* ---------------- gantt tab ---------------- */
+function renderGantt(){
+  const inproc=Object.values(LAUNCHES).filter(l=>l.stage!=='live'&&l.stage!=='review')
+    .sort((a,b)=>stageIdx(b.stage)-stageIdx(a.stage)||(a.name||'').localeCompare(b.name||''));
+  const stale=SETTINGS.staleDays||3;
+  const gcols=`--gn:${PIPE.length}`;
+  const head=`<div class="grow head" style="${gcols}"><div class="lbl">Product</div>${PIPE.map(s=>`<div>${esc(s.label.split(' ')[0])}</div>`).join('')}<div>Ready</div></div>`;
+  const rows=inproc.map(l=>{
+    const ci=stageIdx(l.stage);
+    const cells=PIPE.map((s,i)=>{
+      let cls='gcell',style='';
+      if(i<ci){cls+=' done';style=`background:${s.color}`;}
+      else if(i===ci){cls+=' cur';style=`background:${s.color}`;}
+      return `<div class="${cls}" style="${style}" title="${esc(s.label)}"></div>`;
+    }).join('');
+    const days=l.stageEnteredAt?Math.floor((Date.now()-l.stageEnteredAt)/86400000):0;
+    const stall=days>stale;
+    return `<div class="grow" data-id="${l.id}" style="cursor:pointer;${gcols}"><div class="glabel">${esc(l.name||'')}<small>${esc(brandName(l))} · ${esc(l.code||'')}</small></div>${cells}<div class="gmeta"><span class="r">${readiness(l)}%</span><br><span class="${stall?'stall':''}">${days}d</span></div></div>`;
+  }).join('');
+  $('view').innerHTML=`<h1>Pipeline Gantt</h1><p class="sub">${inproc.length} products in process · stage-by-stage progress. Filled = stage complete · striped = in progress now.</p>
+    <div class="gantt">${head}${rows||'<div class="empty">No products in process.</div>'}</div>
+    <div class="legend">${PIPE.map(s=>`<span><i style="background:${s.color}"></i>${esc(s.label)}</span>`).join('')}</div>`;
+  document.querySelectorAll('.gantt .grow[data-id]').forEach(r=>r.onclick=()=>openDrawer(r.dataset.id));
+}
+
+/* ---------------- settings tab (edit notification emails here) ---------------- */
+function emailRowHtml(d,em){return `<div class="emailrow"><input type="email" data-dept="${esc(d)}" value="${esc(em||'')}" placeholder="name@beneighborly.com"><button type="button" class="rmmail" title="Remove">×</button></div>`;}
+function renderSettings(){
+  const depts=DEPTS;
+  const te=SETTINGS.teamEmails||{};
+  $('view').innerHTML=`<h1>Settings</h1><p class="sub">Notification routing & pipeline rules.</p>
+    <div class="setbox">
+      <p class="sethint">When a product is pushed to a department (or a trigger fires), the handoff email is sent to that department's address(es) below. Add more than one to notify a whole team. One EmailJS template powers them all — only the recipient and message change.</p>
+      ${depts.map(d=>{
+        const list=String(te[d]||'').split(',').map(s=>s.trim()).filter(Boolean);
+        const rows=(list.length?list:['']).map(em=>emailRowHtml(d,em)).join('');
+        return `<div class="setrow setrow-emails"><label>${esc(d)}</label><div class="emails" data-dept-group="${esc(d)}">${rows}<button type="button" class="addmail" data-add="${esc(d)}">+ Add email</button></div></div>`;
+      }).join('')}
+      <div class="setrow"><label>Stalled after</label><input type="number" id="staleInp" min="1" value="${SETTINGS.staleDays||3}" style="flex:0 0 90px"> <span style="color:var(--muted);font-size:13px">business days in a stage flags it as stalled</span></div>
+      <button class="savebtn" id="saveSet">Save settings</button>
+    </div>
+    <div class="setbox" style="margin-top:18px">
+      <p class="sethint" style="margin-bottom:10px"><b>Back-fill existing products</b> — give the products you already imported the new checklist (owners &amp; definitions-of-done) and the W-9 stage. Every completed task is preserved; nothing is deleted. Safe to run more than once.</p>
+      <button class="savebtn" id="backfillBtn" style="background:#6a5a86">Back-fill existing products</button>
+    </div>
+    <div class="setbox" style="margin-top:18px">
+      <p class="sethint" style="margin-bottom:10px"><b>Send sample notifications</b> — emails one of every notification type (new-product broadcast, each stage's "it's your turn" handoff, a cross-team ping, and a stage-complete nudge) to <b>${esc(TEST_EMAIL)}</b> so you can see exactly what each team receives. Uses a fake "Test Product" — touches no real data.</p>
+      <button class="savebtn" id="testEmailBtn" style="background:#3f7a52">Email me sample notifications</button>
+    </div>`;
+  const bindRemove=btn=>{btn.onclick=()=>btn.closest('.emailrow').remove();};
+  document.querySelectorAll('.rmmail').forEach(bindRemove);
+  document.querySelectorAll('.addmail').forEach(b=>b.onclick=()=>{
+    const row=document.createElement('div'); row.innerHTML=emailRowHtml(b.dataset.add,'');
+    const el=row.firstElementChild; b.parentElement.insertBefore(el,b);
+    bindRemove(el.querySelector('.rmmail')); el.querySelector('input').focus();
+  });
+  $('saveSet').onclick=async()=>{
+    const te2={}; document.querySelectorAll('input[data-dept]').forEach(i=>{const v=i.value.trim(); if(!v) return; const d=i.dataset.dept; te2[d]=te2[d]?te2[d]+', '+v:v;});
+    await db.ref('marketplace-npi/settings').update({teamEmails:te2, staleDays:+($('staleInp').value)||3});
+    toast('Settings saved');
+  };
+  $('backfillBtn').onclick=backfillTasks;
+  $('testEmailBtn').onclick=sendTestEmails;
+}
+
+const TEST_EMAIL='kallmeroth@beneighborly.com, jbrooks@beneighborly.com';
+/* Send one of every notification type to TEST_EMAIL using a throwaway sample
+   launch — so you can preview exactly what each team gets. Sends sequentially
+   to respect EmailJS rate limits. Writes nothing to the database. */
+async function sendTestEmails(){
+  if(!window.emailjs){ toast('EmailJS not loaded'); return; }
+  if(!confirm(`Send a full set of sample emails to ${TEST_EMAIL}? (about a dozen, one of each type)`)) return;
+  const wasNotify=NOTIFY; NOTIFY=true;
+  const prevBrand=BRANDS['__testbrand']; BRANDS['__testbrand']={id:'__testbrand',name:'Sample Brand'};
+  const sample={id:'TESTLAUNCH',name:'Test Product',brandId:'__testbrand',category:'Pantry',launchDate:'',stage:'discovery',tasks:buildTasks()};
+  const jobs=[];
+  // new-product broadcast
+  jobs.push({team:'Marketplace',vars:{stage:'Discovery',message:`🚀 [TEST] New product added — ${sample.name} (Sample Brand). The launch process has officially begun. Each team will be notified automatically when it's your turn — nothing to do yet.`}});
+  // each stage's "it's your turn" handoff
+  STAGES.filter(s=>s.dept&&s.dept!=='—').forEach(s=>jobs.push({team:s.dept,vars:{stage:s.label,message:`[TEST · ${s.dept} handoff] `+actionMessage(sample,s)}}));
+  // a cross-team dependency ping
+  jobs.push({team:'Inventory',vars:{stage:'W-9',message:'[TEST · cross-team ping] Vendor documents cleared — safe to create the R365/Synergy item & SKU. '+HUB_URL+'#'+sample.id}});
+  // a stage-complete nudge
+  jobs.push({team:'Procurement',vars:{stage:'Commercial',message:`[TEST · stage complete] ✅ All your Commercial tasks for ${sample.name} are done — great work! Last step: open the hub and tap "Push to Compliance" to hand it to the next team. `+HUB_URL+'#'+sample.id}});
+  toast(`Sending ${jobs.length} sample emails to ${TEST_EMAIL}…`);
+  let ok=0,fail=0;
+  for(const j of jobs){ const r=await sendEmail(TEST_EMAIL,j.team,sample,j.vars); if(r&&r.ok)ok++; else fail++; await new Promise(res=>setTimeout(res,1200)); }
+  if(prevBrand) BRANDS['__testbrand']=prevBrand; else delete BRANDS['__testbrand'];
+  NOTIFY=wasNotify;
+  toast(`✓ ${ok} sample emails sent${fail?` · ${fail} failed`:''} to ${TEST_EMAIL}`,fail?'#a32d2d':'');
+}
+
+/* One-time migration: bring already-imported launches up to the v2 checklist.
+   Conservative + idempotent — matches tasks by (stage,label), enriches matches
+   with owner/def/notify/blocking, ADDS any missing template tasks (incl. the
+   whole W-9 stage), and never removes a task or clears a completion. */
+async function backfillTasks(){
+  const launches=Object.values(LAUNCHES);
+  if(!launches.length){ toast('No products to back-fill.'); return; }
+  const upd={}; let patched=0, added=0, touched=0;
+  launches.forEach(l=>{
+    const cur=tasksOf(l).map(t=>Object.assign({},t)); let changed=false;
+    cur.forEach(t=>{
+      const tpl=TASK_TEMPLATES.find(x=>x.stage===t.stage&&x.label===t.label); if(!tpl) return;
+      const before=JSON.stringify([t.owner,t.def,t.notify,t.notifyMsg,t.blocking,t.file]);
+      t.owner=t.owner||tpl.owner||''; t.def=t.def||tpl.def||'';
+      t.notify=t.notify||tpl.notify||''; t.notifyMsg=t.notifyMsg||tpl.notifyMsg||'';
+      if(t.blocking===undefined) t.blocking=tpl.blocking!==false;
+      if(t.file===undefined) t.file=tpl.file===true;
+      if(JSON.stringify([t.owner,t.def,t.notify,t.notifyMsg,t.blocking,t.file])!==before){ changed=true; patched++; }
+    });
+    TASK_TEMPLATES.forEach(tpl=>{
+      if(cur.some(t=>t.stage===tpl.stage&&t.label===tpl.label)) return;
+      cur.push({stage:tpl.stage,dept:tpl.dept,label:tpl.label,owner:tpl.owner||'',def:tpl.def||'',notify:tpl.notify||'',notifyMsg:tpl.notifyMsg||'',blocking:tpl.blocking!==false,file:tpl.file===true,done:false,doneAt:null});
+      changed=true; added++;
+    });
+    if(changed){ upd['marketplace-npi/launches/'+l.id+'/tasks']=cur; touched++; }
+  });
+  if(!touched){ toast('Already up to date — nothing to back-fill.'); return; }
+  if(!confirm(`Back-fill ${touched} product(s)?\n\n• ${patched} existing task(s) enriched with owner / definition-of-done\n• ${added} task(s) added (including the W-9 stage)\n\nEvery completed task is preserved. Safe to re-run.`)) return;
+  await db.ref().update(upd);
+  toast(`✓ Back-fill done · ${touched} products · ${patched} enriched · ${added} added`);
+}
+
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
 </script>
-
 </body>
 </html>
