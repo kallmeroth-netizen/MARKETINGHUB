@@ -171,14 +171,25 @@
   .info-card.collapsed .ic-x{transform:rotate(-90deg)}
   .info-card .ic-b{margin-top:12px}
   .info-card.collapsed .ic-b{display:none}
-  .info-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px 16px}
-  @media (max-width:560px){ .info-grid{grid-template-columns:1fr} }
-  .info-cell{min-width:0;font-size:12.5px;color:var(--ink);line-height:1.4}
-  .info-cell .k{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);display:block;margin-bottom:1px}
-  .info-cell .v{word-break:break-word}
-  .info-cell .v.empty{color:#bcb9b1;font-style:italic;font-weight:400}
-  .info-cell .v a{color:var(--accent);text-decoration:none}
+  /* Info cells: stacked label-over-value pairs in a responsive grid.
+     Labels read as small all-caps eyebrows; values are larger and
+     darker so the value is the primary scan target, not the label. */
+  .info-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 22px}
+  @media (min-width:880px){ .info-grid{grid-template-columns:repeat(3,minmax(0,1fr))} }
+  @media (max-width:520px){ .info-grid{grid-template-columns:1fr;gap:12px 0} }
+  .info-cell{min-width:0;display:flex;flex-direction:column;gap:3px;line-height:1.35}
+  .info-cell .k{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+  .info-cell .v{font-size:14px;font-weight:500;color:var(--ink);word-break:break-word}
+  .info-cell .v.empty{color:#c2bfb7;font-weight:400}
+  .info-cell .v a{color:var(--accent);text-decoration:none;font-weight:500}
   .info-cell .v a:hover{text-decoration:underline}
+  /* Sub-section heading inside an info-card. Adds a hairline rule above
+     so each cluster of related fields visually separates. */
+  .info-sub{display:flex;align-items:center;gap:8px;margin:18px 0 12px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+  .info-sub::after{content:'';flex:1;height:1px;background:var(--line-soft)}
+  .info-sub:first-child{margin-top:4px}
+  .info-notes{margin-top:18px;padding-top:14px;border-top:1px dashed var(--line);font-size:13px;color:var(--ink);line-height:1.55}
+  .info-notes .k{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);display:block;margin-bottom:5px}
 
   .doc-list{display:flex;flex-direction:column;gap:6px}
   .doc-row{display:flex;align-items:center;gap:10px;padding:8px 10px;background:#fbfaf7;border:1px solid var(--line-soft);border-radius:10px}
@@ -569,7 +580,95 @@ const TASK_TEMPLATES=[
   {stage:'review',dept:'Marketplace',label:'Customer feedback reviewed',owner:'Marketplace Lead',def:'Guest feedback reviewed',blocking:false},
   {stage:'review',dept:'Marketplace',label:'Disposition decided: Expand / Maintain / Exit',owner:'Marketplace Lead',def:'Expand, Maintain, or Exit decision recorded'}
 ];
-function buildTasks(){return TASK_TEMPLATES.map(t=>({stage:t.stage,dept:t.dept,label:t.label,owner:t.owner||'',def:t.def||'',notify:t.notify||'',notifyMsg:t.notifyMsg||'',blocking:t.blocking!==false,file:t.file===true,inputs:Array.isArray(t.inputs)?t.inputs:[],values:{},done:false,doneAt:null}));}
+/* Private Label task templates. Same STAGES as CPG so the pipeline /
+   swimlanes / Gantt all keep working, but the checklist inside each
+   stage is rewritten for an in-house brand: no vendor setup or W-9 /
+   COI (Neighborly IS the vendor), and Discovery / Sample / Commercial
+   become co-packer / formulation / production work instead. */
+const PL_TASK_TEMPLATES=[
+  /* Discovery — Marketplace */
+  {stage:'discovery',dept:'Marketplace',label:'Concept brief approved',owner:'Marketplace Lead',def:'Product concept, positioning & target margin signed off'},
+  {stage:'discovery',dept:'Marketplace',label:'Co-packer / manufacturer identified',owner:'Marketplace Lead',def:'Short-list narrowed to a single co-packer or manufacturer',inputs:[{key:'coPacker',label:'Co-packer',type:'text',placeholder:'Vendor name'}]},
+  {stage:'discovery',dept:'Marketplace',label:'Co-packer NDA signed',owner:'Marketplace Lead',def:'NDA executed before sharing formulation / brand',file:true},
+  {stage:'discovery',dept:'Marketplace',label:'Initial samples / R&D batch requested',owner:'Marketplace Lead',def:'First samples or R&D run requested from the co-packer',inputs:[{key:'trackingLink',label:'Tracking link',type:'url',placeholder:'https://…'}]},
+  /* Sample Review — Marketplace */
+  {stage:'sample',dept:'Marketplace',label:'Internal tasting / QC',owner:'Marketplace Lead',def:'Internal panel signs off on taste, texture, appearance'},
+  {stage:'sample',dept:'Marketplace',label:'Final formulation locked',owner:'Marketplace Lead',def:'Formulation locked with the co-packer — no further changes',file:true},
+  {stage:'sample',dept:'Marketplace',label:'Margin model approved',owner:'Marketplace Lead',def:'Projected margin meets or exceeds threshold at locked landed cost'},
+  {stage:'sample',dept:'Marketplace',label:'Assortment fit confirmed',owner:'Marketplace Lead',def:'Confirmed this SKU complements (not cannibalizes) the assortment'},
+  {stage:'sample',dept:'Marketplace',label:'Packaging design approved',owner:'Marketplace Lead',def:'Final packaging artwork approved internally',blocking:false,file:true},
+  {stage:'sample',dept:'Marketplace',label:'Asset: Product images received',owner:'Marketplace Lead',def:'Hi-res product images shot / on file',blocking:false,file:true},
+  {stage:'sample',dept:'Marketplace',label:'Asset: Brand story written',owner:'Marketplace Lead',def:'In-house brand story copy drafted',blocking:false,notify:'Marketing',notifyMsg:'Brand story written — available for Marketing to use in product copy.'},
+  /* Commercial — Procurement (co-packer terms in lieu of vendor docs) */
+  {stage:'commercial',dept:'Procurement',label:'Co-packer pricing locked',owner:'Procurement Coordinator',def:'Per-unit cost + tiered MOQ pricing locked in writing',inputs:[{key:'landedCost',label:'Landed cost',type:'text',placeholder:'$ per unit'}]},
+  {stage:'commercial',dept:'Procurement',label:'Confirm MOQ & case pack with co-packer',owner:'Procurement Coordinator',def:'Production MOQ + units-per-case confirmed in writing',inputs:[{key:'confirmedMoq',label:'Confirmed MOQ',type:'text'},{key:'confirmedCasePack',label:'Confirmed case pack',type:'text'}]},
+  {stage:'commercial',dept:'Procurement',label:'Confirm production lead time & shelf life',owner:'Procurement Coordinator',def:'Production / ship lead time + shelf-life window documented',inputs:[{key:'confirmedLeadTime',label:'Confirmed lead time',type:'text'},{key:'confirmedShelfLife',label:'Confirmed shelf life',type:'text'}]},
+  {stage:'commercial',dept:'Procurement',label:'First production run scheduled',owner:'Procurement Coordinator',def:'PO submitted; co-packer has scheduled the first run',inputs:[{key:'productionDate',label:'Production start',type:'date'}]},
+  {stage:'commercial',dept:'Procurement',label:'Certificate of Analysis received',owner:'Procurement Coordinator',def:'COA / spec from co-packer on file for the first batch',file:true},
+  {stage:'commercial',dept:'Procurement',label:'Commercial terms complete — ready for product docs',owner:'Procurement Coordinator',def:'All co-packer terms confirmed',notify:'Compliance',notifyMsg:'Co-packer terms finalized — please verify product compliance docs (nutrition, allergens, label).'},
+  /* Compliance — product docs only (no W-9 / COI needed; Neighborly IS the vendor) */
+  {stage:'compliance',dept:'Compliance',label:'Nutrition panel approved',owner:'AP Clerk',def:'Nutrition facts panel verified & on file',file:true},
+  {stage:'compliance',dept:'Compliance',label:'Ingredient statement approved',owner:'AP Clerk',def:'Full ingredient statement verified & on file',file:true},
+  {stage:'compliance',dept:'Compliance',label:'Allergen information confirmed',owner:'AP Clerk',def:'Allergen declaration verified',file:true},
+  {stage:'compliance',dept:'Compliance',label:'Label artwork approved by Compliance',owner:'AP Clerk',def:'Final label artwork verified for regulatory compliance',file:true},
+  {stage:'compliance',dept:'Compliance',label:'Product spec sheet on file',owner:'AP Clerk',def:'Internal product spec sheet uploaded',file:true},
+  {stage:'compliance',dept:'Compliance',label:'Product docs cleared — ready for ERP',owner:'AP Clerk',def:'All product compliance docs on file',notify:'Inventory',notifyMsg:'Product compliance docs cleared — safe to create the R365 / Synergy item & SKU.'},
+  /* ERP / Synergy — Inventory (mirrors CPG; same R365 / Synergy work) */
+  {stage:'erp',dept:'Inventory',label:'Create R365 item',owner:'Synergy Admin',def:'Item created in R365 with correct UOM'},
+  {stage:'erp',dept:'Inventory',label:'Create R365 recipe',owner:'Synergy Admin',def:'Recipe / build created in R365'},
+  {stage:'erp',dept:'Inventory',label:'Add Item Category 1 = Private Label',owner:'Synergy Admin',def:'Category 1 set to "Private Label"'},
+  {stage:'erp',dept:'Inventory',label:'Add to Marketplace order guide',owner:'Synergy Admin',def:'Item appears on the Marketplace order guide'},
+  {stage:'erp',dept:'Inventory',label:'Add to Commissary inventory guide',owner:'Synergy Admin',def:'Item on the Commissary inventory guide'},
+  {stage:'erp',dept:'Inventory',label:'Add to WLV/BW inventory guide',owner:'Synergy Admin',def:'Item on the WLV / BW inventory guide'},
+  {stage:'erp',dept:'Inventory',label:'Attach to Toast item (after Marketing rings up qty 1)',owner:'Synergy Admin',def:'R365 item linked to the Toast item once Marketing has created it'},
+  /* Commissary */
+  {stage:'commissary',dept:'Commissary',label:'Confirm first production run received',owner:'Commissary Manager',def:'First run physically received at commissary'},
+  {stage:'commissary',dept:'Commissary',label:'Assign storage location (Shelf / Refrigerator / Freezer)',owner:'Commissary Manager',def:'Specific storage location & class assigned'},
+  {stage:'commissary',dept:'Commissary',label:'Check R365 item created / on order guide',owner:'Commissary Manager',def:'Verified the R365 item exists and is on the guide'},
+  {stage:'commissary',dept:'Commissary',label:'Set 2-week PAR',owner:'Commissary Manager',def:'2-week PAR level set in the system'},
+  {stage:'commissary',dept:'Commissary',label:'Receiving SOP written',owner:'Commissary Manager',def:'Receiving SOP documented for this item',blocking:false},
+  /* Operations / Marketing / Store / Review — same flow as CPG */
+  {stage:'operations',dept:'Operations',label:'Confirm items on R365 order guide',owner:'Operations Manager',def:'Item verified on the store order guide'},
+  {stage:'operations',dept:'Operations',label:'Assign shelf space on store planogram',owner:'Operations Manager',def:'Shelf location assigned on the planogram',notify:'Marketplace',notifyMsg:'Planogram shelf space assigned — please review & approve placement.'},
+  {stage:'operations',dept:'Operations',label:'Confirm initial case/each qty to receive',owner:'Operations Manager',def:'Opening order quantity confirmed'},
+  {stage:'operations',dept:'Operations',label:'Receive shelf tag (from Marketing)',owner:'Operations Manager',def:'Printed shelf tag received from Marketing'},
+  {stage:'operations',dept:'Operations',label:'Confirm PARs (min qty re-order trigger)',owner:'Operations Manager',def:'Store PAR / reorder point set'},
+  {stage:'operations',dept:'Operations',label:'Communicate upcoming launch via newsletter',owner:'Operations Manager',def:'Launch noted in the store/ops newsletter',blocking:false},
+  {stage:'operations',dept:'Operations',label:'Include in store training materials',owner:'Operations Manager',def:'Item added to store training materials'},
+  {stage:'marketing',dept:'Marketing',label:'Product photography',owner:'Marketing Manager',def:'Final product photos shot & edited'},
+  {stage:'marketing',dept:'Marketing',label:'Product story / description written',owner:'Marketing Manager',def:'Approved product copy written'},
+  {stage:'marketing',dept:'Marketing',label:'Create shelf tag',owner:'Marketing Manager',def:'Shelf tag designed & sent to print',blocking:false},
+  {stage:'marketing',dept:'Marketing',label:'Create POS Toast button / ring up qty 1',owner:'Marketing Manager',def:'Toast button created and qty 1 rung to sync',notify:'Inventory',notifyMsg:'Toast item created & rung up qty 1 — ready to attach to the R365 / Synergy item.'},
+  {stage:'marketing',dept:'Marketing',label:'Add to Olo Marketplace menu',owner:'Marketing Manager',def:'Item live on the Olo Marketplace menu'},
+  {stage:'marketing',dept:'Marketing',label:'Upload photos / ingredients / description to Olo',owner:'Marketing Manager',def:'Front/back photos, ingredients & description on Olo'},
+  {stage:'marketing',dept:'Marketing',label:'Social scheduled',owner:'Marketing Manager',def:'Launch social posts scheduled',blocking:false},
+  {stage:'marketing',dept:'Marketing',label:'Email scheduled',owner:'Marketing Manager',def:'Launch email scheduled',blocking:false},
+  {stage:'store',dept:'Store Ops',label:'Store places first order',owner:'Store Manager',def:'First order placed through the order guide'},
+  {stage:'store',dept:'Store Ops',label:'Commissary ships product',owner:'Commissary Manager',def:'Product shipped from commissary to store'},
+  {stage:'store',dept:'Store Ops',label:'Store receives product',owner:'Store Manager',def:'Product received & checked in at store'},
+  {stage:'store',dept:'Store Ops',label:'Merchandise shelf',owner:'Store Manager',def:'Product merchandised per planogram'},
+  {stage:'store',dept:'Store Ops',label:'Install shelf tags',owner:'Store Manager',def:'Shelf tags installed at the facing'},
+  {stage:'store',dept:'Store Ops',label:'Verify pricing',owner:'Store Manager',def:'POS price verified against the cost sheet'},
+  {stage:'store',dept:'Store Ops',label:'Train team',owner:'Store Manager',def:'Floor team briefed on the new item'},
+  {stage:'store',dept:'Store Ops',label:'Upload shelf photo',owner:'Store Manager',def:'Photo of the merchandised shelf uploaded',notify:'Marketplace',notifyMsg:'Store launch verified & shelf photo uploaded — product is LIVE.'},
+  {stage:'review',dept:'Marketplace',label:'30-day sales reviewed',owner:'Marketplace Lead',def:'30-day sell-through pulled & reviewed'},
+  {stage:'review',dept:'Marketplace',label:'Velocity reviewed',owner:'Marketplace Lead',def:'Unit velocity vs. expectation reviewed'},
+  {stage:'review',dept:'Marketplace',label:'Margin reviewed',owner:'Marketplace Lead',def:'Realized margin vs. projected reviewed'},
+  {stage:'review',dept:'Marketplace',label:'Inventory turns & stockouts reviewed',owner:'Marketplace Lead',def:'Turns and any stockouts reviewed'},
+  {stage:'review',dept:'Marketplace',label:'Waste reviewed',owner:'Marketplace Lead',def:'Spoilage/waste reviewed',blocking:false},
+  {stage:'review',dept:'Marketplace',label:'Co-packer performance reviewed',owner:'Marketplace Lead',def:'Fill rate & lead-time performance reviewed'},
+  {stage:'review',dept:'Marketplace',label:'Customer feedback reviewed',owner:'Marketplace Lead',def:'Guest feedback reviewed',blocking:false},
+  {stage:'review',dept:'Marketplace',label:'Disposition decided: Expand / Maintain / Exit',owner:'Marketplace Lead',def:'Expand, Maintain, or Exit decision recorded'}
+];
+
+/* Pick the right template per product type so CPG and Private Label run
+   different checklists end-to-end (different vendor model = different
+   work). Stages are the same so the pipeline view, Gantt, and handoff
+   logic all keep working unchanged. */
+function buildTasks(type){
+  const src=(type==='Private Label')?PL_TASK_TEMPLATES:TASK_TEMPLATES;
+  return src.map(t=>({stage:t.stage,dept:t.dept,label:t.label,owner:t.owner||'',def:t.def||'',notify:t.notify||'',notifyMsg:t.notifyMsg||'',blocking:t.blocking!==false,file:t.file===true,inputs:Array.isArray(t.inputs)?t.inputs:[],values:{},done:false,doneAt:null}));
+}
 
 /* Named mini-steps per stage: small, purposeful batches so a team member only
    ever focuses on a short list. [label, taskCount] in template order. */
@@ -751,17 +850,117 @@ function drawProducts(pool,LBL,q){
 }
 
 /* ---------------- brands tab ---------------- */
+let BRAND_VIEW=null; // brand.id when drilled in, null on the list view
+
 function renderBrands(){
+  if(BRAND_VIEW) return renderBrandDetail(BRAND_VIEW);
   const byBrand={}; Object.values(LAUNCHES).forEach(l=>{(byBrand[l.brandId]=byBrand[l.brandId]||[]).push(l);});
-  let rows=Object.values(BRANDS).map(b=>{const ls=byBrand[b.id]||[];return {name:b.name,category:b.category||'',total:ls.length,shelf:ls.filter(l=>l.stage==='live').length};}).filter(b=>b.total>0).sort((a,b)=>a.name.localeCompare(b.name));
-  $('view').innerHTML=`<h1>Brands</h1><p class="sub">${rows.length} brands · ${Object.values(LAUNCHES).length} total products.</p>
+  let rows=Object.values(BRANDS).map(b=>{
+    const ls=byBrand[b.id]||[];
+    return {id:b.id,name:b.name,category:b.category||'',total:ls.length,shelf:ls.filter(l=>l.stage==='live').length};
+  }).filter(b=>b.total>0).sort((a,b)=>a.name.localeCompare(b.name));
+  $('view').innerHTML=`<h1>Brands</h1><p class="sub">${rows.length} brands · ${Object.values(LAUNCHES).length} total products. Click any brand to see its products.</p>
     <div class="toolbar"><input id="bq" type="search" placeholder="Search brands…"></div>
     <div class="grid" id="blist"></div>`;
-  const draw=()=>{const q=($('bq').value||'').trim().toLowerCase();
-    $('blist').innerHTML=rows.filter(b=>!q||b.name.toLowerCase().includes(q)).map(b=>`<div class="card"><div class="name">${esc(b.name)}</div>
-      <div class="meta">${esc(b.category)} · ${b.total} ${b.total===1?'product':'products'}</div>
-      <span class="pill ${b.shelf?'shelf':'pipe'}">${b.shelf} on shelf · ${b.total-b.shelf} in pipeline</span></div>`).join('')||'<div class="empty">No brands.</div>';};
+  const draw=()=>{
+    const q=($('bq').value||'').trim().toLowerCase();
+    $('blist').innerHTML=rows.filter(b=>!q||b.name.toLowerCase().includes(q)).map(b=>
+      `<div class="card brand-card" data-bid="${esc(b.id)}" style="cursor:pointer">
+        <div class="name">${esc(b.name)}</div>
+        <div class="meta">${esc(b.category)} · ${b.total} ${b.total===1?'product':'products'}</div>
+        <span class="pill ${b.shelf?'shelf':'pipe'}">${b.shelf} on shelf · ${b.total-b.shelf} in pipeline</span>
+      </div>`).join('')||'<div class="empty">No brands.</div>';
+    document.querySelectorAll('.brand-card').forEach(c=>c.onclick=()=>{ BRAND_VIEW=c.dataset.bid; renderBrands(); window.scrollTo({top:0,behavior:'smooth'}); });
+  };
   $('bq').oninput=draw; draw();
+}
+
+/* Brand detail — shown when a brand card is clicked. Header pulls the
+   full Brand Info captured at intake (founder, email, phone, website).
+   Below: every product on that brand with the key product-info fields
+   inline, type badge, stage badge, and an "Open" button that pops the
+   product drawer. */
+function renderBrandDetail(bid){
+  const b=BRANDS[bid];
+  if(!b){ BRAND_VIEW=null; return renderBrands(); }
+  const items=Object.values(LAUNCHES).filter(l=>l.brandId===bid).sort((a,b)=>(a.name||'').localeCompare(b.name||''));
+  const onShelf=items.filter(l=>l.stage==='live').length;
+  const inPipe =items.length-onShelf;
+  const valOr=(v,d)=>{const s=(v==null?'':String(v).trim()); return s?esc(s):`<span style="color:#bcb9b1;font-style:italic">${d||'—'}</span>`;};
+  const link=(v,kind)=>{
+    const s=(v||'').trim(); if(!s) return `<span style="color:#bcb9b1;font-style:italic">—</span>`;
+    if(kind==='url'){ const h=/^https?:\/\//.test(s)?s:'https://'+s; return `<a href="${esc(h)}" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:none">${esc(s)}</a>`; }
+    if(kind==='email') return `<a href="mailto:${esc(s)}" style="color:var(--accent);text-decoration:none">${esc(s)}</a>`;
+    if(kind==='tel')   return `<a href="tel:${esc(s)}" style="color:var(--accent);text-decoration:none">${esc(s)}</a>`;
+    return esc(s);
+  };
+
+  const header=`
+    <div style="margin-bottom:8px"><button id="brandBack" type="button" style="background:#f1efe9;color:var(--ink);border:0;font-family:inherit;font-weight:600;font-size:12px;padding:6px 12px;border-radius:9px;cursor:pointer">← Back to Brands</button></div>
+    <h1 style="margin-bottom:4px">${esc(b.name)}</h1>
+    <p class="sub">${esc(b.category||'Uncategorized')} · ${items.length} ${items.length===1?'product':'products'} · ${onShelf} on shelf · ${inPipe} in pipeline</p>
+    <div class="info-card" style="margin-bottom:18px">
+      <div class="ic-h"><h4>Brand Contact</h4><span class="ic-c">Captured at intake</span><span class="ic-x">▾</span></div>
+      <div class="ic-b">
+        <div class="info-grid">
+          <div class="info-cell"><span class="k">Founder</span><span class="v">${valOr(b.founderName||b.contact)}</span></div>
+          <div class="info-cell"><span class="k">Email</span><span class="v">${link(b.email,'email')}</span></div>
+          <div class="info-cell"><span class="k">Phone</span><span class="v">${link(b.phone,'tel')}</span></div>
+          <div class="info-cell"><span class="k">Website</span><span class="v">${link(b.website,'url')}</span></div>
+          <div class="info-cell"><span class="k">Distributor</span><span class="v">${valOr(b.distributor)}</span></div>
+          <div class="info-cell"><span class="k">Source</span><span class="v">${valOr(b.source)}</span></div>
+        </div>
+      </div>
+    </div>`;
+
+  const list=items.length
+    ? `<div style="display:flex;flex-direction:column;gap:12px">${items.map(l=>{
+        const sm=stageMeta(l.stage);
+        return `<div class="card brand-product" data-pid="${esc(l.id)}" style="cursor:pointer;padding:14px 16px">
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap">
+            <div style="min-width:0;flex:1">
+              <div class="name" style="font-size:15px">${esc(l.name||'')}</div>
+              <div class="meta">${esc(l.category||'Uncategorized')} · ${esc(l.code||'')}</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;justify-content:flex-end">
+              <span class="tag" style="background:${sm.color}22">${esc(sm.label)}</span>
+              ${typeBadge(l.type)}
+              <span class="tag">${readiness(l)}% ready</span>
+            </div>
+          </div>
+          <div class="info-grid" style="margin-top:12px">
+            <div class="info-cell"><span class="k">SKU</span><span class="v">${valOr(l.sku||l.name)}</span></div>
+            <div class="info-cell"><span class="k">UPC</span><span class="v">${valOr(l.upc)}</span></div>
+            <div class="info-cell"><span class="k">Unit Size</span><span class="v">${valOr(l.unitSize)}</span></div>
+            <div class="info-cell"><span class="k">Case Pack</span><span class="v">${valOr(l.casePack)}</span></div>
+            <div class="info-cell"><span class="k">Wholesale Cost</span><span class="v">${valOr(l.cost)}</span></div>
+            <div class="info-cell"><span class="k">MSRP</span><span class="v">${valOr(l.msrp)}</span></div>
+            <div class="info-cell"><span class="k">MOQ</span><span class="v">${valOr(l.moq)}</span></div>
+            <div class="info-cell"><span class="k">Lead Time</span><span class="v">${valOr(l.leadTime)}</span></div>
+            <div class="info-cell"><span class="k">Shelf Life</span><span class="v">${valOr(l.shelfLife)}</span></div>
+            <div class="info-cell"><span class="k">Storage</span><span class="v">${valOr(l.storageReq)}</span></div>
+            <div class="info-cell"><span class="k">Primary Distribution</span><span class="v">${valOr(l.primaryDistribution)}</span></div>
+            <div class="info-cell"><span class="k">Product Dim</span><span class="v">${valOr(l.productDim)}</span></div>
+          </div>
+          <div style="margin-top:12px;display:flex;justify-content:flex-end"><button type="button" class="brand-product-open" data-pid="${esc(l.id)}" style="background:var(--accent);color:#fff;border:0;font-family:inherit;font-weight:600;font-size:12px;padding:7px 14px;border-radius:9px;cursor:pointer">Open in drawer →</button></div>
+        </div>`;
+      }).join('')}</div>`
+    : '<div class="empty">No products on this brand yet.</div>';
+
+  $('view').innerHTML=header+list;
+  // Wire interactions
+  const back=document.getElementById('brandBack');
+  if(back) back.onclick=()=>{ BRAND_VIEW=null; renderBrands(); window.scrollTo({top:0,behavior:'smooth'}); };
+  // Collapsible Brand Contact card
+  $('view').querySelectorAll('.info-card .ic-h').forEach(h=>h.onclick=()=>h.parentElement.classList.toggle('collapsed'));
+  // Product card → open drawer (whole card and the explicit button)
+  $('view').querySelectorAll('.brand-product').forEach(c=>c.onclick=e=>{
+    if(e.target.closest('a')) return; // let real links inside the card (none today) work
+    openDrawer(c.dataset.pid);
+  });
+  $('view').querySelectorAll('.brand-product-open').forEach(btn=>{
+    btn.onclick=e=>{ e.stopPropagation(); openDrawer(btn.dataset.pid); };
+  });
 }
 
 /* ---------------- process tab ---------------- */
@@ -861,52 +1060,62 @@ function renderDrawer(id){
    the layout doesn't bounce when fields are partially filled. */
 function renderProductInfo(l){
   const b=BRANDS[l.brandId]||{};
+  // One labelled cell. Renders empty values as a muted '—' so the grid
+  // never looks broken on partially-filled intake forms.
   const cell=(k,v,opts)=>{
     const o=opts||{};
-    let val=v;
-    const isEmpty=(val==null||String(val).trim()==='');
-    if(isEmpty){ val='—'; }
-    else if(o.link){
-      const href=o.link==='url'?(/^https?:\/\//.test(val)?val:'https://'+val):('mailto:'+val);
-      val=`<a href="${esc(href)}" target="_blank" rel="noopener">${esc(v)}</a>`;
-    } else if(o.tel){ val=`<a href="tel:${esc(v)}">${esc(v)}</a>`; }
-    else { val=esc(val); }
-    return `<div class="info-cell"><span class="k">${esc(k)}</span><span class="v${isEmpty?' empty':''}">${val}</span></div>`;
+    const raw=(v==null?'':String(v).trim());
+    if(!raw){ return `<div class="info-cell"><span class="k">${esc(k)}</span><span class="v empty">—</span></div>`; }
+    let html=esc(raw);
+    if(o.link==='url'){ const h=/^https?:\/\//.test(raw)?raw:'https://'+raw; html=`<a href="${esc(h)}" target="_blank" rel="noopener">${esc(raw)}</a>`; }
+    else if(o.link==='email'){ html=`<a href="mailto:${esc(raw)}">${esc(raw)}</a>`; }
+    else if(o.link==='tel'){ html=`<a href="tel:${esc(raw)}">${esc(raw)}</a>`; }
+    return `<div class="info-cell"><span class="k">${esc(k)}</span><span class="v">${html}</span></div>`;
   };
-  const brandBlock=`<div class="info-grid">
-    ${cell('Brand',b.name||brandName(l))}
-    ${cell('Founder',b.founderName||b.contact||'')}
-    ${cell('Email',b.email||'',{link:'email'})}
-    ${cell('Phone',b.phone||'',{tel:true})}
-    ${cell('Website',b.website||'',{link:'url'})}
-    ${cell('Type',l.type||'CPG')}
-  </div>`;
-  const prodBlock=`<div class="info-grid" style="margin-top:14px">
-    ${cell('SKU',l.sku||l.name||'')}
-    ${cell('Category',l.category||'')}
-    ${cell('UPC',l.upc||'')}
-    ${cell('Unit Size',l.unitSize||'')}
-    ${cell('Case Pack',l.casePack||'')}
-    ${cell('MOQ',l.moq||'')}
-    ${cell('Wholesale Cost',l.cost||'')}
-    ${cell('MSRP',l.msrp||'')}
-    ${cell('Lead Time',l.leadTime||'')}
-    ${cell('Shelf Life',l.shelfLife||'')}
-    ${cell('Storage',l.storageReq||'')}
-    ${cell('Primary Distribution',l.primaryDistribution||'')}
-    ${cell('Product Dimension',l.productDim||'')}
-    ${cell('Case Dimensions',l.caseDim||'')}
-  </div>`;
-  const notes=l.notes?`<div style="margin-top:12px;font-size:12.5px;color:var(--ink);line-height:1.45;padding-top:10px;border-top:1px dashed var(--line)"><span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);display:block;margin-bottom:3px">Notes</span>${esc(l.notes)}</div>`:'';
+  // Render a labelled sub-section with a grid of cells underneath. Empty
+  // sub-sections (every cell missing) are dropped so the card doesn't
+  // show four "—" rows for a barely-filled product.
+  const sub=(label,cells)=>{
+    const hasAny=cells.some(c=>!/class="v empty"/.test(c));
+    if(!hasAny) return '';
+    return `<div class="info-sub">${esc(label)}</div><div class="info-grid">${cells.join('')}</div>`;
+  };
+
+  const brand=sub('Brand',[
+    cell('Brand',b.name||brandName(l)),
+    cell('Founder',b.founderName||b.contact||''),
+    cell('Type',l.type||'CPG'),
+    cell('Email',b.email||'',{link:'email'}),
+    cell('Phone',b.phone||'',{link:'tel'}),
+    cell('Website',b.website||'',{link:'url'})
+  ]);
+  const ident=sub('Identification',[
+    cell('SKU',l.sku||l.name||''),
+    cell('UPC',l.upc||''),
+    cell('Category',l.category||'')
+  ]);
+  const pack=sub('Pack & Dimensions',[
+    cell('Unit Size',l.unitSize||''),
+    cell('Case Pack',l.casePack||''),
+    cell('MOQ',l.moq||''),
+    cell('Product Dim',l.productDim||''),
+    cell('Case Dim',l.caseDim||'')
+  ]);
+  const commercial=sub('Commercial',[
+    cell('Wholesale Cost',l.cost||''),
+    cell('MSRP',l.msrp||'')
+  ]);
+  const logistics=sub('Logistics',[
+    cell('Lead Time',l.leadTime||''),
+    cell('Shelf Life',l.shelfLife||''),
+    cell('Storage',l.storageReq||''),
+    cell('Primary Distribution',l.primaryDistribution||'')
+  ]);
+  const notes=l.notes?`<div class="info-notes"><span class="k">Notes</span>${esc(l.notes)}</div>`:'';
+
   return `<div class="info-card" id="infoCard">
     <div class="ic-h"><h4>Product Info</h4><span class="ic-c">Brand · Product</span><span class="ic-x">▾</span></div>
-    <div class="ic-b">
-      <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);margin-bottom:6px">Brand</div>
-      ${brandBlock}
-      <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);margin:14px 0 6px">Product</div>
-      ${prodBlock}
-      ${notes}
-    </div>
+    <div class="ic-b">${brand}${ident}${pack}${commercial}${logistics}${notes}</div>
   </div>`;
 }
 
@@ -1157,7 +1366,9 @@ async function submitIntake(){
     let maxCode=0;
     Object.values(LAUNCHES).forEach(l=>{const m=/(\d+)\s*$/.exec(l.code||'');if(m)maxCode=Math.max(maxCode,+m[1]);});
     const id=uid('l');
-    const tmpl=buildTasks();
+    // CPG and Private Label run different checklists (different vendor
+    // model) — buildTasks(type) picks the right template set.
+    const tmpl=buildTasks(type);
 
     upd['marketplace-npi/launches/'+id]={
       id, brandId, name, type,
@@ -1302,9 +1513,13 @@ async function backfillTasks(){
   if(!launches.length){ toast('No products to back-fill.'); return; }
   const upd={}; let patched=0, added=0, touched=0;
   launches.forEach(l=>{
+    // Pick the right template set for this launch's type — CPG launches
+    // never get PL tasks injected (and vice versa), so back-fill is safe
+    // to run across the whole pipeline regardless of mix.
+    const tpls=(l.type==='Private Label')?PL_TASK_TEMPLATES:TASK_TEMPLATES;
     const cur=tasksOf(l).map(t=>Object.assign({},t)); let changed=false;
     cur.forEach(t=>{
-      const tpl=TASK_TEMPLATES.find(x=>x.stage===t.stage&&x.label===t.label); if(!tpl) return;
+      const tpl=tpls.find(x=>x.stage===t.stage&&x.label===t.label); if(!tpl) return;
       const before=JSON.stringify([t.owner,t.def,t.notify,t.notifyMsg,t.blocking,t.file]);
       t.owner=t.owner||tpl.owner||''; t.def=t.def||tpl.def||'';
       t.notify=t.notify||tpl.notify||''; t.notifyMsg=t.notifyMsg||tpl.notifyMsg||'';
@@ -1312,15 +1527,15 @@ async function backfillTasks(){
       if(t.file===undefined) t.file=tpl.file===true;
       if(JSON.stringify([t.owner,t.def,t.notify,t.notifyMsg,t.blocking,t.file])!==before){ changed=true; patched++; }
     });
-    TASK_TEMPLATES.forEach(tpl=>{
+    tpls.forEach(tpl=>{
       if(cur.some(t=>t.stage===tpl.stage&&t.label===tpl.label)) return;
-      cur.push({stage:tpl.stage,dept:tpl.dept,label:tpl.label,owner:tpl.owner||'',def:tpl.def||'',notify:tpl.notify||'',notifyMsg:tpl.notifyMsg||'',blocking:tpl.blocking!==false,file:tpl.file===true,done:false,doneAt:null});
+      cur.push({stage:tpl.stage,dept:tpl.dept,label:tpl.label,owner:tpl.owner||'',def:tpl.def||'',notify:tpl.notify||'',notifyMsg:tpl.notifyMsg||'',blocking:tpl.blocking!==false,file:tpl.file===true,inputs:Array.isArray(tpl.inputs)?tpl.inputs:[],values:{},done:false,doneAt:null});
       changed=true; added++;
     });
     if(changed){ upd['marketplace-npi/launches/'+l.id+'/tasks']=cur; touched++; }
   });
   if(!touched){ toast('Already up to date — nothing to back-fill.'); return; }
-  if(!confirm(`Back-fill ${touched} product(s)?\n\n• ${patched} existing task(s) enriched with owner / definition-of-done\n• ${added} task(s) added (including the W-9 stage)\n\nEvery completed task is preserved. Safe to re-run.`)) return;
+  if(!confirm(`Back-fill ${touched} product(s)?\n\n• ${patched} existing task(s) enriched with owner / definition-of-done\n• ${added} task(s) added (the right template set per product type)\n\nEvery completed task is preserved. Safe to re-run.`)) return;
   await db.ref().update(upd);
   toast(`✓ Back-fill done · ${touched} products · ${patched} enriched · ${added} added`);
 }
