@@ -219,6 +219,7 @@
   .info-cell{min-width:0;line-height:1.35}
   .info-cell .k{display:block;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:3px}
   .info-cell .v{display:block;font-size:14px;font-weight:500;color:var(--ink);word-break:break-word}
+  .info-cell.is-empty .v{color:var(--muted);font-weight:400}
   .info-cell .v a{color:var(--accent);text-decoration:none;font-weight:500}
   .info-cell .v a:hover{text-decoration:underline}
   /* Sub-section heading inside an info-card. Adds a hairline rule above
@@ -1501,13 +1502,16 @@ function renderDrawer(id){
    the layout doesn't bounce when fields are partially filled. */
 function renderProductInfo(l){
   const b=BRANDS[l.brandId]||{};
-  // One labelled cell. Empty values return an empty string so the cell
-  // never renders at all — keeps the grid tight and avoids the dense
-  // wall of '—' placeholders that made the card hard to scan.
+  // One labelled cell. Empty values normally return an empty string so the
+  // cell never renders — keeps dynamic clusters tight. Pass {always:true}
+  // for the standard product-info fields every stakeholder should see: those
+  // render a quiet '—' when blank so the full picture (and what's still
+  // missing) is always visible.
   const cell=(k,v,opts)=>{
     const o=opts||{};
     const raw=(v==null?'':String(v).trim());
-    if(!raw) return '';
+    if(!raw && !o.always) return '';
+    if(!raw) return `<div class="info-cell is-empty"><span class="k">${esc(k)}</span><span class="v">—</span></div>`;
     let html=esc(raw);
     if(o.link==='url'){ const h=/^https?:\/\//.test(raw)?raw:'https://'+raw; html=`<a href="${esc(h)}" target="_blank" rel="noopener">${esc(raw)}</a>`; }
     else if(o.link==='email'){ html=`<a href="mailto:${esc(raw)}">${esc(raw)}</a>`; }
@@ -1523,35 +1527,39 @@ function renderProductInfo(l){
     return `<div class="info-sub">${esc(label)}</div><div class="info-grid">${filled.join('')}</div>`;
   };
 
+  // Standard product-info fields — always shown (blank → '—') so every
+  // stakeholder sees the full intake picture, not just whichever fields
+  // happen to be filled on a given product.
+  const A={always:true};
   const brand=sub('Brand',[
-    cell('Brand',b.name||brandName(l)),
-    cell('Founder',b.founderName||b.contact||''),
-    cell('Type',l.type||'CPG'),
-    cell('Email',b.email||'',{link:'email'}),
-    cell('Phone',b.phone||'',{link:'tel'}),
-    cell('Website',b.website||'',{link:'url'})
+    cell('Brand',b.name||brandName(l),A),
+    cell('Founder',b.founderName||b.contact||'',A),
+    cell('Type',l.type||'CPG',A),
+    cell('Email',b.email||'',{link:'email',always:true}),
+    cell('Phone',b.phone||'',{link:'tel',always:true}),
+    cell('Website',b.website||'',{link:'url',always:true})
   ]);
   const ident=sub('Identification',[
-    cell('SKU',l.sku||l.name||''),
-    cell('UPC',l.upc||''),
-    cell('Category',l.category||'')
+    cell('SKU',l.sku||l.name||'',A),
+    cell('UPC',l.upc||'',A),
+    cell('Category',l.category||'',A)
   ]);
   const pack=sub('Pack & Dimensions',[
-    cell('Unit Size',l.unitSize||''),
-    cell('Case Pack',l.casePack||''),
-    cell('MOQ',l.moq||''),
-    cell('Product Dim',l.productDim||''),
-    cell('Case Dim',l.caseDim||'')
+    cell('Unit Size',l.unitSize||'',A),
+    cell('Case Pack',l.casePack||'',A),
+    cell('MOQ',l.moq||'',A),
+    cell('Product Dim',l.productDim||'',A),
+    cell('Case Dim',l.caseDim||'',A)
   ]);
   const commercial=sub('Commercial',[
-    cell('Wholesale Cost',l.cost||''),
-    cell('MSRP',l.msrp||'')
+    cell('Wholesale Cost',l.cost||'',A),
+    cell('MSRP',l.msrp||'',A)
   ]);
   const logistics=sub('Logistics',[
-    cell('Lead Time',l.leadTime||''),
-    cell('Shelf Life',l.shelfLife||''),
-    cell('Storage',l.storageReq||''),
-    cell('Primary Distribution',l.primaryDistribution||'')
+    cell('Lead Time',l.leadTime||'',A),
+    cell('Shelf Life',l.shelfLife||'',A),
+    cell('Storage',l.storageReq||'',A),
+    cell('Primary Distribution',l.primaryDistribution||'',A)
   ]);
   // Captured during process — pulls every populated task.values{}
   // back into Product Info so the tracking links, landed cost, Toast
