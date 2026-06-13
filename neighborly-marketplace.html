@@ -1565,27 +1565,33 @@ function renderProductInfo(l){
   // back into Product Info so the tracking links, landed cost, Toast
   // item ID, Olo URL, etc. all read in one place alongside intake.
   // Empty if nothing's been captured on any task yet.
-  // Compliance docs / brand assets the brand flagged at intake. These
-  // pre-mark the matching task checkboxes (handled in submitIntake),
-  // and we surface them in Product Info too so AP / Marketing can see
-  // up front what's already in hand.
-  const intakeFlagsSection=(function(){
-    const c=l.intakeCompliance||{}, a=l.intakeAssets||{};
-    const flagged=[];
-    if(c.w9)           flagged.push(['Compliance', 'W-9']);
-    if(c.coi)          flagged.push(['Compliance', 'Insurance (COI)']);
-    if(c.nutrition)    flagged.push(['Compliance', 'Nutrition Panel']);
-    if(c.ingredients)  flagged.push(['Compliance', 'Ingredient Statement']);
-    if(c.allergen)     flagged.push(['Compliance', 'Allergen Info']);
-    if(c.spec)         flagged.push(['Compliance', 'Product Spec Sheet']);
-    if(a.images)       flagged.push(['Assets', 'Product Images']);
-    if(a.logo)         flagged.push(['Assets', 'Brand Logo']);
-    if(a.story)        flagged.push(['Assets', 'Brand Story']);
+  // Brand assets every stakeholder should be able to track — always listed
+  // so Marketing/Ops can see at a glance what's in hand vs. still outstanding.
+  const assetsSection=(function(){
+    const a=l.intakeAssets||{};
+    const items=[['Product Images',a.images],['Brand Logo',a.logo],['Brand Story',a.story]];
+    const cells=items.map(([name,got])=>got
+      ? `<div class="info-cell"><span class="k">${esc(name)}</span><span class="v">✓ Received</span></div>`
+      : `<div class="info-cell is-empty"><span class="k">${esc(name)}</span><span class="v">Outstanding</span></div>`);
     const driveCell=l.assetsDriveLink?cell('Brand Assets — Drive', l.assetsDriveLink, {link:'url'}):'';
-    if(!flagged.length && !driveCell) return '';
-    const cells=flagged.map(([g,n])=>`<div class="info-cell"><span class="k">${esc(g)}</span><span class="v">✓ ${esc(n)}</span></div>`);
     if(driveCell) cells.push(driveCell);
-    return `<div class="info-sub">Received at intake</div><div class="info-grid">${cells.join('')}</div>`;
+    return `<div class="info-sub">Assets</div><div class="info-grid">${cells.join('')}</div>`;
+  })();
+  // Compliance docs the brand flagged at intake. These pre-mark the matching
+  // task checkboxes (handled in submitIntake), and we surface them here too
+  // so AP can see up front what's already in hand. Filled-only.
+  const intakeFlagsSection=(function(){
+    const c=l.intakeCompliance||{};
+    const flagged=[];
+    if(c.w9)           flagged.push('W-9');
+    if(c.coi)          flagged.push('Insurance (COI)');
+    if(c.nutrition)    flagged.push('Nutrition Panel');
+    if(c.ingredients)  flagged.push('Ingredient Statement');
+    if(c.allergen)     flagged.push('Allergen Info');
+    if(c.spec)         flagged.push('Product Spec Sheet');
+    if(!flagged.length) return '';
+    const cells=flagged.map(n=>`<div class="info-cell"><span class="k">Compliance</span><span class="v">✓ ${esc(n)}</span></div>`);
+    return `<div class="info-sub">Compliance received at intake</div><div class="info-grid">${cells.join('')}</div>`;
   })();
   const captured=(function(){
     const ts=tasksOf(l);
@@ -1607,7 +1613,7 @@ function renderProductInfo(l){
 
   return `<div class="info-card" id="infoCard">
     <div class="ic-h"><h4>Product Info</h4><span class="ic-c">Brand · Product</span><span class="ic-x">▾</span></div>
-    <div class="ic-b">${brand}${ident}${pack}${commercial}${logistics}${intakeFlagsSection}${captured}${notes}</div>
+    <div class="ic-b">${brand}${ident}${pack}${commercial}${logistics}${assetsSection}${intakeFlagsSection}${captured}${notes}</div>
   </div>`;
 }
 
