@@ -673,10 +673,10 @@ const TASK_TEMPLATES=[
   {stage:'commercial',dept:'Procurement',label:'Terms finalized',owner:'Procurement Coordinator',def:'Payment & trade terms agreed and recorded',inputs:[
     {key:'terms',label:'Payment terms',type:'text',placeholder:'Net 30 / 2% 10 Net 30 / etc.'}
   ]},
-  {stage:'commercial',dept:'Procurement',label:'Cost sheet approved',owner:'Procurement Manager',def:'Landed cost sheet signed off by Procurement manager',inputs:[
+  {stage:'commercial',dept:'Procurement',label:'Cost sheet approved',owner:'Procurement Manager',def:'Landed cost sheet signed off by Procurement manager',file:true,inputs:[
     {key:'landedCost',label:'Landed cost',type:'text',placeholder:'$ per unit'}
   ]},
-  {stage:'commercial',dept:'Procurement',label:'Free first fill secured',owner:'Procurement Coordinator',def:'Free first-fill agreement on file from vendor',notify:'Commissary',notifyMsg:'Free first fill secured — Commissary can expect the initial fill shipment.',inputs:[
+  {stage:'commercial',dept:'Procurement',label:'Free first fill secured',owner:'Procurement Coordinator',def:'Free first-fill agreement on file from vendor',notify:'Commissary',notifyMsg:'Free first fill secured — Commissary can expect the initial fill shipment.',file:true,inputs:[
     {key:'firstFillCasePacks',label:'Case packs (free fill)',type:'text',placeholder:'qty'},
     {key:'firstFillEta',label:'Expected ship date',type:'date'},
     {key:'firstFillTracking',label:'Tracking link',type:'url',placeholder:'https://… — Commissary uses this to track receipt'},
@@ -822,7 +822,7 @@ const PL_TASK_TEMPLATES=[
   {stage:'sample',dept:'Marketplace',label:'Asset: Brand logo on file',owner:'Marketplace Lead',def:'Vector / hi-res logo on file',blocking:false,file:true},
   {stage:'sample',dept:'Marketplace',label:'Asset: Brand story written',owner:'Marketplace Lead',def:'In-house brand story copy drafted',blocking:false,file:true,notify:'Marketing',notifyMsg:'Brand story written — available for Marketing to use in product copy.'},
   /* Commercial — Procurement (co-packer terms in lieu of vendor docs) */
-  {stage:'commercial',dept:'Procurement',label:'Co-packer pricing locked',owner:'Procurement Coordinator',def:'Per-unit cost + tiered MOQ pricing locked in writing',inputs:[{key:'landedCost',label:'Landed cost',type:'text',placeholder:'$ per unit'}]},
+  {stage:'commercial',dept:'Procurement',label:'Co-packer pricing locked',owner:'Procurement Coordinator',def:'Per-unit cost + tiered MOQ pricing locked in writing',file:true,inputs:[{key:'landedCost',label:'Landed cost',type:'text',placeholder:'$ per unit'}]},
   {stage:'commercial',dept:'Procurement',label:'Confirm MOQ & case pack with co-packer',owner:'Procurement Coordinator',def:'Production MOQ + units-per-case confirmed in writing',inputs:[{key:'confirmedMoq',label:'Confirmed MOQ',type:'text'},{key:'confirmedCasePack',label:'Confirmed case pack',type:'text'}]},
   {stage:'commercial',dept:'Procurement',label:'Confirm production lead time & shelf life',owner:'Procurement Coordinator',def:'Production / ship lead time + shelf-life window documented',inputs:[{key:'confirmedLeadTime',label:'Confirmed lead time',type:'text'},{key:'confirmedShelfLife',label:'Confirmed shelf life',type:'text'}]},
   {stage:'commercial',dept:'Procurement',label:'First production run scheduled',owner:'Procurement Coordinator',def:'PO submitted; co-packer has scheduled the first run',inputs:[{key:'productionDate',label:'Production start',type:'date'}]},
@@ -836,13 +836,17 @@ const PL_TASK_TEMPLATES=[
   {stage:'compliance',dept:'Compliance',label:'Product spec sheet on file',owner:'AP Clerk',def:'Internal product spec sheet uploaded',file:true},
   {stage:'compliance',dept:'Compliance',label:'Product docs cleared — ready for R365 setup',owner:'AP Clerk',def:'All product compliance docs on file',notify:'Inventory',notifyMsg:'Product compliance docs cleared — safe to create the R365 item & SKU.'},
   /* R365 Setup — Inventory (mirrors CPG; same R365 work) */
-  {stage:'erp',dept:'Inventory',label:'Create R365 item',owner:'Inventory Admin',def:'Item created in R365 with correct UOM',link:{href:'https://www.restaurant365.com/logins/',label:'Open R365 →'}},
+  {stage:'erp',dept:'Inventory',label:'Create R365 item',owner:'Inventory Admin',def:'Item created in R365 with correct UOM',link:{href:'https://www.restaurant365.com/logins/',label:'Open R365 →'},inputs:[
+    {key:'r365ItemId',label:'R365 item ID',type:'text',placeholder:'e.g. 12345'}
+  ]},
   {stage:'erp',dept:'Inventory',label:'Create R365 recipe',owner:'Inventory Admin',def:'Recipe / build created in R365',link:{href:'https://www.restaurant365.com/logins/',label:'Open R365 →'}},
   {stage:'erp',dept:'Inventory',label:'Add Item Category 1 = Private Label',owner:'Inventory Admin',def:'Category 1 set to "Private Label"',link:{href:'https://www.restaurant365.com/logins/',label:'Open R365 →'}},
   {stage:'erp',dept:'Inventory',label:'Add to Marketplace order guide',owner:'Inventory Admin',def:'Item appears on the Marketplace order guide',link:{href:'https://www.restaurant365.com/logins/',label:'Open R365 →'}},
   {stage:'erp',dept:'Inventory',label:'Add to Commissary inventory guide',owner:'Inventory Admin',def:'Item on the Commissary inventory guide',link:{href:'https://www.restaurant365.com/logins/',label:'Open R365 →'}},
   {stage:'erp',dept:'Inventory',label:'Add to WLV/BW inventory guide',owner:'Inventory Admin',def:'Item on the WLV / BW inventory guide',link:{href:'https://www.restaurant365.com/logins/',label:'Open R365 →'}},
-  {stage:'erp',dept:'Inventory',label:'Attach to Toast item (after Marketing rings up qty 1)',owner:'Inventory Admin',def:'R365 item linked to the Toast item once Marketing has created it',link:{href:'https://www.restaurant365.com/logins/',label:'Open R365 →'}},
+  {stage:'erp',dept:'Inventory',label:'Attach to Toast item (after Marketing rings up qty 1)',owner:'Inventory Admin',def:'R365 item linked to the Toast item once Marketing has created it',link:{href:'https://www.restaurant365.com/logins/',label:'Open R365 →'},inputs:[
+    {key:'toastItemId',label:'Toast item ID',type:'text',placeholder:'Toast SKU / item ID'}
+  ]},
   /* Commissary */
   {stage:'commissary',dept:'Commissary',label:'Confirm first production run received',owner:'Commissary Manager',def:'First run physically received at commissary',inputs:[
     {key:'firstFillReceivedDate',label:'Date received',type:'date'},
