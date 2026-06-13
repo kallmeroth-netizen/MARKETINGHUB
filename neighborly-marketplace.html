@@ -697,6 +697,12 @@ const TASK_TEMPLATES=[
     {key:'r365ItemId',label:'R365 item ID',type:'text',placeholder:'e.g. 12345'}
   ]},
   {stage:'erp',dept:'Inventory',label:'Create R365 recipe',owner:'Inventory Admin',def:'Recipe/build created in R365',link:{href:'https://www.restaurant365.com/logins/',label:'Open R365 →'}},
+  {stage:'erp',dept:'Inventory',label:'Create SKU',owner:'Inventory Admin',def:'SKU created and linked to the R365 item',link:{href:'https://www.restaurant365.com/logins/',label:'Open R365 →'},inputs:[
+    {key:'sku',label:'SKU',type:'text',placeholder:'SKU code'}
+  ]},
+  {stage:'erp',dept:'Inventory',label:'Create inventory unit',owner:'Inventory Admin',def:'Inventory unit of measure configured in R365',link:{href:'https://www.restaurant365.com/logins/',label:'Open R365 →'}},
+  {stage:'erp',dept:'Inventory',label:'Create purchasing unit',owner:'Inventory Admin',def:'Purchasing unit of measure configured in R365',link:{href:'https://www.restaurant365.com/logins/',label:'Open R365 →'}},
+  {stage:'erp',dept:'Inventory',label:'Map vendor',owner:'Inventory Admin',def:'Vendor mapped to the item in R365',link:{href:'https://www.restaurant365.com/logins/',label:'Open R365 →'}},
   {stage:'erp',dept:'Inventory',label:'Add Item Category 1 = Marketplace Item',owner:'Inventory Admin',def:'Category 1 set to "Marketplace Item"',link:{href:'https://www.restaurant365.com/logins/',label:'Open R365 →'}},
   {stage:'erp',dept:'Inventory',label:'Add to Marketplace order guide',owner:'Inventory Admin',def:'Item appears on the Marketplace order guide',link:{href:'https://www.restaurant365.com/logins/',label:'Open R365 →'}},
   {stage:'erp',dept:'Inventory',label:'Add to Commissary inventory guide',owner:'Inventory Admin',def:'Item on the Commissary inventory guide',link:{href:'https://www.restaurant365.com/logins/',label:'Open R365 →'}},
@@ -719,6 +725,15 @@ const TASK_TEMPLATES=[
   {stage:'commissary',dept:'Commissary',label:'Set 2-week PAR',owner:'Commissary Manager',def:'2-week PAR level set in the system',inputs:[
     {key:'twoWeekPar',label:'2-week PAR (units)',type:'text',placeholder:'qty'}
   ]},
+  {stage:'commissary',dept:'Commissary',label:'Determine replenishment method',owner:'Commissary Manager',def:'Replenishment method chosen for this item',inputs:[
+    {key:'replenishmentMethod',label:'Replenishment method',type:'text',placeholder:'e.g. PAR-based / reorder point / made-to-order'}
+  ]},
+  {stage:'commissary',dept:'Commissary',label:'Set reorder point',owner:'Commissary Manager',def:'Commissary reorder point set in the system',inputs:[
+    {key:'reorderPoint',label:'Reorder point (units)',type:'text',placeholder:'qty'}
+  ]},
+  {stage:'commissary',dept:'Commissary',label:'Set safety stock',owner:'Commissary Manager',def:'Safety-stock level set in the system',inputs:[
+    {key:'safetyStock',label:'Safety stock (units)',type:'text',placeholder:'qty'}
+  ]},
   {stage:'commissary',dept:'Commissary',label:'Add ingredient PARs',owner:'Commissary Manager',def:'Component/ingredient PARs entered in R365 — open R365 to add each ingredient',link:{href:'https://www.restaurant365.com/logins/',label:'Open R365 →'},inputs:[
     {key:'ingredientParLink',label:'Linked PAR sheet',type:'url',placeholder:'https://… reference doc'}
   ]},
@@ -731,6 +746,7 @@ const TASK_TEMPLATES=[
   {stage:'operations',dept:'Operations',label:'Confirm PARs (min qty re-order trigger)',owner:'Operations Manager',def:'Store PAR / reorder point set'},
   {stage:'operations',dept:'Operations',label:'Communicate upcoming launch via newsletter',owner:'Operations Manager',def:'Launch noted in the store/ops newsletter',blocking:false},
   {stage:'operations',dept:'Operations',label:'Include in store training materials',owner:'Operations Manager',def:'Item added to store training materials — upload the training doc',file:true},
+  {stage:'operations',dept:'Operations',label:'Create store receiving instructions',owner:'Operations Manager',def:'Store-level receiving instructions written for the item',file:true},
   /* Marketing */
   {stage:'marketing',dept:'Marketing',label:'Product photography',owner:'Marketing Manager',def:'Final product photos shot & edited — link the Drive folder',file:true,inputs:[
     {key:'photosDriveLink',label:'Photos (Drive)',type:'url',placeholder:'https://drive.google.com/…'}
@@ -744,6 +760,8 @@ const TASK_TEMPLATES=[
   {stage:'marketing',dept:'Marketing',label:'Upload photos/ingredients/description to Olo',owner:'Marketing Manager',def:'Front/back photos, ingredients & description on Olo'},
   {stage:'marketing',dept:'Marketing',label:'Social scheduled',owner:'Marketing Manager',def:'Launch social posts scheduled',blocking:false},
   {stage:'marketing',dept:'Marketing',label:'Email scheduled',owner:'Marketing Manager',def:'Launch email scheduled',blocking:false},
+  {stage:'marketing',dept:'Marketing',label:'SMS scheduled',owner:'Marketing Manager',def:'Launch SMS scheduled',blocking:false},
+  {stage:'marketing',dept:'Marketing',label:'Add to launch calendar',owner:'Marketing Manager',def:'Launch added to the marketing launch calendar'},
   /* Store Launch — Store Ops */
   {stage:'store',dept:'Store Ops',label:'Store places first order',owner:'Store Manager',def:'First order placed through the order guide',inputs:[
     {key:'firstOrderDate',label:'Order placed',type:'date'}
@@ -840,6 +858,12 @@ const PL_TASK_TEMPLATES=[
     {key:'r365ItemId',label:'R365 item ID',type:'text',placeholder:'e.g. 12345'}
   ]},
   {stage:'erp',dept:'Inventory',label:'Create R365 recipe',owner:'Inventory Admin',def:'Recipe / build created in R365',link:{href:'https://www.restaurant365.com/logins/',label:'Open R365 →'}},
+  {stage:'erp',dept:'Inventory',label:'Create SKU',owner:'Inventory Admin',def:'SKU created and linked to the R365 item',link:{href:'https://www.restaurant365.com/logins/',label:'Open R365 →'},inputs:[
+    {key:'sku',label:'SKU',type:'text',placeholder:'SKU code'}
+  ]},
+  {stage:'erp',dept:'Inventory',label:'Create inventory unit',owner:'Inventory Admin',def:'Inventory unit of measure configured in R365',link:{href:'https://www.restaurant365.com/logins/',label:'Open R365 →'}},
+  {stage:'erp',dept:'Inventory',label:'Create purchasing unit',owner:'Inventory Admin',def:'Purchasing unit of measure configured in R365',link:{href:'https://www.restaurant365.com/logins/',label:'Open R365 →'}},
+  {stage:'erp',dept:'Inventory',label:'Map co-packer vendor',owner:'Inventory Admin',def:'Co-packer mapped as the vendor on the item in R365',link:{href:'https://www.restaurant365.com/logins/',label:'Open R365 →'}},
   {stage:'erp',dept:'Inventory',label:'Add Item Category 1 = Private Label',owner:'Inventory Admin',def:'Category 1 set to "Private Label"',link:{href:'https://www.restaurant365.com/logins/',label:'Open R365 →'}},
   {stage:'erp',dept:'Inventory',label:'Add to Marketplace order guide',owner:'Inventory Admin',def:'Item appears on the Marketplace order guide',link:{href:'https://www.restaurant365.com/logins/',label:'Open R365 →'}},
   {stage:'erp',dept:'Inventory',label:'Add to Commissary inventory guide',owner:'Inventory Admin',def:'Item on the Commissary inventory guide',link:{href:'https://www.restaurant365.com/logins/',label:'Open R365 →'}},
@@ -861,6 +885,15 @@ const PL_TASK_TEMPLATES=[
   ]},
   /* Private Label needs ingredient-level PARs too — for any component
      produced in-house, each ingredient gets its own PAR (Comment #15). */
+  {stage:'commissary',dept:'Commissary',label:'Determine replenishment method',owner:'Commissary Manager',def:'Replenishment method chosen for this item',inputs:[
+    {key:'replenishmentMethod',label:'Replenishment method',type:'text',placeholder:'e.g. PAR-based / reorder point / made-to-order'}
+  ]},
+  {stage:'commissary',dept:'Commissary',label:'Set reorder point',owner:'Commissary Manager',def:'Commissary reorder point set in the system',inputs:[
+    {key:'reorderPoint',label:'Reorder point (units)',type:'text',placeholder:'qty'}
+  ]},
+  {stage:'commissary',dept:'Commissary',label:'Set safety stock',owner:'Commissary Manager',def:'Safety-stock level set in the system',inputs:[
+    {key:'safetyStock',label:'Safety stock (units)',type:'text',placeholder:'qty'}
+  ]},
   {stage:'commissary',dept:'Commissary',label:'Set ingredient PARs',owner:'Commissary Manager',def:'Per-ingredient PARs entered in R365 for each component of this PL recipe',link:{href:'https://www.restaurant365.com/logins/',label:'Open R365 →'},inputs:[
     {key:'ingredientParLink',label:'Ingredient PAR sheet',type:'url',placeholder:'https://… linked PAR doc'}
   ]},
@@ -873,6 +906,7 @@ const PL_TASK_TEMPLATES=[
   {stage:'operations',dept:'Operations',label:'Confirm PARs (min qty re-order trigger)',owner:'Operations Manager',def:'Store PAR / reorder point set'},
   {stage:'operations',dept:'Operations',label:'Communicate upcoming launch via newsletter',owner:'Operations Manager',def:'Launch noted in the store/ops newsletter',blocking:false},
   {stage:'operations',dept:'Operations',label:'Include in store training materials',owner:'Operations Manager',def:'Item added to store training materials — upload the training doc',file:true},
+  {stage:'operations',dept:'Operations',label:'Create store receiving instructions',owner:'Operations Manager',def:'Store-level receiving instructions written for the item',file:true},
   {stage:'marketing',dept:'Marketing',label:'Product photography',owner:'Marketing Manager',def:'Final product photos shot & edited — link the Drive folder',file:true,inputs:[
     {key:'photosDriveLink',label:'Photos (Drive)',type:'url',placeholder:'https://drive.google.com/…'}
   ]},
@@ -885,6 +919,8 @@ const PL_TASK_TEMPLATES=[
   {stage:'marketing',dept:'Marketing',label:'Upload photos / ingredients / description to Olo',owner:'Marketing Manager',def:'Front/back photos, ingredients & description on Olo'},
   {stage:'marketing',dept:'Marketing',label:'Social scheduled',owner:'Marketing Manager',def:'Launch social posts scheduled',blocking:false},
   {stage:'marketing',dept:'Marketing',label:'Email scheduled',owner:'Marketing Manager',def:'Launch email scheduled',blocking:false},
+  {stage:'marketing',dept:'Marketing',label:'SMS scheduled',owner:'Marketing Manager',def:'Launch SMS scheduled',blocking:false},
+  {stage:'marketing',dept:'Marketing',label:'Add to launch calendar',owner:'Marketing Manager',def:'Launch added to the marketing launch calendar'},
   {stage:'store',dept:'Store Ops',label:'Store places first order',owner:'Store Manager',def:'First order placed through the order guide',inputs:[
     {key:'firstOrderDate',label:'Order placed',type:'date'}
   ]},
