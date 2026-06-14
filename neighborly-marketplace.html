@@ -273,6 +273,13 @@
   .task-input input:hover{border-color:#c8c5bd}
   .task-input input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(98,128,189,.13)}
   .task-input input[type=url].has-value{background:rgba(98,128,189,.05)}
+  /* Date inputs need room for the native picker icon on Chrome/Edge,
+     a tap-anywhere-to-open affordance, and no ellipsis truncation. The
+     ✓ saved badge moves out of the right gutter so it doesn't collide
+     with the calendar icon. */
+  .task-input input[type=date]{padding:9px 13px;min-width:170px;cursor:pointer;text-overflow:clip;text-align:left;-webkit-appearance:none;appearance:none;background:#fff url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="%236b6a64" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>') right 11px center/16px 16px no-repeat;background-clip:padding-box;padding-right:36px}
+  .task-input input[type=date]::-webkit-calendar-picker-indicator{position:absolute;right:8px;top:0;width:100%;height:100%;opacity:0;cursor:pointer}
+  .task-input:has(input[type=date]) .ti-saved{right:34px}
   /* Required input — small red asterisk + red focus ring + soft-red
      background when empty so it's obvious which field must be filled
      before the task can be checked off. */
@@ -331,6 +338,14 @@
   .intake-field input:hover,.intake-field select:hover,.intake-field textarea:hover{border-color:#c8c5bd}
   .intake-field input:focus,.intake-field select:focus,.intake-field textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(98,128,189,.13)}
   .intake-field textarea{resize:vertical;min-height:84px}
+  /* Native date inputs render an empty grey "mm/dd/yyyy" until clicked
+     and the calendar icon on the right edge gets clipped on narrow
+     widths — both make the field feel broken. Force tap-anywhere-to-
+     open by overlaying the picker indicator, add a visible calendar
+     glyph via background-image so the field looks consistent across
+     Chrome / Safari / Firefox, and give it cursor:pointer. */
+  .intake-field input[type=date]{cursor:pointer;-webkit-appearance:none;appearance:none;background:#fff url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="%236b6a64" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>') right 13px center/18px 18px no-repeat;padding-right:42px;min-height:48px}
+  .intake-field input[type=date]::-webkit-calendar-picker-indicator{position:absolute;right:0;top:0;width:100%;height:100%;opacity:0;cursor:pointer}
   .intake-foot{flex-shrink:0;display:flex;justify-content:flex-end;gap:10px;padding:16px 28px;border-top:1px solid var(--line);background:#fff}
   .intake-foot .btn-secondary{background:#f1efe9;color:var(--ink);border:0;font-family:inherit;font-weight:600;font-size:13.5px;padding:11px 16px;border-radius:10px;cursor:pointer}
   .intake-foot .btn-primary{background:var(--ink);color:#fff;border:0;font-family:inherit;font-weight:600;font-size:13.5px;padding:11px 20px;border-radius:10px;cursor:pointer}
@@ -1486,6 +1501,13 @@ function renderDrawer(id){
   $('drawer').querySelectorAll('.task-input input').forEach(inp=>{
     inp.onblur=()=>saveTaskValue(inp.dataset.id,+inp.dataset.ti,inp.dataset.vk,inp.value,inp);
     inp.onkeydown=e=>{ if(e.key==='Enter'){ e.preventDefault(); inp.blur(); } };
+    // Date inputs: click anywhere in the field opens the native picker
+    // (modern browsers expose .showPicker()). On change, write immediately
+    // so the calendar pop-down counts as the save signal.
+    if(inp.type==='date'){
+      inp.onclick=()=>{ try{ inp.showPicker && inp.showPicker(); }catch(_){} };
+      inp.onchange=()=>saveTaskValue(inp.dataset.id,+inp.dataset.ti,inp.dataset.vk,inp.value,inp);
+    }
   });
   // Collapsible Product Info / Documents cards
   $('drawer').querySelectorAll('.info-card .ic-h').forEach(h=>h.onclick=()=>h.parentElement.classList.toggle('collapsed'));
@@ -1948,6 +1970,12 @@ function openIntake(){
       if(lbl) lbl.classList.toggle('checked',cb.checked);
     };
   });
+  // Date inputs: click anywhere to open the native picker. Without this
+  // the user has to find the tiny calendar icon in the right gutter,
+  // which felt glitchy.
+  document.querySelectorAll('#intakeForm input[type=date]').forEach(inp=>{
+    inp.onclick=()=>{ try{ inp.showPicker && inp.showPicker(); }catch(_){} };
+  });
   document.getElementById('scrim').classList.add('show');
   document.getElementById('intake').classList.add('show');
   setTimeout(()=>{ const el=document.getElementById('iSku'); if(el) el.focus(); },120);
@@ -2145,6 +2173,28 @@ async function submitIntake(){
         `Follow progress in the hub: ${HUB_URL}#${id}`
       ].join('\n');
       DEPTS.forEach(d=>sendEmail(recipientFor(d),d,nl,{stage:'Discovery',message:msg}));
+      // If intake supplied the sample tracking link, the Samples task is
+      // already pre-ticked above — so fire the targeted Commissary ping
+      // now (otherwise it would only fire when someone manually toggles
+      // the task in the drawer, which they never need to do).
+      if(trackingLink){
+        const detail=[
+          `Tracking link: ${trackingLink}`,
+          trackingCarrier?`Carrier: ${trackingCarrier}`:'',
+          trackingEta?`Ship / expected date: ${trackingEta}`:''
+        ].filter(Boolean).map(l=>'• '+l).join('\n');
+        const samplesMsg=[
+          `Sample shipment incoming for ${name} (${brand}).`,
+          '',
+          'Captured at intake:',
+          detail,
+          '',
+          'Please track receipt and forward to Marketplace for tasting.',
+          '',
+          `Open the product: ${HUB_URL}#${id}`
+        ].join('\n');
+        sendEmail(recipientFor('Commissary'),'Commissary',nl,{stage:'Discovery',message:samplesMsg});
+      }
     }
     toast('Added '+name);
     closeIntake();
@@ -2311,7 +2361,7 @@ function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','
    in the corner after a hard refresh, the browser/CDN is still
    serving an old HTML file. */
 (function stampBuild(){
-  const v='v18 · 2026-06-12 · unified field style';
+  const v='v19 · 2026-06-14 · date picker + commissary trigger';
   const el=document.createElement('div');
   el.textContent=v;
   el.style.cssText='position:fixed;bottom:6px;right:8px;font-family:ui-monospace,monospace;font-size:10px;color:#9b988f;background:rgba(255,255,255,.85);padding:3px 8px;border-radius:6px;z-index:9999;pointer-events:none;letter-spacing:.02em';
