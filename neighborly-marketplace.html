@@ -295,6 +295,42 @@
     .task-input input{padding-right:11px}
     .task-input .ti-saved{position:static;align-self:flex-end;margin-top:2px}
   }
+  /* "What's Next" tracker bar — pinned at the top of the drawer so the
+     user never has to scan to figure out what to do. Click "Jump to task"
+     scrolls the task into view and focuses the first input. */
+  .next-bar{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:14px 18px;border-radius:12px;margin-bottom:16px;background:linear-gradient(135deg,var(--accent) 0%,#536fa0 100%);color:#fff;box-shadow:0 6px 18px rgba(98,128,189,.22)}
+  .next-bar--ready{background:linear-gradient(135deg,var(--green-ink) 0%,#3a6e4e 100%);box-shadow:0 6px 18px rgba(63,122,82,.22)}
+  .next-bar--live{background:linear-gradient(135deg,var(--green-ink) 0%,#2a5a3e 100%)}
+  .next-bar--review{background:linear-gradient(135deg,#a9a6bd 0%,#7a7895 100%)}
+  .next-bar .nb-text{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+  .next-bar .nb-pill{display:inline-block;background:rgba(255,255,255,.22);color:#fff;font-size:10px;font-weight:800;letter-spacing:.08em;padding:3px 9px;border-radius:999px;text-transform:uppercase;margin-right:9px;vertical-align:middle}
+  .next-bar .nb-stage{font-size:12px;font-weight:600;opacity:.9;letter-spacing:.02em}
+  .next-bar .nb-task{font-size:15px;font-weight:700;line-height:1.3;margin-top:2px;overflow:hidden;text-overflow:ellipsis}
+  .next-bar .nb-jump{flex-shrink:0;background:#fff;color:var(--ink);border:0;font-family:inherit;font-weight:700;font-size:13px;padding:10px 16px;border-radius:9px;cursor:pointer;transition:.12s;letter-spacing:.01em}
+  .next-bar .nb-jump:hover{background:#f5f3ed;transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,.10)}
+  .next-bar .nb-jump:active{transform:translateY(0)}
+  @media (max-width:520px){
+    .next-bar{flex-direction:column;align-items:stretch}
+    .next-bar .nb-jump{width:100%;text-align:center}
+  }
+  /* Highlight pulse on the jumped-to task so the user immediately sees
+     where the bar took them. */
+  .task.jump-target{animation:taskJump 1.4s ease-out}
+  @keyframes taskJump{
+    0%{box-shadow:0 0 0 0 rgba(98,128,189,.55);background:rgba(98,128,189,.10)}
+    100%{box-shadow:0 0 0 14px rgba(98,128,189,0);background:transparent}
+  }
+
+  /* Checklist input — multi-select within a single task. Used for the
+     R365 "Add to order / inventory guides" task so one row covers all
+     three guides. Selected options write back as a comma-joined string. */
+  .task-input.task-input--checklist{display:flex;flex-direction:column;align-items:stretch;gap:6px}
+  .task-cl-head{color:var(--ink);font-weight:700;font-size:12.5px;letter-spacing:.01em}
+  .task-cl-opts{display:flex;flex-direction:column;gap:5px}
+  .task-cl-opt{display:flex;align-items:center;gap:9px;padding:8px 11px;background:#fff;border:1.5px solid var(--line);border-radius:9px;cursor:pointer;font-size:13px;font-weight:500;color:var(--ink);transition:.12s;user-select:none}
+  .task-cl-opt:hover{border-color:#c8c5bd}
+  .task-cl-opt input{accent-color:var(--green-ink);width:16px;height:16px;flex:0 0 auto;cursor:pointer;margin:0}
+  .task-cl-opt.on{background:var(--green-bg);border-color:var(--green-ink);color:var(--green-ink)}
 
   /* ===== Intake form modal — centered overlay on top of the page so
      the form has room to breathe. Larger fields + more spacing than
@@ -712,16 +748,13 @@ const TASK_TEMPLATES=[
   ]},
   {stage:'erp',dept:'Inventory',label:'Create R365 recipe',owner:'Inventory Admin',def:'Recipe/build created in R365',link:{href:'https://www.restaurant365.com/logins/',label:'Open R365 →'}},
   {stage:'erp',dept:'Inventory',label:'Add Item Category 1 = Marketplace Item',owner:'Inventory Admin',def:'Category 1 set to "Marketplace Item"',link:{href:'https://www.restaurant365.com/logins/',label:'Open R365 →'}},
-  {stage:'erp',dept:'Inventory',label:'Add to Marketplace order guide',owner:'Inventory Admin',def:'Item appears on the Marketplace order guide',link:{href:'https://www.restaurant365.com/logins/',label:'Open R365 →'}},
-  {stage:'erp',dept:'Inventory',label:'Add to Commissary inventory guide',owner:'Inventory Admin',def:'Item on the Commissary inventory guide',link:{href:'https://www.restaurant365.com/logins/',label:'Open R365 →'}},
-  {stage:'erp',dept:'Inventory',label:'Add to WLV/BW inventory guide',owner:'Inventory Admin',def:'Item on the WLV/BW inventory guide',link:{href:'https://www.restaurant365.com/logins/',label:'Open R365 →'}},
+  {stage:'erp',dept:'Inventory',label:'Add to order / inventory guides',owner:'Inventory Admin',def:'Add the item to each of the three guides — tick each as you go',link:{href:'https://www.restaurant365.com/logins/',label:'Open R365 →'},inputs:[
+    {key:'guidesAdded',label:'Added to',type:'checklist',options:['Marketplace order guide','Commissary inventory guide','WLV/BW inventory guide']}
+  ]},
   {stage:'erp',dept:'Inventory',label:'Attach to Toast item (after Marketing rings up qty 1)',owner:'Inventory Admin',def:'R365 item linked to the Toast item once Marketing has created it',link:{href:'https://www.restaurant365.com/logins/',label:'Open R365 →'},inputs:[
     {key:'toastItemId',label:'Toast item ID',type:'text',placeholder:'Toast SKU / item ID'}
   ]},
   /* Commissary */
-  {stage:'commissary',dept:'Commissary',label:'Confirm sample received',owner:'Commissary Manager',def:'Sample physically received at commissary',inputs:[
-    {key:'sampleReceivedDate',label:'Date received',type:'date'}
-  ]},
   {stage:'commissary',dept:'Commissary',label:'Assign storage location (Shelf / Refrigerator / Freezer)',owner:'Commissary Manager',def:'Specific storage location & class assigned',inputs:[
     {key:'storageLocation',label:'Location',type:'text',placeholder:'e.g. Refrigerator 1 / Shelf B-3'}
   ]},
@@ -853,9 +886,9 @@ const PL_TASK_TEMPLATES=[
   {stage:'erp',dept:'Inventory',label:'Create R365 item',owner:'Inventory Admin',def:'Item created in R365 with correct UOM',link:{href:'https://www.restaurant365.com/logins/',label:'Open R365 →'}},
   {stage:'erp',dept:'Inventory',label:'Create R365 recipe',owner:'Inventory Admin',def:'Recipe / build created in R365',link:{href:'https://www.restaurant365.com/logins/',label:'Open R365 →'}},
   {stage:'erp',dept:'Inventory',label:'Add Item Category 1 = Private Label',owner:'Inventory Admin',def:'Category 1 set to "Private Label"',link:{href:'https://www.restaurant365.com/logins/',label:'Open R365 →'}},
-  {stage:'erp',dept:'Inventory',label:'Add to Marketplace order guide',owner:'Inventory Admin',def:'Item appears on the Marketplace order guide',link:{href:'https://www.restaurant365.com/logins/',label:'Open R365 →'}},
-  {stage:'erp',dept:'Inventory',label:'Add to Commissary inventory guide',owner:'Inventory Admin',def:'Item on the Commissary inventory guide',link:{href:'https://www.restaurant365.com/logins/',label:'Open R365 →'}},
-  {stage:'erp',dept:'Inventory',label:'Add to WLV/BW inventory guide',owner:'Inventory Admin',def:'Item on the WLV / BW inventory guide',link:{href:'https://www.restaurant365.com/logins/',label:'Open R365 →'}},
+  {stage:'erp',dept:'Inventory',label:'Add to order / inventory guides',owner:'Inventory Admin',def:'Add the item to each of the three guides — tick each as you go',link:{href:'https://www.restaurant365.com/logins/',label:'Open R365 →'},inputs:[
+    {key:'guidesAdded',label:'Added to',type:'checklist',options:['Marketplace order guide','Commissary inventory guide','WLV/BW inventory guide']}
+  ]},
   {stage:'erp',dept:'Inventory',label:'Attach to Toast item (after Marketing rings up qty 1)',owner:'Inventory Admin',def:'R365 item linked to the Toast item once Marketing has created it',link:{href:'https://www.restaurant365.com/logins/',label:'Open R365 →'}},
   /* Commissary */
   {stage:'commissary',dept:'Commissary',label:'Confirm first production run received',owner:'Commissary Manager',def:'First run physically received at commissary',inputs:[
@@ -972,8 +1005,8 @@ const STAGE_GROUPS={
   sample:[['Tasting',2],['Approvals',2],['Brand assets',3]],
   commercial:[['Terms',3],['Cost & fill',3],['Handoff',1]],
   compliance:[['Vendor docs',2],['Product docs',4],['Clear vendor',1]],
-  erp:[['Create item',3],['Order guides',3],['Toast link',1]],
-  commissary:[['Intake & storage',3],['PARs & fill',3],['Receiving SOP',1]],
+  erp:[['Create item',3],['Order guides',1],['Toast link',1]],
+  commissary:[['Intake & storage',2],['PARs & fill',3],['Receiving SOP',1]],
   operations:[['Planogram & order',3],['Tags & PARs',2],['Comms & training',2]],
   marketing:[['Creative',3],['Systems',3],['Promotion',2]],
   store:[['Order & receive',3],['Merchandise',3],['Launch day',2]],
@@ -983,7 +1016,8 @@ const PL_STAGE_GROUPS={
   sample:[['Tasting & formulation',3],['Approvals',2],['Launch prep',3],['Brand assets',3]],
   commercial:[['Terms',3],['Production',2],['Handoff',1]],
   compliance:[['Product docs',5],['Handoff',1]],
-  commissary:[['Intake & storage',3],['PARs',2],['Receiving SOP',1]]
+  commissary:[['Intake & storage',2],['PARs',3],['Receiving SOP',1]],
+  erp:[['Create item',3],['Order guides',1],['Toast link',1]]
 };
 /* Split a stage's task list (array of {t,i} in order) into its named mini-steps.
    Any leftover tasks (e.g. on older launches) fall into a final "More" batch. */
@@ -1388,6 +1422,47 @@ function renderProcess(){
     }).join('')}</div>`;
 }
 
+/* "What's Next" tracker bar pinned at the top of the drawer body so the
+   user never has to scan for the next action. Three states:
+   1. There's an open required task in the current stage → name it, name
+      the dept owner, give a "Jump to task" button that scrolls + focuses.
+   2. All required tasks done → "Ready to hand to [Next Dept]" + a button
+      that triggers the same advance handler as the in-line Push button.
+   3. Stage is `live` (on shelf) → "Live since {date}" with a Start
+      30-Day Review button. `review` (terminal) → "30-Day Review in
+      progress — record the disposition." */
+function nextActionForLaunch(l){
+  const cur=l.stage;
+  if(cur==='live'){
+    const ld=l.liveDate?new Date(l.liveDate).toLocaleDateString('en-US',{month:'short',day:'numeric'}):'';
+    return {kind:'live',text:`LIVE on shelf${ld?' · since '+ld:''}`,actionLabel:'Start 30-Day Review →'};
+  }
+  const sts=stageTasks(l,cur);
+  const stageMetaCur=stageMeta(cur);
+  const next=sts.find(x=>!x.t.done && x.t.blocking!==false);
+  if(next){
+    return {kind:'task',dept:next.t.dept||stageMetaCur.dept,taskLabel:next.t.label,taskIdx:next.i,stageLabel:stageMetaCur.label};
+  }
+  const nxtK=nextStageKey(cur);
+  if(!nxtK) return {kind:'review',text:'30-Day Review in progress — record the disposition below.'};
+  const nxtMeta=stageMeta(nxtK);
+  return {kind:'handoff',nextDept:nxtMeta.dept==='—'?'Live · on shelf':nxtMeta.dept,nextStageLabel:nxtMeta.label,actionLabel:nxtMeta.dept==='—'?'Mark LIVE on shelf':('Push to '+nxtMeta.dept+' →')};
+}
+function renderNextActionBar(l){
+  if(l.rejected) return '';
+  const n=nextActionForLaunch(l);
+  if(n.kind==='task'){
+    return `<div class="next-bar"><div class="nb-text"><span class="nb-pill">NEXT</span><span class="nb-stage">${esc(n.stageLabel)} · ${esc(n.dept)}</span><div class="nb-task">${esc(n.taskLabel)}</div></div><button class="nb-jump" data-jump-ti="${n.taskIdx}">Jump to task ↓</button></div>`;
+  }
+  if(n.kind==='handoff'){
+    return `<div class="next-bar next-bar--ready"><div class="nb-text"><span class="nb-pill">READY</span><span class="nb-stage">All required tasks done</span><div class="nb-task">Hands to ${esc(n.nextDept)} · ${esc(n.nextStageLabel)}</div></div><button class="nb-jump" onclick="window._advance('${l.id}')">${esc(n.actionLabel)}</button></div>`;
+  }
+  if(n.kind==='live'){
+    return `<div class="next-bar next-bar--live"><div class="nb-text"><span class="nb-pill">LIVE</span><div class="nb-task">${esc(n.text)}</div></div><button class="nb-jump" onclick="window._advance('${l.id}')">${esc(n.actionLabel)}</button></div>`;
+  }
+  return `<div class="next-bar next-bar--review"><div class="nb-text"><span class="nb-pill">REVIEW</span><div class="nb-task">${esc(n.text)}</div></div></div>`;
+}
+
 /* ---------------- drawer ---------------- */
 function openDrawer(id){OPEN=id;$('scrim').classList.add('show');$('drawer').classList.add('show');renderDrawer(id);}
 function closeDrawer(){OPEN=null;$('scrim').classList.remove('show');$('drawer').classList.remove('show');}
@@ -1447,6 +1522,18 @@ function renderDrawer(id){
         const inputsHtml=inputs.length?`<div class="task-inputs">${inputs.map(f=>{
           const cur=(t.values&&t.values[f.key])||'';
           const type=f.type||'text';
+          // Checklist input: renders a vertical stack of checkboxes. The
+          // saved value is a comma-separated string of selected options.
+          // Used by the collapsed R365 "Add to order guides" task so one
+          // checkoff covers all three guides without three separate tasks.
+          if(type==='checklist' && Array.isArray(f.options)){
+            const selected=String(cur||'').split(',').map(s=>s.trim()).filter(Boolean);
+            const opts=f.options.map(o=>{
+              const on=selected.includes(o);
+              return `<label class="task-cl-opt${on?' on':''}"><input type="checkbox" data-id="${id}" data-ti="${x.i}" data-vk="${esc(f.key)}" data-clopt="${esc(o)}" ${on?'checked':''}><span>${esc(o)}</span></label>`;
+            }).join('');
+            return `<div class="task-input task-input--checklist"><label class="task-cl-head">${esc(f.label||f.key)}</label><div class="task-cl-opts">${opts}</div></div>`;
+          }
           // Small inline icon per type so the field reads at a glance
           const ico={url:'🔗',date:'📅',email:'✉️',tel:'☎️',number:'#'}[type]||'';
           const hasValue=cur?'has-value':'';
@@ -1470,11 +1557,13 @@ function renderDrawer(id){
   const log=(Array.isArray(l.log)?l.log:Object.values(l.log||{})).slice().reverse().slice(0,8);
   const infoHtml=renderProductInfo(l);
   const docsHtml=renderDocs(l);
+  const nextHtml=renderNextActionBar(l);
   $('drawer').innerHTML=`<div class="dh"><button class="x" onclick="window._close()">✕</button>
       <div class="dn">${esc(l.name||'')}</div><div class="db">${esc(brandName(l))} · ${esc(l.category||'')}</div>
       <div class="meta2"><span class="tag" style="background:${stageMeta(l.stage).color}22">${esc(stageMeta(l.stage).label)}</span>
         <span class="tag">${esc(l.code||'')}</span><span class="tag">${readiness(l)}% ready</span>${typeBadge(l.type)}</div></div>
     <div class="dbody">
+      ${nextHtml}
       ${infoHtml}
       ${docsHtml}
       ${l.rejected?`<div class="rejected-banner">✕ Rejected · ${esc(l.rejectReason||'no reason recorded')}</div>`:''}
@@ -1486,6 +1575,27 @@ function renderDrawer(id){
   $('drawer').querySelectorAll('.ms-h').forEach(h=>h.onclick=()=>{const b=h.nextElementSibling;b.style.display=b.style.display==='none'?'':'none';});
   $('drawer').querySelectorAll('.task input[type=checkbox]').forEach(c=>c.onchange=()=>toggleTask(c.dataset.id,+c.dataset.ti,c.checked));
   $('drawer').querySelectorAll('.task input[type=file]').forEach(f=>f.onchange=()=>uploadTaskFile(f.dataset.id,+f.dataset.ti,f));
+  // "What's Next" tracker — Jump to task: opens the parent stage box +
+  // mini-step batch, scrolls the task into view, focuses the first
+  // input, and pulses a highlight so the user sees where they landed.
+  const jumpBtn=$('drawer').querySelector('.nb-jump[data-jump-ti]');
+  if(jumpBtn){
+    jumpBtn.onclick=()=>{
+      const ti=+jumpBtn.dataset.jumpTi;
+      const cb=$('drawer').querySelector(`.task input[type=checkbox][data-ti="${ti}"]`);
+      if(!cb) return;
+      const taskEl=cb.closest('.task');
+      const msBody=taskEl&&taskEl.closest('.ms-body');
+      if(msBody&&msBody.style.display==='none') msBody.style.display='';
+      const sbBody=taskEl&&taskEl.closest('.sb-body');
+      if(sbBody&&sbBody.style.display==='none') sbBody.style.display='';
+      taskEl.scrollIntoView({behavior:'smooth',block:'center'});
+      taskEl.classList.remove('jump-target'); void taskEl.offsetWidth;
+      taskEl.classList.add('jump-target');
+      const firstInp=taskEl.querySelector('.task-input input, input[type=file]');
+      if(firstInp) setTimeout(()=>firstInp.focus(),350);
+    };
+  }
   // Decision tiles (Expand / Maintain / Exit on the 30-Day Review).
   // Click a tile to save the choice + auto-tick the task; click again to clear.
   $('drawer').querySelectorAll('.task-decision button').forEach(b=>{
@@ -1499,6 +1609,17 @@ function renderDrawer(id){
   // on blur so users can tab through fields without firing a write each
   // keystroke. Writes to launches/{id}/tasks/{ti}/values/{key}.
   $('drawer').querySelectorAll('.task-input input').forEach(inp=>{
+    // Checklist option checkboxes — recompute the comma-joined value of
+    // every sibling checkbox in this task and save in one shot.
+    if(inp.dataset.clopt!==undefined){
+      inp.onchange=()=>{
+        const row=inp.closest('.task-input--checklist');
+        const opts=[...row.querySelectorAll('input[type=checkbox]')].filter(c=>c.checked).map(c=>c.dataset.clopt);
+        row.querySelectorAll('.task-cl-opt').forEach(o=>o.classList.toggle('on',o.querySelector('input').checked));
+        saveTaskValue(inp.dataset.id,+inp.dataset.ti,inp.dataset.vk,opts.join(', '),inp);
+      };
+      return;
+    }
     inp.onblur=()=>saveTaskValue(inp.dataset.id,+inp.dataset.ti,inp.dataset.vk,inp.value,inp);
     inp.onkeydown=e=>{ if(e.key==='Enter'){ e.preventDefault(); inp.blur(); } };
     // Date inputs: click anywhere in the field opens the native picker
@@ -2361,7 +2482,7 @@ function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','
    in the corner after a hard refresh, the browser/CDN is still
    serving an old HTML file. */
 (function stampBuild(){
-  const v='v19 · 2026-06-14 · date picker + commissary trigger';
+  const v='v20 · 2026-06-14 · next-action bar + R365 collapse';
   const el=document.createElement('div');
   el.textContent=v;
   el.style.cssText='position:fixed;bottom:6px;right:8px;font-family:ui-monospace,monospace;font-size:10px;color:#9b988f;background:rgba(255,255,255,.85);padding:3px 8px;border-radius:6px;z-index:9999;pointer-events:none;letter-spacing:.02em';
