@@ -279,12 +279,13 @@
   .mix-bar-fill { height: 100%; border-radius: 3px; transition: width 0.4s ease, filter 0.15s; }
   .mix-bar-wrap:hover .mix-bar-fill { filter: brightness(0.92); }
 
-  /* PAID PERFORMANCE — modern card grid (one card per platform) */
+  /* PAID PERFORMANCE — one card per platform. Sits at the section
+     level (no outer wrapper) so it mirrors .chart-grid-2 above. Gap
+     matches Revenue by Channel for a unified rhythm. */
   .paid-perf-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 14px;
-    padding: 1.25rem 1.25rem 1rem;
   }
   @media (max-width: 880px) { .paid-perf-grid { grid-template-columns: 1fr; } }
 
@@ -699,12 +700,12 @@
       </div>
     </div>
 
-    <!-- PAID PERFORMANCE SCORECARD -->
+    <!-- PAID PERFORMANCE SCORECARD — one card per platform, sits at the
+         section level just like Revenue by Channel above so the visual
+         language matches. No outer wrapper, no double-bordered look. -->
     <div class="section-title">Paid performance scorecard</div>
-    <div class="chart-card" style="margin-bottom:1.5rem;padding:0;overflow:hidden">
-      <div id="paidScorecard"></div>
-      <div class="chart-source" style="padding:0 1.25rem 1rem">Source: Meta Ads Manager · Google Ads · Uber Eats + DoorDash Merchant Portals</div>
-    </div>
+    <div id="paidScorecard" class="paid-perf-grid" style="margin-bottom:0.75rem;padding:0"></div>
+    <div class="chart-source" style="margin-bottom:1.5rem">Source: Meta Ads Manager · Google Ads · Uber Eats + DoorDash Merchant Portals</div>
 
     <!-- FULL METRICS TABLE -->
     <div class="section-title">All metrics</div>
@@ -1086,7 +1087,11 @@ function renderScorecard() {
     </article>`;
   };
 
-  wrap.innerHTML = `<div class="paid-perf-grid">${platforms.map(card).join('')}</div>`;
+  // #paidScorecard is itself the grid (see the HTML on the dashboard
+   // page) — write the cards straight into it instead of nesting another
+   // .paid-perf-grid wrapper, which created a doubled border around the
+   // section that didn't match the Revenue by Channel cards above.
+  wrap.innerHTML = platforms.map(card).join('');
 }
 
 // ── METRICS TABLE ─────────────────────────────────────────────────────────────
