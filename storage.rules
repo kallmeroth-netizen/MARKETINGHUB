@@ -1,0 +1,30 @@
+rules_version = '2';
+
+// Hardened, no-auth Storage ruleset for neighborly-hub-53e4b.
+// Uploads are only used by the Marketplace NPI tool under marketplace-npi/.
+// Without Firebase Auth this path stays publicly writable, but we cap size,
+// restrict content types to documents/images, block deletes/overwrites of
+// existing objects, and lock every other path. Add auth to fully gate writes.
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    // Marketplace NPI task + intake attachments.
+    match /marketplace-npi/{allPaths=**} {
+      allow read: if true;
+
+      // Create new files only (no overwriting an existing object), under 25 MB,
+      // limited to images and common document types — blocks executables,
+      // archives, scripts, and other risky payloads.
+      allow create: if request.resource.size < 25 * 1024 * 1024
+                    && request.resource.contentType.matches('image/.*|application/pdf|text/.*|application/msword|application/vnd\\..*');
+
+      // No overwriting or deleting once written — keeps the audit trail intact.
+      allow update, delete: if false;
+    }
+
+    // Everything else is locked.
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

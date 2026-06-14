@@ -1,0 +1,15 @@
+{
+  "rules": {
+    "//": "Hardened, no-auth ruleset. The Firebase web config is public, so these rules are the only access control. Root is denied; only the two branches the apps actually use are reachable. NOTE: without Firebase Auth these branches remain publicly readable/writable — add anonymous or real auth to gate them (see repo notes).",
+    ".read": false,
+    ".write": false,
+    "marketplace-npi": {
+      ".read": true,
+      ".write": true
+    },
+    "marketing-calendar": {
+      ".read": true,
+      ".write": true
+    }
+  }
+}
