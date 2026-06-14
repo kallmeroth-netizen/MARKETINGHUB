@@ -169,6 +169,25 @@
   .rank-chg { display: inline-flex; align-items: center; gap: 2px; }
   .rank-chg svg { width: 10px; height: 10px; }
   .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 0 calc(var(--s-4) * -1); padding: 0 var(--s-4); }
+  /* Collapse-to-top-5 toggle row sits below the last item, full-width
+     of the table. Reads as a quiet text button so it doesn't compete
+     with the data rows above. */
+  .item-table .all-items-toggle-cell { padding: 12px 0 4px; text-align: center; border-bottom: 0; background: transparent; }
+  .item-table tr:hover .all-items-toggle-cell { background: transparent; }
+  .all-items-toggle {
+    background: transparent;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 8px 18px;
+    font-family: var(--f-sans), 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    cursor: pointer;
+    transition: background 0.12s, border-color 0.12s, color 0.12s;
+    letter-spacing: 0.01em;
+  }
+  .all-items-toggle:hover { background: var(--surface-2); border-color: var(--text-3); color: var(--ink); }
 
   /* === Concept summary — page-opening overview === */
   .concept-summary {
@@ -528,6 +547,7 @@
           </tr>
         </thead>
         <tbody id="itemTbody"></tbody>
+        <tfoot id="itemTfoot"></tfoot>
       </table>
     </div>
   </section>
@@ -616,6 +636,11 @@
   let activeSort = 'net';
   let leaderSort = 'net';  // 'net' | 'qty' — drives the best-sellers leaderboard
   let searchQ = '';
+  // All-items table starts collapsed to top 5 rows so the page isn't a
+  // huge scroll. User can hit "View all" to expand. Filters / sort do not
+  // reset this — once expanded it stays expanded for the session.
+  let allItemsExpanded = false;
+  const ALL_ITEMS_COLLAPSED_COUNT = 5;
 
   // Westlake Village — used to pull the canonical list of fiscal week-start dates
   // (server-computed via fiscal_week_start(), so we never have to guess week
@@ -1064,11 +1089,18 @@
     const hist = _pmixHistCache[`${activeDate}|${activeLoc}`] || null;
 
     const tbody = document.getElementById('itemTbody');
+    const tfoot = document.getElementById('itemTfoot');
     if (!filtered.length) {
       tbody.innerHTML = '<tr class="empty"><td colspan="9">No items match those filters.</td></tr>';
+      if (tfoot) tfoot.innerHTML = '';
       return;
     }
-    tbody.innerHTML = filtered.map(it => {
+    // Collapse to top N rows unless the user has clicked "View all". When
+    // the filtered count is already at or below the limit, no toggle is
+    // shown (no point).
+    const total = filtered.length;
+    const visible = (allItemsExpanded || total <= ALL_ITEMS_COLLAPSED_COUNT) ? filtered : filtered.slice(0, ALL_ITEMS_COLLAPSED_COUNT);
+    tbody.innerHTML = visible.map(it => {
       const catTotal = catQty[it.category] || it.qty;
       const pct = catTotal ? (it.qty / catTotal * 100) : 0;
       const key = `${it.category}||${it.name}`;
@@ -1107,6 +1139,21 @@
       </tr>
     `;
     }).join('');
+
+    // Footer toggle: "View all (N items)" / "Show top 5". Hidden when
+    // there's nothing to collapse.
+    if (tfoot) {
+      if (total > ALL_ITEMS_COLLAPSED_COUNT) {
+        const lbl = allItemsExpanded
+          ? `Show top ${ALL_ITEMS_COLLAPSED_COUNT}`
+          : `View all ${total} items ↓`;
+        tfoot.innerHTML = `<tr><td colspan="9" class="all-items-toggle-cell"><button type="button" class="all-items-toggle" id="allItemsToggleBtn">${lbl}</button></td></tr>`;
+        const btn = document.getElementById('allItemsToggleBtn');
+        if (btn) btn.onclick = () => { allItemsExpanded = !allItemsExpanded; renderTable(); };
+      } else {
+        tfoot.innerHTML = '';
+      }
+    }
   }
 
   /* Wire search + sort */
