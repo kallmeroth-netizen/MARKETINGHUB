@@ -1185,7 +1185,7 @@ function renderDashboard() {
 // 3PD rows of the metrics table. Set SHEET_3PD_URL to the deployed web
 // app URL (Apps Script exec endpoint) — empty string = sync disabled,
 // dashboard falls back to the hardcoded WEEK_HISTORY data.
-const SHEET_3PD_URL = '';  // ← paste Apps Script /exec URL here
+const SHEET_3PD_URL = 'https://script.google.com/macros/s/AKfycbzQcTtxjlrZCo3OJn6l8PGVjfN0pFm90Jb6iu6I7n-otwV1yEgmNgJ_Mi2w3k-Mzvo7iw/exec';
 const SHEET_3PD_TTL_MS = 24 * 60 * 60 * 1000;
 const SHEET_3PD_LS_KEY = 'nbly_3pd_sheet_cache_v1';
 async function sync3PDFromSheet() {
