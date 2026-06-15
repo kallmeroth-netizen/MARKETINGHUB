@@ -1286,12 +1286,21 @@ function poolStats(pool){
   var n=pool.length;
   var sum=pool.reduce(function(s,r){return s+r.rating;},0);
   var avg=sum/n;
+  // Sentiment buckets — Pos / Neu / Neg add up to 100% by design:
+  //   Pos = 4 or 5 stars (was counting only 4-star, which dropped 5-star
+  //         ratings on the floor and made the trio sum to ~40% instead
+  //         of 100%).
+  //   Neu = 3 stars
+  //   Neg = 1 or 2 stars
+  // Last-bucket rounding fix: compute Pos + Neu, then Neg = 100 - those
+  // so a stray rounding cent never leaves the row at 99% or 101%.
+  var pro=Math.round(pool.filter(function(r){return r.rating>=4;}).length/n*100);
+  var pas=Math.round(pool.filter(function(r){return r.rating===3;}).length/n*100);
+  var det=Math.max(0,100-pro-pas);
   return {
     n:n, avg:avg, avg5:rateScaleTo5(avg),
     top: Math.round(pool.filter(function(r){return r.rating===5;}).length/n*100),
-    pro: Math.round(pool.filter(function(r){return r.rating===4;}).length/n*100),
-    pas: Math.round(pool.filter(function(r){return r.rating===3;}).length/n*100),
-    det: Math.round(pool.filter(function(r){return r.rating<=2;}).length/n*100)
+    pro: pro, pas: pas, det: det
   };
 }
 
