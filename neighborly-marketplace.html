@@ -230,6 +230,33 @@
   .info-notes{margin-top:14px;padding-top:12px;border-top:1px dashed var(--line);font-size:13px;color:var(--ink);line-height:1.55}
   .info-notes .k{display:block;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:5px}
 
+  /* Launch Timeline / date selector */
+  .info-card.lt-flag{border-color:#e7b4a6;box-shadow:0 0 0 1px #e7b4a6 inset,var(--shadow)}
+  .lt-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px 18px}
+  .lt-field label{display:block;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:5px}
+  .lt-field input[type=date]{width:100%;min-width:0;padding:10px 11px;border:1px solid var(--line);border-radius:9px;font-family:inherit;font-size:14px;color:var(--ink);background:#fff}
+  .lt-field input[type=date]:focus{outline:none;border-color:var(--accent)}
+  .lt-badge{display:inline-block;font-size:9px;font-weight:700;letter-spacing:.04em;padding:1px 6px;border-radius:999px;vertical-align:middle;margin-left:4px;text-transform:uppercase}
+  .lt-badge.auto{background:rgba(98,128,189,.14);color:#3f5891}
+  .lt-badge.manual{background:rgba(232,113,66,.16);color:#a8431f}
+  .lt-suggest{margin-top:10px;font-size:12px;font-weight:600;color:var(--accent);background:rgba(98,128,189,.08);border:1px dashed var(--line);border-radius:8px;padding:6px 11px;cursor:pointer}
+  .lt-suggest:hover{border-color:var(--accent)}
+  .lt-status{margin-top:10px;font-size:12.5px;font-weight:600;line-height:1.4}
+  .lt-status.muted{color:var(--muted);font-weight:500}
+  .lt-status.auto{color:#3f5891}
+  .lt-status.manual{color:#a8431f}
+  .lt-status.warn{color:#b4493b}
+  .lt-track{display:flex;align-items:center;gap:8px;margin-top:16px;flex-wrap:nowrap}
+  .lt-node{flex:0 0 auto;text-align:center;min-width:80px}
+  .lt-node b{display:block;font-size:11px;margin-top:4px;color:var(--ink)}
+  .lt-node small{display:block;font-size:11px;color:var(--muted)}
+  .lt-node .lt-dot{display:inline-block;width:11px;height:11px;border-radius:50%;background:var(--accent)}
+  .lt-node.lt-empty .lt-dot{background:#d8d5cd}
+  .lt-node.lt-empty small{color:#b4493b}
+  .lt-bar{flex:1;min-width:34px;height:2px;background:var(--line-soft);position:relative}
+  .lt-bar span{position:absolute;top:-7px;left:50%;transform:translateX(-50%);font-size:10px;color:var(--muted);background:#fff;padding:0 5px;white-space:nowrap}
+  @media(max-width:520px){ .lt-grid{grid-template-columns:1fr} }
+
   .doc-list{display:flex;flex-direction:column;gap:6px}
   .doc-row{display:flex;align-items:center;gap:10px;padding:8px 10px;background:#fbfaf7;border:1px solid var(--line-soft);border-radius:10px}
   .doc-row .doc-ico{flex:0 0 auto;width:30px;height:30px;border-radius:8px;background:rgba(98,128,189,.10);color:var(--accent);display:flex;align-items:center;justify-content:center;font-size:14px}
@@ -1476,6 +1503,46 @@ $('scrim').onclick=function(){
   else closeDrawer();
 };
 
+/* ---- Launch timeline / date selector ---- */
+function isoAddDays(iso,days){ if(!iso) return ''; const d=new Date(iso+'T00:00:00'); if(isNaN(d)) return ''; d.setDate(d.getDate()+days); return d.toISOString().slice(0,10); }
+function niceDate(iso){ if(!iso) return ''; const d=new Date(iso+'T00:00:00'); if(isNaN(d)) return ''; return d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}); }
+async function saveLaunchDates(id,fields){ try{ await db.ref('marketplace-npi/launches/'+id).update(fields); }catch(e){ toast('Couldn’t save date'); } }
+
+/* Approval Date → suggested Launch Date (Approval + 3 weeks), with manual
+   override. Clearly labels auto vs manual, warns if a launch date is still
+   blank once an approval date is set, and draws a simple Approval→Launch
+   timeline. Renders as a collapsible info-card so it matches the drawer. */
+function renderLaunchTimeline(l){
+  const appr=l.approvalDate||'';
+  const suggested=appr?isoAddDays(appr,21):'';
+  const manual=!!l.launchDateManual;
+  const target=manual?(l.launchDate||''):(suggested||l.launchDate||'');
+  const missing=!!appr && !target;
+  let status, scls;
+  if(!appr){ status='Set an Approval Date to auto-suggest a launch date (Approval + 3 weeks).'; scls='muted'; }
+  else if(missing){ status='⚠ Launch date required once approved — pick a date or use the suggestion.'; scls='warn'; }
+  else if(manual){ status='Manual Launch Date Selected · '+niceDate(target); scls='manual'; }
+  else { status='Suggested Launch Date: 3 weeks from approval · '+niceDate(suggested); scls='auto'; }
+  const badge=manual?'<span class="lt-badge manual">Manual</span>':(appr?'<span class="lt-badge auto">Auto +3 wks</span>':'');
+  const track=appr?`<div class="lt-track">
+      <div class="lt-node"><span class="lt-dot"></span><b>Approval</b><small>${esc(niceDate(appr))}</small></div>
+      <div class="lt-bar"><span>+3 weeks</span></div>
+      <div class="lt-node ${missing?'lt-empty':''}"><span class="lt-dot"></span><b>Launch</b><small>${target?esc(niceDate(target)):'— not set —'}</small></div>
+    </div>`:'';
+  return `<div class="info-card${missing?' lt-flag':''}" id="timelineCard">
+    <div class="ic-h"><h4>Launch Timeline</h4><span class="ic-c">Approval → Launch</span><span class="ic-x">▾</span></div>
+    <div class="ic-b">
+      <div class="lt-grid">
+        <div class="lt-field"><label>Approval date</label><input type="date" id="ltApproval" value="${esc(appr)}"></div>
+        <div class="lt-field"><label>Target launch date ${badge}</label><input type="date" id="ltLaunch" value="${esc(target)}"></div>
+      </div>
+      ${appr && (manual||!target)?`<button type="button" id="ltUseSuggested" class="lt-suggest">Use suggested · ${esc(niceDate(suggested))}</button>`:''}
+      <div class="lt-status ${scls}">${esc(status)}</div>
+      ${track}
+    </div>
+  </div>`;
+}
+
 function renderDrawer(id){
   const l=LAUNCHES[id]; if(!l)return;
   const fired=l.triggersFired||[];
@@ -1545,6 +1612,7 @@ function renderDrawer(id){
   }).join('');
   const log=(Array.isArray(l.log)?l.log:Object.values(l.log||{})).slice().reverse().slice(0,8);
   const infoHtml=renderProductInfo(l);
+  const timelineHtml=renderLaunchTimeline(l);
   const docsHtml=renderDocs(l);
   $('drawer').innerHTML=`<div class="dh"><button class="x" onclick="window._close()">✕</button>
       <div class="dn">${esc(l.name||'')}</div><div class="db">${esc(brandName(l))} · ${esc(l.category||'')}</div>
@@ -1552,6 +1620,7 @@ function renderDrawer(id){
         <span class="tag">${esc(l.code||'')}</span><span class="tag">${readiness(l)}% ready</span>${typeBadge(l.type)}</div></div>
     <div class="dbody">
       ${infoHtml}
+      ${timelineHtml}
       ${docsHtml}
       ${l.rejected?`<div class="rejected-banner">✕ Rejected · ${esc(l.rejectReason||'no reason recorded')}</div>`:''}
       ${body||'<div class="empty">No tasks.</div>'}
@@ -1578,6 +1647,13 @@ function renderDrawer(id){
     inp.onblur=()=>saveTaskValue(inp.dataset.id,+inp.dataset.ti,inp.dataset.vk,inp.value,inp);
     inp.onkeydown=e=>{ if(e.key==='Enter'){ e.preventDefault(); inp.blur(); } };
   });
+  // Launch Timeline date selector
+  const ltA=$('drawer').querySelector('#ltApproval');
+  if(ltA) ltA.onchange=()=>{ const v=ltA.value; const upd={approvalDate:v}; if(!l.launchDateManual){ upd.launchDate=v?isoAddDays(v,21):''; } saveLaunchDates(id,upd); };
+  const ltL=$('drawer').querySelector('#ltLaunch');
+  if(ltL) ltL.onchange=()=>saveLaunchDates(id,{launchDate:ltL.value,launchDateManual:true});
+  const ltS=$('drawer').querySelector('#ltUseSuggested');
+  if(ltS) ltS.onclick=()=>{ const v=l.approvalDate?isoAddDays(l.approvalDate,21):''; saveLaunchDates(id,{launchDate:v,launchDateManual:false}); };
   // Collapsible Product Info / Documents cards
   $('drawer').querySelectorAll('.info-card .ic-h').forEach(h=>h.onclick=()=>h.parentElement.classList.toggle('collapsed'));
   // Wire each Preview button to open the inline modal with the right URL/name
