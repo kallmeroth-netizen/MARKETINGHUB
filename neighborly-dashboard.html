@@ -381,6 +381,16 @@
     grid-template-columns: repeat(var(--paid-cols, 4), 1fr);
     gap: 14px 18px;
   }
+  /* 3PD cards have only 2 stats but the same outer card width as
+     Meta/Google. Without this override, each 3PD stat would stretch to
+     half the card width and the values would render at ~2x the optical
+     weight of Meta/Google's 4-up stats. Force the same 4-column track
+     so each 3PD stat is the same physical size as a Meta/Google stat;
+     the right half stays empty. */
+  .paid-card[data-platform="sponsored"] .paid-card-stats,
+  .paid-card[data-platform="promo"] .paid-card-stats {
+    grid-template-columns: repeat(4, 1fr);
+  }
   @media (max-width: 520px) {
     .paid-card { padding: 18px; gap: 14px; }
     .paid-card-hero-num { font-size: 30px; }
