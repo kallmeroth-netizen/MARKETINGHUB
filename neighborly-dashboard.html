@@ -1167,6 +1167,56 @@ function renderDashboard() {
   renderMixBars();
   renderScorecard();
   renderMetricsTable();
+  // 3PD-only sync from the Marketing KPI Tracker sheet. Runs after the
+  // hardcoded WEEK_HISTORY data has already rendered so the page is never
+  // blank — when the fetch resolves we overwrite ONLY DATA.sponsored and
+  // DATA.promo and re-call the two render fns that read them. No other
+  // section (Meta/Google scorecards, Revenue by Channel, Channel mix, KPI
+  // tiles) reads those keys, so this stays scoped to the 3PD cards + the
+  // 3PD rows of #metricsTable per the COO's pipeline boundary.
+  sync3PDFromSheet().catch(e => console.warn('[3PD sync]', e));
+}
+
+// ── 3PD SHEET SYNC ────────────────────────────────────────────────────────────
+// Pulls the two 3PD blocks (Sponsored Listings + Promo) from the
+// NEIGHBORLY — MARKETING KPI TRACKER sheet's Apps Script web app, caches
+// the result in localStorage for 24 hours, and overwrites just
+// DATA.sponsored + DATA.promo before re-rendering the scorecard and the
+// 3PD rows of the metrics table. Set SHEET_3PD_URL to the deployed web
+// app URL (Apps Script exec endpoint) — empty string = sync disabled,
+// dashboard falls back to the hardcoded WEEK_HISTORY data.
+const SHEET_3PD_URL = '';  // ← paste Apps Script /exec URL here
+const SHEET_3PD_TTL_MS = 24 * 60 * 60 * 1000;
+const SHEET_3PD_LS_KEY = 'nbly_3pd_sheet_cache_v1';
+async function sync3PDFromSheet() {
+  if (!SHEET_3PD_URL) return;
+  let payload = null;
+  try {
+    const cached = JSON.parse(localStorage.getItem(SHEET_3PD_LS_KEY) || 'null');
+    if (cached && cached.fetchedAt && (Date.now() - cached.fetchedAt) < SHEET_3PD_TTL_MS) {
+      payload = cached.data;
+    }
+  } catch (_) {}
+  if (!payload) {
+    const res = await fetch(SHEET_3PD_URL, { cache: 'no-store' });
+    if (!res.ok) throw new Error('sheet fetch ' + res.status);
+    payload = await res.json();
+    try { localStorage.setItem(SHEET_3PD_LS_KEY, JSON.stringify({ fetchedAt: Date.now(), data: payload })); } catch (_) {}
+  }
+  if (!payload || !payload.sponsored || !payload.promo) return;
+  // Merge sheet values into DATA.sponsored / DATA.promo. Preserve any
+  // sub-fields the sheet doesn't supply (impressions, clicks, cpc, etc.)
+  // so other dashboard sections that read them aren't blanked out.
+  ['sponsored','promo'].forEach(plat => {
+    ['netRev','spend','roas'].forEach(metric => {
+      const src = payload[plat] && payload[plat][metric];
+      if (!src) return;
+      DATA[plat][metric] = Object.assign({}, DATA[plat][metric] || {}, src);
+    });
+  });
+  // Re-render only what reads sponsored/promo. Other tiles untouched.
+  renderScorecard();
+  renderMetricsTable();
 }
 
 // ── CSV UPLOAD ────────────────────────────────────────────────────────────────
