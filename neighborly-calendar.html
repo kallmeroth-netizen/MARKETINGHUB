@@ -437,7 +437,7 @@ function downloadICS(evts, cats) {
 </script>
 
 <!-- ── REACT APP ────────────────────────────────────────────────────────── -->
-<script type="text/babel">
+<script>Babel.registerPreset('react-classic',{presets:[[Babel.availablePresets['react'],{runtime:'classic'}]]});</script><script type="text/babel" data-presets="react-classic">
 const {useState, useCallback, useRef, useEffect} = React;
 const GOOGLE_CALENDAR_URL = 'https://beneighborly.team/api/calendar';
 
