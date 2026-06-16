@@ -1204,6 +1204,11 @@ async function sync3PDFromSheet() {
     try { localStorage.setItem(SHEET_3PD_LS_KEY, JSON.stringify({ fetchedAt: Date.now(), data: payload })); } catch (_) {}
   }
   if (!payload || !payload.sponsored || !payload.promo) return;
+    const _MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const _sheetWeek = payload.cwDate
+      ? `${_MON[+payload.cwDate.split('-')[1]-1]} ${+payload.cwDate.split('-')[2]}, ${payload.cwDate.split('-')[0]}`
+      : null;
+    if (!_sheetWeek || DATA.currentWeek !== _sheetWeek) return;
   // Merge sheet values into DATA.sponsored / DATA.promo. Preserve any
   // sub-fields the sheet doesn't supply (impressions, clicks, cpc, etc.)
   // so other dashboard sections that read them aren't blanked out.
