@@ -4453,6 +4453,29 @@ async function _sbLoadWeeklyKPIs(weekStartOverride) {
 
   DATA.currentWeek = _sbFmtWeekLabel(cwStart);
   DATA.lastWeek    = _sbFmtWeekLabel(lwStart);
+  // Overlay the per-week paid metrics from WEEK_HISTORY for the selected
+  // week. _sbLoadWeeklyKPIs writes live revenue + revMix from Supabase
+  // but the Supabase RPCs don't carry paid-channel data (Meta, Google,
+  // 3PD Sponsored/Promo, blendedROAS, contribution) — so without this
+  // overlay every calendar-driven week change leaves the paid tiles
+  // showing whatever was loaded on initial render (the "all the marketing
+  // ROAS numbers are frozen when I go back a week" bug). switchWeek()
+  // (the hidden dropdown path) gets this right because it copies the
+  // entire WEEK_HISTORY entry wholesale; this gives the calendar path
+  // the same treatment for the paid metrics specifically. If a selected
+  // week isn't in WEEK_HISTORY (e.g. live revenue weeks that predate the
+  // baked-in snapshots), the paid tiles fall back to the most recent
+  // available snapshot rather than going blank.
+  if (typeof WEEK_HISTORY !== 'undefined' && Array.isArray(WEEK_HISTORY)) {
+    const _wkLabel = DATA.currentWeek;
+    let _wkEntry = WEEK_HISTORY.find(w => w.label === _wkLabel);
+    if (!_wkEntry && WEEK_HISTORY.length) _wkEntry = WEEK_HISTORY[0];
+    if (_wkEntry && _wkEntry.data) {
+      ['meta','google','sponsored','promo','blendedROAS','contribution'].forEach(k => {
+        if (_wkEntry.data[k] != null) DATA[k] = JSON.parse(JSON.stringify(_wkEntry.data[k]));
+      });
+    }
+  }
   DATA.revenue = {
     total:       mkRev(cwNet, lwNet, t4wNet),
     dineIn:      chRev('dine_in'),
