@@ -279,26 +279,32 @@
   .mix-bar-fill { height: 100%; border-radius: 3px; transition: width 0.4s ease, filter 0.15s; }
   .mix-bar-wrap:hover .mix-bar-fill { filter: brightness(0.92); }
 
-  /* PAID PERFORMANCE — one card per platform. Sits at the section
-     level (no outer wrapper) so it mirrors .chart-grid-2 above. Gap
-     matches Revenue by Channel for a unified rhythm. */
+  /* PAID PERFORMANCE — four cards side-by-side (Meta, Google, 3PD
+     Sponsored, 3PD Promo) so the section reads as a tight 4-up KPI
+     strip rather than four oversized 2x2 panels. Each card is ~1/4 of
+     the section width; stats inside each card become a compact 2x2
+     grid so Meta/Google's 4 metrics + 3PD's 2 metrics both fit
+     without stretching. Breakpoints fold 4 → 2 → 1 as the viewport
+     narrows. */
   .paid-perf-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 14px;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
   }
-  @media (max-width: 880px) { .paid-perf-grid { grid-template-columns: 1fr; } }
+  @media (max-width: 1100px) { .paid-perf-grid { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 560px)  { .paid-perf-grid { grid-template-columns: 1fr; } }
 
   .paid-card {
     position: relative;
     background: var(--surface);
     border: 0.5px solid var(--border);
-    border-radius: 14px;
-    padding: 22px 22px 20px;
+    border-radius: 12px;
+    padding: 16px 16px 14px;
     display: flex;
     flex-direction: column;
-    gap: 18px;
+    gap: 12px;
     overflow: hidden;
+    min-width: 0;
     transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
   }
   .paid-card::before {
@@ -307,7 +313,7 @@
     top: 0; left: 0; right: 0;
     height: 3px;
     background: var(--paid-accent, var(--border-strong));
-    border-radius: 14px 14px 0 0;
+    border-radius: 12px 12px 0 0;
   }
   .paid-card:hover {
     transform: translateY(-1px);
@@ -315,15 +321,15 @@
     box-shadow: 0 6px 18px rgba(0, 0, 0, 0.04);
   }
 
-  .paid-card-head { display: flex; align-items: center; gap: 11px; }
+  .paid-card-head { display: flex; align-items: center; gap: 9px; min-width: 0; }
   .paid-card-icon {
-    width: 34px; height: 34px;
-    border-radius: 10px;
+    width: 28px; height: 28px;
+    border-radius: 8px;
     background: var(--paid-accent, var(--surface-2));
     color: #fff;
     font-family: var(--f-eyebrow), 'Futura PT Demi', 'Jost', sans-serif;
     font-weight: 700;
-    font-size: 14px;
+    font-size: 12.5px;
     letter-spacing: 0.02em;
     display: inline-flex;
     align-items: center;
@@ -333,73 +339,83 @@
   .paid-card-id { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
   .paid-card-name {
     font-family: var(--f-sans), 'DM Sans', sans-serif;
-    font-size: 15px;
+    font-size: 13px;
     font-weight: 600;
     letter-spacing: -0.01em;
     color: var(--ink);
     line-height: 1.15;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   .paid-card-sub {
-    font-size: 11px;
+    font-size: 10px;
     color: var(--text-3);
     line-height: 1.3;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .paid-card-hero {
     display: flex;
     align-items: baseline;
-    gap: 14px;
-    padding-bottom: 16px;
+    gap: 10px;
+    padding-bottom: 11px;
     border-bottom: 0.5px solid var(--border);
+    flex-wrap: wrap;
   }
   .paid-card-hero-num {
     font-family: var(--f-mono), 'DM Mono', monospace;
-    font-size: 36px;
+    font-size: 26px;
     font-weight: 500;
-    letter-spacing: -0.04em;
+    letter-spacing: -0.03em;
     color: var(--ink);
     line-height: 1;
   }
-  .paid-card-hero-meta { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+  .paid-card-hero-meta { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
   .paid-card-hero-tag {
     font-family: var(--f-eyebrow), 'Futura PT Demi', 'Jost', sans-serif;
-    font-size: 9.5px;
+    font-size: 9px;
     font-weight: 600;
     color: var(--text-3);
     text-transform: uppercase;
-    letter-spacing: 0.18em;
+    letter-spacing: 0.16em;
   }
   .paid-card-hero-delta {
     font-family: var(--f-mono), 'DM Mono', monospace;
-    font-size: 11.5px;
+    font-size: 10.5px;
     font-weight: 600;
     letter-spacing: 0.01em;
   }
 
+  /* Stats sit in a fixed 2-column grid regardless of how many metrics
+     the platform has. Meta/Google get a 2x2 (4 stats), 3PD gets a 2x1
+     (2 stats with the second row empty). This keeps every card the
+     same physical size so the 4-up strip stays aligned. */
   .paid-card-stats {
     display: grid;
-    grid-template-columns: repeat(var(--paid-cols, 4), 1fr);
-    gap: 14px 18px;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px 12px;
   }
-  @media (max-width: 520px) {
-    .paid-card { padding: 18px; gap: 14px; }
-    .paid-card-hero-num { font-size: 30px; }
-    .paid-card-stats { grid-template-columns: 1fr 1fr; }
+  @media (max-width: 560px) {
+    .paid-card { padding: 16px; gap: 12px; }
+    .paid-card-hero-num { font-size: 26px; }
   }
 
   .paid-stat { min-width: 0; }
   .paid-stat-lbl {
     font-family: var(--f-eyebrow), 'Futura PT Demi', 'Jost', sans-serif;
-    font-size: 9.5px;
+    font-size: 9px;
     font-weight: 600;
     color: var(--text-3);
     text-transform: uppercase;
-    letter-spacing: 0.14em;
-    margin-bottom: 5px;
+    letter-spacing: 0.12em;
+    margin-bottom: 4px;
   }
   .paid-stat-val {
     font-family: var(--f-mono), 'DM Mono', monospace;
-    font-size: 15.5px;
+    font-size: 13px;
     font-weight: 500;
     color: var(--ink);
     letter-spacing: -0.02em;
@@ -407,7 +423,7 @@
   }
   .paid-stat-delta {
     font-family: var(--f-mono), 'DM Mono', monospace;
-    font-size: 10.5px;
+    font-size: 10px;
     font-weight: 600;
     margin-top: 4px;
     display: inline-block;
@@ -415,18 +431,7 @@
   .paid-card-hero-delta.pos, .paid-stat-delta.pos { color: #1e7d4a; }
   .paid-card-hero-delta.neg, .paid-stat-delta.neg { color: #a32d2d; }
   .paid-card-hero-delta.neu, .paid-stat-delta.neu { color: var(--text-3); }
-  /* 3PD cards (Sponsored + Promo) only have 2 stats vs Meta/Google's 4,
-     so the same card chrome used to feel ginormous. Tighten the padding,
-     shrink the hero ROAS, and bring the stat values down a hair — scoped
-     to the two 3PD cards via data-platform so Meta/Google are untouched. */
-  .paid-card[data-platform="sponsored"],
-  .paid-card[data-platform="promo"] { padding: 18px 18px 16px; gap: 14px; }
-  .paid-card[data-platform="sponsored"] .paid-card-hero-num,
-  .paid-card[data-platform="promo"] .paid-card-hero-num { font-size: 28px; }
-  .paid-card[data-platform="sponsored"] .paid-card-hero,
-  .paid-card[data-platform="promo"] .paid-card-hero { padding-bottom: 12px; }
-  .paid-card[data-platform="sponsored"] .paid-stat-val,
-  .paid-card[data-platform="promo"] .paid-stat-val { font-size: 14px; }
+
 
   /* DATA PAGE */
   .data-page { padding: 2rem; max-width: 900px; margin: 0 auto; }
