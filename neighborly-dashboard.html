@@ -415,6 +415,18 @@
   .paid-card-hero-delta.pos, .paid-stat-delta.pos { color: #1e7d4a; }
   .paid-card-hero-delta.neg, .paid-stat-delta.neg { color: #a32d2d; }
   .paid-card-hero-delta.neu, .paid-stat-delta.neu { color: var(--text-3); }
+  /* 3PD cards (Sponsored + Promo) only have 2 stats vs Meta/Google's 4,
+     so the same card chrome used to feel ginormous. Tighten the padding,
+     shrink the hero ROAS, and bring the stat values down a hair — scoped
+     to the two 3PD cards via data-platform so Meta/Google are untouched. */
+  .paid-card[data-platform="sponsored"],
+  .paid-card[data-platform="promo"] { padding: 18px 18px 16px; gap: 14px; }
+  .paid-card[data-platform="sponsored"] .paid-card-hero-num,
+  .paid-card[data-platform="promo"] .paid-card-hero-num { font-size: 28px; }
+  .paid-card[data-platform="sponsored"] .paid-card-hero,
+  .paid-card[data-platform="promo"] .paid-card-hero { padding-bottom: 12px; }
+  .paid-card[data-platform="sponsored"] .paid-stat-val,
+  .paid-card[data-platform="promo"] .paid-stat-val { font-size: 14px; }
 
   /* DATA PAGE */
   .data-page { padding: 2rem; max-width: 900px; margin: 0 auto; }
@@ -1187,7 +1199,10 @@ function renderDashboard() {
 // dashboard falls back to the hardcoded WEEK_HISTORY data.
 const SHEET_3PD_URL = 'https://script.google.com/macros/s/AKfycbzQcTtxjlrZCo3OJn6l8PGVjfN0pFm90Jb6iu6I7n-otwV1yEgmNgJ_Mi2w3k-Mzvo7iw/exec';
 const SHEET_3PD_TTL_MS = 24 * 60 * 60 * 1000;
-const SHEET_3PD_LS_KEY = 'nbly_3pd_sheet_cache_v1';
+const SHEET_3PD_LS_KEY = 'nbly_3pd_sheet_cache_v2';  // bumped so the
+// multi-week payload (sponsored + promo + meta + google × all weeks)
+// gets re-fetched once after deploy instead of waiting 24h for the
+// old single-week v1 cache to expire
 async function sync3PDFromSheet() {
   if (!SHEET_3PD_URL) return;
   let payload = null;
@@ -1203,15 +1218,58 @@ async function sync3PDFromSheet() {
     payload = await res.json();
     try { localStorage.setItem(SHEET_3PD_LS_KEY, JSON.stringify({ fetchedAt: Date.now(), data: payload })); } catch (_) {}
   }
-  if (!payload || !payload.sponsored || !payload.promo) return;
-    const _MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-    const _sheetWeek = payload.cwDate
-      ? `${_MON[+payload.cwDate.split('-')[1]-1]} ${+payload.cwDate.split('-')[2]}, ${payload.cwDate.split('-')[0]}`
-      : null;
-    if (!_sheetWeek || DATA.currentWeek !== _sheetWeek) return;
-  // Merge sheet values into DATA.sponsored / DATA.promo. Preserve any
-  // sub-fields the sheet doesn't supply (impressions, clicks, cpc, etc.)
-  // so other dashboard sections that read them aren't blanked out.
+  if (!payload) return;
+
+  // Preferred path: the new Apps Script returns a `weeks[]` array with
+  // every historical week from the Weekly Summary tab — Sponsored, Promo,
+  // Meta, and Google all keyed by week label. Look up the week the user
+  // is currently viewing and overlay just those four paid blocks onto
+  // DATA. Touches no other tile (revenue / channel mix / blended ROAS
+  // remain whatever rendered before). When the cached payload is the
+  // legacy single-week shape, falls through to the old guard below so
+  // nothing breaks during the Apps Script transition.
+  if (Array.isArray(payload.weeks) && payload.weeks.length) {
+    const wk = payload.weeks.find(w => w.label === DATA.currentWeek);
+    if (!wk) return;  // sheet doesn't have this week — leave DATA alone
+    ['sponsored','promo','meta','google'].forEach(plat => {
+      if (!wk[plat]) return;
+      DATA[plat] = DATA[plat] || {};
+      Object.keys(wk[plat]).forEach(metric => {
+        const src = wk[plat][metric];
+        if (!src) return;
+        DATA[plat][metric] = Object.assign({}, DATA[plat][metric] || {}, src);
+      });
+    });
+    // Blended ROAS derives from Meta + Google paid spend → re-derive from
+    // the just-overlaid values so the top tile stays accurate per week.
+    try {
+      const ms = (DATA.meta && DATA.meta.spend) || {}, mr = (DATA.meta && DATA.meta.netRev) || {};
+      const gs = (DATA.google && DATA.google.spend) || {}, gr = (DATA.google && DATA.google.netRev) || {};
+      const r = (n, s) => (s ? Math.round((n / s) * 100) / 100 : null);
+      const cw = r((mr.cw||0)+(gr.cw||0), (ms.cw||0)+(gs.cw||0));
+      const lw = r((mr.lw||0)+(gr.lw||0), (ms.lw||0)+(gs.lw||0));
+      const t4 = r((mr.t4w||0)+(gr.t4w||0), (ms.t4w||0)+(gs.t4w||0));
+      if (cw != null) {
+        const pct = (a,b) => (a != null && b) ? Math.round((a-b)/Math.abs(b)*100) : null;
+        DATA.blendedROAS = Object.assign({}, DATA.blendedROAS || {}, {
+          cw: cw, lw: lw, t4w: t4, pctPW: pct(cw, lw), pctT4W: pct(cw, t4)
+        });
+      }
+    } catch (_) {}
+    renderScorecard();
+    renderMetricsTable();
+    if (typeof renderKPIs === 'function') renderKPIs();
+    return;
+  }
+
+  // Legacy path — original single-week Apps Script payload. Same guard
+  // that shipped yesterday: only apply when viewing the sheet's own week.
+  if (!payload.sponsored || !payload.promo) return;
+  const _MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const _sheetWeek = payload.cwDate
+    ? `${_MON[+payload.cwDate.split('-')[1]-1]} ${+payload.cwDate.split('-')[2]}, ${payload.cwDate.split('-')[0]}`
+    : null;
+  if (!_sheetWeek || DATA.currentWeek !== _sheetWeek) return;
   ['sponsored','promo'].forEach(plat => {
     ['netRev','spend','roas'].forEach(metric => {
       const src = payload[plat] && payload[plat][metric];
@@ -1219,7 +1277,6 @@ async function sync3PDFromSheet() {
       DATA[plat][metric] = Object.assign({}, DATA[plat][metric] || {}, src);
     });
   });
-  // Re-render only what reads sponsored/promo. Other tiles untouched.
   renderScorecard();
   renderMetricsTable();
 }
@@ -4453,6 +4510,29 @@ async function _sbLoadWeeklyKPIs(weekStartOverride) {
 
   DATA.currentWeek = _sbFmtWeekLabel(cwStart);
   DATA.lastWeek    = _sbFmtWeekLabel(lwStart);
+  // Overlay the per-week paid metrics from WEEK_HISTORY for the selected
+  // week. _sbLoadWeeklyKPIs writes live revenue + revMix from Supabase
+  // but the Supabase RPCs don't carry paid-channel data (Meta, Google,
+  // 3PD Sponsored/Promo, blendedROAS, contribution) — so without this
+  // overlay every calendar-driven week change leaves the paid tiles
+  // showing whatever was loaded on initial render (the "all the marketing
+  // ROAS numbers are frozen when I go back a week" bug). switchWeek()
+  // (the hidden dropdown path) gets this right because it copies the
+  // entire WEEK_HISTORY entry wholesale; this gives the calendar path
+  // the same treatment for the paid metrics specifically. If a selected
+  // week isn't in WEEK_HISTORY (e.g. live revenue weeks that predate the
+  // baked-in snapshots), the paid tiles fall back to the most recent
+  // available snapshot rather than going blank.
+  if (typeof WEEK_HISTORY !== 'undefined' && Array.isArray(WEEK_HISTORY)) {
+    const _wkLabel = DATA.currentWeek;
+    let _wkEntry = WEEK_HISTORY.find(w => w.label === _wkLabel);
+    if (!_wkEntry && WEEK_HISTORY.length) _wkEntry = WEEK_HISTORY[0];
+    if (_wkEntry && _wkEntry.data) {
+      ['meta','google','sponsored','promo','blendedROAS','contribution'].forEach(k => {
+        if (_wkEntry.data[k] != null) DATA[k] = JSON.parse(JSON.stringify(_wkEntry.data[k]));
+      });
+    }
+  }
   DATA.revenue = {
     total:       mkRev(cwNet, lwNet, t4wNet),
     dineIn:      chRev('dine_in'),
