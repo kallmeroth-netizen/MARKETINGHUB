@@ -222,33 +222,68 @@ async function inviteUser() {
   btn.disabled = true;
   btn.textContent = 'Sending…';
   msgEl.style.display = 'none';
+  msgEl.className = '';
+  msgEl.textContent = '';
 
-  const { data: { session } } = await NPData.supabase.auth.getSession();
-  const resp = await fetch(NPData.SUPABASE_URL + '/functions/v1/invite-user', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer ' + session.access_token,
-    },
-    body: JSON.stringify({ email, role }),
-  });
+  // Verbose diagnostics — without these, the page just showed "Error:
+  // {statusText}" which masked CORS failures, missing service-role env
+  // vars on the Edge Function, missing admin role on the caller, etc.
+  // Now every failure path surfaces the HTTP status, the JSON body OR
+  // the raw text body, and the full response is mirrored to the console
+  // so we can paste it in support tickets / send screenshots.
+  let resp = null, bodyRaw = '', bodyJson = null, fetchErr = null;
+  try {
+    const { data: { session } } = await NPData.supabase.auth.getSession();
+    if (!session) {
+      msgEl.style.display = '';
+      msgEl.className = 'msg err';
+      msgEl.textContent = 'Error: not signed in. Sign in as an admin and retry.';
+      btn.disabled = false; btn.textContent = 'Send invite';
+      return;
+    }
+    resp = await fetch(NPData.SUPABASE_URL + '/functions/v1/invite-user', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + session.access_token,
+        'apikey': NPData.ANON_KEY,  // Supabase Functions reject calls
+                                    // missing the apikey header even when
+                                    // the user JWT is present — was a
+                                    // silent 401 cause before this fix.
+      },
+      body: JSON.stringify({ email, role }),
+    });
+    bodyRaw = await resp.text();
+    try { bodyJson = JSON.parse(bodyRaw); } catch (_) {}
+  } catch (e) {
+    fetchErr = e;
+  }
 
   btn.disabled = false;
   btn.textContent = 'Send invite';
-
-  let body;
-  try { body = await resp.json(); } catch { body = {}; }
-
   msgEl.style.display = '';
-  if (resp.ok) {
-    msgEl.className = 'msg ok';
-    msgEl.textContent = 'Invitation sent to ' + email + '.';
-    document.getElementById('inviteEmail').value = '';
-    loadUsers();
-  } else {
+
+  if (fetchErr) {
     msgEl.className = 'msg err';
-    msgEl.textContent = 'Error: ' + (body.error || resp.statusText);
+    msgEl.textContent = 'Network / CORS error: ' + (fetchErr.message || fetchErr) +
+      '. Check the browser console for details.';
+    console.error('[invite] fetch failed', fetchErr);
+    return;
   }
+  if (!resp.ok) {
+    const reason = (bodyJson && (bodyJson.error || bodyJson.message))
+                || bodyRaw
+                || resp.statusText
+                || 'unknown error';
+    msgEl.className = 'msg err';
+    msgEl.textContent = 'Error ' + resp.status + ': ' + reason;
+    console.error('[invite] HTTP ' + resp.status, { status: resp.status, body: bodyRaw, json: bodyJson });
+    return;
+  }
+  msgEl.className = 'msg ok';
+  msgEl.textContent = 'Invitation sent to ' + email + '.';
+  document.getElementById('inviteEmail').value = '';
+  loadUsers();
 }
 
 loadUsers();
