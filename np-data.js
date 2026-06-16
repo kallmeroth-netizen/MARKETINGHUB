@@ -32,7 +32,19 @@
   // Redirect to index.html if no valid session or role not in allowedRoles.
   // Admin always passes regardless of allowedRoles.
   // Call early in each page's script (after np-data.js loads).
+  //
+  // Temporary guest pass: while real per-person guest accounts are still
+  // being set up, the login page can set sessionStorage.nbly_guest='1'
+  // when someone enters the shared guest passcode. Pages that list
+  // 'guest' in allowedRoles let that flag in without a Supabase session.
+  // Removing the flag (signOut / sessionStorage.clear()) reverts to the
+  // normal Supabase-backed flow.
   async function guardPage(allowedRoles) {
+    if (sessionStorage.getItem('nbly_guest') === '1') {
+      if (allowedRoles.includes('guest')) return;
+      window.location.href = 'index.html';
+      return;
+    }
     const session = await getSession();
     if (!session) { window.location.href = 'index.html'; return; }
     const role = await getRole();
@@ -48,6 +60,7 @@
 
   // Sign out and return to the login page.
   async function signOut() {
+    sessionStorage.removeItem('nbly_guest');
     await client.auth.signOut();
     window.location.href = 'index.html';
   }

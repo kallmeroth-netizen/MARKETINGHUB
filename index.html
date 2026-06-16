@@ -1024,6 +1024,16 @@
     else v.addEventListener('loadeddata', tryPlay, { once: true });
   }
 
+  // Temporary shared-access pass for the guest hub. While real per-person
+  // guest Supabase accounts are still being built out, anyone who enters
+  // these credentials on the login form gets read-only guest access via
+  // sessionStorage.nbly_guest='1' — no Supabase user provisioned. Pages
+  // that allow 'guest' in their guardPage() roles let the flag in; pages
+  // restricted to team/admin/ops still redirect to login. To rotate the
+  // passcode, just change the GUEST_PASSCODE constant below and push.
+  const GUEST_EMAIL    = 'guest';
+  const GUEST_PASSCODE = 'neighborly2026';
+
   async function submitLogin() {
     const email = em.value.trim();
     const pass  = pw.value;
@@ -1035,6 +1045,21 @@
     const btn = document.getElementById('go');
     btn.disabled = true;
     btn.textContent = '…';
+
+    // Guest bypass — short-circuits before Supabase signIn so guests
+    // don't need a real account. Case-insensitive on email so 'Guest',
+    // 'guest', and 'GUEST' all work.
+    if (email.toLowerCase() === GUEST_EMAIL && pass === GUEST_PASSCODE) {
+      sessionStorage.setItem('nbly_guest', '1');
+      btn.textContent = 'Enter →';
+      btn.disabled = false;
+      accept('guest');
+      return;
+    }
+
+    // Any real Supabase login wipes the guest flag so the role check in
+    // guardPage uses the real session, not a stale guest pass.
+    sessionStorage.removeItem('nbly_guest');
 
     const { data, error } = await NPData.signIn(email, pass);
 
