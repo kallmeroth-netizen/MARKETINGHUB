@@ -224,7 +224,7 @@ function escapeHtml(s) {
 async function loadUsers() {
   const { data, error } = await NPData.supabase
     .from('users')
-    .select('id, email, role, name, created_at');
+    .select('id, email, role, full_name, created_at');
 
   const area = document.getElementById('usersArea');
   if (error) {
@@ -265,7 +265,7 @@ function renderUsers() {
 
   area.innerHTML = `<table class="user-table">
     <thead><tr>
-      <th class="sortable" onclick="sortUsers('name')">Name${sortArrow('name')}</th>
+      <th class="sortable" onclick="sortUsers('full_name')">Name${sortArrow('full_name')}</th>
       <th class="sortable" onclick="sortUsers('email')">Email${sortArrow('email')}</th>
       <th class="sortable" onclick="sortUsers('role')">Role${sortArrow('role')}</th>
       <th class="sortable" onclick="sortUsers('created_at')">Member since${sortArrow('created_at')}</th>
@@ -278,7 +278,7 @@ function renderUsers() {
 function rowHtml(u) {
   return `
       <tr>
-        <td>${u.name ? escapeHtml(u.name) : '<span style="color:var(--text-2,#6B6960)">—</span>'}</td>
+        <td>${u.full_name ? escapeHtml(u.full_name) : '<span style="color:var(--text-2,#6B6960)">—</span>'}</td>
         <td>${escapeHtml(u.email)}</td>
         <td><span class="role-badge ${u.role || ''}">${escapeHtml(u.role || '—')}</span></td>
         <td style="color:var(--text-2,#6B6960)">${u.created_at ? new Date(u.created_at).toLocaleDateString() : '—'}</td>
@@ -292,7 +292,7 @@ function rowHtml(u) {
 function editRowHtml(u) {
   return `
       <tr>
-        <td><input class="edit-input" id="editName" type="text" value="${escapeHtml(u.name || '')}" placeholder="Name"></td>
+        <td><input class="edit-input" id="editName" type="text" value="${escapeHtml(u.full_name || '')}" placeholder="Name"></td>
         <td><input class="edit-input" id="editEmail" type="email" value="${escapeHtml(u.email || '')}"></td>
         <td>
           <select class="role-select" id="editRole">
@@ -352,15 +352,15 @@ async function callManageUser(payload) {
 }
 
 async function saveEdit(id) {
-  const name  = document.getElementById('editName').value.trim();
-  const email = document.getElementById('editEmail').value.trim();
-  const role  = document.getElementById('editRole').value;
+  const full_name = document.getElementById('editName').value.trim();
+  const email      = document.getElementById('editEmail').value.trim();
+  const role       = document.getElementById('editRole').value;
   if (!email) return;
 
   const actions = document.getElementById('editActions');
   actions.querySelectorAll('button').forEach(b => b.disabled = true);
 
-  const result = await callManageUser({ action: 'update', id, name, email, role });
+  const result = await callManageUser({ action: 'update', id, full_name, email, role });
   if (result.error) {
     alert('Failed to save: ' + result.error);
     actions.querySelectorAll('button').forEach(b => b.disabled = false);
