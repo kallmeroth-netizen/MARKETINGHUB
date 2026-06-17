@@ -8,7 +8,14 @@
   const SUPABASE_URL = 'https://sepyfviepxlapexlgeqp.supabase.co';
   const ANON_KEY     = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNlcHlmdmllcHhsYXBleGxnZXFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTQyNTQsImV4cCI6MjA5NTA3MDI1NH0.e4VHgDmY6D0q6Om-DcXWAT9_PJL_GbWXeVLhYJE7tIY';
 
-  const client = window.supabase.createClient(SUPABASE_URL, ANON_KEY);
+  // Pinned explicitly: the invite/recovery flow (index.html) reads
+  // type=invite|recovery out of the URL hash, which is implicit-flow
+  // behavior. Loaded off the floating supabase-js@2 CDN tag, so the
+  // library's own default could change out from under us — pin it so
+  // the hash-based detection stays correct regardless.
+  const client = window.supabase.createClient(SUPABASE_URL, ANON_KEY, {
+    auth: { flowType: 'implicit' },
+  });
 
   async function getSession() {
     const { data } = await client.auth.getSession();

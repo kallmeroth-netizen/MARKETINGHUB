@@ -51,8 +51,29 @@
     text-transform:uppercase; letter-spacing:0.08em;
     color:var(--text-2,#6B6960); border-bottom:1px solid var(--border,rgba(0,0,0,0.08));
   }
+  .user-table th.sortable { cursor:pointer; user-select:none; }
+  .user-table th.sortable:hover { color:var(--text,#1A1916); }
   .user-table td { padding:10px 12px; border-bottom:1px solid var(--border,rgba(0,0,0,0.06)); vertical-align:middle; }
   .user-table tr:last-child td { border-bottom:none; }
+
+  .edit-input {
+    width:100%; padding:6px 9px;
+    border:1.5px solid rgba(31,35,40,0.15); border-radius:8px;
+    font-family:inherit; font-size:12.5px;
+    background:rgba(255,255,255,0.92); color:var(--text,#1A1916);
+  }
+  .edit-input:focus { outline:none; border-color:#1f2328; }
+
+  .btn-row {
+    padding:5px 12px; border:1px solid var(--border-strong,rgba(0,0,0,0.14));
+    border-radius:8px; background:var(--surface,#fff); color:var(--text,#1A1916);
+    font-family:inherit; font-size:11.5px; font-weight:600; cursor:pointer;
+    margin-right:6px; transition:opacity 0.2s;
+  }
+  .btn-row:hover { opacity:0.7; }
+  .btn-row:disabled { opacity:0.5; cursor:not-allowed; }
+  .btn-row.btn-danger { border-color:rgba(138,53,24,0.3); color:#8a3518; }
+  .btn-row.btn-save { background:#1f2328; color:#fff; border-color:#1f2328; }
 
   .role-badge {
     display:inline-flex; align-items:center; padding:3px 10px;
@@ -62,6 +83,15 @@
   .role-badge.team   { background:#fdf7d8; color:#7a6b00; }
   .role-badge.guest  { background:#eaeef8; color:#3a59a0; }
   .role-badge.ops    { background:#e4f5ea; color:#1e5a37; }
+
+  /* Link status */
+  .status-dot {
+    display:inline-block; width:10px; height:10px; border-radius:50%;
+    margin-right:8px; vertical-align:middle;
+  }
+  .status-dot.green  { background:#3fa861; }
+  .status-dot.yellow { background:#eace49; }
+  .status-dot.red    { background:#d85c3a; }
 
   /* Inline role selector */
   select.role-select {
@@ -156,60 +186,200 @@
   <!-- ===== Existing users ===== -->
   <div class="card">
     <div class="section-head">Existing users</div>
+    <p style="font-size:12.5px;color:var(--text-2,#6B6960);margin:0 0 16px">
+      Click a column header to sort. <strong>Requires:</strong> <code>manage-user</code>
+      Edge Function deployed (<code>supabase functions deploy manage-user</code>).
+    </p>
     <div id="usersArea">
+      <p style="font-size:13px;color:var(--text-2,#6B6960)">Loading…</p>
+    </div>
+  </div>
+
+  <!-- ===== Link status ===== -->
+  <div class="card">
+    <div class="section-head">Link Status</div>
+    <p style="font-size:12.5px;color:var(--text-2,#6B6960);margin:0 0 16px">
+      Lights are derived from how recently each sync last landed new rows in
+      Supabase. <strong>Requires:</strong> <code>get_data_freshness()</code> +
+      <code>link_status</code> table (<code>supabase-phase5-link-status.sql</code>).
+    </p>
+    <div id="linkStatusArea">
       <p style="font-size:13px;color:var(--text-2,#6B6960)">Loading…</p>
     </div>
   </div>
 </div>
 
 <script>
+let allUsers = [];
+let sortCol = 'created_at';
+let sortDir = 'asc';
+let editingId = null;
+
+function escapeHtml(s) {
+  return String(s ?? '').replace(/[&<>"']/g, c => ({
+    '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'
+  }[c]));
+}
+
 async function loadUsers() {
   const { data, error } = await NPData.supabase
     .from('users')
-    .select('id, email, role, created_at')
-    .order('created_at', { ascending: true });
+    .select('id, email, role, name, created_at');
 
   const area = document.getElementById('usersArea');
-  if (error || !data?.length) {
-    area.innerHTML = '<p style="font-size:13px;color:var(--text-2,#6B6960)">' +
-      (error ? 'Error loading users: ' + error.message : 'No users yet.') + '</p>';
+  if (error) {
+    area.innerHTML = '<p style="font-size:13px;color:var(--text-2,#6B6960)">Error loading users: ' + escapeHtml(error.message) + '</p>';
+    return;
+  }
+  allUsers = data || [];
+  editingId = null;
+  renderUsers();
+}
+
+function sortArrow(col) {
+  if (sortCol !== col) return '';
+  return sortDir === 'asc' ? ' ▲' : ' ▼';
+}
+
+function sortUsers(col) {
+  if (editingId) return; // don't reshuffle rows out from under an open edit
+  sortDir = (sortCol === col && sortDir === 'asc') ? 'desc' : 'asc';
+  sortCol = col;
+  renderUsers();
+}
+
+function renderUsers() {
+  const area = document.getElementById('usersArea');
+  if (!allUsers.length) {
+    area.innerHTML = '<p style="font-size:13px;color:var(--text-2,#6B6960)">No users yet.</p>';
     return;
   }
 
+  const sorted = [...allUsers].sort((a, b) => {
+    let va = a[sortCol], vb = b[sortCol];
+    if (sortCol === 'created_at') { va = va || ''; vb = vb || ''; }
+    else { va = (va || '').toString().toLowerCase(); vb = (vb || '').toString().toLowerCase(); }
+    const cmp = va < vb ? -1 : va > vb ? 1 : 0;
+    return sortDir === 'asc' ? cmp : -cmp;
+  });
+
   area.innerHTML = `<table class="user-table">
     <thead><tr>
-      <th>Email</th><th>Role</th><th>Member since</th><th>Change role</th>
+      <th class="sortable" onclick="sortUsers('name')">Name${sortArrow('name')}</th>
+      <th class="sortable" onclick="sortUsers('email')">Email${sortArrow('email')}</th>
+      <th class="sortable" onclick="sortUsers('role')">Role${sortArrow('role')}</th>
+      <th class="sortable" onclick="sortUsers('created_at')">Member since${sortArrow('created_at')}</th>
+      <th>Actions</th>
     </tr></thead>
-    <tbody>${data.map(u => `
+    <tbody>${sorted.map(u => u.id === editingId ? editRowHtml(u) : rowHtml(u)).join('')}</tbody>
+  </table>`;
+}
+
+function rowHtml(u) {
+  return `
       <tr>
-        <td>${u.email}</td>
-        <td><span class="role-badge ${u.role || ''}">${u.role || '—'}</span></td>
+        <td>${u.name ? escapeHtml(u.name) : '<span style="color:var(--text-2,#6B6960)">—</span>'}</td>
+        <td>${escapeHtml(u.email)}</td>
+        <td><span class="role-badge ${u.role || ''}">${escapeHtml(u.role || '—')}</span></td>
         <td style="color:var(--text-2,#6B6960)">${u.created_at ? new Date(u.created_at).toLocaleDateString() : '—'}</td>
         <td>
-          <select class="role-select" data-uid="${u.id}" onchange="updateRole(this)">
+          <button class="btn-row" type="button" onclick="startEdit('${u.id}')">Edit</button>
+          <button class="btn-row btn-danger" type="button" onclick="deleteUser('${u.id}')">Delete</button>
+        </td>
+      </tr>`;
+}
+
+function editRowHtml(u) {
+  return `
+      <tr>
+        <td><input class="edit-input" id="editName" type="text" value="${escapeHtml(u.name || '')}" placeholder="Name"></td>
+        <td><input class="edit-input" id="editEmail" type="email" value="${escapeHtml(u.email || '')}"></td>
+        <td>
+          <select class="role-select" id="editRole">
             ${['team','guest','ops','admin'].map(r =>
               `<option value="${r}"${r === u.role ? ' selected' : ''}>${r}</option>`
             ).join('')}
           </select>
         </td>
-      </tr>`).join('')}
-    </tbody>
-  </table>`;
+        <td style="color:var(--text-2,#6B6960)">${u.created_at ? new Date(u.created_at).toLocaleDateString() : '—'}</td>
+        <td id="editActions">
+          <button class="btn-row btn-save" type="button" onclick="saveEdit('${u.id}')">Save</button>
+          <button class="btn-row" type="button" onclick="cancelEdit()">Cancel</button>
+        </td>
+      </tr>`;
 }
 
-async function updateRole(sel) {
-  const uid  = sel.dataset.uid;
-  const role = sel.value;
-  sel.disabled = true;
-  const { error } = await NPData.supabase
-    .from('users')
-    .update({ role })
-    .eq('id', uid);
-  sel.disabled = false;
-  if (error) {
-    alert('Failed to update role: ' + error.message);
-    await loadUsers();
+function startEdit(id) {
+  editingId = id;
+  renderUsers();
+}
+
+function cancelEdit() {
+  editingId = null;
+  renderUsers();
+}
+
+// Shared caller for the manage-user Edge Function (edit/delete). Mirrors
+// inviteUser()'s verbose diagnostics — same CORS/auth/service-role failure
+// modes apply here.
+async function callManageUser(payload) {
+  const { data: { session } } = await NPData.supabase.auth.getSession();
+  if (!session) return { error: 'Not signed in. Sign in as an admin and retry.' };
+
+  let resp, bodyRaw = '', bodyJson = null;
+  try {
+    resp = await fetch(NPData.SUPABASE_URL + '/functions/v1/manage-user', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + session.access_token,
+        'apikey': NPData.ANON_KEY,
+      },
+      body: JSON.stringify(payload),
+    });
+    bodyRaw = await resp.text();
+    try { bodyJson = JSON.parse(bodyRaw); } catch (_) {}
+  } catch (e) {
+    return { error: 'Network / CORS error: ' + (e.message || e) };
   }
+
+  if (!resp.ok) {
+    const reason = (bodyJson && (bodyJson.error || bodyJson.message)) || bodyRaw || resp.statusText || 'unknown error';
+    console.error('[manage-user] HTTP ' + resp.status, { status: resp.status, body: bodyRaw });
+    return { error: 'Error ' + resp.status + ': ' + reason };
+  }
+  return { ok: true };
+}
+
+async function saveEdit(id) {
+  const name  = document.getElementById('editName').value.trim();
+  const email = document.getElementById('editEmail').value.trim();
+  const role  = document.getElementById('editRole').value;
+  if (!email) return;
+
+  const actions = document.getElementById('editActions');
+  actions.querySelectorAll('button').forEach(b => b.disabled = true);
+
+  const result = await callManageUser({ action: 'update', id, name, email, role });
+  if (result.error) {
+    alert('Failed to save: ' + result.error);
+    actions.querySelectorAll('button').forEach(b => b.disabled = false);
+    return;
+  }
+  editingId = null;
+  await loadUsers();
+}
+
+async function deleteUser(id) {
+  const u = allUsers.find(x => x.id === id);
+  if (!confirm('Delete ' + (u ? u.email : 'this user') + '? This permanently removes their account and cannot be undone.')) return;
+
+  const result = await callManageUser({ action: 'delete', id });
+  if (result.error) {
+    alert('Failed to delete: ' + result.error);
+    return;
+  }
+  await loadUsers();
 }
 
 async function inviteUser() {
@@ -287,6 +457,156 @@ async function inviteUser() {
 }
 
 loadUsers();
+
+/* ============ Link status ============ */
+// Thresholds for deriving a light from a data source's last successful
+// ingest. Sources sync once/day (5-9am cron); 30h gives one day's natural
+// lag plus a buffer before flagging yellow, 96h (4 missed days) before red.
+const FRESH_YELLOW_HOURS = 30;
+const FRESH_RED_HOURS    = 96;
+const EXPIRY_WARN_DAYS   = 7;
+
+const DATA_SOURCES = [
+  { key: 'toast',   label: 'Toast' },
+  { key: 'meta',    label: 'Meta' },
+  { key: 'google',  label: 'Google' },
+  { key: 'ovation', label: 'Ovation' },
+];
+
+let linkRows = {};       // key -> { manual_status, expiration, note }
+let freshness = {};      // key -> last_ingested_at (ISO string) | null
+let editingLinkKey = null;
+
+function deriveLight(key, freshAt, expiration, manualStatus) {
+  if (manualStatus) return manualStatus;
+
+  const now = Date.now();
+  let expDate = null;
+  if (expiration && expiration !== 'Indefinite') {
+    const d = new Date(expiration);
+    if (!isNaN(d)) expDate = d;
+  }
+  if (expDate && expDate.getTime() <= now) return 'red'; // already expired
+
+  if (freshAt) {
+    const hoursSince = (now - new Date(freshAt).getTime()) / 36e5;
+    if (hoursSince > FRESH_RED_HOURS) return 'red';
+    if (hoursSince > FRESH_YELLOW_HOURS) return 'yellow';
+  } else if (freshAt === null) {
+    return 'red'; // never synced
+  }
+
+  if (expDate) {
+    const daysToExpiry = (expDate.getTime() - now) / 86400000;
+    if (daysToExpiry <= EXPIRY_WARN_DAYS) return 'yellow';
+  }
+  return 'green';
+}
+
+function timeAgo(iso) {
+  if (!iso) return 'never';
+  const ms = Date.now() - new Date(iso).getTime();
+  const hours = ms / 36e5;
+  if (hours < 1) return 'just now';
+  if (hours < 24) return Math.round(hours) + 'h ago';
+  return Math.round(hours / 24) + 'd ago';
+}
+
+async function loadLinkStatus() {
+  const area = document.getElementById('linkStatusArea');
+  const [rowsResp, freshResp] = await Promise.all([
+    NPData.supabase.from('link_status').select('key, manual_status, expiration, note'),
+    NPData.supabase.rpc('get_data_freshness'),
+  ]);
+
+  if (rowsResp.error || freshResp.error) {
+    area.innerHTML = '<p style="font-size:13px;color:var(--text-2,#6B6960)">Error loading link status: ' +
+      escapeHtml((rowsResp.error || freshResp.error).message) + '</p>';
+    return;
+  }
+
+  linkRows = {};
+  (rowsResp.data || []).forEach(r => { linkRows[r.key] = r; });
+  freshness = {};
+  (freshResp.data || []).forEach(r => { freshness[r.key] = r.last_ingested_at; });
+  editingLinkKey = null;
+  renderLinkStatus();
+}
+
+function linkStatusRowHtml(src) {
+  const key = src.key;
+  const row = linkRows[key] || {};
+  const freshAt = freshness[key] ?? null;
+  const light = deriveLight(key, freshAt, row.expiration, row.manual_status);
+
+  if (key === editingLinkKey) {
+    return `<tr>
+      <td>${src.label}</td>
+      <td>
+        <select class="role-select" id="editLinkStatus">
+          <option value=""${!row.manual_status ? ' selected' : ''}>Auto</option>
+          <option value="green"${row.manual_status === 'green' ? ' selected' : ''}>Green</option>
+          <option value="yellow"${row.manual_status === 'yellow' ? ' selected' : ''}>Yellow</option>
+          <option value="red"${row.manual_status === 'red' ? ' selected' : ''}>Red</option>
+        </select>
+      </td>
+      <td><input class="edit-input" id="editLinkExpiration" type="text" value="${escapeHtml(row.expiration || 'Indefinite')}" placeholder="Indefinite or a date"></td>
+      <td id="editLinkActions">
+        <input class="edit-input" id="editLinkNote" type="text" value="${escapeHtml(row.note || '')}" placeholder="Note" style="margin-bottom:6px">
+        <button class="btn-row btn-save" type="button" onclick="saveLinkEdit('${key}')">Save</button>
+        <button class="btn-row" type="button" onclick="cancelLinkEdit()">Cancel</button>
+      </td>
+    </tr>`;
+  }
+
+  return `<tr>
+    <td><span class="status-dot ${light}"></span>${src.label}</td>
+    <td style="color:var(--text-2,#6B6960)">${escapeHtml(timeAgo(freshAt))}</td>
+    <td>${escapeHtml(row.expiration || 'Indefinite')}</td>
+    <td><button class="btn-row" type="button" onclick="startLinkEdit('${key}')">Edit</button></td>
+  </tr>`;
+}
+
+function renderLinkStatus() {
+  const area = document.getElementById('linkStatusArea');
+  area.innerHTML = `<table class="user-table">
+    <thead><tr><th>Source</th><th>Last synced</th><th>Expiration</th><th>Actions</th></tr></thead>
+    <tbody>${DATA_SOURCES.map(linkStatusRowHtml).join('')}</tbody>
+  </table>`;
+}
+
+function startLinkEdit(key) {
+  editingLinkKey = key;
+  renderLinkStatus();
+}
+function cancelLinkEdit() {
+  editingLinkKey = null;
+  renderLinkStatus();
+}
+
+async function saveLinkEdit(key) {
+  const manual_status = document.getElementById('editLinkStatus').value || null;
+  const expiration     = document.getElementById('editLinkExpiration').value.trim() || 'Indefinite';
+  const note            = document.getElementById('editLinkNote').value.trim() || null;
+
+  const actions = document.getElementById('editLinkActions');
+  actions.querySelectorAll('button').forEach(b => b.disabled = true);
+
+  const { error } = await NPData.supabase
+    .from('link_status')
+    .update({ manual_status, expiration, note, updated_at: new Date().toISOString() })
+    .eq('key', key);
+
+  if (error) {
+    alert('Failed to save: ' + error.message);
+    actions.querySelectorAll('button').forEach(b => b.disabled = false);
+    return;
+  }
+  editingLinkKey = null;
+  await loadLinkStatus();
+}
+
+loadLinkStatus();
 </script>
 
 <footer class="np-footer" aria-label="Neighbors Only Hub">
