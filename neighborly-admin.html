@@ -160,9 +160,7 @@
   <div class="card">
     <div class="section-head">Invite a user</div>
     <p style="font-size:12.5px;color:var(--text-2,#6B6960);margin:0 0 16px">
-      An invitation email is sent. The user sets their own password on first sign-in.<br>
-      <strong>Requires:</strong> <code>invite-user</code> Edge Function deployed
-      (<code>supabase functions deploy invite-user</code>).
+      An invitation email is sent. The user sets their own password on first sign-in.
     </p>
     <div class="invite-form" id="inviteForm">
       <div class="field">
@@ -187,8 +185,7 @@
   <div class="card">
     <div class="section-head">Existing users</div>
     <p style="font-size:12.5px;color:var(--text-2,#6B6960);margin:0 0 16px">
-      Click a column header to sort. <strong>Requires:</strong> <code>manage-user</code>
-      Edge Function deployed (<code>supabase functions deploy manage-user</code>).
+      Click a column header to sort.
     </p>
     <div id="usersArea">
       <p style="font-size:13px;color:var(--text-2,#6B6960)">Loading…</p>
@@ -199,9 +196,7 @@
   <div class="card">
     <div class="section-head">Link Status</div>
     <p style="font-size:12.5px;color:var(--text-2,#6B6960);margin:0 0 16px">
-      Lights are derived from how recently each sync last landed new rows in
-      Supabase. <strong>Requires:</strong> <code>get_data_freshness()</code> +
-      <code>link_status</code> table (<code>supabase-phase5-link-status.sql</code>).
+      Lights are derived from how recently each sync last landed new rows in Supabase.
     </p>
     <div id="linkStatusArea">
       <p style="font-size:13px;color:var(--text-2,#6B6960)">Loading…</p>
@@ -264,6 +259,10 @@ function renderUsers() {
   });
 
   area.innerHTML = `<table class="user-table">
+    <colgroup>
+      <col style="width:28%"><col style="width:30%"><col style="width:14%">
+      <col style="width:16%"><col style="width:12%">
+    </colgroup>
     <thead><tr>
       <th class="sortable" onclick="sortUsers('full_name')">Name${sortArrow('full_name')}</th>
       <th class="sortable" onclick="sortUsers('email')">Email${sortArrow('email')}</th>
