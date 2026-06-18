@@ -121,6 +121,15 @@
 
   /* KPI CARDS */
   .kpi-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 1.5rem; }
+  /* theme.css loads after this block and redefines .kpi-grid as
+     auto-fit/minmax(180px,1fr) (its own responsive column-count logic for
+     the Daily/All-time/Trends KPI strips) — same specificity, later in the
+     cascade, so it always wins over the rule above for every .kpi-grid on
+     this page. The Performance Marketing top strip specifically needs a
+     fixed 2-rows-of-3, so override via the higher-specificity ID instead
+     of fighting load order. Scoped to #kpiGrid only — leaves
+     #dailyKpiGrid/#atKpiGrid/#trKpiGrid on theme.css's auto-fit behavior. */
+  #kpiGrid { grid-template-columns: repeat(3, 1fr); }
   .kpi-card { background: var(--surface); border: 0.5px solid var(--border); border-radius: 12px; padding: 1.1rem 1.25rem; }
   .kpi-label { font-family: var(--f-eyebrow), 'Futura PT Demi', 'Jost', sans-serif; font-size: var(--t-eyebrow); font-weight: 600; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.18em; margin-bottom: 6px; }
   .kpi-value { font-size: 26px; font-weight: 500; letter-spacing: -0.04em; color: var(--text); font-family: var(--f-mono); line-height: 1; }
