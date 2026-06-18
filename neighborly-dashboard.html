@@ -120,7 +120,7 @@
   .vt-btn.active { background: var(--brand-orange); color: #fff; box-shadow: none; }
 
   /* KPI CARDS */
-  .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 1.5rem; }
+  .kpi-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 1.5rem; }
   .kpi-card { background: var(--surface); border: 0.5px solid var(--border); border-radius: 12px; padding: 1.1rem 1.25rem; }
   .kpi-label { font-family: var(--f-eyebrow), 'Futura PT Demi', 'Jost', sans-serif; font-size: var(--t-eyebrow); font-weight: 600; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.18em; margin-bottom: 6px; }
   .kpi-value { font-size: 26px; font-weight: 500; letter-spacing: -0.04em; color: var(--text); font-family: var(--f-mono); line-height: 1; }
@@ -130,6 +130,7 @@
   .chg.neg { background: var(--brand-orange-light); color: #A32D2D; }
   .chg.neu { background: var(--surface-2); color: var(--text-2); }
   .kpi-change-label { color: var(--text-3); font-size: var(--t-caption-sm); }
+  .kpi-subnote { color: var(--text-3); font-size: var(--t-caption-sm); margin-top: 4px; }
 
   /* SECTION */
   .section-title { font-family: var(--f-eyebrow), 'Futura PT Demi', 'Jost', sans-serif; font-size: var(--t-eyebrow); font-weight: 600; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.18em; margin-bottom: 1rem; display: flex; align-items: center; gap: 8px; }
@@ -690,7 +691,7 @@
         </div>
         <div class="view-toggle">
           <button class="vt-btn active" onclick="setView('weekly', this)">This week</button>
-          <button class="vt-btn" onclick="setView('trailing', this)">vs T4W avg</button>
+          <button class="vt-btn" onclick="setView('trailing', this)">vs 6-wk avg</button>
         </div>
         <!-- legacy hidden select kept so any existing code paths still work -->
         <select id="weekPicker" onchange="switchWeek(this.value)" style="display:none"></select>
@@ -702,19 +703,13 @@
 
     <!-- REVENUE BY CHANNEL -->
     <div class="section-title">Revenue by channel</div>
-    <div class="chart-grid-2" style="margin-bottom:1.5rem">
-      <div class="chart-card" style="--chart-accent:#b89a00">
-        <div class="chart-card-title">Revenue center breakdown</div>
-        <div class="chart-card-sub" id="revChartSub">Current week — $331,703 total</div>
-        <div class="chart-wrap" style="height:220px"><canvas id="revChart"></canvas></div>
-        <div class="chart-source">Source: Toast POS</div>
-      </div>
-      <div class="chart-card" style="--chart-accent:#1e7d4a">
+    <div class="chart-card" style="--chart-accent:#1e7d4a;margin-bottom:1.5rem;padding:0;overflow:hidden">
+      <div style="padding:22px 22px 0">
         <div class="chart-card-title">Channel mix %</div>
         <div class="chart-card-sub">Share of total revenue by channel</div>
-        <div id="mixBars" style="margin-top:0.5rem"></div>
-        <div class="chart-source">Source: Toast POS</div>
       </div>
+      <div class="table-scroll"><table class="metrics-table" id="channelMixTable"></table></div>
+      <div class="chart-source" style="padding:14px 22px">Source: Toast POS</div>
     </div>
 
     <!-- PAID PERFORMANCE SCORECARD — one card per platform, sits at the
@@ -749,7 +744,7 @@
         <li><strong>% of net</strong> (any row) = Row value ÷ Net sales × 100</li>
         <li><strong>CAC</strong> (Customer Acquisition Cost) = Ad spend ÷ Customers acquired</li>
         <li><strong>ROAS</strong> (Return on Ad Spend) = Net revenue from ads ÷ Ad spend</li>
-        <li><strong>vs T4W</strong> / <strong>vs 6-wk</strong> = % change from the trailing 4-week / 6-week average</li>
+        <li><strong>vs 6-wk avg</strong> = % change from the trailing 6-week average</li>
         <li><strong>Concept mix %</strong> = Concept sales ÷ Net sales × 100</li>
         <li><strong>Beverage attachment</strong> = (Beverages + wine + beer) ÷ Net sales × 100</li>
         <li><strong>On / Off premise %</strong> = On (or off) premise sales ÷ Net sales × 100</li>
@@ -776,6 +771,9 @@
 
 <script>
 // ── DATA ─────────────────────────────────────────────────────────────────────
+// Field names `t4w`/`pctT4W` are legacy — they now hold trailing 6-week
+// average figures (see _sbLoadWeeklyKPIs and _recomputeSixWeekAverages
+// below). Kept unrenamed to avoid touching every reader of these fields.
 let DATA = {
   currentWeek: 'May 13, 2026',
   lastWeek: 'May 6, 2026',
@@ -848,6 +846,9 @@ let DATA = {
 
 let currentView = 'weekly';
 let charts = {};
+// Live Meta/Google ad_performance summary (current week + trailing 6-wk avg),
+// populated by _loadTopTileAdData() below. null until that fetch resolves.
+let _adCache = { meta: null, google: null };
 
 // ── HELPERS ──────────────────────────────────────────────────────────────────
 function fmt$(n){ if(n==null||isNaN(n))return'—'; return'$'+Math.round(n).toLocaleString(); }
@@ -872,7 +873,7 @@ function getChange(metric) {
   return metric.pctPW ?? null;
 }
 function changeLabel() {
-  if (currentView === 'trailing')  return 'vs T4W avg';
+  if (currentView === 'trailing')  return 'vs 6-wk avg';
   if (currentView === 'lastweek')  return 'vs last week';
   return 'vs last week';
 }
@@ -936,82 +937,90 @@ function setView(v, btn) {
   renderDashboard();
 }
 
-// ── KPI CARDS ────────────────────────────────────────────────────────────────
-function renderKPIs() {
-  const kpis = [
-    { label: 'Total revenue',    val: fmt$(getVal(DATA.revenue.total)),    metric: DATA.revenue.total },
-    { label: 'Blended ROAS',     val: fmtR(getVal(DATA.blendedROAS)),      metric: DATA.blendedROAS },
-    { label: 'Meta ROAS',        val: fmtR(getVal(DATA.meta.roas)),        metric: DATA.meta.roas },
-    { label: 'Google ROAS',      val: fmtR(getVal(DATA.google.roas)),      metric: DATA.google.roas }
+// ── TOP KPI TILES ────────────────────────────────────────────────────────────
+// Row 1: Total/Organic/Paid revenue. Row 2: Blended/Meta/Google ROAS. Always
+// "this week actual vs trailing 6-wk avg" — independent of the This week /
+// vs 6-wk avg toggle above (same fixed convention as the Daily page's KPI
+// tiles). Meta/Google figures come from _adCache (live ad_performance via
+// the ads-meta/ads-google Edge Functions, see _loadTopTileAdData below);
+// Sponsored/Promo (3PD = DoorDash + Uber Eats combined) come from whatever
+// already populated DATA.sponsored/DATA.promo (sheet sync or WEEK_HISTORY)
+// since there's no DoorDash/Uber Eats API yet.
+function renderTopTiles() {
+  const rev = DATA.revenue.total;
+  const sp = DATA.sponsored || {}, pr = DATA.promo || {};
+  const spNet = sp.netRev || {}, spSpend = sp.spend || {};
+  const prNet = pr.netRev || {}, prSpend = pr.spend || {};
+  const meta = _adCache.meta, google = _adCache.google;
+
+  const sum   = (...vals) => vals.reduce((a, b) => a + (b || 0), 0);
+  const pct   = (cw, base) => (cw != null && base) ? Math.round((cw - base) / Math.abs(base) * 100) : null;
+  const ratio = (num, den) => den ? num / den : null;
+  const pctOfTotal = (v, total) => total ? Math.min(100, Math.max(0, v / total * 100)) : null;
+
+  const paidCw     = sum(meta?.netRev.cw,    google?.netRev.cw,    spNet.cw,  prNet.cw);
+  const paidSixwk  = sum(meta?.netRev.sixwk, google?.netRev.sixwk, spNet.t4w, prNet.t4w);
+  const spendCw    = sum(meta?.spend.cw,     google?.spend.cw,     spSpend.cw,  prSpend.cw);
+  const spendSixwk = sum(meta?.spend.sixwk,  google?.spend.sixwk,  spSpend.t4w, prSpend.t4w);
+
+  const totalCw = rev.cw, totalSixwk = rev.t4w;
+  const organicCw    = Math.max(0, (totalCw    ?? 0) - paidCw);
+  const organicSixwk = Math.max(0, (totalSixwk ?? 0) - paidSixwk);
+
+  const blendedCw    = ratio(paidCw,    spendCw);
+  const blendedSixwk = ratio(paidSixwk, spendSixwk);
+
+  const tiles = [
+    { label: 'Total Revenue',   val: fmt$(totalCw),         chg: pct(totalCw, totalSixwk) },
+    { label: 'Organic Revenue', val: fmt$(organicCw),       chg: pct(organicCw, organicSixwk), sub: pctOfTotal(organicCw, totalCw) },
+    { label: 'Paid Revenue',    val: fmt$(paidCw),          chg: pct(paidCw, paidSixwk),       sub: pctOfTotal(paidCw, totalCw) },
+    { label: 'Blended ROAS',    val: fmtR(blendedCw),       chg: pct(blendedCw, blendedSixwk) },
+    { label: 'Meta ROAS',       val: fmtR(meta?.roas.cw),   chg: pct(meta?.roas.cw,   meta?.roas.sixwk) },
+    { label: 'Google ROAS',     val: fmtR(google?.roas.cw), chg: pct(google?.roas.cw, google?.roas.sixwk) }
   ];
-  const cl = changeLabel();
-  document.getElementById('kpiGrid').innerHTML = kpis.map(k => {
-    const chg = getChange(k.metric);
-    const cls = chg != null ? chgClass(chg) : 'neu';
+
+  document.getElementById('kpiGrid').innerHTML = tiles.map(t => {
+    const cls = t.chg != null ? chgClass(t.chg) : 'neu';
+    const sub = t.sub != null ? `<div class="kpi-subnote">${t.sub.toFixed(0)}% of total revenue</div>` : '';
     return `<div class="kpi-card">
-      <div class="kpi-label">${k.label}</div>
-      <div class="kpi-value">${k.val}</div>
+      <div class="kpi-label">${t.label}</div>
+      <div class="kpi-value">${t.val}</div>
       <div class="kpi-change">
-        <span class="chg ${cls}">${chg != null ? fmtPct(chg) : '—'}</span>
-        <span class="kpi-change-label">${cl}</span>
+        <span class="chg ${cls}">${t.chg != null ? fmtPct(t.chg) : '—'}</span>
+        <span class="kpi-change-label">vs 6-wk avg</span>
       </div>
+      ${sub}
     </div>`;
   }).join('');
 }
 
-// ── REVENUE CHART ────────────────────────────────────────────────────────────
-function renderRevenueChart() {
-  const rev = DATA.revenue;
-  const labels = ['Dine in','Web Pickup','In-store Takeout','Delivery','Catering','3PD','Marketplace'];
-  const vals = [getVal(rev.dineIn), getVal(rev.webPickup), getVal(rev.instore), getVal(rev.delivery), getVal(rev.catering), getVal(rev.tpd), getVal(rev.marketplace)];
-  const colors = ['#eace49','#7bbd91','#cbc9d6','#6280bd','#dbc6a2','#888780','#e87142'];
-
-  const viewLabel = currentView === 'trailing' ? 'T4W avg' : currentView === 'lastweek' ? 'Last week' : 'Current week';
-  document.getElementById('revChartSub').textContent = `${viewLabel} — ${fmt$(getVal(rev.total))} total`;
-
-  if (charts.rev) charts.rev.destroy();
-  charts.rev = new Chart(document.getElementById('revChart'), {
-    type: 'bar',
-    data: { labels, datasets: [{ data: vals, backgroundColor: colors, borderRadius: 6, borderSkipped: false }] },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { display: false } },
-      scales: {
-        x: { grid: { display: false }, ticks: { font: { family: 'DM Sans', size: 11 }, color: '#9E9C96' } },
-        y: { grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { font: { family: 'DM Mono', size: 10 }, color: '#9E9C96', callback: v => '$'+Math.round(v/1000)+'k' } }
-      }
-    }
-  });
-}
-
-// ── MIX BARS ─────────────────────────────────────────────────────────────────
-function renderMixBars() {
-  const mix = DATA.revMix;
+// ── CHANNEL MIX TABLE ────────────────────────────────────────────────────────
+function renderChannelMix() {
+  const mix = DATA.revMix, rev = DATA.revenue;
   const items = [
-    { label: 'Dine in',          k: 'dineIn',      color: '#eace49' },
-    { label: 'Web pickup',       k: 'webPickup',   color: '#7bbd91' },
-    { label: 'In-store Takeout', k: 'instore',     color: '#cbc9d6' },
-    { label: 'Delivery',         k: 'delivery',    color: '#6280bd' },
-    { label: 'Catering',         k: 'catering',    color: '#dbc6a2' },
-    { label: '3PD',              k: 'tpd',         color: '#888780' },
-    { label: 'Marketplace',      k: 'marketplace', color: '#e87142' }
+    { label: 'Dine in',          k: 'dineIn' },
+    { label: 'Web pickup',       k: 'webPickup' },
+    { label: 'In-store Takeout', k: 'instore' },
+    { label: 'Delivery',         k: 'delivery' },
+    { label: 'Catering',         k: 'catering' },
+    { label: '3PD',              k: 'tpd' },
+    { label: 'Marketplace',      k: 'marketplace' }
   ];
-  document.getElementById('mixBars').innerHTML = items.map(i => {
-    const row = mix[i.k] || {};
-    const val = getVal(row);
-    const base  = (currentView === 'trailing') ? row.t4w : row.lw;
-    const delta = (row.cw != null && base != null) ? row.cw - base : null;
-    const dCls = delta == null ? 'pct-neu' : (delta > 0 ? 'pct-pos' : (delta < 0 ? 'pct-neg' : 'pct-neu'));
+  let html = `<thead><tr><th>Channel</th><th>Net sales</th><th>% of total</th><th>vs 6-wk avg</th></tr></thead><tbody>`;
+  items.forEach(i => {
+    const m = mix[i.k] || {}, r = rev[i.k] || {};
+    const delta = (m.cw != null && m.t4w != null) ? m.cw - m.t4w : null;
+    const dCls  = delta == null ? 'pct-neu' : (delta > 0 ? 'pct-pos' : (delta < 0 ? 'pct-neg' : 'pct-neu'));
     const dText = delta == null ? '—' : `${delta > 0 ? '+' : ''}${delta.toFixed(1)} pts`;
-    return `
-    <div class="mix-bar-wrap">
-      <div class="mix-bar-label">
-        <span>${i.label}</span>
-        <span class="mix-detail"><span class="mix-pct">${(+val).toFixed(1)}%</span><span class="mix-delta ${dCls}">${dText}</span><span class="mix-delta-foot">${(currentView === 'trailing') ? 'vs T4W avg' : 'vs last wk'}</span></span>
-      </div>
-      <div class="mix-bar-track"><div class="mix-bar-fill" style="width:${val}%;background:${i.color}"></div></div>
-    </div>`;
-  }).join('');
+    html += `<tr>
+      <td>${i.label}</td>
+      <td>${fmt$(r.cw)}</td>
+      <td>${(m.cw ?? 0).toFixed(1)}%</td>
+      <td><span class="${dCls}">${dText}</span></td>
+    </tr>`;
+  });
+  html += '</tbody>';
+  document.getElementById('channelMixTable').innerHTML = html;
 }
 
 // ── PAID PERFORMANCE SCORECARD ───────────────────────────────────────────────
@@ -1046,7 +1055,7 @@ function renderScorecard() {
     cac:       { lbl: 'CAC',       fmt: fmtDollarsCents, lowerBetter: true  }
   };
 
-  const changeSuffix = changeLabel(); // e.g. "vs last week" / "vs T4W avg"
+  const changeSuffix = changeLabel(); // e.g. "vs last week" / "vs 6-wk avg"
 
   function deltaParts(pct, lowerBetter) {
     if (typeof pct !== 'number') return { cls: 'neu', txt: '—' };
@@ -1148,10 +1157,10 @@ function renderMetricsTable() {
   const cl = changeLabel();
   let html = `<thead><tr>
     <th>Metric</th>
-    <th>T4W avg</th>
+    <th>6-wk avg</th>
     <th>Last week</th>
     <th>This week</th>
-    <th>vs T4W</th>
+    <th>vs 6-wk</th>
     <th>${cl}</th>
   </tr></thead><tbody>`;
 
@@ -1179,18 +1188,15 @@ function renderMetricsTable() {
 
 // ── FULL RENDER ───────────────────────────────────────────────────────────────
 function renderDashboard() {
-  renderKPIs();
-  renderRevenueChart();
-  renderMixBars();
+  renderTopTiles();
+  renderChannelMix();
   renderScorecard();
   renderMetricsTable();
   // 3PD-only sync from the Marketing KPI Tracker sheet. Runs after the
   // hardcoded WEEK_HISTORY data has already rendered so the page is never
   // blank — when the fetch resolves we overwrite ONLY DATA.sponsored and
-  // DATA.promo and re-call the two render fns that read them. No other
-  // section (Meta/Google scorecards, Revenue by Channel, Channel mix, KPI
-  // tiles) reads those keys, so this stays scoped to the 3PD cards + the
-  // 3PD rows of #metricsTable per the COO's pipeline boundary.
+  // DATA.promo and re-call the render fns that read them (scorecard, metrics
+  // table, and the top tiles' Paid/Organic/Blended figures).
   sync3PDFromSheet().catch(e => console.warn('[3PD sync]', e));
 }
 
@@ -1229,10 +1235,12 @@ async function sync3PDFromSheet() {
   // every historical week from the Weekly Summary tab — Sponsored, Promo,
   // Meta, and Google all keyed by week label. Look up the week the user
   // is currently viewing and overlay just those four paid blocks onto
-  // DATA. Touches no other tile (revenue / channel mix / blended ROAS
-  // remain whatever rendered before). When the cached payload is the
-  // legacy single-week shape, falls through to the old guard below so
-  // nothing breaks during the Apps Script transition.
+  // DATA, then re-render the scorecard/table/top-tiles that read them
+  // (top tiles only pick up sponsored/promo from this — Meta/Google ROAS
+  // there come from live ad_performance via _adCache, not this sheet).
+  // When the cached payload is the legacy single-week shape, falls
+  // through to the old guard below so nothing breaks during the Apps
+  // Script transition.
   if (Array.isArray(payload.weeks) && payload.weeks.length) {
     const wk = payload.weeks.find(w => w.label === DATA.currentWeek);
     if (!wk) return;  // sheet doesn't have this week — leave DATA alone
@@ -1245,25 +1253,9 @@ async function sync3PDFromSheet() {
         DATA[plat][metric] = Object.assign({}, DATA[plat][metric] || {}, src);
       });
     });
-    // Blended ROAS derives from Meta + Google paid spend → re-derive from
-    // the just-overlaid values so the top tile stays accurate per week.
-    try {
-      const ms = (DATA.meta && DATA.meta.spend) || {}, mr = (DATA.meta && DATA.meta.netRev) || {};
-      const gs = (DATA.google && DATA.google.spend) || {}, gr = (DATA.google && DATA.google.netRev) || {};
-      const r = (n, s) => (s ? Math.round((n / s) * 100) / 100 : null);
-      const cw = r((mr.cw||0)+(gr.cw||0), (ms.cw||0)+(gs.cw||0));
-      const lw = r((mr.lw||0)+(gr.lw||0), (ms.lw||0)+(gs.lw||0));
-      const t4 = r((mr.t4w||0)+(gr.t4w||0), (ms.t4w||0)+(gs.t4w||0));
-      if (cw != null) {
-        const pct = (a,b) => (a != null && b) ? Math.round((a-b)/Math.abs(b)*100) : null;
-        DATA.blendedROAS = Object.assign({}, DATA.blendedROAS || {}, {
-          cw: cw, lw: lw, t4w: t4, pctPW: pct(cw, lw), pctT4W: pct(cw, t4)
-        });
-      }
-    } catch (_) {}
     renderScorecard();
     renderMetricsTable();
-    if (typeof renderKPIs === 'function') renderKPIs();
+    renderTopTiles();
     return;
   }
 
@@ -1284,6 +1276,7 @@ async function sync3PDFromSheet() {
   });
   renderScorecard();
   renderMetricsTable();
+  renderTopTiles();
 }
 
 // ── CSV UPLOAD ────────────────────────────────────────────────────────────────
@@ -2480,6 +2473,53 @@ const WEEK_HISTORY = [
     }
   }
 ];
+
+// WEEK_HISTORY's baked t4w/pctT4W fields were captured as trailing 4-week
+// averages. Recompute them in place as trailing 6-week averages (mean of
+// the up-to-6 prior weeks' actuals) so "vs 6-wk avg" — and the scorecard /
+// all-metrics-table rows for weeks the live Sheet/Supabase feeds don't
+// cover — show what they claim to, not a relabeled 4-week figure.
+(function _recomputeSixWeekAverages() {
+  const sorted = WEEK_HISTORY.slice().sort((a, b) => new Date(b.label) - new Date(a.label));
+  const pct = (cw, base) => (cw != null && base) ? Math.round((cw - base) / Math.abs(base) * 100) : null;
+  const avg = (vals) => {
+    const v = vals.filter(x => x != null);
+    return v.length ? v.reduce((a, b) => a + b, 0) / v.length : null;
+  };
+  const sumFields = {
+    revenue:   ['total','dineIn','webPickup','instore','delivery','catering','tpd','marketplace'],
+    meta:      ['netRev','spend','customers'],
+    google:    ['netRev','spend','customers'],
+    sponsored: ['netRev','spend'],
+    promo:     ['netRev','spend']
+  };
+  sorted.forEach((entry, i) => {
+    const prior = sorted.slice(i + 1, i + 7).map(p => p.data);
+    Object.entries(sumFields).forEach(([section, fields]) => {
+      fields.forEach(field => {
+        const row = entry.data[section]?.[field];
+        if (!row) return;
+        const sixwk = avg(prior.map(p => p[section]?.[field]?.cw));
+        if (sixwk != null) row.t4w = Math.round(sixwk * 100) / 100;
+        row.pctT4W = pct(row.cw, row.t4w);
+      });
+    });
+    // Ratio metrics (cac, roas) derive from the additive fields just
+    // recomputed above instead of averaging the ratio directly.
+    ['meta','google'].forEach(plat => {
+      const d = entry.data[plat];
+      if (!d?.cac || !d.netRev || !d.spend || !d.customers) return;
+      if (d.customers.t4w) d.cac.t4w = Math.round((d.spend.t4w / d.customers.t4w) * 100) / 100;
+      d.cac.pctT4W = pct(d.cac.cw, d.cac.t4w);
+    });
+    ['meta','google','sponsored','promo'].forEach(plat => {
+      const d = entry.data[plat];
+      if (!d?.roas || !d.netRev || !d.spend) return;
+      if (d.spend.t4w) d.roas.t4w = Math.round((d.netRev.t4w / d.spend.t4w) * 100) / 100;
+      d.roas.pctT4W = pct(d.roas.cw, d.roas.t4w);
+    });
+  });
+})();
 
 function buildWeekPicker() {
   // Hidden legacy select still populated so switchWeek(idx) keeps working
@@ -4468,7 +4508,9 @@ async function _sbLoadWeeklyKPIs(weekStartOverride) {
   // from the calendar picker) to load any other fiscal week live.
   const cwStart  = weekStartOverride || _sbFiscalWeekStart(new Date().toISOString().slice(0, 10));
   const lwStart  = _sbAddDays(cwStart, -7);
-  const t4wStart = _sbAddDays(cwStart, -28);
+  // t4wStart/t4w* below are named for the legacy trailing-4-week window but
+  // now span 6 weeks (cwStart-42) — see the DATA comment up top.
+  const t4wStart = _sbAddDays(cwStart, -42);
   const lwEnd    = _sbAddDays(cwStart, -1);
 
   const [wlvCW, bwCW, wlvLW, bwLW, wlvT4W, bwT4W] = await Promise.all([
@@ -4494,16 +4536,16 @@ async function _sbLoadWeeklyKPIs(weekStartOverride) {
   const cwCh  = sumCh(kCh(wlvCW), kCh(bwCW));
   const lwCh  = sumCh(kCh(wlvLW), kCh(bwLW));
 
-  // t4w from channels_summary (total over 4 weeks) — convert array to obj then average
+  // t4w from channels_summary (total over 6 weeks) — convert array to obj then average
   const normT4W = (res) => {
     const o = {};
     (res.data?.channels || []).forEach(c => { o[c.channel] = c.net_sales; });
     return o;
   };
   const wlvT4WCh = normT4W(wlvT4W), bwT4WCh = normT4W(bwT4W);
-  const t4wNet = ((wlvT4W.data?.total_net_sales || 0) + (bwT4W.data?.total_net_sales || 0)) / 4;
+  const t4wNet = ((wlvT4W.data?.total_net_sales || 0) + (bwT4W.data?.total_net_sales || 0)) / 6;
   const t4wCh  = sumCh(wlvT4WCh, bwT4WCh);
-  Object.keys(t4wCh).forEach(k => { t4wCh[k] /= 4; });
+  Object.keys(t4wCh).forEach(k => { t4wCh[k] /= 6; });
 
   const pct = (a, b) => b ? Math.round((a - b) / Math.abs(b) * 100) : null;
   const mkRev = (cw, lw, t4) => ({
@@ -4567,6 +4609,53 @@ async function _sbLoadWeeklyKPIs(weekStartOverride) {
   const lbl = document.getElementById('weekPickLabel');
   if (lbl) lbl.textContent = DATA.currentWeek;
   renderDashboard();
+  // Live Meta/Google ad data for this same week — independent fetch, re-renders
+  // the top tiles itself when it resolves (see _loadTopTileAdData).
+  _loadTopTileAdData(cwStart).catch(console.error);
+}
+
+// ── TOP TILES — live Meta/Google ad data ─────────────────────────────────────
+// Meta/Google ROAS + revenue/spend for the top KPI tiles come straight from
+// ad_performance via the same ads-meta/ads-google Edge Functions the Paid
+// Ads page uses — not the Marketing KPI Tracker sheet (that stays the source
+// for 3PD Sponsored/Promo, which has no API yet). cw = the selected fiscal
+// week to date; sixwk = the 6 fiscal weeks immediately before it, summed
+// then divided by 6 (dollars) — ROAS uses the Edge Function's own
+// sum(revenue)/sum(spend) for that same range, a ratio-of-sums rather than
+// an average-of-weekly-ratios, so it's consistent with how Blended ROAS is
+// combined in renderTopTiles().
+async function _loadTopTileAdData(cwStart) {
+  const sb = NPData.supabase;
+  // cwEnd: "today" for the in-progress current week (partial-week data, same
+  // convention as nbly_weekly_kpis), but capped to the actual end of the
+  // fiscal week when cwStart is a past week selected via the calendar —
+  // otherwise a past week's range would run all the way to today.
+  const today      = new Date().toISOString().slice(0, 10);
+  const weekEnd    = _sbAddDays(cwStart, 6);
+  const cwEnd      = today < weekEnd ? today : weekEnd;
+  const sixwkStart = _sbAddDays(cwStart, -42);
+  const sixwkEnd   = _sbAddDays(cwStart, -1);
+
+  const [mCw, gCw, m6w, g6w] = await Promise.all([
+    sb.functions.invoke('ads-meta',   { body: { start_date: cwStart,    end_date: cwEnd,    granularity: 'week' } }),
+    sb.functions.invoke('ads-google', { body: { start_date: cwStart,    end_date: cwEnd,    granularity: 'week' } }),
+    sb.functions.invoke('ads-meta',   { body: { start_date: sixwkStart, end_date: sixwkEnd, granularity: 'week' } }),
+    sb.functions.invoke('ads-google', { body: { start_date: sixwkStart, end_date: sixwkEnd, granularity: 'week' } }),
+  ]);
+
+  const summaryOf = (r) => r.error ? null : r.data?.summary;
+  const mkPlatform = (cwRes, sixwkRes) => {
+    const c = summaryOf(cwRes), s = summaryOf(sixwkRes);
+    return {
+      netRev: { cw: c?.purchase_value ?? 0, sixwk: s ? (s.purchase_value || 0) / 6 : 0 },
+      spend:  { cw: c?.spend ?? 0,          sixwk: s ? (s.spend || 0) / 6 : 0 },
+      roas:   { cw: c?.roas ?? null,        sixwk: s?.roas ?? null }
+    };
+  };
+
+  _adCache.meta   = mkPlatform(mCw, m6w);
+  _adCache.google = mkPlatform(gCw, g6w);
+  renderTopTiles();
 }
 
 document.addEventListener('DOMContentLoaded', function() {
