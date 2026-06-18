@@ -226,6 +226,14 @@
   .mix-bar-label .mix-delta.pct-neg { background: var(--brand-orange-light); color: #a32d2d; }
   .mix-bar-label .mix-delta.pct-neu { background: var(--surface-2); color: var(--text-3); }
   .mix-bar-label .mix-delta-foot { font-size: 9.5px; color: var(--text-3); letter-spacing: 0.04em; }
+  .mix-bar-label .mix-dollar { min-width: 64px; text-align: right; display: inline-block; color: var(--text-2); }
+  .mix-bar-label .mix-pct { min-width: 44px; text-align: right; display: inline-block; }
+  .mix-bar-label .mix-delta { min-width: 56px; text-align: center; display: inline-block; }
+  .mix-bar-label .mix-delta-head { min-width: 56px; text-align: center; display: inline-block; }
+  .mix-header-row { cursor: default; margin-bottom: 2px; }
+  .mix-header-row:hover { background: transparent; }
+  .mix-header-row .mix-bar-label,
+  .mix-header-row .mix-detail { font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-3); font-family: var(--f-sans); }
 
   /* Daily Channel mix — pie + side legend */
   .channel-pie-wrap { display: grid; grid-template-columns: 200px 1fr; gap: 1rem; align-items: center; margin-top: 0.5rem; }
@@ -551,10 +559,6 @@
     <img class="nav-logo" src="NeighborlyLogo.png" alt="Neighborly">
   </a>
 
-  <div class="np-tabs nav-tabs" id="navTabsPerf">
-    <a class="np-tab nav-tab is-active active" onclick="showPage('dashboard', this)">Weekly performance</a>
-    <a class="np-tab nav-tab" onclick="showPage('alltime', this)">All time performance</a>
-  </div>
   <div class="np-tabs nav-tabs" id="navTabsSales" style="display:none">
     <a class="np-tab nav-tab is-active active" id="dailyNavTab" onclick="showPage('daily', this)">Daily sales</a>
     <a class="np-tab nav-tab" id="trendsNavTab" onclick="showPage('trends', this)">Sales trends</a>
@@ -703,13 +707,11 @@
 
     <!-- REVENUE BY CHANNEL -->
     <div class="section-title">Revenue by channel</div>
-    <div class="chart-card" style="--chart-accent:#1e7d4a;margin-bottom:1.5rem;padding:0;overflow:hidden">
-      <div style="padding:22px 22px 0">
-        <div class="chart-card-title">Channel mix %</div>
-        <div class="chart-card-sub">Share of total revenue by channel</div>
-      </div>
-      <div class="table-scroll"><table class="metrics-table" id="channelMixTable"></table></div>
-      <div class="chart-source" style="padding:14px 22px">Source: Toast POS</div>
+    <div class="chart-card" style="--chart-accent:#1e7d4a;margin-bottom:1.5rem">
+      <div class="chart-card-title">Channel mix %</div>
+      <div class="chart-card-sub">Share of total revenue by channel</div>
+      <div id="mixBars" style="margin-top:0.5rem"></div>
+      <div class="chart-source">Source: Toast POS</div>
     </div>
 
     <!-- PAID PERFORMANCE SCORECARD — one card per platform, sits at the
@@ -994,33 +996,40 @@ function renderTopTiles() {
   }).join('');
 }
 
-// ── CHANNEL MIX TABLE ────────────────────────────────────────────────────────
+// ── CHANNEL MIX BARS ─────────────────────────────────────────────────────────
 function renderChannelMix() {
   const mix = DATA.revMix, rev = DATA.revenue;
   const items = [
-    { label: 'Dine in',          k: 'dineIn' },
-    { label: 'Web pickup',       k: 'webPickup' },
-    { label: 'In-store Takeout', k: 'instore' },
-    { label: 'Delivery',         k: 'delivery' },
-    { label: 'Catering',         k: 'catering' },
-    { label: '3PD',              k: 'tpd' },
-    { label: 'Marketplace',      k: 'marketplace' }
+    { label: 'Dine in',          k: 'dineIn',      color: '#eace49' },
+    { label: 'Web pickup',       k: 'webPickup',   color: '#7bbd91' },
+    { label: 'In-store Takeout', k: 'instore',     color: '#cbc9d6' },
+    { label: 'Delivery',         k: 'delivery',    color: '#6280bd' },
+    { label: 'Catering',         k: 'catering',    color: '#dbc6a2' },
+    { label: '3PD',              k: 'tpd',         color: '#888780' },
+    { label: 'Marketplace',      k: 'marketplace', color: '#e87142' }
   ];
-  let html = `<thead><tr><th>Channel</th><th>Net sales</th><th>% of total</th><th>vs 6-wk avg</th></tr></thead><tbody>`;
-  items.forEach(i => {
+  let html = `<div class="mix-bar-wrap mix-header-row">
+    <div class="mix-bar-label">
+      <span>Channel</span>
+      <span class="mix-detail"><span class="mix-dollar">Net sales</span><span class="mix-pct">% of total</span><span class="mix-delta-head">vs 6-wk avg</span></span>
+    </div>
+  </div>`;
+  html += items.map(i => {
     const m = mix[i.k] || {}, r = rev[i.k] || {};
+    const val = m.cw ?? 0;
     const delta = (m.cw != null && m.t4w != null) ? m.cw - m.t4w : null;
-    const dCls  = delta == null ? 'pct-neu' : (delta > 0 ? 'pct-pos' : (delta < 0 ? 'pct-neg' : 'pct-neu'));
+    const dCls = delta == null ? 'pct-neu' : (delta > 0 ? 'pct-pos' : (delta < 0 ? 'pct-neg' : 'pct-neu'));
     const dText = delta == null ? '—' : `${delta > 0 ? '+' : ''}${delta.toFixed(1)} pts`;
-    html += `<tr>
-      <td>${i.label}</td>
-      <td>${fmt$(r.cw)}</td>
-      <td>${(m.cw ?? 0).toFixed(1)}%</td>
-      <td><span class="${dCls}">${dText}</span></td>
-    </tr>`;
-  });
-  html += '</tbody>';
-  document.getElementById('channelMixTable').innerHTML = html;
+    return `
+    <div class="mix-bar-wrap">
+      <div class="mix-bar-label">
+        <span>${i.label}</span>
+        <span class="mix-detail"><span class="mix-dollar">${fmt$(r.cw)}</span><span class="mix-pct">${val.toFixed(1)}%</span><span class="mix-delta ${dCls}">${dText}</span></span>
+      </div>
+      <div class="mix-bar-track"><div class="mix-bar-fill" style="width:${val}%;background:${i.color}"></div></div>
+    </div>`;
+  }).join('');
+  document.getElementById('mixBars').innerHTML = html;
 }
 
 // ── PAID PERFORMANCE SCORECARD ───────────────────────────────────────────────
