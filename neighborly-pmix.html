@@ -693,6 +693,16 @@
     end.setDate(end.getDate() + 6);
     return `${_PMIX_MONTHS[end.getMonth()]} ${end.getDate()}`;
   }
+  // Same completeness rule as nbly_pmix_summary's own default-week logic
+  // (CURRENT_DATE - week_start >= 7) — a fiscal week isn't "closed" until its
+  // Tuesday has fully passed, so don't offer the in-progress week as pickable.
+  function _pmixWeekIsComplete(iso) {
+    const [y, m, d] = iso.split('-').map(Number);
+    const ws = new Date(y, m - 1, d);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return (today - ws) / 86400000 >= 7;
+  }
 
   // Cache a `nbly_pmix_summary` response into DAYS (handles both the legacy
   // single-day shape and a possible future multi-day `.days` shape) and
@@ -724,7 +734,10 @@
       const defaultDate = _cachePmixResponse(defaultR.data);
       if (!defaultDate) { console.error('PMIX: no day data'); return; }
 
-      const periods = weeksR.data?.periods || [];
+      // nbly_performance_all_time groups by fiscal week over every daily_sales
+      // row, including today's still-accumulating week — filter those out so
+      // the calendar can't offer a week that hasn't closed yet.
+      const periods = (weeksR.data?.periods || []).filter(p => _pmixWeekIsComplete(p.period_start));
       _pmixWeeks = periods.map(p => ({ iso: p.period_start, label: _pmixWeekLabel(p.period_start), range: _pmixWeekRange(p.period_start) }));
       if (!_pmixWeeks.some(w => w.iso === defaultDate)) {
         _pmixWeeks.push({ iso: defaultDate, label: _pmixWeekLabel(defaultDate), range: _pmixWeekRange(defaultDate) });
@@ -936,8 +949,9 @@
       pending.style.display = '';
       document.getElementById('weekPendingMsg').innerHTML =
         `Fiscal weeks run Wednesday–Tuesday. <strong>${day.date_label || _pmixWeekLabel(activeDate)}</strong> ` +
-        `runs through ${_pmixWeekEndLabel(activeDate)}, and the product-mix report is generated once that week closes — ` +
-        `figures for it should appear within a day or two after.`;
+        `runs through ${_pmixWeekEndLabel(activeDate)}. The product-mix report generates automatically each ` +
+        `Wednesday morning once that week closes, so figures for it should already be here — if you're seeing ` +
+        `this, the report run may have failed; check with the team if it doesn't clear up shortly.`;
     } else {
       pending.style.display = 'none';
     }
