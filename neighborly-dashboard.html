@@ -10,6 +10,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Neighborly — Performance Dashboard</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-datalabels/2.2.0/chartjs-plugin-datalabels.min.js"></script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
 
@@ -248,11 +249,9 @@
   .channel-pie-wrap { display: grid; grid-template-columns: 200px 1fr; gap: 1rem; align-items: center; margin-top: 0.5rem; }
   @media (max-width: 560px) { .channel-pie-wrap { grid-template-columns: 1fr; } .channel-pie-canvas { max-width: 200px; margin: 0 auto; } }
   .channel-pie-legend { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
-  .channel-pie-row { display: grid; grid-template-columns: 10px 1fr auto; align-items: center; gap: 8px; font-family: var(--f-sans); font-size: var(--t-caption); color: var(--text); }
+  .channel-pie-row { display: grid; grid-template-columns: 10px 1fr; align-items: center; gap: 8px; font-family: var(--f-sans); font-size: var(--t-caption); color: var(--text); }
   .channel-pie-row .swatch { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
   .channel-pie-row .name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .channel-pie-row .val { font-family: var(--f-mono); font-size: var(--t-caption-sm); color: var(--text-3); }
-  .channel-pie-row .val strong { font-weight: 500; color: var(--text); }
 
   /* PAID PERFORMANCE SCORECARD — dense, one-glance, no bar-chart fatigue */
   .scorecard { display: grid; grid-template-columns: minmax(160px, 1.1fr) repeat(7, minmax(0, 1fr)); gap: 0; }
@@ -2788,22 +2787,23 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeHubNav(
 
     <!-- CHANNEL BREAKDOWN -->
     <div class="section-title reveal">Channel breakdown</div>
-    <div class="chart-grid-2 reveal" style="margin-bottom:1.5rem">
-      <div class="chart-card">
-        <div class="chart-card-title">Sales by channel</div>
-        <div class="chart-card-sub" id="dailyChannelSub">Today's net sales by ordering channel</div>
-        <div class="chart-wrap" style="height:280px"><canvas id="dailyChannelChart"></canvas></div>
-        <div class="chart-source">Source: Toast POS · Uber Eats · DoorDash</div>
-      </div>
-      <div class="chart-card">
-        <div class="chart-card-title">Channel mix %</div>
-        <div class="chart-card-sub">Share of today's net sales · hover for detail</div>
-        <div class="channel-pie-wrap">
-          <div class="chart-wrap channel-pie-canvas" style="height:200px"><canvas id="dailyChannelMixChart"></canvas></div>
-          <div id="dailyChannelMixLegend" class="channel-pie-legend"></div>
+    <div class="chart-card reveal" style="margin-bottom:1.5rem">
+      <div class="chart-grid-2" style="margin-bottom:0">
+        <div>
+          <div class="chart-card-title">Sales by channel</div>
+          <div class="chart-card-sub" id="dailyChannelSub">Today's net sales by ordering channel</div>
+          <div class="chart-wrap" style="height:280px"><canvas id="dailyChannelChart"></canvas></div>
         </div>
-        <div class="chart-source">Source: Toast POS · Uber Eats · DoorDash</div>
+        <div>
+          <div class="chart-card-title">Channel mix %</div>
+          <div class="chart-card-sub">Share of today's net sales · hover for detail</div>
+          <div class="channel-pie-wrap">
+            <div class="chart-wrap channel-pie-canvas" style="height:200px"><canvas id="dailyChannelMixChart"></canvas></div>
+            <div id="dailyChannelMixLegend" class="channel-pie-legend"></div>
+          </div>
+        </div>
       </div>
+      <div class="chart-source">Source: Toast POS</div>
     </div>
 
     <!-- PMIX — concepts (high-level cards + chart) -->
@@ -3519,6 +3519,12 @@ function _fmtPct(v)     { return (v >= 0 ? '+' : '') + v.toFixed(1) + '%'; }
 function _fmtPts(v)     { return (v >= 0 ? '+' : '') + v.toFixed(1) + ' pts'; }
 function _fmtDollar(v)  { return '$' + (+v).toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2}); }
 function _fmtDollarRound(v) { return '$' + Math.round(+v).toLocaleString(); }
+function _contrastText(hex) {
+  const c = hex.replace('#','');
+  const r = parseInt(c.substring(0,2),16), g = parseInt(c.substring(2,4),16), b = parseInt(c.substring(4,6),16);
+  const lum = (0.299*r + 0.587*g + 0.114*b) / 255;
+  return lum > 0.6 ? '#1A1916' : '#fff';
+}
 function _fmtK(v)       { v = +v; return '$' + (v >= 1000 ? Math.round(v/1000) + 'k' : Math.round(v)); }
 function _fmtInt(v)     { return Math.round(+v).toLocaleString(); }
 function _fmtMix(v)     { return (+v).toFixed(1) + '%'; }
@@ -3963,6 +3969,7 @@ function renderDailyChannels(data) {
 
   _dailyCharts.channel = new Chart(canvas, {
     type: 'bar',
+    plugins: [ChartDataLabels],
     data: {
       labels: keys.map(k => CHANNEL_LABELS[k]),
       datasets: [{
@@ -3977,6 +3984,7 @@ function renderDailyChannels(data) {
     options: {
       indexAxis: 'y',
       responsive: true, maintainAspectRatio: false,
+      layout: { padding: { right: 46 } },
       animation: { duration: 700, easing: 'easeOutQuart' },
       interaction: { intersect: false, mode: 'nearest', axis: 'y' },
       plugins: {
@@ -3992,10 +4000,16 @@ function renderDailyChannels(data) {
             title: ctx => ctx[0].label,
             label: ctx => [_fmtDollarRound(ctx.parsed.x), (ctx.parsed.x/total*100).toFixed(1) + '% of net']
           }
+        },
+        datalabels: {
+          anchor: 'end', align: 'end', clamp: true,
+          color: '#1A1916',
+          font: { family: 'DM Mono', size: 10, weight: '500' },
+          formatter: v => _fmtDollarRound(v)
         }
       },
       scales: {
-        x: { grid: { color:'rgba(0,0,0,0.04)' }, ticks: { font:{family:'DM Mono',size:10}, color:'#9E9C96', callback: v => '$' + (v>=1000 ? Math.round(v/1000)+'k' : v) } },
+        x: { grace: '12%', grid: { color:'rgba(0,0,0,0.04)' }, ticks: { font:{family:'DM Mono',size:10}, color:'#9E9C96', callback: v => '$' + (v>=1000 ? Math.round(v/1000)+'k' : v) } },
         y: { grid: { display: false }, ticks: { font:{family:'DM Sans',size:11}, color:'#1A1916' } }
       }
     }
@@ -4006,6 +4020,7 @@ function renderDailyChannels(data) {
                      .sort((a, b) => b.v - a.v);
   _dailyCharts.channelPie = new Chart(pieCanvas, {
     type: 'doughnut',
+    plugins: [ChartDataLabels],
     data: {
       labels: sorted.map(r => CHANNEL_LABELS[r.k]),
       datasets: [{
@@ -4032,6 +4047,13 @@ function renderDailyChannels(data) {
             title: ctx => ctx[0].label,
             label: ctx => [_fmtDollarRound(ctx.parsed), (ctx.parsed/total*100).toFixed(1) + '% of net']
           }
+        },
+        datalabels: {
+          color: ctx => _contrastText(sorted[ctx.dataIndex].color),
+          font: { family: 'DM Mono', size: 11, weight: '600' },
+          // Slices under ~4% don't have room for a label without
+          // overlapping their neighbors on the donut ring — skip those.
+          formatter: v => (v / total * 100) >= 4 ? Math.round(v / total * 100) + '%' : ''
         }
       }
     }
@@ -4041,7 +4063,6 @@ function renderDailyChannels(data) {
     return `<div class="channel-pie-row" title="${CHANNEL_LABELS[r.k]}: ${_fmtDollarRound(r.v)} (${pct.toFixed(1)}% of net)">
       <span class="swatch" style="background:${r.color}"></span>
       <span class="name">${CHANNEL_LABELS[r.k]}</span>
-      <span class="val"><strong>${pct.toFixed(1)}%</strong> &middot; ${_fmtDollarRound(r.v)}</span>
     </div>`;
   }).join('');
 }
