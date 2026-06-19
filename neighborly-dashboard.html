@@ -3486,9 +3486,10 @@ function _onDailyPageEnter() {
 //     netSales, checkCount, avgCheck,
 //     lunchPct, dinnerPct, onPremisePct, offPremisePct,
 //     marketplacePct, cateringPct,
-//     whatsGabyCookingPct, miniKabobPct, palermoPizzaClubPct, mixtapePct,
-//     beverageAttachmentPct
-//     // 6-wk avg is provided in PDF page 3 — these are the fields shown there
+//     whatsGabyCookingPct, miniKabobPct, socialMonkPct, palermoPizzaClubPct,
+//     mixtapePct, neighborlyCookiesPct, beverageAttachmentPct
+//     // computed live by the Edge Function from a rolling 6-week window
+//     // over daily_sales / channel_sales / menu_items — not a static PDF
 //   }
 // }
 
@@ -4097,9 +4098,10 @@ const CONCEPT_COLOR = {
 const CONCEPT_6WK_KEY = {
   whatsGabyCooking:  'whatsGabyCookingPct',
   miniKabob:         'miniKabobPct',
+  socialMonk:        'socialMonkPct',
   palermoPizzaClub:  'palermoPizzaClubPct',
-  mixtape:           'mixtapePct'
-  // socialMonk and cookies have no 6wk benchmark
+  mixtape:           'mixtapePct',
+  neighborlyCookies: 'neighborlyCookiesPct'
 };
 
 function renderDailyPmix(data) {
@@ -4270,8 +4272,10 @@ function renderDailyTable(data) {
     { cat: 'Concept mix', rows: [
       { lbl: "What's Gaby Cooking",  today: $(t.pmix?.whatsGabyCooking),  sixWeek: sixDol(s.whatsGabyCookingPct), pctNet: Pf(N ? (t.pmix?.whatsGabyCooking||0)/N*100 : null), vsY: vsY(t.pmix?.whatsGabyCooking,  y?.pmix?.whatsGabyCooking) },
       { lbl: 'Mini Kabob',           today: $(t.pmix?.miniKabob),         sixWeek: sixDol(s.miniKabobPct),        pctNet: Pf(N ? (t.pmix?.miniKabob||0)/N*100         : null), vsY: vsY(t.pmix?.miniKabob,         y?.pmix?.miniKabob) },
+      { lbl: 'Social Monk',          today: $(t.pmix?.socialMonk),        sixWeek: sixDol(s.socialMonkPct),       pctNet: Pf(N ? (t.pmix?.socialMonk||0)/N*100        : null), vsY: vsY(t.pmix?.socialMonk,        y?.pmix?.socialMonk) },
       { lbl: 'Palermo Pizza Club',   today: $(t.pmix?.palermoPizzaClub),  sixWeek: sixDol(s.palermoPizzaClubPct), pctNet: Pf(N ? (t.pmix?.palermoPizzaClub||0)/N*100  : null), vsY: vsY(t.pmix?.palermoPizzaClub,  y?.pmix?.palermoPizzaClub) },
       { lbl: 'Mixtape',              today: $(t.pmix?.mixtape),           sixWeek: sixDol(s.mixtapePct),          pctNet: Pf(N ? (t.pmix?.mixtape||0)/N*100           : null), vsY: vsY(t.pmix?.mixtape,           y?.pmix?.mixtape) },
+      { lbl: 'Neighborly Cookies',   today: $(t.pmix?.neighborlyCookies), sixWeek: sixDol(s.neighborlyCookiesPct),pctNet: Pf(N ? (t.pmix?.neighborlyCookies||0)/N*100 : null), vsY: vsY(t.pmix?.neighborlyCookies, y?.pmix?.neighborlyCookies) },
       { lbl: 'Marketplace',          today: $(t.pmix?.marketplace),       sixWeek: sixDol(s.marketplacePct),      pctNet: Pf(N ? (t.pmix?.marketplace||0)/N*100       : null), vsY: vsY(t.pmix?.marketplace,       y?.pmix?.marketplace) },
       { lbl: 'Catering',             today: $(t.pmix?.catering),          sixWeek: sixDol(s.cateringPct),         pctNet: Pf(N ? (t.pmix?.catering||0)/N*100          : null), vsY: vsY(t.pmix?.catering,          y?.pmix?.catering) }
     ]}
