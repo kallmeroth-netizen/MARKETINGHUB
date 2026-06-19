@@ -3600,7 +3600,8 @@ function _computeTotal(wlv, bw) {
   };
   // mix % fields → weight by net sales
   ['lunchPct','dinnerPct','onPremisePct','offPremisePct','marketplacePct','cateringPct',
-   'whatsGabyCookingPct','miniKabobPct','palermoPizzaClubPct','mixtapePct','beverageAttachmentPct']
+   'whatsGabyCookingPct','miniKabobPct','socialMonkPct','palermoPizzaClubPct','mixtapePct',
+   'neighborlyCookiesPct','beverageAttachmentPct']
     .forEach(k => { sixWeekAvg[k] = wAvg(swA[k], swB[k], +swA.netSales||0, +swB.netSales||0); });
 
   return { today, ptd, sixWeekAvg };
