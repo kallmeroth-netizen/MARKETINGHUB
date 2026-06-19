@@ -102,7 +102,7 @@
       svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>' },
     { key:'sales',       label:'Performance Marketing', sub:'Weekly & all-time KPIs',        href:'neighborly-dashboard.html',   bg:'#fdf7d8', stroke:'#b89a00', roles:['team','guest','admin'],
       svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>' },
-    { key:'pmix',        label:'Sales & Pmix',          sub:'Daily sales & product mix',     href:'neighborly-pmix.html',        bg:'#e3ece3', stroke:'#5a7a5a', roles:['team','guest','admin'],
+    { key:'pmix',        label:'Sales & Pmix',          sub:'Daily sales & product mix',     href:'neighborly-dashboard.html?p=daily', bg:'#e3ece3', stroke:'#5a7a5a', roles:['team','guest','admin'],
       svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>' },
     { key:'calendar',    label:'Marketing Calendar',    sub:'Campaigns & scheduling',        href:'neighborly-calendar.html',    bg:'#e4f5ea', stroke:'#7bbd91', roles:['team','guest','admin'],
       svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>' },
