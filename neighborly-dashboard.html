@@ -4129,7 +4129,10 @@ function renderDailyPmix(data) {
     const isZero = val < 0.01;
     // Compare today's share-of-net to 6-week avg share-of-net
     const todayShareOfNet = netSales ? val/netSales*100 : 0;
-    const sixWkShareOfNet = sw[CONCEPT_6WK_KEY[k]] || null;
+    // `??`, not `||` — a concept genuinely at 0% 6-wk share (e.g. Social
+    // Monk at Brentwood, which doesn't carry that concept) must still show
+    // "vs 6-wk", not be treated the same as a missing/unsupported field.
+    const sixWkShareOfNet = sw[CONCEPT_6WK_KEY[k]] ?? null;
     let vsHtml = '';
     if (sixWkShareOfNet != null) {
       const delta = todayShareOfNet - sixWkShareOfNet;
