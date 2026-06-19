@@ -4225,13 +4225,18 @@ function renderDailyPmix(data) {
   // Concepts are only part of net sales (Marketplace/Catering/Beverages/Wine/
   // Beer live in the "Other revenue" tile below) — a concepts-only ring would
   // always render as a full 100% circle while its "% of net" labels summed to
-  // well under 100%, an incoherent donut. Folding the gap into one "Other
-  // revenue" slice keeps the ring and its labels honest, the same way the
-  // channel donut's slices already tile all of net sales.
+  // well under 100%, an incoherent donut. The "Other revenue" slice here is
+  // pinned to the exact same OTHER_KEYS sum shown in the tile below (so the
+  // two always agree) rather than "whatever's left over" — pmix doesn't
+  // necessarily tile all of net sales (e.g. gift cards, fees), so any true
+  // remainder beyond concepts + other revenue gets its own "Uncategorized"
+  // slice instead of being silently folded into "Other revenue".
   const conceptSum = CONCEPT_KEYS.reduce((a,k) => a + (+pm[k] || 0), 0);
-  const otherRevenueTotal = Math.max(0, netSales - conceptSum);
+  const otherRevenueTotal = OTHER_KEYS.reduce((a,k) => a + (+pm[k] || 0), 0);
+  const unclassifiedTotal = Math.max(0, netSales - conceptSum - otherRevenueTotal);
   const donutSlices = chartKeys.map(k => ({ label: PMIX_LABELS[k], v: +pm[k] || 0, color: CONCEPT_COLOR[k] }));
-  if (otherRevenueTotal > 0.01) donutSlices.push({ label: 'Other revenue', v: otherRevenueTotal, color: '#c9c6bd' });
+  if (otherRevenueTotal > 0.01)  donutSlices.push({ label: 'Other revenue', v: otherRevenueTotal, color: '#c9c6bd' });
+  if (unclassifiedTotal > 0.01)  donutSlices.push({ label: 'Uncategorized', v: unclassifiedTotal, color: '#e4e1d7' });
   const sortedConcepts = donutSlices.sort((a, b) => b.v - a.v);
   _dailyCharts.pmixPie = new Chart(pieCanvas, {
     type: 'doughnut',
