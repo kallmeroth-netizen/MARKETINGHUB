@@ -2812,19 +2812,30 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeHubNav(
       <div class="concept-card"><div class="daily-empty-kpi">No data loaded</div></div>
     </div>
 
-    <div class="chart-grid-2 reveal" style="margin-bottom:1.5rem">
-      <div class="chart-card">
-        <div class="chart-card-title">Sales by concept</div>
-        <div class="chart-card-sub" id="dailyPmixSub">Today's revenue by concept</div>
-        <div class="chart-wrap" style="height:280px"><canvas id="dailyPmixChart"></canvas></div>
-        <div class="chart-source">Source: Toast POS</div>
+    <div class="chart-card reveal" style="margin-bottom:1.5rem">
+      <div class="chart-grid-2" style="margin-bottom:0">
+        <div>
+          <div class="chart-card-title">Sales by concept</div>
+          <div class="chart-card-sub" id="dailyPmixSub">Today's revenue by concept</div>
+          <div class="chart-wrap" style="height:280px"><canvas id="dailyPmixChart"></canvas></div>
+        </div>
+        <div>
+          <div class="chart-card-title">Concept mix %</div>
+          <div class="chart-card-sub">Share of today's net sales · hover for detail</div>
+          <div class="channel-pie-wrap">
+            <div class="chart-wrap channel-pie-canvas" style="height:280px"><canvas id="dailyPmixMixChart"></canvas></div>
+            <div id="dailyPmixMixLegend" class="channel-pie-legend"></div>
+          </div>
+        </div>
       </div>
-      <div class="chart-card">
-        <div class="chart-card-title">Other revenue · marketplace, catering & beverages</div>
-        <div class="chart-card-sub">Non-concept revenue streams</div>
-        <div id="dailyPmixMix" style="margin-top:0.5rem"></div>
-        <div class="chart-source">Source: Toast POS</div>
-      </div>
+      <div class="chart-source">Source: Toast POS</div>
+    </div>
+
+    <div class="chart-card reveal" style="margin-bottom:1.5rem">
+      <div class="chart-card-title">Other revenue · marketplace, catering & beverages</div>
+      <div class="chart-card-sub">Non-concept revenue streams · share of today's net sales</div>
+      <div id="dailyOtherRevenueMix" style="margin-top:0.5rem"></div>
+      <div class="chart-source">Source: Toast POS</div>
     </div>
 
     <!-- METRICS TABLE -->
@@ -4107,12 +4118,16 @@ const CONCEPT_6WK_KEY = {
 
 function renderDailyPmix(data) {
   const canvas = document.getElementById('dailyPmixChart');
-  const mixWrap = document.getElementById('dailyPmixMix');
+  const pieCanvas = document.getElementById('dailyPmixMixChart');
+  const legendEl = document.getElementById('dailyPmixMixLegend');
+  const mixWrap = document.getElementById('dailyOtherRevenueMix');
   const cardWrap = document.getElementById('dailyConceptCards');
-  if (!canvas || !mixWrap || !cardWrap) return;
-  if (_dailyCharts.pmix) { try { _dailyCharts.pmix.destroy(); } catch(e){} }
+  if (!canvas || !pieCanvas || !legendEl || !mixWrap || !cardWrap) return;
+  if (_dailyCharts.pmix)    { try { _dailyCharts.pmix.destroy(); } catch(e){} }
+  if (_dailyCharts.pmixPie) { try { _dailyCharts.pmixPie.destroy(); } catch(e){} }
   if (!data) {
     cardWrap.innerHTML = '<div class="concept-card"><div class="daily-empty-kpi">No data</div></div>';
+    legendEl.innerHTML = '<div class="daily-empty-kpi">No data</div>';
     mixWrap.innerHTML = '<div class="daily-empty-kpi">No data</div>';
     return;
   }
@@ -4120,6 +4135,7 @@ function renderDailyPmix(data) {
   const pm = data.today.pmix || {};
   const sw = data.sixWeekAvg || {};
   const netSales = data.today.netSales || 0;
+  const netForPct = netSales || 1; // all three concept-section charts express % of net sales
 
   // ── CONCEPT CARDS — the 6 restaurant concepts ─────────────────────────
   const conceptTotal = CONCEPT_KEYS.reduce((a,k) => a + (+pm[k] || 0), 0) || 1;
@@ -4159,6 +4175,7 @@ function renderDailyPmix(data) {
 
   _dailyCharts.pmix = new Chart(canvas, {
     type: 'bar',
+    plugins: [ChartDataLabels],
     data: {
       labels: chartKeys.map(k => PMIX_LABELS[k]),
       datasets: [{
@@ -4173,6 +4190,7 @@ function renderDailyPmix(data) {
     options: {
       indexAxis: 'y',
       responsive: true, maintainAspectRatio: false,
+      layout: { padding: { right: 46 } },
       animation: { duration: 700, easing: 'easeOutQuart' },
       interaction: { intersect: false, mode: 'nearest', axis: 'y' },
       plugins: {
@@ -4186,19 +4204,84 @@ function renderDailyPmix(data) {
           displayColors: false,
           callbacks: {
             title: ctx => ctx[0].label,
-            label: ctx => [_fmtDollarRound(ctx.parsed.x), (ctx.parsed.x/conceptTotal*100).toFixed(1) + '% of concepts']
+            label: ctx => [_fmtDollarRound(ctx.parsed.x), (ctx.parsed.x/netForPct*100).toFixed(1) + '% of net']
           }
+        },
+        datalabels: {
+          anchor: 'end', align: 'end', clamp: true,
+          color: '#1A1916',
+          font: { family: 'DM Mono', size: 10, weight: '500' },
+          formatter: v => _fmtDollarRound(v)
         }
       },
       scales: {
-        x: { grid: { color:'rgba(0,0,0,0.04)' }, ticks: { font:{family:'DM Mono',size:10}, color:'#9E9C96', callback: v => '$' + (v>=1000 ? Math.round(v/1000)+'k' : v) } },
+        x: { grace: '12%', grid: { color:'rgba(0,0,0,0.04)' }, ticks: { font:{family:'DM Mono',size:10}, color:'#9E9C96', callback: v => '$' + (v>=1000 ? Math.round(v/1000)+'k' : v) } },
         y: { grid: { display: false }, ticks: { font:{family:'DM Sans',size:11}, color:'#1A1916' } }
       }
     }
   });
 
+  // ── CONCEPT MIX % — donut chart with side legend, mirrors channel mix ──
+  // Concepts are only part of net sales (Marketplace/Catering/Beverages/Wine/
+  // Beer live in the "Other revenue" tile below) — a concepts-only ring would
+  // always render as a full 100% circle while its "% of net" labels summed to
+  // well under 100%, an incoherent donut. Folding the gap into one "Other
+  // revenue" slice keeps the ring and its labels honest, the same way the
+  // channel donut's slices already tile all of net sales.
+  const conceptSum = CONCEPT_KEYS.reduce((a,k) => a + (+pm[k] || 0), 0);
+  const otherRevenueTotal = Math.max(0, netSales - conceptSum);
+  const donutSlices = chartKeys.map(k => ({ label: PMIX_LABELS[k], v: +pm[k] || 0, color: CONCEPT_COLOR[k] }));
+  if (otherRevenueTotal > 0.01) donutSlices.push({ label: 'Other revenue', v: otherRevenueTotal, color: '#c9c6bd' });
+  const sortedConcepts = donutSlices.sort((a, b) => b.v - a.v);
+  _dailyCharts.pmixPie = new Chart(pieCanvas, {
+    type: 'doughnut',
+    plugins: [ChartDataLabels],
+    data: {
+      labels: sortedConcepts.map(r => r.label),
+      datasets: [{
+        data: sortedConcepts.map(r => r.v),
+        backgroundColor: sortedConcepts.map(r => r.color),
+        hoverBackgroundColor: sortedConcepts.map(r => r.color),
+        borderColor: '#fff',
+        borderWidth: 1.5,
+        hoverOffset: 6
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      cutout: '58%',
+      animation: { duration: 700, easing: 'easeOutQuart' },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#1f2328', titleColor: '#fff', bodyColor: '#fff',
+          padding: 10, cornerRadius: 6, displayColors: false,
+          titleFont: { family: 'DM Sans', size: 12, weight: '600' },
+          bodyFont:  { family: 'DM Mono', size: 12 },
+          callbacks: {
+            title: ctx => ctx[0].label,
+            label: ctx => [_fmtDollarRound(ctx.parsed), (ctx.parsed/netForPct*100).toFixed(1) + '% of net']
+          }
+        },
+        datalabels: {
+          color: ctx => _contrastText(sortedConcepts[ctx.dataIndex].color),
+          font: { family: 'DM Mono', size: 11, weight: '600' },
+          // Slices under ~4% don't have room for a label without
+          // overlapping their neighbors on the donut ring — skip those.
+          formatter: v => (v / netForPct * 100) >= 4 ? Math.round(v / netForPct * 100) + '%' : ''
+        }
+      }
+    }
+  });
+  legendEl.innerHTML = sortedConcepts.map(r => {
+    const pct = r.v / netForPct * 100;
+    return `<div class="channel-pie-row" title="${r.label}: ${_fmtDollarRound(r.v)} (${pct.toFixed(1)}% of net)">
+      <span class="swatch" style="background:${r.color}"></span>
+      <span class="name">${r.label}</span>
+    </div>`;
+  }).join('');
+
   // ── OTHER REVENUE — Marketplace, Catering, Beverages, Wine, Beer ──────
-  const otherTotal = OTHER_KEYS.reduce((a,k) => a + (+pm[k] || 0), 0) || 1;
   const otherKeys = OTHER_KEYS.filter(k => (pm[k] || 0) > 0);
   if (otherKeys.length === 0) {
     mixWrap.innerHTML = '<div style="color:var(--text-3);font-size:12px;padding:0.5rem 0">No non-concept revenue today.</div>';
@@ -4208,9 +4291,9 @@ function renderDailyPmix(data) {
       .map(k => ({ k, v: +pm[k]||0 }))
       .sort((a,b) => b.v - a.v)
       .map(row => {
-        const pct = row.v/otherTotal*100;
+        const pct = row.v/netForPct*100;
         const color = OTHER_COLORS[row.k] || '#999';
-        return `<div class="mix-bar-wrap" title="${PMIX_LABELS[row.k]}: ${_fmtDollarRound(row.v)} (${pct.toFixed(1)}% of other)">
+        return `<div class="mix-bar-wrap" title="${PMIX_LABELS[row.k]}: ${_fmtDollarRound(row.v)} (${pct.toFixed(1)}% of net)">
           <div class="mix-bar-label"><span>${PMIX_LABELS[row.k]}</span><span class="mix-detail">${_fmtDollarRound(row.v)} &middot; ${pct.toFixed(1)}%</span></div>
           <div class="mix-bar-track"><div class="mix-bar-fill animate" style="width:${pct.toFixed(2)}%;background:${color}"></div></div>
         </div>`;
