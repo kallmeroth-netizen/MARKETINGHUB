@@ -246,8 +246,8 @@
   .mix-header-row .mix-detail { font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-3); font-family: var(--f-sans); }
 
   /* Daily Channel mix — pie + side legend */
-  .channel-pie-wrap { display: grid; grid-template-columns: 200px 1fr; gap: 1rem; align-items: center; margin-top: 0.5rem; }
-  @media (max-width: 560px) { .channel-pie-wrap { grid-template-columns: 1fr; } .channel-pie-canvas { max-width: 200px; margin: 0 auto; } }
+  .channel-pie-wrap { display: grid; grid-template-columns: 280px 1fr; gap: 1rem; align-items: center; margin-top: 0.5rem; }
+  @media (max-width: 560px) { .channel-pie-wrap { grid-template-columns: 1fr; } .channel-pie-canvas { max-width: 200px; height: 200px !important; margin: 0 auto; } }
   .channel-pie-legend { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
   .channel-pie-row { display: grid; grid-template-columns: 10px 1fr; align-items: center; gap: 8px; font-family: var(--f-sans); font-size: var(--t-caption); color: var(--text); }
   .channel-pie-row .swatch { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
@@ -2798,7 +2798,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeHubNav(
           <div class="chart-card-title">Channel mix %</div>
           <div class="chart-card-sub">Share of today's net sales · hover for detail</div>
           <div class="channel-pie-wrap">
-            <div class="chart-wrap channel-pie-canvas" style="height:200px"><canvas id="dailyChannelMixChart"></canvas></div>
+            <div class="chart-wrap channel-pie-canvas" style="height:280px"><canvas id="dailyChannelMixChart"></canvas></div>
             <div id="dailyChannelMixLegend" class="channel-pie-legend"></div>
           </div>
         </div>
