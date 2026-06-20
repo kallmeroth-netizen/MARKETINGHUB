@@ -1067,7 +1067,7 @@ function renderScorecard() {
   const fmtROAS = v => (+v).toFixed(2) + 'x';
   const metricLib = {
     spend:     { lbl: 'Spend',     fmt: fmtMoney,        lowerBetter: null  },
-    netRev:    { lbl: 'Net rev',   fmt: fmtMoney,        lowerBetter: false },
+    netRev:    { lbl: 'Gross rev', fmt: fmtMoney,        lowerBetter: false },
     customers: { lbl: 'Customers', fmt: v => fmtN(v),    lowerBetter: false },
     cac:       { lbl: 'CAC',       fmt: fmtDollarsCents, lowerBetter: true  }
   };
@@ -1141,21 +1141,21 @@ function renderScorecard() {
 function renderMetricsTable() {
   const rows = [
     { cat: '3PD sponsored listings' },
-    { label: 'Net Revenue',       t4w: fmt$(DATA.sponsored.netRev.t4w), lw: fmt$(DATA.sponsored.netRev.lw), cw: fmt$(DATA.sponsored.netRev.cw), pT4W: DATA.sponsored.netRev.pctT4W, pPW: DATA.sponsored.netRev.pctPW },
+    { label: 'Gross Revenue',      t4w: fmt$(DATA.sponsored.netRev.t4w), lw: fmt$(DATA.sponsored.netRev.lw), cw: fmt$(DATA.sponsored.netRev.cw), pT4W: DATA.sponsored.netRev.pctT4W, pPW: DATA.sponsored.netRev.pctPW },
     { label: 'Spend',             t4w: fmt$(DATA.sponsored.spend.t4w),  lw: fmt$(DATA.sponsored.spend.lw),  cw: fmt$(DATA.sponsored.spend.cw),  pT4W: DATA.sponsored.spend.pctT4W,  pPW: DATA.sponsored.spend.pctPW  },
     { label: 'ROAS',              t4w: fmtR(DATA.sponsored.roas.t4w),   lw: fmtR(DATA.sponsored.roas.lw),   cw: fmtR(DATA.sponsored.roas.cw),   pT4W: DATA.sponsored.roas.pctT4W,   pPW: DATA.sponsored.roas.pctPW   },
     { cat: 'Promo' },
-    { label: 'Net Revenue',       t4w: fmt$(DATA.promo.netRev.t4w), lw: fmt$(DATA.promo.netRev.lw), cw: fmt$(DATA.promo.netRev.cw), pT4W: DATA.promo.netRev.pctT4W, pPW: DATA.promo.netRev.pctPW },
+    { label: 'Gross Revenue',      t4w: fmt$(DATA.promo.netRev.t4w), lw: fmt$(DATA.promo.netRev.lw), cw: fmt$(DATA.promo.netRev.cw), pT4W: DATA.promo.netRev.pctT4W, pPW: DATA.promo.netRev.pctPW },
     { label: 'Spend',             t4w: fmt$(DATA.promo.spend.t4w),  lw: fmt$(DATA.promo.spend.lw),  cw: fmt$(DATA.promo.spend.cw),  pT4W: DATA.promo.spend.pctT4W,  pPW: DATA.promo.spend.pctPW  },
     { label: 'ROAS',              t4w: fmtR(DATA.promo.roas.t4w),   lw: fmtR(DATA.promo.roas.lw),   cw: fmtR(DATA.promo.roas.cw),   pT4W: DATA.promo.roas.pctT4W,   pPW: DATA.promo.roas.pctPW   },
     { cat: 'Meta' },
-    { label: 'Net Revenue',       t4w: fmt$(DATA.meta.netRev.t4w),    lw: fmt$(DATA.meta.netRev.lw),    cw: fmt$(DATA.meta.netRev.cw),    pT4W: DATA.meta.netRev.pctT4W,    pPW: DATA.meta.netRev.pctPW    },
+    { label: 'Gross Revenue',      t4w: fmt$(DATA.meta.netRev.t4w),    lw: fmt$(DATA.meta.netRev.lw),    cw: fmt$(DATA.meta.netRev.cw),    pT4W: DATA.meta.netRev.pctT4W,    pPW: DATA.meta.netRev.pctPW    },
     { label: 'Ad Spend',          t4w: fmt$(DATA.meta.spend.t4w),     lw: fmt$(DATA.meta.spend.lw),     cw: fmt$(DATA.meta.spend.cw),     pT4W: DATA.meta.spend.pctT4W,     pPW: DATA.meta.spend.pctPW     },
     { label: 'Customers Acq.',    t4w: fmtN(DATA.meta.customers.t4w), lw: fmtN(DATA.meta.customers.lw), cw: fmtN(DATA.meta.customers.cw), pT4W: DATA.meta.customers.pctT4W, pPW: DATA.meta.customers.pctPW },
     { label: 'CAC',               t4w: fmt$(DATA.meta.cac.t4w),       lw: fmt$(DATA.meta.cac.lw),       cw: fmt$(DATA.meta.cac.cw),       pT4W: DATA.meta.cac.pctT4W,       pPW: DATA.meta.cac.pctPW       },
     { label: 'ROAS',              t4w: fmtR(DATA.meta.roas.t4w),      lw: fmtR(DATA.meta.roas.lw),      cw: fmtR(DATA.meta.roas.cw),      pT4W: DATA.meta.roas.pctT4W,      pPW: DATA.meta.roas.pctPW      },
     { cat: 'Google' },
-    { label: 'Net Revenue',       t4w: fmt$(DATA.google.netRev.t4w),    lw: fmt$(DATA.google.netRev.lw),    cw: fmt$(DATA.google.netRev.cw),    pT4W: DATA.google.netRev.pctT4W,    pPW: DATA.google.netRev.pctPW    },
+    { label: 'Gross Revenue',      t4w: fmt$(DATA.google.netRev.t4w),    lw: fmt$(DATA.google.netRev.lw),    cw: fmt$(DATA.google.netRev.cw),    pT4W: DATA.google.netRev.pctT4W,    pPW: DATA.google.netRev.pctPW    },
     { label: 'Ad Spend',          t4w: fmt$(DATA.google.spend.t4w),     lw: fmt$(DATA.google.spend.lw),     cw: fmt$(DATA.google.spend.cw),     pT4W: DATA.google.spend.pctT4W,     pPW: DATA.google.spend.pctPW     },
     { label: 'Customers Acq.',    t4w: fmtN(DATA.google.customers.t4w), lw: fmtN(DATA.google.customers.lw), cw: fmtN(DATA.google.customers.cw), pT4W: DATA.google.customers.pctT4W, pPW: DATA.google.customers.pctPW },
     { label: 'CAC',               t4w: fmt$(DATA.google.cac.t4w),       lw: fmt$(DATA.google.cac.lw),       cw: fmt$(DATA.google.cac.cw),       pT4W: DATA.google.cac.pctT4W,       pPW: DATA.google.cac.pctPW       },
@@ -1231,6 +1231,23 @@ const SHEET_3PD_LS_KEY = 'nbly_3pd_sheet_cache_v2';  // bumped so the
 // multi-week payload (sponsored + promo + meta + google × all weeks)
 // gets re-fetched once after deploy instead of waiting 24h for the
 // old single-week v1 cache to expire
+// Overwrites DATA[plat].netRev with the sheet's gross-revenue figure (the
+// sheet's own "netRev" field is grossRev minus spend — a margin number, not
+// what this page shows) and recomputes ROAS as gross/spend, since the
+// sheet's own roas field for 3PD is inconsistently net-based while Meta/
+// Google's sheet roas already was gross-based (moot now that Meta/Google no
+// longer read from the sheet at all — see _loadTopTileAdData).
+function _applyGrossRevAndRoas(plat, grossRevSrc) {
+  if (!grossRevSrc) return;
+  DATA[plat] = DATA[plat] || {};
+  DATA[plat].netRev = Object.assign({}, DATA[plat].netRev || {}, grossRevSrc);
+  const sp = DATA[plat].spend || {};
+  const pct  = (a, b) => b ? Math.round((a - b) / Math.abs(b) * 100) : null;
+  const roas = (g, s) => s ? g / s : null;
+  const cw = roas(grossRevSrc.cw, sp.cw), lw = roas(grossRevSrc.lw, sp.lw), t4w = roas(grossRevSrc.t4w, sp.t4w);
+  DATA[plat].roas = { t4w, lw, cw, pctT4W: pct(cw, t4w), pctPW: pct(cw, lw) };
+}
+
 async function sync3PDFromSheet() {
   if (!SHEET_3PD_URL) return;
   let payload = null;
@@ -1249,19 +1266,17 @@ async function sync3PDFromSheet() {
   if (!payload) return;
 
   // Preferred path: the new Apps Script returns a `weeks[]` array with
-  // every historical week from the Weekly Summary tab — Sponsored, Promo,
-  // Meta, and Google all keyed by week label. Look up the week the user
-  // is currently viewing and overlay just those four paid blocks onto
-  // DATA, then re-render the scorecard/table/top-tiles that read them
-  // (top tiles only pick up sponsored/promo from this — Meta/Google ROAS
-  // there come from live ad_performance via _adCache, not this sheet).
-  // When the cached payload is the legacy single-week shape, falls
-  // through to the old guard below so nothing breaks during the Apps
-  // Script transition.
+  // every historical week from the Weekly Summary tab. Sponsored/Promo have
+  // no API (no Uber Eats/DoorDash integration) so they stay sheet-sourced;
+  // Meta/Google are intentionally NOT read from here anymore — they come
+  // live from ad_performance via _adCache/DATA.meta/DATA.google, populated
+  // by _loadTopTileAdData. When the cached payload is the legacy single-week
+  // shape, falls through to the old guard below so nothing breaks during the
+  // Apps Script transition.
   if (Array.isArray(payload.weeks) && payload.weeks.length) {
     const wk = payload.weeks.find(w => w.label === DATA.currentWeek);
     if (!wk) return;  // sheet doesn't have this week — leave DATA alone
-    ['sponsored','promo','meta','google'].forEach(plat => {
+    ['sponsored','promo'].forEach(plat => {
       if (!wk[plat]) return;
       DATA[plat] = DATA[plat] || {};
       Object.keys(wk[plat]).forEach(metric => {
@@ -1269,6 +1284,7 @@ async function sync3PDFromSheet() {
         if (!src) return;
         DATA[plat][metric] = Object.assign({}, DATA[plat][metric] || {}, src);
       });
+      _applyGrossRevAndRoas(plat, wk[plat].grossRev);
     });
     renderScorecard();
     renderMetricsTable();
@@ -1290,6 +1306,7 @@ async function sync3PDFromSheet() {
       if (!src) return;
       DATA[plat][metric] = Object.assign({}, DATA[plat][metric] || {}, src);
     });
+    _applyGrossRevAndRoas(plat, payload[plat] && payload[plat].grossRev);
   });
   renderScorecard();
   renderMetricsTable();
@@ -4694,23 +4711,26 @@ async function _sbLoadWeeklyKPIs(weekStartOverride) {
   DATA.lastWeek    = _sbFmtWeekLabel(lwStart);
   // Overlay the per-week paid metrics from WEEK_HISTORY for the selected
   // week. _sbLoadWeeklyKPIs writes live revenue + revMix from Supabase
-  // but the Supabase RPCs don't carry paid-channel data (Meta, Google,
-  // 3PD Sponsored/Promo, blendedROAS, contribution) — so without this
-  // overlay every calendar-driven week change leaves the paid tiles
-  // showing whatever was loaded on initial render (the "all the marketing
-  // ROAS numbers are frozen when I go back a week" bug). switchWeek()
-  // (the hidden dropdown path) gets this right because it copies the
-  // entire WEEK_HISTORY entry wholesale; this gives the calendar path
-  // the same treatment for the paid metrics specifically. If a selected
-  // week isn't in WEEK_HISTORY (e.g. live revenue weeks that predate the
-  // baked-in snapshots), the paid tiles fall back to the most recent
-  // available snapshot rather than going blank.
+  // but the Supabase RPCs don't carry paid-channel data (3PD Sponsored/
+  // Promo, blendedROAS, contribution) — so without this overlay every
+  // calendar-driven week change leaves the paid tiles showing whatever was
+  // loaded on initial render (the "all the marketing ROAS numbers are
+  // frozen when I go back a week" bug). switchWeek() (the hidden dropdown
+  // path) gets this right because it copies the entire WEEK_HISTORY entry
+  // wholesale; this gives the calendar path the same treatment for the paid
+  // metrics specifically. If a selected week isn't in WEEK_HISTORY (e.g.
+  // live revenue weeks that predate the baked-in snapshots), the paid tiles
+  // fall back to the most recent available snapshot rather than going
+  // blank. Meta/Google are intentionally excluded — they're live from
+  // ad_performance via _loadTopTileAdData and should reflect whatever
+  // Supabase actually has (including legitimately blank/stale) rather than
+  // ever fall back to this 3-week-stale baked array.
   if (typeof WEEK_HISTORY !== 'undefined' && Array.isArray(WEEK_HISTORY)) {
     const _wkLabel = DATA.currentWeek;
     let _wkEntry = WEEK_HISTORY.find(w => w.label === _wkLabel);
     if (!_wkEntry && WEEK_HISTORY.length) _wkEntry = WEEK_HISTORY[0];
     if (_wkEntry && _wkEntry.data) {
-      ['meta','google','sponsored','promo','blendedROAS','contribution'].forEach(k => {
+      ['sponsored','promo','blendedROAS','contribution'].forEach(k => {
         if (_wkEntry.data[k] != null) DATA[k] = JSON.parse(JSON.stringify(_wkEntry.data[k]));
       });
     }
@@ -4749,18 +4769,29 @@ async function _sbLoadWeeklyKPIs(weekStartOverride) {
   _loadTopTileAdData(cwStart).catch(console.error);
 }
 
-// ── TOP TILES — live Meta/Google ad data ─────────────────────────────────────
-// Meta/Google ROAS + revenue/spend for the top KPI tiles come straight from
-// ad_performance via the same ads-meta/ads-google Edge Functions the Paid
-// Ads page uses — not the Marketing KPI Tracker sheet (that stays the source
-// for 3PD Sponsored/Promo, which has no API yet). cw = the selected fiscal
-// week to date; sixwk = the 6 fiscal weeks immediately before it, summed
-// then divided by 6 (dollars) — ROAS uses the Edge Function's own
-// sum(revenue)/sum(spend) for that same range, a ratio-of-sums rather than
-// an average-of-weekly-ratios, so it's consistent with how Blended ROAS is
-// combined in renderTopTiles().
+// ── TOP TILES + SCORECARD/TABLE — live Meta/Google ad data ───────────────────
+// Meta/Google revenue + spend + ROAS everywhere on this page (top KPI tiles,
+// Paid Performance Scorecard, All Metrics table) come straight from
+// ad_performance via the ads-meta/ads-google Edge Functions — not the
+// Marketing KPI Tracker sheet (that stays the source for 3PD Sponsored/Promo
+// only, which has no API yet). All revenue figures here are gross
+// (purchase_value, Meta/Google's own attributed value) — ROAS = gross
+// revenue / spend, matching what the Edge Functions already return. cw = the
+// selected fiscal week to date; lw = the 7 days immediately before it; sixwk
+// (t4w) = the 6 fiscal weeks before that, summed then divided by 6 (dollars)
+// — ROAS uses the Edge Function's own sum(revenue)/sum(spend) for each range,
+// a ratio-of-sums rather than an average-of-weekly-ratios, so it's consistent
+// with how Blended ROAS is combined in renderTopTiles().
 async function _loadTopTileAdData(cwStart) {
   const sb = NPData.supabase;
+  // Explicitly attach the session JWT rather than relying on the client's
+  // ambient auth state being ready by the time this fires — functions.invoke()
+  // was found to sometimes go out before session restore completes, hitting
+  // these Edge Functions as anon (which correctly has no SELECT grant on
+  // ad_performance) and silently leaving the tiles blank.
+  const { data: { session } } = await sb.auth.getSession();
+  const authHeaders = session ? { Authorization: `Bearer ${session.access_token}` } : undefined;
+
   // cwEnd: "today" for the in-progress current week (partial-week data, same
   // convention as nbly_weekly_kpis), but capped to the actual end of the
   // fiscal week when cwStart is a past week selected via the calendar —
@@ -4768,18 +4799,28 @@ async function _loadTopTileAdData(cwStart) {
   const today      = new Date().toISOString().slice(0, 10);
   const weekEnd    = _sbAddDays(cwStart, 6);
   const cwEnd      = today < weekEnd ? today : weekEnd;
+  const lwStart    = _sbAddDays(cwStart, -7);
+  const lwEnd      = _sbAddDays(cwStart, -1);
   const sixwkStart = _sbAddDays(cwStart, -42);
   const sixwkEnd   = _sbAddDays(cwStart, -1);
 
-  const [mCw, gCw, m6w, g6w] = await Promise.all([
-    sb.functions.invoke('ads-meta',   { body: { start_date: cwStart,    end_date: cwEnd,    granularity: 'week' } }),
-    sb.functions.invoke('ads-google', { body: { start_date: cwStart,    end_date: cwEnd,    granularity: 'week' } }),
-    sb.functions.invoke('ads-meta',   { body: { start_date: sixwkStart, end_date: sixwkEnd, granularity: 'week' } }),
-    sb.functions.invoke('ads-google', { body: { start_date: sixwkStart, end_date: sixwkEnd, granularity: 'week' } }),
+  const invoke = (fn, start_date, end_date) =>
+    sb.functions.invoke(fn, { body: { start_date, end_date, granularity: 'week' }, headers: authHeaders });
+
+  const [mCw, gCw, mLw, gLw, m6w, g6w] = await Promise.all([
+    invoke('ads-meta',   cwStart,    cwEnd),
+    invoke('ads-google', cwStart,    cwEnd),
+    invoke('ads-meta',   lwStart,    lwEnd),
+    invoke('ads-google', lwStart,    lwEnd),
+    invoke('ads-meta',   sixwkStart, sixwkEnd),
+    invoke('ads-google', sixwkStart, sixwkEnd),
   ]);
 
   const summaryOf = (r) => r.error ? null : r.data?.summary;
-  const mkPlatform = (cwRes, sixwkRes) => {
+  const pct = (a, b) => b ? Math.round((a - b) / Math.abs(b) * 100) : null;
+
+  // Simple {cw, sixwk} shape for the top KPI tiles (renderTopTiles).
+  const mkTopTile = (cwRes, sixwkRes) => {
     const c = summaryOf(cwRes), s = summaryOf(sixwkRes);
     return {
       netRev: { cw: c?.purchase_value ?? 0, sixwk: s ? (s.purchase_value || 0) / 6 : 0 },
@@ -4788,9 +4829,33 @@ async function _loadTopTileAdData(cwStart) {
     };
   };
 
-  _adCache.meta   = mkPlatform(mCw, m6w);
-  _adCache.google = mkPlatform(gCw, g6w);
+  // Full {t4w, lw, cw, pctT4W, pctPW} shape per metric for the Scorecard and
+  // All Metrics table (renderScorecard / renderMetricsTable read DATA.meta /
+  // DATA.google in exactly this shape).
+  const mkFull = (cwRes, lwRes, sixwkRes) => {
+    const c = summaryOf(cwRes), l = summaryOf(lwRes), s = summaryOf(sixwkRes);
+    const cw  = c?.purchase_value ?? 0,         lw  = l?.purchase_value ?? 0,         t4w  = s ? (s.purchase_value || 0) / 6 : 0;
+    const cwSp = c?.spend ?? 0,                 lwSp = l?.spend ?? 0,                 t4wSp = s ? (s.spend || 0) / 6 : 0;
+    const cwCu = c?.purchases ?? 0,             lwCu = l?.purchases ?? 0,             t4wCu = s ? (s.purchases || 0) / 6 : 0;
+    const cwR  = cwSp ? cw / cwSp : null,       lwR  = lwSp ? lw / lwSp : null,        t4wR  = t4wSp ? t4w / t4wSp : null;
+    const cwC  = cwCu ? cwSp / cwCu : null,     lwC  = lwCu ? lwSp / lwCu : null,      t4wC  = t4wCu ? t4wSp / t4wCu : null;
+    return {
+      netRev:    { t4w, lw, cw, pctT4W: pct(cw, t4w),   pctPW: pct(cw, lw) },
+      spend:     { t4w: t4wSp, lw: lwSp, cw: cwSp,       pctT4W: pct(cwSp, t4wSp), pctPW: pct(cwSp, lwSp) },
+      customers: { t4w: t4wCu, lw: lwCu, cw: cwCu,       pctT4W: pct(cwCu, t4wCu), pctPW: pct(cwCu, lwCu) },
+      cac:       { t4w: t4wC,  lw: lwC,  cw: cwC,         pctT4W: pct(cwC, t4wC),   pctPW: pct(cwC, lwC) },
+      roas:      { t4w: t4wR,  lw: lwR,  cw: cwR,         pctT4W: pct(cwR, t4wR),   pctPW: pct(cwR, lwR) },
+    };
+  };
+
+  _adCache.meta   = mkTopTile(mCw, m6w);
+  _adCache.google = mkTopTile(gCw, g6w);
+  DATA.meta   = mkFull(mCw, mLw, m6w);
+  DATA.google = mkFull(gCw, gLw, g6w);
+
   renderTopTiles();
+  renderScorecard();
+  renderMetricsTable();
 }
 
 document.addEventListener('DOMContentLoaded', function() {
