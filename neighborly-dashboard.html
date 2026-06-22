@@ -701,10 +701,6 @@
           <span class="week-pick" id="weekPickLabel">—</span>
           <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-right:4px;opacity:0.7"><polyline points="6 9 12 15 18 9"/></svg>
         </div>
-        <div class="view-toggle">
-          <button class="vt-btn active" onclick="setView('weekly', this)">This week</button>
-          <button class="vt-btn" onclick="setView('trailing', this)">vs 6-wk avg</button>
-        </div>
         <!-- legacy hidden select kept so any existing code paths still work -->
         <select id="weekPicker" onchange="switchWeek(this.value)" style="display:none"></select>
       </div>
@@ -854,7 +850,6 @@ let DATA = {
   }
 };
 
-let currentView = 'weekly';
 let charts = {};
 // Live Meta/Google ad_performance summary (current week + trailing 6-wk avg),
 // populated by _loadTopTileAdData() below. null until that fetch resolves.
@@ -868,23 +863,10 @@ function fmtPct(n){ if(n==null||isNaN(n))return'—'; return(n>0?'+':'')+n+'%'; 
 function chgClass(n){ if(n>0)return'pos'; if(n<0)return'neg'; return'neu'; }
 function pctClass(n){ if(n>0)return'pct-pos'; if(n<0)return'pct-neg'; return'pct-neu'; }
 
-function getVal(metric, field) {
-  const d = metric;
-  if (!d) return 0;
-  if (currentView === 'weekly')   return d.cw  ?? d.t4w ?? 0;
-  if (currentView === 'trailing') return d.t4w ?? 0;
-  if (currentView === 'lastweek') return d.lw  ?? 0;
-  return d.cw ?? 0;
-}
 function getChange(metric) {
-  if (!metric) return null;
-  if (currentView === 'trailing')  return metric.pctT4W ?? null;
-  if (currentView === 'lastweek')  return metric.pctPW  ?? null;
-  return metric.pctPW ?? null;
+  return metric ? (metric.pctPW ?? null) : null;
 }
 function changeLabel() {
-  if (currentView === 'trailing')  return 'vs 6-wk avg';
-  if (currentView === 'lastweek')  return 'vs last week';
   return 'vs last week';
 }
 
@@ -939,13 +921,6 @@ function showPage(id, tab) {
     }
   } catch (e) {}
 })();
-
-function setView(v, btn) {
-  currentView = v;
-  document.querySelectorAll('.vt-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  renderDashboard();
-}
 
 // ── TOP KPI TILES ────────────────────────────────────────────────────────────
 // Row 1: Total/Organic/Paid revenue. Row 2: Blended/Meta/Google ROAS. Always
