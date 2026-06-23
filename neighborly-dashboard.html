@@ -3409,11 +3409,14 @@ function renderTRMain() {
                : (isDaily ? 'Daily net sales, stacked by location · Jan 2025 – present'
                           : 'Weekly net sales, stacked by location · Jan 2025 – present');
 
-  // The granularity toggle and the Westlake/Brentwood legend only apply to the "Total revenue" series
-  const granToggle = document.getElementById('trGranToggle');
+  // The Westlake/Brentwood color legend only applies to the "Total revenue" series (channels
+  // use a different color key, rendered by Chart.js itself) — hide it via visibility rather
+  // than display so it keeps its layout space and the toggles above it don't jump position
+  // when switching between Total revenue and By channel. The granularity toggle stays visible
+  // in both modes (it only changes the Total revenue series today, but switching views
+  // shouldn't make a control disappear out from under the user).
   const legend = document.getElementById('trMainLegend');
-  if (granToggle) granToggle.style.display = isChannels ? 'none' : '';
-  if (legend) legend.style.display = isChannels ? 'none' : 'flex';
+  if (legend) legend.style.visibility = isChannels ? 'hidden' : 'visible';
 
   if (trCharts.main) trCharts.main.destroy();
 
