@@ -3052,28 +3052,20 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeHubNav(
       <div class="chart-source">Source: Toast POS · automated daily</div>
     </div>
 
-    <div class="chart-grid-2" style="margin-bottom:1.5rem">
-      <div class="chart-card">
-        <div class="chart-card-title">6-week rolling average</div>
-        <div class="chart-card-sub">Daily-smoothed revenue trend by location · stacked</div>
-        <div style="position:relative;height:180px"><canvas id="trRollingChart"></canvas></div>
-        <div class="chart-source">Source: Toast POS · 42-day trailing average</div>
-      </div>
-      <div class="chart-card">
-        <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:var(--s-2);flex-wrap:wrap;gap:var(--s-2)">
-          <div>
-            <div class="chart-card-title">Channel mix over time</div>
-            <div class="chart-card-sub" id="trMixSub">% share by revenue center · monthly</div>
-          </div>
-          <div class="view-toggle" id="trMixLocToggle">
-            <button class="vt-btn active" onclick="setTRMixLoc('total',this)">Total</button>
-            <button class="vt-btn" onclick="setTRMixLoc('wlv',this)">Westlake</button>
-            <button class="vt-btn" onclick="setTRMixLoc('bw',this)">Brentwood</button>
-          </div>
+    <div class="chart-card" style="margin-bottom:1.5rem">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:var(--s-2);flex-wrap:wrap;gap:var(--s-2)">
+        <div>
+          <div class="chart-card-title">Channel mix over time</div>
+          <div class="chart-card-sub" id="trMixSub">% share by revenue center · monthly</div>
         </div>
-        <div style="position:relative;height:180px"><canvas id="trMixChart"></canvas></div>
-        <div class="chart-source">Source: Toast POS</div>
+        <div class="view-toggle" id="trMixLocToggle">
+          <button class="vt-btn active" onclick="setTRMixLoc('total',this)">Total</button>
+          <button class="vt-btn" onclick="setTRMixLoc('wlv',this)">Westlake</button>
+          <button class="vt-btn" onclick="setTRMixLoc('bw',this)">Brentwood</button>
+        </div>
       </div>
+      <div style="position:relative;height:320px"><canvas id="trMixChart"></canvas></div>
+      <div class="chart-source">Source: Toast POS</div>
     </div>
 
   </div>
@@ -3313,7 +3305,6 @@ function setTRGranularity(v, btn) {
   trGranularity = v;
   _trSetActive(btn);
   renderTRMain();
-  setTimeout(renderTRRolling, 30);
 }
 
 function setTRKpiLoc(v, btn) {
@@ -3465,36 +3456,6 @@ function renderTRMain() {
   });
 }
 
-function renderTRRolling() {
-  // Computed on a daily basis (42-day trailing average ≈ 6 weeks) so a partial in-progress
-  // week never drags the most recent point down — each day rolls in/out one at a time.
-  const ROLL_DAYS = 42;
-  const _rollSeries = (arr) => arr.map((p, i) => {
-    const start = Math.max(0, i - (ROLL_DAYS - 1));
-    const win = arr.slice(start, i + 1).filter(x => x.v != null);
-    return win.length ? Math.round(win.reduce((s,x)=>s+x.v, 0) / win.length) : null;
-  });
-  const wlvRoll = _rollSeries(HIST_DAILY_LOC.wlv);
-  const bwRoll = _rollSeries(HIST_DAILY_LOC.bw || []);
-  const labels = HIST_DAILY_LOC.wlv.map(x=>x.d);
-
-  if (trCharts.rolling) trCharts.rolling.destroy();
-  trCharts.rolling = new Chart(document.getElementById('trRollingChart'), {
-    type:'line',
-    data:{labels, datasets:[
-      {label:'Westlake Village', data:wlvRoll, borderColor:'#eace49', backgroundColor:'rgba(234,206,73,0.45)', fill:'origin', stack:'roll', tension:0.35, pointRadius:0, borderWidth:2},
-      {label:'Brentwood',        data:bwRoll,  borderColor:'#1f2328', backgroundColor:'rgba(31,35,40,0.55)',   fill:'-1',     stack:'roll', tension:0.35, pointRadius:0, borderWidth:2}
-    ]},
-    options:{responsive:true,maintainAspectRatio:false,
-      plugins:{legend:{display:false}},
-      scales:{
-        x:{stacked:true,grid:{display:false},ticks:{display:false}},
-        y:{stacked:true,grid:{color:'rgba(0,0,0,0.04)'},ticks:{font:{family:'DM Mono',size:9},color:'#9E9C96',callback:v=>'$'+Math.round(v/1000)+'k'}}
-      }
-    }
-  });
-}
-
 function renderTRMix() {
   // HIST_CHANNELS / HIST_CHANNELS_LOC use legacy coarse key names and have no historical
   // catering series. Map each onto its equivalent in CHANNEL_LABELS / CHANNEL_COLORS — the
@@ -3570,7 +3531,6 @@ function renderTRMix() {
 function renderTrends() {
   renderTRKPIs();
   renderTRMain();
-  setTimeout(renderTRRolling, 30);
   setTimeout(renderTRMix, 60);
 }
 </script>
