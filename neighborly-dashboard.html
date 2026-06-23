@@ -196,6 +196,68 @@
   .table-scroll::-webkit-scrollbar { height: 6px; }
   .table-scroll::-webkit-scrollbar-track { background: var(--surface-2); border-radius: 3px; }
   .table-scroll::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 3px; }
+
+  /* DAILY ITEM EXPLORER — mirrors neighborly-pmix.html's "All items" table */
+  .explorer-controls { display: flex; flex-wrap: wrap; gap: 8px; margin: var(--s-3) 0 var(--s-4); }
+  .search-input {
+    flex: 1 1 240px; min-width: 0;
+    padding: 8px 14px;
+    border: 1px solid var(--line-strong); border-radius: var(--r-pill);
+    background: var(--surface); font-size: var(--t-body-sm); color: var(--text);
+    outline: none;
+    transition: border-color var(--t-base) var(--easing);
+  }
+  .search-input:focus { border-color: var(--ink); }
+  .menu-filter, .sort-toggle { display: inline-flex; gap: 2px; padding: 3px; background: var(--surface-2); border-radius: var(--r-pill); overflow-x: auto; scrollbar-width: none; max-width: 100%; }
+  .menu-filter::-webkit-scrollbar, .sort-toggle::-webkit-scrollbar { display: none; }
+  .menu-filter button, .sort-toggle button {
+    padding: 6px 12px; border: none; background: transparent; cursor: pointer;
+    border-radius: var(--r-pill); font-size: var(--t-caption); font-weight: 500;
+    color: var(--text-3); white-space: nowrap; flex-shrink: 0;
+    transition: all var(--t-fast) var(--easing);
+  }
+  .menu-filter button:hover, .sort-toggle button:hover { color: var(--text); }
+  .menu-filter button.is-active, .sort-toggle button.is-active { background: var(--surface); color: var(--text); box-shadow: var(--shadow-sm); }
+
+  .item-table { width: 100%; border-collapse: collapse; }
+  .item-table th {
+    text-align: left; padding: 10px 12px;
+    font-family: var(--f-eyebrow), 'Futura PT Demi', 'Jost', sans-serif; font-weight: 600; font-size: var(--t-eyebrow);
+    letter-spacing: 0.18em; text-transform: uppercase; color: var(--text-3);
+    border-bottom: 1px solid var(--line);
+  }
+  .item-table th.num { text-align: right; }
+  .item-table td { padding: 10px 12px; font-size: var(--t-body-sm); color: var(--text); border-bottom: 1px solid var(--line); }
+  .item-table td.num { font-family: var(--f-mono); text-align: right; }
+  .item-table tr:hover td { background: var(--surface-2); }
+  .item-table .item-cell { display: flex; flex-direction: column; gap: 2px; }
+  .item-table .item-cell .item-cat { font-family: var(--f-eyebrow), 'Futura PT Demi', 'Jost', sans-serif; font-weight: 600; font-size: var(--t-eyebrow); letter-spacing: 0.18em; text-transform: uppercase; color: var(--text-3); }
+  .item-table tr.empty td { text-align: center; color: var(--text-3); padding: var(--s-5); }
+  .qty-bar { width: 64px; height: 7px; border-radius: var(--r-pill); background: var(--surface-2); display: inline-block; vertical-align: middle; margin-left: 8px; overflow: hidden; box-shadow: inset 0 0 0 0.5px var(--line); }
+  .qty-bar-fill { display: block; height: 100%; min-width: 6%; background: var(--brand-orange); border-radius: var(--r-pill); }
+  .item-table td.num.rank, .item-table th.num.rank { font-family: var(--f-mono); }
+  .tbl-pos { color: var(--brand-green-deep); font-weight: 500; }
+  .tbl-neg { color: #A32D2D; font-weight: 500; }
+  .tbl-muted { color: var(--text-3); }
+  .rank-chg { display: inline-flex; align-items: center; gap: 2px; }
+  .rank-chg svg { width: 10px; height: 10px; }
+  .item-table .all-items-toggle-cell { padding: 12px 0 4px; text-align: center; border-bottom: 0; background: transparent; }
+  .item-table tr:hover .all-items-toggle-cell { background: transparent; }
+  .all-items-toggle {
+    background: transparent;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 8px 18px;
+    font-family: var(--f-sans), 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    cursor: pointer;
+    transition: background 0.12s, border-color 0.12s, color 0.12s;
+    letter-spacing: 0.01em;
+  }
+  .all-items-toggle:hover { background: var(--surface-2); border-color: var(--text-3); color: var(--ink); }
+
   @media (max-width: 768px) {
     .metrics-table th:first-child, .metrics-table td:first-child {
       position: sticky; left: 0; background: var(--surface); z-index: 1;
@@ -2838,6 +2900,43 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeHubNav(
       </table></div>
     </div>
 
+    <!-- ALL ITEMS — daily item explorer (mirrors Product Mix tab, daily instead of weekly) -->
+    <div class="section-title reveal">All items</div>
+    <div class="chart-card reveal" style="margin-bottom:1.5rem">
+      <div class="chart-card-sub">Search any item or filter by concept — sort by revenue, quantity, or price</div>
+
+      <div class="explorer-controls">
+        <input id="dailyItemSearch" class="search-input" type="search" placeholder="Search items…">
+        <div class="sort-toggle" id="dailyItemSortToggle">
+          <button class="is-active" data-sort="net">Revenue</button>
+          <button data-sort="qty">Quantity</button>
+          <button data-sort="avg">Avg price</button>
+        </div>
+      </div>
+      <div class="menu-filter" id="dailyItemMenuFilter" style="margin-bottom:var(--s-4)"></div>
+
+      <div class="table-scroll">
+        <table class="item-table" id="dailyItemTable">
+          <thead>
+            <tr>
+              <th>Item</th>
+              <th class="num">Qty</th>
+              <th class="num">Net sales</th>
+              <th class="num">Avg price</th>
+              <th class="num" title="Rank by net sales within this item's concept, today">Day rank</th>
+              <th class="num" title="Average rank by net sales within concept over the 6 weeks (42 days) before today">6wk avg rank</th>
+              <th class="num" title="Change vs the 6-week average rank — up arrow means the item climbed">Rank Δ</th>
+              <th class="num" title="Average net sales over the 6 weeks (42 days) before today">6wk avg net</th>
+              <th class="num" title="Today's net sales vs the 6-week average, in dollars and percent">Δ vs 6wk avg</th>
+            </tr>
+          </thead>
+          <tbody id="dailyItemTbody"><tr><td colspan="9" style="padding:1.5rem;text-align:center;color:var(--text-3)">No data loaded</td></tr></tbody>
+          <tfoot id="dailyItemTfoot"></tfoot>
+        </table>
+      </div>
+      <div class="chart-source">Source: Toast POS</div>
+    </div>
+
     <!-- DISCOUNTS & COMPS — per location -->
     <div class="section-title reveal">Discounts &amp; comps — by location</div>
     <div class="chart-card reveal" style="padding:0;overflow:hidden;margin-bottom:1.5rem">
@@ -3638,6 +3737,7 @@ async function fetchDailyData() {
     _dailyFetching = false;
     if (btn) { btn.textContent = 'Refresh'; btn.disabled = false; }
     renderDailyDashboard();
+    fetchDailyItemMix();
   }
 }
 
@@ -3800,6 +3900,7 @@ async function pickDailyDate(dateKey) {
     _applyDailyJson(json);
     renderDailyDashboard();
     renderDailyCalendar();
+    fetchDailyItemMix();
   } catch (e) {
     const foot = document.getElementById('dailyCalFoot');
     if (foot) foot.innerHTML = `<span style="color:var(--brand-orange)">Couldn't load ${dateKey}</span>`;
@@ -3820,6 +3921,7 @@ function setDailyLoc(loc, btn) {
   document.querySelectorAll('#page-daily .vt-btn').forEach(b => b.classList.remove('active'));
   if (btn) btn.classList.add('active');
   renderDailyDashboard();
+  renderDailyItemTable();
 }
 
 // ── Master render ─────────────────────────────────────────────────────────────
@@ -4357,6 +4459,151 @@ function renderDailyTable(data) {
   html += '</tbody>';
   tbl.innerHTML = html;
 }
+
+// ── Daily Item Explorer — daily sibling of neighborly-pmix.html's "All items" ──
+// table, backed by nbly_pmix_summary_daily (item-level, daily granularity)
+// instead of nbly_pmix_summary (item-level, weekly granularity).
+let DAILY_PMIX_ITEMS = null;        // cached RPC response: { date, date_label, labels, locations: {wlv,bw,total} }
+let _dailyItemSearch = '';
+let _dailyItemSort = 'net';         // 'net' | 'qty' | 'avg'
+let _dailyItemMenu = 'all';
+let _dailyItemsExpanded = false;    // persists across filter/sort/date changes, like the weekly page
+const DAILY_ITEM_COLLAPSED_COUNT = 5;
+
+const _DAILY_ITEM_SMALL = new Set(['a','an','and','at','but','by','for','in','nor','of','on','or','so','the','to','vs','with']);
+function _dailyItemTitleCase(s) {
+  if (s == null) return s;
+  return String(s).toLowerCase().replace(/[\w'’]+/g, (w, i) => {
+    if (i > 0 && _DAILY_ITEM_SMALL.has(w)) return w;
+    return w.replace(/(^|[\s\-/])([a-z’'])/g, (_, sep, ch) => sep + ch.toUpperCase())
+            .replace(/^([a-z])/, m => m.toUpperCase());
+  });
+}
+
+// daily pmix seam → nbly_pmix_summary_daily RPC (see fetchDailyItemMix)
+async function fetchDailyItemMix() {
+  try {
+    const body = _dailyCalSelected ? { p_date: _dailyCalSelected } : {};
+    const { data, error } = await NPData.supabase.rpc('nbly_pmix_summary_daily', body);
+    if (error) throw error;
+    DAILY_PMIX_ITEMS = data;
+  } catch (e) {
+    console.error('Daily item mix load failed', e);
+    DAILY_PMIX_ITEMS = null;
+  }
+  renderDailyItemTable();
+}
+
+function renderDailyItemTable() {
+  const tbody = document.getElementById('dailyItemTbody');
+  const tfoot = document.getElementById('dailyItemTfoot');
+  if (!tbody) return;
+  const payload = DAILY_PMIX_ITEMS?.locations?.[dailyLoc] || DAILY_PMIX_ITEMS?.locations?.total;
+  if (!payload) {
+    tbody.innerHTML = '<tr class="empty"><td colspan="9">No data — click Refresh</td></tr>';
+    if (tfoot) tfoot.innerHTML = '';
+    const menuEl = document.getElementById('dailyItemMenuFilter');
+    if (menuEl) menuEl.innerHTML = '';
+    return;
+  }
+  const items = payload.items || [];
+
+  const conceptColorMap = {};
+  (payload.concepts || []).slice().sort((a, b) => b.net - a.net)
+    .forEach((c, i) => { conceptColorMap[c.name] = PMIX_COLORS[i % PMIX_COLORS.length]; });
+
+  const cats = ['All', ...Array.from(new Set(items.map(it => it.category).filter(Boolean))).sort()];
+  const menuEl = document.getElementById('dailyItemMenuFilter');
+  if (menuEl) {
+    menuEl.innerHTML = cats.map(c => {
+      const v = c === 'All' ? 'all' : c;
+      const cls = (v === _dailyItemMenu) ? 'is-active' : '';
+      return `<button class="${cls}" data-menu="${v.replace(/"/g, '&quot;')}">${c}</button>`;
+    }).join('');
+    menuEl.querySelectorAll('button').forEach(b => {
+      b.onclick = () => { _dailyItemMenu = b.dataset.menu; renderDailyItemTable(); };
+    });
+  }
+
+  let filtered = items;
+  if (_dailyItemMenu !== 'all') filtered = filtered.filter(it => it.category === _dailyItemMenu);
+  if (_dailyItemSearch)         filtered = filtered.filter(it => it.name.toLowerCase().includes(_dailyItemSearch));
+  filtered = [...filtered];
+  if (_dailyItemSort === 'qty')      filtered.sort((a, b) => b.qty - a.qty);
+  else if (_dailyItemSort === 'avg') filtered.sort((a, b) => b.avg_price - a.avg_price);
+  else                                filtered.sort((a, b) => b.net - a.net);
+
+  const catQty = {};
+  items.forEach(it => { catQty[it.category] = (catQty[it.category] || 0) + it.qty; });
+
+  if (!filtered.length) {
+    tbody.innerHTML = '<tr class="empty"><td colspan="9">No items match those filters.</td></tr>';
+    if (tfoot) tfoot.innerHTML = '';
+    return;
+  }
+
+  const total = filtered.length;
+  const visible = (_dailyItemsExpanded || total <= DAILY_ITEM_COLLAPSED_COUNT) ? filtered : filtered.slice(0, DAILY_ITEM_COLLAPSED_COUNT);
+
+  tbody.innerHTML = visible.map(it => {
+    const catTotal = catQty[it.category] || it.qty;
+    const pct = catTotal ? (it.qty / catTotal * 100) : 0;
+    const avgNet = it.avg_net, deltaNet = it.delta_net, rankDelta = it.rank_delta;
+    const deltaPct = avgNet ? (deltaNet / avgNet * 100) : null;
+
+    const rankChangeHTML = rankDelta == null ? '<span class="tbl-muted">—</span>'
+      : rankDelta > 0 ? `<span class="rank-chg tbl-pos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>${rankDelta}</span>`
+      : rankDelta < 0 ? `<span class="rank-chg tbl-neg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>${Math.abs(rankDelta)}</span>`
+      : '<span class="tbl-muted">—</span>';
+
+    const deltaHTML = deltaNet == null ? '<span class="tbl-muted">—</span>'
+      : `<span class="${deltaNet >= 0 ? 'tbl-pos' : 'tbl-neg'}">${deltaNet >= 0 ? '+' : '−'}${_fmtDollarRound(Math.abs(deltaNet))} (${deltaPct >= 0 ? '+' : '−'}${Math.abs(deltaPct).toFixed(1)}%)</span>`;
+
+    return `
+    <tr>
+      <td>
+        <div class="item-cell">
+          <span>${_dailyItemTitleCase(it.name)}</span>
+          <span class="item-cat">${it.category || ''}</span>
+        </div>
+      </td>
+      <td class="num">${_fmtInt(it.qty)}<span class="qty-bar" title="${pct.toFixed(1)}% of ${it.category || 'concept'} quantity"><span class="qty-bar-fill" style="width:${pct.toFixed(1)}%; background:${conceptColorMap[it.category] || PMIX_COLORS[PMIX_COLORS.length - 1]}"></span></span></td>
+      <td class="num">${_fmtDollarRound(it.net)}</td>
+      <td class="num">${_fmtDollar(it.avg_price)}</td>
+      <td class="num rank">${it.day_rank != null ? '#' + it.day_rank : '<span class="tbl-muted">—</span>'}</td>
+      <td class="num rank">${it.avg_rank != null ? '#' + it.avg_rank : '<span class="tbl-muted">—</span>'}</td>
+      <td class="num rank">${rankChangeHTML}</td>
+      <td class="num">${avgNet != null ? _fmtDollarRound(avgNet) : '<span class="tbl-muted">—</span>'}</td>
+      <td class="num">${deltaHTML}</td>
+    </tr>`;
+  }).join('');
+
+  if (tfoot) {
+    if (total > DAILY_ITEM_COLLAPSED_COUNT) {
+      const lbl = _dailyItemsExpanded ? `Show top ${DAILY_ITEM_COLLAPSED_COUNT}` : `View all ${total} items ↓`;
+      tfoot.innerHTML = `<tr><td colspan="9" class="all-items-toggle-cell"><button type="button" class="all-items-toggle" id="dailyItemToggleBtn">${lbl}</button></td></tr>`;
+      const btn = document.getElementById('dailyItemToggleBtn');
+      if (btn) btn.onclick = () => { _dailyItemsExpanded = !_dailyItemsExpanded; renderDailyItemTable(); };
+    } else {
+      tfoot.innerHTML = '';
+    }
+  }
+}
+
+(function _wireDailyItemControls() {
+  const search = document.getElementById('dailyItemSearch');
+  if (search) search.addEventListener('input', e => {
+    _dailyItemSearch = e.target.value.trim().toLowerCase();
+    renderDailyItemTable();
+  });
+  document.querySelectorAll('#dailyItemSortToggle button').forEach(b => {
+    b.addEventListener('click', () => {
+      _dailyItemSort = b.dataset.sort;
+      document.querySelectorAll('#dailyItemSortToggle button').forEach(x => x.classList.toggle('is-active', x === b));
+      renderDailyItemTable();
+    });
+  });
+})();
 
 // ── Daily Discounts & Comps — per-location table ─────────────────────────────
 function renderDailyDiscountsTable() {
