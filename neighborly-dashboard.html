@@ -3594,12 +3594,18 @@ function _computeTotal(wlv, bw) {
   const swA = wlv.sixWeekAvg || {}, swB = bw.sixWeekAvg || {};
   const sumNet = (+swA.netSales || 0) + (+swB.netSales || 0);
   const wAvg = (kA, kB, nA, nB) => (nA + nB) ? ((+kA||0)*nA + (+kB||0)*nB) / (nA + nB) : 0;
+  const swChannelKeys = [...new Set([...Object.keys(swA.channels || {}), ...Object.keys(swB.channels || {})])];
+  const swPmixKeys    = [...new Set([...Object.keys(swA.pmix     || {}), ...Object.keys(swB.pmix     || {})])];
   const sixWeekAvg = {
     netSales:   sumNet,
     checkCount: _sum(swA.checkCount, swB.checkCount),
     avgCheck:   (swA.checkCount + swB.checkCount)
                   ? sumNet / ((+swA.checkCount || 0) + (+swB.checkCount || 0))
-                  : 0
+                  : 0,
+    lunchSales:  _sum(swA.lunchSales,  swB.lunchSales),
+    dinnerSales: _sum(swA.dinnerSales, swB.dinnerSales),
+    channels: sumObj(swA.channels || {}, swB.channels || {}, swChannelKeys),
+    pmix:     sumObj(swA.pmix     || {}, swB.pmix     || {}, swPmixKeys)
   };
   // mix % fields → weight by net sales
   ['lunchPct','dinnerPct','onPremisePct','offPremisePct','marketplacePct','cateringPct',
@@ -4326,17 +4332,32 @@ function renderDailyTable(data) {
     webDelivery:'Web Delivery', webTakeOut:'Web Take Out', curbside:'Curbside Pick Up',
     thirdParty:'3rd Party Delivery', catering:'Catering'
   };
-  const CH_6WK = { marketplace: s.marketplacePct, catering: s.cateringPct };
   const ch = t.channels || {};
+  const sCh = s.channels || {};
   const channelRows = Object.keys(CH_LBL)
     .filter(k => (ch[k] || 0) > 0)
     .map(k => ({
       lbl: CH_LBL[k],
       today: $(ch[k]),
-      sixWeek: CH_6WK[k] != null ? sixDol(CH_6WK[k]) : '—',
+      sixWeek: sCh[k] != null ? $(sCh[k]) : '—',
       pctNet: Pf(N ? (ch[k]||0)/N*100 : null),
       vsY: vsY(ch[k], y?.channels?.[k])
     }));
+
+  const PMIX_LBL = {
+    whatsGabyCooking: "What's Gaby Cooking", miniKabob: 'Mini Kabob', socialMonk: 'Social Monk',
+    palermoPizzaClub: 'Palermo Pizza Club', mixtape: 'Mixtape', neighborlyCookies: 'Neighborly Cookies',
+    marketplace: 'Marketplace', catering: 'Catering'
+  };
+  const pm  = t.pmix || {};
+  const sPm = s.pmix || {};
+  const conceptRows = Object.keys(PMIX_LBL).map(k => ({
+    lbl: PMIX_LBL[k],
+    today: $(pm[k]),
+    sixWeek: sPm[k] != null ? $(sPm[k]) : '—',
+    pctNet: Pf(N ? (pm[k]||0)/N*100 : null),
+    vsY: vsY(pm[k], y?.pmix?.[k])
+  }));
 
   const sections = [
     { cat: 'Revenue', rows: [
@@ -4345,24 +4366,15 @@ function renderDailyTable(data) {
       { lbl: 'Avg check',   today: $$(t.avgCheck),  sixWeek: $$(s.avgCheck),  pctNet: '—',      vsY: vsY(t.avgCheck,   y?.avgCheck) }
     ]},
     { cat: 'Daypart mix', rows: [
-      { lbl: 'Lunch sales',  today: $(t.lunchSales),  sixWeek: sixDol(s.lunchPct),  pctNet: Pf(t.lunchPct),  vsY: vsY(t.lunchSales,  y?.lunchSales) },
-      { lbl: 'Dinner sales', today: $(t.dinnerSales), sixWeek: sixDol(s.dinnerPct), pctNet: Pf(t.dinnerPct), vsY: vsY(t.dinnerSales, y?.dinnerSales) }
+      { lbl: 'Lunch sales',  today: $(t.lunchSales),  sixWeek: s.lunchSales  != null ? $(s.lunchSales)  : '—', pctNet: Pf(t.lunchPct),  vsY: vsY(t.lunchSales,  y?.lunchSales) },
+      { lbl: 'Dinner sales', today: $(t.dinnerSales), sixWeek: s.dinnerSales != null ? $(s.dinnerSales) : '—', pctNet: Pf(t.dinnerPct), vsY: vsY(t.dinnerSales, y?.dinnerSales) }
     ]},
     { cat: 'On / Off premise', rows: [
       { lbl: 'On premise sales',  today: $(t.onPremise),  sixWeek: sixDol(s.onPremisePct),  pctNet: Pf(t.onPremisePct),  vsY: vsY(t.onPremise,  y?.onPremise) },
       { lbl: 'Off premise sales', today: $(t.offPremise), sixWeek: sixDol(s.offPremisePct), pctNet: Pf(t.offPremisePct), vsY: vsY(t.offPremise, y?.offPremise) }
     ]},
     { cat: 'Channels — full breakdown', rows: channelRows },
-    { cat: 'Concept mix', rows: [
-      { lbl: "What's Gaby Cooking",  today: $(t.pmix?.whatsGabyCooking),  sixWeek: sixDol(s.whatsGabyCookingPct), pctNet: Pf(N ? (t.pmix?.whatsGabyCooking||0)/N*100 : null), vsY: vsY(t.pmix?.whatsGabyCooking,  y?.pmix?.whatsGabyCooking) },
-      { lbl: 'Mini Kabob',           today: $(t.pmix?.miniKabob),         sixWeek: sixDol(s.miniKabobPct),        pctNet: Pf(N ? (t.pmix?.miniKabob||0)/N*100         : null), vsY: vsY(t.pmix?.miniKabob,         y?.pmix?.miniKabob) },
-      { lbl: 'Social Monk',          today: $(t.pmix?.socialMonk),        sixWeek: sixDol(s.socialMonkPct),       pctNet: Pf(N ? (t.pmix?.socialMonk||0)/N*100        : null), vsY: vsY(t.pmix?.socialMonk,        y?.pmix?.socialMonk) },
-      { lbl: 'Palermo Pizza Club',   today: $(t.pmix?.palermoPizzaClub),  sixWeek: sixDol(s.palermoPizzaClubPct), pctNet: Pf(N ? (t.pmix?.palermoPizzaClub||0)/N*100  : null), vsY: vsY(t.pmix?.palermoPizzaClub,  y?.pmix?.palermoPizzaClub) },
-      { lbl: 'Mixtape',              today: $(t.pmix?.mixtape),           sixWeek: sixDol(s.mixtapePct),          pctNet: Pf(N ? (t.pmix?.mixtape||0)/N*100           : null), vsY: vsY(t.pmix?.mixtape,           y?.pmix?.mixtape) },
-      { lbl: 'Neighborly Cookies',   today: $(t.pmix?.neighborlyCookies), sixWeek: sixDol(s.neighborlyCookiesPct),pctNet: Pf(N ? (t.pmix?.neighborlyCookies||0)/N*100 : null), vsY: vsY(t.pmix?.neighborlyCookies, y?.pmix?.neighborlyCookies) },
-      { lbl: 'Marketplace',          today: $(t.pmix?.marketplace),       sixWeek: sixDol(s.marketplacePct),      pctNet: Pf(N ? (t.pmix?.marketplace||0)/N*100       : null), vsY: vsY(t.pmix?.marketplace,       y?.pmix?.marketplace) },
-      { lbl: 'Catering',             today: $(t.pmix?.catering),          sixWeek: sixDol(s.cateringPct),         pctNet: Pf(N ? (t.pmix?.catering||0)/N*100          : null), vsY: vsY(t.pmix?.catering,          y?.pmix?.catering) }
-    ]}
+    { cat: 'Concept mix', rows: conceptRows }
   ];
 
   let html = `<thead><tr><th>Metric</th><th>Today</th><th>6-week avg</th><th>% of net</th><th>vs yesterday</th></tr></thead><tbody>`;
