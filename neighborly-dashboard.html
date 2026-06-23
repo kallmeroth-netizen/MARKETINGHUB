@@ -3016,10 +3016,16 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeHubNav(
 
     <div class="dash-header np-page-header" style="margin-bottom:0">
       <div class="section-title" style="margin:0">All-time sales</div>
-      <div class="view-toggle">
-        <button class="vt-btn active" onclick="setTRKpiLoc('combined',this)">Combined</button>
-        <button class="vt-btn" onclick="setTRKpiLoc('wlv',this)">Westlake</button>
-        <button class="vt-btn" onclick="setTRKpiLoc('bw',this)">Brentwood</button>
+      <div style="display:flex;align-items:center;gap:var(--s-3);flex-wrap:wrap">
+        <div class="view-toggle">
+          <button class="vt-btn active" onclick="setTRKpiLoc('combined',this)">Combined</button>
+          <button class="vt-btn" onclick="setTRKpiLoc('wlv',this)">Westlake</button>
+          <button class="vt-btn" onclick="setTRKpiLoc('bw',this)">Brentwood</button>
+        </div>
+        <select id="trConceptPicker" onchange="setTRConcept(this.value)" title="Filter by concept"
+          style="background:var(--surface-2);border:none;border-radius:var(--r-pill);padding:5px 10px;font-size:var(--t-caption);font-weight:500;color:var(--text-2);font-family:var(--f-sans);cursor:pointer">
+          <option value="all">All concepts</option>
+        </select>
       </div>
     </div>
     <div class="kpi-grid" id="trKpiGrid" style="margin-bottom:1.5rem"></div>
@@ -3082,6 +3088,9 @@ let HIST_CHANNELS_LOC = {                   // per-location weekly channel break
   wlv: { dineIn:[], webPickup:[], instore:[], delivery:[], tpd:[], marketplace:[] },
   bw:  { dineIn:[], webPickup:[], instore:[], delivery:[], tpd:[], marketplace:[] }
 };
+let HIST_CONCEPT_WEEKLY_LOC = { wlv: {}, bw: {} };  // per-location weekly net sales by concept: loc -> concept -> [{d,v}]
+let HIST_CONCEPT_DAILY_LOC  = { wlv: {}, bw: {} };  // per-location daily net sales by concept: loc -> concept -> [{d,v}]
+let CONCEPT_LIST = [];                              // discovered concept names, sorted by all-time net sales desc
 
 // Shared helpers
 const _MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
@@ -3243,7 +3252,50 @@ let trView = 'total';          // 'total' | 'channels' — main chart series mod
 let trGranularity = 'weekly';  // 'weekly' | 'daily'    — main chart bar granularity
 let trKpiLoc = 'combined';     // 'combined' | 'wlv' | 'bw' — All-time sales tiles
 let trMixLoc = 'total';        // 'total' | 'wlv' | 'bw'    — Channel mix location filter
+let trConceptFilter = 'all';   // 'all' | a concept name from CONCEPT_LIST — All-time sales tiles + main chart
 let trCharts = {};
+
+// "M/D/YYYY" date strings (as used throughout this section) aren't lexically sortable —
+// convert to a comparable numeric key.
+function _trDateKey(s) { const [m,d,y] = s.split('/').map(Number); return y*10000 + m*100 + d; }
+
+// Merge two [{d,v}] series that may not share the same date axis (per-concept location
+// series are independently built from raw item rows, unlike HIST_WEEKLY_LOC/HIST_DAILY_LOC
+// which are always index-aligned) into one combined series, summing by date and treating
+// a date missing from either side as 0 (it sold $0 of this concept that period, not "no data").
+function _trCombineByDate(a, b) {
+  const sums = {};
+  (a || []).forEach(p => { sums[p.d] = (sums[p.d] || 0) + (p.v || 0); });
+  (b || []).forEach(p => { sums[p.d] = (sums[p.d] || 0) + (p.v || 0); });
+  return Object.keys(sums).sort((x, y) => _trDateKey(x) - _trDateKey(y)).map(d => ({ d, v: sums[d] }));
+}
+
+// Resolve the [{d,v}] series feeding the All-time sales tiles / main chart for a given
+// location filter ('combined'|'wlv'|'bw') and concept filter ('all' or a CONCEPT_LIST entry).
+function _trWeeklySeriesFor(loc, concept) {
+  if (concept === 'all') {
+    if (loc === 'combined') return HIST_TOTAL;
+    if (loc === 'wlv') return HIST_WEEKLY_LOC.wlv;
+    return (HIST_WEEKLY_LOC.bw || []).filter(x => x.v != null);
+  }
+  const wlvC = HIST_CONCEPT_WEEKLY_LOC.wlv[concept] || [];
+  const bwC  = HIST_CONCEPT_WEEKLY_LOC.bw[concept]  || [];
+  if (loc === 'wlv') return wlvC;
+  if (loc === 'bw') return bwC;
+  return _trCombineByDate(wlvC, bwC);
+}
+function _trDailySeriesFor(loc, concept) {
+  if (concept === 'all') {
+    if (loc === 'combined') return _trCombineByDate(HIST_DAILY_LOC.wlv, HIST_DAILY_LOC.bw || []);
+    if (loc === 'wlv') return HIST_DAILY_LOC.wlv;
+    return (HIST_DAILY_LOC.bw || []).filter(x => x.v != null);
+  }
+  const wlvC = HIST_CONCEPT_DAILY_LOC.wlv[concept] || [];
+  const bwC  = HIST_CONCEPT_DAILY_LOC.bw[concept]  || [];
+  if (loc === 'wlv') return wlvC;
+  if (loc === 'bw') return bwC;
+  return _trCombineByDate(wlvC, bwC);
+}
 
 function _trSetActive(btn) {
   btn.parentElement.querySelectorAll('.vt-btn').forEach(b => b.classList.remove('active'));
@@ -3275,6 +3327,22 @@ function setTRMixLoc(v, btn) {
   renderTRMix();
 }
 
+function setTRConcept(v) {
+  trConceptFilter = v;
+  renderTRKPIs();
+  renderTRMain();
+}
+
+function _renderConceptPicker() {
+  const sel = document.getElementById('trConceptPicker');
+  if (!sel) return;
+  const prev = trConceptFilter;
+  sel.innerHTML = ['<option value="all">All concepts</option>']
+    .concat(CONCEPT_LIST.map(c => `<option value="${c.replace(/"/g,'&quot;')}">${c}</option>`))
+    .join('');
+  sel.value = (prev === 'all' || CONCEPT_LIST.includes(prev)) ? prev : 'all';
+}
+
 function _trAsOfLabel() {
   const latest = HIST_TOTAL[HIST_TOTAL.length - 1];
   const el = document.getElementById('trAsOf');
@@ -3284,36 +3352,58 @@ function _trAsOfLabel() {
 function renderTRKPIs() {
   _trAsOfLabel();
 
-  // All-time sales tiles, filtered to the location selected via the Combined / Westlake / Brentwood toggle
-  const series = trKpiLoc === 'combined' ? HIST_TOTAL
-               : trKpiLoc === 'wlv'      ? HIST_WEEKLY_LOC.wlv
-               : (HIST_WEEKLY_LOC.bw || []).filter(x => x.v != null);
+  // All-time sales tiles, filtered to the location (Combined / Westlake / Brentwood toggle)
+  // and concept (concept picker, default "All concepts") selected above the grid.
+  const weekly = _trWeeklySeriesFor(trKpiLoc, trConceptFilter);
   const grid = document.getElementById('trKpiGrid');
-  if (!series.length) { grid.innerHTML = ''; return; }
+  if (!weekly.length) { grid.innerHTML = ''; return; }
 
-  const topWeek = series.reduce((best, x) => x.v > best.v ? x : best, series[0]);
-  const ttmCount = Math.min(52, series.length);
-  const ttm = series.slice(-ttmCount).reduce((s,x)=>s+x.v,0);
+  const topWeek = weekly.reduce((best, x) => x.v > best.v ? x : best, weekly[0]);
+  const ttmCount = Math.min(52, weekly.length);
+  const ttm = weekly.slice(-ttmCount).reduce((s,x)=>s+x.v,0);
   const ttmLabel = ttmCount === 52 ? '52-week trailing revenue' : `${ttmCount}-week trailing revenue`;
-  const first = series[0], latest = series[series.length-1];
-  const growth = first.v ? Math.round(((latest.v - first.v)/first.v)*100) : 0;
-  const sinceLabel = trKpiLoc === 'bw' ? ('Week of ' + _fmtWeekShort(first.d) + ' → present') : 'Jan 2025 → present';
+
+  const daily = _trDailySeriesFor(trKpiLoc, trConceptFilter).filter(x => x.v != null);
+  const last7 = daily.slice(-7);
+  const runRate = Math.round(last7.reduce((s,x)=>s+x.v,0) * 52);
+  const record = daily.length ? daily.reduce((best, x) => x.v > best.v ? x : best, daily[0]) : null;
 
   grid.innerHTML = [
     _kpiCard('Top sales week',           '$'+topWeek.v.toLocaleString(), 'Week of ' + _fmtWeekShort(topWeek.d)),
     _kpiCard(ttmLabel,                   '$'+ttm.toLocaleString(),       'Trailing twelve months'),
-    _kpiCard('Growth since first week',  (growth>=0?'+':'')+growth+'%',  sinceLabel),
-    _kpiCard('Latest week',              '$'+latest.v.toLocaleString(),  'Week of ' + _fmtWeekShort(latest.d))
+    _kpiCard('Annualized run-rate',      '$'+runRate.toLocaleString(),  'Last 7 days × 52'),
+    record ? _kpiCard('Daily sales record', '$'+record.v.toLocaleString(), _fmtWeekShort(record.d))
+           : _kpiCard('Daily sales record', '—', 'No daily data yet')
   ].join('');
+}
+
+// Builds the date-aligned Westlake/Brentwood value pair the main chart plots for the
+// "Total revenue" view. The "all" path reuses HIST_WEEKLY_LOC/HIST_DAILY_LOC directly
+// (already index-aligned). A concept filter pulls from the per-concept location series
+// instead, which are independently built from raw item rows and may not share a date
+// axis between locations, so those get unioned/aligned here before plotting.
+function _trAlignedLocPair(isDaily, concept) {
+  if (concept === 'all') {
+    const src = isDaily ? HIST_DAILY_LOC : HIST_WEEKLY_LOC;
+    return { labels: src.wlv.map(x=>x.d), wlv: src.wlv.map(x=>x.v), bw: src.bw.map(x=>x.v) };
+  }
+  const store = isDaily ? HIST_CONCEPT_DAILY_LOC : HIST_CONCEPT_WEEKLY_LOC;
+  const wlvSrc = store.wlv[concept] || [], bwSrc = store.bw[concept] || [];
+  const wlvMap = {}, bwMap = {};
+  wlvSrc.forEach(p => { wlvMap[p.d] = p.v; });
+  bwSrc.forEach(p => { bwMap[p.d] = p.v; });
+  const labels = [...new Set([...wlvSrc.map(p=>p.d), ...bwSrc.map(p=>p.d)])].sort((a,b)=>_trDateKey(a)-_trDateKey(b));
+  return { labels, wlv: labels.map(d => wlvMap[d] ?? 0), bw: labels.map(d => bwMap[d] ?? 0) };
 }
 
 function renderTRMain() {
   const isChannels = trView === 'channels';
   const isDaily = trGranularity === 'daily';
+  const cLabel = trConceptFilter === 'all' ? 'total' : trConceptFilter;
 
   document.getElementById('trChartTitle').textContent =
     isChannels ? 'Revenue by channel — stacked weekly'
-               : (isDaily ? 'Daily total revenue — by location' : 'Weekly total revenue — by location');
+               : (isDaily ? `Daily ${cLabel} revenue — by location` : `Weekly ${cLabel} revenue — by location`);
   document.getElementById('trChartSub').textContent =
     isChannels ? 'All channels · Brentwood opening Apr 8, 2026'
                : (isDaily ? 'Daily net sales, stacked by location · Jan 2025 – present'
@@ -3349,17 +3439,15 @@ function renderTRMain() {
     return;
   }
 
-  // Total revenue, stacked Westlake (yellow) + Brentwood (black). HIST_WEEKLY_LOC / HIST_DAILY_LOC
-  // are built index-aligned on the same date axis (bw entries are null before Brentwood opened),
-  // so the two series can be plotted directly without re-keying.
-  const src = isDaily ? HIST_DAILY_LOC : HIST_WEEKLY_LOC;
-  const labels = src.wlv.map(x=>x.d);
+  // Total revenue (or a single concept's revenue, when filtered), stacked Westlake (yellow) +
+  // Brentwood (black).
+  const { labels, wlv, bw } = _trAlignedLocPair(isDaily, trConceptFilter);
   const barOpts = isDaily ? { barPercentage:1, categoryPercentage:0.92 } : { barPercentage:0.85, categoryPercentage:0.9 };
   trCharts.main = new Chart(document.getElementById('trMainChart'), {
     type:'bar',
     data:{labels, datasets:[
-      {label:'Westlake Village', data:src.wlv.map(x=>x.v), backgroundColor:'#eace49', borderColor:'#eace49', borderWidth:1, borderRadius:isDaily?1:3, stack:'loc', ...barOpts},
-      {label:'Brentwood',        data:src.bw.map(x=>x.v), backgroundColor:'#1f2328', borderColor:'#1f2328', borderWidth:1, borderRadius:isDaily?1:3, stack:'loc', ...barOpts}
+      {label:'Westlake Village', data:wlv, backgroundColor:'#eace49', borderColor:'#eace49', borderWidth:1, borderRadius:isDaily?1:3, stack:'loc', ...barOpts},
+      {label:'Brentwood',        data:bw,  backgroundColor:'#1f2328', borderColor:'#1f2328', borderWidth:1, borderRadius:isDaily?1:3, stack:'loc', ...barOpts}
     ]},
     options:{responsive:true,maintainAspectRatio:false,
       plugins:{legend:{display:false}},
@@ -4808,6 +4896,69 @@ async function _sbLoadAllTime() {
   }
 }
 
+// Pages through a table with .range() until a page comes back short, rather than assuming
+// any particular PostgREST default page size. Capped at 200 pages (200k rows) as a sanity
+// backstop, not an expected ceiling.
+async function _sbFetchAllRows(table, columns) {
+  const sb = NPData.supabase;
+  const pageSize = 1000;
+  let offset = 0, rows = [];
+  for (let page = 0; page < 200; page++) {
+    const { data, error } = await sb.from(table).select(columns).range(offset, offset + pageSize - 1);
+    if (error || !data || !data.length) break;
+    rows = rows.concat(data);
+    if (data.length < pageSize) break;
+    offset += pageSize;
+  }
+  return rows;
+}
+
+// Concept-level history for the Sales Trends "All-time sales" concept picker. Reads
+// weekly_pmix_items / daily_pmix_items directly (item-level rows, authenticated SELECT
+// already granted — see migration 0015) rather than a dedicated RPC: there's no
+// pre-aggregated-by-concept history endpoint today, and these tables are small enough
+// (concept history only goes back as far as the pmix item backfills) to roll up client-side,
+// the same way _sbLoadAllTime rolls up channel-level history from RPC periods.
+async function _sbLoadConceptHistory() {
+  const locKey = (id) => id === _SB_WLV ? 'wlv' : id === _SB_BW ? 'bw' : null;
+
+  const buildSeries = (rows, dateField) => {
+    const sums = { wlv: {}, bw: {} }; // loc -> concept -> date -> net sales sum
+    rows.forEach(r => {
+      const loc = locKey(r.location_id);
+      if (!loc || !r.concept) return;
+      const d = _sbIsoToSlash(r[dateField]);
+      sums[loc][r.concept] = sums[loc][r.concept] || {};
+      sums[loc][r.concept][d] = (sums[loc][r.concept][d] || 0) + (+r.net_sales || 0);
+    });
+    const out = { wlv: {}, bw: {} };
+    ['wlv', 'bw'].forEach(loc => {
+      Object.keys(sums[loc]).forEach(concept => {
+        const byDate = sums[loc][concept];
+        out[loc][concept] = Object.keys(byDate)
+          .sort((a, b) => _trDateKey(a) - _trDateKey(b))
+          .map(d => ({ d, v: Math.round(byDate[d]) }));
+      });
+    });
+    return out;
+  };
+
+  const [weeklyRows, dailyRows] = await Promise.all([
+    _sbFetchAllRows('weekly_pmix_items', 'location_id, week_start, concept, net_sales'),
+    _sbFetchAllRows('daily_pmix_items',  'location_id, business_date, concept, net_sales'),
+  ]);
+  if (!weeklyRows.length && !dailyRows.length) return;
+
+  HIST_CONCEPT_WEEKLY_LOC = buildSeries(weeklyRows, 'week_start');
+  HIST_CONCEPT_DAILY_LOC  = buildSeries(dailyRows, 'business_date');
+
+  const totalByConcept = {};
+  weeklyRows.forEach(r => { if (r.concept) totalByConcept[r.concept] = (totalByConcept[r.concept] || 0) + (+r.net_sales || 0); });
+  CONCEPT_LIST = Object.keys(totalByConcept).sort((a, b) => totalByConcept[b] - totalByConcept[a]);
+
+  _renderConceptPicker();
+}
+
 async function _sbLoadWeeklyKPIs(weekStartOverride) {
   const sb = NPData.supabase;
   // Default to the in-progress fiscal week ("most recent week" per the badge),
@@ -5021,6 +5172,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // data lands, re-render so the placeholder figures are replaced rather than left stale.
     if (document.getElementById('page-alltime')?.classList.contains('active')) renderAllTime();
     if (document.getElementById('page-trends')?.classList.contains('active'))  renderTrends();
+  }).catch(console.error);
+  _sbLoadConceptHistory().then(() => {
+    if (document.getElementById('page-trends')?.classList.contains('active')) renderTrends();
   }).catch(console.error);
   // Land on the Wednesday of the week BEFORE today's fiscal week — i.e.
   // (current fiscal week start) − 7 days. _sbFiscalWeekStart returns the
