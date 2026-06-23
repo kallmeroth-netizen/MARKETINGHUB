@@ -3088,6 +3088,7 @@ let HIST_CHANNELS_LOC = {                   // per-location weekly channel break
   wlv: { dineIn:[], webPickup:[], instore:[], delivery:[], tpd:[], marketplace:[] },
   bw:  { dineIn:[], webPickup:[], instore:[], delivery:[], tpd:[], marketplace:[] }
 };
+let HIST_CHANNELS_DAILY = { dineIn:[], webPickup:[], instore:[], delivery:[], tpd:[], marketplace:[] }; // combined, same shape as HIST_CHANNELS but daily — basis for the "By channel" chart in Daily mode
 let HIST_CONCEPT_WEEKLY_LOC = { wlv: {}, bw: {} };  // per-location weekly net sales by concept: loc -> concept -> [{d,v}]
 let HIST_CONCEPT_DAILY_LOC  = { wlv: {}, bw: {} };  // per-location daily net sales by concept: loc -> concept -> [{d,v}]
 let CONCEPT_LIST = [];                              // discovered concept names, sorted by all-time net sales desc
@@ -3402,7 +3403,7 @@ function renderTRMain() {
   const cLabel = trConceptFilter === 'all' ? 'total' : trConceptFilter;
 
   document.getElementById('trChartTitle').textContent =
-    isChannels ? 'Revenue by channel — stacked weekly'
+    isChannels ? (isDaily ? 'Revenue by channel — stacked daily' : 'Revenue by channel — stacked weekly')
                : (isDaily ? `Daily ${cLabel} revenue — by location` : `Weekly ${cLabel} revenue — by location`);
   document.getElementById('trChartSub').textContent =
     isChannels ? 'All channels · Brentwood opening Apr 8, 2026'
@@ -3421,20 +3422,22 @@ function renderTRMain() {
   if (trCharts.main) trCharts.main.destroy();
 
   if (isChannels) {
-    const allDates = HIST_TOTAL.map(x=>x.d);
+    const chSrc = isDaily ? HIST_CHANNELS_DAILY : HIST_CHANNELS;
+    const allDates = (isDaily ? HIST_CHANNELS_DAILY.dineIn : HIST_TOTAL).map(x=>x.d);
     const keys=['dineIn','webPickup','instore','delivery','tpd','marketplace'];
     const lbls=['Dine in','Web pickup','In-store Takeout','Delivery','3PD','Marketplace'];
     const cols=['#eace49','#7bbd91','#cbc9d6','#6280bd','#dbc6a2','#e87142'];
+    const barOpts = isDaily ? { barPercentage:1, categoryPercentage:0.92 } : { barPercentage:0.85, categoryPercentage:0.9 };
     const datasets = keys.map((k,i)=>{
-      const lk={};(HIST_CHANNELS[k]||[]).forEach(p=>{lk[p.d]=p.v;});
-      return {label:lbls[i],data:allDates.map(d=>lk[d]||null),backgroundColor:cols[i],borderColor:cols[i],borderWidth:0.5,borderRadius:2,stack:'s',barPercentage:0.85};
+      const lk={};(chSrc[k]||[]).forEach(p=>{lk[p.d]=p.v;});
+      return {label:lbls[i],data:allDates.map(d=>lk[d]||null),backgroundColor:cols[i],borderColor:cols[i],borderWidth:isDaily?0.25:0.5,borderRadius:isDaily?1:2,stack:'s',...barOpts};
     });
     trCharts.main = new Chart(document.getElementById('trMainChart'), {
       type:'bar',data:{labels:allDates,datasets},
       options:{responsive:true,maintainAspectRatio:false,
         plugins:{legend:{position:'bottom',labels:{font:{family:'DM Sans',size:11},boxWidth:10,padding:10}}},
         scales:{
-          x:{stacked:true,grid:{display:false},ticks:{font:{family:'DM Sans',size:9},color:'#9E9C96',maxTicksLimit:14,maxRotation:45}},
+          x:{stacked:true,grid:{display:false},ticks:{font:{family:'DM Sans',size:9},color:'#9E9C96',maxTicksLimit:isDaily?10:14,maxRotation:45}},
           y:{stacked:true,grid:{color:'rgba(0,0,0,0.04)'},ticks:{font:{family:'DM Mono',size:10},color:'#9E9C96',callback:v=>'$'+Math.round(v/1000)+'k'}}
         }
       }
@@ -4877,13 +4880,27 @@ async function _sbLoadAllTime() {
     (bwDayR.data?.periods  || []).forEach(p => { bwDayByDate[p.period_start]  = p; });
     const allDayDates = [...new Set([...Object.keys(wlvDayByDate), ...Object.keys(bwDayByDate)])].sort();
     const newDailyLoc = { wlv: [], bw: [] };
+    // nbly_performance_all_time returns a per-period "channels" breakdown regardless of
+    // p_granularity (it's the same channel_sales rollup, just keyed by day instead of fiscal
+    // week) — so the day-granularity periods already fetched above carry channel data too,
+    // mirroring the week-granularity extraction into newCh/newChLoc above.
+    const newChDaily = { dineIn:[], webPickup:[], instore:[], delivery:[], tpd:[], marketplace:[] };
     allDayDates.forEach(date => {
       const wlv = wlvDayByDate[date], bw = bwDayByDate[date];
       const d = _sbIsoToSlash(date);
       newDailyLoc.wlv.push({ d, v: wlv ? Math.round(wlv.net_sales || 0) : null });
       newDailyLoc.bw.push({ d, v: bw ? Math.round(bw.net_sales || 0) : null });
+      const wc = wlv?.channels || {}, bc = bw?.channels || {};
+      const ch = (k) => (wc[k] || 0) + (bc[k] || 0);
+      newChDaily.dineIn.push({ d, v: Math.round(ch('dine_in')) });
+      newChDaily.webPickup.push({ d, v: Math.round(ch('web_takeout') + ch('curbside')) });
+      newChDaily.instore.push({ d, v: Math.round(ch('kiosk_takeout')) });
+      newChDaily.delivery.push({ d, v: Math.round(ch('web_delivery')) });
+      newChDaily.tpd.push({ d, v: Math.round(ch('delivery_3p')) });
+      newChDaily.marketplace.push({ d, v: Math.round(ch('marketplace')) });
     });
     HIST_DAILY_LOC = newDailyLoc;
+    HIST_CHANNELS_DAILY = newChDaily;
   }
 
   if (!adR.error && adR.data?.length) {
