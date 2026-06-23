@@ -801,7 +801,9 @@ section.row    { padding: var(--s-7) 0; gap: var(--s-6); }
 /* ============================================================
    DASHBOARD aliases — class names rendered by the page JS
    ============================================================ */
-.dashboard, .data-page { max-width: var(--content-max); margin: 0 auto; padding: var(--s-5) var(--gutter); }
+/* No horizontal padding here — always nested inside .page, which already
+   applies --gutter; adding it again here double-indents content vs. the nav. */
+.dashboard, .data-page { max-width: var(--content-max); margin: 0 auto; padding: var(--s-5) 0; }
 .dash-header {
   display: flex; flex-direction: column; align-items: flex-start;
   gap: var(--s-2); margin-bottom: var(--s-5); padding-bottom: var(--s-2);
@@ -1026,11 +1028,18 @@ section.row    { padding: var(--s-7) 0; gap: var(--s-6); }
 
   /* --- MAIN: tighter outer padding so cards fill the screen --- */
   .np-main,
-  .dashboard,
-  .data-page,
   .page {
     padding-left: 14px !important;
     padding-right: 14px !important;
+    padding-top: 16px !important;
+    padding-bottom: 40px !important;
+  }
+  /* .dashboard/.data-page sit inside .page, which already has the 14px
+     side padding above — only tighten vertical here, not horizontal. */
+  .dashboard,
+  .data-page {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
     padding-top: 16px !important;
     padding-bottom: 40px !important;
   }
