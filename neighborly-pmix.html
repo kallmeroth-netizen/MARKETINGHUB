@@ -493,8 +493,8 @@
             <th class="num">Qty</th>
             <th class="num">Net sales</th>
             <th class="num">Avg price</th>
-            <th class="num" title="Rank by net sales within this item's category, this week">Wk rank</th>
-            <th class="num" title="Average rank by net sales within category over the 6 weeks before this one">6wk avg rank</th>
+            <th class="num" title="Rank by net sales among the items currently shown (this week)">Wk rank</th>
+            <th class="num" title="Average rank by net sales among the items currently shown, over the 6 weeks before this one">6wk avg rank</th>
             <th class="num" title="Change vs the 6-week average rank — up arrow means the item climbed">Rank Δ</th>
             <th class="num" title="Average net sales over the 6 weeks before this one">6wk avg net</th>
             <th class="num" title="This week's net sales vs the 6-week average, in dollars and percent">Δ vs 6wk avg</th>
@@ -808,7 +808,9 @@
   // every item across every category for whichever location is selected, so
   // we fetch the prior 6 fiscal weeks' summaries (same RPC + cache the page
   // already uses) and aggregate client-side instead.
-  let _pmixHistCache = {};    // `${weekStart}|${loc}` -> { weekRankMap, avgRankMap, avgNetMap }
+  let _pmixHistCache = {};    // `${weekStart}|${loc}` -> { avgNetMap }. Ranks are
+                               // computed fresh in renderTable() against whatever
+                               // the menu filter currently shows, not cached here.
   let _pmixHistInFlight = {}; // `${weekStart}|${loc}` -> Promise (de-dupe concurrent loads of the same key)
 
   function _pmixHistKeysFor(weekStart) {
@@ -821,19 +823,7 @@
     return out;
   }
 
-  // Rank within category by net sales (desc) -> Map('category||name' -> 1-based rank)
-  function _pmixRankByCategory(items, netOf) {
-    const byCat = {};
-    items.forEach(it => { (byCat[it.category] = byCat[it.category] || []).push(it); });
-    const rankMap = {};
-    Object.values(byCat).forEach(list => {
-      [...list].sort((a, b) => netOf(b) - netOf(a))
-        .forEach((it, i) => { rankMap[`${it.category}||${it.name}`] = i + 1; });
-    });
-    return rankMap;
-  }
-
-  async function _ensurePmixHistory(weekStart, loc, items) {
+  async function _ensurePmixHistory(weekStart, loc) {
     const cacheKey = `${weekStart}|${loc}`;
     if (_pmixHistCache[cacheKey]) return _pmixHistCache[cacheKey];
     if (_pmixHistInFlight[cacheKey]) return _pmixHistInFlight[cacheKey];
@@ -866,15 +856,10 @@
           agg[k].weeks  += 1;
         });
       });
-      const avgItems = Object.values(agg).map(a => ({ ...a, avgNet: a.sumNet / a.weeks }));
       const avgNetMap = {};
-      avgItems.forEach(a => { avgNetMap[`${a.category}||${a.name}`] = a.avgNet; });
+      Object.values(agg).forEach(a => { avgNetMap[`${a.category}||${a.name}`] = a.sumNet / a.weeks; });
 
-      const result = {
-        weekRankMap: _pmixRankByCategory(items, it => it.net),
-        avgRankMap:  _pmixRankByCategory(avgItems, it => it.avgNet),
-        avgNetMap
-      };
+      const result = { avgNetMap };
       _pmixHistCache[cacheKey] = result;
       return result;
     })();
@@ -962,8 +947,7 @@
     // Week rank / 6wk-avg comparison columns load in the background (6 extra
     // RPC calls) and re-render the table once ready, so the rest of the page
     // shows immediately rather than waiting on them.
-    const wkItems = (DATA.items || []).filter(it => it.qty > 0);
-    _ensurePmixHistory(activeDate, loc, wkItems).then(hist => {
+    _ensurePmixHistory(activeDate, loc).then(hist => {
       if (hist && activeDate === DATA.date && activeLoc === loc) renderTable();
     });
   }
@@ -1046,8 +1030,11 @@
 
   function renderTable() {
     const items = (DATA.items || []).filter(it => it.qty > 0);
-    let filtered = items;
-    if (activeMenu !== 'all') filtered = filtered.filter(it => it.category === activeMenu);
+    // Ranks are scoped to the menu filter, not the search box — search just
+    // narrows which rows show, it shouldn't change what "#1" means.
+    const menuItems = activeMenu === 'all' ? items : items.filter(it => it.category === activeMenu);
+
+    let filtered = menuItems;
     if (searchQ)              filtered = filtered.filter(it => it.name.toLowerCase().includes(searchQ));
     if (activeSort === 'qty') filtered.sort((a, b) => b.qty - a.qty);
     else if (activeSort === 'avg') filtered.sort((a, b) => b.avg_price - a.avg_price);
@@ -1064,6 +1051,21 @@
     // cached per (week, location); render dashes until it's ready, then
     // applyLocation's .then() calls renderTable() again to fill them in.
     const hist = _pmixHistCache[`${activeDate}|${activeLoc}`] || null;
+
+    // Ranks are relative to whatever the menu filter currently shows (all
+    // items, or just one concept's) — recomputed every render so there's
+    // always exactly one #1, never one per concept at once.
+    const weekRankMap = {};
+    [...menuItems].sort((a, b) => b.net - a.net)
+      .forEach((it, i) => { weekRankMap[`${it.category}||${it.name}`] = i + 1; });
+
+    const avgRankMap = {};
+    if (hist) {
+      [...menuItems]
+        .filter(it => hist.avgNetMap[`${it.category}||${it.name}`] != null)
+        .sort((a, b) => hist.avgNetMap[`${b.category}||${b.name}`] - hist.avgNetMap[`${a.category}||${a.name}`])
+        .forEach((it, i) => { avgRankMap[`${it.category}||${it.name}`] = i + 1; });
+    }
 
     const tbody = document.getElementById('itemTbody');
     const tfoot = document.getElementById('itemTfoot');
@@ -1082,9 +1084,9 @@
       const pct = catTotal ? (it.qty / catTotal * 100) : 0;
       const key = `${it.category}||${it.name}`;
 
-      const weekRank = hist ? hist.weekRankMap[key] : null;
-      const avgRank  = hist ? hist.avgRankMap[key]  : null;
-      const avgNet   = hist ? hist.avgNetMap[key]   : null;
+      const weekRank = weekRankMap[key] || null;
+      const avgRank  = avgRankMap[key]  || null;
+      const avgNet   = hist ? hist.avgNetMap[key] : null;
       const rankChange = (weekRank != null && avgRank != null) ? (avgRank - weekRank) : null;
       const deltaNet = (avgNet != null) ? (it.net - avgNet) : null;
       const deltaPct = (avgNet)         ? (deltaNet / avgNet * 100) : null;
