@@ -1080,12 +1080,12 @@
       const color = conceptColor[c.name] || COLORS[14];
       const pctOrders = c.pct_orders || 0;
       return `
-      <div class="concept-chip" style="--concept-color:${color}" title="${conceptName(c.name)}: ${fmt$(c.net)} · ${fmtN(c.qty)} sold · ${pctOrders.toFixed(1)}% of orders (${fmtN(c.checks || 0)} of ${fmtN(totalChecks)} checks)">
+      <div class="concept-chip" style="--concept-color:${color}" title="${conceptName(c.name)}: ${fmt$(c.net)} · ${fmtN(c.qty)} sold · ${pctOrders.toFixed(1)}% of orders containing (${fmtN(c.checks || 0)} of ${fmtN(totalChecks)} checks)">
         <div class="concept-chip-name"><span class="concept-chip-dot" style="background:${color}"></span>${conceptName(c.name)}</div>
         <div class="concept-chip-net">${fmt$(c.net)}</div>
         <div class="concept-chip-stats">
           <div class="concept-stat"><span class="concept-stat-val">${fmtN(c.qty)}</span><span class="concept-stat-lbl">Items sold</span></div>
-          <div class="concept-stat"><span class="concept-stat-val">${pctOrders.toFixed(1)}%</span><span class="concept-stat-lbl">Of orders</span></div>
+          <div class="concept-stat"><span class="concept-stat-val">${pctOrders.toFixed(1)}%</span><span class="concept-stat-lbl">Of orders containing</span></div>
         </div>
       </div>`;
     }).join('');
