@@ -944,7 +944,7 @@
     // at zero. Detect that "whole week is empty" case (totalQty across ALL
     // locations is 0) and say so plainly, instead of rendering an all-zero
     // page that looks like something failed to load.
-    const weekHasData = !!(locs.total && locs.total.totalQty > 0);
+    const weekHasData = !!(locs.total && (locs.total.totalQty > 0 || locs.total.totalChecks > 0));
     if (!weekHasData) {
       pending.style.display = '';
       document.getElementById('weekPendingMsg').innerHTML =
@@ -1026,19 +1026,27 @@
     return (colorForCategory.cache[cat] = hit || COLORS[14]);
   }
 
+  // "Top by quantity" and "Avg item price" are scoped to the five core food
+  // concepts -- Marketplace/Cookies/Wine/Beer/Beverages are retail add-ons,
+  // not menu items, and would otherwise dominate or skew both stats.
+  const MAIN_CONCEPTS = new Set(['Gaby', 'Mixtape', 'Palermo Pizza Club', 'Social Monk', 'Mini Kabob']);
+
   function render() {
     if (!DATA) return;
     const items = (DATA.items || []).filter(it => it.qty > 0);
+    const mainItems = items.filter(it => MAIN_CONCEPTS.has(it.category));
 
     // KPI strip
     const topNet = [...items].sort((a, b) => b.net - a.net)[0];
-    const topQty = [...items].sort((a, b) => b.qty - a.qty)[0];
+    const topQty = [...mainItems].sort((a, b) => b.qty - a.qty)[0];
+    const mainNet = mainItems.reduce((sum, it) => sum + it.net, 0);
+    const mainQty = mainItems.reduce((sum, it) => sum + it.qty, 0);
     document.getElementById('kpiQty').textContent     = fmtN(DATA.totalQty);
     document.getElementById('kpiByRev').textContent   = topNet ? fmt$(topNet.net) : '—';
     document.getElementById('kpiByRevSub').textContent = topNet ? titleCase(topNet.name) : '—';
     document.getElementById('kpiByQty').textContent   = topQty ? fmtN(topQty.qty) : '—';
     document.getElementById('kpiByQtySub').textContent = topQty ? titleCase(topQty.name) : '—';
-    document.getElementById('kpiAvg').textContent     = DATA.totalQty ? fmt$2(DATA.totalNet / DATA.totalQty) : '—';
+    document.getElementById('kpiAvg').textContent     = mainQty ? fmt$2(mainNet / mainQty) : '—';
 
     renderLeaderboard(items);
     renderQtyByConcept();
@@ -1059,21 +1067,25 @@
     });
 
     // Concept context strip — drop operational catch-all buckets so the
-    // summary only shows real culinary concepts.
+    // summary only shows real culinary concepts. net>0 catches normal weeks;
+    // checks>0 keeps concepts visible on pre-2026-04-28 weeks, where
+    // weekly_pmix_items has no rows at all but pmix_item_selections
+    // (check-level, backfilled from Toast's API) does.
     const NON_CONCEPT = /^(no sales category|misc non sales)$/i;
     const concepts = (DATA.concepts || [])
-      .filter(c => c.net > 0 && !NON_CONCEPT.test(c.name || ''))
+      .filter(c => (c.net > 0 || c.checks > 0) && !NON_CONCEPT.test(c.name || ''))
       .sort((a, b) => b.net - a.net);
+    const totalChecks = DATA.totalChecks || 0;
     document.getElementById('conceptStrip').innerHTML = concepts.map(c => {
       const color = conceptColor[c.name] || COLORS[14];
-      const avg = c.qty ? c.net / c.qty : 0;
+      const pctOrders = c.pct_orders || 0;
       return `
-      <div class="concept-chip" style="--concept-color:${color}" title="${conceptName(c.name)}: ${fmt$(c.net)} · ${fmtN(c.qty)} sold · ${fmt$2(avg)} avg basket">
+      <div class="concept-chip" style="--concept-color:${color}" title="${conceptName(c.name)}: ${fmt$(c.net)} · ${fmtN(c.qty)} sold · ${pctOrders.toFixed(1)}% of orders (${fmtN(c.checks || 0)} of ${fmtN(totalChecks)} checks)">
         <div class="concept-chip-name"><span class="concept-chip-dot" style="background:${color}"></span>${conceptName(c.name)}</div>
         <div class="concept-chip-net">${fmt$(c.net)}</div>
         <div class="concept-chip-stats">
           <div class="concept-stat"><span class="concept-stat-val">${fmtN(c.qty)}</span><span class="concept-stat-lbl">Items sold</span></div>
-          <div class="concept-stat"><span class="concept-stat-val">${fmt$2(avg)}</span><span class="concept-stat-lbl">Avg basket</span></div>
+          <div class="concept-stat"><span class="concept-stat-val">${pctOrders.toFixed(1)}%</span><span class="concept-stat-lbl">Of orders</span></div>
         </div>
       </div>`;
     }).join('');
