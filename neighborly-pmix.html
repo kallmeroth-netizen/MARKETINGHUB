@@ -250,45 +250,6 @@
     color: var(--text-3);
   }
 
-  /* === Quantity by concept — graph === */
-  .qty-by-concept { display: flex; flex-direction: column; gap: var(--s-3); }
-  .qty-row {
-    display: grid;
-    grid-template-columns: minmax(120px, 180px) 1fr auto;
-    align-items: center;
-    gap: var(--s-3);
-    padding: 6px 0;
-  }
-  .qty-row-label {
-    display: flex; align-items: center; gap: 8px;
-    font-family: var(--f-eyebrow); font-weight: 600;
-    font-size: var(--t-eyebrow); letter-spacing: 0.16em; text-transform: uppercase;
-    color: var(--text-2); min-width: 0;
-  }
-  .qty-row-label .dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
-  .qty-row-label .name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .qty-track { height: 10px; border-radius: var(--r-pill); background: var(--surface-2); overflow: hidden; }
-  .qty-fill {
-    height: 100%; border-radius: var(--r-pill);
-    transition: width 0.55s var(--easing);
-  }
-  .qty-row-meta {
-    font-family: var(--f-mono); font-size: var(--t-caption);
-    color: var(--text-2); white-space: nowrap;
-    display: grid; grid-template-columns: auto auto auto;
-    align-items: baseline; gap: 4px 12px;
-    justify-items: end;
-  }
-  .qty-row-meta .qty-num { font-weight: 500; color: var(--ink); }
-  .qty-row-meta .qty-pct { color: var(--text-3); font-size: var(--t-caption-sm); min-width: 44px; text-align: right; }
-  .qty-row-meta .qty-avg { color: var(--text-2); font-size: var(--t-caption-sm); padding-left: 12px; border-left: 0.5px solid var(--line); min-width: 70px; text-align: right; }
-  @media (max-width: 640px) {
-    .qty-row { grid-template-columns: 1fr auto; gap: var(--s-2); }
-    .qty-row .qty-track { grid-column: 1 / -1; }
-    .qty-row-meta { grid-template-columns: auto auto; }
-    .qty-row-meta .qty-avg { grid-column: 1 / -1; padding-left: 0; border-left: none; padding-top: 2px; }
-  }
-
   /* === Week calendar popover (product-mix date picker) === */
   .cal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.25); z-index: 200; opacity: 0; pointer-events: none; transition: opacity 0.2s ease; }
   .cal-overlay.open { opacity: 1; pointer-events: all; }
@@ -477,15 +438,15 @@
     <div class="np-kpi"><div class="np-kpi-label">Items sold</div><div class="np-kpi-value" id="kpiQty">—</div><div class="np-kpi-sub">units across all menus</div></div>
     <div class="np-kpi"><div class="np-kpi-label">Top by revenue</div><div class="np-kpi-value" id="kpiByRev">—</div><div class="np-kpi-sub" id="kpiByRevSub">—</div></div>
     <div class="np-kpi"><div class="np-kpi-label">Top by quantity</div><div class="np-kpi-value" id="kpiByQty">—</div><div class="np-kpi-sub" id="kpiByQtySub">—</div></div>
-    <div class="np-kpi"><div class="np-kpi-label">Avg item price</div><div class="np-kpi-value" id="kpiAvg">—</div><div class="np-kpi-sub">net per unit</div></div>
+    <div class="np-kpi"><div class="np-kpi-label">Avg order value</div><div class="np-kpi-value" id="kpiAvg">—</div><div class="np-kpi-sub">net per check</div></div>
   </div>
 
   <!-- TOP PERFORMERS LEADERBOARD (hero) — paged carousel: 2 sets of 6 -->
   <section class="np-card" style="margin-bottom:var(--s-4)">
     <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:var(--s-3);flex-wrap:wrap">
       <div>
-        <div class="np-card-title">Today&rsquo;s best sellers</div>
-        <div class="np-card-sub" id="leaderSub">Top 12 items by revenue — quantity bar shows volume vs the day&rsquo;s leader</div>
+        <div class="np-card-title">This week&rsquo;s top sellers</div>
+        <div class="np-card-sub" id="leaderSub">Top 12 items by revenue — quantity bar shows volume vs the week&rsquo;s leader</div>
       </div>
       <div class="sort-toggle" id="leaderToggle" role="tablist" aria-label="Leaderboard sort">
         <button class="is-active" data-leader="net" role="tab">By revenue</button>
@@ -505,13 +466,6 @@
       </button>
     </div>
     <div class="leader-dots" id="leaderDots" aria-hidden="true"></div>
-  </section>
-
-  <!-- QUANTITY BY CONCEPT — graph breakdown -->
-  <section class="np-card" style="margin-bottom:var(--s-4)">
-    <div class="np-card-title">Quantity sold by concept</div>
-    <div class="np-card-sub">Units sold, share of total volume, and average basket spend per concept</div>
-    <div class="qty-by-concept" id="qtyByConcept" style="margin-top:var(--s-4)"></div>
   </section>
 
   <!-- ITEM EXPLORER -->
@@ -1039,17 +993,14 @@
     // KPI strip
     const topNet = [...items].sort((a, b) => b.net - a.net)[0];
     const topQty = [...mainItems].sort((a, b) => b.qty - a.qty)[0];
-    const mainNet = mainItems.reduce((sum, it) => sum + it.net, 0);
-    const mainQty = mainItems.reduce((sum, it) => sum + it.qty, 0);
     document.getElementById('kpiQty').textContent     = fmtN(DATA.totalQty);
     document.getElementById('kpiByRev').textContent   = topNet ? fmt$(topNet.net) : '—';
     document.getElementById('kpiByRevSub').textContent = topNet ? titleCase(topNet.name) : '—';
     document.getElementById('kpiByQty').textContent   = topQty ? fmtN(topQty.qty) : '—';
     document.getElementById('kpiByQtySub').textContent = topQty ? titleCase(topQty.name) : '—';
-    document.getElementById('kpiAvg').textContent     = mainQty ? fmt$2(mainNet / mainQty) : '—';
+    document.getElementById('kpiAvg').textContent     = DATA.totalChecks ? fmt$2(DATA.totalNet / DATA.totalChecks) : '—';
 
     renderLeaderboard(items);
-    renderQtyByConcept();
 
     // Menu filter chips — derived from unique sales categories
     const cats = ['All', ...Array.from(new Set(items.map(it => it.category).filter(Boolean))).sort()];
@@ -1207,8 +1158,8 @@
     const top12 = [...items].sort((a, b) => b[sortKey] - a[sortKey]).slice(0, 12);
     const maxOther = Math.max(...top12.map(it => sortKey === 'net' ? it.qty : it.net));
     document.getElementById('leaderSub').textContent = sortKey === 'qty'
-      ? 'Top 12 items by units sold — revenue bar shows dollar share vs the day’s leader'
-      : 'Top 12 items by revenue — quantity bar shows volume vs the day’s leader';
+      ? 'Top 12 items by units sold — revenue bar shows dollar share vs the week’s leader'
+      : 'Top 12 items by revenue — quantity bar shows volume vs the week’s leader';
 
     const cardHTML = (it, i) => {
       const color = colorForCategory(it.category);
@@ -1278,39 +1229,6 @@
     window.__leaderScrollT = setTimeout(syncLeaderCarousel, 80);
   });
   window.addEventListener('resize', syncLeaderCarousel);
-
-  function renderQtyByConcept() {
-    // Filter out operational catch-all buckets (Toast ships rows like
-    // "No Sales Category" / "Misc Non Sales" that mix odds-and-ends and
-    // shouldn't sit alongside real concepts).
-    const NON_CONCEPT = /^(no sales category|misc non sales)$/i;
-    const concepts = (DATA.concepts || [])
-      .filter(c => c.qty > 0 && c.net > 0 && !NON_CONCEPT.test(c.name || ''))
-      .sort((a, b) => b.qty - a.qty);
-    const totalQty = concepts.reduce((s, c) => s + c.qty, 0);
-    const maxQty = concepts.length ? concepts[0].qty : 0;
-    const wrap = document.getElementById('qtyByConcept');
-    if (!wrap) return;
-    if (!concepts.length) { wrap.innerHTML = '<div class="np-card-sub">No concept volume to show yet.</div>'; return; }
-    wrap.innerHTML = concepts.map(c => {
-      const color = conceptColor[c.name] || COLORS[14];
-      const w = maxQty ? (c.qty / maxQty) * 100 : 0;
-      const pct = totalQty ? (c.qty / totalQty * 100) : 0;
-      const avg = c.qty ? c.net / c.qty : 0;
-      return `
-        <div class="qty-row" title="${conceptName(c.name)}: ${fmtN(c.qty)} units · ${pct.toFixed(1)}% · ${fmt$2(avg)} avg basket">
-          <div class="qty-row-label"><span class="dot" style="background:${color}"></span><span class="name">${conceptName(c.name)}</span></div>
-          <div class="qty-track"><div class="qty-fill" style="width:${w.toFixed(1)}%; background:${color}"></div></div>
-          <div class="qty-row-meta">
-            <span class="qty-num">${fmtN(c.qty)}</span>
-            <span class="qty-pct">${pct.toFixed(1)}%</span>
-            <span class="qty-avg">${fmt$2(avg)} avg</span>
-          </div>
-        </div>
-      `;
-    }).join('');
-  }
-
 
   // Location toggle
   document.querySelectorAll('#locToggle button').forEach(b => {
