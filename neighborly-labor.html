@@ -49,7 +49,17 @@
   @media (max-width: 860px){ .ops-grid { grid-template-columns:1fr; } }
   .chart-wrap { position:relative; height:260px; }
   .kpi-delta.up { color:var(--brand-green-deep); } .kpi-delta.down { color:var(--brand-orange-deep); }
-  .job-pills { display:flex; flex-wrap:wrap; gap:6px; }
+
+  .np-date-input {
+    font-family: var(--f-mono); font-size: var(--t-caption);
+    padding: 5px 10px; border: 1px solid var(--surface-3);
+    border-radius: var(--r-pill); background: var(--surface-1);
+    color: var(--text); cursor: pointer;
+  }
+  .np-date-input:focus { outline: 2px solid var(--ops); outline-offset: 1px; }
+  #customDateRow { display:none; align-items:center; gap:var(--s-3); flex-wrap:wrap; }
+  #customDateRow.visible { display:flex; }
+  .loading-dim { opacity:0.4; pointer-events:none; transition:opacity .2s; }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script src="np-data.js"></script>
@@ -82,33 +92,35 @@
 
   <div class="np-page-header-row">
     <div class="np-page-selectors">
-      <div class="np-toggle" id="tfToggle">
-        <button class="is-active" data-tf="day">Day</button>
-        <button data-tf="week">Week</button>
-        <button data-tf="period">Period</button>
-        <button data-tf="quarter">Quarter</button>
-        <button data-tf="year">Year</button>
+      <div class="np-toggle" id="presetToggle">
+        <button class="is-active" data-preset="lw">Last Wk</button>
+        <button data-preset="cw">This Wk</button>
+        <button data-preset="4w">4 Wks</button>
+        <button data-preset="custom">Custom</button>
       </div>
-      <div class="np-toggle" id="deptToggle">
-        <button class="is-active" data-dept="total">Total</button>
-        <button data-dept="foh">FOH</button>
-        <button data-dept="kit">Kitchen</button>
+      <div id="customDateRow">
+        <div class="np-toggle" id="dateModeToggle">
+          <button class="is-active" data-datemode="range">Date Range</button>
+          <button data-datemode="single">Single Date</button>
+        </div>
+        <input type="date" id="dateA" class="np-date-input" aria-label="Start date">
+        <span id="dateBWrap" style="display:flex;align-items:center;gap:var(--s-3)">
+          <span style="font-size:var(--t-caption);color:var(--text-2)">to</span>
+          <input type="date" id="dateB" class="np-date-input" aria-label="End date">
+        </span>
       </div>
-    </div>
-  </div>
-
-  <!-- By-job filter -->
-  <div class="np-card" style="margin-bottom:var(--s-4); padding:12px var(--s-5)">
-    <div class="np-page-eyebrow" style="margin-bottom:8px">Filter by job</div>
-    <div class="job-pills" id="jobPills">
-      <button class="np-pill is-active" data-job="all">All jobs</button>
-      <button class="np-pill" data-job="server">Server</button>
-      <button class="np-pill" data-job="host">Host</button>
-      <button class="np-pill" data-job="bar">Bar</button>
-      <button class="np-pill" data-job="line">Line cook</button>
-      <button class="np-pill" data-job="prep">Prep</button>
-      <button class="np-pill" data-job="dish">Dish</button>
-      <button class="np-pill" data-job="mgr">Manager</button>
+      <div style="display:flex;align-items:center;gap:var(--s-3);flex-wrap:wrap">
+        <div class="np-toggle" id="locToggle">
+          <button class="is-active" data-loc="combined">Combined</button>
+          <button data-loc="bw">Brentwood</button>
+          <button data-loc="wlv">Westlake</button>
+        </div>
+        <div class="np-toggle" id="deptToggle">
+          <button class="is-active" data-dept="total">Total</button>
+          <button data-dept="foh">FOH</button>
+          <button data-dept="boh">BOH</button>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -117,7 +129,7 @@
     <div class="np-kpi">
       <div class="np-kpi-label">SPLH</div>
       <div class="np-kpi-value" id="kpiSplh">$—</div>
-      <div class="np-kpi-sub"><span class="kpi-delta" id="kpiSplhVar">—</span> vs forecast <span id="kpiSplhFc">$—</span></div>
+      <div class="np-kpi-sub">sales per labor hour</div>
     </div>
     <div class="np-kpi">
       <div class="np-kpi-label">Labor %</div>
@@ -125,14 +137,14 @@
       <div class="np-kpi-sub">of net sales</div>
     </div>
     <div class="np-kpi">
-      <div class="np-kpi-label">Hours — Act / Fcst</div>
+      <div class="np-kpi-label">Hours</div>
       <div class="np-kpi-value" id="kpiHours">—</div>
-      <div class="np-kpi-sub"><span class="kpi-delta" id="kpiHoursVar">—</span> vs forecast</div>
+      <div class="np-kpi-sub" id="kpiHoursSub">worked hours</div>
     </div>
     <div class="np-kpi">
       <div class="np-kpi-label">OT Hours</div>
       <div class="np-kpi-value" id="kpiOtHrs">—</div>
-      <div class="np-kpi-sub">over 40/wk</div>
+      <div class="np-kpi-sub">overtime</div>
     </div>
     <div class="np-kpi">
       <div class="np-kpi-label">OT %</div>
@@ -142,27 +154,27 @@
     <div class="np-kpi">
       <div class="np-kpi-label">Hrs Before / After</div>
       <div class="np-kpi-value" id="kpiBeforeAfter">— / —</div>
-      <div class="np-kpi-sub">before open &middot; after close</div>
+      <div class="np-kpi-sub">before 11am &middot; after 9pm</div>
     </div>
   </div>
 
   <!-- CHARTS -->
   <div class="ops-grid">
-    <div class="np-card">
-      <div class="np-card-title">SPLH — Forecast vs. Actual</div>
+    <div class="np-card" id="splhCard">
+      <div class="np-card-title">SPLH</div>
       <div class="np-card-sub" id="splhSub">Sales per labor hour across the selected window.</div>
       <div class="chart-wrap"><canvas id="splhChart"></canvas></div>
-      <span class="src-note">POS net sales &divide; payroll hours (forecast from labor model)</span>
+      <span class="src-note">POS net sales &divide; worked hours</span>
     </div>
-    <div class="np-card">
-      <div class="np-card-title">Hours — Forecast vs. Actual</div>
-      <div class="np-card-sub">Scheduled/worked hours against forecast.</div>
+    <div class="np-card" id="hoursCard">
+      <div class="np-card-title">Hours</div>
+      <div class="np-card-sub">Worked hours for the selected period and department.</div>
       <div class="chart-wrap"><canvas id="hoursChart"></canvas></div>
-      <span class="src-note">Scheduling + time-clock (worked) vs. labor forecast</span>
+      <span class="src-note">Time-clock hours from Toast POS</span>
     </div>
   </div>
 
-  <div class="np-card">
+  <div class="np-card" id="laborCard">
     <div class="np-card-title">Labor % Trend</div>
     <div class="np-card-sub">Labor cost as a share of net sales.</div>
     <div class="chart-wrap"><canvas id="laborChart"></canvas></div>
@@ -174,164 +186,387 @@
 
 
 <script>
-/* LABOR & SPLH — initial render uses small seeded series so the
-   charts and tiles aren't blank while the Supabase seam below
-   (nbly_labor_summary + nbly_weekly_kpis) hydrates with real
-   labor cost / hours / sales data. */
-var TF = {
-  day:     { pts:['6a','9a','12p','3p','6p','9p'], label:'today',        sales:7200,  hrs:78 },
-  week:    { pts:['Mon','Tue','Wed','Thu','Fri','Sat','Sun'], label:'this week', sales:48200, hrs:540 },
-  period:  { pts:['W1','W2','W3','W4'], label:'this period',  sales:196000, hrs:2160 },
-  quarter: { pts:['P1','P2','P3'], label:'this quarter',      sales:612000, hrs:6500 },
-  year:    { pts:['Q1','Q2','Q3','Q4'], label:'year to date', sales:2480000, hrs:26000 }
+// ── Labor & SPLH — live Supabase data ───────────────────────────────────────
+
+var WLV = '417501a4-3ffb-41d2-9539-a1b87855a869';
+var BW  = '74dacac4-6208-4388-9612-39b46df05359';
+
+// Fiscal week helper — Wednesday-aligned after 2026-01-07, Monday-aligned before.
+// Matches TypeScript in edge functions.
+var FW_CUTOFF = Date.UTC(2026, 0, 7);
+
+function fwStart(ms) {
+  var dow  = new Date(ms).getUTCDay();  // 0=Sun..6=Sat
+  var mon  = (dow + 6) % 7;            // 0=Mon..6=Sun
+  var back = ms >= FW_CUTOFF ? (mon - 2 + 7) % 7 : mon;
+  return ms - back * 86400000;
+}
+
+function toISO(ms) {
+  return new Date(ms).toISOString().slice(0, 10);
+}
+
+var state = {
+  preset:   'lw',       // 'lw'|'cw'|'4w'|'custom'
+  dateMode: 'range',    // 'range'|'single' (active only when preset=custom)
+  dateA:    null,
+  dateB:    null,
+  loc:      'combined', // 'combined'|'bw'|'wlv'
+  dept:     'total'     // 'total'|'foh'|'boh'
 };
-var DEPT = { total:{name:'Total', splh:92, mult:1.0}, foh:{name:'FOH', splh:118, mult:0.55}, kit:{name:'Kitchen', splh:78, mult:0.45} };
-var JOB  = {
-  all:{name:'All jobs',f:1.00}, server:{name:'Server',f:0.94}, host:{name:'Host',f:1.18}, bar:{name:'Bar',f:1.05},
-  line:{name:'Line cook',f:0.82}, prep:{name:'Prep',f:0.7}, dish:{name:'Dish',f:0.62}, mgr:{name:'Manager',f:1.4}
-};
-var state = { tf:'day', dept:'total', job:'all' };
+
 var splhChart, hoursChart, laborChart;
+var OPS = '#7bbd91', GRID = 'rgba(31,35,40,0.06)';
 
-function noise(seed,i){ var x=Math.sin(seed*99+i*12.9898)*43758.5453; return x-Math.floor(x); }
-function hrFmt(n){ return Math.round(n).toLocaleString(); }
+// ── Date range ───────────────────────────────────────────────────────────────
 
-function build(){
-  var t=TF[state.tf], dp=DEPT[state.dept], jb=JOB[state.job];
-  var n=t.pts.length, seed=state.tf.length+state.dept.length+state.job.length;
-  var splhA=[],splhF=[],hrsA=[],hrsF=[],laborPct=[];
-  var baseSplh = dp.splh / jb.f;
-  for(var i=0;i<n;i++){
-    var wob=0.9+noise(seed,i)*0.22;
-    splhA.push(baseSplh*wob);
-    splhF.push(baseSplh*(0.96+noise(seed+1,i)*0.1));
-    var h=(t.hrs*dp.mult/n)*(0.85+noise(seed+2,i)*0.3)*jb.f;
-    hrsA.push(h); hrsF.push(h*(0.93+noise(seed+3,i)*0.12));
-    laborPct.push(26+ (noise(seed+4,i)*8) );
+function getRange() {
+  if (state.preset === 'custom') {
+    var end = (state.dateMode === 'single') ? state.dateA : state.dateB;
+    if (!state.dateA || !end) return { start: null, end: null };
+    return { start: state.dateA, end: end };
   }
-  return {t:t,dp:dp,jb:jb,splhA:splhA,splhF:splhF,hrsA:hrsA,hrsF:hrsF,laborPct:laborPct};
+  var now = new Date();
+  var todayMs  = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
+  var yesterMs = todayMs - 86400000;
+  var cwsMs    = fwStart(todayMs);
+  if (state.preset === 'lw') {
+    return { start: toISO(cwsMs - 7 * 86400000), end: toISO(cwsMs - 86400000) };
+  }
+  if (state.preset === 'cw') {
+    return { start: toISO(cwsMs), end: toISO(yesterMs) };
+  }
+  // '4w' — last 4 complete fiscal weeks
+  return { start: toISO(cwsMs - 28 * 86400000), end: toISO(cwsMs - 86400000) };
 }
 
-function render(){
-  var d=build();
-  var sum=function(a){return a.reduce(function(x,y){return x+y;},0);};
-  var avgSplhA=sum(d.splhA)/d.splhA.length, avgSplhF=sum(d.splhF)/d.splhF.length;
-  var hoursA=sum(d.hrsA), hoursF=sum(d.hrsF);
-  var splhVar=(avgSplhA-avgSplhF)/avgSplhF;
-  var hoursVar=(hoursA-hoursF)/hoursF;
-  var laborPctAvg=sum(d.laborPct)/d.laborPct.length;
-  var otHrs=Math.max(0,hoursA*0.06*(0.6+noise(9,state.tf.length)));
-  var beforeOpen=hoursA*0.018, afterClose=hoursA*0.026;
-
-  document.getElementById('kpiSplh').textContent='$'+avgSplhA.toFixed(0);
-  document.getElementById('kpiSplhFc').textContent='$'+avgSplhF.toFixed(0);
-  var sv=document.getElementById('kpiSplhVar'); sv.textContent=(splhVar>=0?'+':'')+(splhVar*100).toFixed(1)+'%';
-  sv.className='kpi-delta '+(splhVar>=0?'up':'down');
-  document.getElementById('kpiLaborPct').textContent=laborPctAvg.toFixed(1)+'%';
-  document.getElementById('kpiHours').textContent=hrFmt(hoursA)+' / '+hrFmt(hoursF);
-  var hv=document.getElementById('kpiHoursVar'); hv.textContent=(hoursVar>=0?'+':'')+(hoursVar*100).toFixed(1)+'%';
-  hv.className='kpi-delta '+(hoursVar<=0?'up':'down'); // under forecast hours = good
-  document.getElementById('kpiOtHrs').textContent=hrFmt(otHrs);
-  document.getElementById('kpiOtPct').textContent=(otHrs/hoursA*100).toFixed(1)+'%';
-  document.getElementById('kpiBeforeAfter').textContent=hrFmt(beforeOpen)+' / '+hrFmt(afterClose);
-
-  document.getElementById('ctxMeta').innerHTML=d.dp.name+' &middot; '+d.jb.name+' &middot; '+d.t.label+' — SPLH, hours, labor % and OT.';
-  document.getElementById('splhSub').textContent='Sales per labor hour — '+d.dp.name+', '+d.t.label+'.';
-  draw(d);
+function updateDateInputVisibility() {
+  var customRow = document.getElementById('customDateRow');
+  var dateBWrap = document.getElementById('dateBWrap');
+  if (state.preset === 'custom') {
+    customRow.classList.add('visible');
+  } else {
+    customRow.classList.remove('visible');
+  }
+  if (dateBWrap) {
+    dateBWrap.style.display = (state.dateMode === 'range') ? 'flex' : 'none';
+  }
 }
 
-var GRID='rgba(31,35,40,0.06)', OPS='#7bbd91', ORANGE='#e87142';
-function baseOpts(yfmt){
-  return { responsive:true, maintainAspectRatio:false,
-    plugins:{ legend:{ labels:{ boxWidth:10, font:{family:'DM Sans',size:11} } } },
-    scales:{ x:{ grid:{display:false}, ticks:{font:{family:'DM Sans',size:11}} },
-             y:{ grid:{color:GRID}, ticks:{ font:{family:'DM Mono',size:10}, callback:yfmt } } } };
-}
-function draw(d){
-  var dollar=function(v){return '$'+v;}, hours=function(v){return v+'h';}, pctf=function(v){return v+'%';};
-  if(splhChart)splhChart.destroy();
-  splhChart=new Chart(document.getElementById('splhChart'),{ type:'line',
-    data:{labels:d.t.pts,datasets:[
-      {label:'Actual',data:d.splhA,borderColor:OPS,backgroundColor:'rgba(123,189,145,0.10)',fill:true,tension:0.35,borderWidth:2,pointRadius:2},
-      {label:'Forecast',data:d.splhF,borderColor:ORANGE,borderDash:[5,4],borderWidth:2,tension:0.35,pointRadius:0}
-    ]}, options:baseOpts(dollar) });
-  if(hoursChart)hoursChart.destroy();
-  hoursChart=new Chart(document.getElementById('hoursChart'),{ type:'bar',
-    data:{labels:d.t.pts,datasets:[
-      {label:'Actual',data:d.hrsA,backgroundColor:'rgba(123,189,145,0.85)',borderRadius:4},
-      {label:'Forecast',data:d.hrsF,backgroundColor:'rgba(232,113,66,0.45)',borderRadius:4}
-    ]}, options:baseOpts(hours) });
-  if(laborChart)laborChart.destroy();
-  var o=baseOpts(pctf); o.plugins.legend.display=false;
-  laborChart=new Chart(document.getElementById('laborChart'),{ type:'line',
-    data:{labels:d.t.pts,datasets:[
-      {label:'Labor %',data:d.laborPct,borderColor:OPS,backgroundColor:'rgba(123,189,145,0.10)',fill:true,tension:0.35,borderWidth:2,pointRadius:2}
-    ]}, options:o });
-}
+// ── Loading state ────────────────────────────────────────────────────────────
 
-function wireToggle(id,key,attr){
-  document.getElementById(id).addEventListener('click',function(e){
-    var b=e.target.closest('button'); if(!b)return;
-    this.querySelectorAll('button').forEach(function(x){x.classList.remove('is-active');});
-    b.classList.add('is-active'); state[key]=b.dataset[attr]; render();
+function setLoading(on) {
+  ['splhCard', 'hoursCard', 'laborCard'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.classList.toggle('loading-dim', on);
   });
 }
-wireToggle('tfToggle','tf','tf');
-wireToggle('deptToggle','dept','dept');
-wireToggle('jobPills','job','job');
-render();
-</script>
 
-<script>
-// ── Live labor data seam — Phase 4 ───────────────────────────────────────────
-(async function() {
+// ── Data helpers ─────────────────────────────────────────────────────────────
+
+function deptHoursForDate(dt, merged) {
+  var r = merged.sectionByDate[dt];
+  if (!r) return 0;
+  if (state.dept === 'foh') return r.foh_hours || 0;
+  if (state.dept === 'boh') return r.boh_hours || 0;
+  return r.total_hours || 0;
+}
+
+function deptCostForDate(dt, merged) {
+  var r = merged.sectionByDate[dt];
+  if (state.dept === 'foh') return r ? (r.foh_cost || 0) : 0;
+  if (state.dept === 'boh') return r ? (r.boh_cost || 0) : 0;
+  var lr = merged.laborByDate[dt];
+  return lr ? (lr.labor_cost || 0) : 0;
+}
+
+function deptTotals(merged) {
+  var hours = 0, cost = 0, otHours = 0;
+  Object.keys(merged.sectionByDate).forEach(function(dt) {
+    var r = merged.sectionByDate[dt];
+    if (state.dept === 'foh') {
+      hours   += (r.foh_hours    || 0);
+      cost    += (r.foh_cost     || 0);
+      otHours += (r.foh_ot_hours || 0);
+    } else if (state.dept === 'boh') {
+      hours   += (r.boh_hours    || 0);
+      cost    += (r.boh_cost     || 0);
+      otHours += (r.boh_ot_hours || 0);
+    } else {
+      hours   += (r.total_hours    || 0);
+      otHours += (r.total_ot_hours || 0);
+    }
+  });
+  if (state.dept === 'total') cost = merged.totalLaborCost;
+  return { hours: hours, cost: cost, otHours: otHours };
+}
+
+// ── Merge two-location results ───────────────────────────────────────────────
+// resList = [summ0, sales0, sec0, summ1?, sales1?, sec1?]  (nLocs * 3 items)
+
+function mergeResults(resList, nLocs) {
+  var merged = {
+    totalLaborCost:  0,
+    totalLaborHours: 0,
+    totalBeforeHrs:  0,
+    totalAfterHrs:   0,
+    totalNetSales:   0,
+    salesByDate:     {},  // date → net_sales
+    laborByDate:     {},  // date → { labor_cost, labor_hours }
+    sectionByDate:   {}   // date → section totals
+  };
+
+  for (var i = 0; i < nLocs; i++) {
+    var base  = i * 3;
+    var summ  = (resList[base]     && resList[base].data)     || {};
+    var sales = (resList[base + 1] && resList[base + 1].data) || {};
+    var sec   = (resList[base + 2] && resList[base + 2].data) || {};
+
+    merged.totalLaborCost  += (summ.total_labor_cost         || 0);
+    merged.totalLaborHours += (summ.total_labor_hours        || 0);
+    merged.totalBeforeHrs  += (summ.total_hours_before_11am  || 0);
+    merged.totalAfterHrs   += (summ.total_hours_after_9pm    || 0);
+
+    // Daily labor cost/hours from labor_summary.daily[]
+    (summ.daily || []).forEach(function(r) {
+      var d = r.business_date;
+      if (!merged.laborByDate[d]) merged.laborByDate[d] = { labor_cost: 0, labor_hours: 0 };
+      merged.laborByDate[d].labor_cost  += (r.labor_cost  || 0);
+      merged.laborByDate[d].labor_hours += (r.labor_hours || 0);
+    });
+
+    // Daily net_sales from daily_sales.rows[]
+    (sales.rows || []).forEach(function(r) {
+      var d = r.business_date;
+      if (!merged.salesByDate[d]) merged.salesByDate[d] = 0;
+      merged.salesByDate[d] += (r.net_sales || 0);
+    });
+
+    // Daily section breakdown from labor_by_section.rows[]
+    (sec.rows || []).forEach(function(r) {
+      var d = r.business_date;
+      if (!merged.sectionByDate[d]) {
+        merged.sectionByDate[d] = {
+          foh_hours: 0, boh_hours: 0, training_hours: 0, mgmt_hours: 0,
+          foh_cost: 0, boh_cost: 0,
+          foh_ot_hours: 0, boh_ot_hours: 0,
+          total_hours: 0, total_ot_hours: 0
+        };
+      }
+      var t = merged.sectionByDate[d];
+      t.foh_hours      += (r.foh_hours      || 0);
+      t.boh_hours      += (r.boh_hours      || 0);
+      t.training_hours += (r.training_hours  || 0);
+      t.mgmt_hours     += (r.mgmt_hours     || 0);
+      t.foh_cost       += (r.foh_cost       || 0);
+      t.boh_cost       += (r.boh_cost       || 0);
+      t.foh_ot_hours   += (r.foh_ot_hours   || 0);
+      t.boh_ot_hours   += (r.boh_ot_hours   || 0);
+      t.total_hours    += (r.total_hours    || 0);
+      t.total_ot_hours += (r.total_ot_hours || 0);
+    });
+  }
+
+  merged.totalNetSales = Object.keys(merged.salesByDate).reduce(function(sum, d) {
+    return sum + merged.salesByDate[d];
+  }, 0);
+
+  return merged;
+}
+
+// ── KPI tiles ────────────────────────────────────────────────────────────────
+
+function updateKpis(merged) {
+  var dv       = deptTotals(merged);
+  var netSales = merged.totalNetSales;
+
+  var splh = (dv.hours > 0 && netSales > 0) ? netSales / dv.hours : null;
+  document.getElementById('kpiSplh').textContent =
+    splh != null ? '$' + Math.round(splh) : '$—';
+
+  var lPct = (netSales > 0 && dv.cost > 0) ? dv.cost / netSales * 100 : null;
+  document.getElementById('kpiLaborPct').textContent =
+    lPct != null ? lPct.toFixed(1) + '%' : '—%';
+
+  document.getElementById('kpiHours').textContent =
+    dv.hours > 0 ? Math.round(dv.hours).toLocaleString() : '—';
+
+  document.getElementById('kpiOtHrs').textContent =
+    dv.otHours > 0 ? dv.otHours.toFixed(1) : '—';
+
+  var otPct = (dv.hours > 0 && dv.otHours > 0) ? dv.otHours / dv.hours * 100 : null;
+  document.getElementById('kpiOtPct').textContent =
+    otPct != null ? otPct.toFixed(1) + '%' : '—%';
+
+  var bef = merged.totalBeforeHrs, aft = merged.totalAfterHrs;
+  document.getElementById('kpiBeforeAfter').textContent =
+    (bef > 0 || aft > 0)
+      ? bef.toFixed(1) + ' / ' + aft.toFixed(1)
+      : '— / —';
+}
+
+// ── Charts ───────────────────────────────────────────────────────────────────
+
+function baseOpts(yfmt) {
+  return {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { legend: { labels: { boxWidth: 10, font: { family: 'DM Sans', size: 11 } } } },
+    scales: {
+      x: { grid: { display: false }, ticks: { font: { family: 'DM Sans', size: 11 } } },
+      y: { grid: { color: GRID }, ticks: { font: { family: 'DM Mono', size: 10 }, callback: yfmt } }
+    }
+  };
+}
+
+function updateCharts(merged) {
+  var dates = Object.keys(merged.sectionByDate).sort();
+  var labels, splhData, hoursData, laborPctData;
+
+  if (dates.length <= 14) {
+    labels = dates;
+    splhData = dates.map(function(dt) {
+      var s = merged.salesByDate[dt] || 0;
+      var h = deptHoursForDate(dt, merged);
+      return (h > 0 && s > 0) ? Math.round(s / h * 10) / 10 : null;
+    });
+    hoursData = dates.map(function(dt) {
+      return Math.round(deptHoursForDate(dt, merged) * 10) / 10;
+    });
+    laborPctData = dates.map(function(dt) {
+      var s = merged.salesByDate[dt] || 0;
+      var c = deptCostForDate(dt, merged);
+      return (s > 0 && c > 0) ? Math.round(c / s * 1000) / 10 : null;
+    });
+  } else {
+    // Aggregate into fiscal weeks for readability
+    var weeks = {};
+    dates.forEach(function(dt) {
+      var ms = Date.UTC(+dt.slice(0,4), +dt.slice(5,7) - 1, +dt.slice(8,10));
+      var wk = toISO(fwStart(ms));
+      if (!weeks[wk]) weeks[wk] = { sales: 0, hours: 0, cost: 0 };
+      weeks[wk].sales += (merged.salesByDate[dt] || 0);
+      weeks[wk].hours += deptHoursForDate(dt, merged);
+      weeks[wk].cost  += deptCostForDate(dt, merged);
+    });
+    labels = Object.keys(weeks).sort();
+    splhData = labels.map(function(wk) {
+      var w = weeks[wk];
+      return (w.hours > 0 && w.sales > 0) ? Math.round(w.sales / w.hours * 10) / 10 : null;
+    });
+    hoursData = labels.map(function(wk) {
+      return Math.round(weeks[wk].hours * 10) / 10;
+    });
+    laborPctData = labels.map(function(wk) {
+      var w = weeks[wk];
+      return (w.sales > 0 && w.cost > 0) ? Math.round(w.cost / w.sales * 1000) / 10 : null;
+    });
+  }
+
+  var nPts = dates.length;
+  if (splhChart) splhChart.destroy();
+  splhChart = new Chart(document.getElementById('splhChart'), {
+    type: 'line',
+    data: { labels: labels, datasets: [{
+      label: 'SPLH', data: splhData,
+      borderColor: OPS, backgroundColor: 'rgba(123,189,145,0.10)',
+      fill: true, tension: 0.35, borderWidth: 2,
+      pointRadius: nPts <= 14 ? 3 : 2, spanGaps: true
+    }]},
+    options: baseOpts(function(v) { return '$' + v; })
+  });
+
+  if (hoursChart) hoursChart.destroy();
+  hoursChart = new Chart(document.getElementById('hoursChart'), {
+    type: 'bar',
+    data: { labels: labels, datasets: [{
+      label: 'Hours', data: hoursData,
+      backgroundColor: 'rgba(123,189,145,0.85)', borderRadius: 4
+    }]},
+    options: baseOpts(function(v) { return v + 'h'; })
+  });
+
+  if (laborChart) laborChart.destroy();
+  var lOpts = baseOpts(function(v) { return v + '%'; });
+  lOpts.plugins.legend.display = false;
+  laborChart = new Chart(document.getElementById('laborChart'), {
+    type: 'line',
+    data: { labels: labels, datasets: [{
+      label: 'Labor %', data: laborPctData,
+      borderColor: OPS, backgroundColor: 'rgba(123,189,145,0.10)',
+      fill: true, tension: 0.35, borderWidth: 2,
+      pointRadius: nPts <= 14 ? 3 : 2, spanGaps: true
+    }]},
+    options: lOpts
+  });
+}
+
+// ── Reload ───────────────────────────────────────────────────────────────────
+
+async function reload() {
+  var range = getRange();
+  if (!range.start || !range.end) return;
+  var start = range.start, end = range.end;
+
+  var locIds = state.loc === 'combined' ? [WLV, BW]
+             : state.loc === 'wlv'      ? [WLV]
+             :                            [BW];
+
+  setLoading(true);
   try {
-    const sb = NPData.supabase;
-    const WLV = '417501a4-3ffb-41d2-9539-a1b87855a869';
-    const BW  = '74dacac4-6208-4388-9612-39b46df05359';
-    function fwStart(s) {
-      const d = new Date(s + 'T12:00:00Z'), cut = new Date('2026-01-07T00:00:00Z');
-      const dow = d.getUTCDay(), back = d >= cut ? (dow+4)%7 : (dow+6)%7;
-      d.setUTCDate(d.getUTCDate()-back); return d.toISOString().slice(0,10);
-    }
-    function addDays(s, n) {
-      const d = new Date(s + 'T12:00:00Z'); d.setUTCDate(d.getUTCDate()+n); return d.toISOString().slice(0,10);
-    }
-    const cwStart = addDays(fwStart(new Date().toISOString().slice(0,10)), -7);
-    const cwEnd   = addDays(cwStart, 6);
+    var sb = NPData.supabase;
+    var calls = [];
+    locIds.forEach(function(id) {
+      calls.push(sb.rpc('nbly_labor_summary',    { p_location_id: id, p_start_date: start, p_end_date: end }));
+      calls.push(sb.rpc('nbly_daily_sales',      { p_location_id: id, p_start_date: start, p_end_date: end }));
+      calls.push(sb.rpc('nbly_labor_by_section', { p_location_id: id, p_start_date: start, p_end_date: end }));
+    });
+    var res = await Promise.all(calls);
+    var merged = mergeResults(res, locIds.length);
+    updateKpis(merged);
+    updateCharts(merged);
+  } catch(e) {
+    console.error('Labor reload error:', e);
+  }
+  setLoading(false);
+}
 
-    const [wlvL, bwL, wlvK, bwK] = await Promise.all([
-      sb.rpc('nbly_labor_summary', { p_location_id: WLV, p_start_date: cwStart, p_end_date: cwEnd }),
-      sb.rpc('nbly_labor_summary', { p_location_id: BW,  p_start_date: cwStart, p_end_date: cwEnd }),
-      sb.rpc('nbly_weekly_kpis',   { p_location_id: WLV, p_week_start: cwStart }),
-      sb.rpc('nbly_weekly_kpis',   { p_location_id: BW,  p_week_start: cwStart }),
-    ]);
+// ── Toggle wiring ────────────────────────────────────────────────────────────
 
-    const totalHours = (wlvL.data?.total_labor_hours || 0) + (bwL.data?.total_labor_hours || 0);
-    const totalCost  = (wlvL.data?.total_labor_cost  || 0) + (bwL.data?.total_labor_cost  || 0);
-    const totalNet   = (wlvK.data?.net_sales || 0) + (bwK.data?.net_sales || 0);
+function wireToggle(id, stateKey, attr, afterFn) {
+  document.getElementById(id).addEventListener('click', function(e) {
+    var b = e.target.closest('button');
+    if (!b) return;
+    this.querySelectorAll('button').forEach(function(x) { x.classList.remove('is-active'); });
+    b.classList.add('is-active');
+    state[stateKey] = b.dataset[attr];
+    if (afterFn) afterFn();
+    reload();
+  });
+}
 
-    if (totalHours > 0 && totalNet > 0) {
-      const splh     = totalNet / totalHours;
-      const laborPct = totalCost / totalNet * 100;
+wireToggle('presetToggle', 'preset', 'preset', updateDateInputVisibility);
+wireToggle('dateModeToggle', 'dateMode', 'datemode', updateDateInputVisibility);
+wireToggle('locToggle', 'loc', 'loc');
+wireToggle('deptToggle', 'dept', 'dept');
 
-      document.getElementById('kpiSplh').textContent     = '$' + Math.round(splh);
-      document.getElementById('kpiSplhFc').textContent   = '—';
-      var sv = document.getElementById('kpiSplhVar');
-      if (sv) { sv.textContent = '—'; sv.classList.remove('up','down'); }
-      document.getElementById('kpiLaborPct').textContent  = laborPct.toFixed(1) + '%';
-      document.getElementById('kpiHours').textContent     = Math.round(totalHours).toLocaleString() + ' hrs';
-      var hv = document.getElementById('kpiHoursVar');
-      if (hv) { hv.textContent = '—'; hv.classList.remove('up','down'); }
-      document.getElementById('kpiOtHrs').textContent      = '—';
-      document.getElementById('kpiOtPct').textContent      = '—%';
-      document.getElementById('kpiBeforeAfter').textContent = '— / —';
+document.getElementById('dateA').addEventListener('change', function() {
+  state.dateA = this.value; reload();
+});
+document.getElementById('dateB').addEventListener('change', function() {
+  state.dateB = this.value; reload();
+});
 
-      // Calibrate mock charts with real weekly totals
-      if (typeof DEPT !== 'undefined') DEPT.total.splh = Math.round(splh);
-      if (typeof TF   !== 'undefined') { TF.week.sales = Math.round(totalNet); TF.week.hrs = Math.round(totalHours); }
-    }
-  } catch(e) { console.error('Labor seam error:', e); }
+// ── Init ─────────────────────────────────────────────────────────────────────
+
+(function init() {
+  var r = getRange();  // preset='lw' default
+  state.dateA = r.start;
+  state.dateB = r.end;
+  document.getElementById('dateA').value = r.start || '';
+  document.getElementById('dateB').value = r.end   || '';
+  updateDateInputVisibility();
+  reload();
 })();
 </script>
 
