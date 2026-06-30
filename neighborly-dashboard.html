@@ -1264,10 +1264,11 @@ function renderDashboard() {
 // dashboard falls back to the hardcoded WEEK_HISTORY data.
 const SHEET_3PD_URL = 'https://script.google.com/macros/s/AKfycbzQcTtxjlrZCo3OJn6l8PGVjfN0pFm90Jb6iu6I7n-otwV1yEgmNgJ_Mi2w3k-Mzvo7iw/exec';
 const SHEET_3PD_TTL_MS = 24 * 60 * 60 * 1000;
-const SHEET_3PD_LS_KEY = 'nbly_3pd_sheet_cache_v2';  // bumped so the
-// multi-week payload (sponsored + promo + meta + google × all weeks)
-// gets re-fetched once after deploy instead of waiting 24h for the
-// old single-week v1 cache to expire
+const SHEET_3PD_LS_KEY = 'nbly_3pd_sheet_cache_v3';  // bumped so the
+// 3PD payload gets force re-fetched once after deploy instead of waiting
+// up to 24h for the prior cache to expire — use this whenever the
+// MARKETING KPI TRACKER sheet is updated and the dashboard needs to
+// reflect the new sponsored/promo numbers immediately
 // Overwrites DATA[plat].netRev with the sheet's gross-revenue figure (the
 // sheet's own "netRev" field is grossRev minus spend — a margin number, not
 // what this page shows) and recomputes ROAS as gross/spend, since the
