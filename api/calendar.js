@@ -8,7 +8,8 @@ const FIREBASE_URL =
 
 // Map internal category keys to a readable string for the CATEGORIES field
 const CAT_LABELS = {
-  campaign:  'Email / SMS',
+  email:     'Email',
+  campaign:  'SMS',
   social:    'Social',
   keydate:   'Key date',
   ops:       'Ops / Print',
