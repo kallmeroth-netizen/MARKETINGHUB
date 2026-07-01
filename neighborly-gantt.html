@@ -329,12 +329,13 @@ html,body{height:100%;background:var(--bg);font-family:'Inter',system-ui,sans-se
   <!-- Filters -->
   <div class="toolbar-group" id="filter-chips" style="flex-wrap:nowrap;gap:3px">
     <button class="fc active" data-cat="all" onclick="setFilter('all',this)"><span class="fc-all-dot"></span>All</button>
-    <button class="fc" data-cat="campaign" onclick="setFilter('campaign',this)"><span class="fc-dot" style="background:#6280bd"></span>Email</button>
+    <button class="fc" data-cat="email" onclick="setFilter('email',this)"><span class="fc-dot" style="background:#2f9e94"></span>Email</button>
+    <button class="fc" data-cat="campaign" onclick="setFilter('campaign',this)"><span class="fc-dot" style="background:#6280bd"></span>SMS</button>
     <button class="fc" data-cat="social" onclick="setFilter('social',this)"><span class="fc-dot" style="background:#cbc9d6"></span>Social</button>
     <button class="fc" data-cat="keydate" onclick="setFilter('keydate',this)"><span class="fc-dot" style="background:#eace49"></span>Key date</button>
     <button class="fc" data-cat="ops" onclick="setFilter('ops',this)"><span class="fc-dot" style="background:#888780"></span>Marketplace</button>
     <button class="fc" data-cat="event" onclick="setFilter('event',this)"><span class="fc-dot" style="background:#e87142"></span>Event</button>
-    <button class="fc" data-cat="bizupdate" onclick="setFilter('bizupdate',this)"><span class="fc-dot" style="background:#6280bd"></span>Biz update</button>
+    <button class="fc" data-cat="bizupdate" onclick="setFilter('bizupdate',this)"><span class="fc-dot" style="background:#c75d8a"></span>Biz update</button>
     <button class="fc" data-cat="launch" onclick="setFilter('launch',this)"><span class="fc-dot" style="background:#7bbd91"></span>Collateral</button>
   </div>
 </div>
@@ -383,15 +384,16 @@ const FBCFG = {
 
 // ═══ CATEGORY MAP ═══════════════════════════════════════════════════
 const CATS = {
-  campaign:  {label:'Email / SMS',color:'#6280bd',bg:'#eaeef8',text:'#2d4480'},
+  email:     {label:'Email',      color:'#2f9e94',bg:'#e3f3f1',text:'#14574f'},
+  campaign:  {label:'SMS',        color:'#6280bd',bg:'#eaeef8',text:'#2d4480'},
   social:    {label:'Social',     color:'#cbc9d6',bg:'#f0eff5',text:'#4a4760'},
   keydate:   {label:'Key date',   color:'#eace49',bg:'#fdf7d8',text:'#7a6b00'},
   ops:       {label:'Marketplace',color:'#888780',bg:'#F1EFE8',text:'#444441'},
   event:     {label:'Event',      color:'#e87142',bg:'#fdeee7',text:'#8a3518'},
-  bizupdate: {label:'Biz update', color:'#6280bd',bg:'#eaeef8',text:'#2d4480'},
+  bizupdate: {label:'Biz update', color:'#c75d8a',bg:'#f9e8f0',text:'#6b2242'},
   launch:    {label:'Collateral', color:'#7bbd91',bg:'#e4f5ea',text:'#2a5c38'},
 };
-const CAT_ORDER = ['campaign','social','keydate','ops','event','bizupdate','launch'];
+const CAT_ORDER = ['email','campaign','social','keydate','ops','event','bizupdate','launch'];
 
 // ═══ STATE ══════════════════════════════════════════════════════════
 let allEvents = [], filteredEvents = [], visibleRows = [];
