@@ -972,6 +972,7 @@ function NeighborlyCalendar() {
   const [themeOpen, setThemeOpen] = useState(false);
   const [dragId,    setDragId]    = useState(null);
   const [dropCell,  setDropCell]  = useState(null);
+  const [expandedDays, setExpandedDays] = useState({}); // { [dateStr]: true } — day cells expanded via "+N more"
   const [hubOpen,   setHubOpen]   = useState(false);
   const [subOpen,   setSubOpen]   = useState(false);
 
@@ -1284,7 +1285,8 @@ function NeighborlyCalendar() {
                 const isWeek = viewMode === 'week';
                 const isAgenda = isMobile && viewMode === 'month';
                 const maxShow = isWeek ? 12 : (isAgenda ? 8 : (isMobile ? 2 : 3));
-                const show = cellEvs.slice(0, maxShow), more = cellEvs.length - maxShow;
+                const dayExpanded = !!expandedDays[ds];
+                const show = dayExpanded ? cellEvs : cellEvs.slice(0, maxShow), more = dayExpanded ? 0 : cellEvs.length - maxShow;
                 const isDropTarget = dropCell===ds && mode==='edit';
                 const cellMinH = isWeek
                   ? (isMobile ? 220 : 460)
@@ -1338,9 +1340,15 @@ function NeighborlyCalendar() {
                       );
                     })}
                     {more > 0 && (
-                      <div onClick={e=>{e.stopPropagation(); setSidebarId(cellEvs[maxShow]?.id||null);}}
+                      <div onClick={e=>{e.stopPropagation(); setExpandedDays(prev=>({...prev,[ds]:true}));}}
                         style={{fontSize:isMobile?8:10,color:C.text3,padding:'1px 3px',fontWeight:500,cursor:'pointer'}}>
                         +{more} more
+                      </div>
+                    )}
+                    {dayExpanded && cellEvs.length > maxShow && (
+                      <div onClick={e=>{e.stopPropagation(); setExpandedDays(prev=>{const n={...prev}; delete n[ds]; return n;});}}
+                        style={{fontSize:isMobile?8:10,color:C.text3,padding:'1px 3px',fontWeight:500,cursor:'pointer'}}>
+                        Show less
                       </div>
                     )}
                   </div>
