@@ -1,81 +1,81 @@
 {
-  "generated": "2026-07-02T14:16:08.835Z",
-  "date": "Wednesday 07/01/26",
+  "generated": "2026-07-03T14:16:06.737Z",
+  "date": "Thursday 07/02/26",
   "wlv": {
     "today": {
-      "netSales": 19910.44,
-      "checkCount": 677,
-      "avgCheck": 29.41,
-      "lunchSales": 9024.64,
-      "lunchPct": 45.33,
-      "dinnerSales": 10875.41,
-      "dinnerPct": 54.62,
-      "onPremise": 4859.25,
-      "onPremisePct": 24.41,
-      "offPremise": 15051.19,
-      "offPremisePct": 75.59,
+      "netSales": 22707.66,
+      "checkCount": 686,
+      "avgCheck": 33.1,
+      "lunchSales": 10628.65,
+      "lunchPct": 46.81,
+      "dinnerSales": 12079.01,
+      "dinnerPct": 53.19,
+      "onPremise": 7388.32,
+      "onPremisePct": 32.54,
+      "offPremise": 15319.34,
+      "offPremisePct": 67.46,
       "channels": {
-        "dineIn": 4859.25,
-        "marketplace": 846.25,
-        "kioskTakeOut": 3342.4,
-        "webDelivery": 1076.4,
-        "webTakeOut": 4485.5,
+        "dineIn": 7388.32,
+        "marketplace": 916.71,
+        "kioskTakeOut": 2782.14,
+        "webDelivery": 1164.49,
+        "webTakeOut": 5086.9,
         "curbside": 0,
-        "thirdParty": 5048.14,
-        "catering": 252.5
+        "thirdParty": 4350.1,
+        "catering": 1019
       },
       "pmix": {
-        "whatsGabyCooking": 8518.56,
-        "miniKabob": 3442.5,
-        "socialMonk": 2087.09,
-        "mixtape": 1151.94,
-        "palermoPizzaClub": 1770.98,
-        "neighborlyCookies": 364.75,
-        "marketplace": 846.25,
-        "catering": 200,
-        "beverages": 538.76,
-        "wine": 71.57,
-        "beer": 5.5
+        "whatsGabyCooking": 9260.56,
+        "miniKabob": 3280.89,
+        "socialMonk": 2626.1,
+        "mixtape": 2033.34,
+        "palermoPizzaClub": 1642,
+        "neighborlyCookies": 328.5,
+        "marketplace": 916.71,
+        "catering": 1019,
+        "beverages": 585.16,
+        "wine": 222,
+        "beer": 73
       },
       "discounts": {
         "compCatering": 0,
-        "compFood": 223,
+        "compFood": 148.5,
         "compService": 0,
-        "compPromo": 2.6,
-        "compMarketing": 5.2,
+        "compPromo": 0,
+        "compMarketing": 4.6,
         "compFoodReview": 0,
-        "compManager": 259,
+        "compManager": 311,
         "compEmployee": 0,
-        "compMisc": 518.5
+        "compMisc": 416.5
       },
       "labor": {
-        "splh": 62.69,
-        "bohHours": 205.5,
-        "bohCost": 3867.92,
-        "fohHours": 91.4,
-        "fohCost": 1722.34,
-        "trainingHours": 20.7,
-        "trainingCost": 384.53,
-        "totalHours": 317.6,
-        "totalCost": 5974.79,
-        "laborPct": 30
+        "splh": 77.71,
+        "bohHours": 177.5,
+        "bohCost": 3362.1,
+        "fohHours": 74.4,
+        "fohCost": 1274.15,
+        "trainingHours": 40.3,
+        "trainingCost": 635.97,
+        "totalHours": 292.2,
+        "totalCost": 5272.22,
+        "laborPct": 23.2
       }
     },
     "ptd": {
       "wtd": {
-        "netSales": 19910.44,
+        "netSales": 42618.1,
         "label": "W26"
       },
       "ptd": {
-        "netSales": 641766.77,
+        "netSales": 664474.43,
         "label": "P6"
       },
       "qtd": {
-        "netSales": 1864092.22,
+        "netSales": 1886799.88,
         "label": "Q2"
       },
       "ytd": {
-        "netSales": 3771627.12,
+        "netSales": 3794334.78,
         "label": "FY26"
       }
     },
@@ -98,79 +98,79 @@
   },
   "bw": {
     "today": {
-      "netSales": 24002.98,
-      "checkCount": 714,
-      "avgCheck": 33.62,
-      "lunchSales": 9550.74,
-      "lunchPct": 39.79,
-      "dinnerSales": 11935.24,
-      "dinnerPct": 49.72,
-      "onPremise": 8393.72,
-      "onPremisePct": 34.97,
-      "offPremise": 15609.26,
-      "offPremisePct": 65.03,
+      "netSales": 23500.32,
+      "checkCount": 756,
+      "avgCheck": 31.09,
+      "lunchSales": 10685.55,
+      "lunchPct": 45.47,
+      "dinnerSales": 12705.77,
+      "dinnerPct": 54.07,
+      "onPremise": 10982.35,
+      "onPremisePct": 46.73,
+      "offPremise": 12517.97,
+      "offPremisePct": 53.27,
       "channels": {
-        "dineIn": 8393.72,
-        "marketplace": 1282.08,
-        "kioskTakeOut": 2473.28,
-        "webDelivery": 3340.95,
-        "webTakeOut": 4751.5,
-        "curbside": 88,
+        "dineIn": 10982.35,
+        "marketplace": 1205.82,
+        "kioskTakeOut": 2508.15,
+        "webDelivery": 2629,
+        "webTakeOut": 5084,
+        "curbside": 231,
         "thirdParty": 0,
-        "catering": 3673.45
+        "catering": 860
       },
       "pmix": {
-        "whatsGabyCooking": 7888.06,
-        "miniKabob": 9129.3,
+        "whatsGabyCooking": 9170.88,
+        "miniKabob": 6071.41,
         "socialMonk": 0,
-        "mixtape": 1988.3,
-        "palermoPizzaClub": 1787.51,
-        "neighborlyCookies": 484.5,
-        "marketplace": 1282.08,
-        "catering": 3492.5,
-        "beverages": 451.73,
-        "wine": 369,
-        "beer": 61
+        "mixtape": 2622.83,
+        "palermoPizzaClub": 2251.35,
+        "neighborlyCookies": 433.45,
+        "marketplace": 1205.82,
+        "catering": 789.85,
+        "beverages": 571.87,
+        "wine": 301.86,
+        "beer": 88.5
       },
       "discounts": {
-        "compCatering": 107.5,
-        "compFood": 120,
-        "compService": 15,
+        "compCatering": 592.5,
+        "compFood": 165,
+        "compService": 0,
         "compPromo": 0,
-        "compMarketing": 10.5,
+        "compMarketing": 30.95,
         "compFoodReview": 0,
-        "compManager": 425,
+        "compManager": 316.5,
         "compEmployee": 0,
-        "compMisc": 755.76
+        "compMisc": 1174.5
       },
       "labor": {
-        "splh": 64.15,
-        "bohHours": 171.7,
-        "bohCost": 3254.54,
-        "fohHours": 134,
-        "fohCost": 2574.95,
-        "trainingHours": 68.5,
-        "trainingCost": 1245.96,
-        "totalHours": 374.2,
-        "totalCost": 7075.45,
-        "laborPct": 29.5
+        "splh": 62.55,
+        "bohHours": 184.7,
+        "bohCost": 3405.42,
+        "fohHours": 119.7,
+        "fohCost": 2396.69,
+        "trainingHours": 71.3,
+        "trainingCost": 1282.63,
+        "totalHours": 375.7,
+        "totalCost": 7084.74,
+        "laborPct": 30.1
       }
     },
     "ptd": {
       "wtd": {
-        "netSales": 24002.98,
+        "netSales": 47503.3,
         "label": "W26"
       },
       "ptd": {
-        "netSales": 688948.45,
+        "netSales": 712448.77,
         "label": "P6"
       },
       "qtd": {
-        "netSales": 1909075.57,
+        "netSales": 1932575.89,
         "label": "Q2"
       },
       "ytd": {
-        "netSales": 1909136.57,
+        "netSales": 1932636.89,
         "label": "FY26"
       }
     },
@@ -193,79 +193,79 @@
   },
   "total": {
     "today": {
-      "netSales": 43913.42,
-      "checkCount": 1391,
-      "avgCheck": 31.57,
-      "lunchSales": 18575.38,
-      "lunchPct": 42.3,
-      "dinnerSales": 22810.65,
-      "dinnerPct": 51.94,
-      "onPremise": 13252.97,
-      "onPremisePct": 30.18,
-      "offPremise": 30660.45,
-      "offPremisePct": 69.82,
+      "netSales": 46207.98,
+      "checkCount": 1442,
+      "avgCheck": 32.04,
+      "lunchSales": 21314.2,
+      "lunchPct": 46.13,
+      "dinnerSales": 24784.78,
+      "dinnerPct": 53.64,
+      "onPremise": 18370.67,
+      "onPremisePct": 39.76,
+      "offPremise": 27837.31,
+      "offPremisePct": 60.24,
       "channels": {
-        "dineIn": 13252.97,
-        "marketplace": 2128.33,
-        "kioskTakeOut": 5815.68,
-        "webDelivery": 4417.35,
-        "webTakeOut": 9237,
-        "curbside": 88,
-        "thirdParty": 5048.14,
-        "catering": 3925.95
+        "dineIn": 18370.67,
+        "marketplace": 2122.53,
+        "kioskTakeOut": 5290.29,
+        "webDelivery": 3793.49,
+        "webTakeOut": 10170.9,
+        "curbside": 231,
+        "thirdParty": 4350.1,
+        "catering": 1879
       },
       "pmix": {
-        "whatsGabyCooking": 16406.62,
-        "miniKabob": 12571.8,
-        "socialMonk": 2087.09,
-        "mixtape": 3140.24,
-        "palermoPizzaClub": 3558.49,
-        "neighborlyCookies": 849.25,
-        "marketplace": 2128.33,
-        "catering": 3692.5,
-        "beverages": 990.49,
-        "wine": 440.57,
-        "beer": 66.5
+        "whatsGabyCooking": 18431.44,
+        "miniKabob": 9352.3,
+        "socialMonk": 2626.1,
+        "mixtape": 4656.17,
+        "palermoPizzaClub": 3893.35,
+        "neighborlyCookies": 761.95,
+        "marketplace": 2122.53,
+        "catering": 1808.85,
+        "beverages": 1157.03,
+        "wine": 523.86,
+        "beer": 161.5
       },
       "discounts": {
-        "compCatering": 107.5,
-        "compFood": 343,
-        "compService": 15,
-        "compPromo": 2.6,
-        "compMarketing": 15.7,
+        "compCatering": 592.5,
+        "compFood": 313.5,
+        "compService": 0,
+        "compPromo": 0,
+        "compMarketing": 35.55,
         "compFoodReview": 0,
-        "compManager": 684,
+        "compManager": 627.5,
         "compEmployee": 0,
-        "compMisc": 1274.26
+        "compMisc": 1591
       },
       "labor": {
-        "splh": 63.48,
-        "bohHours": 377.2,
-        "bohCost": 7122.46,
-        "fohHours": 225.4,
-        "fohCost": 4297.29,
-        "trainingHours": 89.2,
-        "trainingCost": 1630.49,
-        "totalHours": 691.8,
-        "totalCost": 13050.24,
-        "laborPct": 29.7
+        "splh": 69.18,
+        "bohHours": 362.2,
+        "bohCost": 6767.52,
+        "fohHours": 194.2,
+        "fohCost": 3670.84,
+        "trainingHours": 111.6,
+        "trainingCost": 1918.6,
+        "totalHours": 667.9,
+        "totalCost": 12356.96,
+        "laborPct": 26.7
       }
     },
     "ptd": {
       "wtd": {
-        "netSales": 43913.42,
+        "netSales": 90121.4,
         "label": "W26"
       },
       "ptd": {
-        "netSales": 1330715.22,
+        "netSales": 1376923.2,
         "label": "P6"
       },
       "qtd": {
-        "netSales": 3773167.79,
+        "netSales": 3819375.77,
         "label": "Q2"
       },
       "ytd": {
-        "netSales": 5680763.69,
+        "netSales": 5726971.67,
         "label": "FY26"
       }
     },
