@@ -16,6 +16,7 @@ const CAT_LABELS = {
   event:     'Event',
   bizupdate: 'Biz update',
   launch:    'Launch',
+  influencer:'Influencer',
 };
 
 function escIcal(str) {
@@ -112,8 +113,17 @@ export default async function handler(req, res) {
     lines.push('BEGIN:VEVENT');
     lines.push('UID:' + makeUID(ev.id));
     lines.push('DTSTAMP:' + stamp);
-    lines.push('DTSTART;VALUE=DATE:' + startDate);
-    lines.push('DTEND;VALUE=DATE:' + endDateExclusive);
+    const tm = ev.time && /^(\d{1,2}):(\d{2})/.exec(ev.time);
+    if (tm) {
+      const hh = String(+tm[1]).padStart(2, '0');
+      const mm = tm[2];
+      const eh = String((+tm[1] + 1) % 24).padStart(2, '0');
+      lines.push('DTSTART;TZID=America/Los_Angeles:' + startDate + 'T' + hh + mm + '00');
+      lines.push('DTEND;TZID=America/Los_Angeles:' + startDate + 'T' + eh + mm + '00');
+    } else {
+      lines.push('DTSTART;VALUE=DATE:' + startDate);
+      lines.push('DTEND;VALUE=DATE:' + endDateExclusive);
+    }
     lines.push('SUMMARY:' + summary);
     if (description) lines.push('DESCRIPTION:' + description);
     if (catLabel) lines.push('CATEGORIES:' + escIcal(catLabel));

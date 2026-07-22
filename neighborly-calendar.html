@@ -407,8 +407,16 @@ function generateICS(evts, cats) {
     ].filter(Boolean);
     raw.push('BEGIN:VEVENT');
     raw.push('UID:'+ev.id+'@neighborlyeats.com');
-    raw.push('DTSTART;VALUE=DATE:'+dtstart);
-    raw.push('DTEND;VALUE=DATE:'+dtend);
+    const tm = ev.time && /^(\d{1,2}):(\d{2})/.exec(ev.time);
+    if (tm) {
+      const hh = String(+tm[1]).padStart(2,'0'), mm = tm[2];
+      const eh = String((+tm[1]+1)%24).padStart(2,'0');
+      raw.push('DTSTART;TZID=America/Los_Angeles:'+dtstart+'T'+hh+mm+'00');
+      raw.push('DTEND;TZID=America/Los_Angeles:'+dtstart+'T'+eh+mm+'00');
+    } else {
+      raw.push('DTSTART;VALUE=DATE:'+dtstart);
+      raw.push('DTEND;VALUE=DATE:'+dtend);
+    }
     raw.push('DTSTAMP:'+stamp);
     const prefix = catLabel ? '['+catLabel+'] ' : '';
     raw.push('SUMMARY:'+escICS(prefix+(ev.name||'')+(ev.hold?' [HOLD]':'')));
@@ -471,6 +479,7 @@ const CATS = {
   event:     {label:'Event',       color:C.orange, bg:C.ol,  text:C.od,  icon:'M6 1C3.8 1 2 2.8 2 5c0 3 4 7 4 7s4-4 4-7c0-2.2-1.8-4-4-4zm0 5.5a1.5 1.5 0 110-3 1.5 1.5 0 010 3z'},
   bizupdate: {label:'Biz update',  color:'#c75d8a',bg:'#f9e8f0',text:'#6b2242',icon:'M1 9l3-3 2 2 4-5'},
   launch:    {label:'Collateral',      color:C.green,  bg:C.gl,  text:C.gd,  icon:'M6 1l1.5 3.5L11 5.5 8.5 8l.5 3.5L6 10 2 11.5 2.5 8 0 5.5l3.5-1L6 1z'},
+  influencer:{label:'Influencer',   color:'#7c4dff',bg:'#efeaff',text:'#43277a',icon:'M6 6a2 2 0 100-4 2 2 0 000 4zM2.5 10.5c0-2 1.6-3 3.5-3s3.5 1 3.5 3'},
 };
 
 const DEPTS = ['Marketing','Operations','Creative','Sales','Leadership'];
@@ -553,6 +562,7 @@ const DEFAULT_THEMES = {
 // ── HELPERS ───────────────────────────────────────────────────────────────────
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,6);
 const fmtDate = ds => { if (!ds) return '—'; return new Date(ds+'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}); };
+const fmtTime = t => { if (!t) return ''; const m = /^(\d{1,2}):(\d{2})/.exec(t); if (!m) return t; let h = +m[1]; const mm = m[2]; const ap = h < 12 ? 'AM' : 'PM'; h = h % 12 === 0 ? 12 : h % 12; return h + ':' + mm + ' ' + ap; };
 const addDays = (ds, n) => { const d = new Date(ds+'T00:00:00'); d.setDate(d.getDate()+n); return d.toISOString().split('T')[0]; };
 const mkKey = date => date.getFullYear()+'-'+date.getMonth();
 
@@ -683,6 +693,10 @@ function Sidebar({event, mode, onClose, onEdit, onDelete, onUpdateActions}) {
             <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="2" width="10" height="9" rx="1"/><path d="M1 5h10M4 1v2M8 1v2"/></svg>
             {dateStr}
           </span>
+          {event.time && <span style={{display:'flex',alignItems:'center',gap:5}}>
+            <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="6" cy="6" r="5"/><path d="M6 3v3l2 1.2"/></svg>
+            {fmtTime(event.time)}
+          </span>}
           {event.sub && <span style={{display:'flex',alignItems:'center',gap:5}}>
             <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M1 6l4-4 6 6M3 8l1-1"/></svg>
             {event.sub}
@@ -775,10 +789,11 @@ function Sidebar({event, mode, onClose, onEdit, onDelete, onUpdateActions}) {
 }
 
 // ── EVENT FORM ────────────────────────────────────────────────────────────────
-function EventForm({open, onClose, onSave, onDelete, editEvent, initialDate}) {
+function EventForm({open, onClose, onSave, onDelete, editEvent, initialDate, initialCat}) {
   const [name,   setName]   = useState('');
   const [start,  setStart]  = useState('');
   const [end,    setEnd]    = useState('');
+  const [time,   setTime]   = useState('');
   const [cat,    setCat]    = useState('social');
   const [sub,    setSub]    = useState('');
   const [notes,  setNotes]  = useState('');
@@ -789,21 +804,21 @@ function EventForm({open, onClose, onSave, onDelete, editEvent, initialDate}) {
   useEffect(() => {
     if (!open) return;
     if (editEvent) {
-      setName(editEvent.name||''); setStart(editEvent.start||''); setEnd(editEvent.end||'');
+      setName(editEvent.name||''); setStart(editEvent.start||''); setEnd(editEvent.end||''); setTime(editEvent.time||'');
       setCat(editEvent.cat||'social'); setSub(editEvent.sub||''); setNotes(editEvent.notes||'');
       setHold(!!editEvent.hold); setDepts([...(editEvent.depts||[])]); setPeople([...(editEvent.people||[])]);
     } else {
-      setName(''); setStart(initialDate||''); setEnd(initialDate||'');
-      setCat('social'); setSub(''); setNotes(''); setHold(false); setDepts([]); setPeople([]);
+      setName(''); setStart(initialDate||''); setEnd(initialDate||''); setTime('');
+      setCat(initialCat||'social'); setSub(''); setNotes(''); setHold(false); setDepts([]); setPeople([]);
     }
-  }, [open, editEvent, initialDate]);
+  }, [open, editEvent, initialDate, initialCat]);
 
   const togDept   = d => setDepts(p => p.includes(d) ? p.filter(x=>x!==d) : [...p,d]);
   const togPerson = p => setPeople(prev => prev.includes(p) ? prev.filter(x=>x!==p) : [...prev,p]);
 
   const handleSave = () => {
     if (!name.trim() || !start) { alert('Please add a name and start date.'); return; }
-    onSave({ id:editEvent?.id||uid(), name:name.trim(), start, end:end||start, cat, sub, notes, hold, depts, people, actions:editEvent?.actions||[] });
+    onSave({ id:editEvent?.id||uid(), name:name.trim(), start, end:end||start, time, cat, sub, notes, hold, depts, people, actions:editEvent?.actions||[] });
     onClose();
   };
 
@@ -828,6 +843,14 @@ function EventForm({open, onClose, onSave, onDelete, editEvent, initialDate}) {
         <div>
           <div style={{fontSize:11.5,color:C.text2,marginBottom:3}}>End date</div>
           <input type="date" value={end} onChange={e=>setEnd(e.target.value)} style={inputStyle} onFocus={focusO} onBlur={blurO}/>
+        </div>
+      </div>
+
+      <div style={{marginBottom:13}}>
+        <div style={{fontSize:11.5,color:C.text2,marginBottom:3}}>Time <span style={{color:C.text3,fontSize:10.5}}>— optional, e.g. when an influencer is coming in</span></div>
+        <div style={{display:'flex',alignItems:'center',gap:8}}>
+          <input type="time" value={time} onChange={e=>setTime(e.target.value)} style={{...inputStyle,cursor:'pointer',maxWidth:180}} onFocus={focusO} onBlur={blurO}/>
+          {time && <button type="button" onClick={()=>setTime('')} style={{background:'none',border:'none',cursor:'pointer',color:C.text3,fontSize:12,fontFamily:'inherit',padding:'4px 6px'}}>Clear</button>}
         </div>
       </div>
 
@@ -965,6 +988,7 @@ function NeighborlyCalendar() {
   const [formOpen,  setFormOpen]  = useState(false);
   const [editEvt,   setEditEvt]   = useState(null);
   const [formDate,  setFormDate]  = useState('');
+  const [formCat,   setFormCat]   = useState('');
   const [themeOpen, setThemeOpen] = useState(false);
   const [dragId,    setDragId]    = useState(null);
   const [dropCell,  setDropCell]  = useState(null);
@@ -1053,7 +1077,8 @@ function NeighborlyCalendar() {
   };
 
   // Event CRUD
-  const openAdd  = (ds='') => { if (mode==='present') return; setEditEvt(null); setFormDate(ds); setFormOpen(true); };
+  const openAdd  = (ds='', cat='') => { if (mode==='present') return; setEditEvt(null); setFormDate(ds); setFormCat(cat); setFormOpen(true); };
+  const openAddInfluencer = () => openAdd('', 'influencer');
   const openEdit = id => { if (mode==='present') return; setEditEvt(events.find(e=>e.id===id)||null); setFormOpen(true); };
 
   const handleSave = ev => {
@@ -1236,6 +1261,12 @@ function NeighborlyCalendar() {
                   <span>Add to Google Calendar</span>
                 </button>
                 {mode==='edit' && !isMobile && (
+                  <button onClick={openAddInfluencer} title="Log an influencer coming in" style={{background:CATS.influencer.bg,border:`1px solid ${CATS.influencer.color}`,borderRadius:8,padding:'6px 14px',cursor:'pointer',color:CATS.influencer.text,fontSize:13,fontWeight:600,display:'flex',alignItems:'center',gap:6,fontFamily:'inherit',height:32}}>
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke={CATS.influencer.color} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d={CATS.influencer.icon}/></svg>
+                    + Influencer
+                  </button>
+                )}
+                {mode==='edit' && !isMobile && (
                   <button onClick={() => openAdd()} style={{background:C.orange,border:'none',borderRadius:8,padding:'7px 16px',cursor:'pointer',color:'#fff',fontSize:13,fontWeight:500,display:'flex',alignItems:'center',gap:6,fontFamily:'inherit',height:32}}>
                     + Add event
                   </button>
@@ -1329,6 +1360,10 @@ function NeighborlyCalendar() {
                             {!ev.hold && <svg width={isWeek?9:(isAgenda?8:(isMobile?5:8))} height={isWeek?9:(isAgenda?8:(isMobile?5:8))} viewBox="0 0 12 12" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d={cat.icon}/></svg>}
                           </div>
                           <div style={{flex:1,minWidth:0}}>
+                            {ev.time && <div style={{fontSize:isWeek?11.5:(isAgenda?11:(isMobile?8.5:10)),fontWeight:700,lineHeight:1.15,marginBottom:1,letterSpacing:'.01em',display:'flex',alignItems:'center',gap:3}}>
+                              <svg width={isWeek?9:(isMobile?7:8)} height={isWeek?9:(isMobile?7:8)} viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" style={{flexShrink:0,opacity:.85}}><circle cx="6" cy="6" r="5"/><path d="M6 3v3l2 1.2"/></svg>
+                              {fmtTime(ev.time)}
+                            </div>}
                             <div style={{fontSize:isWeek?(isMobile?12:13):(isAgenda?12:(isMobile?9:11)),fontWeight:600,lineHeight:1.25,overflow:'hidden',display:'-webkit-box',WebkitLineClamp:isWeek?3:(isAgenda?2:(isMobile?1:2)),WebkitBoxOrient:'vertical',textOverflow:'ellipsis'}}>{ev.name}</div>
                             {ev.sub && (isWeek || isAgenda || !isMobile) && <div style={{fontSize:isWeek?11:(isAgenda?10.5:9.5),opacity:.65,marginTop:2,whiteSpace:(isWeek||isAgenda)?'normal':'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{ev.sub}</div>}
                           </div>
@@ -1391,7 +1426,7 @@ function NeighborlyCalendar() {
       </div>{/* /APP SHELL */}
 
       {/* MODALS */}
-      <EventForm open={formOpen} onClose={()=>{setFormOpen(false);setEditEvt(null);}} onSave={handleSave} onDelete={handleDelete} editEvent={editEvt} initialDate={formDate}/>
+      <EventForm open={formOpen} onClose={()=>{setFormOpen(false);setEditEvt(null);}} onSave={handleSave} onDelete={handleDelete} editEvent={editEvt} initialDate={formDate} initialCat={formCat}/>
       <ThemeForm open={themeOpen} onClose={()=>setThemeOpen(false)} monthIndex={mo} themes={themes} onSave={(idx,data)=>saveEvents(events, goals, {...themes,[idx]:{...themes[idx],...data}})}/>
 
       {/* MOBILE FAB */}
@@ -1465,7 +1500,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(
 <script id="nb-enhancement-js">
 (function(){
 var CP=['Instagram','Email','TikTok','SMS','Twitter/X','Print','In-store','PR'];
-var CI={email:'<svg viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1.5" y="3" width="9" height="6" rx="1"/><path d="M1.5 3.5L6 6.5l4.5-3"/></svg>',campaign:'<svg viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="2" width="10" height="9" rx="1"/><path d="M4 1v2M8 1v2M1 5h10"/></svg>',social:'<svg viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 2H3a1 1 0 00-1 1v6a1 1 0 001 1h1v2l3-2h2a1 1 0 001-1V3a1 1 0 00-1-1z"/></svg>',keydate:'<svg viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="2" width="10" height="9" rx="1"/><path d="M4 1v2M8 1v2M1 5h10"/></svg>',ops:'<svg viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 1h4v4H1zM7 1h4v4H7zM1 7h4v4H1zM7 7h4v4H7z"/></svg>',event:'<svg viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="6,1 7.5,4.5 11,5 8.5,7.5 9,11 6,9.5 3,11 3.5,7.5 1,5 4.5,4.5"/></svg>',bizupdate:'<svg viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9.5V10h8v-.5M6 2v6M3 5l3-3 3 3"/></svg>',launch:'<svg viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 1s3 3 3 6v3H3V7c0-3 3-6 3-6z"/><path d="M4.5 10c0-1.7.7-3.5 1.5-4.5.8 1 1.5 2.8 1.5 4.5"/></svg>'};
+var CI={email:'<svg viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1.5" y="3" width="9" height="6" rx="1"/><path d="M1.5 3.5L6 6.5l4.5-3"/></svg>',campaign:'<svg viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="2" width="10" height="9" rx="1"/><path d="M4 1v2M8 1v2M1 5h10"/></svg>',social:'<svg viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 2H3a1 1 0 00-1 1v6a1 1 0 001 1h1v2l3-2h2a1 1 0 001-1V3a1 1 0 00-1-1z"/></svg>',keydate:'<svg viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="2" width="10" height="9" rx="1"/><path d="M4 1v2M8 1v2M1 5h10"/></svg>',ops:'<svg viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 1h4v4H1zM7 1h4v4H7zM1 7h4v4H1zM7 7h4v4H7z"/></svg>',event:'<svg viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="6,1 7.5,4.5 11,5 8.5,7.5 9,11 6,9.5 3,11 3.5,7.5 1,5 4.5,4.5"/></svg>',bizupdate:'<svg viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9.5V10h8v-.5M6 2v6M3 5l3-3 3 3"/></svg>',launch:'<svg viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 1s3 3 3 6v3H3V7c0-3 3-6 3-6z"/><path d="M4.5 10c0-1.7.7-3.5 1.5-4.5.8 1 1.5 2.8 1.5 4.5"/></svg>',influencer:'<svg viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="4" r="2"/><path d="M2.5 10.5c0-2 1.6-3 3.5-3s3.5 1 3.5 3"/></svg>'};
 var os=document.createElement('style');os.id='nb-chip-overrides';document.head.appendChild(os);
 function eec(){if(!window.CATS)return;var root=document.getElementById('root');if(!root)return;for(var d of root.querySelectorAll('div')){var s=d.style;if(s.borderRadius==='6px'&&s.padding&&d.children.length>=2){var dot=d.querySelector('div[style*="border-radius: 50%"]');if(dot&&!d.classList.contains('nb-ev-chip')){d.classList.add('nb-ev-chip');var dc=dot.style.background,ck=null;for(var[k,v] of Object.entries(window.CATS)){var h=v.color.replace('#','');var rr=parseInt(h.substr(0,2),16),gg=parseInt(h.substr(2,2),16),bb=parseInt(h.substr(4,2),16);if(dc==='rgb('+rr+', '+gg+', '+bb+')'){ck=k;break;}}var bc=ck?window.CATS[ck].color:'#888780';d.setAttribute('data-border-color',bc);d.style.setProperty('--nb-bc',bc);if(s.borderStyle==='dashed')d.setAttribute('data-hold','true');}}}var chips=root.querySelectorAll('.nb-ev-chip[data-border-color]'),seen=new Set(),rules='';for(var c of chips){var col=c.getAttribute('data-border-color');if(!seen.has(col)){seen.add(col);rules+='[data-border-color="'+col+'"]{border-left:3px solid '+col+'!important;padding-left:6px!important}\n';}}rules+='[data-hold="true"]{opacity:.62!important;filter:grayscale(35%)!important}';os.textContent=rules;}
 function etc(){var root=document.getElementById('root');if(!root)return;root.querySelectorAll('.nb-today-cell').forEach(function(d){d.classList.remove('nb-today-cell');});for(var d of root.querySelectorAll('div')){var s=d.style;if(s.width==='22px'&&s.height==='22px'&&s.borderRadius==='50%'&&s.background&&s.background.includes('232, 113, 66')){var cell=d.closest('div[style*="min-height"]');if(cell)cell.classList.add('nb-today-cell');}}}
@@ -1473,7 +1508,7 @@ function uth(){for(var d of(document.getElementById('root')||{querySelectorAll:f
 function ug(){var root=document.getElementById('root');if(!root)return;for(var d of root.querySelectorAll('div')){if(d.children.length>0&&d.children[0]&&d.children[0].textContent.trim()==='Monthly goals'&&!d.classList.contains('nb-gd')){var labels=d.querySelectorAll('label'),wrap=document.createElement('div');wrap.className='nb-goals-wrap';for(var label of labels){var cb=label.querySelector('input[type="checkbox"]'),span=label.querySelector('span'),item=document.createElement('div');item.className='nb-goal-item';var nc=document.createElement('input');nc.type='checkbox';nc.className='nb-goal-checkbox';nc.checked=!!(cb&&cb.checked);var tx=document.createElement('input');tx.type='text';tx.className='nb-goal-text';var t=span?span.textContent.trim():'';tx.value=(t==='Insert Goal'||t==='')?'':t;tx.placeholder='Add a goal…';if(nc.checked)tx.classList.add('completed');(function(n2,t2,c2,s2){n2.addEventListener('change',function(){t2.classList.toggle('completed',n2.checked);if(c2){c2.checked=n2.checked;c2.dispatchEvent(new Event('change',{bubbles:true}));}});t2.addEventListener('input',function(){if(s2)s2.textContent=t2.value;});})(nc,tx,cb,span);item.append(nc,tx);wrap.appendChild(item);}var ab=document.createElement('button');ab.className='nb-goal-add';ab.innerHTML='<svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="6" y1="1" x2="6" y2="11"/><line x1="1" y1="6" x2="11" y2="6"/></svg> Add goal';ab.addEventListener('click',function(){var i2=document.createElement('div');i2.className='nb-goal-item';var c2=document.createElement('input');c2.type='checkbox';c2.className='nb-goal-checkbox';var t2=document.createElement('input');t2.type='text';t2.className='nb-goal-text';t2.placeholder='Add a goal…';c2.addEventListener('change',function(){t2.classList.toggle('completed',c2.checked);});i2.append(c2,t2);ab.parentElement.insertBefore(i2,ab);t2.focus();});while(d.children.length>1)d.removeChild(d.lastChild);d.append(wrap,ab);d.classList.add('nb-gd');return;}}}
 function cdp(inp){if(inp._dp)return;inp._dp=true;var wrap=document.createElement('div');wrap.className='nb-date-picker-wrap';inp.parentNode.insertBefore(wrap,inp);wrap.appendChild(inp);inp.style.display='none';var disp=document.createElement('button');disp.type='button';disp.className='nb-date-display';var pY=new Date().getFullYear(),pM=new Date().getMonth(),popup=null;var MN=['January','February','March','April','May','June','July','August','September','October','November','December'],MS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];function fmt(v){if(!v)return'';var p=v.split('-');return MS[+p[1]-1]+' '+parseInt(p[2])+', '+p[0];}function ud(){var v=inp.value;disp.className='nb-date-display '+(v?'has-value':'empty');disp.innerHTML=v?'<span>'+fmt(v)+'</span><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="2" width="10" height="9" rx="1"/><path d="M4 1v2M8 1v2M1 5h10"/></svg>':'<span>Select date…</span><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#9E9C96" stroke-width="1.5"><rect x="1" y="2" width="10" height="9" rx="1"/><path d="M4 1v2M8 1v2M1 5h10"/></svg>';}function bp(){if(popup)popup.remove();popup=document.createElement('div');popup.className='nb-cal-popup';var hdr=document.createElement('div');hdr.className='nb-cal-popup-header';var pv=document.createElement('button');pv.type='button';pv.className='nb-cal-popup-nav';pv.textContent='‹';pv.onclick=function(e){e.stopPropagation();pM--;if(pM<0){pM=11;pY--;}bp();};var lb=document.createElement('span');lb.className='nb-cal-popup-month';lb.textContent=MN[pM]+' '+pY;var nx=document.createElement('button');nx.type='button';nx.className='nb-cal-popup-nav';nx.textContent='›';nx.onclick=function(e){e.stopPropagation();pM++;if(pM>11){pM=0;pY++;}bp();};hdr.append(pv,lb,nx);var grid=document.createElement('div');grid.className='nb-cal-grid';'SMTWTFS'.split('').forEach(function(ch){var el=document.createElement('div');el.className='nb-cal-dow';el.textContent=ch;grid.appendChild(el);});var fd=new Date(pY,pM,1).getDay(),dim=new Date(pY,pM+1,0).getDate(),dip=new Date(pY,pM,0).getDate(),today=new Date();today.setHours(0,0,0,0);var sel=inp.value;for(var i=fd-1;i>=0;i--){var b=document.createElement('button');b.type='button';b.className='nb-cal-day other-month';b.textContent=dip-i;grid.appendChild(b);}for(var dd=1;dd<=dim;dd++){var b2=document.createElement('button');b2.type='button';b2.className='nb-cal-day';b2.textContent=dd;var dt=new Date(pY,pM,dd);dt.setHours(0,0,0,0);if(dt.getTime()===today.getTime())b2.classList.add('today');var ds=pY+'-'+String(pM+1).padStart(2,'0')+'-'+String(dd).padStart(2,'0');if(ds===sel)b2.classList.add('selected');(function(ds2,b3){b3.onclick=function(e){e.stopPropagation();inp.value=ds2;inp.dispatchEvent(new Event('input',{bubbles:true}));inp.dispatchEvent(new Event('change',{bubbles:true}));ud();popup.remove();popup=null;};})(ds,b2);grid.appendChild(b2);}popup.append(hdr,grid);wrap.appendChild(popup);}disp.onclick=function(e){e.stopPropagation();if(popup){popup.remove();popup=null;return;}if(inp.value){var p=inp.value.split('-');pY=+p[0];pM=+p[1]-1;}bp();};document.addEventListener('click',function(e){if(popup&&!wrap.contains(e.target)){popup.remove();popup=null;}});inp.addEventListener('change',ud);inp.addEventListener('input',ud);wrap.insertBefore(disp,inp);ud();}
 function ccc(inp){if(inp._cc)return;inp._cc=true;var tags=inp.value?inp.value.split(',').map(function(t){return t.trim();}).filter(Boolean):[];inp.style.display='none';var pr=document.createElement('div');pr.className='nb-channel-chips';CP.forEach(function(p){var chip=document.createElement('button');chip.type='button';chip.className='nb-channel-chip'+(tags.indexOf(p)>=0?' selected':'');chip.textContent=p;chip.onclick=function(e){e.stopPropagation();var ix=tags.indexOf(p);if(ix>=0)tags.splice(ix,1);else tags.push(p);chip.classList.toggle('selected',tags.indexOf(p)>=0);sync();ut();};pr.appendChild(chip);});var iw=document.createElement('div');iw.className='nb-channel-input-wrap';var tc=document.createElement('div');tc.style.cssText='display:flex;flex-wrap:wrap;gap:4px;flex:1;align-items:center;';var ci=document.createElement('input');ci.className='nb-channel-custom';ci.placeholder='Custom channel…';ci.onkeydown=function(e){if((e.key==='Enter'||e.key===',')&&ci.value.trim()){e.preventDefault();var v=ci.value.trim().replace(/,/g,'');if(tags.indexOf(v)<0){tags.push(v);ut();sync();}ci.value='';}if(e.key==='Backspace'&&!ci.value&&tags.length){tags.pop();ut();sync();}};iw.onclick=function(){ci.focus();};function ut(){tc.innerHTML='';pr.querySelectorAll('.nb-channel-chip').forEach(function(c){c.classList.toggle('selected',tags.indexOf(c.textContent)>=0);});tags.filter(function(t){return CP.indexOf(t)<0;}).forEach(function(tag){var el=document.createElement('span');el.className='nb-channel-selected-chip';el.innerHTML=tag+'<button type="button">×</button>';el.querySelector('button').onclick=function(e){e.stopPropagation();tags=tags.filter(function(t){return t!==tag;});ut();sync();};tc.appendChild(el);});tc.appendChild(ci);}function sync(){inp.value=tags.join(', ');inp.dispatchEvent(new Event('input',{bubbles:true}));inp.dispatchEvent(new Event('change',{bubbles:true}));}iw.append(tc);inp.parentNode.insertBefore(pr,inp.nextSibling);inp.parentNode.insertBefore(iw,pr.nextSibling);ut();}
-function cct(sel){if(sel._ct)return;sel._ct=true;if(!window.CATS)return;sel.style.display='none';var grid=document.createElement('div');grid.className='nb-cat-grid';['email','campaign','social','keydate','ops','event','bizupdate','launch'].forEach(function(k){var cat=window.CATS[k];if(!cat)return;var tile=document.createElement('button');tile.type='button';tile.className='nb-cat-tile'+(sel.value===k?' selected':'');tile.style.setProperty('--tile-bg',cat.bg);tile.style.setProperty('--tile-color',cat.color);tile.style.setProperty('--tile-text',cat.text);tile.setAttribute('data-cat-key',k);var icon=document.createElement('div');icon.className='nb-cat-icon';icon.innerHTML=CI[k]||'';var label=document.createElement('div');label.className='nb-cat-label';label.textContent=cat.label;tile.append(icon,label);tile.onclick=function(e){e.stopPropagation();grid.querySelectorAll('.nb-cat-tile').forEach(function(t){t.classList.remove('selected');});tile.classList.add('selected');sel.value=k;sel.dispatchEvent(new Event('change',{bubbles:true}));};grid.appendChild(tile);});sel.addEventListener('change',function(){grid.querySelectorAll('.nb-cat-tile').forEach(function(t){t.classList.toggle('selected',t.getAttribute('data-cat-key')===sel.value);});});sel.parentNode.insertBefore(grid,sel.nextSibling);}
+function cct(sel){if(sel._ct)return;sel._ct=true;if(!window.CATS)return;sel.style.display='none';var grid=document.createElement('div');grid.className='nb-cat-grid';['email','campaign','social','keydate','ops','event','bizupdate','launch','influencer'].forEach(function(k){var cat=window.CATS[k];if(!cat)return;var tile=document.createElement('button');tile.type='button';tile.className='nb-cat-tile'+(sel.value===k?' selected':'');tile.style.setProperty('--tile-bg',cat.bg);tile.style.setProperty('--tile-color',cat.color);tile.style.setProperty('--tile-text',cat.text);tile.setAttribute('data-cat-key',k);var icon=document.createElement('div');icon.className='nb-cat-icon';icon.innerHTML=CI[k]||'';var label=document.createElement('div');label.className='nb-cat-label';label.textContent=cat.label;tile.append(icon,label);tile.onclick=function(e){e.stopPropagation();grid.querySelectorAll('.nb-cat-tile').forEach(function(t){t.classList.remove('selected');});tile.classList.add('selected');sel.value=k;sel.dispatchEvent(new Event('change',{bubbles:true}));};grid.appendChild(tile);});sel.addEventListener('change',function(){grid.querySelectorAll('.nb-cat-tile').forEach(function(t){t.classList.toggle('selected',t.getAttribute('data-cat-key')===sel.value);});});sel.parentNode.insertBefore(grid,sel.nextSibling);}
 function um(c){if(c.getAttribute('data-nu'))return;c.setAttribute('data-nu','1');c.querySelectorAll('input[type="date"]').forEach(cdp);var s=c.querySelector('select');if(s)cct(s);for(var inp of c.querySelectorAll('input[type="text"],input:not([type])')){if(inp.placeholder&&(inp.placeholder.includes('Instagram')||inp.placeholder.includes('Channel'))){ccc(inp);break;}}}
 new MutationObserver(function(muts){for(var m of muts)for(var n of m.addedNodes){if(n.nodeType===1&&n.textContent&&n.textContent.includes('New event')&&n.querySelector&&n.querySelector('input[type="date"]'))setTimeout(function(){um(n);},50);}}).observe(document.body,{childList:true,subtree:true});
 var tx=0,ty=0,tt=0;document.addEventListener('touchstart',function(e){tx=e.touches[0].clientX;ty=e.touches[0].clientY;tt=Date.now();},{passive:true});document.addEventListener('touchend',function(e){var dx=e.changedTouches[0].clientX-tx,dy=e.changedTouches[0].clientY-ty,dt=Date.now()-tt;if(dt<400&&Math.abs(dx)>60&&Math.abs(dx)>Math.abs(dy)*1.5){var pv=[].find.call(document.querySelectorAll('button'),function(b){return b.textContent.trim()==='‹';});var nx=[].find.call(document.querySelectorAll('button'),function(b){return b.textContent.trim()==='›';});if(dx<0&&nx)nx.click();else if(dx>0&&pv)pv.click();}},{passive:true});
@@ -1626,7 +1661,7 @@ function ra(){eec();etc();uth();ug();}var _t=null;new MutationObserver(function(
     if(allSpans.length<7)return;
     var filterRow=allSpans[0]&&allSpans[0].parentElement;if(!filterRow)return;
     filterRow.style.cssText='position:absolute;opacity:0;pointer-events:none;height:0;overflow:hidden;';
-    var CHIPS=[{label:'All',orig:'All',color:null,isAll:true},{label:'Email',orig:'Email',color:'#2f9e94'},{label:'SMS',orig:'SMS',color:'#6280bd'},{label:'Social',orig:'Social',color:'#cbc9d6'},{label:'Key date',orig:'Key date',color:'#eace49'},{label:'Marketplace',orig:'Marketplace',color:'#888780'},{label:'Event',orig:'Event',color:'#e87142'},{label:'Biz update',orig:'Biz update',color:'#c75d8a'},{label:'Collateral',orig:'Launch',color:'#7bbd91'}];
+    var CHIPS=[{label:'All',orig:'All',color:null,isAll:true},{label:'Email',orig:'Email',color:'#2f9e94'},{label:'SMS',orig:'SMS',color:'#6280bd'},{label:'Social',orig:'Social',color:'#cbc9d6'},{label:'Key date',orig:'Key date',color:'#eace49'},{label:'Marketplace',orig:'Marketplace',color:'#888780'},{label:'Event',orig:'Event',color:'#e87142'},{label:'Biz update',orig:'Biz update',color:'#c75d8a'},{label:'Collateral',orig:'Launch',color:'#7bbd91'},{label:'Influencer',orig:'Influencer',color:'#7c4dff'}];
     var row=document.createElement('div');row.id='nb-filter-enhanced';row.style.cssText='display:flex;flex-wrap:wrap;gap:5px;align-items:center;';
     CHIPS.forEach(function(cfg){
       var chip=document.createElement('span');chip.className='nb-chip-wrap';chip.setAttribute('data-orig',cfg.orig);chip.setAttribute('data-label',cfg.label);
