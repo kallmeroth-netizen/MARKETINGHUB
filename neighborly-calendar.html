@@ -800,16 +800,17 @@ function EventForm({open, onClose, onSave, onDelete, editEvent, initialDate, ini
   const [hold,   setHold]   = useState(false);
   const [depts,  setDepts]  = useState([]);
   const [people, setPeople] = useState([]);
+  const [confirmed, setConfirmed] = useState(false);
 
   useEffect(() => {
     if (!open) return;
     if (editEvent) {
       setName(editEvent.name||''); setStart(editEvent.start||''); setEnd(editEvent.end||''); setTime(editEvent.time||'');
       setCat(editEvent.cat||'social'); setSub(editEvent.sub||''); setNotes(editEvent.notes||'');
-      setHold(!!editEvent.hold); setDepts([...(editEvent.depts||[])]); setPeople([...(editEvent.people||[])]);
+      setHold(!!editEvent.hold); setDepts([...(editEvent.depts||[])]); setPeople([...(editEvent.people||[])]); setConfirmed(!!editEvent.confirmed);
     } else {
       setName(''); setStart(initialDate||''); setEnd(initialDate||''); setTime('');
-      setCat(initialCat||'social'); setSub(''); setNotes(''); setHold(false); setDepts([]); setPeople([]);
+      setCat(initialCat||'social'); setSub(''); setNotes(''); setHold(false); setDepts([]); setPeople([]); setConfirmed(false);
     }
   }, [open, editEvent, initialDate, initialCat]);
 
@@ -818,7 +819,7 @@ function EventForm({open, onClose, onSave, onDelete, editEvent, initialDate, ini
 
   const handleSave = () => {
     if (!name.trim() || !start) { alert('Please add a name and start date.'); return; }
-    onSave({ id:editEvent?.id||uid(), name:name.trim(), start, end:end||start, time, cat, sub, notes, hold, depts, people, actions:editEvent?.actions||[] });
+    onSave({ id:editEvent?.id||uid(), name:name.trim(), start, end:end||start, time, cat, sub, notes, hold, depts, people, confirmed, actions:editEvent?.actions||[] });
     onClose();
   };
 
@@ -861,6 +862,19 @@ function EventForm({open, onClose, onSave, onDelete, editEvent, initialDate, ini
         </select>
       </div>
 
+      {cat === 'influencer' && (
+        <div style={{marginBottom:13}}>
+          <div style={{fontSize:11.5,color:C.text2,marginBottom:3}}>Where <span style={{color:C.text3,fontSize:10.5}}>— location</span></div>
+          <input value={sub} onChange={e=>setSub(e.target.value)} placeholder="e.g. Brentwood" style={inputStyle} onFocus={focusO} onBlur={blurO}/>
+        </div>
+      )}
+
+      {cat === 'influencer' && (
+        <label style={{display:'flex',alignItems:'center',gap:8,marginBottom:13,cursor:'pointer'}}>
+          <input type="checkbox" checked={confirmed} onChange={e=>setConfirmed(e.target.checked)} style={{width:14,height:14,accentColor:CATS.influencer.color}}/>
+          <span style={{fontSize:13,color:C.text2}}>Confirmed <span style={{color:C.text3,fontSize:11}}>— visit is locked in</span></span>
+        </label>
+      )}
 
       <div style={{marginBottom:13}}>
         <div style={{fontSize:11.5,color:C.text2,marginBottom:3}}>Notes</div>
@@ -944,6 +958,58 @@ function ThemeForm({open, onClose, monthIndex, themes, onSave}) {
   );
 }
 
+// ── INFLUENCER LIST ───────────────────────────────────────────────────────────
+// The detail view behind the monthly summary card: a clean when · who · where ·
+// status list of every influencer coming in that month.
+function InfluencerList({open, onClose, list, monthLabel, onToggle, onRowClick, onAdd}) {
+  const dow    = ds => new Date(ds+'T00:00:00').toLocaleDateString('en-US',{weekday:'short'});
+  const dnum   = ds => new Date(ds+'T00:00:00').getDate();
+  const done   = list.filter(e => e.confirmed).length;
+  return (
+    <Modal open={open} onClose={onClose} width={520}>
+      <div style={{display:'flex',alignItems:'baseline',justifyContent:'space-between',marginBottom:3}}>
+        <h2 style={{fontSize:16,fontWeight:600,color:C.text,letterSpacing:'-.02em',display:'flex',alignItems:'center',gap:9,margin:0}}>
+          <span style={{width:8,height:8,borderRadius:'50%',background:CATS.influencer.color,display:'inline-block'}}/> Influencers
+        </h2>
+        <span style={{fontSize:12.5,color:C.text3,fontFamily:"'DM Mono',monospace"}}>{monthLabel}</span>
+      </div>
+      <div style={{fontSize:12,color:C.text3,marginBottom:10}}>{list.length===0 ? 'Nothing scheduled yet' : `${list.length} coming in · ${done} confirmed`}</div>
+
+      <div style={{display:'flex',flexDirection:'column'}}>
+        {list.length===0 && <div style={{fontSize:13,color:C.text3,fontStyle:'italic',padding:'22px 0',textAlign:'center'}}>No influencers logged this month yet.</div>}
+        {list.map(ev => (
+          <div key={ev.id} onClick={()=>onRowClick(ev.id)}
+            style={{display:'grid',gridTemplateColumns:'60px 1fr auto',alignItems:'center',gap:14,padding:'13px 4px',borderTop:`0.5px solid ${C.border}`,cursor:'pointer'}}>
+            <div>
+              <div style={{fontSize:10,fontWeight:600,letterSpacing:'.07em',textTransform:'uppercase',color:C.text3}}>{dow(ev.start)} {dnum(ev.start)}</div>
+              {ev.time && <div style={{fontSize:12.5,fontWeight:600,color:C.text,marginTop:2,fontFamily:"'DM Mono',monospace"}}>{fmtTime(ev.time)}</div>}
+            </div>
+            <div style={{minWidth:0}}>
+              <div style={{fontSize:14.5,fontWeight:600,color:C.text,letterSpacing:'-.01em',lineHeight:1.2,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{ev.name}</div>
+              {ev.sub && <div style={{fontSize:12,color:C.text2,marginTop:2,display:'flex',alignItems:'center',gap:4}}>
+                <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" style={{opacity:.7,flexShrink:0}}><path d="M6 1C4 1 2.5 2.5 2.5 4.5 2.5 7 6 11 6 11s3.5-4 3.5-6.5C9.5 2.5 8 1 6 1z"/><circle cx="6" cy="4.5" r="1.1"/></svg>{ev.sub}</div>}
+              {ev.notes && <div style={{fontSize:11.5,color:C.text3,marginTop:3,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{ev.notes}</div>}
+            </div>
+            <button type="button" onClick={e=>{e.stopPropagation(); onToggle(ev.id);}} title="Toggle confirmed"
+              style={{display:'inline-flex',alignItems:'center',gap:5,fontSize:11.5,fontWeight:600,whiteSpace:'nowrap',padding:'5px 11px',borderRadius:20,border:'none',cursor:'pointer',fontFamily:'inherit',background:ev.confirmed?C.gl:C.tl,color:ev.confirmed?C.gd:C.td}}>
+              {ev.confirmed
+                ? <><svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2.5 6.5l2.5 2.5 4.5-5"/></svg>Confirmed</>
+                : <><svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><circle cx="6" cy="6" r="4.6"/><path d="M6 3.6V6l1.6 1"/></svg>Pending</>}
+            </button>
+          </div>
+        ))}
+      </div>
+
+      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginTop:16,borderTop:`0.5px solid ${C.border}`,paddingTop:14}}>
+        <button type="button" onClick={onAdd} style={{display:'inline-flex',alignItems:'center',gap:6,background:'none',border:'none',cursor:'pointer',color:CATS.influencer.color,fontSize:13,fontWeight:600,fontFamily:'inherit',padding:0}}>
+          <svg width="13" height="13" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><path d="M6 2v8M2 6h8"/></svg> Add influencer
+        </button>
+        <button type="button" onClick={onClose} style={{background:'none',border:`0.5px solid ${C.borderStrong}`,borderRadius:8,padding:'7px 16px',fontSize:13,cursor:'pointer',color:C.text,fontFamily:'inherit'}}>Done</button>
+      </div>
+    </Modal>
+  );
+}
+
 // ── MAIN APP ──────────────────────────────────────────────────────────────────
 function NeighborlyCalendar() {
   const isMobile = useIsMobile();
@@ -990,6 +1056,7 @@ function NeighborlyCalendar() {
   const [formDate,  setFormDate]  = useState('');
   const [formCat,   setFormCat]   = useState('');
   const [themeOpen, setThemeOpen] = useState(false);
+  const [inflOpen,  setInflOpen]  = useState(false);
   const [dragId,    setDragId]    = useState(null);
   const [dropCell,  setDropCell]  = useState(null);
   const [expandedDays, setExpandedDays] = useState({}); // { [dateStr]: true } — day cells expanded via "+N more"
@@ -1062,6 +1129,13 @@ function NeighborlyCalendar() {
   const filtered = events.filter(e => filter==='all' || e.cat===filter);
   const dsOf = c => c.yr+'-'+String(c.mo+1).padStart(2,'0')+'-'+String(c.d).padStart(2,'0');
 
+  // Influencers coming in during the viewed month, sorted by day + time
+  const inflMonthKey = yr+'-'+String(mo+1).padStart(2,'0');
+  const monthInfluencers = events
+    .filter(e => e.cat==='influencer' && (e.start||'').slice(0,7)===inflMonthKey)
+    .sort((a,b) => (a.start+(a.time||'')) < (b.start+(b.time||'')) ? -1 : 1);
+  const inflConfirmed = monthInfluencers.filter(e => e.confirmed).length;
+
   // Drag & drop
   const handleDragStart = (e, id) => { setDragId(id); e.dataTransfer.setData('text/plain',id); e.dataTransfer.effectAllowed='move'; };
   const handleDragEnd   = () => { setDragId(null); setDropCell(null); };
@@ -1091,6 +1165,7 @@ function NeighborlyCalendar() {
 
   const handleDelete = id => { saveEvents(events.filter(e=>e.id!==id), goals, themes); setSidebarId(null); setFormOpen(false); };
   const handleUpdateActions = (id, actions) => saveEvents(events.map(e => e.id===id ? {...e,actions} : e), goals, themes);
+  const toggleConfirmed = id => saveEvents(events.map(e => e.id===id ? {...e, confirmed:!e.confirmed} : e), goals, themes);
 
   const sidebarEvent = events.find(e => e.id===sidebarId) || null;
 
@@ -1387,6 +1462,24 @@ function NeighborlyCalendar() {
               })}
             </div>
 
+            {/* INFLUENCER SUMMARY — count for the month, click through to details */}
+            <div onClick={()=>setInflOpen(true)} title="See who's coming in this month"
+              style={{marginTop:16,border:`0.5px solid ${C.border}`,borderLeft:`3px solid ${CATS.influencer.color}`,background:C.surface,borderRadius:'0 12px 12px 0',padding:'13px 16px',display:'flex',alignItems:'center',gap:14,cursor:'pointer',boxShadow:'0 1px 3px rgba(0,0,0,.04)',transition:'background .15s'}}
+              onMouseEnter={e=>e.currentTarget.style.background=C.surface2}
+              onMouseLeave={e=>e.currentTarget.style.background=C.surface}>
+              <div style={{width:34,height:34,borderRadius:9,background:CATS.influencer.bg,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+                <svg width="16" height="16" viewBox="0 0 12 12" fill="none" stroke={CATS.influencer.color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d={CATS.influencer.icon}/></svg>
+              </div>
+              <div style={{flex:1,minWidth:0}}>
+                <div style={{fontSize:13.5,fontWeight:600,color:C.text,letterSpacing:'-.01em'}}>Influencers this month</div>
+                <div style={{fontSize:12,color:C.text3,marginTop:1}}>
+                  {monthInfluencers.length===0 ? 'None logged yet — tap to add' : `${monthInfluencers.length} coming in · ${inflConfirmed} confirmed`}
+                </div>
+              </div>
+              <div style={{fontSize:26,fontWeight:600,color:CATS.influencer.color,fontFamily:"'DM Mono',monospace",lineHeight:1}}>{monthInfluencers.length}</div>
+              <svg width="15" height="15" viewBox="0 0 12 12" fill="none" stroke={C.text3} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{flexShrink:0}}><path d="M4.5 2.5L8 6l-3.5 3.5"/></svg>
+            </div>
+
             {/* Edit · Present · Print — small text toggle at the bottom of the calendar */}
             <div style={{display:'flex',justifyContent:'center',alignItems:'center',gap:18,marginTop:16,fontSize:11.5,letterSpacing:'.04em'}}>
               {[['edit','Edit'],['present','Present']].map(([m,label]) => (
@@ -1428,6 +1521,11 @@ function NeighborlyCalendar() {
       {/* MODALS */}
       <EventForm open={formOpen} onClose={()=>{setFormOpen(false);setEditEvt(null);}} onSave={handleSave} onDelete={handleDelete} editEvent={editEvt} initialDate={formDate} initialCat={formCat}/>
       <ThemeForm open={themeOpen} onClose={()=>setThemeOpen(false)} monthIndex={mo} themes={themes} onSave={(idx,data)=>saveEvents(events, goals, {...themes,[idx]:{...themes[idx],...data}})}/>
+      <InfluencerList open={inflOpen} onClose={()=>setInflOpen(false)} list={monthInfluencers}
+        monthLabel={curDate.toLocaleDateString('en-US',{month:'long',year:'numeric'})}
+        onToggle={toggleConfirmed}
+        onRowClick={id=>{ setInflOpen(false); openEdit(id); }}
+        onAdd={()=>{ setInflOpen(false); openAddInfluencer(); }}/>
 
       {/* MOBILE FAB */}
       {mode==='edit' && isMobile && (
