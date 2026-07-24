@@ -1152,7 +1152,15 @@ function NeighborlyCalendar() {
 
   // Event CRUD
   const openAdd  = (ds='', cat='') => { if (mode==='present') return; setEditEvt(null); setFormDate(ds); setFormCat(cat); setFormOpen(true); };
-  const openAddInfluencer = () => openAdd('', 'influencer');
+  const openAddInfluencer = () => {
+    // Prefill a sensible date so a quick add never gets blocked on the
+    // "start date" check: today if it's in the month being viewed, else
+    // the 1st of that month. The user can still change it in the form.
+    const t = new Date();
+    const d = (t.getFullYear()===yr && t.getMonth()===mo) ? t.getDate() : 1;
+    const ds = yr+'-'+String(mo+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+    openAdd(ds, 'influencer');
+  };
   const openEdit = id => { if (mode==='present') return; setEditEvt(events.find(e=>e.id===id)||null); setFormOpen(true); };
 
   const handleSave = ev => {
