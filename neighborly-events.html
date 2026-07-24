@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Marketing Hub — Neighborly</title>
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&family=Jost:wght@500;600;700&display=swap" rel="stylesheet">
+
+<!-- Admin-only, via the hub's existing gate -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="np-data.js"></script>
+<script>try { NPData.guardPage(['admin']); } catch (e) {}</script>
+
+<style>
+  :root{
+    --bg:#F7F6F3; --surface:#fff; --surface2:#F0EEE9;
+    --line:rgba(0,0,0,.08); --line-strong:rgba(0,0,0,.14);
+    --ink:#1A1916; --ink2:#6B6960; --ink3:#9E9C96; --dark:#1f2328;
+    --orange:#e87142; --green:#7bbd91; --violet:#7c4dff; --violet-l:#efeaff;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{background:var(--bg);color:var(--ink);
+    font-family:"DM Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
+
+  .nav{display:flex;align-items:center;gap:12px;padding:0 20px;height:52px;background:var(--surface);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:30}
+  .nav .logo{height:22px;width:auto;display:block}
+  .nav .back{display:inline-flex;align-items:center;gap:6px;color:var(--ink2);text-decoration:none;font-size:13px;font-weight:500;padding:6px 10px;border-radius:9px;margin-left:2px}
+  .nav .back:hover{background:var(--surface2);color:var(--ink)}
+  .nav .back svg{width:14px;height:14px}
+  .nav .tag{margin-left:auto;font-family:"Jost",sans-serif;font-size:10.5px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--ink3)}
+
+  .wrap{max-width:1000px;margin:0 auto;padding:36px 22px 80px}
+  .eyebrow{font-family:"Jost",sans-serif;font-size:11px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--violet);margin:0 0 8px}
+  h1{font-size:clamp(26px,4vw,36px);font-weight:600;letter-spacing:-.03em;margin:0 0 6px}
+  .lede{font-size:14.5px;color:var(--ink2);margin:0 0 30px;max-width:56ch}
+
+  .tile-grid{display:flex;flex-wrap:wrap;gap:16px}
+  .tile-grid .tile{flex:0 0 calc((100% - 32px)/3);min-width:280px}
+  .tile{position:relative;display:flex;flex-direction:column;justify-content:space-between;min-height:150px;
+    background:var(--surface);border:1.5px solid rgba(31,35,40,.10);border-radius:18px;padding:18px;
+    text-decoration:none;color:var(--ink);overflow:hidden;cursor:pointer;
+    transition:transform .22s ease,box-shadow .25s ease,border-color .22s ease}
+  .tile:hover{transform:translateY(-3px);box-shadow:0 18px 40px rgba(0,0,0,.10)}
+  .tile.evt{border-color:rgba(124,77,255,.30)}
+  .tile.evt:hover{border-color:var(--violet)}
+  .tile-ico{width:36px;height:36px;border-radius:10px;background:var(--violet-l);display:flex;align-items:center;justify-content:center;color:var(--violet);transition:background .22s,color .22s}
+  .tile.evt:hover .tile-ico{background:var(--violet);color:#fff}
+  .tile-ico svg{width:18px;height:18px}
+  .tile-body{display:flex;flex-direction:column;gap:3px;margin-top:16px}
+  .tile-label{font-family:"Jost","futura-pt",sans-serif;font-weight:600;font-size:14px;line-height:1.3;letter-spacing:.14em;text-transform:uppercase;color:var(--ink)}
+  .tile-sub{font-size:13px;font-weight:500;color:var(--ink3);margin-top:2px}
+  .tile .live{position:absolute;top:16px;right:16px;display:inline-flex;align-items:center;gap:6px;
+    font-family:"Jost",sans-serif;font-weight:600;font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink3)}
+  .tile .live::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 0 4px rgba(123,189,145,.18);animation:pulse 1.8s ease-in-out infinite}
+  @keyframes pulse{0%,100%{box-shadow:0 0 0 4px rgba(123,189,145,.18)}50%{box-shadow:0 0 0 5px rgba(123,189,145,.05)}}
+
+  @media (max-width:640px){
+    .nav{padding:0 14px;height:48px}.nav .logo{height:19px}
+    .wrap{padding:26px 16px 70px}
+    .tile-grid .tile{flex:0 0 100%;min-height:120px}
+  }
+  @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<div class="nav">
+  <img class="logo" src="https://beneighborly.team/NeighborlyLogo.png" alt="Neighborly">
+  <a class="back" href="index.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg><span>Home</span></a>
+  <span class="tag">Admin</span>
+</div>
+
+<div class="wrap">
+  <p class="eyebrow">Marketing Hub</p>
+  <h1>Live boards &amp; shared events</h1>
+  <p class="lede">Private admin space for live, shareable boards — check-ins, guest lists, and anything else you want to run in real time.</p>
+
+  <div class="tile-grid">
+    <a class="tile evt" href="neighborly-checkin.html?board=wgc-hgp&title=WGC%20x%20HGP%20Pop-Up">
+      <span class="live">Live</span>
+      <span class="tile-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="4"/><path d="M2 21a7 7 0 0 1 14 0"/><path d="M16 3.5a4 4 0 0 1 0 8M22 21a7 7 0 0 0-5-6.7"/></svg></span>
+      <span class="tile-body">
+        <span class="tile-label">WGC x HGP Pop-Up Event</span>
+        <span class="tile-sub">Influencer check-in · face sheet</span>
+      </span>
+    </a>
+  </div>
+</div>
+</body>
+</html>

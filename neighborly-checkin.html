@@ -8,9 +8,9 @@
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&family=Jost:wght@500;600;700&display=swap" rel="stylesheet">
 
-<!-- Firebase (live sync) — same project the rest of the hub uses -->
+<!-- Firebase (live sync) — same project as the rest of the hub -->
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 <script>
@@ -20,179 +20,213 @@
   } catch (e) { console.error('[checkin] firebase init failed', e); }
 </script>
 
-<!-- Auth: admin-only, using the hub's existing Supabase gate (nothing custom).
-     To also let the Marketing team (e.g. Justin) view, change ['admin'] below
-     to ['admin','team']. -->
+<!-- Admin-only, via the hub's existing Supabase gate (nothing custom).
+     To also let the Marketing team (e.g. Justin) view, change ['admin'] to ['admin','team']. -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script src="np-data.js"></script>
 <script>try { NPData.guardPage(['admin']); } catch (e) {}</script>
 
 <style>
+  /* ── calendar design tokens ── */
   :root{
-    --bg:#f7f6f3; --card:#ffffff; --ink:#1f2328; --muted:#6b7178; --faint:#9a9891;
-    --line:rgba(31,35,40,.09); --line-soft:rgba(31,35,40,.055);
-    --accent:#6280bd; --accent-ink:#2d4480;
-    --ok:#2d7a4f; --ok-bg:#e9f4ee; --ok-br:#bfe3cd;
-    --violet:#7c4dff;
-    --radius:15px; --shadow:0 1px 2px rgba(31,35,40,.04),0 10px 30px rgba(31,35,40,.05);
+    --bg:#F7F6F3; --surface:#fff; --surface2:#F0EEE9;
+    --line:rgba(0,0,0,.08); --line-strong:rgba(0,0,0,.14);
+    --ink:#1A1916; --ink2:#6B6960; --ink3:#9E9C96; --dark:#1f2328;
+    --orange:#e87142; --orange-l:#fdeee7;
+    --green:#7bbd91; --green-l:#e4f5ea; --green-d:#2a5c38; --green-mid:#2f9e6b;
+    --violet:#7c4dff; --violet-l:#efeaff; --violet-d:#43277a;
+    --radius:14px;
+    --shadow-sm:0 1px 2px rgba(0,0,0,.04); --shadow:0 1px 4px rgba(0,0,0,.05),0 10px 30px rgba(0,0,0,.05);
   }
   *{box-sizing:border-box}
   html,body{margin:0}
   body{background:var(--bg);color:var(--ink);
     font-family:"DM Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
   .mono{font-family:"DM Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums}
+  .eyebrow-f{font-family:"Jost","futura-pt",sans-serif}
   button{font-family:inherit}
-  a{color:inherit}
 
-  /* ── top nav ── */
-  .hub-top{display:flex;align-items:center;gap:14px;padding:13px 22px;background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:30}
-  .hub-top img.logo{height:24px;width:auto;display:block}
-  .hub-top .hub-name{font-weight:700;font-size:15px;letter-spacing:.2px}
-  .hub-top a.home{color:var(--muted);text-decoration:none;font-size:13px;font-weight:500}
-  .hub-top a.home:hover{color:var(--ink)}
-  .hub-nav{margin-left:auto;display:flex;gap:4px;flex-wrap:wrap}
-  .hub-nav a{color:var(--muted);text-decoration:none;font-size:13px;font-weight:500;padding:6px 11px;border-radius:9px}
-  .hub-nav a:hover{background:#f1efe9;color:var(--ink)}
-  .hub-nav a.active{background:var(--ink);color:#fff}
+  /* ── top nav (calendar np-nav feel) ── */
+  .nav{display:flex;align-items:center;gap:12px;padding:0 20px;height:52px;background:var(--surface);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:30}
+  .nav .logo{height:22px;width:auto;display:block}
+  .nav .back{display:inline-flex;align-items:center;gap:6px;color:var(--ink2);text-decoration:none;font-size:13px;font-weight:500;padding:6px 10px;border-radius:9px;margin-left:2px}
+  .nav .back:hover{background:var(--surface2);color:var(--ink)}
+  .nav .back svg{width:14px;height:14px}
+  .nav .tag{margin-left:auto;font-family:"Jost",sans-serif;font-size:10.5px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--ink3)}
 
-  .wrap{max-width:960px;margin:0 auto;padding:26px 22px 90px}
+  .wrap{max-width:1000px;margin:0 auto;padding:24px 20px 100px}
 
   /* ── board header ── */
-  .board-head{display:flex;align-items:flex-start;gap:14px;flex-wrap:wrap;margin-bottom:18px}
-  .title-wrap{flex:1;min-width:220px}
-  .eyebrow{display:inline-flex;align-items:center;gap:7px;font-size:11px;font-weight:600;letter-spacing:.11em;text-transform:uppercase;color:var(--muted);margin-bottom:7px}
-  .live-dot{width:8px;height:8px;border-radius:50%;background:#c9c7c1;box-shadow:0 0 0 0 rgba(45,122,79,.5)}
-  .live-dot.on{background:var(--ok);animation:pulse 2.4s infinite}
-  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(45,122,79,.45)}70%{box-shadow:0 0 0 7px rgba(45,122,79,0)}100%{box-shadow:0 0 0 0 rgba(45,122,79,0)}}
-  #title{width:100%;border:none;background:transparent;font-family:inherit;font-size:30px;font-weight:700;letter-spacing:-.4px;color:var(--ink);padding:2px 4px;margin:-2px -4px;border-radius:8px}
-  #title:hover{background:#fff}
-  #title:focus{outline:none;background:#fff;box-shadow:0 0 0 2px var(--accent)}
-  .board-sub{font-size:13.5px;color:var(--muted);margin-top:3px;padding-left:4px}
+  .head{display:flex;align-items:flex-start;gap:14px;flex-wrap:wrap;margin-bottom:18px}
+  .head .titlecol{flex:1;min-width:220px}
+  .eyebrow{display:inline-flex;align-items:center;gap:8px;font-family:"Jost",sans-serif;font-size:10.5px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--ink3);margin-bottom:9px}
+  .badge{width:20px;height:20px;border-radius:6px;background:var(--violet-l);display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
+  .badge svg{width:12px;height:12px}
+  .live-dot{width:7px;height:7px;border-radius:50%;background:#c9c7c1}
+  .live-dot.on{background:var(--green-mid);box-shadow:0 0 0 0 rgba(47,158,107,.4);animation:pulse 2.4s infinite}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(47,158,107,.4)}70%{box-shadow:0 0 0 7px rgba(47,158,107,0)}100%{box-shadow:0 0 0 0 rgba(47,158,107,0)}}
+  #title{width:100%;border:none;background:transparent;font-family:inherit;font-size:30px;font-weight:600;letter-spacing:-.03em;color:var(--ink);padding:2px 5px;margin:-2px -5px;border-radius:8px}
+  #title:hover{background:var(--surface)}
+  #title:focus{outline:none;background:var(--surface);box-shadow:0 0 0 2px var(--violet)}
+  .sub{font-size:13px;color:var(--ink3);margin-top:3px;padding-left:5px}
 
-  .head-actions{display:flex;gap:8px;align-items:center}
-  .btn{border:1px solid var(--line);background:#fff;color:var(--ink);font-size:13px;font-weight:600;padding:9px 14px;border-radius:11px;cursor:pointer;display:inline-flex;align-items:center;gap:7px;transition:border-color .15s,background .15s}
-  .btn:hover{border-color:rgba(31,35,40,.2)}
+  .actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .btn{border:0.5px solid var(--line-strong);background:var(--surface);color:var(--ink);font-size:13px;font-weight:500;padding:8px 13px;border-radius:8px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;height:34px;transition:border-color .15s,background .15s}
+  .btn:hover{border-color:rgba(0,0,0,.24)}
   .btn svg{width:15px;height:15px}
-  .btn.primary{background:var(--ink);color:#fff;border-color:var(--ink)}
-  .btn.primary:hover{background:#000}
-  .btn.ghost{background:transparent;border-color:transparent;color:var(--muted);padding:9px 10px}
-  .btn.ghost:hover{color:var(--ink);background:#f1efe9}
+  .btn.primary{background:var(--orange);color:#fff;border-color:transparent;font-weight:600}
+  .btn.primary:hover{background:#d9622f}
+  .btn.icon{width:34px;padding:0;justify-content:center}
+  .btn.ghost{border-color:transparent;background:transparent;color:var(--ink3)}
+  .btn.ghost:hover{background:var(--surface2);color:var(--ink)}
 
-  /* ── toolbar / progress ── */
-  .toolbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px}
-  .seg{display:inline-flex;background:#eceae4;border-radius:11px;padding:3px;gap:2px}
-  .seg button{border:0;background:transparent;font-size:13px;font-weight:600;color:var(--muted);padding:7px 14px;border-radius:9px;cursor:pointer}
-  .seg button.active{background:#fff;color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.08)}
-  .seg button .n{opacity:.55;margin-left:5px;font-weight:600}
-  .count{margin-left:auto;font-size:13px;color:var(--muted);white-space:nowrap}
+  /* ── toolbar: filter pills + count (calendar filter row) ── */
+  .toolbar{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+  .fpill{display:inline-flex;align-items:center;gap:7px;border:0.5px solid var(--line-strong);background:var(--surface);color:var(--ink2);font-size:12px;font-weight:500;padding:6px 13px;border-radius:20px;cursor:pointer;white-space:nowrap;transition:all .15s;user-select:none}
+  .fpill .sw{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+  .fpill .n{opacity:.6;font-weight:600}
+  .fpill[data-f="all"] .sw{background:var(--dark)}
+  .fpill[data-f="in"] .sw{background:var(--green)}
+  .fpill[data-f="out"] .sw{background:var(--orange)}
+  .fpill.on{color:#fff;border-color:transparent}
+  .fpill.on .n{opacity:.8}
+  .fpill.on[data-f="all"]{background:var(--dark)}
+  .fpill.on[data-f="in"]{background:var(--green-mid)}
+  .fpill.on[data-f="out"]{background:var(--orange)}
+  .fpill.on .sw{background:rgba(255,255,255,.9)}
+  .count{margin-left:auto;font-size:13px;color:var(--ink3);white-space:nowrap}
   .count b{color:var(--ink);font-weight:700}
-  .bar{height:6px;border-radius:999px;background:#eceae4;overflow:hidden;margin-bottom:22px}
-  .bar > i{display:block;height:100%;background:linear-gradient(90deg,var(--ok),#3f9b6a);border-radius:999px;width:0;transition:width .4s cubic-bezier(.4,0,.2,1)}
 
-  /* ── grid ── */
-  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px}
-  .card{position:relative;background:var(--card);border:1.5px solid var(--line-soft);border-radius:var(--radius);padding:16px;display:flex;align-items:center;gap:14px;cursor:pointer;text-align:left;width:100%;transition:border-color .18s,box-shadow .18s,transform .1s;box-shadow:0 1px 2px rgba(31,35,40,.03)}
-  .card:hover{border-color:rgba(31,35,40,.16);box-shadow:var(--shadow);transform:translateY(-1px)}
-  .card.in{background:var(--ok-bg);border-color:var(--ok-br)}
-  .ph{width:60px;height:60px;border-radius:50%;flex-shrink:0;object-fit:cover;background:#eceae4;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;color:var(--faint);overflow:hidden}
+  .bar{height:6px;border-radius:999px;background:#eceae4;overflow:hidden;margin-bottom:22px}
+  .bar > i{display:block;height:100%;background:linear-gradient(90deg,var(--green),var(--green-mid));border-radius:999px;width:0;transition:width .45s cubic-bezier(.4,0,.2,1)}
+
+  /* ── face-sheet grid ── */
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+  .card{position:relative;background:var(--surface);border:0.5px solid var(--line);border-radius:var(--radius);padding:15px;display:flex;align-items:center;gap:13px;cursor:pointer;text-align:left;width:100%;transition:border-color .18s,box-shadow .18s,transform .1s;box-shadow:var(--shadow-sm)}
+  .card:hover{box-shadow:var(--shadow);transform:translateY(-1px)}
+  .card.in{background:var(--green-l);border-color:rgba(123,189,145,.55)}
+  .ph{width:58px;height:58px;border-radius:50%;flex-shrink:0;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:19px;font-weight:700;color:var(--ink3);overflow:hidden}
   .ph img{width:100%;height:100%;object-fit:cover;display:block}
   .meta{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center}
   .nm{display:block;max-width:100%;min-width:0;font-size:16px;font-weight:600;letter-spacing:-.01em;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .hd{display:block;max-width:100%;min-width:0;font-size:13px;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .card.in .hd{color:#5a8a6e}
+  .hd{display:block;max-width:100%;min-width:0;font-size:12.5px;color:var(--ink2);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .card.in .hd{color:#4e8365}
+  .tog{flex-shrink:0;width:50px;height:29px;border-radius:999px;border:none;background:#e2e0d9;cursor:pointer;position:relative;transition:background .2s;padding:0}
+  .tog::after{content:"";position:absolute;top:3px;left:3px;width:23px;height:23px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.22);transition:transform .2s}
+  .tog.on{background:var(--green-mid)}
+  .tog.on::after{transform:translateX(21px)}
+  .tog:focus-visible{outline:2px solid var(--violet);outline-offset:2px}
+  .pstat{display:none}
 
-  /* check toggle */
-  .tog{flex-shrink:0;width:52px;height:30px;border-radius:999px;border:none;background:#e2e0d9;cursor:pointer;position:relative;transition:background .2s;padding:0}
-  .tog::after{content:"";position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.2);transition:transform .2s}
-  .tog.on{background:var(--ok)}
-  .tog.on::after{transform:translateX(22px)}
-  .tog:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-
-  /* empty */
-  .empty{text-align:center;padding:60px 20px;color:var(--muted)}
-  .empty svg{width:40px;height:40px;color:#cfcdc6;margin-bottom:12px}
+  .empty{text-align:center;padding:60px 20px;color:var(--ink3)}
+  .empty svg{width:38px;height:38px;color:#cfcdc6;margin-bottom:12px}
   .empty h3{margin:0 0 4px;font-size:16px;color:var(--ink);font-weight:600}
   .empty p{margin:0 0 16px;font-size:13.5px}
 
-  /* ── drawer / editor ── */
-  .scrim{position:fixed;inset:0;background:rgba(31,35,40,.34);opacity:0;pointer-events:none;transition:opacity .22s;z-index:40}
+  /* ── editor drawer (calendar Modal feel) ── */
+  .scrim{position:fixed;inset:0;background:rgba(0,0,0,.32);opacity:0;pointer-events:none;transition:opacity .22s;z-index:40}
   .scrim.show{opacity:1;pointer-events:auto}
-  .drawer{position:fixed;top:0;right:0;height:100%;width:400px;max-width:92vw;background:#fff;box-shadow:-14px 0 40px rgba(31,35,40,.16);z-index:50;transform:translateX(100%);transition:transform .26s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column}
+  .drawer{position:fixed;top:0;right:0;height:100%;width:400px;max-width:92vw;background:var(--surface);box-shadow:-14px 0 44px rgba(0,0,0,.18);z-index:50;transform:translateX(100%);transition:transform .26s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column}
   .drawer.show{transform:translateX(0)}
-  .dr-head{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--line)}
-  .dr-head .t{font-size:15px;font-weight:600}
+  .dr-head{display:flex;align-items:center;justify-content:space-between;padding:15px 18px;border-bottom:0.5px solid var(--line)}
+  .dr-head .t{font-size:15px;font-weight:600;letter-spacing:-.01em}
   .dr-nav{display:flex;gap:2px}
-  .dr-body{padding:20px;overflow-y:auto;flex:1;display:flex;flex-direction:column;gap:16px}
+  .dr-body{padding:20px;overflow-y:auto;flex:1;display:flex;flex-direction:column;gap:15px}
   .photo-edit{display:flex;flex-direction:column;align-items:center;gap:12px}
-  .photo-preview{width:120px;height:120px;border-radius:50%;background:#f1efe9;display:flex;align-items:center;justify-content:center;overflow:hidden;font-size:34px;font-weight:700;color:var(--faint);border:1px solid var(--line)}
+  .photo-preview{width:112px;height:112px;border-radius:50%;background:var(--surface2);display:flex;align-items:center;justify-content:center;overflow:hidden;font-size:32px;font-weight:700;color:var(--ink3);border:0.5px solid var(--line)}
   .photo-preview img{width:100%;height:100%;object-fit:cover}
   .photo-controls{display:flex;gap:8px}
-  .field label{display:block;font-size:11.5px;color:var(--muted);margin-bottom:5px;font-weight:500}
-  .field input,.field textarea{width:100%;border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:14px;font-family:inherit;color:var(--ink);background:#fff}
-  .field input:focus,.field textarea:focus{outline:none;border-color:var(--accent)}
-  .field textarea{resize:vertical;min-height:64px}
-  .url-row{display:flex;gap:8px}
-  .url-row input{flex:1}
-  .checkin-row{display:flex;align-items:center;justify-content:space-between;background:#f7f6f3;border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+  .field label{display:block;font-size:11.5px;color:var(--ink2);margin-bottom:5px;font-weight:500}
+  .field input,.field textarea{width:100%;border:0.5px solid var(--line-strong);border-radius:8px;padding:9px 11px;font-size:14px;font-family:inherit;color:var(--ink);background:var(--surface)}
+  .field input:focus,.field textarea:focus{outline:none;border-color:var(--orange)}
+  .field textarea{resize:vertical;min-height:60px}
+  .checkin-row{display:flex;align-items:center;justify-content:space-between;background:var(--green-l);border:0.5px solid rgba(123,189,145,.5);border-radius:11px;padding:12px 14px}
   .checkin-row .lab{font-size:14px;font-weight:600}
-  .checkin-row .st{font-size:12px;color:var(--muted);margin-top:1px}
-  .dr-foot{display:flex;gap:8px;align-items:center;padding:16px 20px;border-top:1px solid var(--line)}
+  .checkin-row .st{font-size:12px;color:var(--green-d);margin-top:1px;opacity:.75}
+  .dr-foot{display:flex;gap:8px;align-items:center;padding:15px 18px;border-top:0.5px solid var(--line)}
   .dr-foot .btn.primary{flex:1;justify-content:center}
-  .link-danger{background:none;border:none;color:#b3402f;font-size:13px;font-weight:600;cursor:pointer;padding:9px 10px;border-radius:9px}
-  .link-danger:hover{background:#fbeceA}
+  .link-danger{background:none;border:none;color:#b3402f;font-size:13px;font-weight:600;cursor:pointer;padding:9px 10px;border-radius:8px}
+  .link-danger:hover{background:var(--orange-l)}
   .hidden-file{display:none}
 
-  .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);background:var(--ink);color:#fff;font-size:13px;font-weight:500;padding:10px 18px;border-radius:999px;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:80}
+  .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);background:var(--dark);color:#fff;font-size:13px;font-weight:500;padding:10px 18px;border-radius:999px;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:80}
   .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
-  @media (max-width:560px){
-    .wrap{padding:18px 14px 90px}
-    #title{font-size:24px}
-    .count{margin-left:0}
+  .print-head{display:none}
+
+  /* ── mobile ── */
+  @media (max-width:600px){
+    .nav{padding:0 14px;height:48px}
+    .nav .logo{height:19px}
+    .nav .back span{display:none}
+    .wrap{padding:18px 14px 96px}
+    #title{font-size:23px}
+    .head .actions{width:100%}
+    .btn.primary{flex:1;justify-content:center}
+    .count{margin-left:0;width:100%;order:5;margin-top:2px}
     .grid{grid-template-columns:1fr}
+    .drawer{width:100%;max-width:100%}
   }
   @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+  /* ── print: clean face sheet ── */
+  @media print{
+    @page{margin:14mm}
+    .nav,.toolbar,.bar,.actions,.eyebrow,.sub,#scrim,#drawer,.toast,.tog,.empty{display:none!important}
+    body{background:#fff}
+    .wrap{max-width:none;margin:0;padding:0}
+    .head{margin-bottom:6px}
+    #title{font-size:22px;padding:0;margin:0}
+    .print-head{display:block;font-size:12px;color:#444;margin:0 0 14px}
+    .grid{display:grid!important;grid-template-columns:repeat(2,1fr);gap:8px}
+    .card{break-inside:avoid;background:#fff!important;border:1px solid #cfcdc6!important;box-shadow:none!important;transform:none!important;padding:11px}
+    .card.in{background:#fff!important;border-color:#9fc9ae!important}
+    .ph{width:46px;height:46px}
+    .pstat{display:block;font-size:11px;font-weight:600;white-space:nowrap;flex-shrink:0}
+    .card.in .pstat{color:var(--green-d)}
+    .card:not(.in) .pstat{color:#9E9C96}
+  }
 </style>
 </head>
 <body>
 
-<div class="hub-top">
+<div class="nav">
   <img class="logo" src="https://beneighborly.team/NeighborlyLogo.png" alt="Neighborly">
-  <span class="hub-name">Marketing Hub</span>
-  <a class="home" href="index.html">← Home</a>
-  <nav class="hub-nav">
-    <a href="neighborly-calendar.html">Calendar</a>
-    <a href="neighborly-guests.html">Guests</a>
-    <a href="neighborly-checkin.html" class="active">Check-In</a>
-  </nav>
+  <a class="back" href="neighborly-events.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg><span>Marketing Hub</span></a>
+  <span class="tag">Live Check-In</span>
 </div>
 
 <div class="wrap">
-  <div class="board-head">
-    <div class="title-wrap">
-      <div class="eyebrow"><span class="live-dot" id="liveDot"></span><span id="liveLabel">Connecting…</span></div>
-      <input id="title" value="Influencer Check-In" aria-label="Board title" spellcheck="false" autocomplete="off">
-      <div class="board-sub" id="boardSub">Live board · shared in real time</div>
+  <div class="head">
+    <div class="titlecol">
+      <div class="eyebrow">
+        <span class="badge"><svg viewBox="0 0 12 12" fill="none" stroke="#7c4dff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="4" r="2"/><path d="M2.5 10.5c0-2 1.6-3 3.5-3s3.5 1 3.5 3"/></svg></span>
+        <span class="live-dot" id="liveDot"></span><span id="liveLabel">Connecting…</span>
+      </div>
+      <input id="title" value="WGC x HGP Pop-Up" aria-label="Board title" spellcheck="false" autocomplete="off">
+      <div class="sub" id="boardSub">Live check-in · updates in real time</div>
+      <div class="print-head" id="printHead"></div>
     </div>
-    <div class="head-actions">
+    <div class="actions">
+      <button class="btn icon" id="printBtn" title="Print face sheet" aria-label="Print">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8" rx="1"/></svg>
+      </button>
       <button class="btn" id="copyLink" title="Copy a link to this live board">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1.5 1.5"/><path d="M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1.5-1.5"/></svg>
         Share
       </button>
       <button class="btn primary" id="addBtn">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
         Add
       </button>
     </div>
   </div>
 
   <div class="toolbar">
-    <div class="seg" id="seg">
-      <button data-f="all" class="active">All <span class="n" id="nAll">0</span></button>
-      <button data-f="in">Checked in <span class="n" id="nIn">0</span></button>
-      <button data-f="out">Expected <span class="n" id="nOut">0</span></button>
-    </div>
-    <div class="count"><b id="cIn">0</b> of <b id="cTot">0</b> checked in</div>
+    <span class="fpill on" data-f="all"><span class="sw"></span>All <span class="n" id="nAll">0</span></span>
+    <span class="fpill" data-f="in"><span class="sw"></span>Checked in <span class="n" id="nIn">0</span></span>
+    <span class="fpill" data-f="out"><span class="sw"></span>Expected <span class="n" id="nOut">0</span></span>
+    <span class="count"><b id="cIn">0</b> of <b id="cTot">0</b> checked in</span>
   </div>
   <div class="bar"><i id="barFill"></i></div>
 
@@ -202,19 +236,18 @@
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
     <h3>No one added yet</h3>
     <p>Add the first guest to start checking people in.</p>
-    <button class="btn primary" id="addBtn2" style="display:inline-flex"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Add guest</button>
+    <button class="btn primary" id="addBtn2" style="display:inline-flex"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Add guest</button>
   </div>
 </div>
 
-<!-- editor drawer -->
 <div class="scrim" id="scrim"></div>
 <aside class="drawer" id="drawer" aria-hidden="true">
   <div class="dr-head">
     <span class="t" id="drTitle">Add guest</span>
     <div class="dr-nav">
-      <button class="btn ghost" id="prevBtn" title="Previous" style="display:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
-      <button class="btn ghost" id="nextBtn" title="Next" style="display:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></button>
-      <button class="btn ghost" id="closeBtn" title="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+      <button class="btn ghost icon" id="prevBtn" title="Previous" style="display:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <button class="btn ghost icon" id="nextBtn" title="Next" style="display:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></button>
+      <button class="btn ghost icon" id="closeBtn" title="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
     </div>
   </div>
   <div class="dr-body">
@@ -225,13 +258,11 @@
         <button class="btn" id="clearPhoto" style="display:none">Remove</button>
       </div>
       <input type="file" accept="image/*" class="hidden-file" id="fileInput">
-      <div class="url-row" style="width:100%">
-        <input id="photoUrl" placeholder="…or paste an image URL" autocomplete="off">
-      </div>
+      <div style="width:100%"><input id="photoUrl" class="field" placeholder="…or paste an image URL" autocomplete="off" style="width:100%;border:0.5px solid var(--line-strong);border-radius:8px;padding:9px 11px;font-size:14px;font-family:inherit"></div>
     </div>
     <div class="field"><label for="fName">Name</label><input id="fName" placeholder="e.g. Sarah Chen" autocomplete="off"></div>
     <div class="field"><label for="fHandle">Handle / detail</label><input id="fHandle" placeholder="e.g. @sarah.eats · Brentwood" autocomplete="off"></div>
-    <div class="field"><label for="fNote">Note <span style="color:var(--faint)">(optional)</span></label><textarea id="fNote" placeholder="Deliverables, comp, who's hosting…"></textarea></div>
+    <div class="field"><label for="fNote">Note <span style="color:var(--ink3)">(optional)</span></label><textarea id="fNote" placeholder="Deliverables, comp, who's hosting…"></textarea></div>
     <div class="checkin-row">
       <div><div class="lab">Checked in</div><div class="st" id="checkState">Not yet</div></div>
       <button class="tog" id="drTog" role="switch" aria-checked="false" aria-label="Toggle checked in"></button>
@@ -249,28 +280,29 @@
 (function () {
   'use strict';
   var db = window.__db || null;
-  // Store under the already-open marketing-calendar branch so it persists live
-  // with no database-rules change. The calendar writes with update(), so it
-  // never touches this sub-path.
-  var ref = db ? db.ref('marketing-calendar/checkin') : null;
 
-  var state = { title: 'Influencer Check-In', guests: {} };
-  var filter = 'all';
-  var editId = null;          // id being edited, or null for a new guest
-  var draftPhoto = '';        // photo data-url/URL held in the open editor
+  // Each board is namespaced by a ?board= slug, so future events/boards get
+  // their own guest list. Stored under the already-open marketing-calendar
+  // branch (calendar writes with update(), never touching this sub-path).
+  var params = new URLSearchParams(location.search);
+  var slug = (params.get('board') || 'wgc-hgp').replace(/[^a-z0-9_-]/gi, '').toLowerCase() || 'wgc-hgp';
+  var defaultTitle = params.get('title') ? decodeURIComponent(params.get('title')) : 'WGC x HGP Pop-Up';
+  var ref = db ? db.ref('marketing-calendar/checkin/' + slug) : null;
 
-  // ── elements ──
+  var state = { title: defaultTitle, guests: {} };
+  var filter = 'all', editId = null, draftPhoto = '';
+
   var $ = function (id) { return document.getElementById(id); };
   var grid = $('grid'), empty = $('empty');
   var titleEl = $('title'), liveDot = $('liveDot'), liveLabel = $('liveLabel');
   var drawer = $('drawer'), scrim = $('scrim');
-  var photoPreview = $('photoPreview'), photoInitials = $('photoInitials');
+  var photoPreview = $('photoPreview');
   var fName = $('fName'), fHandle = $('fHandle'), fNote = $('fNote'), photoUrl = $('photoUrl');
   var drTog = $('drTog'), checkState = $('checkState');
+  titleEl.value = defaultTitle;
 
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
-    return { '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c];
-  }); }
+    return { '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]; }); }
   function initials(name) {
     var p = String(name || '').trim().replace(/^@/, '').split(/[\s._-]+/).filter(Boolean);
     if (!p.length) return '?';
@@ -282,26 +314,20 @@
   }
   function guestList() {
     return Object.keys(state.guests || {}).map(function (id) {
-      var g = state.guests[id] || {}; return {
-        id: id, name: g.name || '', handle: g.handle || '', photo: g.photo || '',
-        note: g.note || '', checkedIn: !!g.checkedIn, ts: g.ts || 0
-      };
+      var g = state.guests[id] || {};
+      return { id:id, name:g.name||'', handle:g.handle||'', photo:g.photo||'', note:g.note||'', checkedIn:!!g.checkedIn, ts:g.ts||0 };
     }).sort(function (a, b) { return (a.ts - b.ts) || (a.name < b.name ? -1 : 1); });
   }
 
-  // ── render ──
   function render() {
     var all = guestList();
-    var inCount = all.filter(function (g) { return g.checkedIn; }).length;
-    var tot = all.length;
+    var inCount = all.filter(function (g) { return g.checkedIn; }).length, tot = all.length;
     $('nAll').textContent = tot; $('nIn').textContent = inCount; $('nOut').textContent = tot - inCount;
     $('cIn').textContent = inCount; $('cTot').textContent = tot;
     $('barFill').style.width = (tot ? Math.round(inCount / tot * 100) : 0) + '%';
+    $('printHead').textContent = inCount + ' of ' + tot + ' checked in';
 
-    var list = all.filter(function (g) {
-      return filter === 'all' || (filter === 'in' ? g.checkedIn : !g.checkedIn);
-    });
-
+    var list = all.filter(function (g) { return filter === 'all' || (filter === 'in' ? g.checkedIn : !g.checkedIn); });
     empty.style.display = tot === 0 ? '' : 'none';
     grid.style.display = tot === 0 ? 'none' : '';
     grid.innerHTML = list.map(function (g) {
@@ -310,33 +336,22 @@
         '<span class="ph">' + ph + '</span>' +
         '<span class="meta"><span class="nm">' + esc(g.name || 'Unnamed') + '</span>' +
         (g.handle ? '<span class="hd">' + esc(g.handle) + '</span>' : '') + '</span>' +
+        '<span class="pstat">' + (g.checkedIn ? '✓ Checked in' : 'Expected') + '</span>' +
         '<span class="tog ' + (g.checkedIn ? 'on' : '') + '" role="switch" aria-checked="' + g.checkedIn + '" data-tog="' + esc(g.id) + '" aria-label="Toggle checked in"></span>' +
         '</button>';
     }).join('');
-
-    // keep title in sync unless the user is actively editing it
-    if (document.activeElement !== titleEl) titleEl.value = state.title || 'Influencer Check-In';
+    if (document.activeElement !== titleEl) titleEl.value = state.title || defaultTitle;
   }
 
-  // ── data writes ──
-  function setCheckedIn(id, val) {
-    if (!ref) return;
-    ref.child('guests/' + id).update({ checkedIn: val, checkedAt: val ? Date.now() : null });
-  }
-  function saveTitle() {
-    var t = titleEl.value.trim() || 'Influencer Check-In';
-    if (ref) ref.child('title').set(t);
-  }
+  function setCheckedIn(id, val) { if (ref) ref.child('guests/' + id).update({ checkedIn: val, checkedAt: val ? Date.now() : null }); }
+  function saveTitle() { if (ref) ref.child('title').set(titleEl.value.trim() || defaultTitle); }
 
-  // ── editor drawer ──
   function openEditor(id) {
     editId = id || null;
     var g = id ? (state.guests[id] || {}) : {};
     draftPhoto = g.photo || '';
-    fName.value = g.name || ''; fHandle.value = g.handle || ''; fNote.value = g.note || '';
-    photoUrl.value = '';
-    setChecked(!!g.checkedIn);
-    paintPhoto();
+    fName.value = g.name || ''; fHandle.value = g.handle || ''; fNote.value = g.note || ''; photoUrl.value = '';
+    setChecked(!!g.checkedIn); paintPhoto();
     $('drTitle').textContent = id ? 'Edit guest' : 'Add guest';
     $('deleteBtn').style.display = id ? '' : 'none';
     var multi = id && guestList().length > 1;
@@ -349,13 +364,10 @@
     drawer.classList.remove('show'); scrim.classList.remove('show'); drawer.setAttribute('aria-hidden', 'true');
     editId = null; draftPhoto = '';
   }
-  function setChecked(on) {
-    drTog.classList.toggle('on', on); drTog.setAttribute('aria-checked', on);
-    checkState.textContent = on ? 'Here now' : 'Not yet';
-  }
+  function setChecked(on) { drTog.classList.toggle('on', on); drTog.setAttribute('aria-checked', on); checkState.textContent = on ? 'Here now' : 'Not yet'; }
   function paintPhoto() {
     if (draftPhoto) { photoPreview.innerHTML = '<img src="' + esc(draftPhoto) + '" alt="">'; $('clearPhoto').style.display = ''; }
-    else { photoPreview.innerHTML = '<span id="photoInitials">' + esc(initials(fName.value) ) + '</span>'; $('clearPhoto').style.display = 'none'; }
+    else { photoPreview.innerHTML = '<span>' + esc(initials(fName.value)) + '</span>'; $('clearPhoto').style.display = 'none'; }
   }
   function saveEditor(thenNav) {
     var name = fName.value.trim();
@@ -364,12 +376,9 @@
     var id = editId || ref.child('guests').push().key;
     var existing = state.guests[id] || {};
     ref.child('guests/' + id).update({
-      name: name,
-      handle: fHandle.value.trim(),
-      note: fNote.value.trim(),
-      photo: draftPhoto || '',
+      name: name, handle: fHandle.value.trim(), note: fNote.value.trim(), photo: draftPhoto || '',
       checkedIn: drTog.classList.contains('on'),
-      checkedAt: (drTog.classList.contains('on')) ? (existing.checkedAt || Date.now()) : null,
+      checkedAt: drTog.classList.contains('on') ? (existing.checkedAt || Date.now()) : null,
       ts: existing.ts || Date.now()
     });
     editId = id;
@@ -378,11 +387,10 @@
   }
   function navSibling(dir) {
     var id = saveEditor(true); if (!id) return;
-    var list = guestList(); var i = list.findIndex(function (g) { return g.id === id; });
+    var list = guestList(), i = list.findIndex(function (g) { return g.id === id; });
     var next = list[i + dir]; if (next) openEditor(next.id);
   }
 
-  // ── photo intake: upload (resized) or URL ──
   function handleFile(file) {
     if (!file) return;
     var reader = new FileReader();
@@ -402,7 +410,6 @@
     reader.readAsDataURL(file);
   }
 
-  // ── wire up ──
   $('addBtn').addEventListener('click', function () { openEditor(null); });
   $('addBtn2').addEventListener('click', function () { openEditor(null); });
   $('closeBtn').addEventListener('click', closeEditor);
@@ -420,50 +427,42 @@
   $('fileInput').addEventListener('change', function (e) { handleFile(e.target.files[0]); e.target.value = ''; });
   $('clearPhoto').addEventListener('click', function () { draftPhoto = ''; photoUrl.value = ''; paintPhoto(); });
   photoUrl.addEventListener('input', function () { draftPhoto = photoUrl.value.trim(); paintPhoto(); });
+  $('printBtn').addEventListener('click', function () { window.print(); });
 
-  // grid interactions (delegated): toggle vs open
   grid.addEventListener('click', function (e) {
     var tog = e.target.closest('[data-tog]');
-    if (tog) { e.stopPropagation(); var id = tog.getAttribute('data-tog'); setCheckedIn(id, !state.guests[id] || !state.guests[id].checkedIn); return; }
+    if (tog) { e.stopPropagation(); var id = tog.getAttribute('data-tog'); var cur = state.guests[id] && state.guests[id].checkedIn; setCheckedIn(id, !cur); return; }
     var card = e.target.closest('[data-id]');
     if (card) openEditor(card.getAttribute('data-id'));
   });
 
-  // filter segmented
-  $('seg').addEventListener('click', function (e) {
-    var b = e.target.closest('button[data-f]'); if (!b) return;
+  document.querySelector('.toolbar').addEventListener('click', function (e) {
+    var b = e.target.closest('.fpill[data-f]'); if (!b) return;
     filter = b.getAttribute('data-f');
-    [].forEach.call(this.querySelectorAll('button'), function (x) { x.classList.toggle('active', x === b); });
+    [].forEach.call(this.querySelectorAll('.fpill'), function (x) { x.classList.toggle('on', x === b); });
     render();
   });
 
-  // editable board title
   titleEl.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); titleEl.blur(); } });
   titleEl.addEventListener('blur', saveTitle);
 
-  // share link
   $('copyLink').addEventListener('click', function () {
-    var url = 'https://beneighborly.team/neighborly-checkin.html';
+    var url = location.origin + location.pathname + '?board=' + encodeURIComponent(slug);
     (navigator.clipboard ? navigator.clipboard.writeText(url) : Promise.reject()).then(function () { toast('Live link copied'); }, function () { toast(url); });
   });
 
-  // ── live sync ──
   if (ref) {
     ref.on('value', function (snap) {
       var v = snap.val() || {};
-      state = { title: v.title || 'Influencer Check-In', guests: v.guests || {} };
+      state = { title: v.title || defaultTitle, guests: v.guests || {} };
       render();
     }, function (err) { console.error('[checkin] read failed', err); liveLabel.textContent = 'Offline'; });
-
     db.ref('.info/connected').on('value', function (s) {
       var on = !!s.val();
       liveDot.classList.toggle('on', on);
       liveLabel.textContent = on ? 'Live' : 'Reconnecting…';
     });
-  } else {
-    liveLabel.textContent = 'Offline';
-    render();
-  }
+  } else { liveLabel.textContent = 'Offline'; render(); }
 })();
 </script>
 </body>
