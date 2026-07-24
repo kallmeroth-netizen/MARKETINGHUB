@@ -100,6 +100,22 @@
   .bar{height:6px;border-radius:999px;background:#eceae4;overflow:hidden;margin-bottom:22px}
   .bar > i{display:block;height:100%;background:linear-gradient(90deg,var(--green),var(--green-mid));border-radius:999px;width:0;transition:width .45s cubic-bezier(.4,0,.2,1)}
 
+  /* ── total reach panel ── */
+  .reach{display:flex;align-items:stretch;gap:2px;background:var(--surface);border:0.5px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-sm);padding:4px;margin-bottom:18px;overflow:hidden}
+  .reach-item{flex:1;min-width:0;padding:12px 16px;display:flex;flex-direction:column;gap:3px}
+  .reach-item.lead{background:var(--violet-l);border-radius:11px}
+  .reach-label{display:inline-flex;align-items:center;gap:6px;font-size:10.5px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--ink3)}
+  .reach-item.lead .reach-label{color:var(--violet-d)}
+  .reach-label svg{width:13px;height:13px}
+  .reach-num{font-family:"DM Mono",monospace;font-variant-numeric:tabular-nums;font-size:26px;font-weight:500;letter-spacing:-.01em;line-height:1;color:var(--ink)}
+  .reach-item.lead .reach-num{color:var(--violet-d)}
+  .reach-sub{font-size:11px;color:var(--ink3)}
+  @media (max-width:600px){
+    .reach{flex-wrap:wrap}
+    .reach-item{flex:1 1 40%}
+    .reach-item.lead{flex:1 1 100%}
+  }
+
   /* ── face-sheet grid ── */
   .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
   .card{position:relative;background:var(--surface);border:0.5px solid var(--line);border-radius:var(--radius);padding:15px;display:flex;align-items:center;gap:13px;cursor:pointer;text-align:left;width:100%;transition:border-color .18s,box-shadow .18s,transform .1s;box-shadow:var(--shadow-sm)}
@@ -111,6 +127,9 @@
   .nm{display:block;max-width:100%;min-width:0;font-size:16px;font-weight:600;letter-spacing:-.01em;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .hd{display:block;max-width:100%;min-width:0;font-size:12.5px;color:var(--ink2);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .card.in .hd{color:#4e8365}
+  .fols{display:flex;gap:5px;flex-wrap:wrap;margin-top:5px}
+  .fol{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;color:var(--violet-d);background:var(--violet-l);padding:2px 8px;border-radius:20px}
+  .fol svg{width:11px;height:11px;flex-shrink:0}
   .tog{flex-shrink:0;width:50px;height:29px;border-radius:999px;border:none;background:#e2e0d9;cursor:pointer;position:relative;transition:background .2s;padding:0}
   .tog::after{content:"";position:absolute;top:3px;left:3px;width:23px;height:23px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.22);transition:transform .2s}
   .tog.on{background:var(--green-mid)}
@@ -230,6 +249,22 @@
   </div>
   <div class="bar"><i id="barFill"></i></div>
 
+  <div class="reach" id="reach">
+    <div class="reach-item lead">
+      <span class="reach-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12c0 5.5-4.5 10-10 10S2 17.5 2 12 6.5 2 12 2s10 4.5 10 10z"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"/></svg>Total reach</span>
+      <span class="reach-num" id="reachTotal">0</span>
+      <span class="reach-sub" id="reachSub">across all guests</span>
+    </div>
+    <div class="reach-item">
+      <span class="reach-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1.2" fill="currentColor" stroke="none"/></svg>Instagram</span>
+      <span class="reach-num" id="reachIg">0</span>
+    </div>
+    <div class="reach-item">
+      <span class="reach-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 4v8.5a4.5 4.5 0 1 1-4-4.47"/><path d="M15 4a5 5 0 0 0 4.5 3.2"/></svg>TikTok</span>
+      <span class="reach-num" id="reachTt">0</span>
+    </div>
+  </div>
+
   <div class="grid" id="grid"></div>
 
   <div class="empty" id="empty" style="display:none">
@@ -262,6 +297,10 @@
     </div>
     <div class="field"><label for="fName">Name</label><input id="fName" placeholder="e.g. Sarah Chen" autocomplete="off"></div>
     <div class="field"><label for="fHandle">Handle / detail</label><input id="fHandle" placeholder="e.g. @sarah.eats · Brentwood" autocomplete="off"></div>
+    <div style="display:flex;gap:10px">
+      <div class="field" style="flex:1;margin:0"><label for="fIg">Instagram followers</label><input id="fIg" placeholder="e.g. 12.4K" inputmode="decimal" autocomplete="off"></div>
+      <div class="field" style="flex:1;margin:0"><label for="fTt">TikTok followers</label><input id="fTt" placeholder="e.g. 30K" inputmode="decimal" autocomplete="off"></div>
+    </div>
     <div class="field"><label for="fNote">Note <span style="color:var(--ink3)">(optional)</span></label><textarea id="fNote" placeholder="Deliverables, comp, who's hosting…"></textarea></div>
     <div class="checkin-row">
       <div><div class="lab">Checked in</div><div class="st" id="checkState">Not yet</div></div>
@@ -298,8 +337,27 @@
   var drawer = $('drawer'), scrim = $('scrim');
   var photoPreview = $('photoPreview');
   var fName = $('fName'), fHandle = $('fHandle'), fNote = $('fNote'), photoUrl = $('photoUrl');
+  var fIg = $('fIg'), fTt = $('fTt');
   var drTog = $('drTog'), checkState = $('checkState');
   titleEl.value = defaultTitle;
+
+  var IG_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1.2" fill="currentColor" stroke="none"/></svg>';
+  var TT_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 4v8.5a4.5 4.5 0 1 1-4-4.47"/><path d="M15 4a5 5 0 0 0 4.5 3.2"/></svg>';
+  function parseCount(v) {
+    v = String(v == null ? '' : v).trim().toLowerCase().replace(/,/g, '').replace(/\s/g, '');
+    if (!v) return 0;
+    var m = /^([\d.]+)([km])?$/.exec(v);
+    if (!m) { var f = parseFloat(v); return isNaN(f) ? 0 : Math.round(f); }
+    var n = parseFloat(m[1]) || 0;
+    if (m[2] === 'k') n *= 1e3; else if (m[2] === 'm') n *= 1e6;
+    return Math.round(n);
+  }
+  function fmtCount(n) {
+    n = +n || 0;
+    if (n >= 1e6) { var mm = n / 1e6; return (mm >= 10 ? Math.round(mm) : Math.round(mm * 10) / 10) + 'M'; }
+    if (n >= 1e3) { var k = n / 1e3; return (k >= 100 ? Math.round(k) : Math.round(k * 10) / 10) + 'K'; }
+    return String(n);
+  }
 
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
     return { '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]; }); }
@@ -315,7 +373,7 @@
   function guestList() {
     return Object.keys(state.guests || {}).map(function (id) {
       var g = state.guests[id] || {};
-      return { id:id, name:g.name||'', handle:g.handle||'', photo:g.photo||'', note:g.note||'', checkedIn:!!g.checkedIn, ts:g.ts||0 };
+      return { id:id, name:g.name||'', handle:g.handle||'', photo:g.photo||'', note:g.note||'', ig:(+g.ig||0), tt:(+g.tt||0), checkedIn:!!g.checkedIn, ts:g.ts||0 };
     }).sort(function (a, b) { return (a.ts - b.ts) || (a.name < b.name ? -1 : 1); });
   }
 
@@ -325,7 +383,14 @@
     $('nAll').textContent = tot; $('nIn').textContent = inCount; $('nOut').textContent = tot - inCount;
     $('cIn').textContent = inCount; $('cTot').textContent = tot;
     $('barFill').style.width = (tot ? Math.round(inCount / tot * 100) : 0) + '%';
-    $('printHead').textContent = inCount + ' of ' + tot + ' checked in';
+    // total reach across all guests, split by platform
+    var igR = 0, ttR = 0;
+    all.forEach(function (g) { igR += g.ig; ttR += g.tt; });
+    $('reachIg').textContent = fmtCount(igR);
+    $('reachTt').textContent = fmtCount(ttR);
+    $('reachTotal').textContent = fmtCount(igR + ttR);
+    $('reachSub').textContent = 'across ' + tot + (tot === 1 ? ' guest' : ' guests');
+    $('printHead').textContent = inCount + ' of ' + tot + ' checked in · ' + fmtCount(igR + ttR) + ' total reach';
 
     var list = all.filter(function (g) { return filter === 'all' || (filter === 'in' ? g.checkedIn : !g.checkedIn); });
     empty.style.display = tot === 0 ? '' : 'none';
@@ -335,7 +400,12 @@
       return '<button class="card ' + (g.checkedIn ? 'in' : '') + '" data-id="' + esc(g.id) + '">' +
         '<span class="ph">' + ph + '</span>' +
         '<span class="meta"><span class="nm">' + esc(g.name || 'Unnamed') + '</span>' +
-        (g.handle ? '<span class="hd">' + esc(g.handle) + '</span>' : '') + '</span>' +
+        (g.handle ? '<span class="hd">' + esc(g.handle) + '</span>' : '') +
+        ((g.ig || g.tt) ? '<span class="fols">' +
+          (g.ig ? '<span class="fol">' + IG_ICON + esc(fmtCount(g.ig)) + '</span>' : '') +
+          (g.tt ? '<span class="fol">' + TT_ICON + esc(fmtCount(g.tt)) + '</span>' : '') +
+          '</span>' : '') +
+        '</span>' +
         '<span class="pstat">' + (g.checkedIn ? '✓ Checked in' : 'Expected') + '</span>' +
         '<span class="tog ' + (g.checkedIn ? 'on' : '') + '" role="switch" aria-checked="' + g.checkedIn + '" data-tog="' + esc(g.id) + '" aria-label="Toggle checked in"></span>' +
         '</button>';
@@ -351,6 +421,7 @@
     var g = id ? (state.guests[id] || {}) : {};
     draftPhoto = g.photo || '';
     fName.value = g.name || ''; fHandle.value = g.handle || ''; fNote.value = g.note || ''; photoUrl.value = '';
+    fIg.value = g.ig ? String(g.ig) : ''; fTt.value = g.tt ? String(g.tt) : '';
     setChecked(!!g.checkedIn); paintPhoto();
     $('drTitle').textContent = id ? 'Edit guest' : 'Add guest';
     $('deleteBtn').style.display = id ? '' : 'none';
@@ -377,6 +448,7 @@
     var existing = state.guests[id] || {};
     ref.child('guests/' + id).update({
       name: name, handle: fHandle.value.trim(), note: fNote.value.trim(), photo: draftPhoto || '',
+      ig: parseCount(fIg.value), tt: parseCount(fTt.value),
       checkedIn: drTog.classList.contains('on'),
       checkedAt: drTog.classList.contains('on') ? (existing.checkedAt || Date.now()) : null,
       ts: existing.ts || Date.now()
@@ -462,6 +534,21 @@
       liveDot.classList.toggle('on', on);
       liveLabel.textContent = on ? 'Live' : 'Reconnecting…';
     });
+
+    // Safety net: guests saved to the older flat path (before boards were
+    // namespaced) are adopted into this default board if it's still empty.
+    // Non-destructive — never overwrites existing guests, never deletes the
+    // legacy copy.
+    if (slug === 'wgc-hgp') {
+      db.ref('marketing-calendar/checkin').once('value').then(function (s) {
+        var v = s.val() || {};
+        if (v.guests && Object.keys(v.guests).length) {
+          ref.child('guests').once('value').then(function (s2) {
+            if (!s2.val()) ref.update({ guests: v.guests, title: v.title || defaultTitle });
+          });
+        }
+      }).catch(function () {});
+    }
   } else { liveLabel.textContent = 'Offline'; render(); }
 })();
 </script>
