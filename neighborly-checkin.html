@@ -20,11 +20,10 @@
   } catch (e) { console.error('[checkin] firebase init failed', e); }
 </script>
 
-<!-- Admin-only, via the hub's existing Supabase gate (nothing custom).
-     To also let the Marketing team (e.g. Justin) view, change ['admin'] to ['admin','team']. -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-<script src="np-data.js"></script>
-<script>try { NPData.guardPage(['admin']); } catch (e) {}</script>
+<!-- PUBLIC page: intentionally NOT gated so the pop-up event board can be
+     shared live (with the team, at the door, etc.). The rest of the hub
+     stays behind its normal login — only this board is open. -->
+
 
 <style>
   /* ── calendar design tokens ── */
