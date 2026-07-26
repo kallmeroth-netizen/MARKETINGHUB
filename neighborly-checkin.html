@@ -100,20 +100,23 @@
   .bar > i{display:block;height:100%;background:linear-gradient(90deg,var(--green),var(--green-mid));border-radius:999px;width:0;transition:width .45s cubic-bezier(.4,0,.2,1)}
 
   /* ── total reach panel ── */
-  .reach{display:flex;align-items:stretch;gap:2px;background:var(--surface);border:0.5px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-sm);padding:4px;margin-bottom:18px;overflow:hidden}
-  .reach-item{flex:1;min-width:0;padding:12px 16px;display:flex;flex-direction:column;gap:3px}
-  .reach-item.lead{background:var(--violet-l);border-radius:11px}
-  .reach-label{display:inline-flex;align-items:center;gap:6px;font-size:10.5px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--ink3)}
-  .reach-item.lead .reach-label{color:var(--violet-d)}
+  .reach{display:flex;gap:10px;margin-bottom:18px}
+  .reach-item{flex:1;min-width:0;padding:14px 16px;border-radius:var(--radius);border:0.5px solid var(--line);box-shadow:var(--shadow-sm);display:flex;flex-direction:column;gap:4px}
+  .reach-item.total{background:var(--violet-l)}
+  .reach-item.came{background:var(--green-l)}
+  .reach-label{display:inline-flex;align-items:center;gap:6px;font-size:10.5px;font-weight:600;letter-spacing:.05em;text-transform:uppercase}
+  .reach-item.total .reach-label{color:var(--violet-d)}
+  .reach-item.came .reach-label{color:var(--green-d)}
   .reach-label svg{width:13px;height:13px}
-  .reach-num{font-family:"DM Mono",monospace;font-variant-numeric:tabular-nums;font-size:26px;font-weight:500;letter-spacing:-.01em;line-height:1;color:var(--ink)}
-  .reach-item.lead .reach-num{color:var(--violet-d)}
-  .reach-sub{font-size:11px;color:var(--ink3)}
-  @media (max-width:600px){
-    .reach{flex-wrap:wrap}
-    .reach-item{flex:1 1 40%}
-    .reach-item.lead{flex:1 1 100%}
-  }
+  .reach-num{font-family:"DM Mono",monospace;font-variant-numeric:tabular-nums;font-size:26px;font-weight:500;letter-spacing:-.01em;line-height:1}
+  .reach-item.total .reach-num{color:var(--violet-d)}
+  .reach-item.came .reach-num{color:var(--green-d)}
+  .reach-split{display:flex;gap:14px;margin-top:2px;font-size:12px;font-weight:600;color:var(--ink2)}
+  .reach-split .p{display:inline-flex;align-items:center;gap:4px}
+  .reach-split svg{width:12px;height:12px;opacity:.7;flex-shrink:0}
+  .reach-sub{font-size:11px;color:var(--ink3);margin-top:1px}
+  .reach-item.came .reach-sub{color:var(--green-d);opacity:.72}
+  @media (max-width:600px){ .reach{flex-direction:column} }
 
   /* ── face-sheet grid ── */
   .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
@@ -249,18 +252,23 @@
   <div class="bar"><i id="barFill"></i></div>
 
   <div class="reach" id="reach">
-    <div class="reach-item lead">
+    <div class="reach-item total">
       <span class="reach-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12c0 5.5-4.5 10-10 10S2 17.5 2 12 6.5 2 12 2s10 4.5 10 10z"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"/></svg>Total reach</span>
       <span class="reach-num" id="reachTotal">0</span>
-      <span class="reach-sub" id="reachSub">across all guests</span>
+      <span class="reach-split">
+        <span class="p"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1.2" fill="currentColor" stroke="none"/></svg><span id="reachIg">0</span></span>
+        <span class="p"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 4v8.5a4.5 4.5 0 1 1-4-4.47"/><path d="M15 4a5 5 0 0 0 4.5 3.2"/></svg><span id="reachTt">0</span></span>
+      </span>
+      <span class="reach-sub" id="reachSub">across 0 guests</span>
     </div>
-    <div class="reach-item">
-      <span class="reach-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1.2" fill="currentColor" stroke="none"/></svg>Instagram</span>
-      <span class="reach-num" id="reachIg">0</span>
-    </div>
-    <div class="reach-item">
-      <span class="reach-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 4v8.5a4.5 4.5 0 1 1-4-4.47"/><path d="M15 4a5 5 0 0 0 4.5 3.2"/></svg>TikTok</span>
-      <span class="reach-num" id="reachTt">0</span>
+    <div class="reach-item came">
+      <span class="reach-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Checked-in reach</span>
+      <span class="reach-num" id="reachInTotal">0</span>
+      <span class="reach-split">
+        <span class="p"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1.2" fill="currentColor" stroke="none"/></svg><span id="reachInIg">0</span></span>
+        <span class="p"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 4v8.5a4.5 4.5 0 1 1-4-4.47"/><path d="M15 4a5 5 0 0 0 4.5 3.2"/></svg><span id="reachInTt">0</span></span>
+      </span>
+      <span class="reach-sub" id="reachInSub">0 of 0 here</span>
     </div>
   </div>
 
@@ -382,14 +390,21 @@
     $('nAll').textContent = tot; $('nIn').textContent = inCount; $('nOut').textContent = tot - inCount;
     $('cIn').textContent = inCount; $('cTot').textContent = tot;
     $('barFill').style.width = (tot ? Math.round(inCount / tot * 100) : 0) + '%';
-    // total reach across all guests, split by platform
-    var igR = 0, ttR = 0;
-    all.forEach(function (g) { igR += g.ig; ttR += g.tt; });
+    // reach: total across all guests, plus reach from those actually checked in
+    var igR = 0, ttR = 0, igIn = 0, ttIn = 0;
+    all.forEach(function (g) {
+      igR += g.ig; ttR += g.tt;
+      if (g.checkedIn) { igIn += g.ig; ttIn += g.tt; }
+    });
     $('reachIg').textContent = fmtCount(igR);
     $('reachTt').textContent = fmtCount(ttR);
     $('reachTotal').textContent = fmtCount(igR + ttR);
     $('reachSub').textContent = 'across ' + tot + (tot === 1 ? ' guest' : ' guests');
-    $('printHead').textContent = inCount + ' of ' + tot + ' checked in · ' + fmtCount(igR + ttR) + ' total reach';
+    $('reachInIg').textContent = fmtCount(igIn);
+    $('reachInTt').textContent = fmtCount(ttIn);
+    $('reachInTotal').textContent = fmtCount(igIn + ttIn);
+    $('reachInSub').textContent = inCount + ' of ' + tot + ' here';
+    $('printHead').textContent = inCount + ' of ' + tot + ' checked in · ' + fmtCount(igR + ttR) + ' total reach · ' + fmtCount(igIn + ttIn) + ' checked-in reach';
 
     var list = all.filter(function (g) { return filter === 'all' || (filter === 'in' ? g.checkedIn : !g.checkedIn); });
     empty.style.display = tot === 0 ? '' : 'none';
