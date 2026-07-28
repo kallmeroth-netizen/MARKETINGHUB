@@ -1129,10 +1129,15 @@ function NeighborlyCalendar() {
   const filtered = events.filter(e => filter==='all' || e.cat===filter);
   const dsOf = c => c.yr+'-'+String(c.mo+1).padStart(2,'0')+'-'+String(c.d).padStart(2,'0');
 
-  // Influencers coming in during the viewed month, sorted by day + time
+  // Influencers coming in during the viewed month, sorted by day + time.
+  // An event counts as an influencer if its category is Influencer OR it
+  // carries an "Influencer" sub-label (older events tagged Social/Event but
+  // flagged as influencer work). We intentionally do NOT match the word in
+  // the title, which would sweep in planning/seeding/ops tasks and overcount.
+  const isInfluencer = e => e.cat==='influencer' || (e.sub||'').trim().toLowerCase()==='influencer';
   const inflMonthKey = yr+'-'+String(mo+1).padStart(2,'0');
   const monthInfluencers = events
-    .filter(e => e.cat==='influencer' && (e.start||'').slice(0,7)===inflMonthKey)
+    .filter(e => isInfluencer(e) && (e.start||'').slice(0,7)===inflMonthKey)
     .sort((a,b) => (a.start+(a.time||'')) < (b.start+(b.time||'')) ? -1 : 1);
   const inflConfirmed = monthInfluencers.filter(e => e.confirmed).length;
 
