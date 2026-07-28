@@ -1394,7 +1394,7 @@ function NeighborlyCalendar() {
                 const cellEvs = filtered.filter(e => e.start<=ds && e.end>=ds);
                 const isWeek = viewMode === 'week';
                 const isAgenda = isMobile && viewMode === 'month';
-                const maxShow = isWeek ? 12 : (isAgenda ? 8 : (isMobile ? 2 : 3));
+                const maxShow = isWeek ? 16 : (isAgenda ? 12 : (isMobile ? 4 : 6));
                 const dayExpanded = !!expandedDays[ds];
                 const show = dayExpanded ? cellEvs : cellEvs.slice(0, maxShow), more = dayExpanded ? 0 : cellEvs.length - maxShow;
                 const isDropTarget = dropCell===ds && mode==='edit';
