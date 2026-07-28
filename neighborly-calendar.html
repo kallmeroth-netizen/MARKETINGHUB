@@ -1136,8 +1136,14 @@ function NeighborlyCalendar() {
   // the title, which would sweep in planning/seeding/ops tasks and overcount.
   const isInfluencer = e => e.cat==='influencer' || (e.sub||'').trim().toLowerCase()==='influencer';
   const inflMonthKey = yr+'-'+String(mo+1).padStart(2,'0');
+  // Count every influencer event that *occurs during* the viewed month, not
+  // just those whose start date lands in it — so a multi-day influencer that
+  // began the previous month still counts (and shows) here, matching what you
+  // see on the calendar. Overlap test: starts on/before month-end AND ends
+  // on/after month-start (string compare works on YYYY-MM-DD).
+  const inflMonthStart = inflMonthKey+'-01', inflMonthEnd = inflMonthKey+'-31';
   const monthInfluencers = events
-    .filter(e => isInfluencer(e) && (e.start||'').slice(0,7)===inflMonthKey)
+    .filter(e => isInfluencer(e) && (e.start||'') <= inflMonthEnd && (e.end||e.start||'') >= inflMonthStart)
     .sort((a,b) => (a.start+(a.time||'')) < (b.start+(b.time||'')) ? -1 : 1);
   const inflConfirmed = monthInfluencers.filter(e => e.confirmed).length;
 
