@@ -112,6 +112,8 @@
       svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="4"/><path d="M2 21a7 7 0 0 1 14 0"/><path d="M16 3.5a4 4 0 0 1 0 8M22 21a7 7 0 0 0-5-6.7"/></svg>' },
     { key:'opslabor',    label:'Labor & SPLH',          sub:'SPLH, hours, OT, labor %',      href:'neighborly-labor.html',       bg:'#e4f5ea', stroke:'#1e5a37', roles:['ops','admin'],
       svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 13h4l3 7 4-16 3 9h4"/></svg>' },
+    { key:'mkthub',      label:'Marketing Hub',         sub:'Live boards & events',          href:'neighborly-events.html',      bg:'#efeaff', stroke:'#a78bfa', roles:['team','admin'],
+      svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><path d="M14 17.5h7M17.5 14v7"/></svg>' },
     { key:'admin',       label:'Admin',                 sub:'User management',               href:'neighborly-admin.html',       bg:'#efece2', stroke:'#1f2328', roles:['admin'],
       svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/><path d="M18 14l1.5 1.5L22 13"/></svg>' }
   ];

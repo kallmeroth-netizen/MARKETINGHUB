@@ -479,7 +479,7 @@ const CATS = {
   event:     {label:'Event',       color:C.orange, bg:C.ol,  text:C.od,  icon:'M6 1C3.8 1 2 2.8 2 5c0 3 4 7 4 7s4-4 4-7c0-2.2-1.8-4-4-4zm0 5.5a1.5 1.5 0 110-3 1.5 1.5 0 010 3z'},
   bizupdate: {label:'Biz update',  color:'#c75d8a',bg:'#f9e8f0',text:'#6b2242',icon:'M1 9l3-3 2 2 4-5'},
   launch:    {label:'Collateral',      color:C.green,  bg:C.gl,  text:C.gd,  icon:'M6 1l1.5 3.5L11 5.5 8.5 8l.5 3.5L6 10 2 11.5 2.5 8 0 5.5l3.5-1L6 1z'},
-  influencer:{label:'Influencer',   color:'#7c4dff',bg:'#efeaff',text:'#43277a',icon:'M6 6a2 2 0 100-4 2 2 0 000 4zM2.5 10.5c0-2 1.6-3 3.5-3s3.5 1 3.5 3'},
+  influencer:{label:'Influencer',   color:'#a78bfa',bg:'#efeaff',text:'#43277a',icon:'M6 6a2 2 0 100-4 2 2 0 000 4zM2.5 10.5c0-2 1.6-3 3.5-3s3.5 1 3.5 3'},
 };
 
 const DEPTS = ['Marketing','Operations','Creative','Sales','Leadership'];
@@ -1049,7 +1049,7 @@ function NeighborlyCalendar() {
   const [curDate,   setCurDate]   = useState(() => { const n = new Date(); return new Date(n.getFullYear(), n.getMonth(), 1); });
   const [mode,      setMode]      = useState('edit');
   const [viewMode,  setViewMode]  = useState('month'); // 'month' | 'week'
-  const [filter,    setFilter]    = useState('all');
+  const [filters,   setFilters]   = useState([]); // [] = show all; otherwise selected category keys
   const [sidebarId, setSidebarId] = useState(null);
   const [formOpen,  setFormOpen]  = useState(false);
   const [editEvt,   setEditEvt]   = useState(null);
@@ -1126,7 +1126,7 @@ function NeighborlyCalendar() {
     for(let i=1;i<=42-cells.length;i++) cells.push({d:i,o:true,mo:mo+1,yr:mo===11?yr+1:yr});
   }
 
-  const filtered = events.filter(e => filter==='all' || e.cat===filter);
+  const filtered = filters.length===0 ? events : events.filter(e => filters.includes(e.cat));
   const dsOf = c => c.yr+'-'+String(c.mo+1).padStart(2,'0')+'-'+String(c.d).padStart(2,'0');
 
   // Influencers coming in during the viewed month, sorted by day + time.
@@ -1370,12 +1370,18 @@ function NeighborlyCalendar() {
 
             {/* FILTERS */}
             <div style={{display:'flex',gap:5,flexWrap:isMobile?'nowrap':'wrap',marginBottom:isMobile?'8px':'10px',overflowX:isMobile?'auto':'visible',paddingBottom:isMobile?4:0,WebkitOverflowScrolling:'touch',scrollbarWidth:'none'}}>
-              {[{key:'all',label:'All',color:C.dark}, ...Object.entries(CATS).map(([k,v])=>({key:k,label:v.label,color:v.color}))].map(f => (
-                <span key={f.key} onClick={() => setFilter(f.key)}
-                  style={{border:`0.5px solid ${filter===f.key?'transparent':C.borderStrong}`,borderRadius:20,padding:'4px 12px',fontSize:11.5,cursor:'pointer',flexShrink:0,color:filter===f.key?'#fff':C.text2,background:filter===f.key?f.color:C.surface,transition:'all .15s',userSelect:'none',whiteSpace:'nowrap'}}>
+              {[{key:'all',label:'All',color:C.dark}, ...Object.entries(CATS).map(([k,v])=>({key:k,label:v.label,color:v.color}))].map(f => {
+                const active = f.key==='all' ? filters.length===0 : filters.includes(f.key);
+                const toggle = () => f.key==='all'
+                  ? setFilters([])
+                  : setFilters(prev => prev.includes(f.key) ? prev.filter(x=>x!==f.key) : [...prev, f.key]);
+                return (
+                <span key={f.key} onClick={toggle}
+                  style={{border:`0.5px solid ${active?'transparent':C.borderStrong}`,borderRadius:20,padding:'4px 12px',fontSize:11.5,cursor:'pointer',flexShrink:0,color:active?'#fff':C.text2,background:active?f.color:C.surface,transition:'all .15s',userSelect:'none',whiteSpace:'nowrap'}}>
                   {f.label}
                 </span>
-              ))}
+                );
+              })}
             </div>
 
             {/* Mobile-month renders the month as a vertical agenda
@@ -1783,14 +1789,28 @@ function ra(){eec();etc();uth();ug();}var _t=null;new MutationObserver(function(
     if(allSpans.length<7)return;
     var filterRow=allSpans[0]&&allSpans[0].parentElement;if(!filterRow)return;
     filterRow.style.cssText='position:absolute;opacity:0;pointer-events:none;height:0;overflow:hidden;';
-    var CHIPS=[{label:'All',orig:'All',color:null,isAll:true},{label:'Email',orig:'Email',color:'#2f9e94'},{label:'SMS',orig:'SMS',color:'#6280bd'},{label:'Social',orig:'Social',color:'#cbc9d6'},{label:'Key date',orig:'Key date',color:'#eace49'},{label:'Marketplace',orig:'Marketplace',color:'#888780'},{label:'Event',orig:'Event',color:'#e87142'},{label:'Biz update',orig:'Biz update',color:'#c75d8a'},{label:'Collateral',orig:'Launch',color:'#7bbd91'},{label:'Influencer',orig:'Influencer',color:'#7c4dff'}];
+    var CHIPS=[{label:'All',orig:'All',color:null,isAll:true},{label:'Email',orig:'Email',color:'#2f9e94'},{label:'SMS',orig:'SMS',color:'#6280bd'},{label:'Social',orig:'Social',color:'#cbc9d6'},{label:'Key date',orig:'Key date',color:'#eace49'},{label:'Marketplace',orig:'Marketplace',color:'#888780'},{label:'Event',orig:'Event',color:'#e87142'},{label:'Biz update',orig:'Biz update',color:'#c75d8a'},{label:'Collateral',orig:'Collateral',color:'#7bbd91'},{label:'Influencer',orig:'Influencer',color:'#a78bfa'}];
     var row=document.createElement('div');row.id='nb-filter-enhanced';row.style.cssText='display:flex;flex-wrap:wrap;gap:5px;align-items:center;';
     CHIPS.forEach(function(cfg){
       var chip=document.createElement('span');chip.className='nb-chip-wrap';chip.setAttribute('data-orig',cfg.orig);chip.setAttribute('data-label',cfg.label);
       if(cfg.isAll){var d=document.createElement('span');d.className='nb-chip-all-dot';chip.appendChild(d);}
       else if(cfg.color){var sw=document.createElement('span');sw.className='nb-chip-swatch';sw.style.background=cfg.color;chip.appendChild(sw);}
       chip.appendChild(document.createTextNode(cfg.label));
-      chip.addEventListener('click',function(){var orig=allSpans.find(function(s){return s.textContent.trim()===cfg.orig;});if(orig)orig.click();row.querySelectorAll('.nb-chip-wrap').forEach(function(c){c.classList.remove('nb-chip-active');if(c.getAttribute('data-orig')===cfg.orig)c.classList.add('nb-chip-active');});});
+      chip.addEventListener('click',function(){
+        var orig=allSpans.find(function(s){return s.textContent.trim()===cfg.orig;});
+        if(orig)orig.click();
+        var allChip=row.querySelector('[data-label="All"]');
+        if(cfg.isAll){
+          // "All" clears every other selection
+          row.querySelectorAll('.nb-chip-wrap').forEach(function(c){c.classList.toggle('nb-chip-active', c===chip);});
+        }else{
+          // toggle this category; multiple can be active at once
+          chip.classList.toggle('nb-chip-active');
+          if(allChip)allChip.classList.remove('nb-chip-active');
+          var anyOn=false;row.querySelectorAll('.nb-chip-wrap').forEach(function(c){if(c!==allChip&&c.classList.contains('nb-chip-active'))anyOn=true;});
+          if(!anyOn&&allChip)allChip.classList.add('nb-chip-active'); // nothing selected → back to All
+        }
+      });
       row.appendChild(chip);
     });
     filterRow.parentElement.insertBefore(row,filterRow);
