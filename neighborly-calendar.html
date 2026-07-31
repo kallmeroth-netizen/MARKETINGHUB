@@ -478,8 +478,8 @@ const CATS = {
   ops:       {label:'Marketplace', color:'#888780',bg:'#F1EFE8',text:'#444441',icon:'M6 1a5 5 0 100 10A5 5 0 006 1zm0 3v2l1.5 1.5'},
   event:     {label:'Event',       color:C.orange, bg:C.ol,  text:C.od,  icon:'M6 1C3.8 1 2 2.8 2 5c0 3 4 7 4 7s4-4 4-7c0-2.2-1.8-4-4-4zm0 5.5a1.5 1.5 0 110-3 1.5 1.5 0 010 3z'},
   bizupdate: {label:'Biz update',  color:'#c75d8a',bg:'#f9e8f0',text:'#6b2242',icon:'M1 9l3-3 2 2 4-5'},
-  launch:    {label:'Collateral',      color:C.green,  bg:C.gl,  text:C.gd,  icon:'M6 1l1.5 3.5L11 5.5 8.5 8l.5 3.5L6 10 2 11.5 2.5 8 0 5.5l3.5-1L6 1z'},
-  influencer:{label:'Influencer',   color:'#a78bfa',bg:'#efeaff',text:'#43277a',icon:'M6 6a2 2 0 100-4 2 2 0 000 4zM2.5 10.5c0-2 1.6-3 3.5-3s3.5 1 3.5 3'},
+  launch:    {label:'Collateral',      color:'#2f6b45',bg:C.gl,  text:C.gd,  icon:'M6 1l1.5 3.5L11 5.5 8.5 8l.5 3.5L6 10 2 11.5 2.5 8 0 5.5l3.5-1L6 1z'},
+  influencer:{label:'Influencer',   color:'#9caf88',bg:'#eef2e7',text:'#3f5233',icon:'M6 6a2 2 0 100-4 2 2 0 000 4zM2.5 10.5c0-2 1.6-3 3.5-3s3.5 1 3.5 3'},
 };
 
 const DEPTS = ['Marketing','Operations','Creative','Sales','Leadership'];
@@ -1789,7 +1789,7 @@ function ra(){eec();etc();uth();ug();}var _t=null;new MutationObserver(function(
     if(allSpans.length<7)return;
     var filterRow=allSpans[0]&&allSpans[0].parentElement;if(!filterRow)return;
     filterRow.style.cssText='position:absolute;opacity:0;pointer-events:none;height:0;overflow:hidden;';
-    var CHIPS=[{label:'All',orig:'All',color:null,isAll:true},{label:'Email',orig:'Email',color:'#2f9e94'},{label:'SMS',orig:'SMS',color:'#6280bd'},{label:'Social',orig:'Social',color:'#cbc9d6'},{label:'Key date',orig:'Key date',color:'#eace49'},{label:'Marketplace',orig:'Marketplace',color:'#888780'},{label:'Event',orig:'Event',color:'#e87142'},{label:'Biz update',orig:'Biz update',color:'#c75d8a'},{label:'Collateral',orig:'Collateral',color:'#7bbd91'},{label:'Influencer',orig:'Influencer',color:'#a78bfa'}];
+    var CHIPS=[{label:'All',orig:'All',color:null,isAll:true},{label:'Email',orig:'Email',color:'#2f9e94'},{label:'SMS',orig:'SMS',color:'#6280bd'},{label:'Social',orig:'Social',color:'#cbc9d6'},{label:'Key date',orig:'Key date',color:'#eace49'},{label:'Marketplace',orig:'Marketplace',color:'#888780'},{label:'Event',orig:'Event',color:'#e87142'},{label:'Biz update',orig:'Biz update',color:'#c75d8a'},{label:'Collateral',orig:'Collateral',color:'#2f6b45'},{label:'Influencer',orig:'Influencer',color:'#9caf88'}];
     var row=document.createElement('div');row.id='nb-filter-enhanced';row.style.cssText='display:flex;flex-wrap:wrap;gap:5px;align-items:center;';
     CHIPS.forEach(function(cfg){
       var chip=document.createElement('span');chip.className='nb-chip-wrap';chip.setAttribute('data-orig',cfg.orig);chip.setAttribute('data-label',cfg.label);
