@@ -29,7 +29,7 @@
   <a href="index.html">← Back to your hub</a>
 </div>
 <script>
-  var LABELS = { pmix:'Sales & Pmix', calendar:'Marketing Calendar', assets:'Brand Assets', guests:'Guest Intelligence', labor:'Labor & SPLH' };
+  var LABELS = { pmix:'Sales & Pmix', calendar:'Marketing Calendar', assets:'Brand Assets' };
   var m = new URLSearchParams(location.search).get('m');
   if (m && LABELS[m]) document.getElementById('modTitle').textContent = LABELS[m] + ' — coming next';
 </script>

@@ -23,21 +23,29 @@
     // Empty string → brand-apply.js falls back to assets/placeholder-logo.svg.
     logoUrl:     '',
     logoDarkUrl: '',
-    faviconEmoji: '✳️',
+    // No emoji favicons — brand-apply.js generates a clean monogram (the
+    // brand's first initial) in the primary color until a logo is uploaded.
+
+    // Opening line on the sign-in screen (replaces the old "Welcome." line).
+    // Brand-editable in the wizard. The hub hero uses a time-aware greeting.
+    greeting: 'Welcome back.',
 
     // — Palette — mapped onto theme.css :root tokens at runtime.
-    // Neutral, brand-agnostic defaults. A brand replaces these in the wizard.
+    // High-tech, cool-toned defaults: electric indigo + cyan on a seamless
+    // off-white base. A brand replaces these in the wizard.
     colors: {
-      primary:   '#4f46e5',   // buttons, active accents (primary action color)
-      accent:    '#0ea5e9',   // secondary highlight
-      ink:       '#1f2328',   // primary text / logo tint
-      bg:        '#f6f6f8',   // page background
+      primary:   '#5b6cff',   // buttons, active accents (electric indigo)
+      accent:    '#22d3ee',   // secondary highlight (cyan)
+      ink:       '#0f1522',   // primary text / logo tint (deep navy-black)
+      bg:        '#f4f5fa',   // page background (seamless cool off-white)
       surface:   '#ffffff',   // cards
-      yellow:    '#eab308',   // hub tile family (kept multi-hue so tiles read distinct)
-      green:     '#10b981',
-      blue:      '#3b82f6',
-      lavender:  '#8b5cf6',
-      tan:       '#d6b98c'
+      // Hub tile hues — cohesive cool/jewel set so tiles read distinct without
+      // looking like crayons. (Keys kept for back-compat with the token map.)
+      yellow:    '#f59e0b',   // amber (single warm pop for contrast)
+      green:     '#10b981',   // emerald
+      blue:      '#38bdf8',   // sky
+      lavender:  '#8b5cf6',   // violet
+      tan:       '#94a3b8'    // slate
     },
 
     // — Backend — each brand points at their OWN Supabase project.

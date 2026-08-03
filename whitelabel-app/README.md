@@ -45,7 +45,7 @@ rebrands every page — you never hand-edit pages to add a customer.
 | `index.html` | Sign-in + hub. First visit with no completed setup redirects to `setup.html`. |
 | `admin.html` | User management (invite/edit/delete), connected-source status, and a **Branding & setup** card that re-launches the wizard. |
 | `dashboard.html` | Performance dashboard in **empty-state** — same layout, "connect a source" until a backend is wired. |
-| `coming-soon.html` | Placeholder for modules being ported next (calendar, assets, guests, pmix). Fully branded. |
+| `coming-soon.html` | Placeholder for modules being ported next (Sales & Pmix, Calendar, Brand Assets). Fully branded. |
 
 ## Running locally
 
@@ -99,11 +99,21 @@ Nothing outside this folder is required.
 
 ## Roadmap (next modules to port)
 
-The reference product has more pages (Sales & Pmix, Calendar, Brand Assets,
-Guest Intelligence, Labor). Each ports the same way: copy the layout, include the
-three brand scripts, replace hard-coded brand text with `{{BRAND}}` tokens, and
-point data reads at the empty `data/*.json` scaffolds (or the connected backend).
-`coming-soon.html` holds their place in the hub until each lands.
+The hub ships with these modules: Performance Marketing, Sales & Pmix, Marketing
+Calendar, Brand Assets, and Admin. (Labor & SPLH and Guest Intelligence were
+intentionally removed from this white-label edition.) Each remaining module ports
+the same way: copy the layout, include the three brand scripts, replace hard-coded
+brand text with `{{BRAND}}` tokens, and point data reads at the empty
+`data/*.json` scaffolds (or the connected backend). `coming-soon.html` holds a
+module's place in the hub until it lands.
+
+### Brand controls
+
+The wizard/config also drives: a **sign-in greeting** (`greeting`, typed out on
+the login screen — the "opening line"), a **branded sweep transition** on sign-in
+(a primary-colored panel that sweeps up to reveal the hub), a time-aware hub
+greeting (Good morning/afternoon/evening), and a **monogram favicon** (the brand's
+first initial in the primary color — no emoji) generated until a logo is uploaded.
 
 ## IP / productization note
 

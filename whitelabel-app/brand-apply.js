@@ -41,9 +41,23 @@
     return '#' + hx(mix(r)) + hx(mix(g)) + hx(mix(b));
   }
 
-  function faviconDataUrl(emoji) {
+  // Clean monogram favicon — the brand's first initial on a rounded square in
+  // the primary color. No emoji. Regenerates whenever name/color changes.
+  // "r, g, b" from a hex color, for building rgba() strings.
+  function rgb(hex) {
+    var m = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex || '');
+    if (!m) return '91, 108, 255';
+    return parseInt(m[1], 16) + ', ' + parseInt(m[2], 16) + ', ' + parseInt(m[3], 16);
+  }
+
+  function faviconDataUrl(b) {
+    var c = (b.colors && b.colors.primary) || '#5b6cff';
+    var letter = ((b.name || 'B').trim().charAt(0) || 'B').toUpperCase();
     var svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">' +
-              '<text y="0.9em" font-size="88">' + (emoji || '✳️') + '</text></svg>';
+              '<rect width="100" height="100" rx="24" fill="' + c + '"/>' +
+              '<text x="50" y="50" dy="0.35em" text-anchor="middle" font-size="60" ' +
+              'font-family="Jost,Futura,Arial,sans-serif" font-weight="700" fill="#fff">' + letter + '</text>' +
+              '</svg>';
     return 'data:image/svg+xml,' + encodeURIComponent(svg);
   }
 
@@ -75,6 +89,10 @@
         '--orange:' + c.primary + ';--yellow:' + c.yellow + ';--green:' + c.green + ';' +
         '--lav:' + c.lavender + ';--blue:' + c.blue + ';--sand:' + c.tan + ';' +
         '--dark:' + c.ink + ';' +
+        // theme.css defines --shadow-orange as a literal rgba (not derived from
+        // a token), so buttons keep a stale orange glow unless we override it
+        // from the primary color here.
+        '--shadow-orange:0 4px 14px rgba(' + rgb(c.primary) + ',0.28);' +
       '}';
 
     var el = document.getElementById('wl-brand-colors');
@@ -146,7 +164,7 @@
     document.querySelectorAll('link[rel~="icon"]').forEach(function (l) { l.remove(); });
     var link = document.createElement('link');
     link.rel = 'icon';
-    link.href = faviconDataUrl(b.faviconEmoji);
+    link.href = faviconDataUrl(b);
     document.head.appendChild(link);
   }
 

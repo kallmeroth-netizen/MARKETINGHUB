@@ -180,6 +180,11 @@
         <input class="inp" id="bTag" type="text" placeholder="Marketing Hub" oninput="livePreview()">
         <div class="hint">Shown under the logo and in the hub menu (e.g. "Acme Marketing Hub").</div>
       </div>
+      <div class="field">
+        <label for="bGreet">Sign-in greeting</label>
+        <input class="inp" id="bGreet" type="text" placeholder="Welcome back." oninput="livePreview()">
+        <div class="hint">The opening line typed out on your sign-in screen. Keep it short and on-brand.</div>
+      </div>
       <div class="nav-btns">
         <button class="btn btn-ghost" onclick="prev()">← Back</button>
         <button class="btn btn-primary" onclick="next()">Continue →</button>
@@ -236,7 +241,7 @@
     <!-- Step 6: Finish -->
     <section class="panel" data-step="5">
       <div class="step-kicker">Step 6 · You're set</div>
-      <h1 class="step-title">Your hub is ready 🎉</h1>
+      <h1 class="step-title">Your hub is ready</h1>
       <p class="step-desc">Everything's saved. Your logo, name and colors are now live across every page. Invite your team from Admin whenever you're ready.</p>
       <div class="field">
         <label>Invite teammates (optional — comma-separated emails)</label>
@@ -260,7 +265,7 @@
         <span class="pv-tag" id="pvTag">Home</span>
       </div>
       <div class="pv-body">
-        <div class="pv-hi">Good afternoon 👋</div>
+        <div class="pv-hi" id="pvHi">Welcome back.</div>
         <div class="pv-sub" id="pvSub">Welcome to your Marketing Hub</div>
         <div class="pv-tiles">
           <div class="pv-tile"><div class="ic" id="pvic1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 17l5-5 4 4 8-8"/><path d="M14 8h6v6"/></svg></div><b>Performance</b><span>Weekly KPIs</span></div>
@@ -352,7 +357,9 @@
   function livePreview() {
     var name = document.getElementById('bName').value.trim() || 'Your Brand';
     var tag  = document.getElementById('bTag').value.trim() || 'Marketing Hub';
-    cfg.name = name; cfg.tagline = tag;
+    var greet = document.getElementById('bGreet').value.trim() || 'Welcome back.';
+    cfg.name = name; cfg.tagline = tag; cfg.greeting = greet;
+    document.getElementById('pvHi').textContent = greet;
     document.getElementById('pvSub').textContent = 'Welcome to your ' + tag;
     var c = cfg.colors;
     var card = document.getElementById('pvCard');
@@ -459,6 +466,7 @@
     document.getElementById('sbKey').value = cfg.supabase.anonKey || '';
     document.getElementById('bName').value = (cfg.name && cfg.name !== 'Your Brand') ? cfg.name : '';
     document.getElementById('bTag').value  = (cfg.tagline && cfg.tagline !== 'Marketing Hub') ? cfg.tagline : '';
+    document.getElementById('bGreet').value = (cfg.greeting && cfg.greeting !== 'Welcome back.') ? cfg.greeting : '';
     document.getElementById('logoUrl').value = (cfg.logoUrl && cfg.logoUrl.indexOf('data:') !== 0) ? cfg.logoUrl : '';
     renderSwatches(); renderSources(); refreshLogoPreviews(); livePreview();
   }

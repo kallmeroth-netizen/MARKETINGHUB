@@ -90,6 +90,25 @@
   .tile-label { display:block; font-size:15px; font-weight:600; }
   .tile-sub { display:block; font-size:12.5px; color:var(--text-3,#7a7770); }
   .signout { background:none; border:1.5px solid var(--line-strong,rgba(31,35,40,0.15)); border-radius:100px; padding:7px 14px; font-family:'Jost',sans-serif; font-weight:600; font-size:11px; letter-spacing:.18em; text-transform:uppercase; color:var(--text-2,#3a3d44); cursor:pointer; }
+
+  /* ---------- branded sweep transition (login → hub) ---------- */
+  .sweep {
+    position:fixed; inset:0; z-index:60; pointer-events:none;
+    background:var(--brand-orange,#5b6cff);
+    transform:translateY(100%);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .sweep-text {
+    font-family:'Jost','DM Sans',sans-serif; font-weight:600;
+    letter-spacing:.32em; text-transform:uppercase; font-size:15px;
+    color:#fff; opacity:0;
+  }
+  .sweep.in  { animation:sweepIn .52s cubic-bezier(.76,0,.24,1) forwards; }
+  .sweep.in .sweep-text { animation:sweepLabel .52s ease forwards; }
+  .sweep.out { animation:sweepOut .52s cubic-bezier(.76,0,.24,1) forwards; }
+  @keyframes sweepIn  { from{transform:translateY(100%)} to{transform:translateY(0)} }
+  @keyframes sweepOut { from{transform:translateY(0)} to{transform:translateY(-100%)} }
+  @keyframes sweepLabel { 0%{opacity:0} 40%{opacity:1} 100%{opacity:1} }
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
@@ -99,6 +118,9 @@
 
 <div class="blob b1"></div>
 <div class="blob b2"></div>
+
+<!-- Branded reveal transition: sweeps up in the primary color on sign-in -->
+<div class="sweep" id="sweep"><div class="sweep-text" data-brand-name>Your Brand</div></div>
 
 <!-- ==================== PASSCODE ==================== -->
 <div class="pass-shell" id="passShell">
@@ -160,9 +182,17 @@
     el.textContent = ''; var i = 0;
     (function step(){ if (i < text.length) { el.textContent += text[i++]; setTimeout(step, speed); } else if (done) done(); })();
   }
+  var OPENING = (window.Brand.get().greeting || 'Welcome back.');
   setTimeout(function () {
-    typeText(greetEl, 'Welcome.', 100, function () { setTimeout(function () { document.getElementById('subPass').classList.add('shown'); }, 200); });
+    typeText(greetEl, OPENING, 90, function () { setTimeout(function () { document.getElementById('subPass').classList.add('shown'); }, 200); });
   }, 500);
+
+  function timeGreeting() {
+    var h = new Date().getHours();
+    if (h < 12) return 'Good morning';
+    if (h < 18) return 'Good afternoon';
+    return 'Good evening';
+  }
 
   /* ---------- login ---------- */
   var em = document.getElementById('em'), pw = document.getElementById('pw');
@@ -180,7 +210,7 @@
     var res = await NPData.signIn(email, pass);
     go.disabled = false; go.textContent = 'Enter →';
     if (res.error) { cap.classList.add('error'); err.textContent = res.error.message || 'Invalid email or password.'; err.classList.add('show'); return; }
-    enterHub();
+    enterHub(true);
   }
   document.getElementById('go').addEventListener('click', submitLogin);
   pw.addEventListener('keydown', function(e){ if (e.key === 'Enter') submitLogin(); });
@@ -193,7 +223,6 @@
     { key:'pmix',     roles:['team','guest','admin'], href:'coming-soon.html?m=pmix',     label:'Sales & Pmix',          sub:'Daily sales & product mix', svg:'<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>' },
     { key:'calendar', roles:['team','guest','admin'], href:'coming-soon.html?m=calendar', label:'Marketing Calendar',    sub:'Campaigns & scheduling', svg:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 11h18"/>' },
     { key:'assets',   roles:['team','guest','admin'], href:'coming-soon.html?m=assets',   label:'Brand Assets',          sub:'Logos & templates', svg:'<rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="M21 15l-5-5L5 21"/>' },
-    { key:'guests',   roles:['team','admin'],         href:'coming-soon.html?m=guests',   label:'Guest Intelligence',    sub:'Feedback & experience', svg:'<circle cx="9" cy="8" r="4"/><path d="M2 21a7 7 0 0 1 14 0"/><path d="M16 3.5a4 4 0 0 1 0 8M22 21a7 7 0 0 0-5-6.7"/>' },
     { key:'admin',    roles:['admin'],                href:'admin.html',                  label:'Admin',                 sub:'Users & setup', svg:'<circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/><path d="M18 14l1.5 1.5L22 13"/>' }
   ];
 
@@ -206,14 +235,32 @@
     }).join('');
   }
 
-  async function enterHub() {
+  async function enterHub(animate) {
     var role = 'team';
     try { role = (await NPData.getRole()) || 'team'; } catch (e) {}
     renderTiles(role);
+    document.getElementById('heroGreet').textContent = timeGreeting();
     document.getElementById('dateText').textContent = new Date().toLocaleDateString(undefined, { weekday:'short', month:'short', day:'numeric' });
-    document.body.setAttribute('data-state', 'hub');
-    // brand-apply re-brands the hub logo/labels now that they're visible.
-    try { window.dispatchEvent(new CustomEvent('brand:changed', { detail: window.Brand.get() })); } catch (e) {}
+
+    function reveal() {
+      document.body.setAttribute('data-state', 'hub');
+      // brand-apply re-brands the hub logo/labels now that they're visible.
+      try { window.dispatchEvent(new CustomEvent('brand:changed', { detail: window.Brand.get() })); } catch (e) {}
+    }
+
+    if (animate) {
+      // Branded sweep: primary-colored panel rises to cover, we swap the
+      // view underneath, then it continues up and off — a seamless reveal.
+      var sweep = document.getElementById('sweep');
+      sweep.className = 'sweep in';
+      setTimeout(function () {
+        reveal();
+        sweep.className = 'sweep out';
+        setTimeout(function () { sweep.className = 'sweep'; }, 560);
+      }, 520);
+    } else {
+      reveal();
+    }
   }
 
   // hub dropdown open/close (chrome-v2 also wires the brand click)
@@ -244,7 +291,7 @@
     try {
       if (NPData.isConfigured()) {
         var s = await NPData.getSession();
-        if (s) { enterHub(); }
+        if (s) { enterHub(false); }
       }
     } catch (e) {}
   })();
