@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Admin — {{BRAND}}</title>
+<meta name="theme-color" content="#1f2328">
+<link rel="stylesheet" href="theme.css">
+
+<!-- Brand engine -->
+<script src="brand.default.js"></script>
+<script src="brand-config.js"></script>
+<script src="brand-apply.js" defer></script>
+<script src="chrome-v2.js" defer></script>
+
+<style>
+  body { background:var(--bg,#f6f6f8); color:var(--text,#1f2328); font-family:'DM Sans',sans-serif; }
+  .admin-wrap { max-width:760px; margin:0 auto; padding:32px 20px 80px; }
+  .section-head { font-weight:600; font-size:14px; color:var(--text,#1f2328); margin:0 0 16px; padding-bottom:10px; border-bottom:1px solid var(--line-strong,rgba(0,0,0,0.08)); }
+  .card { background:var(--surface,#fff); border:1px solid var(--line,rgba(0,0,0,0.08)); border-radius:16px; padding:24px; margin-bottom:28px; }
+
+  .user-table { width:100%; border-collapse:collapse; font-size:13px; }
+  .user-table th { text-align:left; padding:8px 12px; font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.08em; color:var(--text-2,#6B6960); border-bottom:1px solid var(--line-strong,rgba(0,0,0,0.08)); }
+  .user-table td { padding:10px 12px; border-bottom:1px solid var(--line,rgba(0,0,0,0.06)); vertical-align:middle; }
+  .user-table tr:last-child td { border-bottom:none; }
+
+  .edit-input, .invite-form input, .invite-form select { width:100%; padding:10px 14px; border:1.5px solid rgba(31,35,40,0.15); border-radius:12px; font-family:inherit; font-size:14px; background:var(--surface,#fff); color:var(--text,#1f2328); }
+  .edit-input:focus, .invite-form input:focus, .invite-form select:focus { outline:none; border-color:var(--ink,#1f2328); }
+  .btn-row { padding:5px 12px; border:1px solid var(--line-strong,rgba(0,0,0,0.14)); border-radius:8px; background:var(--surface,#fff); color:var(--text,#1f2328); font-family:inherit; font-size:11.5px; font-weight:600; cursor:pointer; margin-right:6px; }
+  .btn-row.btn-danger { border-color:rgba(138,53,24,0.3); color:#8a3518; }
+  .btn-row.btn-save { background:var(--ink,#1f2328); color:#fff; border-color:var(--ink,#1f2328); }
+  .role-badge { display:inline-flex; align-items:center; padding:3px 10px; border-radius:100px; font-size:11px; font-weight:600; }
+  .role-badge.admin { background:var(--ink,#1f2328); color:#fff; } .role-badge.team { background:#fdf7d8; color:#7a6b00; }
+  .role-badge.guest { background:#eaeef8; color:#3a59a0; } .role-badge.ops { background:#e4f5ea; color:#1e5a37; }
+  .status-dot { display:inline-block; width:10px; height:10px; border-radius:50%; margin-right:8px; vertical-align:middle; }
+  .status-dot.green{background:#3fa861} .status-dot.yellow{background:#eace49} .status-dot.red{background:#d85c3a}
+  .invite-form { display:grid; grid-template-columns:1fr auto auto; gap:10px; align-items:end; }
+  .invite-form label { font-size:12px; font-weight:500; color:var(--text-2,#6B6960); margin-bottom:4px; display:block; }
+  .btn-invite { padding:10px 20px; border:none; border-radius:12px; background:var(--ink,#1f2328); color:#fff; font-family:inherit; font-size:13px; font-weight:600; cursor:pointer; white-space:nowrap; }
+  .msg { font-size:12.5px; margin-top:12px; padding:10px 14px; border-radius:10px; }
+  .msg.ok { background:#e4f5ea; color:#1e5a37; } .msg.err { background:#fdeee7; color:#8a3518; }
+  .notice { font-size:13px; color:var(--text-2,#6B6960); background:var(--surface-2,#f0eee9); padding:14px 16px; border-radius:12px; }
+  .notice a { color:var(--accent,#4f46e5); font-weight:600; }
+  @media(max-width:600px){ .invite-form { grid-template-columns:1fr; } }
+
+  /* branding card */
+  .brand-row { display:flex; align-items:center; gap:18px; flex-wrap:wrap; }
+  .brand-logo-box { width:150px; height:60px; display:grid; place-items:center; background:var(--surface-2,#f0eee9); border-radius:12px; }
+  .brand-logo-box img { max-height:44px; max-width:130px; }
+  .brand-meta b { font-size:16px; } .brand-meta span { display:block; font-size:12.5px; color:var(--text-3,#7a7770); }
+  .brand-colors { display:flex; gap:6px; margin-top:8px; }
+  .brand-colors i { width:22px; height:22px; border-radius:6px; display:block; border:1px solid rgba(0,0,0,0.08); }
+  .src-grid { display:grid; grid-template-columns:1fr auto; gap:8px 16px; font-size:13px; align-items:center; }
+  .src-grid .st { font-size:11px; font-weight:600; padding:3px 9px; border-radius:100px; }
+  .st.on { background:#e4f5ea; color:#1e5a37; } .st.off { background:#f2efe9; color:#8a877f; }
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="np-data.js"></script>
+<script>if (window.NPData && NPData.isConfigured()) NPData.guardPage(['admin']);</script>
+</head>
+<body data-page-tag="Admin">
+
+<div id="np-nav-placeholder"></div>
+
+<div class="admin-wrap">
+  <h1 style="font-size:24px;font-weight:600;margin:0 0 8px">Admin</h1>
+  <p style="font-size:13px;color:var(--text-2,#6B6960);margin:0 0 32px">Manage your branding, users and connected data sources.</p>
+
+  <!-- ===== Branding & Setup ===== -->
+  <div class="card">
+    <div class="section-head">Branding &amp; setup</div>
+    <div class="brand-row">
+      <div class="brand-logo-box"><img data-brand-logo src="assets/placeholder-logo.svg" alt="logo"></div>
+      <div class="brand-meta">
+        <b data-brand-name>Your Brand</b>
+        <span data-brand-tagline>Marketing Hub</span>
+        <div class="brand-colors" id="brandColors"></div>
+      </div>
+      <div style="margin-left:auto;display:flex;gap:8px">
+        <a class="btn-invite" href="setup.html" style="display:inline-block;text-decoration:none">Edit branding</a>
+        <button class="btn-row btn-danger" type="button" onclick="resetBrand()">Reset</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Data sources ===== -->
+  <div class="card">
+    <div class="section-head">Connected data sources</div>
+    <div class="src-grid" id="srcGrid"></div>
+    <p style="font-size:12px;color:var(--text-3,#7a7770);margin:14px 0 0">Add or change API keys in the <a href="setup.html" style="color:var(--accent,#4f46e5)">setup wizard</a>.</p>
+  </div>
+
+  <!-- ===== Invite ===== -->
+  <div class="card">
+    <div class="section-head">Invite a user</div>
+    <div id="inviteGate"></div>
+    <div id="inviteBody" style="display:none">
+      <p style="font-size:12.5px;color:var(--text-2,#6B6960);margin:0 0 16px">An invitation email is sent. The user sets their own password on first sign-in.</p>
+      <div class="invite-form">
+        <div><label for="inviteEmail">Email address</label><input id="inviteEmail" type="email" placeholder="name@example.com" autocomplete="off"></div>
+        <div><label for="inviteRole">Role</label><select id="inviteRole"><option value="team">team</option><option value="guest">guest</option><option value="ops">ops</option><option value="admin">admin</option></select></div>
+        <button class="btn-invite" id="inviteBtn" type="button" onclick="inviteUser()">Send invite</button>
+      </div>
+      <div id="inviteMsg" style="display:none"></div>
+    </div>
+  </div>
+
+  <!-- ===== Existing users ===== -->
+  <div class="card">
+    <div class="section-head">Existing users</div>
+    <div id="usersArea"><p class="notice" id="usersNotice">Loading…</p></div>
+  </div>
+</div>
+
+<script>
+/* ---------- Branding card ---------- */
+function paintBrandCard() {
+  var b = window.Brand.get();
+  var c = b.colors;
+  document.getElementById('brandColors').innerHTML =
+    ['primary','accent','yellow','green','blue','lavender'].map(function(k){
+      return '<i style="background:' + c[k] + '" title="' + k + '"></i>';
+    }).join('');
+  // Sources
+  document.getElementById('srcGrid').innerHTML = Object.keys(b.dataSources).map(function(k){
+    var s = b.dataSources[k];
+    var on = s.status === 'connected';
+    return '<div>' + s.label + '</div><div><span class="st ' + (on?'on':'off') + '">' + (on?'Connected':'Not connected') + '</span></div>';
+  }).join('');
+}
+function resetBrand() {
+  if (!confirm('Reset ALL branding back to the neutral placeholder? This clears the logo, name, colors and data-source keys on this device.')) return;
+  window.Brand.reset();
+  window.location.href = 'setup.html';
+}
+paintBrandCard();
+
+/* ---------- Backend-gated sections ---------- */
+var configured = window.NPData && NPData.isConfigured();
+if (!configured) {
+  document.getElementById('inviteGate').innerHTML = '<p class="notice">Connect your Supabase backend in the <a href="setup.html">setup wizard</a> to invite and manage users.</p>';
+  document.getElementById('usersNotice').innerHTML = 'User management appears once your backend is connected. Open the <a href="setup.html" style="color:var(--accent,#4f46e5)">setup wizard</a> to add your Supabase URL &amp; key.';
+} else {
+  document.getElementById('inviteBody').style.display = '';
+  bootUsers();
+}
+
+function escapeHtml(s){ return String(s ?? '').replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+
+/* ---------- Users (only when configured) ---------- */
+var allUsers = [], sortCol='created_at', sortDir='asc', editingId=null;
+
+async function bootUsers() { await loadUsers(); }
+
+async function loadUsers() {
+  var res = await NPData.supabase.from('users').select('id, email, role, full_name, created_at');
+  var area = document.getElementById('usersArea');
+  if (res.error) { area.innerHTML = '<p class="notice">Error loading users: ' + escapeHtml(res.error.message) + '</p>'; return; }
+  allUsers = res.data || []; editingId = null; renderUsers();
+}
+function renderUsers() {
+  var area = document.getElementById('usersArea');
+  if (!allUsers.length) { area.innerHTML = '<p class="notice">No users yet — send an invite above.</p>'; return; }
+  var sorted = allUsers.slice().sort(function(a,b){ var va=(a[sortCol]||'').toString().toLowerCase(), vb=(b[sortCol]||'').toString().toLowerCase(); var cmp=va<vb?-1:va>vb?1:0; return sortDir==='asc'?cmp:-cmp; });
+  area.innerHTML = '<table class="user-table"><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Member since</th><th>Actions</th></tr></thead><tbody>' +
+    sorted.map(function(u){ return u.id===editingId ? editRowHtml(u) : rowHtml(u); }).join('') + '</tbody></table>';
+}
+function rowHtml(u){ return '<tr><td>' + (u.full_name?escapeHtml(u.full_name):'—') + '</td><td>' + escapeHtml(u.email) + '</td><td><span class="role-badge ' + (u.role||'') + '">' + escapeHtml(u.role||'—') + '</span></td><td style="color:#6B6960">' + (u.created_at?new Date(u.created_at).toLocaleDateString():'—') + '</td><td><button class="btn-row" onclick="startEdit(\'' + u.id + '\')">Edit</button><button class="btn-row btn-danger" onclick="deleteUser(\'' + u.id + '\')">Delete</button></td></tr>'; }
+function editRowHtml(u){ return '<tr><td><input class="edit-input" id="editName" value="' + escapeHtml(u.full_name||'') + '"></td><td><input class="edit-input" id="editEmail" value="' + escapeHtml(u.email||'') + '"></td><td><select class="edit-input" id="editRole">' + ['team','guest','ops','admin'].map(function(r){ return '<option value="' + r + '"' + (r===u.role?' selected':'') + '>' + r + '</option>'; }).join('') + '</select></td><td style="color:#6B6960">' + (u.created_at?new Date(u.created_at).toLocaleDateString():'—') + '</td><td id="editActions"><button class="btn-row btn-save" onclick="saveEdit(\'' + u.id + '\')">Save</button><button class="btn-row" onclick="cancelEdit()">Cancel</button></td></tr>'; }
+function startEdit(id){ editingId=id; renderUsers(); }
+function cancelEdit(){ editingId=null; renderUsers(); }
+
+async function callManageUser(payload) {
+  var sres = await NPData.supabase.auth.getSession();
+  var session = sres.data.session;
+  if (!session) return { error: 'Not signed in.' };
+  try {
+    var resp = await fetch(NPData.SUPABASE_URL + '/functions/v1/manage-user', { method:'POST', headers:{ 'Content-Type':'application/json','Authorization':'Bearer ' + session.access_token,'apikey':NPData.ANON_KEY }, body:JSON.stringify(payload) });
+    var raw = await resp.text(); var json=null; try{ json=JSON.parse(raw); }catch(e){}
+    if (!resp.ok) return { error: 'Error ' + resp.status + ': ' + ((json && (json.error||json.message)) || raw || resp.statusText) };
+    return { ok:true };
+  } catch (e) { return { error:'Network / CORS error: ' + (e.message||e) }; }
+}
+async function saveEdit(id){ var full_name=document.getElementById('editName').value.trim(), email=document.getElementById('editEmail').value.trim(), role=document.getElementById('editRole').value; if(!email)return; var r=await callManageUser({action:'update',id:id,full_name:full_name,email:email,role:role}); if(r.error){alert('Failed to save: '+r.error);return;} editingId=null; await loadUsers(); }
+async function deleteUser(id){ var u=allUsers.find(function(x){return x.id===id;}); if(!confirm('Delete '+(u?u.email:'this user')+'? This cannot be undone.'))return; var r=await callManageUser({action:'delete',id:id}); if(r.error){alert('Failed to delete: '+r.error);return;} await loadUsers(); }
+
+async function inviteUser() {
+  var email=document.getElementById('inviteEmail').value.trim(), role=document.getElementById('inviteRole').value;
+  var btn=document.getElementById('inviteBtn'), msgEl=document.getElementById('inviteMsg');
+  if(!email)return; btn.disabled=true; btn.textContent='Sending…'; msgEl.style.display='none';
+  try {
+    var sres=await NPData.supabase.auth.getSession(); var session=sres.data.session;
+    if(!session){ msgEl.style.display=''; msgEl.className='msg err'; msgEl.textContent='Not signed in.'; btn.disabled=false; btn.textContent='Send invite'; return; }
+    var resp=await fetch(NPData.SUPABASE_URL+'/functions/v1/invite-user',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+session.access_token,'apikey':NPData.ANON_KEY},body:JSON.stringify({email:email,role:role})});
+    var raw=await resp.text(); var json=null; try{json=JSON.parse(raw);}catch(e){}
+    btn.disabled=false; btn.textContent='Send invite'; msgEl.style.display='';
+    if(!resp.ok){ msgEl.className='msg err'; msgEl.textContent='Error '+resp.status+': '+((json&&(json.error||json.message))||raw||resp.statusText); return; }
+    msgEl.className='msg ok'; msgEl.textContent='Invitation sent to '+email+'.'; document.getElementById('inviteEmail').value=''; loadUsers();
+  } catch(e){ btn.disabled=false; btn.textContent='Send invite'; msgEl.style.display=''; msgEl.className='msg err'; msgEl.textContent='Network / CORS error: '+(e.message||e); }
+}
+</script>
+
+<footer class="np-footer" style="text-align:center;padding:24px;opacity:0.7">
+  <div class="np-footer-text" style="font-size:12px;color:var(--text-3,#7a7770)"><span data-brand-name>Your Brand</span> Marketing Hub</div>
+</footer>
+</body>
+</html>

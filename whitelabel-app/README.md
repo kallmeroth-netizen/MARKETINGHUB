@@ -1,0 +1,113 @@
+# Marketing Hub — White-Label Edition
+
+A brand-agnostic, self-serve version of the marketing-intelligence portal. A new
+customer signs up, walks through a **step-by-step setup wizard** (create account →
+brand name → logo → colors → connect data → done), and their identity drops into
+the exact same placements the reference product uses — same nav, same hub, same
+dashboards. No customer numbers ship in this package; branding ships as neutral
+placeholders.
+
+> This folder is **self-contained** and carries **no** source-brand data, keys,
+> logos, or figures. It is built to be lifted straight into its own repository —
+> see [Moving to its own repo](#moving-to-its-own-repo).
+
+---
+
+## How the white-label engine works
+
+Branding is applied **at runtime** from a single config, so one source of truth
+rebrands every page — you never hand-edit pages to add a customer.
+
+| File | Role |
+|------|------|
+| `brand.default.js` | The neutral factory default (name, placeholder logo, neutral palette, empty backend/API slots). |
+| `brand-config.js`  | Loads/saves the active config in `localStorage` (`window.Brand` API), deep-merged over the defaults. |
+| `brand-apply.js`   | Included on **every** page. Injects the palette over the theme tokens, swaps the logo, replaces `{{BRAND}}` / `{{TAGLINE}}` and `[data-brand-*]` elements, sets favicon + title. Re-runs on the `brand:changed` event so wizard edits show instantly. |
+| `theme.css`        | The design system. `brand-apply.js` overrides its `:root` tokens — the CSS itself is never edited per brand. |
+
+**To brand a page**, include the three scripts in the `<head>` and use the hooks:
+
+```html
+<script src="brand.default.js"></script>
+<script src="brand-config.js"></script>
+<script src="brand-apply.js" defer></script>
+```
+
+- Logo: `<img data-brand-logo src="assets/placeholder-logo.svg" alt="Brand">`
+- Name / tagline: `{{BRAND}}`, `{{TAGLINE}}`, or `<span data-brand-name></span>` / `[data-brand-tagline]`
+- Colors: use the theme tokens (`var(--brand-orange)` = primary action color, `var(--ink)`, `var(--bg)`, `var(--brand-green)` …). They are overridden live from `colors` in the config.
+
+## Pages
+
+| Page | What it is |
+|------|-----------|
+| `setup.html` | **The setup wizard.** 6 steps, live preview, saves to `localStorage`. Re-runnable anytime from Admin. |
+| `index.html` | Sign-in + hub. First visit with no completed setup redirects to `setup.html`. |
+| `admin.html` | User management (invite/edit/delete), connected-source status, and a **Branding & setup** card that re-launches the wizard. |
+| `dashboard.html` | Performance dashboard in **empty-state** — same layout, "connect a source" until a backend is wired. |
+| `coming-soon.html` | Placeholder for modules being ported next (calendar, assets, guests, pmix). Fully branded. |
+
+## Running locally
+
+Static files — serve the folder over HTTP (needed for `fetch` + modules):
+
+```bash
+cd whitelabel-app
+python3 -m http.server 8080
+# open http://localhost:8080
+```
+
+First load → the wizard. Finish it → the hub shows your logo, name and colors in
+the same spots the reference brand's occupied. Everything persists in
+`localStorage` on that browser.
+
+## Connecting a backend (per customer)
+
+Each customer uses **their own Supabase project**, entered in wizard Step 1, so
+their data never mixes with anyone else's. To finish the backend they need:
+
+1. A `users` table (`id uuid pk`, `email text`, `role text`, `full_name text`,
+   `created_at timestamptz`) with row-level security.
+2. Role delivered on the JWT via a **custom access-token hook** (sets
+   `app_metadata.role`); `np-data.js` falls back to a `users` row lookup until
+   the hook is registered.
+3. Two Edge Functions for admin user management: `invite-user` and `manage-user`
+   (service-role key stays server-side, never shipped to the browser).
+
+Until a backend is connected, the app runs in a fully brandable **preview mode**:
+branding, the wizard, and empty-state pages all work; user management shows a
+"connect your backend" notice.
+
+> No Supabase URL or key is committed here. Anon keys are public-by-design and
+> live only in the customer's own `localStorage` config.
+
+## Data — wiped by design
+
+`data/*.json` are **empty scaffolds** (valid shape, zero rows). Dashboards render
+honest empty states instead of anyone's real figures. Real numbers come only from
+a connected backend, per customer.
+
+## Moving to its own repo
+
+```bash
+cp -r whitelabel-app my-marketing-hub && cd my-marketing-hub
+git init && git add -A && git commit -m "White-label Marketing Hub"
+# add a remote and push
+```
+
+Nothing outside this folder is required.
+
+## Roadmap (next modules to port)
+
+The reference product has more pages (Sales & Pmix, Calendar, Brand Assets,
+Guest Intelligence, Labor). Each ports the same way: copy the layout, include the
+three brand scripts, replace hard-coded brand text with `{{BRAND}}` tokens, and
+point data reads at the empty `data/*.json` scaffolds (or the connected backend).
+`coming-soon.html` holds their place in the hub until each lands.
+
+## IP / productization note
+
+This white-label layer — a runtime brand-config engine plus a guided setup wizard
+that re-skins an entire multi-page analytics app from one config — is the
+sellable, potentially patentable core. It is deliberately isolated from the
+reference brand's assets and data so it can stand alone as a product.

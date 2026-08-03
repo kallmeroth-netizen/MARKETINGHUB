@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 48" role="img" aria-label="Your Logo">
+  <g fill="none" stroke="#1f2328" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="6" y="10" width="28" height="28" rx="7"/>
+    <path d="M13 31l7-9 5 6 3-4 5 7"/>
+    <circle cx="16.5" cy="18.5" r="2.4" fill="#1f2328" stroke="none"/>
+  </g>
+  <text x="46" y="24" font-family="'Jost','Futura','DM Sans',sans-serif" font-size="17" font-weight="700" letter-spacing="0.5" fill="#1f2328">YOUR&#160;LOGO</text>
+  <text x="46" y="39" font-family="'DM Sans',sans-serif" font-size="9" letter-spacing="2.4" fill="#7a7770">MARKETING&#160;HUB</text>
+</svg>
