@@ -91,8 +91,8 @@
         '--dark:' + c.ink + ';' +
         // theme.css defines --shadow-orange as a literal rgba (not derived from
         // a token), so buttons keep a stale orange glow unless we override it
-        // from the primary color here.
-        '--shadow-orange:0 4px 14px rgba(' + rgb(c.primary) + ',0.28);' +
+        // from the primary color here. Kept Apple-soft (low alpha, small blur).
+        '--shadow-orange:0 2px 8px rgba(' + rgb(c.primary) + ',0.20);' +
       '}';
 
     var el = document.getElementById('wl-brand-colors');

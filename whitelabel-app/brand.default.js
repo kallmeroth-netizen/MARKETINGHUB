@@ -31,21 +31,21 @@
     greeting: 'Welcome back.',
 
     // — Palette — mapped onto theme.css :root tokens at runtime.
-    // High-tech, cool-toned defaults: electric indigo + cyan on a seamless
-    // off-white base. A brand replaces these in the wizard.
+    // Apple-style base: system blue on a clean light-gray canvas, Apple's
+    // near-black ink, and Apple system colors for the hub tiles. A brand
+    // replaces these in the wizard.
     colors: {
-      primary:   '#5b6cff',   // buttons, active accents (electric indigo)
-      accent:    '#22d3ee',   // secondary highlight (cyan)
-      ink:       '#0f1522',   // primary text / logo tint (deep navy-black)
-      bg:        '#f4f5fa',   // page background (seamless cool off-white)
+      primary:   '#0071e3',   // Apple blue (buttons, active accents)
+      accent:    '#0077ed',   // secondary highlight
+      ink:       '#1d1d1f',   // Apple near-black text / logo tint
+      bg:        '#f5f5f7',   // Apple light-gray page background
       surface:   '#ffffff',   // cards
-      // Hub tile hues — cohesive cool/jewel set so tiles read distinct without
-      // looking like crayons. (Keys kept for back-compat with the token map.)
-      yellow:    '#f59e0b',   // amber (single warm pop for contrast)
-      green:     '#10b981',   // emerald
-      blue:      '#38bdf8',   // sky
-      lavender:  '#8b5cf6',   // violet
-      tan:       '#94a3b8'    // slate
+      // Hub tile hues — Apple system colors, so tiles read distinct but native.
+      yellow:    '#ff9500',   // Apple orange (warm pop)
+      green:     '#34c759',   // Apple green
+      blue:      '#007aff',   // Apple blue
+      lavender:  '#af52de',   // Apple purple
+      tan:       '#8e8e93'    // Apple gray
     },
 
     // — Backend — each brand points at their OWN Supabase project.

@@ -7,6 +7,11 @@ the exact same placements the reference product uses — same nav, same hub, sam
 dashboards. No customer numbers ship in this package; branding ships as neutral
 placeholders.
 
+The **base look is Apple-inspired**: the SF Pro system font, a clean flat
+light-gray (`#f5f5f7`) canvas, near-black ink, hairline borders, soft understated
+shadows, large rounded corners, and Apple blue (`#0071e3`) as the default accent.
+Brands recolor everything in the wizard; the Apple-clean structure stays.
+
 > This folder is **self-contained** and carries **no** source-brand data, keys,
 > logos, or figures. It is built to be lifted straight into its own repository —
 > see [Moving to its own repo](#moving-to-its-own-repo).
@@ -44,8 +49,14 @@ rebrands every page — you never hand-edit pages to add a customer.
 | `setup.html` | **The setup wizard.** 6 steps, live preview, saves to `localStorage`. Re-runnable anytime from Admin. |
 | `index.html` | Sign-in + hub. First visit with no completed setup redirects to `setup.html`. |
 | `admin.html` | User management (invite/edit/delete), connected-source status, and a **Branding & setup** card that re-launches the wizard. |
-| `dashboard.html` | Performance dashboard in **empty-state** — same layout, "connect a source" until a backend is wired. |
-| `coming-soon.html` | Placeholder for modules being ported next (Sales & Pmix, Calendar, Brand Assets). Fully branded. |
+| `dashboard.html` | Performance Marketing — **empty-state** KPIs, same layout, "connect a source" until a backend is wired. |
+| `pmix.html` | Sales & Pmix — empty-state KPIs + product-mix skeleton. |
+| `calendar.html` | Marketing Calendar — live month grid (today highlighted), empty until campaigns/backend are added. |
+| `assets.html` | Brand Assets — surfaces your brand logo as the first asset; upload/templates land here once storage is connected. |
+| `coming-soon.html` | Generic branded placeholder kept for any future module before it ships. |
+
+Every module page is a real **empty state** — the layout and placements match the
+live product exactly; only the numbers are absent until a source is connected.
 
 ## Running locally
 

@@ -44,21 +44,21 @@
   --brand-tan-light:    #f7f0e4;
   --brand-tan-deep:     #9c7a3c;
 
-  /* — Neutrals — */
-  --ink:        #1f2328;
+  /* — Neutrals (Apple) — */
+  --ink:        #1d1d1f;       /* Apple near-black */
   --ink-pure:   #000;
-  --cream:      #F7F6F3;       /* page bg */
-  --cream-warm: #fffdf7;       /* lifted surfaces (active tab, dropdown bg) */
+  --cream:      #f5f5f7;       /* Apple light-gray page bg */
+  --cream-warm: #ffffff;       /* lifted surfaces */
   --surface:    #ffffff;       /* cards */
-  --surface-2:  #F0EEE9;       /* nested surfaces, hover */
-  --line:       rgba(31,35,40,0.06);   /* hairline */
-  --line-strong:rgba(31,35,40,0.10);   /* card border, settings btn */
-  --line-bold:  rgba(31,35,40,0.18);   /* hover border */
+  --surface-2:  #f5f5f7;       /* nested surfaces, hover */
+  --line:       rgba(0,0,0,0.06);    /* hairline */
+  --line-strong:rgba(0,0,0,0.10);    /* card border */
+  --line-bold:  rgba(0,0,0,0.16);    /* hover border */
 
-  --text:       #1f2328;
-  --text-2:     #3a3d44;
-  --text-3:     #7a7770;
-  --text-mute:  #c0bdb7;
+  --text:       #1d1d1f;
+  --text-2:     #424245;       /* Apple secondary */
+  --text-3:     #6e6e73;       /* Apple tertiary */
+  --text-mute:  #aeaeb2;
 
   /* — Sentiment / status — */
   --pos: var(--brand-green-deep);
@@ -66,11 +66,14 @@
   --neu: var(--brand-yellow-deep);
 
   /* — Type families — */
-  --f-display:  'TAYAmaya', 'DM Sans', sans-serif;
+  /* Apple system-font base: SF Pro on Apple devices, graceful fallbacks
+     elsewhere. Gives the whole app the clean, native Apple look. */
+  --f-apple:    -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', 'Segoe UI', Roboto, Arial, sans-serif;
+  --f-display:  var(--f-apple);
   --f-amp:      'Tuppence', serif;
-  --f-eyebrow:  'Futura PT Demi', 'Jost', 'futura-pt', 'Futura', sans-serif;
-  --f-sans:     'DM Sans', sans-serif;
-  --f-mono:     'DM Mono', monospace;
+  --f-eyebrow:  var(--f-apple);
+  --f-sans:     var(--f-apple);
+  --f-mono:     'SF Mono', 'DM Mono', ui-monospace, monospace;
 
   /* — Type scale — */
   --t-hero:        clamp(28px, 3.4vw, 44px);   /* page H1 / TAYAmaya */
@@ -105,11 +108,12 @@
   --r-round:999px;
 
   /* — Elevation — */
-  --shadow-sm:  0 1px 3px rgba(0,0,0,0.06);
-  --shadow-md:  0 4px 12px rgba(0,0,0,0.08);
-  --shadow-lg:  0 12px 32px rgba(0,0,0,0.12);
-  --shadow-xl:  0 20px 60px rgba(0,0,0,0.14);
-  --shadow-orange: 0 4px 14px rgba(232,113,66,0.28);
+  /* Apple-soft depth — understated, large-radius, low-alpha shadows. */
+  --shadow-sm:  0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md:  0 6px 20px rgba(0,0,0,0.06);
+  --shadow-lg:  0 14px 40px rgba(0,0,0,0.08);
+  --shadow-xl:  0 24px 64px rgba(0,0,0,0.10);
+  --shadow-orange: 0 2px 8px rgba(0,113,227,0.20);
 
   /* — Layout — */
   --content-max: 1240px;

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Marketing Calendar — {{BRAND}}</title>
+<meta name="theme-color" content="#0071e3">
+<link rel="stylesheet" href="theme.css">
+
+<script src="brand.default.js"></script>
+<script src="brand-config.js"></script>
+<script src="brand-apply.js" defer></script>
+<script src="chrome-v2.js" defer></script>
+
+<style>
+  body { background:var(--bg,#f5f5f7); color:var(--text,#1d1d1f); font-family:var(--f-sans); }
+  .wrap { max-width:1040px; margin:0 auto; padding:28px 20px 80px; }
+  .head-row { display:flex; align-items:flex-end; justify-content:space-between; gap:16px; margin-bottom:22px; flex-wrap:wrap; }
+  .page-h { font-size:26px; font-weight:700; letter-spacing:-0.02em; margin:0 0 4px; }
+  .page-sub { font-size:13.5px; color:var(--text-2,#424245); margin:0; }
+  .add-btn { padding:10px 18px; border-radius:100px; background:var(--brand-orange,#0071e3); color:#fff; font-size:13.5px; font-weight:500; border:none; cursor:pointer; box-shadow:var(--shadow-orange); }
+  .cal-card { background:var(--surface,#fff); border:1px solid var(--line,rgba(0,0,0,0.06)); border-radius:20px; padding:22px; box-shadow:var(--shadow-sm); position:relative; }
+  .cal-month { font-size:16px; font-weight:600; margin:0 0 16px; }
+  .cal-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:8px; }
+  .cal-dow { font-size:11px; font-weight:600; color:var(--text-3,#6e6e73); text-transform:uppercase; letter-spacing:.06em; text-align:center; padding-bottom:4px; }
+  .cal-cell { aspect-ratio:1/0.9; border:1px solid var(--line,rgba(0,0,0,0.05)); border-radius:12px; padding:8px; font-size:12px; color:var(--text-3,#6e6e73); background:var(--surface,#fff); }
+  .cal-cell.blank { background:transparent; border-color:transparent; }
+  .cal-cell.today { border-color:var(--brand-orange,#0071e3); color:var(--brand-orange,#0071e3); font-weight:600; }
+  .cal-empty-overlay { text-align:center; padding:24px 0 4px; }
+  .cal-empty-overlay p { font-size:13.5px; color:var(--text-2,#424245); margin:14px 0 0; }
+  .cal-empty-overlay .ic { width:46px; height:46px; border-radius:14px; background:var(--surface-2,#f5f5f7); display:grid; place-items:center; margin:0 auto; color:var(--brand-orange,#0071e3); }
+</style>
+</head>
+<body data-page-tag="Calendar">
+
+<div id="np-nav-placeholder"></div>
+
+<div class="wrap">
+  <div class="head-row">
+    <div>
+      <h1 class="page-h">Marketing Calendar</h1>
+      <p class="page-sub">Campaigns &amp; scheduling · <span data-brand-name>Your Brand</span></p>
+    </div>
+    <button class="add-btn" onclick="noData()">+ Add campaign</button>
+  </div>
+
+  <div class="cal-card">
+    <h2 class="cal-month" id="calMonth">—</h2>
+    <div class="cal-grid" id="calGrid"></div>
+    <div class="cal-empty-overlay">
+      <div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div>
+      <p>No campaigns scheduled yet — add your first campaign or connect your calendar source to fill this month.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+  var now = new Date();
+  var MN = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  document.getElementById('calMonth').textContent = MN[now.getMonth()] + ' ' + now.getFullYear();
+
+  var dows = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  var first = new Date(now.getFullYear(), now.getMonth(), 1).getDay();
+  var days = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+  var cells = dows.map(function(d){ return '<div class="cal-dow">' + d + '</div>'; });
+  for (var i = 0; i < first; i++) cells.push('<div class="cal-cell blank"></div>');
+  for (var d = 1; d <= days; d++) {
+    var isToday = d === now.getDate();
+    cells.push('<div class="cal-cell' + (isToday ? ' today' : '') + '">' + d + '</div>');
+  }
+  document.getElementById('calGrid').innerHTML = cells.join('');
+
+  function noData() {
+    alert('Connect your calendar source (or your backend) in Setup to start scheduling campaigns.');
+  }
+</script>
+</body>
+</html>
