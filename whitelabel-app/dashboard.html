@@ -66,11 +66,27 @@
     return '<div class="kpi"><div class="k-label">' + k.label + '</div><div class="k-val">—</div><div class="k-note">' + k.note + ' · no data</div></div>';
   }).join('');
 
-  // Attempt to read the (empty) data scaffold; stays empty by design.
-  fetch('data/daily-data.json').then(function(r){ return r.ok ? r.json() : null; }).then(function(d){
-    if (!d || !d.rows || !d.rows.length) return; // empty scaffold → keep empty states
-    // (Real rendering would populate KPIs here once a source is connected.)
-  }).catch(function(){});
+  // No-API path: if a Google Sheet is connected, read it live so the pipe is
+  // proven end-to-end (row count shown). Column→KPI mapping is per-brand and
+  // wired once their sheet layout is known.
+  (function () {
+    var sheet = (window.Brand.get().sheetSource) || {};
+    if (!sheet.url) return;
+    var msg = document.getElementById('emptyMsg');
+    if (msg) msg.textContent = 'Reading from your Google Sheet…';
+    fetch(sheet.url, { redirect: 'follow' }).then(function (r) {
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.text();
+    }).then(function (text) {
+      if (/^\s*</.test(text)) throw new Error('not published as CSV');
+      var rows = text.split(/\r?\n/).filter(function (l) { return l.trim(); });
+      if (msg) msg.textContent = 'Connected to your Google Sheet — ' + Math.max(0, rows.length - 1) +
+        ' data row(s) synced. Map your sheet columns to these KPIs to populate them.';
+    }).catch(function (e) {
+      if (msg) msg.textContent = 'Google Sheet set, but could not read it (' + (e.message || e) +
+        '). Re-check it is Published to web as CSV in Setup.';
+    });
+  })();
 </script>
 </body>
 </html>

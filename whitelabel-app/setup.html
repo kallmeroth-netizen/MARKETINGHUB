@@ -105,6 +105,8 @@
   .ct-row a { color:var(--text-3,#6e6e73); font-size:11.5px; text-decoration:none; }
   .soon-row { display:flex; align-items:center; gap:10px; padding:9px 0; font-size:13.5px; color:var(--text-3,#6e6e73); }
   .soon-row .badge { margin-left:auto; font-size:10.5px; font-weight:600; color:var(--text-3,#6e6e73); background:var(--surface-2,#eee); padding:3px 9px; border-radius:100px; }
+  .sheet-box { margin-top:20px; padding:16px 18px; border:1px solid var(--line,rgba(0,0,0,0.08)); border-radius:14px; background:var(--surface,#fff); }
+  .sheet-box .sec-label { margin-top:0; }
   .msg { font-size:13px; margin-top:14px; padding:11px 14px; border-radius:11px; display:none; }
   .msg.ok  { display:block; background:#e4f5ea; color:#1e5a37; }
   .msg.err { display:block; background:#fdeee7; color:#8a3518; }
@@ -256,6 +258,22 @@
         <input class="inp" id="calFeed" type="url" placeholder="https://yoursite.com/api/calendar" oninput="onCalFeed()">
         <div class="hint">Powers the calendar's <b>Add to Google Calendar</b> button — the ICS/feed URL your team subscribes to.</div>
       </div>
+
+      <!-- No-API path: Google Sheet automation -->
+      <div class="sheet-box">
+        <div class="sec-label">No API? Use a Google Sheet</div>
+        <p style="font-size:12.5px;color:var(--text-2,#424245);margin:0 0 12px;line-height:1.55">
+          Keep your numbers in a Google Sheet and the hub reads them — no developer needed. In your sheet:
+          <b>File → Share → Publish to web → (choose the tab) → CSV</b>, then paste that link here and hit Test.
+          Update the sheet by hand or automate it (Apps Script, Zapier, Make) — the hub always shows the latest.
+        </p>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <input class="inp" id="sheetUrl" type="url" placeholder="https://docs.google.com/…/pub?output=csv" style="flex:1;min-width:240px" oninput="onSheetUrl()">
+          <button class="btn btn-ghost" type="button" onclick="testSheet()" id="sheetTestBtn">Test connection</button>
+        </div>
+        <div class="msg" id="sheetMsg"></div>
+      </div>
+
       <div class="nav-btns">
         <button class="btn btn-ghost" onclick="prev()">← Back</button>
         <button class="btn btn-primary" onclick="next()">Continue →</button>
@@ -441,6 +459,42 @@
 
   window.onCalFeed = function() { cfg.calendarFeedUrl = document.getElementById('calFeed').value.trim(); };
 
+  /* ---------- Google Sheet automation (no-API path) ---------- */
+  window.onSheetUrl = function() {
+    cfg.sheetSource = cfg.sheetSource || {};
+    cfg.sheetSource.url = document.getElementById('sheetUrl').value.trim();
+    cfg.sheetSource.status = 'not_connected';
+  };
+  window.testSheet = async function() {
+    var url = document.getElementById('sheetUrl').value.trim();
+    var msg = document.getElementById('sheetMsg');
+    var btn = document.getElementById('sheetTestBtn');
+    msg.className = 'msg';
+    if (!url) { msg.className = 'msg err'; msg.textContent = 'Paste your published Google Sheet CSV link first.'; return; }
+    if (!/docs\.google\.com/.test(url) || !/output=csv|\/pub/.test(url)) {
+      msg.className = 'msg info';
+      msg.textContent = 'Tip: this should be the “Publish to web → CSV” link (contains /pub and output=csv). Testing anyway…';
+    }
+    btn.disabled = true; var old = btn.textContent; btn.textContent = 'Testing…';
+    try {
+      var resp = await fetch(url, { redirect: 'follow' });
+      if (!resp.ok) throw new Error('HTTP ' + resp.status);
+      var text = await resp.text();
+      // A published CSV is comma/newline text; an un-published sheet returns HTML.
+      if (/^\s*</.test(text)) throw new Error('That link returned a web page, not CSV — make sure the sheet is Published to web as CSV (not just shared).');
+      var rows = text.split(/\r?\n/).filter(function(l){ return l.trim().length; });
+      var cols = (rows[0] || '').split(',').length;
+      cfg.sheetSource = { url: url, status: 'connected', rows: rows.length };
+      msg.className = 'msg ok';
+      msg.textContent = 'Connected — read ' + rows.length + ' row' + (rows.length===1?'':'s') + ' × ' + cols + ' column' + (cols===1?'':'s') + '. The hub can now pull from this sheet.';
+    } catch (e) {
+      cfg.sheetSource = { url: url, status: 'not_connected', rows: 0 };
+      msg.className = 'msg err';
+      msg.textContent = 'Could not read the sheet: ' + (e.message || e) + ' — confirm it is Published to web as CSV and the link is public.';
+    }
+    btn.disabled = false; btn.textContent = old;
+  };
+
   function renderSources() {
     document.getElementById('sources').innerHTML = SOURCES.map(function (s) {
       var cur = (cfg.dataSources[s.key] && cfg.dataSources[s.key].apiKey) || '';
@@ -574,6 +628,7 @@
     document.getElementById('bGreet').value = (cfg.greeting && cfg.greeting !== 'Welcome back.') ? cfg.greeting : '';
     document.getElementById('logoUrl').value = (cfg.logoUrl && cfg.logoUrl.indexOf('data:') !== 0) ? cfg.logoUrl : '';
     document.getElementById('calFeed').value = cfg.calendarFeedUrl || '';
+    document.getElementById('sheetUrl').value = (cfg.sheetSource && cfg.sheetSource.url) || '';
     cfg.modules = cfg.modules || {};
     cfg.customTabs = cfg.customTabs || [];
     renderSwatches(); renderSources(); renderModules(); renderCustomTabs(); renderComing();

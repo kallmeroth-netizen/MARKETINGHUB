@@ -82,6 +82,16 @@
     // button. Empty until the brand adds their own feed.
     calendarFeedUrl: '',
 
+    // No-API path: point the hub at a published Google Sheet (CSV) instead of
+    // wiring real APIs. The sheet IS the automation surface — a brand keeps it
+    // updated (by hand or via Apps Script / Zapier) and the hub reads the CSV.
+    // status: 'not_connected' | 'connected' (set once a Test succeeds).
+    sheetSource: {
+      url:    '',            // published CSV URL (File → Share → Publish to web → CSV)
+      status: 'not_connected',
+      rows:   0              // last successful row count, for a quick sanity check
+    },
+
     // — Setup progress — the wizard marks this true on Finish so index.html
     // knows onboarding is done and stops force-redirecting to setup.
     setupComplete: false

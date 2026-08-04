@@ -95,6 +95,24 @@ branding, the wizard, and empty-state pages all work; user management shows a
 > No Supabase URL or key is committed here. Anon keys are public-by-design and
 > live only in the customer's own `localStorage` config.
 
+## No-API option — Google Sheets automation
+
+Brands without APIs can drive the hub from a **published Google Sheet** instead:
+
+1. In the sheet: **File → Share → Publish to web → pick the tab → CSV → Publish.**
+2. Paste that CSV link into the wizard's **Data** step, under *"No API? Use a
+   Google Sheet,"* and click **Test connection**.
+3. The wizard fetches the link and reports **✓ Connected — N rows × M columns**
+   (or a specific error if the link isn't a published CSV). That live test is how
+   we make sure it works before the brand relies on it.
+
+The sheet becomes the automation surface: update it by hand, or automate it with
+Apps Script / Zapier / Make — the hub always reads the latest CSV. The URL +
+status persist to `brand.sheetSource`; `dashboard.html` reads the sheet on load
+and shows the synced row count (column→KPI mapping is wired once the brand's
+sheet layout is known). Only a *published* sheet works cross-origin — a normal
+"share" link returns a web page, and the Test call flags exactly that.
+
 ## Data — wiped by design
 
 `data/*.json` are **empty scaffolds** (valid shape, zero rows). Dashboards render

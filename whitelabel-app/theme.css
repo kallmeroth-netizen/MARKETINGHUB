@@ -175,8 +175,8 @@ a { color: inherit; text-decoration: none; }
   column-gap: var(--s-3);
   padding-left: max(var(--gutter), calc(50% - var(--content-max) / 2 + var(--gutter)));
   padding-right: max(var(--gutter), calc(50% - var(--content-max) / 2 + var(--gutter)));
-  background: rgba(253, 251, 246, 0.78);
-  backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+  background: rgba(255, 255, 255, 0.72);   /* Apple frosted-glass nav */
+  backdrop-filter: saturate(180%) blur(20px); -webkit-backdrop-filter: saturate(180%) blur(20px);
   border-bottom: 1px solid var(--line);
 }
 .np-nav .np-nav-brand { justify-self: start; grid-column: 1; }
