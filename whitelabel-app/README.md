@@ -51,7 +51,10 @@ rebrands every page — you never hand-edit pages to add a customer.
 | `admin.html` | User management (invite/edit/delete), connected-source status, and a **Branding & setup** card that re-launches the wizard. |
 | `dashboard.html` | Performance Marketing — **empty-state** KPIs, same layout, "connect a source" until a backend is wired. |
 | `pmix.html` | Sales & Pmix — empty-state KPIs + product-mix skeleton. |
-| `calendar.html` | Marketing Calendar — live month grid (today highlighted), empty until campaigns/backend are added. |
+| `calendar.html` | Marketing Calendar — category filter chips, **Add to Google Calendar** + **Export .ics**, live month grid; empty until campaigns/backend are added. |
+| `influencer.html` | Influencer — creators, seeding & collabs; empty KPIs + roster table. |
+| `themes.html` | Themes — monthly marketing themes (12-month grid, current month highlighted). |
+| `gantt.html` | Gantt — timeline & rollout skeleton. |
 | `assets.html` | Brand Assets — surfaces your brand logo as the first asset; upload/templates land here once storage is connected. |
 | `coming-soon.html` | Generic branded placeholder kept for any future module before it ships. |
 
@@ -117,6 +120,18 @@ the same way: copy the layout, include the three brand scripts, replace hard-cod
 brand text with `{{BRAND}}` tokens, and point data reads at the empty
 `data/*.json` scaffolds (or the connected backend). `coming-soon.html` holds a
 module's place in the hub until it lands.
+
+### Configurable tabs
+
+The hub's tabs are a **single catalog** (`hub-modules.js`) consumed by the hub,
+the shared nav, and the wizard's **"Choose your tabs"** step. Each brand:
+- toggles built-in modules on/off (Performance, Sales & Pmix, Calendar,
+  Influencer, Themes, Gantt, Brand Assets),
+- adds their **own custom tabs** (any label + link, opens in a new tab),
+- and sees a **"Coming soon"** list of modules still to ship.
+
+Selections persist to `brand.modules` + `brand.customTabs`; the hub and nav
+render only what's enabled, in catalog order (Home first, Admin last for admins).
 
 ### Brand controls
 

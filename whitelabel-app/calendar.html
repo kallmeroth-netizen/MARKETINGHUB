@@ -9,16 +9,30 @@
 
 <script src="brand.default.js"></script>
 <script src="brand-config.js"></script>
+<script src="hub-modules.js"></script>
 <script src="brand-apply.js" defer></script>
 <script src="chrome-v2.js" defer></script>
 
 <style>
   body { background:var(--bg,#f5f5f7); color:var(--text,#1d1d1f); font-family:var(--f-sans); }
   .wrap { max-width:1040px; margin:0 auto; padding:28px 20px 80px; }
-  .head-row { display:flex; align-items:flex-end; justify-content:space-between; gap:16px; margin-bottom:22px; flex-wrap:wrap; }
+  .head-row { display:flex; align-items:flex-end; justify-content:space-between; gap:16px; margin-bottom:18px; flex-wrap:wrap; }
   .page-h { font-size:26px; font-weight:700; letter-spacing:-0.02em; margin:0 0 4px; }
   .page-sub { font-size:13.5px; color:var(--text-2,#424245); margin:0; }
-  .add-btn { padding:10px 18px; border-radius:100px; background:var(--brand-orange,#0071e3); color:#fff; font-size:13.5px; font-weight:500; border:none; cursor:pointer; box-shadow:var(--shadow-orange); }
+  .toolbar { display:flex; gap:8px; flex-wrap:wrap; }
+  .tb-btn { display:inline-flex; align-items:center; gap:7px; padding:9px 15px; border-radius:100px; font-size:13px; font-weight:500; font-family:inherit; cursor:pointer; border:1px solid var(--line-strong,rgba(0,0,0,0.12)); background:var(--surface,#fff); color:var(--text,#1d1d1f); transition:.15s; }
+  .tb-btn:hover { border-color:var(--line-bold,rgba(0,0,0,0.2)); }
+  .tb-btn.primary { background:var(--brand-orange,#0071e3); color:#fff; border-color:transparent; box-shadow:var(--shadow-orange); }
+  .tb-btn svg { width:15px; height:15px; }
+
+  /* category filter chips */
+  .chips { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:20px; }
+  .chip { display:inline-flex; align-items:center; gap:8px; padding:8px 15px; border-radius:100px; font-size:14px; font-weight:500; background:var(--surface-2,#ececee); color:var(--text-2,#424245); border:none; cursor:pointer; transition:.15s; }
+  .chip:hover { background:#e2e2e6; }
+  .chip.active { background:#1d1d1f; color:#fff; }
+  .chip .dot { width:11px; height:11px; border-radius:50%; flex-shrink:0; }
+  .chip.all .dot { background:conic-gradient(#0071e3,#34c759,#ff9500,#af52de,#0071e3); }
+
   .cal-card { background:var(--surface,#fff); border:1px solid var(--line,rgba(0,0,0,0.06)); border-radius:20px; padding:22px; box-shadow:var(--shadow-sm); position:relative; }
   .cal-month { font-size:16px; font-weight:600; margin:0 0 16px; }
   .cal-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:8px; }
@@ -41,8 +55,21 @@
       <h1 class="page-h">Marketing Calendar</h1>
       <p class="page-sub">Campaigns &amp; scheduling · <span data-brand-name>Your Brand</span></p>
     </div>
-    <button class="add-btn" onclick="noData()">+ Add campaign</button>
+    <div class="toolbar">
+      <button class="tb-btn" onclick="addToGoogle()" title="Copies your feed URL and opens Google Calendar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M12 14v4M10 16h4"/></svg>
+        <span>Add to Google Calendar</span>
+      </button>
+      <button class="tb-btn" onclick="exportICS()" title="Download an .ics file">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M8 11l4 4 4-4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+        <span>Export .ics</span>
+      </button>
+      <button class="tb-btn primary" onclick="noData()">+ Add campaign</button>
+    </div>
   </div>
+
+  <!-- Category filters (mirrors the live calendar's category set) -->
+  <div class="chips" id="chips"></div>
 
   <div class="cal-card">
     <h2 class="cal-month" id="calMonth">—</h2>
@@ -55,24 +82,83 @@
 </div>
 
 <script>
+  /* ---------- category filter chips ---------- */
+  var CATS = [
+    { key:'all',         label:'All' },
+    { key:'email',       label:'Email',        color:'#cbb98f' },
+    { key:'sms',         label:'SMS',          color:'#6280bd' },
+    { key:'social',      label:'Social',       color:'#c9c7d6' },
+    { key:'keydate',     label:'Key date',     color:'#eace49' },
+    { key:'marketplace', label:'Marketplace',  color:'#1d1d1f' },
+    { key:'event',       label:'Event',        color:'#e8834a' },
+    { key:'bizupdate',   label:'Biz update',   color:'#6b4f9e' },
+    { key:'collateral',  label:'Collateral',   color:'#3f7a52' },
+    { key:'influencer',  label:'Influencer',   color:'#86c79a' }
+  ];
+  var activeCat = 'all';
+  function renderChips() {
+    document.getElementById('chips').innerHTML = CATS.map(function(c){
+      var dot = c.key === 'all' ? '<span class="dot"></span>' : '<span class="dot" style="background:' + c.color + '"></span>';
+      return '<button class="chip ' + (c.key === 'all' ? 'all ' : '') + (c.key === activeCat ? 'active' : '') + '" data-cat="' + c.key + '">' + dot + c.label + '</button>';
+    }).join('');
+    document.querySelectorAll('.chip').forEach(function(ch){
+      ch.addEventListener('click', function(){ activeCat = ch.dataset.cat; renderChips(); /* filters events once a source is connected */ });
+    });
+  }
+  renderChips();
+
+  /* ---------- month grid ---------- */
   var now = new Date();
   var MN = ['January','February','March','April','May','June','July','August','September','October','November','December'];
   document.getElementById('calMonth').textContent = MN[now.getMonth()] + ' ' + now.getFullYear();
-
   var dows = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
   var first = new Date(now.getFullYear(), now.getMonth(), 1).getDay();
   var days = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
   var cells = dows.map(function(d){ return '<div class="cal-dow">' + d + '</div>'; });
   for (var i = 0; i < first; i++) cells.push('<div class="cal-cell blank"></div>');
-  for (var d = 1; d <= days; d++) {
-    var isToday = d === now.getDate();
-    cells.push('<div class="cal-cell' + (isToday ? ' today' : '') + '">' + d + '</div>');
-  }
+  for (var d = 1; d <= days; d++) cells.push('<div class="cal-cell' + (d === now.getDate() ? ' today' : '') + '">' + d + '</div>');
   document.getElementById('calGrid').innerHTML = cells.join('');
 
-  function noData() {
-    alert('Connect your calendar source (or your backend) in Setup to start scheduling campaigns.');
+  /* ---------- Add to Google Calendar (kept from the live product) ---------- */
+  // Copies the brand's own calendar feed URL to the clipboard and opens
+  // Google Calendar's "add by URL" page, so a user subscribes in two clicks.
+  function addToGoogle() {
+    var feed = (window.Brand.get().calendarFeedUrl || '').trim();
+    if (!feed) {
+      alert('Add your calendar feed URL in Setup first, then this copies it and opens Google Calendar for a one-paste subscribe.');
+      window.open('setup.html', '_self');
+      return;
+    }
+    if (navigator.clipboard) navigator.clipboard.writeText(feed).catch(function(){});
+    window.open('https://calendar.google.com/calendar/r/settings/addbyurl', '_blank', 'noopener');
   }
+
+  /* ---------- Export .ics (kept from the live product) ---------- */
+  function escICS(s){ return String(s||'').replace(/\\/g,'\\\\').replace(/;/g,'\\;').replace(/,/g,'\\,').replace(/\n/g,'\\n'); }
+  function generateICS(evts){
+    var raw = ['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Marketing Hub//Calendar//EN','CALSCALE:GREGORIAN','METHOD:PUBLISH',
+      'X-WR-CALNAME:' + escICS((window.Brand.get().name || 'Brand') + ' Marketing Calendar')];
+    (evts || []).forEach(function(ev){
+      raw.push('BEGIN:VEVENT','UID:' + ev.id + '@marketinghub','DTSTART;VALUE=DATE:' + ev.start.replace(/-/g,''),
+        'SUMMARY:' + escICS(ev.name || ''),'END:VEVENT');
+    });
+    raw.push('END:VCALENDAR');
+    return raw.join('\r\n');
+  }
+  function exportICS(){
+    var evts = []; // no events until a source is connected
+    var content = generateICS(evts);
+    var blob = new Blob([content], { type:'text/calendar;charset=utf-8' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    var slug = (window.Brand.get().name || 'brand').toLowerCase().replace(/[^a-z0-9]+/g,'-');
+    a.href = url; a.download = slug + '-marketing-calendar.ics';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(function(){ URL.revokeObjectURL(url); }, 2000);
+    if (!evts.length) setTimeout(function(){ alert('Exported an empty calendar — campaigns will be included once you add them or connect a source.'); }, 100);
+  }
+
+  function noData(){ alert('Connect your calendar source (or your backend) in Setup to start scheduling campaigns.'); }
 </script>
 </body>
 </html>

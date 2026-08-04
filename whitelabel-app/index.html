@@ -10,6 +10,7 @@
 <!-- Brand engine -->
 <script src="brand.default.js"></script>
 <script src="brand-config.js"></script>
+<script src="hub-modules.js"></script>
 <script>
   // First-run gate: if the wizard hasn't been completed, go set up the hub.
   (function () {
@@ -216,20 +217,21 @@
   em.addEventListener('keydown', function(e){ if (e.key === 'Enter') pw.focus(); });
 
   /* ---------- hub ---------- */
-  // Canonical tiles (mirror chrome-v2.js HUB_ITEMS) filtered by role.
-  var TILES = [
-    { key:'sales',    roles:['team','guest','admin'], href:'dashboard.html',              label:'Performance Marketing', sub:'Weekly & all-time KPIs', svg:'<path d="M3 17l5-5 4 4 8-8"/><path d="M14 8h6v6"/>' },
-    { key:'pmix',     roles:['team','guest','admin'], href:'pmix.html',     label:'Sales & Pmix',          sub:'Daily sales & product mix', svg:'<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>' },
-    { key:'calendar', roles:['team','guest','admin'], href:'calendar.html', label:'Marketing Calendar',    sub:'Campaigns & scheduling', svg:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 11h18"/>' },
-    { key:'assets',   roles:['team','guest','admin'], href:'assets.html',   label:'Brand Assets',          sub:'Logos & templates', svg:'<rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="M21 15l-5-5L5 21"/>' },
-    { key:'admin',    roles:['admin'],                href:'admin.html',                  label:'Admin',                 sub:'Users & setup', svg:'<circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/><path d="M18 14l1.5 1.5L22 13"/>' }
-  ];
+  // Tabs come from the shared catalog (hub-modules.js), filtered by the
+  // brand's enabled modules + any custom tabs. Home is excluded from the tile
+  // grid (this IS home); everything else — including custom tabs and Admin —
+  // shows in the order the catalog defines.
+  function hubItems(role) {
+    var all = window.HubModules.buildHubItems(role);
+    return all.filter(function (i) { return i.key !== 'home'; });
+  }
 
   function renderTiles(role) {
-    var vis = TILES.filter(function(t){ return t.roles.indexOf(role) !== -1; });
+    var vis = hubItems(role);
     document.getElementById('tileGrid').innerHTML = vis.map(function(t){
-      return '<a class="tile" href="' + t.href + '">' +
-        '<span class="tile-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">' + t.svg + '</svg></span>' +
+      var target = t.external ? ' target="_blank" rel="noopener"' : '';
+      return '<a class="tile" href="' + t.href + '"' + target + '>' +
+        '<span class="tile-ico" style="color:' + t.stroke + '"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">' + t.icon + '</svg></span>' +
         '<span><span class="tile-label">' + t.label + '</span><span class="tile-sub">' + t.sub + '</span></span></a>';
     }).join('');
   }
@@ -277,10 +279,11 @@
   overlay.addEventListener('click', function(){ window.toggleHubNav(); });
 
   function renderHubGrid(role) {
-    var vis = TILES.filter(function(t){ return t.roles.indexOf(role) !== -1; });
+    var vis = hubItems(role);
     document.getElementById('hubGrid').innerHTML = vis.map(function(t){
-      return '<a class="hub-card" href="' + t.href + '">' +
-        '<span class="hub-card-icon" style="background:var(--surface-2,#f0eee9);color:var(--brand-orange,#4f46e5)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">' + t.svg + '</svg></span>' +
+      var target = t.external ? ' target="_blank" rel="noopener"' : '';
+      return '<a class="hub-card" href="' + t.href + '"' + target + '>' +
+        '<span class="hub-card-icon" style="background:' + t.bg + ';color:' + t.stroke + '"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">' + t.icon + '</svg></span>' +
         '<span class="hub-card-title">' + t.label + '</span><span class="hub-card-sub">' + t.sub + '</span></a>';
     }).join('');
   }

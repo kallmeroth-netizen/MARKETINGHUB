@@ -65,6 +65,23 @@
       ovation: { label: 'Ovation (reviews)',         apiKey: '', status: 'not_connected' }
     },
 
+    // — Hub tabs — which built-in modules are enabled (all on by default), and
+    // any custom tabs the brand added in the wizard. Drives the hub + nav.
+    modules: {
+      sales:      true,
+      pmix:       true,
+      calendar:   true,
+      influencer: true,
+      themes:     true,
+      gantt:      true,
+      assets:     true
+    },
+    customTabs: [],   // [{ label, sub, href }] — user-added tabs (external links)
+
+    // Google Calendar feed URL for the calendar's "Add to Google Calendar"
+    // button. Empty until the brand adds their own feed.
+    calendarFeedUrl: '',
+
     // — Setup progress — the wizard marks this true on Finish so index.html
     // knows onboarding is done and stops force-redirecting to setup.
     setupComplete: false
