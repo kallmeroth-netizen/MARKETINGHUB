@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Performance Marketing — {{BRAND}}</title>
+<meta name="theme-color" content="#0071e3">
+<link rel="stylesheet" href="theme.css">
+
+<script src="brand.default.js"></script>
+<script src="brand-config.js"></script>
+<script src="hub-modules.js"></script>
+<script src="brand-apply.js" defer></script>
+<script src="chrome-v2.js" defer></script>
+
+<style>
+  body { background:var(--bg,#f5f5f7); color:var(--text,#1d1d1f); font-family:var(--f-sans); }
+  .wrap { max-width:1040px; margin:0 auto; padding:28px 20px 80px; }
+  .page-h { font-size:26px; font-weight:700; letter-spacing:-0.02em; margin:0 0 4px; }
+  .page-sub { font-size:13.5px; color:var(--text-2,#424245); margin:0 0 26px; }
+  .kpi-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(210px,1fr)); gap:16px; margin-bottom:26px; }
+  .kpi { background:var(--surface,#fff); border:1px solid var(--line,rgba(0,0,0,0.06)); border-radius:18px; padding:18px 20px; box-shadow:var(--shadow-sm); }
+  .kpi .k-label { font-size:12px; font-weight:600; color:var(--text-3,#6e6e73); text-transform:uppercase; letter-spacing:.06em; }
+  .kpi .k-val { font-size:30px; font-weight:700; letter-spacing:-0.02em; margin-top:8px; color:var(--text-mute,#aeaeb2); }
+  .kpi .k-note { font-size:11.5px; color:var(--text-3,#6e6e73); margin-top:6px; }
+  .empty {
+    background:var(--surface,#fff); border:1px solid var(--line,rgba(0,0,0,0.06));
+    border-radius:20px; padding:44px 28px; text-align:center; box-shadow:var(--shadow-sm);
+  }
+  .empty .ic { width:52px; height:52px; border-radius:15px; background:var(--surface-2,#f5f5f7); display:grid; place-items:center; margin:0 auto 16px; color:var(--brand-orange,#0071e3); }
+  .empty h3 { font-size:18px; font-weight:600; letter-spacing:-0.01em; margin:0 0 6px; }
+  .empty p { font-size:14px; color:var(--text-2,#424245); max-width:440px; margin:0 auto 18px; line-height:1.55; }
+  .empty a { display:inline-block; padding:11px 22px; border-radius:100px; background:var(--brand-orange,#0071e3); color:#fff; font-size:14px; font-weight:500; text-decoration:none; box-shadow:var(--shadow-orange); }
+</style>
+</head>
+<body data-page-tag="Performance">
+
+<div id="np-nav-placeholder"></div>
+
+<div class="wrap">
+  <h1 class="page-h">Performance Marketing</h1>
+  <p class="page-sub">Weekly &amp; all-time KPIs · <span data-brand-name>Your Brand</span></p>
+
+  <div class="kpi-grid" id="kpiGrid"></div>
+
+  <div class="empty">
+    <div class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/></svg></div>
+    <h3>No data yet</h3>
+    <p id="emptyMsg">Connect a data source to populate your performance dashboard. Once a source is linked, weekly and all-time KPIs will appear here automatically.</p>
+    <a href="setup.html">Connect a data source →</a>
+  </div>
+</div>
+
+<script>
+  // KPI shells — deliberately empty. Values render from data/*.json, which
+  // ship as empty scaffolds so no numbers are shown until a brand connects
+  // their own backend.
+  var KPIS = [
+    { label:'Net Sales',        note:'This week' },
+    { label:'Check Count',      note:'This week' },
+    { label:'Avg Check',        note:'This week' },
+    { label:'Social Reach',     note:'Last 28 days' },
+    { label:'Ad Spend',         note:'This week' }
+  ];
+  document.getElementById('kpiGrid').innerHTML = KPIS.map(function(k){
+    return '<div class="kpi"><div class="k-label">' + k.label + '</div><div class="k-val">—</div><div class="k-note">' + k.note + ' · no data</div></div>';
+  }).join('');
+
+  // No-API path: if a Google Sheet is connected, read it live so the pipe is
+  // proven end-to-end (row count shown). Column→KPI mapping is per-brand and
+  // wired once their sheet layout is known.
+  (function () {
+    var sheet = (window.Brand.get().sheetSource) || {};
+    if (!sheet.url) return;
+    var msg = document.getElementById('emptyMsg');
+    if (msg) msg.textContent = 'Reading from your Google Sheet…';
+    fetch(sheet.url, { redirect: 'follow' }).then(function (r) {
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.text();
+    }).then(function (text) {
+      if (/^\s*</.test(text)) throw new Error('not published as CSV');
+      var rows = text.split(/\r?\n/).filter(function (l) { return l.trim(); });
+      if (msg) msg.textContent = 'Connected to your Google Sheet — ' + Math.max(0, rows.length - 1) +
+        ' data row(s) synced. Map your sheet columns to these KPIs to populate them.';
+    }).catch(function (e) {
+      if (msg) msg.textContent = 'Google Sheet set, but could not read it (' + (e.message || e) +
+        '). Re-check it is Published to web as CSV in Setup.';
+    });
+  })();
+</script>
+</body>
+</html>

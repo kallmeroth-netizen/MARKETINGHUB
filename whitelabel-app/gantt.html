@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Gantt — {{BRAND}}</title>
+<meta name="theme-color" content="#0071e3">
+<link rel="stylesheet" href="theme.css">
+
+<script src="brand.default.js"></script>
+<script src="brand-config.js"></script>
+<script src="hub-modules.js"></script>
+<script src="brand-apply.js" defer></script>
+<script src="chrome-v2.js" defer></script>
+
+<style>
+  body { background:var(--bg,#f5f5f7); color:var(--text,#1d1d1f); font-family:var(--f-sans); }
+  .wrap { max-width:1040px; margin:0 auto; padding:28px 20px 80px; }
+  .page-h { font-size:26px; font-weight:700; letter-spacing:-0.02em; margin:0 0 4px; }
+  .page-sub { font-size:13.5px; color:var(--text-2,#424245); margin:0 0 26px; }
+  .gantt { background:var(--surface,#fff); border:1px solid var(--line,rgba(0,0,0,0.06)); border-radius:20px; box-shadow:var(--shadow-sm); overflow:hidden; }
+  .g-head { display:grid; grid-template-columns:180px 1fr; border-bottom:1px solid var(--line,rgba(0,0,0,0.06)); }
+  .g-head .lbl { padding:12px 18px; font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.06em; color:var(--text-3,#6e6e73); }
+  .g-months { display:grid; grid-template-columns:repeat(6,1fr); }
+  .g-months span { padding:12px 8px; font-size:11px; font-weight:600; color:var(--text-3,#6e6e73); border-left:1px solid var(--line,rgba(0,0,0,0.05)); }
+  .g-row { display:grid; grid-template-columns:180px 1fr; border-bottom:1px solid var(--line,rgba(0,0,0,0.05)); }
+  .g-row:last-child { border-bottom:none; }
+  .g-row .name { padding:16px 18px; font-size:13px; color:var(--text-3,#6e6e73); }
+  .g-track { position:relative; border-left:1px solid var(--line,rgba(0,0,0,0.05)); }
+  .g-bar { position:absolute; top:50%; transform:translateY(-50%); height:14px; border-radius:100px; background:var(--surface-2,#eef1f5); }
+  .empty-note { text-align:center; padding:26px 20px; }
+  .empty-note p { font-size:13.5px; color:var(--text-2,#424245); margin:0; }
+</style>
+</head>
+<body data-page-tag="Gantt">
+
+<div id="np-nav-placeholder"></div>
+
+<div class="wrap">
+  <h1 class="page-h">Gantt</h1>
+  <p class="page-sub">Timeline &amp; rollout · <span data-brand-name>Your Brand</span></p>
+
+  <div class="gantt">
+    <div class="g-head">
+      <div class="lbl">Initiative</div>
+      <div class="g-months" id="gMonths"></div>
+    </div>
+    <div id="gRows"></div>
+    <div class="empty-note"><p>No initiatives yet — your rollout timeline appears here once campaigns are scheduled or a source is connected.</p></div>
+  </div>
+</div>
+
+<script>
+  var MN = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  var start = new Date().getMonth();
+  var months = [];
+  for (var i = 0; i < 6; i++) months.push(MN[(start + i) % 12]);
+  document.getElementById('gMonths').innerHTML = months.map(function(m){ return '<span>' + m + '</span>'; }).join('');
+
+  // Empty skeleton rows with faint placeholder bars (structure, no real data).
+  var ROWS = [
+    { name:'Initiative 1', l:6,  w:34 },
+    { name:'Initiative 2', l:30, w:40 },
+    { name:'Initiative 3', l:52, w:28 },
+    { name:'Initiative 4', l:20, w:24 }
+  ];
+  document.getElementById('gRows').innerHTML = ROWS.map(function(r){
+    return '<div class="g-row"><div class="name">' + r.name + '</div><div class="g-track"><div class="g-bar" style="left:' + r.l + '%;width:' + r.w + '%"></div></div></div>';
+  }).join('');
+</script>
+</body>
+</html>

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Themes — {{BRAND}}</title>
+<meta name="theme-color" content="#0071e3">
+<link rel="stylesheet" href="theme.css">
+
+<script src="brand.default.js"></script>
+<script src="brand-config.js"></script>
+<script src="hub-modules.js"></script>
+<script src="brand-apply.js" defer></script>
+<script src="chrome-v2.js" defer></script>
+
+<style>
+  body { background:var(--bg,#f5f5f7); color:var(--text,#1d1d1f); font-family:var(--f-sans); }
+  .wrap { max-width:1040px; margin:0 auto; padding:28px 20px 80px; }
+  .page-h { font-size:26px; font-weight:700; letter-spacing:-0.02em; margin:0 0 4px; }
+  .page-sub { font-size:13.5px; color:var(--text-2,#424245); margin:0 0 26px; }
+  .theme-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(230px,1fr)); gap:16px; }
+  .theme { background:var(--surface,#fff); border:1px solid var(--line,rgba(0,0,0,0.06)); border-radius:18px; padding:18px 20px; box-shadow:var(--shadow-sm); }
+  .theme .m { font-size:12px; font-weight:600; color:#ff9500; text-transform:uppercase; letter-spacing:.08em; }
+  .theme .t { font-size:16px; font-weight:600; margin-top:8px; color:var(--text-mute,#aeaeb2); }
+  .theme .d { font-size:12px; color:var(--text-3,#6e6e73); margin-top:4px; }
+  .theme.cur { border-color:#ff9500; }
+</style>
+</head>
+<body data-page-tag="Themes">
+
+<div id="np-nav-placeholder"></div>
+
+<div class="wrap">
+  <h1 class="page-h">Themes</h1>
+  <p class="page-sub">Monthly marketing themes · <span data-brand-name>Your Brand</span></p>
+  <div class="theme-grid" id="themeGrid"></div>
+</div>
+
+<script>
+  var MN = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  var cur = new Date().getMonth();
+  document.getElementById('themeGrid').innerHTML = MN.map(function(m, i){
+    return '<div class="theme' + (i === cur ? ' cur' : '') + '">' +
+      '<div class="m">' + m + (i === cur ? ' · this month' : '') + '</div>' +
+      '<div class="t">Theme not set</div>' +
+      '<div class="d">Add a monthly theme once your plan is connected</div></div>';
+  }).join('');
+</script>
+</body>
+</html>

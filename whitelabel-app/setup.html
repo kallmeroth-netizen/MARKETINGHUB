@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Set up your hub — {{BRAND}}</title>
+<meta name="theme-color" content="#0071e3">
+
+<link rel="stylesheet" href="theme.css">
+
+<!-- Brand engine: defaults → active config → runtime apply -->
+<script src="brand.default.js"></script>
+<script src="brand-config.js"></script>
+<script src="hub-modules.js"></script>
+<script src="brand-apply.js" defer></script>
+
+<style>
+  body { background:var(--bg,#f5f5f7); color:var(--text,#1d1d1f); font-family:var(--f-sans); min-height:100vh; }
+
+  .wiz { display:grid; grid-template-columns:1fr 380px; gap:0; min-height:100vh; }
+  @media(max-width:920px){ .wiz { grid-template-columns:1fr; } .wiz-preview { display:none; } }
+
+  /* ---- left: steps ---- */
+  .wiz-main { padding:40px clamp(20px,5vw,64px); display:flex; flex-direction:column; }
+  .wiz-brandline { display:flex; align-items:center; gap:10px; margin-bottom:28px; }
+  .wiz-brandline img { height:30px; width:auto; }
+
+  .steps-rail { display:flex; gap:8px; margin-bottom:32px; flex-wrap:wrap; }
+  .rail-dot {
+    display:flex; align-items:center; gap:7px; font-size:12px; font-weight:600;
+    color:var(--text-3,#7a7770); padding:5px 11px; border-radius:100px;
+    border:1px solid var(--line-strong,rgba(31,35,40,0.1)); background:var(--surface,#fff);
+    transition:.2s;
+  }
+  .rail-dot .n { width:18px; height:18px; border-radius:50%; display:grid; place-items:center;
+    background:var(--surface-2,#eee); font-size:11px; color:var(--text-3,#7a7770); }
+  .rail-dot.active { color:#fff; background:var(--accent,#4f46e5); border-color:transparent; }
+  .rail-dot.active .n { background:rgba(255,255,255,0.25); color:#fff; }
+  .rail-dot.done { color:var(--accent,#4f46e5); border-color:color-mix(in srgb,var(--accent,#4f46e5) 40%,transparent); }
+  .rail-dot.done .n { background:var(--accent,#4f46e5); color:#fff; }
+
+  .panel { display:none; max-width:560px; animation:fade .35s ease; }
+  .panel.on { display:block; }
+  @keyframes fade { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:none} }
+
+  .step-kicker { font-size:12px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--accent,#4f46e5); margin-bottom:10px; }
+  .step-title { font-size:clamp(24px,3vw,32px); font-weight:700; letter-spacing:-.01em; margin-bottom:8px; line-height:1.1; }
+  .step-desc { font-size:14.5px; color:var(--text-2,#3a3d44); line-height:1.55; margin-bottom:26px; }
+
+  .field { margin-bottom:18px; }
+  .field label { display:block; font-size:12.5px; font-weight:600; color:var(--text-2,#3a3d44); margin-bottom:6px; }
+  .field .hint { font-size:12px; color:var(--text-3,#7a7770); margin-top:5px; line-height:1.5; }
+  .field .hint a { color:var(--accent,#4f46e5); }
+  .inp {
+    width:100%; padding:12px 14px; border:1.5px solid var(--line-strong,rgba(31,35,40,0.14));
+    border-radius:12px; font-family:inherit; font-size:14.5px; background:var(--surface,#fff);
+    color:var(--text,#1d1d1f); transition:border-color .2s;
+  }
+  .inp:focus { outline:none; border-color:var(--accent,#4f46e5); }
+  .row2 { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  @media(max-width:520px){ .row2 { grid-template-columns:1fr; } }
+
+  /* color pickers */
+  .swatches { display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:12px; }
+  .swatch { display:flex; align-items:center; gap:10px; padding:8px 10px; border:1px solid var(--line-strong,rgba(31,35,40,0.12)); border-radius:12px; background:var(--surface,#fff); }
+  .swatch input[type=color] { width:34px; height:34px; border:none; border-radius:9px; background:none; cursor:pointer; padding:0; }
+  .swatch .lbl { font-size:12px; }
+  .swatch .lbl b { display:block; font-weight:600; }
+  .swatch .lbl code { font-size:10.5px; color:var(--text-3,#7a7770); }
+
+  /* logo drop */
+  .logo-drop {
+    border:1.5px dashed var(--line-strong,rgba(31,35,40,0.22)); border-radius:16px;
+    padding:22px; text-align:center; background:var(--surface,#fff); cursor:pointer; transition:.2s;
+  }
+  .logo-drop:hover { border-color:var(--accent,#4f46e5); }
+  .logo-drop img { max-height:52px; max-width:220px; margin-bottom:10px; }
+  .logo-drop .dz { font-size:13px; color:var(--text-2,#3a3d44); }
+  .logo-drop .dz b { color:var(--accent,#4f46e5); }
+
+  /* source rows */
+  .src { display:flex; align-items:center; gap:12px; padding:12px 0; border-bottom:1px solid var(--line,rgba(31,35,40,0.07)); }
+  .src:last-child { border-bottom:none; }
+  .src .meta { flex:1; }
+  .src .meta b { font-size:13.5px; font-weight:600; }
+  .src .meta span { display:block; font-size:11.5px; color:var(--text-3,#7a7770); }
+  .src input { width:190px; padding:9px 11px; border:1.5px solid var(--line-strong,rgba(31,35,40,0.14)); border-radius:10px; font-size:12.5px; font-family:inherit; background:var(--surface,#fff); }
+  .src input:focus { outline:none; border-color:var(--accent,#4f46e5); }
+
+  /* tabs step */
+  .mod-row { display:flex; align-items:center; gap:12px; padding:12px 0; border-bottom:1px solid var(--line,rgba(0,0,0,0.06)); }
+  .mod-row:last-child { border-bottom:none; }
+  .mod-ic { width:34px; height:34px; border-radius:10px; display:grid; place-items:center; flex-shrink:0; }
+  .mod-ic svg { width:18px; height:18px; }
+  .mod-meta { flex:1; } .mod-meta b { font-size:14px; font-weight:600; } .mod-meta span { display:block; font-size:11.5px; color:var(--text-3,#6e6e73); }
+  .toggle { position:relative; width:44px; height:26px; border-radius:100px; background:var(--surface-2,#e5e5ea); border:none; cursor:pointer; transition:.2s; flex-shrink:0; }
+  .toggle.on { background:var(--accent,#0071e3); }
+  .toggle::after { content:''; position:absolute; top:3px; left:3px; width:20px; height:20px; border-radius:50%; background:#fff; box-shadow:0 1px 3px rgba(0,0,0,0.2); transition:.2s; }
+  .toggle.on::after { transform:translateX(18px); }
+  .sec-label { font-size:11.5px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--text-3,#6e6e73); margin:22px 0 10px; }
+  .custom-add { display:grid; grid-template-columns:1fr 1fr auto; gap:8px; align-items:center; }
+  @media(max-width:620px){ .custom-add { grid-template-columns:1fr; } }
+  .ct-row { display:flex; align-items:center; gap:10px; padding:10px 0; border-bottom:1px solid var(--line,rgba(0,0,0,0.05)); font-size:13.5px; }
+  .ct-row .rm { margin-left:auto; background:none; border:none; color:#c0392b; cursor:pointer; font-size:12px; font-weight:600; }
+  .ct-row a { color:var(--text-3,#6e6e73); font-size:11.5px; text-decoration:none; }
+  .soon-row { display:flex; align-items:center; gap:10px; padding:9px 0; font-size:13.5px; color:var(--text-3,#6e6e73); }
+  .soon-row .badge { margin-left:auto; font-size:10.5px; font-weight:600; color:var(--text-3,#6e6e73); background:var(--surface-2,#eee); padding:3px 9px; border-radius:100px; }
+  .sheet-box { margin-top:20px; padding:16px 18px; border:1px solid var(--line,rgba(0,0,0,0.08)); border-radius:14px; background:var(--surface,#fff); }
+  .sheet-box .sec-label { margin-top:0; }
+  .msg { font-size:13px; margin-top:14px; padding:11px 14px; border-radius:11px; display:none; }
+  .msg.ok  { display:block; background:#e4f5ea; color:#1e5a37; }
+  .msg.err { display:block; background:#fdeee7; color:#8a3518; }
+  .msg.info{ display:block; background:var(--surface-2,#eef); color:var(--text-2,#3a3d44); }
+
+  .nav-btns { display:flex; gap:12px; margin-top:32px; align-items:center; }
+  .btn {
+    padding:12px 24px; border-radius:12px; font-family:inherit; font-size:14px; font-weight:600;
+    cursor:pointer; border:1.5px solid transparent; transition:.2s;
+  }
+  .btn-primary { background:var(--accent,#4f46e5); color:#fff; }
+  .btn-primary:hover { filter:brightness(1.06); }
+  .btn-ghost { background:transparent; border-color:var(--line-strong,rgba(31,35,40,0.16)); color:var(--text-2,#3a3d44); }
+  .btn-ghost:hover { border-color:var(--text-3,#7a7770); }
+  .btn-text { background:none; border:none; color:var(--text-3,#7a7770); cursor:pointer; font-size:13px; font-family:inherit; }
+  .spacer { flex:1; }
+
+  /* ---- right: live preview ---- */
+  .wiz-preview { background:var(--ink,#1f2328); padding:40px 28px; position:relative; overflow:hidden; }
+  .wiz-preview .pv-label { color:rgba(255,255,255,0.5); font-size:11px; font-weight:700; letter-spacing:.16em; text-transform:uppercase; margin-bottom:18px; }
+  .pv-card { background:var(--pv-bg,#f6f6f8); border-radius:18px; overflow:hidden; box-shadow:0 24px 60px rgba(0,0,0,0.4); }
+  .pv-nav { background:rgba(255,255,255,0.9); padding:12px 16px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid rgba(0,0,0,0.06); }
+  .pv-nav img { height:22px; width:auto; }
+  .pv-nav .pv-tag { font-size:9px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:#7a7770; background:#efece2; padding:3px 8px; border-radius:100px; }
+  .pv-body { padding:18px 16px 22px; }
+  .pv-hi { font-size:17px; font-weight:700; color:var(--pv-ink,#1f2328); margin-bottom:3px; }
+  .pv-sub { font-size:11px; color:#7a7770; margin-bottom:14px; }
+  .pv-tiles { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:14px; }
+  .pv-tile { background:#fff; border:1px solid rgba(0,0,0,0.06); border-radius:12px; padding:10px; }
+  .pv-tile .ic { width:26px; height:26px; border-radius:8px; display:grid; place-items:center; margin-bottom:7px; }
+  .pv-tile .ic svg { width:15px; height:15px; }
+  .pv-tile b { display:block; font-size:11px; color:var(--pv-ink,#1f2328); }
+  .pv-tile span { font-size:9px; color:#9a978f; }
+  .pv-btn { display:inline-block; padding:8px 16px; border-radius:100px; background:var(--pv-primary,#4f46e5); color:#fff; font-size:11px; font-weight:600; }
+</style>
+</head>
+<body>
+<div class="wiz">
+  <!-- ================= LEFT: STEPS ================= -->
+  <div class="wiz-main">
+    <div class="wiz-brandline">
+      <img data-brand-logo src="assets/placeholder-logo.svg" alt="Brand">
+    </div>
+
+    <div class="steps-rail" id="rail"></div>
+
+    <!-- Step 1: Sign up / backend -->
+    <section class="panel on" data-step="0">
+      <div class="step-kicker">Step 1 · Create your account</div>
+      <h1 class="step-title">Sign up &amp; connect your backend</h1>
+      <p class="step-desc">Your hub runs on your own Supabase project, so your data stays yours. Paste your project's URL and anon key, then create the first admin login. Don't have one yet? You can <b>skip</b> and set up your branding first.</p>
+
+      <div class="field">
+        <label for="sbUrl">Supabase project URL</label>
+        <input class="inp" id="sbUrl" type="url" placeholder="https://xxxxxxxx.supabase.co" autocomplete="off">
+        <div class="hint">Supabase → Project Settings → API → <b>Project URL</b>. New here? Create a free project at <a href="https://supabase.com" target="_blank" rel="noopener">supabase.com</a>.</div>
+      </div>
+      <div class="field">
+        <label for="sbKey">Supabase anon key</label>
+        <input class="inp" id="sbKey" type="text" placeholder="eyJhbGci…" autocomplete="off">
+        <div class="hint">Same page → <b>Project API keys</b> → <b>anon / public</b>. This key is safe in the browser.</div>
+      </div>
+      <div class="row2">
+        <div class="field">
+          <label for="adEmail">Admin email</label>
+          <input class="inp" id="adEmail" type="email" placeholder="you@company.com" autocomplete="off">
+        </div>
+        <div class="field">
+          <label for="adPass">Admin password</label>
+          <input class="inp" id="adPass" type="password" placeholder="Choose a password" autocomplete="new-password">
+        </div>
+      </div>
+      <div class="msg" id="acctMsg"></div>
+
+      <div class="nav-btns">
+        <button class="btn btn-primary" onclick="createAccount()" id="acctBtn">Create admin account →</button>
+        <button class="btn btn-text" onclick="next()">Skip for now</button>
+      </div>
+    </section>
+
+    <!-- Step 2: Brand name -->
+    <section class="panel" data-step="1">
+      <div class="step-kicker">Step 2 · Your identity</div>
+      <h1 class="step-title">What's your brand called?</h1>
+      <p class="step-desc">This name replaces the placeholder everywhere — the nav, the hub menu, page titles, sign-in screen.</p>
+      <div class="field">
+        <label for="bName">Brand / company name</label>
+        <input class="inp" id="bName" type="text" placeholder="Acme Coffee Co." oninput="livePreview()">
+      </div>
+      <div class="field">
+        <label for="bTag">Tagline / product label</label>
+        <input class="inp" id="bTag" type="text" placeholder="Marketing Hub" oninput="livePreview()">
+        <div class="hint">Shown under the logo and in the hub menu (e.g. "Acme Marketing Hub").</div>
+      </div>
+      <div class="field">
+        <label for="bGreet">Sign-in greeting</label>
+        <input class="inp" id="bGreet" type="text" placeholder="Welcome back." oninput="livePreview()">
+        <div class="hint">The opening line typed out on your sign-in screen. Keep it short and on-brand.</div>
+      </div>
+      <div class="nav-btns">
+        <button class="btn btn-ghost" onclick="prev()">← Back</button>
+        <button class="btn btn-primary" onclick="next()">Continue →</button>
+      </div>
+    </section>
+
+    <!-- Step 3: Logo -->
+    <section class="panel" data-step="2">
+      <div class="step-kicker">Step 3 · Your logo</div>
+      <h1 class="step-title">Add your logo</h1>
+      <p class="step-desc">Drops straight into the same spot the placeholder sits now — top-left of the nav and on the sign-in screen. A wide/horizontal PNG or SVG works best.</p>
+      <div class="logo-drop" id="logoDrop" onclick="document.getElementById('logoFile').click()">
+        <img id="logoThumb" src="assets/placeholder-logo.svg" alt="logo preview">
+        <div class="dz"><b>Click to upload</b> or drag a file here — PNG, SVG or JPG</div>
+      </div>
+      <input type="file" id="logoFile" accept="image/*" hidden onchange="onLogoFile(event)">
+      <div class="field" style="margin-top:16px">
+        <label for="logoUrl">…or paste a logo URL</label>
+        <input class="inp" id="logoUrl" type="url" placeholder="https://yoursite.com/logo.png" oninput="onLogoUrl()">
+        <div class="hint">Leave everything blank to keep the neutral placeholder for now.</div>
+      </div>
+      <div class="nav-btns">
+        <button class="btn btn-ghost" onclick="prev()">← Back</button>
+        <button class="btn btn-primary" onclick="next()">Continue →</button>
+      </div>
+    </section>
+
+    <!-- Step 4: Colors -->
+    <section class="panel" data-step="3">
+      <div class="step-kicker">Step 4 · Your colors</div>
+      <h1 class="step-title">Brand colors</h1>
+      <p class="step-desc">Pick your palette — the preview on the right updates live. Primary drives buttons and highlights; the hue set keeps the hub tiles visually distinct.</p>
+      <div class="swatches" id="swatches"></div>
+      <div class="nav-btns">
+        <button class="btn btn-ghost" onclick="prev()">← Back</button>
+        <button class="btn btn-text" onclick="resetColors()">Reset to defaults</button>
+        <div class="spacer"></div>
+        <button class="btn btn-primary" onclick="next()">Continue →</button>
+      </div>
+    </section>
+
+    <!-- Step 5: Data sources -->
+    <section class="panel" data-step="4">
+      <div class="step-kicker">Step 5 · Connect your data</div>
+      <h1 class="step-title">Add your API keys</h1>
+      <p class="step-desc">Paste an API key to connect a source, or leave it blank — anything empty simply shows as "Not connected" and you can wire it up later from Admin.</p>
+      <div id="sources"></div>
+      <div class="field" style="margin-top:18px">
+        <label for="calFeed">Calendar feed URL (optional)</label>
+        <input class="inp" id="calFeed" type="url" placeholder="https://yoursite.com/api/calendar" oninput="onCalFeed()">
+        <div class="hint">Powers the calendar's <b>Add to Google Calendar</b> button — the ICS/feed URL your team subscribes to.</div>
+      </div>
+
+      <!-- No-API path: Google Sheet automation -->
+      <div class="sheet-box">
+        <div class="sec-label">No API? Use a Google Sheet</div>
+        <p style="font-size:12.5px;color:var(--text-2,#424245);margin:0 0 12px;line-height:1.55">
+          Keep your numbers in a Google Sheet and the hub reads them — no developer needed. In your sheet:
+          <b>File → Share → Publish to web → (choose the tab) → CSV</b>, then paste that link here and hit Test.
+          Update the sheet by hand or automate it (Apps Script, Zapier, Make) — the hub always shows the latest.
+        </p>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <input class="inp" id="sheetUrl" type="url" placeholder="https://docs.google.com/…/pub?output=csv" style="flex:1;min-width:240px" oninput="onSheetUrl()">
+          <button class="btn btn-ghost" type="button" onclick="testSheet()" id="sheetTestBtn">Test connection</button>
+        </div>
+        <div class="msg" id="sheetMsg"></div>
+      </div>
+
+      <div class="nav-btns">
+        <button class="btn btn-ghost" onclick="prev()">← Back</button>
+        <button class="btn btn-primary" onclick="next()">Continue →</button>
+      </div>
+    </section>
+
+    <!-- Step 6: Tabs -->
+    <section class="panel" data-step="5">
+      <div class="step-kicker">Step 6 · Your tabs</div>
+      <h1 class="step-title">Choose your tabs</h1>
+      <p class="step-desc">Turn on the modules you want in your hub — the same set our product ships with — and add your own tabs (any link) too. Toggle anything off and it disappears from the hub and menu.</p>
+      <div id="moduleList"></div>
+
+      <div class="tabs-add">
+        <div class="sec-label">Add your own tab</div>
+        <div class="custom-add">
+          <input class="inp" id="ctLabel" type="text" placeholder="Tab name (e.g. Docs)">
+          <input class="inp" id="ctHref" type="url" placeholder="https://link-to-open.com">
+          <button class="btn btn-ghost" type="button" onclick="addCustomTab()">Add tab</button>
+        </div>
+        <div id="customList"></div>
+      </div>
+
+      <div class="tabs-soon">
+        <div class="sec-label">Coming soon</div>
+        <div id="comingList"></div>
+      </div>
+
+      <div class="nav-btns">
+        <button class="btn btn-ghost" onclick="prev()">← Back</button>
+        <button class="btn btn-primary" onclick="next()">Continue →</button>
+      </div>
+    </section>
+
+    <!-- Step 7: Finish -->
+    <section class="panel" data-step="6">
+      <div class="step-kicker">Step 7 · You're set</div>
+      <h1 class="step-title">Your hub is ready</h1>
+      <p class="step-desc">Everything's saved. Your logo, name and colors are now live across every page. Invite your team from Admin whenever you're ready.</p>
+      <div class="field">
+        <label>Invite teammates (optional — comma-separated emails)</label>
+        <input class="inp" id="invites" type="text" placeholder="sam@acme.com, jo@acme.com">
+        <div class="hint">Saved as a to-do; send the actual invites from Admin → Invite a user once your backend is connected.</div>
+      </div>
+      <div class="msg info" id="finishMsg" style="display:block">Review the live preview → that's exactly how your hub will look.</div>
+      <div class="nav-btns">
+        <button class="btn btn-ghost" onclick="prev()">← Back</button>
+        <button class="btn btn-primary" onclick="finish()">Finish &amp; open my hub →</button>
+      </div>
+    </section>
+  </div>
+
+  <!-- ================= RIGHT: LIVE PREVIEW ================= -->
+  <aside class="wiz-preview">
+    <div class="pv-label">Live preview</div>
+    <div class="pv-card" id="pvCard">
+      <div class="pv-nav">
+        <img id="pvLogo" src="assets/placeholder-logo.svg" alt="logo">
+        <span class="pv-tag" id="pvTag">Home</span>
+      </div>
+      <div class="pv-body">
+        <div class="pv-hi" id="pvHi">Welcome back.</div>
+        <div class="pv-sub" id="pvSub">Welcome to your Marketing Hub</div>
+        <div class="pv-tiles">
+          <div class="pv-tile"><div class="ic" id="pvic1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 17l5-5 4 4 8-8"/><path d="M14 8h6v6"/></svg></div><b>Performance</b><span>Weekly KPIs</span></div>
+          <div class="pv-tile"><div class="ic" id="pvic2"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 10h18M8 2v4M16 2v4"/></svg></div><b>Calendar</b><span>Campaigns</span></div>
+        </div>
+        <span class="pv-btn" id="pvBtn">Enter →</span>
+      </div>
+    </div>
+  </aside>
+</div>
+
+<script>
+(function () {
+  'use strict';
+  var STEPS = ['Account','Name','Logo','Colors','Data','Tabs','Finish'];
+  var step = 0;
+  // Working copy seeded from any partially-saved config.
+  var cfg = JSON.parse(JSON.stringify(window.Brand.get()));
+
+  var COLOR_FIELDS = [
+    { key:'primary', label:'Primary', desc:'Buttons & accents' },
+    { key:'accent',  label:'Accent',  desc:'Secondary highlight' },
+    { key:'ink',     label:'Ink',     desc:'Text & logo tint' },
+    { key:'bg',      label:'Background', desc:'Page background' },
+    { key:'yellow',  label:'Tile · warm',  desc:'Hub tile hue' },
+    { key:'green',   label:'Tile · green', desc:'Hub tile hue' },
+    { key:'blue',    label:'Tile · blue',  desc:'Hub tile hue' },
+    { key:'lavender',label:'Tile · violet',desc:'Hub tile hue' }
+  ];
+
+  var SOURCES = [
+    { key:'toast',   label:'Toast',   sub:'POS · sales & product mix' },
+    { key:'meta',    label:'Meta',    sub:'Facebook / Instagram reach' },
+    { key:'google',  label:'Google',  sub:'Analytics & Ads' },
+    { key:'ovation', label:'Ovation', sub:'Guest reviews' }
+  ];
+
+  /* ---------- render scaffolding ---------- */
+  function renderRail() {
+    document.getElementById('rail').innerHTML = STEPS.map(function (s, i) {
+      var cls = i === step ? 'active' : (i < step ? 'done' : '');
+      return '<div class="rail-dot ' + cls + '"><span class="n">' + (i < step ? '✓' : (i + 1)) + '</span>' + s + '</div>';
+    }).join('');
+  }
+  function show(i) {
+    step = Math.max(0, Math.min(STEPS.length - 1, i));
+    document.querySelectorAll('.panel').forEach(function (p) {
+      p.classList.toggle('on', +p.dataset.step === step);
+    });
+    renderRail();
+    window.scrollTo(0, 0);
+  }
+
+  function renderSwatches() {
+    document.getElementById('swatches').innerHTML = COLOR_FIELDS.map(function (f) {
+      var v = cfg.colors[f.key];
+      return '<div class="swatch">' +
+        '<input type="color" value="' + v + '" data-ck="' + f.key + '">' +
+        '<div class="lbl"><b>' + f.label + '</b><code>' + v + '</code></div>' +
+      '</div>';
+    }).join('');
+    document.querySelectorAll('#swatches input[type=color]').forEach(function (inp) {
+      inp.addEventListener('input', function () {
+        cfg.colors[inp.dataset.ck] = inp.value;
+        inp.parentElement.querySelector('code').textContent = inp.value;
+        livePreview();
+      });
+    });
+  }
+
+  /* ---------- step 6: tabs ---------- */
+  function renderModules() {
+    var mods = (window.HubModules && window.HubModules.MODULES) || [];
+    document.getElementById('moduleList').innerHTML = mods.map(function(m){
+      var on = cfg.modules[m.key] !== false;
+      var svg = '<svg viewBox="0 0 24 24" fill="none" stroke="' + m.stroke + '" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + m.icon + '</svg>';
+      return '<div class="mod-row">' +
+        '<div class="mod-ic" style="background:' + m.bg + '">' + svg + '</div>' +
+        '<div class="mod-meta"><b>' + m.label + '</b><span>' + m.sub + '</span></div>' +
+        '<button type="button" class="toggle ' + (on ? 'on' : '') + '" data-mod="' + m.key + '" aria-label="Toggle ' + m.label + '"></button>' +
+      '</div>';
+    }).join('');
+    document.querySelectorAll('#moduleList .toggle').forEach(function(t){
+      t.addEventListener('click', function(){
+        var k = t.dataset.mod, on = !t.classList.contains('on');
+        t.classList.toggle('on', on);
+        cfg.modules[k] = on;
+      });
+    });
+  }
+
+  function renderCustomTabs() {
+    var list = cfg.customTabs || [];
+    document.getElementById('customList').innerHTML = list.map(function(t, i){
+      return '<div class="ct-row"><b>' + escapeHtml(t.label) + '</b>&nbsp;<a href="' + escapeHtml(t.href) + '" target="_blank" rel="noopener">' + escapeHtml(t.href) + '</a>' +
+        '<button type="button" class="rm" data-i="' + i + '">Remove</button></div>';
+    }).join('');
+    document.querySelectorAll('#customList .rm').forEach(function(b){
+      b.addEventListener('click', function(){ cfg.customTabs.splice(+b.dataset.i, 1); renderCustomTabs(); });
+    });
+  }
+  window.addCustomTab = function() {
+    var label = document.getElementById('ctLabel').value.trim();
+    var href  = document.getElementById('ctHref').value.trim();
+    if (!label || !href) { alert('Enter both a tab name and a link.'); return; }
+    if (!/^https?:\/\//i.test(href)) href = 'https://' + href;
+    cfg.customTabs = cfg.customTabs || [];
+    cfg.customTabs.push({ label: label, href: href, sub: 'Custom tab' });
+    document.getElementById('ctLabel').value = '';
+    document.getElementById('ctHref').value = '';
+    renderCustomTabs();
+  };
+  function escapeHtml(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
+
+  function renderComing() {
+    var soon = (window.HubModules && window.HubModules.COMING_SOON) || [];
+    document.getElementById('comingList').innerHTML = soon.map(function(s){
+      return '<div class="soon-row"><b style="font-weight:600;color:var(--text-2,#424245)">' + s.label + '</b>&nbsp;<span>' + s.sub + '</span><span class="badge">Soon</span></div>';
+    }).join('');
+  }
+
+  window.onCalFeed = function() { cfg.calendarFeedUrl = document.getElementById('calFeed').value.trim(); };
+
+  /* ---------- Google Sheet automation (no-API path) ---------- */
+  window.onSheetUrl = function() {
+    cfg.sheetSource = cfg.sheetSource || {};
+    cfg.sheetSource.url = document.getElementById('sheetUrl').value.trim();
+    cfg.sheetSource.status = 'not_connected';
+  };
+  window.testSheet = async function() {
+    var url = document.getElementById('sheetUrl').value.trim();
+    var msg = document.getElementById('sheetMsg');
+    var btn = document.getElementById('sheetTestBtn');
+    msg.className = 'msg';
+    if (!url) { msg.className = 'msg err'; msg.textContent = 'Paste your published Google Sheet CSV link first.'; return; }
+    if (!/docs\.google\.com/.test(url) || !/output=csv|\/pub/.test(url)) {
+      msg.className = 'msg info';
+      msg.textContent = 'Tip: this should be the “Publish to web → CSV” link (contains /pub and output=csv). Testing anyway…';
+    }
+    btn.disabled = true; var old = btn.textContent; btn.textContent = 'Testing…';
+    try {
+      var resp = await fetch(url, { redirect: 'follow' });
+      if (!resp.ok) throw new Error('HTTP ' + resp.status);
+      var text = await resp.text();
+      // A published CSV is comma/newline text; an un-published sheet returns HTML.
+      if (/^\s*</.test(text)) throw new Error('That link returned a web page, not CSV — make sure the sheet is Published to web as CSV (not just shared).');
+      var rows = text.split(/\r?\n/).filter(function(l){ return l.trim().length; });
+      var cols = (rows[0] || '').split(',').length;
+      cfg.sheetSource = { url: url, status: 'connected', rows: rows.length };
+      msg.className = 'msg ok';
+      msg.textContent = 'Connected — read ' + rows.length + ' row' + (rows.length===1?'':'s') + ' × ' + cols + ' column' + (cols===1?'':'s') + '. The hub can now pull from this sheet.';
+    } catch (e) {
+      cfg.sheetSource = { url: url, status: 'not_connected', rows: 0 };
+      msg.className = 'msg err';
+      msg.textContent = 'Could not read the sheet: ' + (e.message || e) + ' — confirm it is Published to web as CSV and the link is public.';
+    }
+    btn.disabled = false; btn.textContent = old;
+  };
+
+  function renderSources() {
+    document.getElementById('sources').innerHTML = SOURCES.map(function (s) {
+      var cur = (cfg.dataSources[s.key] && cfg.dataSources[s.key].apiKey) || '';
+      return '<div class="src">' +
+        '<div class="meta"><b>' + s.label + '</b><span>' + s.sub + '</span></div>' +
+        '<input type="text" placeholder="add API key" value="' + cur + '" data-src="' + s.key + '">' +
+      '</div>';
+    }).join('');
+    document.querySelectorAll('#sources input').forEach(function (inp) {
+      inp.addEventListener('input', function () {
+        var k = inp.dataset.src, val = inp.value.trim();
+        cfg.dataSources[k].apiKey = val;
+        cfg.dataSources[k].status = val ? 'connected' : 'not_connected';
+      });
+    });
+  }
+
+  /* ---------- live preview ---------- */
+  function livePreview() {
+    var name = document.getElementById('bName').value.trim() || 'Your Brand';
+    var tag  = document.getElementById('bTag').value.trim() || 'Marketing Hub';
+    var greet = document.getElementById('bGreet').value.trim() || 'Welcome back.';
+    cfg.name = name; cfg.tagline = tag; cfg.greeting = greet;
+    document.getElementById('pvHi').textContent = greet;
+    document.getElementById('pvSub').textContent = 'Welcome to your ' + tag;
+    var c = cfg.colors;
+    var card = document.getElementById('pvCard');
+    card.style.setProperty('--pv-primary', c.primary);
+    card.style.setProperty('--pv-bg', c.bg);
+    card.style.setProperty('--pv-ink', c.ink);
+    document.getElementById('pvBtn').style.background = c.primary;
+    document.getElementById('pvic1').style.background = shadeMix(c.yellow);
+    document.getElementById('pvic1').style.color = c.yellow;
+    document.getElementById('pvic2').style.background = shadeMix(c.green);
+    document.getElementById('pvic2').style.color = c.green;
+  }
+  function shadeMix(hex) { return 'color-mix(in srgb,' + hex + ' 18%, #fff)'; }
+
+  function refreshLogoPreviews() {
+    var src = cfg.logoUrl && cfg.logoUrl.trim() ? cfg.logoUrl : 'assets/placeholder-logo.svg';
+    document.getElementById('logoThumb').src = src;
+    document.getElementById('pvLogo').src = src;
+  }
+
+  /* ---------- step 1: account ---------- */
+  window.createAccount = async function () {
+    var msg = document.getElementById('acctMsg');
+    var btn = document.getElementById('acctBtn');
+    var url = document.getElementById('sbUrl').value.trim();
+    var key = document.getElementById('sbKey').value.trim();
+    var email = document.getElementById('adEmail').value.trim();
+    var pass = document.getElementById('adPass').value;
+    msg.className = 'msg';
+
+    if (!url || !key) { msg.className = 'msg err'; msg.textContent = 'Enter your Supabase URL and anon key (or Skip for now).'; return; }
+    if (!email || pass.length < 6) { msg.className = 'msg err'; msg.textContent = 'Enter an admin email and a password of at least 6 characters.'; return; }
+
+    // Persist backend now so np-data.js can build a client on this page.
+    cfg.supabase.url = url; cfg.supabase.anonKey = key;
+    window.Brand.save({ supabase: { url: url, anonKey: key } });
+
+    if (!window.supabase) { msg.className = 'msg err'; msg.textContent = 'Supabase library not loaded — check your connection and retry.'; return; }
+    btn.disabled = true; btn.textContent = 'Creating…';
+    try {
+      var client = window.supabase.createClient(url, key, { auth: { flowType: 'implicit' } });
+      var res = await client.auth.signUp({ email: email, password: pass, options: { data: { role: 'admin' } } });
+      if (res.error) { msg.className = 'msg err'; msg.textContent = res.error.message; btn.disabled = false; btn.textContent = 'Create admin account →'; return; }
+      msg.className = 'msg ok';
+      msg.textContent = 'Admin account created. If email confirmation is on, confirm via the link, then continue.';
+      btn.textContent = 'Created ✓';
+      setTimeout(next, 900);
+    } catch (e) {
+      msg.className = 'msg err'; msg.textContent = 'Could not reach Supabase: ' + (e.message || e);
+      btn.disabled = false; btn.textContent = 'Create admin account →';
+    }
+  };
+
+  /* ---------- step 3: logo ---------- */
+  window.onLogoFile = function (ev) {
+    var file = ev.target.files && ev.target.files[0];
+    if (!file) return;
+    if (file.size > 900 * 1024) { alert('Please use an image under ~900 KB (it is stored inline).'); return; }
+    var reader = new FileReader();
+    reader.onload = function () { cfg.logoUrl = reader.result; document.getElementById('logoUrl').value = ''; refreshLogoPreviews(); };
+    reader.readAsDataURL(file);
+  };
+  window.onLogoUrl = function () {
+    cfg.logoUrl = document.getElementById('logoUrl').value.trim();
+    refreshLogoPreviews();
+  };
+
+  // drag & drop
+  var drop = document.getElementById('logoDrop');
+  ['dragover','dragenter'].forEach(function (e) { drop.addEventListener(e, function (ev) { ev.preventDefault(); drop.style.borderColor = 'var(--accent,#4f46e5)'; }); });
+  ['dragleave','drop'].forEach(function (e) { drop.addEventListener(e, function (ev) { ev.preventDefault(); drop.style.borderColor = ''; }); });
+  drop.addEventListener('drop', function (ev) {
+    var f = ev.dataTransfer.files && ev.dataTransfer.files[0];
+    if (f) window.onLogoFile({ target: { files: [f] } });
+  });
+
+  /* ---------- step 4: colors ---------- */
+  window.resetColors = function () {
+    cfg.colors = JSON.parse(JSON.stringify(window.WL_DEFAULT_BRAND.colors));
+    renderSwatches(); livePreview();
+  };
+
+  /* ---------- nav ---------- */
+  function saveProgress() { window.Brand.save(cfg); }
+
+  window.next = function () {
+    if (step === 1) livePreview();       // capture name/tagline
+    saveProgress();
+    show(step + 1);
+  };
+  window.prev = function () { saveProgress(); show(step - 1); };
+
+  window.finish = function () {
+    cfg.setupComplete = true;
+    var invites = document.getElementById('invites').value.trim();
+    if (invites) cfg.pendingInvites = invites.split(',').map(function (s) { return s.trim(); }).filter(Boolean);
+    window.Brand.save(cfg);
+    window.location.href = 'index.html';
+  };
+
+  /* ---------- seed inputs from cfg ---------- */
+  function seed() {
+    document.getElementById('sbUrl').value = cfg.supabase.url || '';
+    document.getElementById('sbKey').value = cfg.supabase.anonKey || '';
+    document.getElementById('bName').value = (cfg.name && cfg.name !== 'Your Brand') ? cfg.name : '';
+    document.getElementById('bTag').value  = (cfg.tagline && cfg.tagline !== 'Marketing Hub') ? cfg.tagline : '';
+    document.getElementById('bGreet').value = (cfg.greeting && cfg.greeting !== 'Welcome back.') ? cfg.greeting : '';
+    document.getElementById('logoUrl').value = (cfg.logoUrl && cfg.logoUrl.indexOf('data:') !== 0) ? cfg.logoUrl : '';
+    document.getElementById('calFeed').value = cfg.calendarFeedUrl || '';
+    document.getElementById('sheetUrl').value = (cfg.sheetSource && cfg.sheetSource.url) || '';
+    cfg.modules = cfg.modules || {};
+    cfg.customTabs = cfg.customTabs || [];
+    renderSwatches(); renderSources(); renderModules(); renderCustomTabs(); renderComing();
+    refreshLogoPreviews(); livePreview();
+  }
+
+  seed();
+  show(0);
+  window.livePreview = livePreview;
+})();
+</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+</body>
+</html>

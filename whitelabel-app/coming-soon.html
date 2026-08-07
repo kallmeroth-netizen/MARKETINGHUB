@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Coming soon — {{BRAND}}</title>
+<meta name="theme-color" content="#0071e3">
+<link rel="stylesheet" href="theme.css">
+<script src="brand.default.js"></script>
+<script src="brand-config.js"></script>
+<script src="hub-modules.js"></script>
+<script src="brand-apply.js" defer></script>
+<script src="chrome-v2.js" defer></script>
+<style>
+  body { background:var(--bg,#f5f5f7); color:var(--text,#1d1d1f); font-family:var(--f-sans); }
+  .wrap { max-width:620px; margin:0 auto; padding:80px 24px; text-align:center; }
+  .ic { width:64px; height:64px; border-radius:18px; background:var(--surface-2,#f0eee9); display:grid; place-items:center; margin:0 auto 22px; color:var(--brand-orange,#4f46e5); }
+  h1 { font-size:26px; font-weight:700; margin:0 0 10px; }
+  p { font-size:14.5px; color:var(--text-2,#3a3d44); line-height:1.6; margin:0 auto 24px; max-width:460px; }
+  a { display:inline-block; padding:12px 24px; border-radius:100px; background:var(--brand-orange,#4f46e5); color:#fff; font-size:14px; font-weight:600; text-decoration:none; }
+  code { background:var(--surface-2,#f0eee9); padding:2px 8px; border-radius:6px; font-size:13px; }
+</style>
+</head>
+<body data-page-tag="Module">
+<div id="np-nav-placeholder"></div>
+<div class="wrap">
+  <div class="ic"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></div>
+  <h1 id="modTitle">This module ships next</h1>
+  <p>This section of your <span data-brand-name>Your Brand</span> hub keeps the same layout and placements as the live product — it's part of the next module rollout. Your branding already applies here.</p>
+  <a href="index.html">← Back to your hub</a>
+</div>
+<script>
+  var LABELS = { pmix:'Sales & Pmix', calendar:'Marketing Calendar', assets:'Brand Assets' };
+  var m = new URLSearchParams(location.search).get('m');
+  if (m && LABELS[m]) document.getElementById('modTitle').textContent = LABELS[m] + ' — coming next';
+</script>
+</body>
+</html>

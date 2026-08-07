@@ -1,0 +1,12 @@
+{
+  "name": "Marketing Hub",
+  "short_name": "Hub",
+  "description": "White-label marketing intelligence hub",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#f6f6f8",
+  "theme_color": "#4f46e5",
+  "icons": [
+    { "src": "assets/placeholder-logo.svg", "sizes": "any", "type": "image/svg+xml" }
+  ]
+}
