@@ -688,10 +688,13 @@ function Sidebar({event, mode, onClose, onEdit, onDelete, onUpdateActions}) {
       {/* Header */}
       <div style={{padding:'1.1rem 1.1rem .85rem',borderBottom:`0.5px solid ${C.border}`}}>
         <div style={{display:'flex',alignItems:'flex-start',justifyContent:'space-between',gap:8,marginBottom:9}}>
-          <span style={{display:'inline-flex',alignItems:'center',gap:5,fontSize:10,fontWeight:600,letterSpacing:'.06em',textTransform:'uppercase',padding:'3px 9px',borderRadius:20,background:cat.bg,color:cat.text}}>
-            <CatIcon path={cat.icon} color={cat.text} size={10}/> {cat.label}
-            {event.hold && <span style={{marginLeft:4,background:C.tl,color:C.td,padding:'1px 6px',borderRadius:20}}>HOLD</span>}
-          </span>
+          <div style={{display:'flex',alignItems:'center',gap:6,flexWrap:'wrap'}}>
+            <span style={{display:'inline-flex',alignItems:'center',gap:5,fontSize:10,fontWeight:600,letterSpacing:'.06em',textTransform:'uppercase',padding:'3px 9px',borderRadius:20,background:cat.bg,color:cat.text}}>
+              <CatIcon path={cat.icon} color={cat.text} size={10}/> {cat.label}
+              {event.hold && <span style={{marginLeft:4,background:C.tl,color:C.td,padding:'1px 6px',borderRadius:20}}>HOLD</span>}
+            </span>
+            {event.marketplace && <span style={{display:'inline-flex',alignItems:'center',fontSize:10,fontWeight:600,letterSpacing:'.06em',textTransform:'uppercase',padding:'3px 9px',borderRadius:'4px 20px 20px 4px',background:CATS.ops.bg,color:CATS.ops.text,borderLeft:`3px solid ${CATS.ops.color}`,flexShrink:0}}>Marketplace</span>}
+          </div>
           <button onClick={onClose} style={{background:'none',border:'none',cursor:'pointer',color:C.text3,fontSize:20,lineHeight:1,padding:'2px 6px',borderRadius:6,flexShrink:0}} aria-label="Close">×</button>
         </div>
         <div style={{fontSize:17,fontWeight:600,letterSpacing:'-.02em',color:C.text,lineHeight:1.3,marginBottom:7}}>{event.name}</div>
@@ -809,16 +812,17 @@ function EventForm({open, onClose, onSave, onDelete, editEvent, initialDate, ini
   const [depts,  setDepts]  = useState([]);
   const [people, setPeople] = useState([]);
   const [confirmed, setConfirmed] = useState(false);
+  const [marketplace, setMarketplace] = useState(false);
 
   useEffect(() => {
     if (!open) return;
     if (editEvent) {
       setName(editEvent.name||''); setStart(editEvent.start||''); setEnd(editEvent.end||''); setTime(editEvent.time||'');
       setCat(editEvent.cat||'social'); setSub(editEvent.sub||''); setNotes(editEvent.notes||'');
-      setHold(!!editEvent.hold); setDepts([...(editEvent.depts||[])]); setPeople([...(editEvent.people||[])]); setConfirmed(!!editEvent.confirmed);
+      setHold(!!editEvent.hold); setDepts([...(editEvent.depts||[])]); setPeople([...(editEvent.people||[])]); setConfirmed(!!editEvent.confirmed); setMarketplace(!!editEvent.marketplace);
     } else {
       setName(''); setStart(initialDate||''); setEnd(initialDate||''); setTime('');
-      setCat(initialCat||'social'); setSub(''); setNotes(''); setHold(false); setDepts([]); setPeople([]); setConfirmed(false);
+      setCat(initialCat||'social'); setSub(''); setNotes(''); setHold(false); setDepts([]); setPeople([]); setConfirmed(false); setMarketplace(false);
     }
   }, [open, editEvent, initialDate, initialCat]);
 
@@ -827,7 +831,7 @@ function EventForm({open, onClose, onSave, onDelete, editEvent, initialDate, ini
 
   const handleSave = () => {
     if (!name.trim() || !start) { alert('Please add a name and start date.'); return; }
-    onSave({ id:editEvent?.id||uid(), name:name.trim(), start, end:end||start, time, cat, sub, notes, hold, depts, people, confirmed, actions:editEvent?.actions||[] });
+    onSave({ id:editEvent?.id||uid(), name:name.trim(), start, end:end||start, time, cat, sub, notes, hold, depts, people, confirmed, marketplace, actions:editEvent?.actions||[] });
     onClose();
   };
 
@@ -893,6 +897,11 @@ function EventForm({open, onClose, onSave, onDelete, editEvent, initialDate, ini
       <label style={{display:'flex',alignItems:'center',gap:8,marginBottom:13,cursor:'pointer'}}>
         <input type="checkbox" checked={hold} onChange={e=>setHold(e.target.checked)} style={{width:14,height:14,accentColor:C.orange}}/>
         <span style={{fontSize:13,color:C.text2}}>Mark as HOLD (tentative)</span>
+      </label>
+
+      <label style={{display:'flex',alignItems:'center',gap:8,marginBottom:13,cursor:'pointer'}}>
+        <input type="checkbox" checked={marketplace} onChange={e=>setMarketplace(e.target.checked)} style={{width:14,height:14,accentColor:CATS.ops.color}}/>
+        <span style={{fontSize:13,color:C.text2}}>Marketplace content <span style={{color:C.text3,fontSize:11}}>— adds a marketplace edge, stacks on any channel</span></span>
       </label>
 
 
@@ -1459,7 +1468,7 @@ function NeighborlyCalendar() {
                           onDragStart={mode==='edit' ? e=>{e.stopPropagation();handleDragStart(e,ev.id);} : undefined}
                           onDragEnd={handleDragEnd}
                           onClick={e => { e.stopPropagation(); setSidebarId(sidebarId===ev.id?null:ev.id); }}
-                          style={{borderRadius:isWeek?8:(isAgenda?6:(isMobile?4:6)),padding:isWeek?(isMobile?'6px 8px':'8px 10px'):(isAgenda?'6px 9px':(isMobile?'2px 4px':'4px 7px')),fontSize:isWeek?(isMobile?12:13):(isAgenda?12:(isMobile?9:11)),fontWeight:500,marginBottom:isWeek?6:(isAgenda?4:(isMobile?2:3)),cursor:'pointer',display:'flex',alignItems:'flex-start',gap:isWeek?8:(isAgenda?7:(isMobile?3:5)),background:ev.hold?'transparent':cat.bg,color:ev.hold?C.text2:cat.text,border:ev.hold?`1.5px dashed ${C.tan}`:isSelected?`1.5px solid ${C.orange}`:`0.5px solid rgba(0,0,0,0.05)`,fontStyle:ev.hold?'italic':'normal',boxShadow:isSelected?`0 0 0 1px ${C.orange}`:'0 1px 2px rgba(0,0,0,.03)',opacity:isDragging?.35:1,transition:'opacity .15s,box-shadow .15s,border-color .15s',userSelect:'none'}}>
+                          style={{borderRadius:isWeek?8:(isAgenda?6:(isMobile?4:6)),padding:isWeek?(isMobile?'6px 8px':'8px 10px'):(isAgenda?'6px 9px':(isMobile?'2px 4px':'4px 7px')),fontSize:isWeek?(isMobile?12:13):(isAgenda?12:(isMobile?9:11)),fontWeight:500,marginBottom:isWeek?6:(isAgenda?4:(isMobile?2:3)),cursor:'pointer',display:'flex',alignItems:'flex-start',gap:isWeek?8:(isAgenda?7:(isMobile?3:5)),background:ev.hold?'transparent':cat.bg,color:ev.hold?C.text2:cat.text,border:ev.hold?`1.5px dashed ${C.tan}`:isSelected?`1.5px solid ${C.orange}`:`0.5px solid rgba(0,0,0,0.05)`,fontStyle:ev.hold?'italic':'normal',boxShadow:isSelected?`0 0 0 1px ${C.orange}`:'0 1px 2px rgba(0,0,0,.03)',opacity:isDragging?.35:1,transition:'opacity .15s,box-shadow .15s,border-color .15s',userSelect:'none',...(ev.marketplace?{borderLeft:`3px solid ${CATS.ops.color}`}:{})}}>
                           <div style={{width:isWeek?14:(isAgenda?12:(isMobile?8:12)),height:isWeek?14:(isAgenda?12:(isMobile?8:12)),borderRadius:'50%',background:ev.hold?'transparent':cat.color,flexShrink:0,marginTop:isWeek?2:(isAgenda?2:(isMobile?1:1.5)),display:'flex',alignItems:'center',justifyContent:'center'}}>
                             {!ev.hold && <svg width={isWeek?9:(isAgenda?8:(isMobile?5:8))} height={isWeek?9:(isAgenda?8:(isMobile?5:8))} viewBox="0 0 12 12" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d={cat.icon}/></svg>}
                           </div>
