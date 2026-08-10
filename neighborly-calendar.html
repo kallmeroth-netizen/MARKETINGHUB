@@ -1158,7 +1158,11 @@ function NeighborlyCalendar() {
     for(let i=1;i<=42-cells.length;i++) cells.push({d:i,o:true,mo:mo+1,yr:mo===11?yr+1:yr});
   }
 
-  const filtered = filters.length===0 ? events : events.filter(e => filters.includes(e.cat));
+  // The Marketplace filter ('ops') is treated as cross-cutting: it surfaces
+  // the Marketplace category AND anything carrying the marketplace flag on any
+  // channel (Social + MP, Email + MP, …), so selecting it shows all
+  // marketplace content, not just the standalone category.
+  const filtered = filters.length===0 ? events : events.filter(e => filters.includes(e.cat) || (filters.includes('ops') && !!e.marketplace));
   const dsOf = c => c.yr+'-'+String(c.mo+1).padStart(2,'0')+'-'+String(c.d).padStart(2,'0');
 
   // Influencers coming in during the viewed month, sorted by day + time.
