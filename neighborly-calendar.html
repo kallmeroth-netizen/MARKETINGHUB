@@ -711,6 +711,21 @@ function Sidebar({event, mode, onClose, onEdit, onDelete, onUpdateActions}) {
         </div>
       </div>
 
+      {/* Actions — kept up top so Edit/Delete are reachable without scrolling */}
+      {mode === 'edit' && (
+        <div style={{padding:'.8rem 1.1rem',borderBottom:`0.5px solid ${C.border}`,display:'flex',gap:8,flexShrink:0}}>
+          <button onClick={() => onEdit(event.id)} style={{flex:1,background:C.dark,border:'none',borderRadius:8,padding:'9px 16px',fontSize:13,cursor:'pointer',color:C.yellow,fontWeight:500,fontFamily:'inherit'}}>
+            Edit event
+          </button>
+          <button onClick={() => { if(confirm('Delete this event?')) onDelete(event.id); }}
+            style={{background:'none',border:`0.5px solid ${C.borderStrong}`,borderRadius:8,padding:'9px 12px',fontSize:13,cursor:'pointer',color:C.text3,fontFamily:'inherit'}}
+            onMouseEnter={e => {e.currentTarget.style.borderColor=C.orange; e.currentTarget.style.color=C.orange;}}
+            onMouseLeave={e => {e.currentTarget.style.borderColor=C.borderStrong; e.currentTarget.style.color=C.text3;}}>
+            <svg width="14" height="14" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M2 3h8M5 3V2h2v1M10 3l-.5 7a1 1 0 01-1 .9H3.5a1 1 0 01-1-.9L2 3"/></svg>
+          </button>
+        </div>
+      )}
+
       {/* Body */}
       <div style={{padding:'1rem 1.1rem',display:'flex',flexDirection:'column',gap:16,flex:1}}>
         {/* Notes */}
@@ -777,20 +792,6 @@ function Sidebar({event, mode, onClose, onEdit, onDelete, onUpdateActions}) {
         </div>
       </div>
 
-      {/* Footer */}
-      {mode === 'edit' && (
-        <div style={{padding:'1rem 1.1rem',borderTop:`0.5px solid ${C.border}`,display:'flex',gap:8,flexShrink:0}}>
-          <button onClick={() => onEdit(event.id)} style={{flex:1,background:C.dark,border:'none',borderRadius:8,padding:'9px 16px',fontSize:13,cursor:'pointer',color:C.yellow,fontWeight:500,fontFamily:'inherit'}}>
-            Edit event
-          </button>
-          <button onClick={() => { if(confirm('Delete this event?')) onDelete(event.id); }}
-            style={{background:'none',border:`0.5px solid ${C.borderStrong}`,borderRadius:8,padding:'9px 12px',fontSize:13,cursor:'pointer',color:C.text3,fontFamily:'inherit'}}
-            onMouseEnter={e => {e.currentTarget.style.borderColor=C.orange; e.currentTarget.style.color=C.orange;}}
-            onMouseLeave={e => {e.currentTarget.style.borderColor=C.borderStrong; e.currentTarget.style.color=C.text3;}}>
-            <svg width="14" height="14" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M2 3h8M5 3V2h2v1M10 3l-.5 7a1 1 0 01-1 .9H3.5a1 1 0 01-1-.9L2 3"/></svg>
-          </button>
-        </div>
-      )}
     </div>
   );
 }
@@ -1154,42 +1155,6 @@ function NeighborlyCalendar() {
     .sort((a,b) => (a.start+(a.time||'')) < (b.start+(b.time||'')) ? -1 : 1);
   const inflConfirmed = monthInfluencers.filter(e => e.confirmed).length;
 
-  // ── PLAN HEALTH (viewed month) ──────────────────────────────────────────
-  // A read on the whole plan for the month in view. Deliberately ignores the
-  // category filter chips — it reflects the plan, not the filtered view.
-  const monthEvents   = events.filter(e => (e.start||'') <= inflMonthEnd && (e.end||e.start||'') >= inflMonthStart);
-  const planTotal     = monthEvents.length;
-  const planConfirmed = monthEvents.filter(e => e.confirmed).length;
-  const planHold      = monthEvents.filter(e => e.hold).length;
-  const planPct       = planTotal ? Math.round(planConfirmed/planTotal*100) : 0;
-  const catCounts = Object.keys(CATS)
-    .map(k => ({key:k, label:CATS[k].label, color:CATS[k].color, n: monthEvents.filter(e => e.cat===k).length}))
-    .filter(c => c.n > 0);
-
-  // Cadence checks → a few high-signal "attention" flags. Kept intentionally
-  // sparse so the strip coaches without nagging.
-  const daysInMonth = new Date(yr, mo+1, 0).getDate();
-  const monShort    = curDate.toLocaleDateString('en-US',{month:'short'});
-  const dKey        = d => inflMonthKey + '-' + String(d).padStart(2,'0');
-  const startsThisMonth = e => (e.start||'') >= inflMonthStart && (e.start||'') <= inflMonthEnd;
-  const healthFlags = [];
-  // Overloaded days — 3+ outbound sends landing on one date.
-  const SEND_CATS = ['email','campaign','social'];
-  for (let d=1; d<=daysInMonth; d++){
-    const k = dKey(d);
-    const n = monthEvents.filter(e => SEND_CATS.includes(e.cat) && e.start<=k && (e.end||e.start)>=k).length;
-    if (n >= 3) healthFlags.push({tone:'busy', text:`${n} sends stacked on ${monShort} ${d}`});
-  }
-  // Quiet / missing core cadence channels.
-  [['email','Email'],['campaign','SMS'],['social','Social']].forEach(([k,label]) => {
-    const days = monthEvents.filter(e => e.cat===k && startsThisMonth(e))
-      .map(e => parseInt(e.start.slice(8,10),10)).filter(v=>!isNaN(v)).sort((a,b)=>a-b);
-    if (days.length === 0){ healthFlags.push({tone:'gap', text:`No ${label} planned this month`}); return; }
-    let gap=0, a=0, b=0;
-    for (let i=1;i<days.length;i++){ const g=days[i]-days[i-1]; if(g>gap){gap=g;a=days[i-1];b=days[i];} }
-    if (gap-1 >= 10) healthFlags.push({tone:'gap', text:`${label} quiet ${gap-1} days (${monShort} ${a}–${b})`});
-  });
-
   // Drag & drop
   const handleDragStart = (e, id) => { setDragId(id); e.dataTransfer.setData('text/plain',id); e.dataTransfer.effectAllowed='move'; };
   const handleDragEnd   = () => { setDragId(null); setDropCell(null); };
@@ -1425,63 +1390,6 @@ function NeighborlyCalendar() {
                 </span>
                 );
               })}
-            </div>
-
-            {/* PLAN HEALTH — at-a-glance read on the month + cadence flags */}
-            <div style={{marginBottom:isMobile?'8px':'10px',border:`0.5px solid ${C.border}`,background:C.surface,borderRadius:12,boxShadow:'0 1px 3px rgba(0,0,0,.04)',overflow:'hidden'}}>
-              {planTotal===0 ? (
-                <div style={{padding:'12px 16px',fontSize:12.5,color:C.text3}}>Nothing planned for {curDate.toLocaleDateString('en-US',{month:'long'})} yet.</div>
-              ) : (
-              <>
-                {/* Stats */}
-                <div style={{display:'flex',alignItems:'center',gap:isMobile?14:20,padding:isMobile?'11px 14px':'13px 18px',flexWrap:'wrap',borderBottom:healthFlags.length?`0.5px solid ${C.border}`:'none'}}>
-                  <div style={{display:'flex',flexDirection:'column',gap:2}}>
-                    <span style={{fontSize:22,fontWeight:600,color:C.text,fontFamily:"'DM Mono',monospace",lineHeight:1}}>{planTotal}</span>
-                    <span style={{fontSize:9.5,fontWeight:600,color:C.text3,textTransform:'uppercase',letterSpacing:'.06em'}}>Planned</span>
-                  </div>
-                  <div style={{width:1,height:30,background:C.border}}/>
-                  <div style={{display:'flex',flexDirection:'column',gap:4,minWidth:104}}>
-                    <span style={{fontSize:13,fontWeight:600,color:C.text}}>
-                      <span style={{fontFamily:"'DM Mono',monospace"}}>{planConfirmed}</span>
-                      <span style={{color:C.text3,fontWeight:500}}> / {planTotal} confirmed</span>
-                    </span>
-                    <div style={{height:5,borderRadius:3,background:C.surface2,overflow:'hidden'}}>
-                      <div style={{height:'100%',width:`${planPct}%`,background:C.green,borderRadius:3,transition:'width .4s ease'}}/>
-                    </div>
-                  </div>
-                  {planHold>0 && (
-                    <React.Fragment>
-                      <div style={{width:1,height:30,background:C.border}}/>
-                      <div style={{display:'flex',flexDirection:'column',gap:2}}>
-                        <span style={{fontSize:22,fontWeight:600,color:C.text2,fontFamily:"'DM Mono',monospace",lineHeight:1}}>{planHold}</span>
-                        <span style={{fontSize:9.5,fontWeight:600,color:C.text3,textTransform:'uppercase',letterSpacing:'.06em'}}>On hold</span>
-                      </div>
-                    </React.Fragment>
-                  )}
-                  <div style={{display:'flex',alignItems:'center',gap:10,flexWrap:'wrap',marginLeft:isMobile?0:'auto'}}>
-                    {catCounts.map(c => (
-                      <span key={c.key} title={c.label} style={{display:'inline-flex',alignItems:'center',gap:5,fontSize:11.5,color:C.text2,fontWeight:500}}>
-                        <span style={{width:8,height:8,borderRadius:'50%',background:c.color,flexShrink:0}}/>
-                        {c.label} <span style={{fontFamily:"'DM Mono',monospace",color:C.text}}>{c.n}</span>
-                      </span>
-                    ))}
-                  </div>
-                </div>
-                {/* Cadence flags — shown only when something needs attention */}
-                {healthFlags.length>0 && (
-                  <div style={{display:'flex',alignItems:'center',gap:7,padding:isMobile?'9px 14px':'10px 18px',flexWrap:'wrap',background:'rgba(234,201,73,.06)'}}>
-                    <span style={{fontSize:9.5,fontWeight:600,color:C.text3,textTransform:'uppercase',letterSpacing:'.06em',marginRight:2}}>Attention</span>
-                    {healthFlags.slice(0,4).map((f,i) => (
-                      <span key={i} style={{display:'inline-flex',alignItems:'center',gap:5,fontSize:11.5,fontWeight:500,color:C.yd,background:C.yl,border:`0.5px solid ${C.yellow}`,borderRadius:20,padding:'3px 10px'}}>
-                        <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" style={{flexShrink:0}}><path d="M6 1.5L11 10.5H1z"/><path d="M6 5v2.2M6 9h.01"/></svg>
-                        {f.text}
-                      </span>
-                    ))}
-                    {healthFlags.length>4 && <span style={{fontSize:11,color:C.text3}}>+{healthFlags.length-4} more</span>}
-                  </div>
-                )}
-              </>
-              )}
             </div>
 
             {/* DAY HEADERS — hidden in week view (each cell labels its own day)
