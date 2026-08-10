@@ -581,7 +581,9 @@ const SAMPLE_EVENTS = NOTION_EVENTS.map(ev => {
     if (!people.includes('KA')) people.push('KA');
     if (!people.includes('JL')) people.push('JL');
   }
-  return {...ev, people};
+  // Events whose name calls out the marketplace are flagged as marketplace
+  // content (stacks on their channel) so they read with the dark left edge.
+  return {...ev, people, marketplace: ev.marketplace ?? /marketplace/i.test(ev.name||'')};
 });
 
 // ── EMAILJS CONFIG ────────────────────────────────────────────────────────────
@@ -1040,7 +1042,20 @@ function NeighborlyCalendar() {
           const unsub = __calRef.on('value', snap => {
             const data = snap.val();
             if (data) {
-              if (data.events) setEvents(data.events);
+              if (data.events) {
+                // One-time marketplace sweep: flag events whose name states
+                // "marketplace" as marketplace content (dark left edge). Only
+                // touches events that were never set either way, so a box you
+                // deliberately unchecked is left alone. Writes back once; on
+                // the echo there's nothing left to change, so it can't loop.
+                let changed = false;
+                const evs = data.events.map(e => {
+                  if (e && e.marketplace === undefined && /marketplace/i.test(e.name||'')) { changed = true; return {...e, marketplace:true}; }
+                  return e;
+                });
+                setEvents(evs);
+                if (changed && __calRef) __calRef.update({events: evs});
+              }
               if (data.goals)  setGoals(data.goals);
               else {
                 const localGoals = rd('goals') || {};
