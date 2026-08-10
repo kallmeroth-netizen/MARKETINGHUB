@@ -1433,7 +1433,7 @@ function NeighborlyCalendar() {
               ) : (
               <>
                 {/* Stats */}
-                <div style={{display:'flex',alignItems:'center',gap:isMobile?14:20,padding:isMobile?'11px 14px':'13px 18px',flexWrap:'wrap',borderBottom:`0.5px solid ${C.border}`}}>
+                <div style={{display:'flex',alignItems:'center',gap:isMobile?14:20,padding:isMobile?'11px 14px':'13px 18px',flexWrap:'wrap',borderBottom:healthFlags.length?`0.5px solid ${C.border}`:'none'}}>
                   <div style={{display:'flex',flexDirection:'column',gap:2}}>
                     <span style={{fontSize:22,fontWeight:600,color:C.text,fontFamily:"'DM Mono',monospace",lineHeight:1}}>{planTotal}</span>
                     <span style={{fontSize:9.5,fontWeight:600,color:C.text3,textTransform:'uppercase',letterSpacing:'.06em'}}>Planned</span>
@@ -1466,8 +1466,8 @@ function NeighborlyCalendar() {
                     ))}
                   </div>
                 </div>
-                {/* Cadence flags */}
-                {healthFlags.length>0 ? (
+                {/* Cadence flags — shown only when something needs attention */}
+                {healthFlags.length>0 && (
                   <div style={{display:'flex',alignItems:'center',gap:7,padding:isMobile?'9px 14px':'10px 18px',flexWrap:'wrap',background:'rgba(234,201,73,.06)'}}>
                     <span style={{fontSize:9.5,fontWeight:600,color:C.text3,textTransform:'uppercase',letterSpacing:'.06em',marginRight:2}}>Attention</span>
                     {healthFlags.slice(0,4).map((f,i) => (
@@ -1477,11 +1477,6 @@ function NeighborlyCalendar() {
                       </span>
                     ))}
                     {healthFlags.length>4 && <span style={{fontSize:11,color:C.text3}}>+{healthFlags.length-4} more</span>}
-                  </div>
-                ) : (
-                  <div style={{display:'flex',alignItems:'center',gap:6,padding:isMobile?'8px 14px':'9px 18px',fontSize:11.5,fontWeight:500,color:C.gd,background:'rgba(123,189,145,.06)'}}>
-                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke={C.green} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M2.5 6.5L5 9l4.5-5"/></svg>
-                    Cadence looks balanced this month.
                   </div>
                 )}
               </>
