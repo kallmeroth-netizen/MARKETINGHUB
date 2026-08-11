@@ -533,6 +533,14 @@ const DEFAULT_THEMES = {
           }
           return out;
         };
+        // Derive the marketplace flag from the event name when it was never set
+        // either way. Applied to every load path (seed, local cache, Firebase)
+        // so the marketplace edge is on the first paint instead of only
+        // appearing after Firebase syncs — and never overrides a box that was
+        // deliberately unchecked (marketplace === false is left alone).
+        const normalizeEvents = evs => Array.isArray(evs)
+          ? evs.map(e => (e && e.marketplace === undefined && /marketplace/i.test(e.name||'')) ? {...e, marketplace:true} : e)
+          : evs;
         // Local cache so the calendar always loads + persists, even if Firebase is unavailable.
         const rd = (key) => { try { const s = JSON.parse(localStorage.getItem(STORAGE_KEY)||'null'); return s ? s[key] : null; } catch(e) { return null; } };
         const wr = (data) => { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch(e) {} };
@@ -1033,7 +1041,7 @@ function InfluencerList({open, onClose, list, monthLabel, onToggle, onRowClick, 
 function NeighborlyCalendar() {
   const isMobile = useIsMobile();
 
-  const [events,    setEvents]    = useState(() => rd('events')  || SAMPLE_EVENTS);
+  const [events,    setEvents]    = useState(() => normalizeEvents(rd('events')) || SAMPLE_EVENTS);
   const [goals,     setGoals]     = useState(() => rd('goals')   || {});
   const [themes,    setThemes]    = useState(() => normalizeThemes(rd('themes')) || JSON.parse(JSON.stringify(DEFAULT_THEMES)));
         // Firebase real-time sync
@@ -1043,17 +1051,13 @@ function NeighborlyCalendar() {
             const data = snap.val();
             if (data) {
               if (data.events) {
-                // One-time marketplace sweep: flag events whose name states
-                // "marketplace" as marketplace content (dark left edge). Only
-                // touches events that were never set either way, so a box you
-                // deliberately unchecked is left alone. Writes back once; on
+                // Marketplace sweep via the shared normalizer: flags events
+                // whose name states "marketplace" (dark left edge), only when
+                // never set either way. If anything changed, persist once; on
                 // the echo there's nothing left to change, so it can't loop.
-                let changed = false;
-                const evs = data.events.map(e => {
-                  if (e && e.marketplace === undefined && /marketplace/i.test(e.name||'')) { changed = true; return {...e, marketplace:true}; }
-                  return e;
-                });
+                const evs = normalizeEvents(data.events);
                 setEvents(evs);
+                const changed = Array.isArray(data.events) && evs.some((e,i) => e !== data.events[i]);
                 if (changed && __calRef) __calRef.update({events: evs});
               }
               if (data.goals)  setGoals(data.goals);
