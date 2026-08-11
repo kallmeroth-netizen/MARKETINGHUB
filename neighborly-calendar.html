@@ -1393,7 +1393,7 @@ function NeighborlyCalendar() {
 
   // ── RENDER ─────────────────────────────────────────────────────────────────
   return (
-    <div style={{fontFamily:"'DM Sans',sans-serif",background:C.bg,minHeight:'100vh',color:C.text,display:'flex',flexDirection:'column'}}>
+    <div style={{fontFamily:"'DM Sans',sans-serif",background:C.bg,height:'100vh',color:C.text,display:'flex',flexDirection:'column'}}>
 
       {/* HUB NAV OVERLAY */}
       <div className={`hub-nav${hubOpen?' open':''}`} onClick={e=>e.stopPropagation()}>
@@ -1480,7 +1480,7 @@ function NeighborlyCalendar() {
       {/* APP SHELL — the shell itself scrolls so the calendar and the detail
           panel move together (panel scrolls with the page), instead of the
           calendar scrolling under a pinned panel. */}
-      <div style={{display:'flex',flex:1,overflowY:'auto',overflowX:'hidden',height:'calc(100vh - 50px)',alignItems:'flex-start'}}>
+      <div style={{display:'flex',flex:1,minHeight:0,overflowY:'auto',overflowX:'hidden',alignItems:'flex-start'}}>
         {/* MAIN */}
         <div style={{flex:1,minWidth:0}}>
           <div style={{padding:isMobile?'0.75rem var(--gutter) 6rem':'1.1rem var(--gutter) 3rem'}}>
