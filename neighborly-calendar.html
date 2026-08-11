@@ -1245,6 +1245,17 @@ function NeighborlyCalendar() {
     return () => { try { delete window.__cal_setGoals; delete window.__cal_currentGoals; } catch(e) {} };
   }, [events, goals, themes, mo, theme, saveEvents]);
 
+  // Bridge the enhanced filter chips (injected DOM, outside React) straight
+  // into filter state, so multi-select is deterministic instead of relying on
+  // programmatically clicking the hidden React chips (which can desync on
+  // re-render). 'all' clears; any other key toggles in/out of the set.
+  React.useEffect(() => {
+    window.__cal_toggleFilter = (key) => setFilters(prev =>
+      key === 'all' ? [] : (prev.includes(key) ? prev.filter(x => x !== key) : [...prev, key]));
+    window.__cal_getFilters = () => filters.slice();
+    return () => { try { delete window.__cal_toggleFilter; delete window.__cal_getFilters; } catch(e) {} };
+  }, [filters]);
+
   const changeMonth = d => {
     const nd = new Date(curDate);
     if (viewMode === 'week') nd.setDate(nd.getDate() + d * 7);
@@ -1932,7 +1943,7 @@ function ra(){eec();etc();uth();ug();}var _t=null;new MutationObserver(function(
     if(allSpans.length<7)return;
     var filterRow=allSpans[0]&&allSpans[0].parentElement;if(!filterRow)return;
     filterRow.style.cssText='position:absolute;opacity:0;pointer-events:none;height:0;overflow:hidden;';
-    var CHIPS=[{label:'All',orig:'All',color:null,isAll:true},{label:'Email',orig:'Email',color:'#dbc6a2'},{label:'SMS',orig:'SMS',color:'#6280bd'},{label:'Social',orig:'Social',color:'#cbc9d6'},{label:'Key date',orig:'Key date',color:'#eace49'},{label:'Marketplace',orig:'Marketplace',color:'#1f2328'},{label:'Event',orig:'Event',color:'#e87142'},{label:'Biz update',orig:'Biz update',color:'#8a3518'},{label:'Collateral',orig:'Collateral',color:'#2a7a4b'},{label:'Influencer',orig:'Influencer',color:'#7bbd91'},{label:'Collab post',orig:'Collab post',color:'#c65f83'}];
+    var CHIPS=[{label:'All',orig:'All',key:'all',color:null,isAll:true},{label:'Email',orig:'Email',key:'email',color:'#dbc6a2'},{label:'SMS',orig:'SMS',key:'campaign',color:'#6280bd'},{label:'Social',orig:'Social',key:'social',color:'#cbc9d6'},{label:'Key date',orig:'Key date',key:'keydate',color:'#eace49'},{label:'Marketplace',orig:'Marketplace',key:'ops',color:'#1f2328'},{label:'Event',orig:'Event',key:'event',color:'#e87142'},{label:'Biz update',orig:'Biz update',key:'bizupdate',color:'#8a3518'},{label:'Collateral',orig:'Collateral',key:'launch',color:'#2a7a4b'},{label:'Influencer',orig:'Influencer',key:'influencer',color:'#7bbd91'},{label:'Collab post',orig:'Collab post',key:'collab',color:'#c65f83'}];
     var row=document.createElement('div');row.id='nb-filter-enhanced';row.style.cssText='display:flex;flex-wrap:wrap;gap:5px;align-items:center;';
     CHIPS.forEach(function(cfg){
       var chip=document.createElement('span');chip.className='nb-chip-wrap';chip.setAttribute('data-orig',cfg.orig);chip.setAttribute('data-label',cfg.label);
@@ -1940,8 +1951,8 @@ function ra(){eec();etc();uth();ug();}var _t=null;new MutationObserver(function(
       else if(cfg.color){var sw=document.createElement('span');sw.className='nb-chip-swatch';sw.style.background=cfg.color;chip.appendChild(sw);}
       chip.appendChild(document.createTextNode(cfg.label));
       chip.addEventListener('click',function(){
-        var orig=allSpans.find(function(s){return s.textContent.trim()===cfg.orig;});
-        if(orig)orig.click();
+        if(window.__cal_toggleFilter){window.__cal_toggleFilter(cfg.key);}
+        else{var orig=allSpans.find(function(s){return s.textContent.trim()===cfg.orig;});if(orig)orig.click();}
         var allChip=row.querySelector('[data-label="All"]');
         if(cfg.isAll){
           // "All" clears every other selection
