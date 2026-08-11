@@ -1878,9 +1878,7 @@ function ra(){eec();etc();uth();ug();}var _t=null;new MutationObserver(function(
     var sec=document.createElement('div');sec.id='nb-tba-section';
     var label=document.createElement('div');label.className='nb-tba-label';label.textContent='To Be Added';
     var items=document.createElement('div');items.id='nb-tba-items';
-    var addBtn=document.createElement('button');addBtn.className='nb-tba-add-btn';addBtn.textContent='+ Add concept';
-    addBtn.onclick=function(){pushItem('');};
-    sec.appendChild(label);sec.appendChild(items);sec.appendChild(addBtn);return sec;
+    sec.appendChild(label);sec.appendChild(items);return sec;
   }
   function save(ni,nr){
     var db=getDb();if(!db)return;
@@ -1891,7 +1889,9 @@ function ra(){eec();etc();uth();ug();}var _t=null;new MutationObserver(function(
   function renderItems(){
     var container=document.getElementById('nb-tba-items');if(!container)return;
     container.innerHTML='';
-    var slots=Math.max(_items.length+1,MIN_SLOTS);
+    // Show the added concepts plus exactly one empty input — a fresh slot only
+    // appears once the current one is filled in ("one at a time until added").
+    var slots=_items.length+1;
     for(var i=0;i<slots;i++){
       var row=document.createElement('div');row.className='nb-tba-item'+(_resolved[i]?' nb-resolved':'');
       var rb=document.createElement('button');rb.className='nb-tba-resolve';
