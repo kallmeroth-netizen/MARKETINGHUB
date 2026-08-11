@@ -961,7 +961,9 @@ function EventForm({open, onClose, onSave, onDelete, editEvent, initialDate, ini
     onClose();
   };
 
-  const inputStyle = {width:'100%',border:`0.5px solid ${C.borderStrong}`,borderRadius:8,padding:'8px 10px',fontSize:13,color:C.text,background:C.surface,outline:'none',fontFamily:'inherit'};
+  const inputStyle = {width:'100%',border:`0.5px solid ${C.borderStrong}`,borderRadius:8,padding:'9px 11px',fontSize:13,color:C.text,background:C.surface,outline:'none',fontFamily:'inherit'};
+  const labelStyle = {fontSize:10,fontWeight:600,textTransform:'uppercase',letterSpacing:'.07em',color:C.text3,marginBottom:5};
+  const hint = {fontWeight:500,textTransform:'none',letterSpacing:0,fontSize:10.5,color:C.text3,opacity:.85,marginLeft:6};
   const focusO = e => e.target.style.borderColor=C.orange;
   const blurO  = e => e.target.style.borderColor=C.borderStrong;
 
@@ -969,73 +971,73 @@ function EventForm({open, onClose, onSave, onDelete, editEvent, initialDate, ini
     <Modal open={open} onClose={onClose} width={560}>
       <h2 style={{fontSize:15,fontWeight:600,marginBottom:'1.25rem',color:C.text,letterSpacing:'-.02em'}}>{editEvent ? 'Edit event' : 'New event'}</h2>
 
-      <div style={{marginBottom:13}}>
-        <div style={{fontSize:11.5,color:C.text2,marginBottom:3}}>Event name</div>
+      <div style={{marginBottom:14}}>
+        <div style={labelStyle}>Event name</div>
         <input value={name} onChange={e=>setName(e.target.value)} placeholder="e.g. Summer campaign launch" autoFocus style={inputStyle} onFocus={focusO} onBlur={blurO}/>
       </div>
 
-      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:13}}>
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:14}}>
         <div>
-          <div style={{fontSize:11.5,color:C.text2,marginBottom:3}}>Start date</div>
+          <div style={labelStyle}>Start date</div>
           <input type="date" value={start} onChange={e=>setStart(e.target.value)} style={inputStyle} onFocus={focusO} onBlur={blurO}/>
         </div>
         <div>
-          <div style={{fontSize:11.5,color:C.text2,marginBottom:3}}>End date</div>
+          <div style={labelStyle}>End date</div>
           <input type="date" value={end} onChange={e=>setEnd(e.target.value)} style={inputStyle} onFocus={focusO} onBlur={blurO}/>
         </div>
       </div>
 
-      <div style={{marginBottom:13}}>
-        <div style={{fontSize:11.5,color:C.text2,marginBottom:3}}>Time <span style={{color:C.text3,fontSize:10.5}}>— optional, e.g. when an influencer is coming in</span></div>
+      <div style={{marginBottom:14}}>
+        <div style={labelStyle}>Time <span style={hint}>· optional</span></div>
         <div style={{display:'flex',alignItems:'center',gap:8}}>
           <input type="time" value={time} onChange={e=>setTime(e.target.value)} style={{...inputStyle,cursor:'pointer',maxWidth:180}} onFocus={focusO} onBlur={blurO}/>
           {time && <button type="button" onClick={()=>setTime('')} style={{background:'none',border:'none',cursor:'pointer',color:C.text3,fontSize:12,fontFamily:'inherit',padding:'4px 6px'}}>Clear</button>}
         </div>
       </div>
 
-      <div style={{marginBottom:13}}>
-        <div style={{fontSize:11.5,color:C.text2,marginBottom:3}}>Category</div>
+      <div style={{marginBottom:14}}>
+        <div style={labelStyle}>Category</div>
         <select value={cat} onChange={e=>setCat(e.target.value)} style={{...inputStyle,cursor:'pointer'}}>
           {Object.entries(CATS).map(([k,v]) => <option key={k} value={k}>{v.label}</option>)}
         </select>
       </div>
 
       {cat === 'influencer' && (
-        <div style={{marginBottom:13}}>
-          <div style={{fontSize:11.5,color:C.text2,marginBottom:3}}>Where <span style={{color:C.text3,fontSize:10.5}}>— location</span></div>
+        <div style={{marginBottom:14}}>
+          <div style={labelStyle}>Location</div>
           <input value={sub} onChange={e=>setSub(e.target.value)} placeholder="e.g. Brentwood" style={inputStyle} onFocus={focusO} onBlur={blurO}/>
         </div>
       )}
 
       {cat === 'influencer' && (
-        <label style={{display:'flex',alignItems:'center',gap:8,marginBottom:13,cursor:'pointer'}}>
-          <input type="checkbox" checked={confirmed} onChange={e=>setConfirmed(e.target.checked)} style={{width:14,height:14,accentColor:CATS.influencer.color}}/>
-          <span style={{fontSize:13,color:C.text2}}>Confirmed <span style={{color:C.text3,fontSize:11}}>— visit is locked in</span></span>
+        <label style={{display:'flex',alignItems:'center',gap:9,marginBottom:14,cursor:'pointer'}}>
+          <input type="checkbox" checked={confirmed} onChange={e=>setConfirmed(e.target.checked)} style={{width:15,height:15,accentColor:CATS.influencer.color,flexShrink:0}}/>
+          <span style={{fontSize:13,color:C.text}}>Confirmed <span style={{color:C.text3}}>· locked in</span></span>
         </label>
       )}
 
-      <div style={{marginBottom:13}}>
-        <div style={{fontSize:11.5,color:C.text2,marginBottom:3}}>Notes</div>
+      <div style={{marginBottom:14}}>
+        <div style={labelStyle}>Notes</div>
         <textarea value={notes} onChange={e=>setNotes(e.target.value)} placeholder="Context, links, deliverables…"
           style={{...inputStyle,resize:'vertical',minHeight:72}} onFocus={focusO} onBlur={blurO}/>
       </div>
 
-      <label style={{display:'flex',alignItems:'center',gap:8,marginBottom:13,cursor:'pointer'}}>
-        <input type="checkbox" checked={hold} onChange={e=>setHold(e.target.checked)} style={{width:14,height:14,accentColor:C.orange}}/>
-        <span style={{fontSize:13,color:C.text2}}>Mark as HOLD (tentative)</span>
-      </label>
-
-      <label style={{display:'flex',alignItems:'center',gap:8,marginBottom:13,cursor:'pointer'}}>
-        <input type="checkbox" checked={marketplace} onChange={e=>setMarketplace(e.target.checked)} style={{width:14,height:14,accentColor:CATS.ops.color}}/>
-        <span style={{fontSize:13,color:C.text2}}>Marketplace content <span style={{color:C.text3,fontSize:11}}>— adds a marketplace edge, stacks on any channel</span></span>
-      </label>
-
+      <div style={{display:'flex',flexDirection:'column',gap:11,marginBottom:16,padding:'12px 14px',background:C.surface2,borderRadius:10}}>
+        <label style={{display:'flex',alignItems:'center',gap:9,cursor:'pointer'}}>
+          <input type="checkbox" checked={hold} onChange={e=>setHold(e.target.checked)} style={{width:15,height:15,accentColor:C.orange,flexShrink:0}}/>
+          <span style={{fontSize:13,color:C.text}}>Hold <span style={{color:C.text3}}>· tentative</span></span>
+        </label>
+        <label style={{display:'flex',alignItems:'center',gap:9,cursor:'pointer'}}>
+          <input type="checkbox" checked={marketplace} onChange={e=>setMarketplace(e.target.checked)} style={{width:15,height:15,accentColor:CATS.ops.color,flexShrink:0}}/>
+          <span style={{fontSize:13,color:C.text}}>Marketplace <span style={{color:C.text3}}>· stacks on any channel</span></span>
+        </label>
+      </div>
 
       <div style={{marginBottom:'1.25rem'}}>
-        <div style={{fontSize:11.5,color:C.text2,marginBottom:6}}>Tag people <span style={{color:C.text3,fontSize:10.5}}>— they'll be emailed when saved</span></div>
+        <div style={{...labelStyle,marginBottom:8}}>Tag people <span style={hint}>· emailed on save</span></div>
         <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
           {PEOPLE.map(p => (
-            <span key={p.initials} onClick={() => togPerson(p.initials)} style={{border:`0.5px solid ${people.includes(p.initials)?p.color:C.borderStrong}`,borderRadius:20,padding:'4px 11px',fontSize:11.5,cursor:'pointer',color:people.includes(p.initials)?'#fff':C.text2,background:people.includes(p.initials)?p.color:C.surface,transition:'all .15s'}}>
+            <span key={p.initials} onClick={() => togPerson(p.initials)} style={{border:`0.5px solid ${people.includes(p.initials)?p.color:C.borderStrong}`,borderRadius:20,padding:'5px 12px',fontSize:12,cursor:'pointer',color:people.includes(p.initials)?'#fff':C.text2,background:people.includes(p.initials)?p.color:C.surface,transition:'all .15s'}}>
               {p.name}
             </span>
           ))}
@@ -1714,7 +1716,7 @@ function NeighborlyCalendar() {
             </>
           )
         ) : (
-          <div style={{width:sidebarEvent?428:0,flexShrink:0,overflow:'hidden',transition:'width .28s cubic-bezier(.4,0,.2,1)',display:'flex',flexDirection:'column'}}>
+          <div style={{width:sidebarEvent?428:0,flexShrink:0,transition:'width .28s cubic-bezier(.4,0,.2,1)',display:'flex',flexDirection:'column',position:'sticky',top:0,alignSelf:'flex-start',maxHeight:'calc(100vh - 50px)',overflowX:'hidden',overflowY:'auto'}}>
             {sidebarEvent && (
               <Sidebar event={sidebarEvent} mode={mode} onClose={()=>setSidebarId(null)} onEdit={openEdit} onDelete={id=>{handleDelete(id);setSidebarId(null);}} onUpdateActions={handleUpdateActions}/>
             )}
