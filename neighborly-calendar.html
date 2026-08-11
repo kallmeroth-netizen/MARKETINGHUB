@@ -679,6 +679,24 @@ const PLANNED_LAUNCHES = [
   mkEv('pl_hsd_sm','2026-11-23','campaign','Holiday Saturdae Launch - SMS'),
 ];
 
+// ── FALL ADDS ────────────────────────────────────────────────────────────────
+// Fills the late-Sept/early-Oct gap with SoCal-into-fall social, plus a standing
+// weekly drumbeat: a Marketplace post + SMS every Wednesday through the fall.
+// Imported under its own marker so it doesn't disturb the launch import.
+const FALL_ADDS = [
+  // SoCal easing into fall — seasonal social
+  mkEv('fa_soc1','2026-09-29','social','SoCal Fall - 75 and Iced Everything',{notes:'Seasonal - SoCal easing into fall.'}),
+  mkEv('fa_soc2','2026-10-01','social','Sweater Weather (Kind Of) - Fall Faves',{notes:'Seasonal fall content.'}),
+  mkEv('fa_soc3','2026-10-03','social','Golden Hour on the Patio',{notes:'Seasonal fall content.'}),
+  mkEv('fa_soc4','2026-10-08','social','Fall Menu Preview',{notes:'Tease the fall menu.'}),
+  // Intentional, seasonal marketplace content for the lull Wednesdays (fall
+  // marketplace angle + SMS) — not weekly placeholders.
+  mkEv('fa_mkw_0930','2026-09-30','social','Marketplace: Soup Season Is Back',{mp:true,notes:'Fall marketplace - soups & cozy sides, grab-and-go.'}),
+  mkEv('fa_mks_0930','2026-09-30','campaign','Marketplace: Soup Season - SMS',{mp:true,notes:'Fall marketplace SMS.'}),
+  mkEv('fa_mkw_1007','2026-10-07','social','Marketplace: Fall Comfort, Grab & Go',{mp:true,notes:'Fall marketplace - comfort food to go.'}),
+  mkEv('fa_mks_1007','2026-10-07','campaign','Marketplace: Fall Comfort - SMS',{mp:true,notes:'Fall marketplace SMS.'}),
+];
+
 // Auto-tag rules
 const SAMPLE_EVENTS = NOTION_EVENTS.map(ev => {
   const people = [...(ev.people||[])];
@@ -690,7 +708,7 @@ const SAMPLE_EVENTS = NOTION_EVENTS.map(ev => {
   // Events whose name calls out the marketplace are flagged as marketplace
   // content (stacks on their channel) so they read with the dark left edge.
   return {...ev, people, marketplace: ev.marketplace ?? /marketplace/i.test(ev.name||'')};
-}).concat(PLANNED_LAUNCHES);
+}).concat(PLANNED_LAUNCHES, FALL_ADDS);
 
 // ── EMAILJS CONFIG ────────────────────────────────────────────────────────────
 // Setup (one-time, ~5 min):
@@ -792,7 +810,7 @@ function Sidebar({event, mode, onClose, onEdit, onDelete, onUpdateActions}) {
   const doneCount = (event.actions||[]).filter(a => a.done).length;
 
   return (
-    <div style={{width:400,flexShrink:0,background:C.surface,border:`0.5px solid ${C.borderStrong}`,borderRadius:16,boxShadow:'0 10px 34px rgba(0,0,0,.13)',margin:'14px 16px 16px 12px',display:'flex',flexDirection:'column',overflowY:'auto',maxHeight:'calc(100% - 30px)'}}>
+    <div style={{width:400,flexShrink:0,background:C.surface,border:`0.5px solid ${C.borderStrong}`,borderRadius:16,boxShadow:'0 10px 34px rgba(0,0,0,.13)',margin:'14px 16px 16px 12px',display:'flex',flexDirection:'column'}}>
       {/* Header */}
       <div style={{padding:'1.1rem 1.1rem .85rem',borderBottom:`0.5px solid ${C.border}`}}>
         <div style={{display:'flex',alignItems:'flex-start',justifyContent:'space-between',gap:8,marginBottom:9}}>
@@ -1154,18 +1172,23 @@ function NeighborlyCalendar() {
                 // never set either way.
                 let evs = normalizeEvents(data.events);
                 let changed = Array.isArray(data.events) && evs.some((e,i) => e !== data.events[i]);
-                // One-time launch import: add the planned launch/tease events
-                // once. Guarded by a marker so deleting an imported event does
-                // NOT bring it back on the next load. Idempotent by id.
-                let extra = null;
-                if (!(data.imports && data.imports.launches2026)) {
+                // One-time event imports, each guarded by its own marker so a
+                // deleted imported event doesn't come back on the next load.
+                // Idempotent by id.
+                let imports = data.imports || {};
+                let importsChanged = false;
+                const importBatch = (key, batch) => {
+                  if (imports[key]) return;
                   const have = new Set(evs.map(e => e && e.id));
-                  const toAdd = PLANNED_LAUNCHES.filter(e => !have.has(e.id));
+                  const toAdd = batch.filter(e => !have.has(e.id));
                   if (toAdd.length) { evs = evs.concat(toAdd); changed = true; }
-                  extra = {imports: {...(data.imports||{}), launches2026: true}};
-                }
+                  imports = {...imports, [key]: true};
+                  importsChanged = true;
+                };
+                importBatch('launches2026', PLANNED_LAUNCHES);
+                importBatch('fall2026', FALL_ADDS);
                 setEvents(evs);
-                if (__calRef && (changed || extra)) __calRef.update({...(changed?{events:evs}:{}), ...(extra||{})});
+                if (__calRef && (changed || importsChanged)) __calRef.update({...(changed?{events:evs}:{}), ...(importsChanged?{imports}:{})});
               }
               if (data.goals)  setGoals(data.goals);
               else {
@@ -1244,6 +1267,17 @@ function NeighborlyCalendar() {
     window.__cal_currentGoals = () => (theme.goals || []).slice();
     return () => { try { delete window.__cal_setGoals; delete window.__cal_currentGoals; } catch(e) {} };
   }, [events, goals, themes, mo, theme, saveEvents]);
+
+  // Bridge the enhanced filter chips (injected DOM, outside React) straight
+  // into filter state, so multi-select is deterministic instead of relying on
+  // programmatically clicking the hidden React chips (which can desync on
+  // re-render). 'all' clears; any other key toggles in/out of the set.
+  React.useEffect(() => {
+    window.__cal_toggleFilter = (key) => setFilters(prev =>
+      key === 'all' ? [] : (prev.includes(key) ? prev.filter(x => x !== key) : [...prev, key]));
+    window.__cal_getFilters = () => filters.slice();
+    return () => { try { delete window.__cal_toggleFilter; delete window.__cal_getFilters; } catch(e) {} };
+  }, [filters]);
 
   const changeMonth = d => {
     const nd = new Date(curDate);
@@ -1441,10 +1475,12 @@ function NeighborlyCalendar() {
         </div>
       </nav>
 
-      {/* APP SHELL */}
-      <div style={{display:'flex',flex:1,overflow:'hidden',height:'calc(100vh - 50px)'}}>
+      {/* APP SHELL — the shell itself scrolls so the calendar and the detail
+          panel move together (panel scrolls with the page), instead of the
+          calendar scrolling under a pinned panel. */}
+      <div style={{display:'flex',flex:1,overflowY:'auto',overflowX:'hidden',height:'calc(100vh - 50px)',alignItems:'flex-start'}}>
         {/* MAIN */}
-        <div style={{flex:1,overflowY:'auto',minWidth:0}}>
+        <div style={{flex:1,minWidth:0}}>
           <div style={{padding:isMobile?'0.75rem var(--gutter) 6rem':'1.1rem var(--gutter) 3rem'}}>
 
             {/* THEME BANNER */}
@@ -1867,9 +1903,7 @@ function ra(){eec();etc();uth();ug();}var _t=null;new MutationObserver(function(
     var sec=document.createElement('div');sec.id='nb-tba-section';
     var label=document.createElement('div');label.className='nb-tba-label';label.textContent='To Be Added';
     var items=document.createElement('div');items.id='nb-tba-items';
-    var addBtn=document.createElement('button');addBtn.className='nb-tba-add-btn';addBtn.textContent='+ Add concept';
-    addBtn.onclick=function(){pushItem('');};
-    sec.appendChild(label);sec.appendChild(items);sec.appendChild(addBtn);return sec;
+    sec.appendChild(label);sec.appendChild(items);return sec;
   }
   function save(ni,nr){
     var db=getDb();if(!db)return;
@@ -1880,7 +1914,9 @@ function ra(){eec();etc();uth();ug();}var _t=null;new MutationObserver(function(
   function renderItems(){
     var container=document.getElementById('nb-tba-items');if(!container)return;
     container.innerHTML='';
-    var slots=Math.max(_items.length+1,MIN_SLOTS);
+    // Show the added concepts plus exactly one empty input — a fresh slot only
+    // appears once the current one is filled in ("one at a time until added").
+    var slots=_items.length+1;
     for(var i=0;i<slots;i++){
       var row=document.createElement('div');row.className='nb-tba-item'+(_resolved[i]?' nb-resolved':'');
       var rb=document.createElement('button');rb.className='nb-tba-resolve';
@@ -1932,7 +1968,7 @@ function ra(){eec();etc();uth();ug();}var _t=null;new MutationObserver(function(
     if(allSpans.length<7)return;
     var filterRow=allSpans[0]&&allSpans[0].parentElement;if(!filterRow)return;
     filterRow.style.cssText='position:absolute;opacity:0;pointer-events:none;height:0;overflow:hidden;';
-    var CHIPS=[{label:'All',orig:'All',color:null,isAll:true},{label:'Email',orig:'Email',color:'#dbc6a2'},{label:'SMS',orig:'SMS',color:'#6280bd'},{label:'Social',orig:'Social',color:'#cbc9d6'},{label:'Key date',orig:'Key date',color:'#eace49'},{label:'Marketplace',orig:'Marketplace',color:'#1f2328'},{label:'Event',orig:'Event',color:'#e87142'},{label:'Biz update',orig:'Biz update',color:'#8a3518'},{label:'Collateral',orig:'Collateral',color:'#2a7a4b'},{label:'Influencer',orig:'Influencer',color:'#7bbd91'},{label:'Collab post',orig:'Collab post',color:'#c65f83'}];
+    var CHIPS=[{label:'All',orig:'All',key:'all',color:null,isAll:true},{label:'Email',orig:'Email',key:'email',color:'#dbc6a2'},{label:'SMS',orig:'SMS',key:'campaign',color:'#6280bd'},{label:'Social',orig:'Social',key:'social',color:'#cbc9d6'},{label:'Key date',orig:'Key date',key:'keydate',color:'#eace49'},{label:'Marketplace',orig:'Marketplace',key:'ops',color:'#1f2328'},{label:'Event',orig:'Event',key:'event',color:'#e87142'},{label:'Biz update',orig:'Biz update',key:'bizupdate',color:'#8a3518'},{label:'Collateral',orig:'Collateral',key:'launch',color:'#2a7a4b'},{label:'Influencer',orig:'Influencer',key:'influencer',color:'#7bbd91'},{label:'Collab post',orig:'Collab post',key:'collab',color:'#c65f83'}];
     var row=document.createElement('div');row.id='nb-filter-enhanced';row.style.cssText='display:flex;flex-wrap:wrap;gap:5px;align-items:center;';
     CHIPS.forEach(function(cfg){
       var chip=document.createElement('span');chip.className='nb-chip-wrap';chip.setAttribute('data-orig',cfg.orig);chip.setAttribute('data-label',cfg.label);
@@ -1940,8 +1976,8 @@ function ra(){eec();etc();uth();ug();}var _t=null;new MutationObserver(function(
       else if(cfg.color){var sw=document.createElement('span');sw.className='nb-chip-swatch';sw.style.background=cfg.color;chip.appendChild(sw);}
       chip.appendChild(document.createTextNode(cfg.label));
       chip.addEventListener('click',function(){
-        var orig=allSpans.find(function(s){return s.textContent.trim()===cfg.orig;});
-        if(orig)orig.click();
+        if(window.__cal_toggleFilter){window.__cal_toggleFilter(cfg.key);}
+        else{var orig=allSpans.find(function(s){return s.textContent.trim()===cfg.orig;});if(orig)orig.click();}
         var allChip=row.querySelector('[data-label="All"]');
         if(cfg.isAll){
           // "All" clears every other selection
