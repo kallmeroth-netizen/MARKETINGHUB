@@ -533,6 +533,14 @@ const DEFAULT_THEMES = {
           }
           return out;
         };
+        // Derive the marketplace flag from the event name when it was never set
+        // either way. Applied to every load path (seed, local cache, Firebase)
+        // so the marketplace edge is on the first paint instead of only
+        // appearing after Firebase syncs — and never overrides a box that was
+        // deliberately unchecked (marketplace === false is left alone).
+        const normalizeEvents = evs => Array.isArray(evs)
+          ? evs.map(e => (e && e.marketplace === undefined && /marketplace/i.test(e.name||'')) ? {...e, marketplace:true} : e)
+          : evs;
         // Local cache so the calendar always loads + persists, even if Firebase is unavailable.
         const rd = (key) => { try { const s = JSON.parse(localStorage.getItem(STORAGE_KEY)||'null'); return s ? s[key] : null; } catch(e) { return null; } };
         const wr = (data) => { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch(e) {} };
@@ -573,6 +581,104 @@ const fmtTime = t => { if (!t) return ''; const m = /^(\d{1,2}):(\d{2})/.exec(t)
 const addDays = (ds, n) => { const d = new Date(ds+'T00:00:00'); d.setDate(d.getDate()+n); return d.toISOString().split('T')[0]; };
 const mkKey = date => date.getFullYear()+'-'+date.getMonth();
 
+// ── PLANNED LAUNCH CALENDAR ─────────────────────────────────────────────────
+// Fall 2026 launch plan. Pattern per launch: teases = Social (spread across the
+// window), launch day = Biz update; menu items also get Email + SMS on launch
+// day; marketplace items carry the marketplace flag; collab drops are Collab
+// posts; catering "with collateral" adds a Collateral item; note-only items are
+// a single Event/Key date. Seeded into fresh boards and imported once into live
+// data (guarded by a marker so deleting one doesn't bring it back).
+const mkEv = (id, start, cat, name, x) => ({ id, name, start, end:(x&&x.end)||start, time:'', cat, sub:(x&&x.sub)||'', notes:(x&&x.notes)||'', hold:!!(x&&x.hold), depts:[], people:[], confirmed:false, marketplace:!!(x&&x.mp), actions:[] });
+const PLANNED_LAUNCHES = [
+  // WLV Patio Expansion — note only
+  mkEv('pl_patio','2026-10-26','event','WLV Patio Expansion',{sub:'Westlake Village',notes:'Patio expansion - note only.'}),
+  // Coffee 1.0 - Brentwood (menu)
+  mkEv('pl_cof1_t1','2026-08-10','social','Coffee 1.0 Tease - Brentwood',{sub:'Brentwood'}),
+  mkEv('pl_cof1_t2','2026-08-17','social','Coffee 1.0 Tease - Brentwood',{sub:'Brentwood'}),
+  mkEv('pl_cof1_lu','2026-08-24','bizupdate','Coffee 1.0 Launch - Brentwood',{sub:'Brentwood'}),
+  mkEv('pl_cof1_em','2026-08-24','email','Coffee 1.0 Launch - Email',{sub:'Brentwood'}),
+  mkEv('pl_cof1_sm','2026-08-24','campaign','Coffee 1.0 Launch - SMS',{sub:'Brentwood'}),
+  // Bar Drinks 1.0 - Brentwood (menu)
+  mkEv('pl_bd1_t1','2026-08-10','social','Bar Drinks 1.0 Tease - Brentwood',{sub:'Brentwood',notes:'Skinny Dirty Hot Girl Marg, Espresso Frozen, Spicy Frozen Marg'}),
+  mkEv('pl_bd1_t2','2026-08-17','social','Bar Drinks 1.0 Tease - Brentwood',{sub:'Brentwood',notes:'Skinny Dirty Hot Girl Marg, Espresso Frozen, Spicy Frozen Marg'}),
+  mkEv('pl_bd1_lu','2026-08-24','bizupdate','Bar Drinks 1.0 Launch - Brentwood',{sub:'Brentwood',notes:'Skinny Dirty Hot Girl Marg, Espresso Frozen, Spicy Frozen Marg'}),
+  mkEv('pl_bd1_em','2026-08-24','email','Bar Drinks 1.0 Launch - Email',{sub:'Brentwood'}),
+  mkEv('pl_bd1_sm','2026-08-24','campaign','Bar Drinks 1.0 Launch - SMS',{sub:'Brentwood'}),
+  // Veggie Burger + Chicken Parm Alla - All Locations (menu)
+  mkEv('pl_vb_lu','2026-08-24','bizupdate','Veggie Burger + Chicken Parm Alla - All Locations',{sub:'All Locations'}),
+  mkEv('pl_vb_em','2026-08-24','email','Veggie Burger + Chicken Parm Alla - Email',{sub:'All Locations'}),
+  mkEv('pl_vb_sm','2026-08-24','campaign','Veggie Burger + Chicken Parm Alla - SMS',{sub:'All Locations'}),
+  // Mediterranean Grill Package - Catering (collateral)
+  mkEv('pl_med_lu','2026-09-21','bizupdate','Mediterranean Grill Package - Catering Launch',{notes:'Catering launch.'}),
+  mkEv('pl_med_col','2026-09-21','launch','Mediterranean Grill Package - Collateral',{notes:'Catering collateral.'}),
+  // Catering Online Platform
+  mkEv('pl_cop_lu','2026-09-21','bizupdate','Catering Online Platform - Launch',{notes:'Online catering ordering launch.'}),
+  // Bar Drinks 2.0 - Brentwood (menu, 3x tease)
+  mkEv('pl_bd2_t1','2026-10-05','social','Bar Drinks 2.0 Tease - Brentwood',{sub:'Brentwood'}),
+  mkEv('pl_bd2_t2','2026-10-09','social','Bar Drinks 2.0 Tease - Brentwood',{sub:'Brentwood'}),
+  mkEv('pl_bd2_t3','2026-10-12','social','Bar Drinks 2.0 Tease - Brentwood',{sub:'Brentwood'}),
+  mkEv('pl_bd2_lu','2026-10-19','bizupdate','Bar Drinks 2.0 Launch - Brentwood',{sub:'Brentwood'}),
+  mkEv('pl_bd2_em','2026-10-19','email','Bar Drinks 2.0 Launch - Email',{sub:'Brentwood'}),
+  mkEv('pl_bd2_sm','2026-10-19','campaign','Bar Drinks 2.0 Launch - SMS',{sub:'Brentwood'}),
+  // Coffee 2.0 - Brentwood + Studio City (menu)
+  mkEv('pl_cof2_lu','2026-10-19','bizupdate','Coffee 2.0 Launch - Brentwood + Studio City',{notes:'Studio City opens with it.'}),
+  mkEv('pl_cof2_em','2026-10-19','email','Coffee 2.0 Launch - Email'),
+  mkEv('pl_cof2_sm','2026-10-19','campaign','Coffee 2.0 Launch - SMS'),
+  // Collins Bros - All Locations (menu, two launch dates)
+  mkEv('pl_col_t1','2026-10-26','social','Collins Bros Tease - All Locations',{sub:'All Locations'}),
+  mkEv('pl_col_t2','2026-11-01','social','Collins Bros Tease - All Locations',{sub:'All Locations'}),
+  mkEv('pl_col_lu1','2026-11-09','bizupdate','Collins Bros Launch - Brentwood + Westlake Village'),
+  mkEv('pl_col_em1','2026-11-09','email','Collins Bros Launch - Email (BR + WLV)'),
+  mkEv('pl_col_sm1','2026-11-09','campaign','Collins Bros Launch - SMS (BR + WLV)'),
+  mkEv('pl_col_lu2','2026-11-16','bizupdate','Collins Bros Launch - Studio City',{sub:'Studio City'}),
+  mkEv('pl_col_em2','2026-11-16','email','Collins Bros Launch - Email (SC)',{sub:'Studio City'}),
+  mkEv('pl_col_sm2','2026-11-16','campaign','Collins Bros Launch - SMS (SC)',{sub:'Studio City'}),
+  // Marketplace Launch 2.0 - BR + WLV (marketplace, two launch dates)
+  mkEv('pl_mk2_t1','2026-10-27','social','Marketplace Launch 2.0 Tease',{mp:true}),
+  mkEv('pl_mk2_t2','2026-11-02','social','Marketplace Launch 2.0 Tease',{mp:true}),
+  mkEv('pl_mk2_lu1','2026-11-09','bizupdate','Marketplace Launch 2.0 - Brentwood + Westlake Village',{mp:true}),
+  mkEv('pl_mk2_em1','2026-11-09','email','Marketplace Launch 2.0 - Email (BR + WLV)',{mp:true}),
+  mkEv('pl_mk2_sm1','2026-11-09','campaign','Marketplace Launch 2.0 - SMS (BR + WLV)',{mp:true}),
+  mkEv('pl_mk2_lu2','2026-11-16','bizupdate','Marketplace Launch 2.0 - Studio City',{sub:'Studio City',mp:true}),
+  mkEv('pl_mk2_em2','2026-11-16','email','Marketplace Launch 2.0 - Email (SC)',{sub:'Studio City',mp:true}),
+  mkEv('pl_mk2_sm2','2026-11-16','campaign','Marketplace Launch 2.0 - SMS (SC)',{sub:'Studio City',mp:true}),
+  // Marketplace Hot Bar - Studio City (marketplace, tentative)
+  mkEv('pl_hbsc_t1','2026-10-28','social','Marketplace Hot Bar Tease - Studio City',{sub:'Studio City',mp:true}),
+  mkEv('pl_hbsc_t2','2026-11-01','social','Marketplace Hot Bar Tease - Studio City',{sub:'Studio City',mp:true}),
+  mkEv('pl_hbsc_lu','2026-11-16','bizupdate','Marketplace Hot Bar Launch - Studio City',{sub:'Studio City',mp:true,hold:true,notes:'Tentative date.'}),
+  mkEv('pl_hbsc_em','2026-11-16','email','Marketplace Hot Bar - Email (SC)',{sub:'Studio City',mp:true,hold:true}),
+  mkEv('pl_hbsc_sm','2026-11-16','campaign','Marketplace Hot Bar - SMS (SC)',{sub:'Studio City',mp:true,hold:true}),
+  // Marketplace Hot Bar - Brentwood (marketplace, tease only)
+  mkEv('pl_hbbr_t1','2026-11-09','social','Marketplace Hot Bar Tease - Brentwood',{sub:'Brentwood',mp:true,notes:'Launch date TBD.'}),
+  // Gaby's Cookies (menu, launch window)
+  mkEv('pl_gab_t1','2026-10-29','social','Gabys Cookies Tease'),
+  mkEv('pl_gab_t2','2026-11-02','social','Gabys Cookies Tease'),
+  mkEv('pl_gab_lu','2026-11-09','bizupdate','Gabys Cookies Launch Window',{end:'2026-11-16',notes:'Launch window 11/9-11/16.'}),
+  mkEv('pl_gab_em','2026-11-09','email','Gabys Cookies Launch - Email'),
+  mkEv('pl_gab_sm','2026-11-09','campaign','Gabys Cookies Launch - SMS'),
+  // Packaging Summit - internal key date
+  mkEv('pl_pkg','2026-11-09','keydate','Packaging Summit - Review All Packaging',{notes:'Internal - review all restaurant packaging.'}),
+  // Collab Drop - Thanksgiving, All Locations (collab + menu)
+  mkEv('pl_cd_t1','2026-10-27','social','Thanksgiving Collab Drop Tease - All Locations',{sub:'All Locations'}),
+  mkEv('pl_cd_t2','2026-10-31','social','Thanksgiving Collab Drop Tease - All Locations',{sub:'All Locations'}),
+  mkEv('pl_cd_t3','2026-11-08','social','Thanksgiving Collab Drop Tease - Day Before',{sub:'All Locations'}),
+  mkEv('pl_cd_lu','2026-11-09','collab','Thanksgiving Collab Drop - All Locations',{sub:'All Locations',notes:'Collab TBD.'}),
+  mkEv('pl_cd_em','2026-11-09','email','Thanksgiving Collab Drop - Email'),
+  mkEv('pl_cd_sm','2026-11-09','campaign','Thanksgiving Collab Drop - SMS'),
+  // Holiday Marketplace Drop - All Locations (marketplace + menu)
+  mkEv('pl_hmk_t1','2026-11-16','social','Holiday Marketplace Drop Tease - All Locations',{sub:'All Locations',mp:true}),
+  mkEv('pl_hmk_t2','2026-11-22','social','Holiday Marketplace Drop Tease - All Locations',{sub:'All Locations',mp:true}),
+  mkEv('pl_hmk_lu','2026-11-23','bizupdate','Holiday Marketplace Drop - All Locations',{sub:'All Locations',mp:true}),
+  mkEv('pl_hmk_em','2026-11-23','email','Holiday Marketplace Drop - Email',{mp:true}),
+  mkEv('pl_hmk_sm','2026-11-23','campaign','Holiday Marketplace Drop - SMS',{mp:true}),
+  // Holiday Saturdae - All Locations (menu dessert)
+  mkEv('pl_hsd_t1','2026-11-16','social','Holiday Saturdae Tease - All Locations',{sub:'All Locations',notes:'Flavor TBD.'}),
+  mkEv('pl_hsd_t2','2026-11-22','social','Holiday Saturdae Tease - All Locations',{sub:'All Locations',notes:'Flavor TBD.'}),
+  mkEv('pl_hsd_lu','2026-11-23','bizupdate','Holiday Saturdae Launch - All Locations',{sub:'All Locations',notes:'Flavor TBD.'}),
+  mkEv('pl_hsd_em','2026-11-23','email','Holiday Saturdae Launch - Email'),
+  mkEv('pl_hsd_sm','2026-11-23','campaign','Holiday Saturdae Launch - SMS'),
+];
+
 // Auto-tag rules
 const SAMPLE_EVENTS = NOTION_EVENTS.map(ev => {
   const people = [...(ev.people||[])];
@@ -584,7 +690,7 @@ const SAMPLE_EVENTS = NOTION_EVENTS.map(ev => {
   // Events whose name calls out the marketplace are flagged as marketplace
   // content (stacks on their channel) so they read with the dark left edge.
   return {...ev, people, marketplace: ev.marketplace ?? /marketplace/i.test(ev.name||'')};
-});
+}).concat(PLANNED_LAUNCHES);
 
 // ── EMAILJS CONFIG ────────────────────────────────────────────────────────────
 // Setup (one-time, ~5 min):
@@ -1033,7 +1139,7 @@ function InfluencerList({open, onClose, list, monthLabel, onToggle, onRowClick, 
 function NeighborlyCalendar() {
   const isMobile = useIsMobile();
 
-  const [events,    setEvents]    = useState(() => rd('events')  || SAMPLE_EVENTS);
+  const [events,    setEvents]    = useState(() => normalizeEvents(rd('events')) || SAMPLE_EVENTS);
   const [goals,     setGoals]     = useState(() => rd('goals')   || {});
   const [themes,    setThemes]    = useState(() => normalizeThemes(rd('themes')) || JSON.parse(JSON.stringify(DEFAULT_THEMES)));
         // Firebase real-time sync
@@ -1043,18 +1149,23 @@ function NeighborlyCalendar() {
             const data = snap.val();
             if (data) {
               if (data.events) {
-                // One-time marketplace sweep: flag events whose name states
-                // "marketplace" as marketplace content (dark left edge). Only
-                // touches events that were never set either way, so a box you
-                // deliberately unchecked is left alone. Writes back once; on
-                // the echo there's nothing left to change, so it can't loop.
-                let changed = false;
-                const evs = data.events.map(e => {
-                  if (e && e.marketplace === undefined && /marketplace/i.test(e.name||'')) { changed = true; return {...e, marketplace:true}; }
-                  return e;
-                });
+                // Marketplace sweep via the shared normalizer: flags events
+                // whose name states "marketplace" (dark left edge), only when
+                // never set either way.
+                let evs = normalizeEvents(data.events);
+                let changed = Array.isArray(data.events) && evs.some((e,i) => e !== data.events[i]);
+                // One-time launch import: add the planned launch/tease events
+                // once. Guarded by a marker so deleting an imported event does
+                // NOT bring it back on the next load. Idempotent by id.
+                let extra = null;
+                if (!(data.imports && data.imports.launches2026)) {
+                  const have = new Set(evs.map(e => e && e.id));
+                  const toAdd = PLANNED_LAUNCHES.filter(e => !have.has(e.id));
+                  if (toAdd.length) { evs = evs.concat(toAdd); changed = true; }
+                  extra = {imports: {...(data.imports||{}), launches2026: true}};
+                }
                 setEvents(evs);
-                if (changed && __calRef) __calRef.update({events: evs});
+                if (__calRef && (changed || extra)) __calRef.update({...(changed?{events:evs}:{}), ...(extra||{})});
               }
               if (data.goals)  setGoals(data.goals);
               else {
