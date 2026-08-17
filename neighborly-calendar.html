@@ -541,6 +541,9 @@ const DEFAULT_THEMES = {
         const normalizeEvents = evs => Array.isArray(evs)
           ? evs.map(e => (e && e.marketplace === undefined && /marketplace/i.test(e.name||'')) ? {...e, marketplace:true} : e)
           : evs;
+        // Collins Bros / Coffee / Smoothie launches all moved — cleared out
+        // (once) so they can be re-added on their new dates.
+        const CCS_RE = /collins|coffee|smoothie/i;
         // Local cache so the calendar always loads + persists, even if Firebase is unavailable.
         const rd = (key) => { try { const s = JSON.parse(localStorage.getItem(STORAGE_KEY)||'null'); return s ? s[key] : null; } catch(e) { return null; } };
         const wr = (data) => { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch(e) {} };
@@ -708,7 +711,7 @@ const SAMPLE_EVENTS = NOTION_EVENTS.map(ev => {
   // Events whose name calls out the marketplace are flagged as marketplace
   // content (stacks on their channel) so they read with the dark left edge.
   return {...ev, people, marketplace: ev.marketplace ?? /marketplace/i.test(ev.name||'')};
-}).concat(PLANNED_LAUNCHES, FALL_ADDS);
+}).concat(PLANNED_LAUNCHES, FALL_ADDS).filter(e => !CCS_RE.test(e.name||''));
 
 // ── EMAILJS CONFIG ────────────────────────────────────────────────────────────
 // Setup (one-time, ~5 min):
@@ -1189,6 +1192,16 @@ function NeighborlyCalendar() {
                 };
                 importBatch('launches2026', PLANNED_LAUNCHES);
                 importBatch('fall2026', FALL_ADDS);
+                // One-time cleanup: the Collins Bros / Coffee / Smoothie
+                // launches all moved, so remove those events once. Guarded by a
+                // marker so re-adding them later (on new dates) sticks.
+                if (!imports.removeCcs2026) {
+                  const before = evs.length;
+                  evs = evs.filter(e => !CCS_RE.test((e && e.name) || ''));
+                  if (evs.length !== before) changed = true;
+                  imports = {...imports, removeCcs2026: true};
+                  importsChanged = true;
+                }
                 setEvents(evs);
                 if (__calRef && (changed || importsChanged)) __calRef.update({...(changed?{events:evs}:{}), ...(importsChanged?{imports}:{})});
               }
