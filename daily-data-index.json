@@ -1,6 +1,15 @@
 {
   "dates": [
     {
+      "date": "2026-08-17",
+      "dateLabel": "Monday 08/17/26",
+      "netSales": {
+        "wlv": 23636.89,
+        "bw": 23760.49,
+        "total": 47397.38
+      }
+    },
+    {
       "date": "2026-08-16",
       "dateLabel": "Sunday 08/16/26",
       "netSales": {
@@ -829,6 +838,6 @@
       }
     }
   ],
-  "latest": "2026-08-16",
-  "count": 92
+  "latest": "2026-08-17",
+  "count": 93
 }
