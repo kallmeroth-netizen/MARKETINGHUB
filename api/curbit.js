@@ -56,6 +56,21 @@ async function getToken(force) {
 
 async function safeText(r) { try { return await r.text(); } catch (_) { return ''; } }
 
+// Curbit's exact envelope key varies; find the array of records wherever it is.
+function pick(...vals) { for (const v of vals) { if (v != null) return v; } return undefined; }
+function ordersArray(j) {
+  if (Array.isArray(j)) return j;
+  if (!j || typeof j !== 'object') return [];
+  if (Array.isArray(j.data)) return j.data;
+  if (Array.isArray(j.orders)) return j.orders;
+  if (Array.isArray(j.results)) return j.results;
+  if (Array.isArray(j.items)) return j.items;
+  if (Array.isArray(j.stores)) return j.stores;
+  if (j.data && Array.isArray(j.data.orders)) return j.data.orders;
+  if (j.data && Array.isArray(j.data.items)) return j.data.items;
+  return [];
+}
+
 // One authenticated GET, with a single automatic re-auth on 401.
 async function curbitGet(pathAndQuery) {
   const doFetch = async (token) => fetch(BASE + pathAndQuery, {
@@ -75,7 +90,7 @@ async function curbitGet(pathAndQuery) {
 // Named exports so the cron (api/curbit-cron.js) can reuse the same auth
 // without duplicating it. Each lambda gets its own module instance + token
 // cache, which is fine.
-export { curbitGet, getToken, safeText, BASE as CURBIT_BASE };
+export { curbitGet, getToken, safeText, ordersArray, pick, BASE as CURBIT_BASE };
 export function curbitConfigured() { return !!(SUBKEY() && TENANT()); }
 
 export default async function handler(req, res) {
@@ -105,11 +120,18 @@ export default async function handler(req, res) {
   };
 
   try {
-    // Stores, or a single orders page → straight pass-through.
+    // Stores, or a single orders page → pass-through, but normalize the array
+    // onto `data` so the client sees one shape regardless of Curbit's key.
     if (resource === '/orders/v1/stores' || !wantAll) {
       const r = await curbitGet(resource + buildQS());
       const text = await safeText(r);
       let body; try { body = JSON.parse(text); } catch (_) { body = { raw: text }; }
+      if (r.ok && body && typeof body === 'object' && !Array.isArray(body.data)) {
+        const arr = ordersArray(body);
+        if (arr.length || Array.isArray(body)) body = Object.assign({ data: arr }, Array.isArray(body) ? null : body);
+      } else if (r.ok && Array.isArray(body)) {
+        body = { data: body };
+      }
       res.setHeader('Cache-Control', 's-maxage=120, stale-while-revalidate=600');
       res.status(r.ok ? 200 : r.status).json(body);
       return;
@@ -122,10 +144,11 @@ export default async function handler(req, res) {
       const r = await curbitGet(resource + buildQS(cursor ? { cursor } : null));
       if (!r.ok) { res.status(r.status).json({ error: 'Curbit orders page failed', status: r.status, body: await safeText(r) }); return; }
       const j = await r.json();
-      if (Array.isArray(j.data)) all.push(...j.data);
-      const pg = j.pagination || {};
-      if (total == null && pg.total_count != null) total = pg.total_count;
-      cursor = pg.next_cursor || null;
+      const arr = ordersArray(j);
+      all.push(...arr);
+      const pg = j.pagination || j.meta || j.page || {};
+      if (total == null) total = pick(pg.total_count, pg.total, pg.count, j.total_count, j.total);
+      cursor = pick(pg.next_cursor, pg.nextCursor, pg.cursor, pg.next, j.next_cursor) || null;
       pages += 1;
     } while (cursor && pages < MAX_PAGES);
 

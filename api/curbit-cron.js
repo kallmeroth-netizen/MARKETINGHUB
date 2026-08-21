@@ -1,4 +1,4 @@
-// api/curbit-cron.js — Vercel Cron target (every 15 min; see vercel.json)
+// api/curbit-cron.js — Vercel Cron target (see vercel.json)
 //
 // WHY: the Order Operations page reads a snapshot from Firebase so it loads
 // instantly and can switch Today/7/30-day windows without re-hitting Curbit.
@@ -12,7 +12,7 @@
 // on scheduled invocations; we require it so the endpoint can't be triggered by
 // anyone. Leave it unset to allow open invocation (still read-only vs Curbit).
 
-import { curbitGet, safeText, curbitConfigured } from './curbit.js';
+import { curbitGet, safeText, curbitConfigured, ordersArray, pick } from './curbit.js';
 
 const FIREBASE_SNAPSHOT =
   'https://neighborly-hub-53e4b-default-rtdb.firebaseio.com/curbit_snapshot.json';
@@ -59,7 +59,7 @@ export default async function handler(req, res) {
     let stores = [];
     try {
       const sr = await curbitGet('/orders/v1/stores');
-      if (sr.ok) { const sj = await sr.json(); stores = (sj.data || []).map(s => ({ store_id: s.store_id, name: s.name })); }
+      if (sr.ok) { const sj = await sr.json(); stores = ordersArray(sj).map(s => ({ store_id: s.store_id, name: s.name })); }
     } catch (_) {}
 
     // Orders, last SNAPSHOT_DAYS, auto-paginated
@@ -71,8 +71,9 @@ export default async function handler(req, res) {
       const r = await curbitGet(base + (cursor ? '&cursor=' + encodeURIComponent(cursor) : ''));
       if (!r.ok) { res.status(r.status).json({ error: 'orders fetch failed', status: r.status, body: await safeText(r) }); return; }
       const j = await r.json();
-      if (Array.isArray(j.data)) j.data.forEach(o => orders.push(compact(o)));
-      cursor = (j.pagination && j.pagination.next_cursor) || null;
+      ordersArray(j).forEach(o => orders.push(compact(o)));
+      const pg = j.pagination || j.meta || j.page || {};
+      cursor = pick(pg.next_cursor, pg.nextCursor, pg.cursor, pg.next, j.next_cursor) || null;
       pages += 1;
     } while (cursor && pages < MAX_PAGES);
 

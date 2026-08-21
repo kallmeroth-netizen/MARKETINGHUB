@@ -58,10 +58,13 @@
   /* Make-time cells */
   .mk-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: var(--s-3); }
   @media (max-width: 820px) { .mk-grid { grid-template-columns: repeat(3, 1fr); } }
-  @media (max-width: 560px) { .mk-grid { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 560px) { .mk-grid { grid-template-columns: 1fr 1fr; gap: var(--s-2); } }
   .mk { padding: var(--s-4); border-radius: var(--r-lg); background: var(--surface-2); text-align: center; }
+  @media (max-width: 560px) { .mk { padding: 14px 10px; } }
   .mk .k { font-family: var(--f-mono); font-weight: 600; font-size: 24px; letter-spacing: -0.03em; color: var(--ink); }
+  @media (max-width: 560px) { .mk .k { font-size: 20px; } }
   .mk .l { font-family: var(--f-eyebrow); font-weight: 600; font-size: var(--t-eyebrow); letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-3); margin-top: 6px; }
+  @media (max-width: 560px) { .mk .l { font-size: 9.5px; letter-spacing: 0.08em; } }
 
   /* Anomaly chips */
   .anoms { display: flex; flex-wrap: wrap; gap: var(--s-2); }
@@ -69,9 +72,10 @@
   .anom b { font-family: var(--f-mono); }
   .anom .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--brand-orange); }
 
-  /* Store table */
-  .ops-table { width: 100%; border-collapse: collapse; font-size: var(--t-body-sm); }
-  .ops-table th, .ops-table td { text-align: left; padding: 11px 12px; border-bottom: 1px solid var(--line); }
+  /* Store table — scrolls horizontally on narrow screens instead of clipping */
+  .ops-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 0 calc(-1 * var(--s-5)); padding: 0 var(--s-5); }
+  .ops-table { width: 100%; min-width: 560px; border-collapse: collapse; font-size: var(--t-body-sm); }
+  .ops-table th, .ops-table td { text-align: left; padding: 11px 12px; border-bottom: 1px solid var(--line); white-space: nowrap; }
   .ops-table th { font-family: var(--f-eyebrow); font-weight: 600; font-size: var(--t-eyebrow); letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-3); }
   .ops-table td.num, .ops-table th.num { text-align: right; font-family: var(--f-mono); }
   .ops-table tr:last-child td { border-bottom: none; }
@@ -166,7 +170,7 @@
   <section class="np-card">
     <div class="np-card-title">By store</div>
     <div class="np-card-sub">Volume &amp; make-time by location</div>
-    <table class="ops-table" id="storeTable"><thead><tr><th>Store</th><th class="num">Orders</th><th class="num">Delivered</th><th class="num">Cancel %</th><th class="num">On-time %</th><th class="num">Goldilocks %</th><th class="num">Avg miss (min)</th></tr></thead><tbody></tbody></table>
+    <div class="ops-table-wrap"><table class="ops-table" id="storeTable"><thead><tr><th>Store</th><th class="num">Orders</th><th class="num">Delivered</th><th class="num">Cancel %</th><th class="num">On-time %</th><th class="num">Goldilocks %</th><th class="num">Avg miss (min)</th></tr></thead><tbody></tbody></table></div>
   </section>
 
   <p style="font-size:var(--t-caption-sm);color:var(--text-3);margin-top:var(--s-5);text-align:center">Order Operations · data via Curbit Orders API · <span id="foot">demo data</span></p>
@@ -336,7 +340,7 @@ function banner(kind, title, html){
 function clearBanner(){ document.getElementById('banner').classList.remove('show'); }
 
 // ── data load ──────────────────────────────────────────────────────────────
-// The page prefers the Firebase snapshot the 15-min cron writes (instant loads,
+// The page prefers the Firebase snapshot the cron writes (instant loads,
 // in-memory timeframe switching). If the snapshot is missing/stale it falls back
 // to a live /api/curbit fetch, which also works standalone.
 var SNAPSHOT_URL='https://neighborly-hub-53e4b-default-rtdb.firebaseio.com/curbit_snapshot.json';
@@ -397,8 +401,10 @@ async function load(){
     if(!res.ok){ banner('err','Curbit request failed','The feed returned status '+res.status+'. Try again shortly.'); render(aggregate([])); return; }
     clearBanner();
     var j=await res.json();
+    var orders=(j&&j.data)||[];
     if(j.capped) banner('warn','Showing a partial window','Loaded the first '+ (j.pages*5000) +' orders — narrow the range for a complete view.');
-    render(aggregate(j.data||[]));
+    else if(!orders.length) banner('warn','Connected, but no orders in this window','Curbit responded with 0 orders for the last '+days+' day'+(days>1?'s':'')+'. Try a wider range with the toggle above, or check <a href="/api/curbit?resource=stores" target="_blank">the store list</a>. Once orders land in-range they populate automatically.');
+    render(aggregate(orders));
   }catch(e){ banner('err','Could not reach the Curbit feed', e.message); render(aggregate([])); }
 }
 
@@ -434,7 +440,7 @@ function demoOrders(){
     var n=Math.max(4, Math.round(perDay*(0.75+rnd()*0.6)));
     for(var j=0;j<n;j++){
       var st=stores[Math.floor(rnd()*stores.length)];
-      var hr=(days<=1)? hours[Math.floor(rnd()*hours.length)] : hours[Math.floor(rnd()*hours.length)];
+      var hr=hours[Math.floor(rnd()*hours.length)];
       var t=new Date(when); t.setHours(hr, Math.floor(rnd()*60), 0, 0);
       var miss=Math.round((rnd()*16-7)*10)/10;
       out.push({order_id:'o'+(i++), store_id:st[0], status:statuses[Math.floor(rnd()*statuses.length)],
