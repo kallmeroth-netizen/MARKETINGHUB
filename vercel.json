@@ -1,5 +1,5 @@
 {
   "crons": [
-    { "path": "/api/curbit-cron", "schedule": "*/15 * * * *" }
+    { "path": "/api/curbit-cron", "schedule": "0 8 * * *" }
   ]
 }
