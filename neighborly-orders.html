@@ -178,10 +178,11 @@ var API = '/api/curbit';
 var DEMO = new URLSearchParams(location.search).get('demo') === '1';
 var STORE_NAMES = {};
 var CUR_DAYS = 7;
-// Neighborly channels only — no drive-thru, no call-in. Unknown channels that
-// Curbit may return still render (in grey) via the fallback in bars().
-var C = { origin:{DELIVERY:'var(--brand-orange)',WALK_IN:'var(--brand-green)',DIGITAL:'var(--brand-blue)',CATERING:'var(--brand-yellow)'},
-          handoff:{CURBSIDE:'var(--brand-orange)',PICKUP_COUNTER:'var(--brand-green)',DINE_IN:'var(--brand-blue)',DELIVERY:'var(--brand-yellow)',CATERING:'var(--brand-lavender)'},
+// Neighborly channels ONLY: Walk In, Delivery, Online Order. No drive-thru,
+// no call-in, no catering. Any other value Curbit may return still renders
+// (in grey) via the fallback in bars().
+var C = { origin:{WALK_IN:'var(--brand-green)',DELIVERY:'var(--brand-orange)',ONLINE_ORDER:'var(--brand-blue)'},
+          handoff:{PICKUP_COUNTER:'var(--brand-green)',DINE_IN:'var(--brand-blue)',DELIVERY:'var(--brand-orange)',CURBSIDE:'var(--brand-yellow)'},
           daypart:{Morning:'var(--brand-yellow)',Lunch:'var(--brand-orange)',Dinner:'var(--brand-blue)','Late night':'var(--brand-lavender)'} };
 var DAYPART_ORDER = ['Morning','Lunch','Dinner','Late night'];
 var fmt = function(n){ return (n==null||isNaN(n)) ? '—' : Number(n).toLocaleString(); };
@@ -335,13 +336,52 @@ function banner(kind, title, html){
 function clearBanner(){ document.getElementById('banner').classList.remove('show'); }
 
 // ── data load ──────────────────────────────────────────────────────────────
+// The page prefers the Firebase snapshot the 15-min cron writes (instant loads,
+// in-memory timeframe switching). If the snapshot is missing/stale it falls back
+// to a live /api/curbit fetch, which also works standalone.
+var SNAPSHOT_URL='https://neighborly-hub-53e4b-default-rtdb.firebaseio.com/curbit_snapshot.json';
+var ALL_ORDERS=null, SNAP_AT=0, SNAP_FETCHED=0;
+
 function currentDays(){ var el=document.querySelector('#rangeSeg .is-active'); return el?+el.dataset.days:7; }
 function setRangeLabel(days){ document.getElementById('rangeLabel').textContent = 'Last '+days+' day'+(days>1?'s':'')+' · kitchen throughput, make-time & delivery flow'; }
+function cutoffIso(days){ var t=new Date(); if(days>1){ t.setDate(t.getDate()-days); } t.setHours(0,0,0,0); return t.toISOString(); }
+function agoLabel(t){ if(!t) return ''; var m=Math.round((Date.now()-t)/60000); return m<1?'just now':(m<60?m+'m ago':Math.round(m/60)+'h ago'); }
+function filterWindow(orders, days, store){
+  var cutoff=Date.parse(cutoffIso(days));
+  return orders.filter(function(o){
+    if(store && o.store_id!==store) return false;
+    var t=orderTs(o); if(t!=null && t<cutoff) return false;
+    return true;
+  });
+}
+async function ensureSnapshot(){
+  if(ALL_ORDERS && (Date.now()-SNAP_FETCHED < 5*60*1000)) return true;
+  try{
+    var r=await fetch(SNAPSHOT_URL, {cache:'no-store'});
+    if(!r.ok) return false;
+    var s=await r.json();
+    if(!s || !Array.isArray(s.orders) || !s.orders.length) return false;
+    ALL_ORDERS=s.orders; SNAP_AT=Date.parse(s.updatedAt)||0; SNAP_FETCHED=Date.now();
+    (s.stores||[]).forEach(function(x){ if(x&&x.store_id) STORE_NAMES[x.store_id]=x.name; });
+    fillStoreSelect();
+    return true;
+  }catch(e){ return false; }
+}
 
 async function load(){
   var days=currentDays(); CUR_DAYS=days; setRangeLabel(days);
   var store=document.getElementById('storeSel').value;
   if(DEMO){ document.getElementById('foot').textContent='demo data'; renderFiltered(demoOrders(), store); return; }
+
+  // 1) Snapshot first — instant, and lets Today/7/30 switch without refetch.
+  if(await ensureSnapshot()){
+    clearBanner();
+    document.getElementById('foot').textContent='live · Curbit · updated '+agoLabel(SNAP_AT);
+    render(aggregate(filterWindow(ALL_ORDERS, days, store)));
+    return;
+  }
+
+  // 2) Fallback — live fetch straight from the proxy.
   document.getElementById('foot').textContent='live · Curbit';
   try{
     var sres=await fetch(API+'?resource=stores');
@@ -349,7 +389,7 @@ async function load(){
     var sj=await sres.json(); (sj.data||[]).forEach(function(x){STORE_NAMES[x.store_id]=x.name;});
     fillStoreSelect();
   }catch(e){}
-  var qs='?from='+encodeURIComponent(isoDaysAgo(days))+'&to='+encodeURIComponent(nowIso())+'&all=1';
+  var qs='?from='+encodeURIComponent(cutoffIso(days))+'&to='+encodeURIComponent(nowIso())+'&all=1';
   if(store) qs+='&store_id='+encodeURIComponent(store);
   try{
     var res=await fetch(API+qs);
@@ -375,15 +415,14 @@ function fillStoreSelect(){
 function renderFiltered(orders, store){ render(aggregate(store?orders.filter(function(o){return o.store_id===store;}):orders)); }
 
 // ── demo data (only when ?demo=1 or before the API is wired) ───────────────
-// Channels reflect Neighborly’s real mix — delivery, walk-in, digital, catering;
-// handoff via curbside, pickup counter, dine-in, courier delivery. No drive-thru,
-// no call-in. Timestamps are spread across the selected window so the trend and
-// daypart panels populate.
+// Channels reflect Neighborly’s real mix — Walk In, Delivery, Online Order.
+// No drive-thru, no call-in, no catering. Timestamps are spread across the
+// selected window so the trend and daypart panels populate.
 function demoOrders(){
   var stores=[['3fa8-brentwood','Brentwood'],['5c2d-westlake','Westlake Village'],['9a1f-studio','Studio City']];
   stores.forEach(function(s){STORE_NAMES[s[0]]=s[1];}); fillStoreSelect();
-  var origins=['DELIVERY','DELIVERY','DELIVERY','WALK_IN','WALK_IN','WALK_IN','DIGITAL','DIGITAL','CATERING'];
-  var handoffs=['CURBSIDE','CURBSIDE','PICKUP_COUNTER','PICKUP_COUNTER','PICKUP_COUNTER','DINE_IN','DINE_IN','DELIVERY','CATERING'];
+  var origins=['WALK_IN','WALK_IN','WALK_IN','WALK_IN','DELIVERY','DELIVERY','DELIVERY','ONLINE_ORDER','ONLINE_ORDER'];
+  var handoffs=['PICKUP_COUNTER','PICKUP_COUNTER','PICKUP_COUNTER','DINE_IN','DINE_IN','DELIVERY','DELIVERY','CURBSIDE'];
   var statuses=['DELIVERED','DELIVERED','DELIVERED','DELIVERED','DELIVERED','READIED','READIED','CANCELLED'];
   // Daypart weighting: lunch + dinner heavy. Hour picked from a weighted list.
   var hours=[9,10,11,11,12,12,12,13,13,13,14,15,17,18,18,19,19,19,20,20,21];
@@ -423,6 +462,6 @@ load();
 <!-- Internal ops data — team only. Non-blocking so the page still renders. -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script src="np-data.js"></script>
-<script>try { NPData.guardPage(['team']); } catch (e) {}</script>
+<script>try { NPData.guardPage(['team','ops','admin']); } catch (e) {}</script>
 </body>
 </html>

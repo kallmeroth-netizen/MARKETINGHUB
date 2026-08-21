@@ -72,6 +72,12 @@ async function curbitGet(pathAndQuery) {
   return r;
 }
 
+// Named exports so the cron (api/curbit-cron.js) can reuse the same auth
+// without duplicating it. Each lambda gets its own module instance + token
+// cache, which is fine.
+export { curbitGet, getToken, safeText, BASE as CURBIT_BASE };
+export function curbitConfigured() { return !!(SUBKEY() && TENANT()); }
+
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', process.env.CURBIT_ALLOW_ORIGIN || '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
