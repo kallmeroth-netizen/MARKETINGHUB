@@ -2,99 +2,131 @@
 // Secure server-side proxy for the Curbit Orders Data API.
 //
 // WHY THIS EXISTS
-// The Curbit API key is an Azure API Management subscription key. It must NEVER
-// be exposed to the browser (anyone could read it in "View Source"). So the key
-// lives ONLY as a Vercel environment variable and every call to Curbit happens
-// here, on the server. The hub page calls THIS endpoint, never Curbit directly.
+// The Curbit subscription key + tenant id are secrets and the Bearer token is
+// short-lived. None of them may ever reach the browser. So every Curbit call
+// happens here, server-side; the hub page calls THIS endpoint only.
 //
-// REQUIRED VERCEL ENVIRONMENT VARIABLES (set in Vercel → Project → Settings →
-// Environment Variables — do NOT commit real values to the repo):
-//   CURBIT_API_BASE          e.g. https://<host>.azure-api.net   (base URL from the docs)
-//   CURBIT_ORDERS_PATH       e.g. /orders                        (endpoint path; default below)
-//   CURBIT_SUBSCRIPTION_KEY  the Ocp-Apim-Subscription-Key value
-//   CURBIT_TENANT_ID         the x-tenant-id value
+// AUTH (2 steps, per the Orders API Consumer Guide)
+//   1. POST /auth/v2/token   headers: Ocp-Apim-Subscription-Key, x-tenant-id  -> { idToken } (~60 min)
+//   2. GET  /orders/v1 …     headers: Authorization: Bearer <idToken>, Ocp-Apim-Subscription-Key, x-tenant-id
+//
+// REQUIRED VERCEL ENV VARS (set in Vercel → Settings → Environment Variables;
+// never commit real values):
+//   CURBIT_SUBSCRIPTION_KEY   the Ocp-Apim-Subscription-Key value
+//   CURBIT_TENANT_ID          the x-tenant-id value
 // Optional:
-//   CURBIT_ALLOW_ORIGIN      CORS origin allowlist (default '*')
+//   CURBIT_API_BASE           default https://api.integrations.curbit.com
+//   CURBIT_ALLOW_ORIGIN       CORS allowlist (default '*')
 //
-// USAGE
-//   GET /api/curbit?from=2026-08-01&to=2026-08-20&limit=200
-// Any query params are forwarded to Curbit unchanged, so date filters /
-// pagination pass straight through once we confirm their exact names in the
-// docs. Returns Curbit's JSON verbatim for now (so we can see the real shape);
-// normalization + a Firebase snapshot for the dashboard get added once the
-// response schema is confirmed.
-//
-// TODO (pending the Orders API Consumer Guide):
-//   1. Confirm CURBIT_API_BASE + CURBIT_ORDERS_PATH and the exact query params.
-//   2. Map the response fields → { platform, date, grossSales, orders, sponsoredSpend, promoSpend }.
-//   3. Persist a normalized weekly snapshot to Firebase (marketing 3PD) so the
-//      dashboard's Uber Eats + DoorDash tiles read it, and add a Vercel Cron
-//      to refresh continuously.
+// USAGE (from the hub page or a cron)
+//   GET /api/curbit?resource=stores
+//   GET /api/curbit?updated_since=2026-08-01T00:00:00Z&page_size=1000
+//   GET /api/curbit?from=2026-08-01T00:00:00Z&to=2026-08-20T23:59:59Z&all=1
+// `all=1` auto-paginates the orders endpoint server-side (repeating the query
+// mode + filters on every cursor page, per the docs) up to a safety cap and
+// returns the merged { data, total_count, pages }.
 
-const ORDERS_PATH_DEFAULT = '/orders';
+const BASE = (process.env.CURBIT_API_BASE || 'https://api.integrations.curbit.com').replace(/\/+$/, '');
+const MAX_PAGES = 60;            // safety cap for ?all=1 (60 * 5000 = 300k rows)
+const TENANT = () => process.env.CURBIT_TENANT_ID;
+const SUBKEY = () => process.env.CURBIT_SUBSCRIPTION_KEY;
+
+// Module-level token cache — reused across warm invocations, re-fetched on
+// cold start or expiry. Tokens last ~60 min; refresh a little early.
+let _tok = { value: null, exp: 0 };
+
+async function getToken(force) {
+  if (!force && _tok.value && Date.now() < _tok.exp) return _tok.value;
+  const r = await fetch(BASE + '/auth/v2/token', {
+    method: 'POST',
+    headers: {
+      'Ocp-Apim-Subscription-Key': SUBKEY(),
+      'x-tenant-id': TENANT(),
+      'Accept': 'application/json',
+    },
+  });
+  if (!r.ok) throw Object.assign(new Error('auth ' + r.status), { status: r.status, body: await safeText(r) });
+  const j = await r.json();
+  const token = j.idToken || j.id_token || j.token;
+  if (!token) throw new Error('auth response missing idToken');
+  const ttlMs = (Number(j.expiresIn || j.expires_in) || 3600) * 1000;
+  _tok = { value: token, exp: Date.now() + Math.max(60000, ttlMs - 120000) };
+  return token;
+}
+
+async function safeText(r) { try { return await r.text(); } catch (_) { return ''; } }
+
+// One authenticated GET, with a single automatic re-auth on 401.
+async function curbitGet(pathAndQuery) {
+  const doFetch = async (token) => fetch(BASE + pathAndQuery, {
+    headers: {
+      'Authorization': 'Bearer ' + token,
+      'Ocp-Apim-Subscription-Key': SUBKEY(),
+      'x-tenant-id': TENANT(),
+      'Accept': 'application/json',
+    },
+  });
+  let token = await getToken(false);
+  let r = await doFetch(token);
+  if (r.status === 401) { token = await getToken(true); r = await doFetch(token); }
+  return r;
+}
 
 export default async function handler(req, res) {
-  const origin = process.env.CURBIT_ALLOW_ORIGIN || '*';
-  res.setHeader('Access-Control-Allow-Origin', origin);
+  res.setHeader('Access-Control-Allow-Origin', process.env.CURBIT_ALLOW_ORIGIN || '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   if (req.method === 'OPTIONS') { res.status(204).end(); return; }
   if (req.method !== 'GET') { res.status(405).json({ error: 'Method not allowed' }); return; }
 
-  const base   = process.env.CURBIT_API_BASE;
-  const key    = process.env.CURBIT_SUBSCRIPTION_KEY;
-  const tenant = process.env.CURBIT_TENANT_ID;
-  const path   = process.env.CURBIT_ORDERS_PATH || ORDERS_PATH_DEFAULT;
-
-  // Fail loudly-but-safely if the secrets aren't configured yet — never leak
-  // which value is missing beyond its env-var name.
-  const missing = [
-    !base   && 'CURBIT_API_BASE',
-    !key    && 'CURBIT_SUBSCRIPTION_KEY',
-    !tenant && 'CURBIT_TENANT_ID',
-  ].filter(Boolean);
+  const missing = [!SUBKEY() && 'CURBIT_SUBSCRIPTION_KEY', !TENANT() && 'CURBIT_TENANT_ID'].filter(Boolean);
   if (missing.length) {
-    res.status(501).json({
-      error: 'Curbit API not configured',
-      missingEnv: missing,
-      hint: 'Set these as Vercel environment variables, then redeploy.',
-    });
+    res.status(501).json({ error: 'Curbit API not configured', missingEnv: missing, hint: 'Set these as Vercel env vars, then redeploy.' });
     return;
   }
 
-  // Build the upstream URL, forwarding the caller's query params unchanged.
-  let upstream;
-  try {
-    upstream = new URL(path.replace(/^\/?/, '/'), base.replace(/\/?$/, ''));
-  } catch (e) {
-    res.status(500).json({ error: 'Bad CURBIT_API_BASE / CURBIT_ORDERS_PATH' });
-    return;
-  }
-  const forwarded = req.query || {};
-  Object.keys(forwarded).forEach(k => {
-    const v = forwarded[k];
-    (Array.isArray(v) ? v : [v]).forEach(val => upstream.searchParams.append(k, val));
-  });
+  const q = { ...(req.query || {}) };
+  const resource = q.resource === 'stores' ? '/orders/v1/stores' : '/orders/v1';
+  const wantAll = q.all === '1' || q.all === 'true';
+  delete q.resource; delete q.all;
+
+  const buildQS = (extra) => {
+    const p = new URLSearchParams();
+    Object.keys(q).forEach(k => { const v = q[k]; (Array.isArray(v) ? v : [v]).forEach(val => p.append(k, val)); });
+    if (extra) Object.keys(extra).forEach(k => p.set(k, extra[k]));
+    const s = p.toString();
+    return s ? '?' + s : '';
+  };
 
   try {
-    const r = await fetch(upstream.toString(), {
-      method: 'GET',
-      headers: {
-        'Ocp-Apim-Subscription-Key': key,
-        'x-tenant-id': tenant,
-        'Accept': 'application/json',
-      },
-    });
+    // Stores, or a single orders page → straight pass-through.
+    if (resource === '/orders/v1/stores' || !wantAll) {
+      const r = await curbitGet(resource + buildQS());
+      const text = await safeText(r);
+      let body; try { body = JSON.parse(text); } catch (_) { body = { raw: text }; }
+      res.setHeader('Cache-Control', 's-maxage=120, stale-while-revalidate=600');
+      res.status(r.ok ? 200 : r.status).json(body);
+      return;
+    }
 
-    const text = await r.text();
-    // Cache at the edge briefly so the page + cron don't hammer the API.
-    res.setHeader('Cache-Control', 's-maxage=300, stale-while-revalidate=600');
+    // ?all=1 → auto-paginate orders. Repeat query mode + filters every page;
+    // the cursor only carries position.
+    const all = []; let cursor = null; let pages = 0; let total = null;
+    do {
+      const r = await curbitGet(resource + buildQS(cursor ? { cursor } : null));
+      if (!r.ok) { res.status(r.status).json({ error: 'Curbit orders page failed', status: r.status, body: await safeText(r) }); return; }
+      const j = await r.json();
+      if (Array.isArray(j.data)) all.push(...j.data);
+      const pg = j.pagination || {};
+      if (total == null && pg.total_count != null) total = pg.total_count;
+      cursor = pg.next_cursor || null;
+      pages += 1;
+    } while (cursor && pages < MAX_PAGES);
 
-    // Pass through Curbit's status + JSON (or raw text if it isn't JSON).
-    let body;
-    try { body = JSON.parse(text); } catch (_) { body = { raw: text }; }
-    res.status(r.ok ? 200 : r.status).json(body);
+    res.setHeader('Cache-Control', 's-maxage=120, stale-while-revalidate=600');
+    res.status(200).json({ data: all, total_count: total, pages, capped: pages >= MAX_PAGES && !!cursor });
   } catch (err) {
-    res.status(502).json({ error: 'Curbit request failed', detail: String(err && err.message || err) });
+    const status = err && err.status && err.status >= 400 && err.status < 600 ? err.status : 502;
+    res.status(status).json({ error: 'Curbit request failed', detail: String(err && err.message || err) });
   }
 }
