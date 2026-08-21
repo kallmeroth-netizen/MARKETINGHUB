@@ -1,0 +1,4 @@
+Production deploy trigger — 2026-08-21
+Rebuilds main so the live site serves the merged Order Operations page
+(hub-menu links, Walk In / Delivery / Online Order channels, trend, daypart,
+cancel rate, make-times, 15-min Curbit snapshot cron).
