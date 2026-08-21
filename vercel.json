@@ -1,0 +1,5 @@
+{
+  "crons": [
+    { "path": "/api/curbit-cron", "schedule": "*/15 * * * *" }
+  ]
+}

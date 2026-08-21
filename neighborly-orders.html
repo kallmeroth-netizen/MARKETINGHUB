@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Order Operations — Neighborly</title>
+
+<link rel="manifest" href="/manifest.json">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta name="theme-color" content="#e87142">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png">
+
+<link rel="stylesheet" href="theme.css">
+<script src="chrome-v2.js" defer></script>
+<script>
+  // Clear any stale service-worker / cache from older deployments.
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then(function (regs) {
+      regs.forEach(function (r) { r.unregister(); });
+    }).catch(function () {});
+  }
+  if (window.caches && caches.keys) {
+    caches.keys().then(function (keys) {
+      keys.forEach(function (k) { caches.delete(k); });
+    }).catch(function () {});
+  }
+</script>
+
+<style>
+  /* KPI strip — 6-up, item-forward, reuses .np-kpi cards */
+  .ops-kpis { display: grid; grid-template-columns: repeat(6, 1fr); gap: var(--s-3); margin-bottom: var(--s-5); }
+  @media (max-width: 1040px) { .ops-kpis { grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 560px)  { .ops-kpis { grid-template-columns: repeat(2, 1fr); } }
+  .np-kpi .np-kpi-accent { height: 3px; width: 26px; border-radius: 3px; margin-bottom: 12px; }
+
+  /* Two-column card row */
+  .ops-two { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s-4); margin-bottom: var(--s-4); }
+  @media (max-width: 820px) { .ops-two { grid-template-columns: 1fr; } }
+
+  /* Horizontal share bars */
+  .bar-row { display: grid; grid-template-columns: 118px 1fr 44px; align-items: center; gap: var(--s-3); margin-bottom: 10px; font-size: var(--t-body-sm); }
+  .bar-row:last-child { margin-bottom: 0; }
+  .bar-track { display: block; height: 8px; border-radius: var(--r-pill); background: var(--surface-2); overflow: hidden; }
+  .bar-fill  { display: block; height: 100%; border-radius: var(--r-pill); min-width: 3px; transition: width .55s var(--easing); }
+  .bar-val   { font-family: var(--f-mono); font-size: var(--t-caption); color: var(--text-3); text-align: right; }
+  .bar-lab   { color: var(--text-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  /* Daily trend — dependency-free vertical bars */
+  .trend { display: flex; align-items: flex-end; gap: 3px; height: 128px; padding-top: 8px; }
+  .trend .col { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; height: 100%; }
+  .trend .stalk { width: 100%; max-width: 22px; background: var(--brand-orange); border-radius: 4px 4px 2px 2px; min-height: 2px; transition: height .5s var(--easing); }
+  .trend .stalk.cx { background: var(--brand-orange-light); }
+  .trend-x { display: flex; gap: 3px; margin-top: 8px; }
+  .trend-x .tx { flex: 1 1 0; min-width: 0; text-align: center; font-family: var(--f-mono); font-size: 10px; color: var(--text-3); white-space: nowrap; overflow: hidden; }
+
+  /* Make-time cells */
+  .mk-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: var(--s-3); }
+  @media (max-width: 820px) { .mk-grid { grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 560px) { .mk-grid { grid-template-columns: 1fr 1fr; } }
+  .mk { padding: var(--s-4); border-radius: var(--r-lg); background: var(--surface-2); text-align: center; }
+  .mk .k { font-family: var(--f-mono); font-weight: 600; font-size: 24px; letter-spacing: -0.03em; color: var(--ink); }
+  .mk .l { font-family: var(--f-eyebrow); font-weight: 600; font-size: var(--t-eyebrow); letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-3); margin-top: 6px; }
+
+  /* Anomaly chips */
+  .anoms { display: flex; flex-wrap: wrap; gap: var(--s-2); }
+  .anom { display: inline-flex; align-items: center; gap: 8px; font-size: var(--t-body-sm); background: var(--surface); border: 1px solid var(--line-strong); border-radius: var(--r-pill); padding: 7px 14px; }
+  .anom b { font-family: var(--f-mono); }
+  .anom .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--brand-orange); }
+
+  /* Store table */
+  .ops-table { width: 100%; border-collapse: collapse; font-size: var(--t-body-sm); }
+  .ops-table th, .ops-table td { text-align: left; padding: 11px 12px; border-bottom: 1px solid var(--line); }
+  .ops-table th { font-family: var(--f-eyebrow); font-weight: 600; font-size: var(--t-eyebrow); letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-3); }
+  .ops-table td.num, .ops-table th.num { text-align: right; font-family: var(--f-mono); }
+  .ops-table tr:last-child td { border-bottom: none; }
+
+  /* Store <select> styled like the toggle group */
+  .ops-select { height: 34px; padding: 0 var(--s-3); background: var(--surface); color: var(--text); border: 1px solid var(--line-strong); border-radius: var(--r-pill); font-family: var(--f-sans); font-size: var(--t-body-sm); cursor: pointer; }
+
+  /* Config / status banner as a dashed np-card */
+  .ops-banner { display: none; margin-bottom: var(--s-4); border-style: dashed; background: transparent; }
+  .ops-banner.show { display: block; }
+  .ops-banner code { font-family: var(--f-mono); font-size: var(--t-caption); }
+</style>
+</head>
+<body>
+
+<nav class="np-nav">
+  <a class="np-nav-brand" onclick="toggleHubNav(event)" aria-label="Open hub">
+    <img src="NeighborlyLogo.png" alt="Neighborly">
+  </a>
+  <div class="np-nav-right">
+    <span class="np-nav-page-tag">Order Operations</span>
+    <a class="np-icon-btn" href="index.html" title="Back to home" aria-label="Back to home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></a>
+  </div>
+</nav>
+
+<div class="np-hub-overlay" aria-hidden="true"></div>
+<div class="np-hub" role="dialog" aria-label="Marketing Hub">
+  <div class="np-hub-label"><span>Neighborly Marketing Hub</span><a href="index.html" class="np-hub-back-home">&larr; Home</a></div>
+  <div class="np-hub-grid">
+    <a class="np-hub-card" href="index.html"><div class="np-hub-card-ico" style="background:var(--surface-2)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--text)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12l9-9 9 9"/><path d="M5 10v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V10"/></svg></div><div class="np-hub-card-title">Home</div><div class="np-hub-card-sub">Marketing Hub overview</div></a>
+    <a class="np-hub-card" href="neighborly-dashboard.html"><div class="np-hub-card-ico" style="background:var(--brand-yellow-light)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--brand-yellow-deep)" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></div><div class="np-hub-card-title">Performance Marketing</div><div class="np-hub-card-sub">Weekly &amp; all-time KPIs</div></a>
+    <a class="np-hub-card" href="neighborly-dashboard.html?p=daily"><div class="np-hub-card-ico" style="background:#e3ece3"><svg viewBox="0 0 24 24" fill="none" stroke="#5a7a5a" stroke-width="2" stroke-linecap="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></div><div class="np-hub-card-title">Sales &amp; Pmix</div><div class="np-hub-card-sub">Daily sales &amp; product mix</div></a>
+    <a class="np-hub-card is-active" href="neighborly-orders.html"><div class="np-hub-card-ico" style="background:var(--brand-orange-light)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--brand-orange-deep)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg></div><div class="np-hub-card-title">Order Operations</div><div class="np-hub-card-sub">Kitchen &amp; delivery flow</div></a>
+    <a class="np-hub-card" href="neighborly-calendar.html"><div class="np-hub-card-ico" style="background:var(--brand-green-light)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--brand-green-deep)" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div><div class="np-hub-card-title">Marketing Calendar</div><div class="np-hub-card-sub">Campaigns &amp; scheduling</div></a>
+    <a class="np-hub-card" href="neighborly-assets.html"><div class="np-hub-card-ico" style="background:var(--brand-tan-light)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--brand-tan-deep)" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 010 14.14M4.93 4.93a10 10 0 000 14.14M12 2v2M12 20v2M2 12h2M20 12h2"/></svg></div><div class="np-hub-card-title">Brand Guidelines</div><div class="np-hub-card-sub">Logos &amp; templates</div></a>
+    <a class="np-hub-card" href="neighborly-guests.html"><div class="np-hub-card-ico" style="background:var(--brand-lavender-light)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--brand-lavender-deep)" stroke-width="2"><circle cx="9" cy="8" r="4"/><path d="M2 21a7 7 0 0 1 14 0"/><path d="M16 3.5a4 4 0 0 1 0 8M22 21a7 7 0 0 0-5-6.7"/></svg></div><div class="np-hub-card-title">Guest Intelligence</div><div class="np-hub-card-sub">Feedback &amp; experience trends</div></a>
+  </div>
+</div>
+
+<main class="np-main">
+
+  <header class="np-page-header" style="padding-bottom:var(--s-4)">
+    <div class="np-page-eyebrow">Powered by Curbit</div>
+    <h1 class="np-page-title">Order Operations</h1>
+    <div class="np-page-meta" id="rangeLabel">Kitchen throughput, make-time &amp; delivery flow · near real-time</div>
+  </header>
+  <div class="np-page-selectors" style="margin-bottom:var(--s-5)">
+    <div class="np-toggle" id="rangeSeg" role="tablist" aria-label="Timeframe">
+      <button data-days="1" role="tab">Today</button>
+      <button data-days="7" class="is-active" role="tab">7 days</button>
+      <button data-days="30" role="tab">30 days</button>
+    </div>
+    <select id="storeSel" class="ops-select" aria-label="Store"><option value="">All stores</option></select>
+  </div>
+
+  <div class="np-card ops-banner" id="banner">
+    <div class="np-card-title" id="bannerTitle"></div>
+    <div class="np-card-sub" id="bannerMsg" style="margin-bottom:0"></div>
+  </div>
+
+  <!-- OVERVIEW KPIs -->
+  <div class="ops-kpis" id="tiles"></div>
+
+  <!-- TREND + DAYPART -->
+  <div class="ops-two">
+    <section class="np-card"><div class="np-card-title">Order volume</div><div class="np-card-sub" id="trendSub">Orders per day across the range</div><div class="trend" id="trend"></div><div class="trend-x" id="trendX"></div></section>
+    <section class="np-card"><div class="np-card-title">By daypart</div><div class="np-card-sub">When orders land</div><div id="daypartBars"></div></section>
+  </div>
+
+  <!-- ORIGIN + HANDOFF -->
+  <div class="ops-two">
+    <section class="np-card"><div class="np-card-title">Order origin</div><div class="np-card-sub">Share of orders by channel</div><div id="originBars"></div></section>
+    <section class="np-card"><div class="np-card-title">Handoff</div><div class="np-card-sub">How orders reach the guest</div><div id="handoffBars"></div></section>
+  </div>
+
+  <!-- MAKE-TIME -->
+  <section class="np-card" style="margin-bottom:var(--s-4)">
+    <div class="np-card-title">Make-time performance</div>
+    <div class="np-card-sub">Promise accuracy &amp; kitchen pacing across the range</div>
+    <div class="mk-grid" id="mkGrid"></div>
+    <div class="np-card-sub" id="mkNote" style="margin:12px 0 0;font-size:var(--t-caption-sm)"></div>
+  </section>
+
+  <!-- ANOMALIES -->
+  <section class="np-card" style="margin-bottom:var(--s-4)">
+    <div class="np-card-title">Anomalies</div>
+    <div class="np-card-sub">Orders flagged by Curbit’s make-time signals</div>
+    <div class="anoms" id="anoms"></div>
+  </section>
+
+  <!-- BY STORE -->
+  <section class="np-card">
+    <div class="np-card-title">By store</div>
+    <div class="np-card-sub">Volume &amp; make-time by location</div>
+    <table class="ops-table" id="storeTable"><thead><tr><th>Store</th><th class="num">Orders</th><th class="num">Delivered</th><th class="num">Cancel %</th><th class="num">On-time %</th><th class="num">Goldilocks %</th><th class="num">Avg miss (min)</th></tr></thead><tbody></tbody></table>
+  </section>
+
+  <p style="font-size:var(--t-caption-sm);color:var(--text-3);margin-top:var(--s-5);text-align:center">Order Operations · data via Curbit Orders API · <span id="foot">demo data</span></p>
+</main>
+
+<script>
+// ── config / helpers ──────────────────────────────────────────────────────
+var API = '/api/curbit';
+var DEMO = new URLSearchParams(location.search).get('demo') === '1';
+var STORE_NAMES = {};
+var CUR_DAYS = 7;
+// Neighborly channels ONLY: Walk In, Delivery, Online Order. No drive-thru,
+// no call-in, no catering. Any other value Curbit may return still renders
+// (in grey) via the fallback in bars().
+var C = { origin:{WALK_IN:'var(--brand-green)',DELIVERY:'var(--brand-orange)',ONLINE_ORDER:'var(--brand-blue)'},
+          handoff:{PICKUP_COUNTER:'var(--brand-green)',DINE_IN:'var(--brand-blue)',DELIVERY:'var(--brand-orange)',CURBSIDE:'var(--brand-yellow)'},
+          daypart:{Morning:'var(--brand-yellow)',Lunch:'var(--brand-orange)',Dinner:'var(--brand-blue)','Late night':'var(--brand-lavender)'} };
+var DAYPART_ORDER = ['Morning','Lunch','Dinner','Late night'];
+var fmt = function(n){ return (n==null||isNaN(n)) ? '—' : Number(n).toLocaleString(); };
+var pct = function(a,b){ return b ? Math.round(a/b*100) : 0; };
+var titleize = function(s){ return String(s||'').toLowerCase().replace(/_/g,' ').replace(/\b\w/g,function(c){return c.toUpperCase();}); };
+
+function isoDaysAgo(d){ var t=new Date(); t.setDate(t.getDate()-d); t.setHours(0,0,0,0); return t.toISOString(); }
+function nowIso(){ return new Date().toISOString(); }
+function median(a){ if(!a.length) return null; var s=a.slice().sort(function(x,y){return x-y;}); var m=Math.floor(s.length/2); return s.length%2? s[m] : (s[m-1]+s[m])/2; }
+
+// Best-effort field extraction — Curbit’s exact key names vary, so try a few.
+function pickNum(o, keys){ for(var i=0;i<keys.length;i++){ var v=o[keys[i]]; if(v!=null && !isNaN(v)) return Number(v); } return null; }
+function pickTs(o, keys){ for(var i=0;i<keys.length;i++){ var v=o[keys[i]]; if(v){ var t=Date.parse(v); if(!isNaN(t)) return t; } } return null; }
+function orderTs(o){ return pickTs(o,['placed_at','created_at','ordered_at','order_time','opened_at','received_at']); }
+function prepMins(o){
+  var d=pickNum(o,['preparing_duration_minutes','prep_time_minutes','preparing_minutes','time_to_prepare_minutes','minutes_preparing']);
+  if(d!=null) return d;
+  var a=pickTs(o,['preparing_at','prep_started_at','started_preparing_at','placed_at','created_at','ordered_at']);
+  var b=pickTs(o,['prepared_at','finished_preparing_at']);
+  if(a!=null&&b!=null&&b>=a) return (b-a)/60000; return null;
+}
+function readyMins(o){
+  var d=pickNum(o,['readying_duration_minutes','ready_time_minutes','readying_minutes','time_to_ready_minutes','minutes_readying']);
+  if(d!=null) return d;
+  var a=pickTs(o,['prepared_at','finished_preparing_at']);
+  var b=pickTs(o,['readied_at','ready_at','completed_at','handed_off_at']);
+  if(a!=null&&b!=null&&b>=a) return (b-a)/60000; return null;
+}
+function daypartOf(h){ if(h>=5&&h<11) return 'Morning'; if(h>=11&&h<15) return 'Lunch'; if(h>=15&&h<22) return 'Dinner'; return 'Late night'; }
+function dayKey(t){ var d=new Date(t); return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate(); }
+
+// ── aggregation (all metrics derived from order-level fields) ──────────────
+function aggregate(orders){
+  var m = { total:orders.length, status:{}, origin:{}, handoff:{}, byStore:{},
+            delivered:0, cancelled:0, gzHit:0, gzSeen:0, onTime:0, missSeen:0, missSum:0,
+            prep:[], ready:[], days:{}, hours:{}, daypart:{},
+            anom:{is_long_preparing_anomaly:0,is_prebump_preparing_anomaly:0,is_long_readying_anomaly:0,is_prebump_readying_anomaly:0,is_long_full_anomaly:0} };
+  orders.forEach(function(o){
+    m.status[o.status]=(m.status[o.status]||0)+1;
+    if(o.status==='DELIVERED') m.delivered++;
+    if(o.status==='CANCELLED') m.cancelled++;
+    if(o.origin) m.origin[o.origin]=(m.origin[o.origin]||0)+1;
+    if(o.handoff) m.handoff[o.handoff]=(m.handoff[o.handoff]||0)+1;
+    if(o.has_fallen_in_goldilocks_zone!=null){ m.gzSeen++; if(o.has_fallen_in_goldilocks_zone) m.gzHit++; }
+    var miss = o.origin_promise_miss_minutes; if(miss==null) miss=o.promise_miss_minutes_at_placed;
+    if(miss!=null && !isNaN(miss)){ m.missSeen++; m.missSum+=Number(miss); if(Number(miss)<=0) m.onTime++; }
+    var pm=prepMins(o); if(pm!=null&&pm>=0&&pm<240) m.prep.push(pm);
+    var rm=readyMins(o); if(rm!=null&&rm>=0&&rm<240) m.ready.push(rm);
+    var t=orderTs(o);
+    if(t!=null){ var d=new Date(t); m.days[dayKey(t)]=(m.days[dayKey(t)]||0)+1; m.hours[d.getHours()]=(m.hours[d.getHours()]||0)+1; var dp=daypartOf(d.getHours()); m.daypart[dp]=(m.daypart[dp]||0)+1; }
+    Object.keys(m.anom).forEach(function(k){ if(o[k]) m.anom[k]++; });
+    var sid=o.store_id||'unknown';
+    var s=m.byStore[sid]||(m.byStore[sid]={orders:0,delivered:0,cancelled:0,onTime:0,missSeen:0,missSum:0,gzHit:0,gzSeen:0});
+    s.orders++; if(o.status==='DELIVERED')s.delivered++; if(o.status==='CANCELLED')s.cancelled++;
+    if(miss!=null&&!isNaN(miss)){s.missSeen++;s.missSum+=Number(miss);if(Number(miss)<=0)s.onTime++;}
+    if(o.has_fallen_in_goldilocks_zone!=null){s.gzSeen++;if(o.has_fallen_in_goldilocks_zone)s.gzHit++;}
+  });
+  return m;
+}
+
+// ── render ─────────────────────────────────────────────────────────────────
+function render(m){
+  var avgMiss = m.missSeen ? (m.missSum/m.missSeen) : null;
+  var tiles = [
+    {k:fmt(m.total), l:'Orders', d:'in range', c:'var(--ink)'},
+    {k:fmt(m.delivered), l:'Delivered', d:pct(m.delivered,m.total)+'% of orders', c:'var(--brand-green)'},
+    {k:fmt(m.cancelled), l:'Cancelled', d:pct(m.cancelled,m.total)+'% of orders', c:'var(--brand-orange-deep)'},
+    {k:fmt(m.origin.DELIVERY||0), l:'Delivery', d:pct(m.origin.DELIVERY||0,m.total)+'% of orders', c:'var(--brand-orange)'},
+    {k:pct(m.onTime,m.missSeen)+'%', l:'On-time', d:'vs promise', c:'var(--brand-blue)'},
+    {k:(avgMiss==null?'—':(avgMiss>0?'+':'')+avgMiss.toFixed(1)), l:'Avg miss', d:'minutes vs promise', c:(avgMiss>0?'var(--brand-orange)':'var(--brand-green)')}
+  ];
+  document.getElementById('tiles').innerHTML = tiles.map(function(t){
+    return '<div class="np-kpi"><div class="np-kpi-accent" style="background:'+t.c+'"></div><div class="np-kpi-value">'+t.k+'</div><div class="np-kpi-label" style="margin-bottom:3px">'+t.l+'</div><div class="np-kpi-sub">'+t.d+'</div></div>';
+  }).join('');
+
+  renderTrend(m);
+  orderedBars('daypartBars', DAYPART_ORDER.map(function(k){return [k, m.daypart[k]||0];}), m.total, C.daypart);
+  bars('originBars', m.origin, m.total, C.origin);
+  bars('handoffBars', m.handoff, m.total, C.handoff);
+
+  var medPrep=median(m.prep), medReady=median(m.ready);
+  var mk = [
+    {k:pct(m.onTime,m.missSeen)+'%', l:'On-time vs promise'},
+    {k:pct(m.gzHit,m.gzSeen)+'%', l:'Goldilocks zone'},
+    {k:(avgMiss==null?'—':(avgMiss>0?'+':'')+avgMiss.toFixed(1)+'m'), l:'Avg promise miss'},
+    {k:(medPrep==null?'—':medPrep.toFixed(1)+'m'), l:'Median prep'},
+    {k:(medReady==null?'—':medReady.toFixed(1)+'m'), l:'Median ready'}
+  ];
+  document.getElementById('mkGrid').innerHTML = mk.map(function(x){return '<div class="mk"><div class="k">'+x.k+'</div><div class="l">'+x.l+'</div></div>';}).join('');
+  document.getElementById('mkNote').textContent = (medPrep==null&&medReady==null)
+    ? 'Prep & ready make-times aren’t exposed in this Curbit response — showing promise metrics only.' : '';
+
+  var aLabels={is_long_preparing_anomaly:'Long prep',is_prebump_preparing_anomaly:'Pre-bump prep',is_long_readying_anomaly:'Long ready',is_prebump_readying_anomaly:'Pre-bump ready',is_long_full_anomaly:'Long total'};
+  document.getElementById('anoms').innerHTML = Object.keys(aLabels).map(function(k){
+    return '<span class="anom"><span class="dot"></span>'+aLabels[k]+' <b>'+fmt(m.anom[k])+'</b></span>';
+  }).join('');
+
+  var rows = Object.keys(m.byStore).sort(function(a,b){return m.byStore[b].orders-m.byStore[a].orders;}).map(function(sid){
+    var s=m.byStore[sid]; var miss=s.missSeen?(s.missSum/s.missSeen):null;
+    return '<tr><td>'+(STORE_NAMES[sid]||('Store '+String(sid).slice(0,6)))+'</td><td class="num">'+fmt(s.orders)+'</td><td class="num">'+fmt(s.delivered)+'</td><td class="num">'+pct(s.cancelled,s.orders)+'%</td><td class="num">'+pct(s.onTime,s.missSeen)+'%</td><td class="num">'+pct(s.gzHit,s.gzSeen)+'%</td><td class="num">'+(miss==null?'—':(miss>0?'+':'')+miss.toFixed(1))+'</td></tr>';
+  }).join('');
+  document.querySelector('#storeTable tbody').innerHTML = rows || '<tr><td colspan="7" style="padding:16px;color:var(--text-3)">No orders in range.</td></tr>';
+}
+
+// Daily (7/30-day) or hourly (Today) volume bars — dependency-free.
+function renderTrend(m){
+  var cols=[], hourly = CUR_DAYS<=1, sub;
+  if(hourly){
+    sub='Orders per hour today';
+    for(var h=6;h<=23;h++){ cols.push({label:(h%12===0?12:h%12)+(h<12?'a':'p'), count:m.hours[h]||0}); }
+  } else {
+    sub='Orders per day · last '+CUR_DAYS+' days';
+    var now=new Date(); now.setHours(0,0,0,0);
+    for(var i=CUR_DAYS-1;i>=0;i--){ var d=new Date(now); d.setDate(d.getDate()-i);
+      cols.push({label:(d.getMonth()+1)+'/'+d.getDate(), count:m.days[dayKey(d.getTime())]||0}); }
+  }
+  document.getElementById('trendSub').textContent=sub;
+  var max=Math.max.apply(null, cols.map(function(c){return c.count;}).concat([1]));
+  var step = cols.length>16 ? Math.ceil(cols.length/12) : 1;
+  document.getElementById('trend').innerHTML = cols.map(function(c){
+    var pctH=Math.max(2, Math.round(c.count/max*100));
+    return '<div class="col" title="'+c.label+': '+c.count+'"><span class="stalk" style="height:'+pctH+'%"></span></div>';
+  }).join('');
+  document.getElementById('trendX').innerHTML = cols.map(function(c,idx){
+    return '<span class="tx">'+((idx%step===0)?c.label:'')+'</span>';
+  }).join('');
+}
+
+function orderedBars(elId, pairs, total, colors){
+  var any=pairs.some(function(p){return p[1]>0;});
+  document.getElementById(elId).innerHTML = any ? pairs.map(function(p){
+    var k=p[0], v=p[1], pc=pct(v,total);
+    return '<div class="bar-row"><span class="bar-lab">'+k+'</span><span class="bar-track"><span class="bar-fill" style="width:'+pc+'%;background:'+((colors&&colors[k])||'var(--text-3)')+'"></span></span><span class="bar-val">'+pc+'%</span></div>';
+  }).join('') : '<div class="np-card-sub" style="margin:0">No timestamped orders in range</div>';
+}
+
+function bars(elId, obj, total, colors){
+  var keys=Object.keys(obj).sort(function(a,b){return obj[b]-obj[a];});
+  document.getElementById(elId).innerHTML = keys.length ? keys.map(function(k){
+    var v=obj[k], p=pct(v,total);
+    return '<div class="bar-row"><span class="bar-lab">'+titleize(k)+'</span><span class="bar-track"><span class="bar-fill" style="width:'+p+'%;background:'+((colors&&colors[k])||'var(--text-3)')+'"></span></span><span class="bar-val">'+p+'%</span></div>';
+  }).join('') : '<div class="np-card-sub" style="margin:0">No data</div>';
+}
+
+function banner(kind, title, html){
+  var b=document.getElementById('banner');
+  b.classList.add('show');
+  document.getElementById('bannerTitle').textContent=title;
+  document.getElementById('bannerMsg').innerHTML=html;
+}
+function clearBanner(){ document.getElementById('banner').classList.remove('show'); }
+
+// ── data load ──────────────────────────────────────────────────────────────
+// The page prefers the Firebase snapshot the 15-min cron writes (instant loads,
+// in-memory timeframe switching). If the snapshot is missing/stale it falls back
+// to a live /api/curbit fetch, which also works standalone.
+var SNAPSHOT_URL='https://neighborly-hub-53e4b-default-rtdb.firebaseio.com/curbit_snapshot.json';
+var ALL_ORDERS=null, SNAP_AT=0, SNAP_FETCHED=0;
+
+function currentDays(){ var el=document.querySelector('#rangeSeg .is-active'); return el?+el.dataset.days:7; }
+function setRangeLabel(days){ document.getElementById('rangeLabel').textContent = 'Last '+days+' day'+(days>1?'s':'')+' · kitchen throughput, make-time & delivery flow'; }
+function cutoffIso(days){ var t=new Date(); if(days>1){ t.setDate(t.getDate()-days); } t.setHours(0,0,0,0); return t.toISOString(); }
+function agoLabel(t){ if(!t) return ''; var m=Math.round((Date.now()-t)/60000); return m<1?'just now':(m<60?m+'m ago':Math.round(m/60)+'h ago'); }
+function filterWindow(orders, days, store){
+  var cutoff=Date.parse(cutoffIso(days));
+  return orders.filter(function(o){
+    if(store && o.store_id!==store) return false;
+    var t=orderTs(o); if(t!=null && t<cutoff) return false;
+    return true;
+  });
+}
+async function ensureSnapshot(){
+  if(ALL_ORDERS && (Date.now()-SNAP_FETCHED < 5*60*1000)) return true;
+  try{
+    var r=await fetch(SNAPSHOT_URL, {cache:'no-store'});
+    if(!r.ok) return false;
+    var s=await r.json();
+    if(!s || !Array.isArray(s.orders) || !s.orders.length) return false;
+    ALL_ORDERS=s.orders; SNAP_AT=Date.parse(s.updatedAt)||0; SNAP_FETCHED=Date.now();
+    (s.stores||[]).forEach(function(x){ if(x&&x.store_id) STORE_NAMES[x.store_id]=x.name; });
+    fillStoreSelect();
+    return true;
+  }catch(e){ return false; }
+}
+
+async function load(){
+  var days=currentDays(); CUR_DAYS=days; setRangeLabel(days);
+  var store=document.getElementById('storeSel').value;
+  if(DEMO){ document.getElementById('foot').textContent='demo data'; renderFiltered(demoOrders(), store); return; }
+
+  // 1) Snapshot first — instant, and lets Today/7/30 switch without refetch.
+  if(await ensureSnapshot()){
+    clearBanner();
+    document.getElementById('foot').textContent='live · Curbit · updated '+agoLabel(SNAP_AT);
+    render(aggregate(filterWindow(ALL_ORDERS, days, store)));
+    return;
+  }
+
+  // 2) Fallback — live fetch straight from the proxy.
+  document.getElementById('foot').textContent='live · Curbit';
+  try{
+    var sres=await fetch(API+'?resource=stores');
+    if(sres.status===501){ configHint(await sres.json()); }
+    var sj=await sres.json(); (sj.data||[]).forEach(function(x){STORE_NAMES[x.store_id]=x.name;});
+    fillStoreSelect();
+  }catch(e){}
+  var qs='?from='+encodeURIComponent(cutoffIso(days))+'&to='+encodeURIComponent(nowIso())+'&all=1';
+  if(store) qs+='&store_id='+encodeURIComponent(store);
+  try{
+    var res=await fetch(API+qs);
+    if(res.status===501){ configHint(await res.json()); render(aggregate([])); return; }
+    if(!res.ok){ banner('err','Curbit request failed','The feed returned status '+res.status+'. Try again shortly.'); render(aggregate([])); return; }
+    clearBanner();
+    var j=await res.json();
+    if(j.capped) banner('warn','Showing a partial window','Loaded the first '+ (j.pages*5000) +' orders — narrow the range for a complete view.');
+    render(aggregate(j.data||[]));
+  }catch(e){ banner('err','Could not reach the Curbit feed', e.message); render(aggregate([])); }
+}
+
+function configHint(body){
+  var miss=(body&&body.missingEnv)?body.missingEnv.join(', '):'CURBIT_SUBSCRIPTION_KEY, CURBIT_TENANT_ID';
+  banner('warn','Curbit isn’t connected yet','Set <code>'+miss+'</code> as Vercel environment variables and redeploy. <a href="?demo=1">View demo data</a> in the meantime.');
+}
+
+function fillStoreSelect(){
+  var sel=document.getElementById('storeSel'); var cur=sel.value;
+  sel.innerHTML='<option value="">All stores</option>'+Object.keys(STORE_NAMES).map(function(id){return '<option value="'+id+'">'+STORE_NAMES[id]+'</option>';}).join('');
+  sel.value=cur;
+}
+function renderFiltered(orders, store){ render(aggregate(store?orders.filter(function(o){return o.store_id===store;}):orders)); }
+
+// ── demo data (only when ?demo=1 or before the API is wired) ───────────────
+// Channels reflect Neighborly’s real mix — Walk In, Delivery, Online Order.
+// No drive-thru, no call-in, no catering. Timestamps are spread across the
+// selected window so the trend and daypart panels populate.
+function demoOrders(){
+  var stores=[['3fa8-brentwood','Brentwood'],['5c2d-westlake','Westlake Village'],['9a1f-studio','Studio City']];
+  stores.forEach(function(s){STORE_NAMES[s[0]]=s[1];}); fillStoreSelect();
+  var origins=['WALK_IN','WALK_IN','WALK_IN','WALK_IN','DELIVERY','DELIVERY','DELIVERY','ONLINE_ORDER','ONLINE_ORDER'];
+  var handoffs=['PICKUP_COUNTER','PICKUP_COUNTER','PICKUP_COUNTER','DINE_IN','DINE_IN','DELIVERY','DELIVERY','CURBSIDE'];
+  var statuses=['DELIVERED','DELIVERED','DELIVERED','DELIVERED','DELIVERED','READIED','READIED','CANCELLED'];
+  // Daypart weighting: lunch + dinner heavy. Hour picked from a weighted list.
+  var hours=[9,10,11,11,12,12,12,13,13,13,14,15,17,18,18,19,19,19,20,20,21];
+  var days=Math.max(1, CUR_DAYS||7), perDay=Math.round(430/days), out=[], seed=7, i=0;
+  var rnd=function(){ seed=(seed*9301+49297)%233280; return seed/233280; };
+  var base=new Date(); base.setHours(0,0,0,0);
+  for(var d=0; d<days; d++){
+    var when=new Date(base); when.setDate(when.getDate()-(days-1-d));
+    var n=Math.max(4, Math.round(perDay*(0.75+rnd()*0.6)));
+    for(var j=0;j<n;j++){
+      var st=stores[Math.floor(rnd()*stores.length)];
+      var hr=(days<=1)? hours[Math.floor(rnd()*hours.length)] : hours[Math.floor(rnd()*hours.length)];
+      var t=new Date(when); t.setHours(hr, Math.floor(rnd()*60), 0, 0);
+      var miss=Math.round((rnd()*16-7)*10)/10;
+      out.push({order_id:'o'+(i++), store_id:st[0], status:statuses[Math.floor(rnd()*statuses.length)],
+        origin:origins[Math.floor(rnd()*origins.length)], handoff:handoffs[Math.floor(rnd()*handoffs.length)],
+        placed_at:t.toISOString(),
+        preparing_duration_minutes: Math.round((4+rnd()*7)*10)/10,
+        readying_duration_minutes: Math.round((2+rnd()*4)*10)/10,
+        has_fallen_in_goldilocks_zone: rnd()<0.72, origin_promise_miss_minutes: miss,
+        is_long_preparing_anomaly: rnd()<0.06, is_prebump_preparing_anomaly: rnd()<0.03,
+        is_long_readying_anomaly: rnd()<0.05, is_prebump_readying_anomaly: rnd()<0.02, is_long_full_anomaly: rnd()<0.04 });
+    }
+  }
+  return out;
+}
+
+// ── wire up ─────────────────────────────────────────────────────────────────
+document.getElementById('rangeSeg').addEventListener('click', function(e){
+  var b=e.target.closest('button'); if(!b) return;
+  this.querySelectorAll('button').forEach(function(x){x.classList.remove('is-active');}); b.classList.add('is-active'); load();
+});
+document.getElementById('storeSel').addEventListener('change', load);
+load();
+</script>
+
+<!-- Internal ops data — team only. Non-blocking so the page still renders. -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="np-data.js"></script>
+<script>try { NPData.guardPage(['team','ops','admin']); } catch (e) {}</script>
+</body>
+</html>
