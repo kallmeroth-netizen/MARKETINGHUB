@@ -156,6 +156,9 @@ export default async function handler(req, res) {
     res.status(200).json({ data: all, total_count: total, pages, capped: pages >= MAX_PAGES && !!cursor });
   } catch (err) {
     const status = err && err.status && err.status >= 400 && err.status < 600 ? err.status : 502;
-    res.status(status).json({ error: 'Curbit request failed', detail: String(err && err.message || err) });
+    const out = { error: 'Curbit request failed', detail: String(err && err.message || err) };
+    if (err && err.body) out.curbit = String(err.body).slice(0, 500); // surface Curbit's own message (e.g. "invalid subscription key")
+    if (status === 401 || status === 403) out.hint = 'Curbit rejected the credentials. Re-check CURBIT_SUBSCRIPTION_KEY and CURBIT_TENANT_ID in Vercel (no stray spaces/quotes, not swapped), then redeploy.';
+    res.status(status).json(out);
   }
 }
