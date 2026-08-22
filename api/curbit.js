@@ -22,14 +22,19 @@
 //   GET /api/curbit?resource=stores
 //   GET /api/curbit?updated_since=2026-08-01T00:00:00Z&page_size=1000
 //   GET /api/curbit?from=2026-08-01T00:00:00Z&to=2026-08-20T23:59:59Z&all=1
+//   GET /api/curbit?diag=1   → masked view of the stored credentials
 // `all=1` auto-paginates the orders endpoint server-side (repeating the query
 // mode + filters on every cursor page, per the docs) up to a safety cap and
 // returns the merged { data, total_count, pages }.
 
-const BASE = (process.env.CURBIT_API_BASE || 'https://api.integrations.curbit.com').replace(/\/+$/, '');
+// Strip invisible whitespace/newlines and accidental surrounding quotes — a
+// pasted trailing newline or wrapping quotes in the Vercel UI is a common,
+// invisible cause of "invalid subscription key".
+const clean = (v) => (v == null ? v : String(v).trim().replace(/^["']+|["']+$/g, ''));
+const BASE = (clean(process.env.CURBIT_API_BASE) || 'https://api.integrations.curbit.com').replace(/\/+$/, '');
 const MAX_PAGES = 60;            // safety cap for ?all=1 (60 * 5000 = 300k rows)
-const TENANT = () => process.env.CURBIT_TENANT_ID;
-const SUBKEY = () => process.env.CURBIT_SUBSCRIPTION_KEY;
+const TENANT = () => clean(process.env.CURBIT_TENANT_ID);
+const SUBKEY = () => clean(process.env.CURBIT_SUBSCRIPTION_KEY);
 
 // Module-level token cache — reused across warm invocations, re-fetched on
 // cold start or expiry. Tokens last ~60 min; refresh a little early.
@@ -99,6 +104,14 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   if (req.method === 'OPTIONS') { res.status(204).end(); return; }
   if (req.method !== 'GET') { res.status(405).json({ error: 'Method not allowed' }); return; }
+
+  // ?diag=1 → masked view of what's actually stored, so we can spot a swap,
+  // wrong length, hidden whitespace or quotes WITHOUT exposing the secret.
+  if ((req.query || {}).diag === '1') {
+    const mask = (raw) => { if (raw == null) return null; const s = String(raw); return { len: s.length, head: s.slice(0, 4), tail: s.slice(-4), looksLikeGuid: /^[0-9a-f-]{36}$/i.test(s.trim()), hasWhitespace: /\s/.test(s), hasQuotes: /["']/.test(s) }; };
+    res.status(200).json({ base: BASE, subscriptionKey: mask(process.env.CURBIT_SUBSCRIPTION_KEY), tenantId: mask(process.env.CURBIT_TENANT_ID), note: 'subscriptionKey should be len 32 / head c413 / tail 9149. tenantId should be looksLikeGuid:true.' });
+    return;
+  }
 
   const missing = [!SUBKEY() && 'CURBIT_SUBSCRIPTION_KEY', !TENANT() && 'CURBIT_TENANT_ID'].filter(Boolean);
   if (missing.length) {
