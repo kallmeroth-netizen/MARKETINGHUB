@@ -46,7 +46,8 @@ const ANOM_KEYS = ['is_long_preparing_anomaly', 'is_prebump_preparing_anomaly', 
 // Status enum: PLACED, STARTED, PREPARED, READIED, DELIVERED, CANCELLED.
 // "Completed" = fulfilled = handed off (DELIVERED) or ready for pickup (READIED).
 function isCompleted(st) { st = String(st || '').toUpperCase(); return st === 'DELIVERED' || st === 'READIED'; }
-function isCancelled(st) { return String(st || '').toUpperCase() === 'CANCELLED'; }
+// Match cancel-ish statuses (CANCELLED / CANCELED / CANCELLED_BY_* / VOID / REJECTED).
+function isCancelled(st) { st = String(st || '').toUpperCase(); return st.indexOf('CANCEL') >= 0 || st.indexOf('VOID') >= 0 || st.indexOf('REJECT') >= 0; }
 const EXCLUDE_STORE_RE = /\b(demo|test|sandbox|training)\b/i;   // hide Curbit test stores
 
 // Fold one order into rollups[store_id][dayKey]. Short keys keep the JSON small.
