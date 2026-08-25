@@ -170,7 +170,7 @@
   <section class="np-card">
     <div class="np-card-title">By store</div>
     <div class="np-card-sub">Volume &amp; make-time by location</div>
-    <div class="ops-table-wrap"><table class="ops-table" id="storeTable"><thead><tr><th>Store</th><th class="num">Orders</th><th class="num">Delivered</th><th class="num">Cancel %</th><th class="num">On-time %</th><th class="num">Goldilocks %</th><th class="num">Avg miss (min)</th></tr></thead><tbody></tbody></table></div>
+    <div class="ops-table-wrap"><table class="ops-table" id="storeTable"><thead><tr><th>Store</th><th class="num">Orders</th><th class="num">Completed</th><th class="num">Cancel %</th><th class="num">On-time %</th><th class="num">Goldilocks %</th><th class="num">Avg miss (min)</th></tr></thead><tbody></tbody></table></div>
   </section>
 
   <p style="font-size:var(--t-caption-sm);color:var(--text-3);margin-top:var(--s-5);text-align:center">Order Operations · data via Curbit Orders API · <span id="foot">connecting…</span></p>
@@ -180,14 +180,25 @@
 // ── config / helpers ──────────────────────────────────────────────────────
 var API = '/api/curbit';
 var STORE_NAMES = {};
+var EXCLUDED = {};        // store_ids to hide (e.g. Curbit "Demo Lab" test store)
 var CUR_DAYS = 7;
-// Neighborly channels ONLY: Walk In, Delivery, Online Order. No drive-thru,
-// no call-in, no catering. Any other value Curbit may return still renders
-// (in grey) via the fallback in bars().
-var C = { origin:{WALK_IN:'var(--brand-green)',DELIVERY:'var(--brand-orange)',ONLINE_ORDER:'var(--brand-blue)'},
+// Channel colors. Curbit's real origin enum is WALK_IN / CALL_IN / DIGITAL /
+// DELIVERY / DRIVE_THRU; Neighborly uses walk-in, delivery, and digital
+// ("online order"). Any other value still renders (grey) via the fallback.
+var C = { origin:{WALK_IN:'var(--brand-green)',DELIVERY:'var(--brand-orange)',DIGITAL:'var(--brand-blue)',ONLINE_ORDER:'var(--brand-blue)'},
           handoff:{PICKUP_COUNTER:'var(--brand-green)',DINE_IN:'var(--brand-blue)',DELIVERY:'var(--brand-orange)',CURBSIDE:'var(--brand-yellow)'},
           daypart:{Morning:'var(--brand-yellow)',Lunch:'var(--brand-orange)',Dinner:'var(--brand-blue)','Late night':'var(--brand-lavender)'} };
+var ORIGIN_LABEL = { DIGITAL:'Online Order' };   // show DIGITAL as "Online Order"
 var DAYPART_ORDER = ['Morning','Lunch','Dinner','Late night'];
+
+// Status enum: PLACED, STARTED, PREPARED, READIED, DELIVERED, CANCELLED.
+// "Completed" = fulfilled = handed off (DELIVERED) or ready for pickup/dine-in
+// (READIED). Case-insensitive for safety.
+function isCompleted(st){ st=String(st||'').toUpperCase(); return st==='DELIVERED'||st==='READIED'; }
+function isCancelled(st){ return String(st||'').toUpperCase()==='CANCELLED'; }
+// Record store names, hiding Curbit's test/demo stores from the whole page.
+function noteStores(list){ (list||[]).forEach(function(x){ if(!x||!x.store_id) return;
+  if(/\b(demo|test|sandbox|training)\b/i.test(x.name||'')) EXCLUDED[x.store_id]=true; else STORE_NAMES[x.store_id]=x.name; }); }
 var fmt = function(n){ return (n==null||isNaN(n)) ? '—' : Number(n).toLocaleString(); };
 var pct = function(a,b){ return b ? Math.round(a/b*100) : 0; };
 var titleize = function(s){ return String(s||'').toLowerCase().replace(/_/g,' ').replace(/\b\w/g,function(c){return c.toUpperCase();}); };
@@ -232,10 +243,11 @@ function emptyM(){ return { total:0,delivered:0,cancelled:0,origin:{},handoff:{}
 // ── aggregation from raw orders (small live fallback only) ─────────────────
 function aggregate(orders){
   var m = emptyM();
-  m.total = orders.length;
   orders.forEach(function(o){
-    if(o.status==='DELIVERED') m.delivered++;
-    if(o.status==='CANCELLED') m.cancelled++;
+    if(EXCLUDED[o.store_id]) return;
+    m.total++;
+    if(isCompleted(o.status)) m.delivered++;
+    if(isCancelled(o.status)) m.cancelled++;
     if(o.origin) m.origin[o.origin]=(m.origin[o.origin]||0)+1;
     if(o.handoff) m.handoff[o.handoff]=(m.handoff[o.handoff]||0)+1;
     if(o.has_fallen_in_goldilocks_zone!=null){ m.gzSeen++; if(o.has_fallen_in_goldilocks_zone) m.gzHit++; }
@@ -248,7 +260,7 @@ function aggregate(orders){
     Object.keys(m.anom).forEach(function(k){ if(o[k]) m.anom[k]++; });
     var sid=o.store_id||'unknown';
     var s=m.byStore[sid]||(m.byStore[sid]={orders:0,delivered:0,cancelled:0,onTime:0,missSeen:0,missSum:0,gzHit:0,gzSeen:0});
-    s.orders++; if(o.status==='DELIVERED')s.delivered++; if(o.status==='CANCELLED')s.cancelled++;
+    s.orders++; if(isCompleted(o.status))s.delivered++; if(isCancelled(o.status))s.cancelled++;
     if(miss!=null&&!isNaN(miss)){s.missSeen++;s.missSum+=Number(miss);if(Number(miss)<=0)s.onTime++;}
     if(o.has_fallen_in_goldilocks_zone!=null){s.gzSeen++;if(o.has_fallen_in_goldilocks_zone)s.gzHit++;}
   });
@@ -261,6 +273,7 @@ function aggregate(orders){
 function buildFromRollups(snap, days, store){
   var m=emptyM(); var cutoff=cutoffDayKey(days); var roll=(snap&&snap.rollups)||{};
   Object.keys(roll).forEach(function(sid){
+    if(EXCLUDED[sid]) return;
     if(store && sid!==store) return;
     var byDay=roll[sid];
     Object.keys(byDay).forEach(function(dk){
@@ -283,7 +296,7 @@ function render(m){
   var avgMiss = m.missSeen ? (m.missSum/m.missSeen) : null;
   var tiles = [
     {k:fmt(m.total), l:'Orders', d:'in range', c:'var(--ink)'},
-    {k:fmt(m.delivered), l:'Delivered', d:pct(m.delivered,m.total)+'% of orders', c:'var(--brand-green)'},
+    {k:fmt(m.delivered), l:'Completed', d:pct(m.delivered,m.total)+'% of orders', c:'var(--brand-green)'},
     {k:fmt(m.cancelled), l:'Cancelled', d:pct(m.cancelled,m.total)+'% of orders', c:'var(--brand-orange-deep)'},
     {k:fmt(m.origin.DELIVERY||0), l:'Delivery', d:pct(m.origin.DELIVERY||0,m.total)+'% of orders', c:'var(--brand-orange)'},
     {k:pct(m.onTime,m.missSeen)+'%', l:'On-time', d:'vs promise', c:'var(--brand-blue)'},
@@ -295,7 +308,7 @@ function render(m){
 
   renderTrend(m);
   orderedBars('daypartBars', DAYPART_ORDER.map(function(k){return [k, m.daypart[k]||0];}), m.total, C.daypart);
-  bars('originBars', m.origin, m.total, C.origin);
+  bars('originBars', m.origin, m.total, C.origin, ORIGIN_LABEL);
   bars('handoffBars', m.handoff, m.total, C.handoff);
 
   var avgPrep = m.prepCnt ? (m.prepSum/m.prepCnt) : null;
@@ -354,11 +367,11 @@ function orderedBars(elId, pairs, total, colors){
   }).join('') : '<div class="np-card-sub" style="margin:0">No timestamped orders in range</div>';
 }
 
-function bars(elId, obj, total, colors){
+function bars(elId, obj, total, colors, labels){
   var keys=Object.keys(obj).sort(function(a,b){return obj[b]-obj[a];});
   document.getElementById(elId).innerHTML = keys.length ? keys.map(function(k){
-    var v=obj[k], p=pct(v,total);
-    return '<div class="bar-row"><span class="bar-lab">'+titleize(k)+'</span><span class="bar-track"><span class="bar-fill" style="width:'+p+'%;background:'+((colors&&colors[k])||'var(--text-3)')+'"></span></span><span class="bar-val">'+p+'%</span></div>';
+    var v=obj[k], p=pct(v,total), lab=(labels&&labels[k])||titleize(k);
+    return '<div class="bar-row"><span class="bar-lab">'+lab+'</span><span class="bar-track"><span class="bar-fill" style="width:'+p+'%;background:'+((colors&&colors[k])||'var(--text-3)')+'"></span></span><span class="bar-val">'+p+'%</span></div>';
   }).join('') : '<div class="np-card-sub" style="margin:0">No data</div>';
 }
 
@@ -387,6 +400,7 @@ function agoLabel(t){ if(!t) return ''; var m=Math.round((Date.now()-t)/60000); 
 function filterWindow(orders, days, store){
   var cutoff=Date.parse(cutoffIso(days));
   return orders.filter(function(o){
+    if(EXCLUDED[o.store_id]) return false;
     if(store && o.store_id!==store) return false;
     var t=orderTs(o); if(t!=null && t<cutoff) return false;
     return true;
@@ -404,7 +418,7 @@ async function ensureSnapshot(){
     var s=await r.json();
     if(!s || !s.rollups || !Object.keys(s.rollups).length) return false;
     SNAP=s; MODE='rollups'; SNAP_AT=Date.parse(s.updatedAt)||0; DATA_FETCHED=Date.now();
-    (s.stores||[]).forEach(function(x){ if(x&&x.store_id) STORE_NAMES[x.store_id]=x.name; });
+    noteStores(s.stores);
     fillStoreSelect();
     return true;
   }catch(e){ return false; }
@@ -423,7 +437,7 @@ async function ensureData(){
   try{
     var sres=await fetch(API+'?resource=stores');
     if(sres.status===501){ return { ok:false, cfg:await sres.json() }; }
-    var sj=await sres.json(); (sj.data||[]).forEach(function(x){STORE_NAMES[x.store_id]=x.name;}); fillStoreSelect();
+    var sj=await sres.json(); noteStores(sj.data); fillStoreSelect();
   }catch(e){}
   try{
     var res=await fetch(API+'?updated_since='+encodeURIComponent(cutoffIso(3))+'&all=1&page_size=5000');

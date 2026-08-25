@@ -43,6 +43,12 @@ function readyMins(o) { const d = firstNum(o, ['readying_duration_minutes', 'rea
 
 const ANOM_KEYS = ['is_long_preparing_anomaly', 'is_prebump_preparing_anomaly', 'is_long_readying_anomaly', 'is_prebump_readying_anomaly', 'is_long_full_anomaly'];
 
+// Status enum: PLACED, STARTED, PREPARED, READIED, DELIVERED, CANCELLED.
+// "Completed" = fulfilled = handed off (DELIVERED) or ready for pickup (READIED).
+function isCompleted(st) { st = String(st || '').toUpperCase(); return st === 'DELIVERED' || st === 'READIED'; }
+function isCancelled(st) { return String(st || '').toUpperCase() === 'CANCELLED'; }
+const EXCLUDE_STORE_RE = /\b(demo|test|sandbox|training)\b/i;   // hide Curbit test stores
+
 // Fold one order into rollups[store_id][dayKey]. Short keys keep the JSON small.
 function foldOrder(rollups, o) {
   const sid = o.store_id || 'unknown';
@@ -51,8 +57,8 @@ function foldOrder(rollups, o) {
   const store = rollups[sid] || (rollups[sid] = {});
   const r = store[dk] || (store[dk] = { o: 0, d: 0, c: 0, gzS: 0, gzH: 0, mS: 0, mSum: 0, ot: 0, pS: 0, pC: 0, rS: 0, rC: 0, origin: {}, handoff: {}, daypart: {}, hours: {}, anom: {} });
   r.o++;
-  if (o.status === 'DELIVERED') r.d++;
-  if (o.status === 'CANCELLED') r.c++;
+  if (isCompleted(o.status)) r.d++;
+  if (isCancelled(o.status)) r.c++;
   if (o.origin) r.origin[o.origin] = (r.origin[o.origin] || 0) + 1;
   if (o.handoff) r.handoff[o.handoff] = (r.handoff[o.handoff] || 0) + 1;
   if (o.has_fallen_in_goldilocks_zone != null) { r.gzS++; if (o.has_fallen_in_goldilocks_zone) r.gzH++; }
@@ -76,11 +82,18 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Store directory
+    // Store directory (drop Curbit's test/demo stores so they never appear)
     let stores = [];
+    const excluded = new Set();
     try {
       const sr = await curbitGet('/orders/v1/stores');
-      if (sr.ok) { const sj = await sr.json(); stores = ordersArray(sj).map(s => ({ store_id: s.store_id, name: s.name })); }
+      if (sr.ok) {
+        const sj = await sr.json();
+        for (const s of ordersArray(sj)) {
+          if (EXCLUDE_STORE_RE.test(s.name || '')) { excluded.add(s.store_id); continue; }
+          stores.push({ store_id: s.store_id, name: s.name });
+        }
+      }
     } catch (_) {}
 
     // Orders, last SNAPSHOT_DAYS, via updated_since (60/min lane). Fold each
@@ -92,7 +105,7 @@ export default async function handler(req, res) {
       if (!r.ok) { res.status(r.status).json({ error: 'orders fetch failed', status: r.status, body: await safeText(r) }); return; }
       const j = await r.json();
       const arr = ordersArray(j);
-      for (const o of arr) { foldOrder(rollups, o); counted++; }
+      for (const o of arr) { if (excluded.has(o.store_id)) continue; foldOrder(rollups, o); counted++; }
       const pg = j.pagination || j.meta || j.page || {};
       if (total == null) total = pick(pg.total_count, pg.total, pg.count, j.total_count, j.total);
       cursor = pick(pg.next_cursor, pg.nextCursor, pg.cursor, pg.next, j.next_cursor) || null;
