@@ -62,10 +62,10 @@ export default async function handler(req, res) {
       if (sr.ok) { const sj = await sr.json(); stores = ordersArray(sj).map(s => ({ store_id: s.store_id, name: s.name })); }
     } catch (_) {}
 
-    // Orders, last SNAPSHOT_DAYS, auto-paginated
-    const from = isoDaysAgo(SNAPSHOT_DAYS);
-    const to = new Date().toISOString();
-    const base = '/orders/v1?from=' + encodeURIComponent(from) + '&to=' + encodeURIComponent(to) + '&page_size=1000';
+    // Orders, last SNAPSHOT_DAYS, auto-paginated. Use `updated_since` (the
+    // 60/min lane) rather than a from/to full export (5/min) so the daily pull
+    // never trips Curbit's tighter export ceiling.
+    const base = '/orders/v1?updated_since=' + encodeURIComponent(isoDaysAgo(SNAPSHOT_DAYS)) + '&page_size=1000';
     const orders = []; let cursor = null; let pages = 0;
     do {
       const r = await curbitGet(base + (cursor ? '&cursor=' + encodeURIComponent(cursor) : ''));

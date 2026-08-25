@@ -60,6 +60,8 @@ async function getToken(force) {
 }
 
 async function safeText(r) { try { return await r.text(); } catch (_) { return ''; } }
+function sleep(ms) { return new Promise((resolve) => setTimeout(resolve, ms)); }
+function retryAfterMs(r) { const h = r.headers.get('retry-after'); const s = h && Number(h); return (s && !isNaN(s)) ? s * 1000 : 3000; }
 
 // Curbit's exact envelope key varies; find the array of records wherever it is.
 function pick(...vals) { for (const v of vals) { if (v != null) return v; } return undefined; }
@@ -89,6 +91,9 @@ async function curbitGet(pathAndQuery) {
   let token = await getToken(false);
   let r = await doFetch(token);
   if (r.status === 401) { token = await getToken(true); r = await doFetch(token); }
+  // Back off once on a rate-limit (429), honoring Retry-After but capped so we
+  // stay within the serverless timeout.
+  if (r.status === 429) { const wait = Math.min(retryAfterMs(r), 6000); if (wait > 0) { await sleep(wait); r = await doFetch(token); } }
   return r;
 }
 
