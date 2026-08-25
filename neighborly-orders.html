@@ -372,40 +372,50 @@ async function ensureSnapshot(){
   }catch(e){ return false; }
 }
 
+// Sequence guard — rapid toggles fire overlapping loads; only the newest
+// one is allowed to render, so a slow earlier response can't clobber it.
+var _loadSeq = 0;
+
 async function load(){
+  var seq = ++_loadSeq;
+  var stale = function(){ return seq !== _loadSeq; };
   var days=currentDays(); CUR_DAYS=days; setRangeLabel(days);
   var store=document.getElementById('storeSel').value;
   if(DEMO){ document.getElementById('foot').textContent='demo data'; renderFiltered(demoOrders(), store); return; }
 
-  // 1) Snapshot first — instant, and lets Today/7/30 switch without refetch.
+  // 1) Snapshot first — instant, and lets Today/7/30/store switch in-memory.
   if(await ensureSnapshot()){
+    if(stale()) return;
     clearBanner();
     document.getElementById('foot').textContent='live · Curbit · updated '+agoLabel(SNAP_AT);
     render(aggregate(filterWindow(ALL_ORDERS, days, store)));
     return;
   }
 
-  // 2) Fallback — live fetch straight from the proxy.
+  // 2) Fallback — live fetch straight from the proxy. Big page_size keeps wide
+  // windows to 1–2 round-trips so we stay well under the serverless timeout.
   document.getElementById('foot').textContent='live · Curbit';
   try{
     var sres=await fetch(API+'?resource=stores');
     if(sres.status===501){ configHint(await sres.json()); }
     var sj=await sres.json(); (sj.data||[]).forEach(function(x){STORE_NAMES[x.store_id]=x.name;});
-    fillStoreSelect();
+    if(!stale()) fillStoreSelect();
   }catch(e){}
-  var qs='?from='+encodeURIComponent(cutoffIso(days))+'&to='+encodeURIComponent(nowIso())+'&all=1';
+  var qs='?from='+encodeURIComponent(cutoffIso(days))+'&to='+encodeURIComponent(nowIso())+'&all=1&page_size=1000';
   if(store) qs+='&store_id='+encodeURIComponent(store);
   try{
     var res=await fetch(API+qs);
+    if(stale()) return;
     if(res.status===501){ configHint(await res.json()); render(aggregate([])); return; }
     if(!res.ok){ banner('err','Curbit request failed','The feed returned status '+res.status+'. Try again shortly.'); render(aggregate([])); return; }
-    clearBanner();
     var j=await res.json();
+    if(stale()) return;
+    clearBanner();
     var orders=(j&&j.data)||[];
     if(j.capped) banner('warn','Showing a partial window','Loaded the first '+ (j.pages*5000) +' orders — narrow the range for a complete view.');
     else if(!orders.length) banner('warn','Connected, but no orders in this window','Curbit responded with 0 orders for the last '+days+' day'+(days>1?'s':'')+'. Try a wider range with the toggle above, or check <a href="/api/curbit?resource=stores" target="_blank">the store list</a>. Once orders land in-range they populate automatically.');
     render(aggregate(orders));
-  }catch(e){ banner('err','Could not reach the Curbit feed', e.message); render(aggregate([])); }
+  }catch(e){ if(!stale()){ banner('err','Could not reach the Curbit feed', e.message); render(aggregate([])); } }
 }
 
 function configHint(body){

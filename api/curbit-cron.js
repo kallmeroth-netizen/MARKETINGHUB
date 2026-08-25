@@ -65,7 +65,7 @@ export default async function handler(req, res) {
     // Orders, last SNAPSHOT_DAYS, auto-paginated
     const from = isoDaysAgo(SNAPSHOT_DAYS);
     const to = new Date().toISOString();
-    const base = '/orders/v1?from=' + encodeURIComponent(from) + '&to=' + encodeURIComponent(to);
+    const base = '/orders/v1?from=' + encodeURIComponent(from) + '&to=' + encodeURIComponent(to) + '&page_size=1000';
     const orders = []; let cursor = null; let pages = 0;
     do {
       const r = await curbitGet(base + (cursor ? '&cursor=' + encodeURIComponent(cursor) : ''));
