@@ -173,13 +173,12 @@
     <div class="ops-table-wrap"><table class="ops-table" id="storeTable"><thead><tr><th>Store</th><th class="num">Orders</th><th class="num">Delivered</th><th class="num">Cancel %</th><th class="num">On-time %</th><th class="num">Goldilocks %</th><th class="num">Avg miss (min)</th></tr></thead><tbody></tbody></table></div>
   </section>
 
-  <p style="font-size:var(--t-caption-sm);color:var(--text-3);margin-top:var(--s-5);text-align:center">Order Operations · data via Curbit Orders API · <span id="foot">demo data</span></p>
+  <p style="font-size:var(--t-caption-sm);color:var(--text-3);margin-top:var(--s-5);text-align:center">Order Operations · data via Curbit Orders API · <span id="foot">connecting…</span></p>
 </main>
 
 <script>
 // ── config / helpers ──────────────────────────────────────────────────────
 var API = '/api/curbit';
-var DEMO = new URLSearchParams(location.search).get('demo') === '1';
 var STORE_NAMES = {};
 var CUR_DAYS = 7;
 // Neighborly channels ONLY: Walk In, Delivery, Online Order. No drive-thru,
@@ -230,7 +229,7 @@ function emptyM(){ return { total:0,delivered:0,cancelled:0,origin:{},handoff:{}
     gzHit:0,gzSeen:0,onTime:0,missSeen:0,missSum:0,prepSum:0,prepCnt:0,readySum:0,readyCnt:0,
     anom:{is_long_preparing_anomaly:0,is_prebump_preparing_anomaly:0,is_long_readying_anomaly:0,is_prebump_readying_anomaly:0,is_long_full_anomaly:0}, byStore:{} }; }
 
-// ── aggregation from raw orders (demo + small live fallback) ───────────────
+// ── aggregation from raw orders (small live fallback only) ─────────────────
 function aggregate(orders){
   var m = emptyM();
   m.total = orders.length;
@@ -442,7 +441,6 @@ async function load(){
   var stale = function(){ return seq !== _loadSeq; };
   var days=currentDays(); CUR_DAYS=days; setRangeLabel(days);
   var store=document.getElementById('storeSel').value;
-  if(DEMO){ document.getElementById('foot').textContent='demo data'; renderFiltered(demoOrders(), store); return; }
 
   var r = await ensureData();
   if(stale()) return;
@@ -462,50 +460,13 @@ async function load(){
 
 function configHint(body){
   var miss=(body&&body.missingEnv)?body.missingEnv.join(', '):'CURBIT_SUBSCRIPTION_KEY, CURBIT_TENANT_ID';
-  banner('warn','Curbit isn’t connected yet','Set <code>'+miss+'</code> as Vercel environment variables and redeploy. <a href="?demo=1">View demo data</a> in the meantime.');
+  banner('warn','Curbit isn’t connected yet','Set <code>'+miss+'</code> as Vercel environment variables and redeploy.');
 }
 
 function fillStoreSelect(){
   var sel=document.getElementById('storeSel'); var cur=sel.value;
   sel.innerHTML='<option value="">All stores</option>'+Object.keys(STORE_NAMES).map(function(id){return '<option value="'+id+'">'+STORE_NAMES[id]+'</option>';}).join('');
   sel.value=cur;
-}
-function renderFiltered(orders, store){ render(aggregate(store?orders.filter(function(o){return o.store_id===store;}):orders)); }
-
-// ── demo data (only when ?demo=1 or before the API is wired) ───────────────
-// Channels reflect Neighborly’s real mix — Walk In, Delivery, Online Order.
-// No drive-thru, no call-in, no catering. Timestamps are spread across the
-// selected window so the trend and daypart panels populate.
-function demoOrders(){
-  var stores=[['3fa8-brentwood','Brentwood'],['5c2d-westlake','Westlake Village'],['9a1f-studio','Studio City']];
-  stores.forEach(function(s){STORE_NAMES[s[0]]=s[1];}); fillStoreSelect();
-  var origins=['WALK_IN','WALK_IN','WALK_IN','WALK_IN','DELIVERY','DELIVERY','DELIVERY','ONLINE_ORDER','ONLINE_ORDER'];
-  var handoffs=['PICKUP_COUNTER','PICKUP_COUNTER','PICKUP_COUNTER','DINE_IN','DINE_IN','DELIVERY','DELIVERY','CURBSIDE'];
-  var statuses=['DELIVERED','DELIVERED','DELIVERED','DELIVERED','DELIVERED','READIED','READIED','CANCELLED'];
-  // Daypart weighting: lunch + dinner heavy. Hour picked from a weighted list.
-  var hours=[9,10,11,11,12,12,12,13,13,13,14,15,17,18,18,19,19,19,20,20,21];
-  var days=Math.max(1, CUR_DAYS||7), perDay=Math.round(430/days), out=[], seed=7, i=0;
-  var rnd=function(){ seed=(seed*9301+49297)%233280; return seed/233280; };
-  var base=new Date(); base.setHours(0,0,0,0);
-  for(var d=0; d<days; d++){
-    var when=new Date(base); when.setDate(when.getDate()-(days-1-d));
-    var n=Math.max(4, Math.round(perDay*(0.75+rnd()*0.6)));
-    for(var j=0;j<n;j++){
-      var st=stores[Math.floor(rnd()*stores.length)];
-      var hr=hours[Math.floor(rnd()*hours.length)];
-      var t=new Date(when); t.setHours(hr, Math.floor(rnd()*60), 0, 0);
-      var miss=Math.round((rnd()*16-7)*10)/10;
-      out.push({order_id:'o'+(i++), store_id:st[0], status:statuses[Math.floor(rnd()*statuses.length)],
-        origin:origins[Math.floor(rnd()*origins.length)], handoff:handoffs[Math.floor(rnd()*handoffs.length)],
-        placed_at:t.toISOString(),
-        preparing_duration_minutes: Math.round((4+rnd()*7)*10)/10,
-        readying_duration_minutes: Math.round((2+rnd()*4)*10)/10,
-        has_fallen_in_goldilocks_zone: rnd()<0.72, origin_promise_miss_minutes: miss,
-        is_long_preparing_anomaly: rnd()<0.06, is_prebump_preparing_anomaly: rnd()<0.03,
-        is_long_readying_anomaly: rnd()<0.05, is_prebump_readying_anomaly: rnd()<0.02, is_long_full_anomaly: rnd()<0.04 });
-    }
-  }
-  return out;
 }
 
 // ── wire up ─────────────────────────────────────────────────────────────────
