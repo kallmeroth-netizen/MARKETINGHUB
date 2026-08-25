@@ -376,6 +376,31 @@ async function ensureSnapshot(){
 // one is allowed to render, so a slow earlier response can't clobber it.
 var _loadSeq = 0;
 
+// Load the dataset ONCE (snapshot preferred, else a single live pull) and keep
+// it in memory; every Today/7/30/store toggle then filters locally with zero
+// extra Curbit calls. Curbit rate-limits full exports (from/to) to 5/min, so a
+// per-toggle live fetch trips 429s — we use `updated_since` (60/min lane) for
+// the one-time pull and never re-hit the API on a toggle.
+async function ensureData(){
+  if(ALL_ORDERS && (Date.now()-SNAP_FETCHED < 5*60*1000)) return { ok:true };
+  if(await ensureSnapshot()) return { ok:true, snap:true };
+  // one-time live pull — 31 days via updated_since, cached in memory
+  try{
+    var sres=await fetch(API+'?resource=stores');
+    if(sres.status===501){ return { ok:false, cfg:await sres.json() }; }
+    var sj=await sres.json(); (sj.data||[]).forEach(function(x){STORE_NAMES[x.store_id]=x.name;}); fillStoreSelect();
+  }catch(e){}
+  try{
+    var res=await fetch(API+'?updated_since='+encodeURIComponent(cutoffIso(31))+'&all=1&page_size=1000');
+    if(res.status===501){ return { ok:false, cfg:await res.json() }; }
+    if(res.status===429){ return { ok:false, rate:true }; }
+    if(!res.ok){ return { ok:false, status:res.status }; }
+    var j=await res.json();
+    ALL_ORDERS=(j&&j.data)||[]; SNAP_AT=0; SNAP_FETCHED=Date.now();
+    return { ok:true, capped:j.capped, pages:j.pages };
+  }catch(e){ return { ok:false, err:e.message }; }
+}
+
 async function load(){
   var seq = ++_loadSeq;
   var stale = function(){ return seq !== _loadSeq; };
@@ -383,39 +408,19 @@ async function load(){
   var store=document.getElementById('storeSel').value;
   if(DEMO){ document.getElementById('foot').textContent='demo data'; renderFiltered(demoOrders(), store); return; }
 
-  // 1) Snapshot first — instant, and lets Today/7/30/store switch in-memory.
-  if(await ensureSnapshot()){
-    if(stale()) return;
-    clearBanner();
-    document.getElementById('foot').textContent='live · Curbit · updated '+agoLabel(SNAP_AT);
-    render(aggregate(filterWindow(ALL_ORDERS, days, store)));
-    return;
+  var r = await ensureData();
+  if(stale()) return;
+  if(!r.ok){
+    if(r.cfg){ configHint(r.cfg); }
+    else if(r.rate){ banner('warn','Curbit is rate-limiting','Too many pulls in a short window (Curbit caps full exports at 5/min). Wait ~30s and reload — once the daily sync runs, toggles are instant and this stops.'); }
+    else { banner('err','Could not load Curbit data','Status '+(r.status||'')+' '+(r.err||'')+'. Try again shortly.'); }
+    render(aggregate([])); return;
   }
-
-  // 2) Fallback — live fetch straight from the proxy. Big page_size keeps wide
-  // windows to 1–2 round-trips so we stay well under the serverless timeout.
-  document.getElementById('foot').textContent='live · Curbit';
-  try{
-    var sres=await fetch(API+'?resource=stores');
-    if(sres.status===501){ configHint(await sres.json()); }
-    var sj=await sres.json(); (sj.data||[]).forEach(function(x){STORE_NAMES[x.store_id]=x.name;});
-    if(!stale()) fillStoreSelect();
-  }catch(e){}
-  var qs='?from='+encodeURIComponent(cutoffIso(days))+'&to='+encodeURIComponent(nowIso())+'&all=1&page_size=1000';
-  if(store) qs+='&store_id='+encodeURIComponent(store);
-  try{
-    var res=await fetch(API+qs);
-    if(stale()) return;
-    if(res.status===501){ configHint(await res.json()); render(aggregate([])); return; }
-    if(!res.ok){ banner('err','Curbit request failed','The feed returned status '+res.status+'. Try again shortly.'); render(aggregate([])); return; }
-    var j=await res.json();
-    if(stale()) return;
-    clearBanner();
-    var orders=(j&&j.data)||[];
-    if(j.capped) banner('warn','Showing a partial window','Loaded the first '+ (j.pages*5000) +' orders — narrow the range for a complete view.');
-    else if(!orders.length) banner('warn','Connected, but no orders in this window','Curbit responded with 0 orders for the last '+days+' day'+(days>1?'s':'')+'. Try a wider range with the toggle above, or check <a href="/api/curbit?resource=stores" target="_blank">the store list</a>. Once orders land in-range they populate automatically.');
-    render(aggregate(orders));
-  }catch(e){ if(!stale()){ banner('err','Could not reach the Curbit feed', e.message); render(aggregate([])); } }
+  document.getElementById('foot').textContent = SNAP_AT ? ('live · Curbit · updated '+agoLabel(SNAP_AT)) : 'live · Curbit';
+  if(!ALL_ORDERS.length){ banner('warn','Connected, but no orders yet','Curbit returned 0 orders for the last 31 days. New orders populate automatically once they land.'); }
+  else if(r.capped){ banner('warn','Showing a partial window','Loaded the first '+(r.pages*1000)+' orders.'); }
+  else { clearBanner(); }
+  render(aggregate(filterWindow(ALL_ORDERS, days, store)));
 }
 
 function configHint(body){
