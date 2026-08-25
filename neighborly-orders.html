@@ -216,16 +216,25 @@ function readyMins(o){
   if(a!=null&&b!=null&&b>=a) return (b-a)/60000; return null;
 }
 function daypartOf(h){ if(h>=5&&h<11) return 'Morning'; if(h>=11&&h<15) return 'Lunch'; if(h>=15&&h<22) return 'Dinner'; return 'Late night'; }
-function dayKey(t){ var d=new Date(t); return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate(); }
+// Day/hour bucketed in the restaurants' timezone so server-side rollups and the
+// browser's trend axis land on the same calendar days regardless of viewer TZ.
+var TZ='America/Los_Angeles';
+var _dayFmt=new Intl.DateTimeFormat('en-CA',{timeZone:TZ,year:'numeric',month:'2-digit',day:'2-digit'});
+var _hourFmt=new Intl.DateTimeFormat('en-US',{timeZone:TZ,hour:'2-digit',hour12:false});
+function dayKey(t){ return _dayFmt.format(new Date(t)); }                 // YYYY-MM-DD (LA)
+function hourOf(t){ var h=parseInt(_hourFmt.format(new Date(t)),10); return isNaN(h)?0:(h%24); }
+function cutoffDayKey(days){ var d=Date.now()-(days>1?(days-1):0)*86400000; return dayKey(d); }
+function labelFromKey(dk){ var p=String(dk).split('-'); return parseInt(p[1],10)+'/'+parseInt(p[2],10); }
+function addMap(dst,src){ if(src) Object.keys(src).forEach(function(k){ dst[k]=(dst[k]||0)+src[k]; }); }
+function emptyM(){ return { total:0,delivered:0,cancelled:0,origin:{},handoff:{},daypart:{},days:{},hours:{},
+    gzHit:0,gzSeen:0,onTime:0,missSeen:0,missSum:0,prepSum:0,prepCnt:0,readySum:0,readyCnt:0,
+    anom:{is_long_preparing_anomaly:0,is_prebump_preparing_anomaly:0,is_long_readying_anomaly:0,is_prebump_readying_anomaly:0,is_long_full_anomaly:0}, byStore:{} }; }
 
-// ── aggregation (all metrics derived from order-level fields) ──────────────
+// ── aggregation from raw orders (demo + small live fallback) ───────────────
 function aggregate(orders){
-  var m = { total:orders.length, status:{}, origin:{}, handoff:{}, byStore:{},
-            delivered:0, cancelled:0, gzHit:0, gzSeen:0, onTime:0, missSeen:0, missSum:0,
-            prep:[], ready:[], days:{}, hours:{}, daypart:{},
-            anom:{is_long_preparing_anomaly:0,is_prebump_preparing_anomaly:0,is_long_readying_anomaly:0,is_prebump_readying_anomaly:0,is_long_full_anomaly:0} };
+  var m = emptyM();
+  m.total = orders.length;
   orders.forEach(function(o){
-    m.status[o.status]=(m.status[o.status]||0)+1;
     if(o.status==='DELIVERED') m.delivered++;
     if(o.status==='CANCELLED') m.cancelled++;
     if(o.origin) m.origin[o.origin]=(m.origin[o.origin]||0)+1;
@@ -233,16 +242,39 @@ function aggregate(orders){
     if(o.has_fallen_in_goldilocks_zone!=null){ m.gzSeen++; if(o.has_fallen_in_goldilocks_zone) m.gzHit++; }
     var miss = o.origin_promise_miss_minutes; if(miss==null) miss=o.promise_miss_minutes_at_placed;
     if(miss!=null && !isNaN(miss)){ m.missSeen++; m.missSum+=Number(miss); if(Number(miss)<=0) m.onTime++; }
-    var pm=prepMins(o); if(pm!=null&&pm>=0&&pm<240) m.prep.push(pm);
-    var rm=readyMins(o); if(rm!=null&&rm>=0&&rm<240) m.ready.push(rm);
+    var pm=prepMins(o); if(pm!=null&&pm>=0&&pm<240){ m.prepSum+=pm; m.prepCnt++; }
+    var rm=readyMins(o); if(rm!=null&&rm>=0&&rm<240){ m.readySum+=rm; m.readyCnt++; }
     var t=orderTs(o);
-    if(t!=null){ var d=new Date(t); m.days[dayKey(t)]=(m.days[dayKey(t)]||0)+1; m.hours[d.getHours()]=(m.hours[d.getHours()]||0)+1; var dp=daypartOf(d.getHours()); m.daypart[dp]=(m.daypart[dp]||0)+1; }
+    if(t!=null){ m.days[dayKey(t)]=(m.days[dayKey(t)]||0)+1; var h=hourOf(t); m.hours[h]=(m.hours[h]||0)+1; var dp=daypartOf(h); m.daypart[dp]=(m.daypart[dp]||0)+1; }
     Object.keys(m.anom).forEach(function(k){ if(o[k]) m.anom[k]++; });
     var sid=o.store_id||'unknown';
     var s=m.byStore[sid]||(m.byStore[sid]={orders:0,delivered:0,cancelled:0,onTime:0,missSeen:0,missSum:0,gzHit:0,gzSeen:0});
     s.orders++; if(o.status==='DELIVERED')s.delivered++; if(o.status==='CANCELLED')s.cancelled++;
     if(miss!=null&&!isNaN(miss)){s.missSeen++;s.missSum+=Number(miss);if(Number(miss)<=0)s.onTime++;}
     if(o.has_fallen_in_goldilocks_zone!=null){s.gzSeen++;if(o.has_fallen_in_goldilocks_zone)s.gzHit++;}
+  });
+  return m;
+}
+
+// ── aggregation from server-side rollups (the live path at scale) ──────────
+// snapshot.rollups[store_id][dayKey] = compact per-day totals. We fold the days
+// inside the window + the selected store into the same `m` shape render() uses.
+function buildFromRollups(snap, days, store){
+  var m=emptyM(); var cutoff=cutoffDayKey(days); var roll=(snap&&snap.rollups)||{};
+  Object.keys(roll).forEach(function(sid){
+    if(store && sid!==store) return;
+    var byDay=roll[sid];
+    Object.keys(byDay).forEach(function(dk){
+      if(dk==='unknown' || dk<cutoff) return;      // YYYY-MM-DD string compare == date compare
+      var r=byDay[dk];
+      m.total+=r.o; m.delivered+=r.d; m.cancelled+=r.c;
+      m.gzSeen+=r.gzS; m.gzHit+=r.gzH; m.missSeen+=r.mS; m.missSum+=r.mSum; m.onTime+=r.ot;
+      m.prepSum+=r.pS; m.prepCnt+=r.pC; m.readySum+=r.rS; m.readyCnt+=r.rC;
+      addMap(m.origin,r.origin); addMap(m.handoff,r.handoff); addMap(m.daypart,r.daypart); addMap(m.hours,r.hours); addMap(m.anom,r.anom);
+      m.days[dk]=(m.days[dk]||0)+r.o;
+      var s=m.byStore[sid]||(m.byStore[sid]={orders:0,delivered:0,cancelled:0,onTime:0,missSeen:0,missSum:0,gzHit:0,gzSeen:0});
+      s.orders+=r.o; s.delivered+=r.d; s.cancelled+=r.c; s.onTime+=r.ot; s.missSeen+=r.mS; s.missSum+=r.mSum; s.gzHit+=r.gzH; s.gzSeen+=r.gzS;
+    });
   });
   return m;
 }
@@ -267,16 +299,17 @@ function render(m){
   bars('originBars', m.origin, m.total, C.origin);
   bars('handoffBars', m.handoff, m.total, C.handoff);
 
-  var medPrep=median(m.prep), medReady=median(m.ready);
+  var avgPrep = m.prepCnt ? (m.prepSum/m.prepCnt) : null;
+  var avgReady = m.readyCnt ? (m.readySum/m.readyCnt) : null;
   var mk = [
     {k:pct(m.onTime,m.missSeen)+'%', l:'On-time vs promise'},
     {k:pct(m.gzHit,m.gzSeen)+'%', l:'Goldilocks zone'},
     {k:(avgMiss==null?'—':(avgMiss>0?'+':'')+avgMiss.toFixed(1)+'m'), l:'Avg promise miss'},
-    {k:(medPrep==null?'—':medPrep.toFixed(1)+'m'), l:'Median prep'},
-    {k:(medReady==null?'—':medReady.toFixed(1)+'m'), l:'Median ready'}
+    {k:(avgPrep==null?'—':avgPrep.toFixed(1)+'m'), l:'Avg prep'},
+    {k:(avgReady==null?'—':avgReady.toFixed(1)+'m'), l:'Avg ready'}
   ];
   document.getElementById('mkGrid').innerHTML = mk.map(function(x){return '<div class="mk"><div class="k">'+x.k+'</div><div class="l">'+x.l+'</div></div>';}).join('');
-  document.getElementById('mkNote').textContent = (medPrep==null&&medReady==null)
+  document.getElementById('mkNote').textContent = (avgPrep==null&&avgReady==null)
     ? 'Prep & ready make-times aren’t exposed in this Curbit response — showing promise metrics only.' : '';
 
   var aLabels={is_long_preparing_anomaly:'Long prep',is_prebump_preparing_anomaly:'Pre-bump prep',is_long_readying_anomaly:'Long ready',is_prebump_readying_anomaly:'Pre-bump ready',is_long_full_anomaly:'Long total'};
@@ -299,9 +332,8 @@ function renderTrend(m){
     for(var h=6;h<=23;h++){ cols.push({label:(h%12===0?12:h%12)+(h<12?'a':'p'), count:m.hours[h]||0}); }
   } else {
     sub='Orders per day · last '+CUR_DAYS+' days';
-    var now=new Date(); now.setHours(0,0,0,0);
-    for(var i=CUR_DAYS-1;i>=0;i--){ var d=new Date(now); d.setDate(d.getDate()-i);
-      cols.push({label:(d.getMonth()+1)+'/'+d.getDate(), count:m.days[dayKey(d.getTime())]||0}); }
+    for(var i=CUR_DAYS-1;i>=0;i--){ var dk=dayKey(Date.now()-i*86400000);
+      cols.push({label:labelFromKey(dk), count:m.days[dk]||0}); }
   }
   document.getElementById('trendSub').textContent=sub;
   var max=Math.max.apply(null, cols.map(function(c){return c.count;}).concat([1]));
@@ -344,7 +376,10 @@ function clearBanner(){ document.getElementById('banner').classList.remove('show
 // in-memory timeframe switching). If the snapshot is missing/stale it falls back
 // to a live /api/curbit fetch, which also works standalone.
 var SNAPSHOT_URL='https://neighborly-hub-53e4b-default-rtdb.firebaseio.com/curbit_snapshot.json';
-var ALL_ORDERS=null, SNAP_AT=0, SNAP_FETCHED=0;
+var SNAP=null;          // rollup snapshot (preferred — tiny, aggregated server-side)
+var ALL_ORDERS=null;    // raw orders (small live fallback only)
+var MODE=null;          // 'rollups' | 'raw'
+var SNAP_AT=0, DATA_FETCHED=0;
 
 function currentDays(){ var el=document.querySelector('#rangeSeg .is-active'); return el?+el.dataset.days:7; }
 function setRangeLabel(days){ document.getElementById('rangeLabel').textContent = 'Last '+days+' day'+(days>1?'s':'')+' · kitchen throughput, make-time & delivery flow'; }
@@ -358,46 +393,47 @@ function filterWindow(orders, days, store){
     return true;
   });
 }
+
+// The cron aggregates 31 days into tiny per-day/per-store rollups in Firebase.
+// The page reads that (a few KB) and every Today/7/30/store toggle just folds
+// the relevant rollups in memory — no per-toggle Curbit calls, no 429s, and
+// none of the multi-MB payload that raw orders would be at this volume.
 async function ensureSnapshot(){
-  if(ALL_ORDERS && (Date.now()-SNAP_FETCHED < 5*60*1000)) return true;
   try{
     var r=await fetch(SNAPSHOT_URL, {cache:'no-store'});
     if(!r.ok) return false;
     var s=await r.json();
-    if(!s || !Array.isArray(s.orders) || !s.orders.length) return false;
-    ALL_ORDERS=s.orders; SNAP_AT=Date.parse(s.updatedAt)||0; SNAP_FETCHED=Date.now();
+    if(!s || !s.rollups || !Object.keys(s.rollups).length) return false;
+    SNAP=s; MODE='rollups'; SNAP_AT=Date.parse(s.updatedAt)||0; DATA_FETCHED=Date.now();
     (s.stores||[]).forEach(function(x){ if(x&&x.store_id) STORE_NAMES[x.store_id]=x.name; });
     fillStoreSelect();
     return true;
   }catch(e){ return false; }
 }
 
-// Sequence guard — rapid toggles fire overlapping loads; only the newest
-// one is allowed to render, so a slow earlier response can't clobber it.
+// Sequence guard — rapid toggles fire overlapping loads; only the newest one
+// is allowed to render, so a slow earlier response can't clobber it.
 var _loadSeq = 0;
 
-// Load the dataset ONCE (snapshot preferred, else a single live pull) and keep
-// it in memory; every Today/7/30/store toggle then filters locally with zero
-// extra Curbit calls. Curbit rate-limits full exports (from/to) to 5/min, so a
-// per-toggle live fetch trips 429s — we use `updated_since` (60/min lane) for
-// the one-time pull and never re-hit the API on a toggle.
 async function ensureData(){
-  if(ALL_ORDERS && (Date.now()-SNAP_FETCHED < 5*60*1000)) return { ok:true };
-  if(await ensureSnapshot()) return { ok:true, snap:true };
-  // one-time live pull — 31 days via updated_since, cached in memory
+  if(MODE && (Date.now()-DATA_FETCHED < 5*60*1000)) return { ok:true };
+  if(await ensureSnapshot()) return { ok:true };
+  // Snapshot not ready yet → small live fallback (last few days, raw) so the
+  // page still shows something. Full history + instant toggles come from the
+  // snapshot once the sync has run.
   try{
     var sres=await fetch(API+'?resource=stores');
     if(sres.status===501){ return { ok:false, cfg:await sres.json() }; }
     var sj=await sres.json(); (sj.data||[]).forEach(function(x){STORE_NAMES[x.store_id]=x.name;}); fillStoreSelect();
   }catch(e){}
   try{
-    var res=await fetch(API+'?updated_since='+encodeURIComponent(cutoffIso(31))+'&all=1&page_size=1000');
+    var res=await fetch(API+'?updated_since='+encodeURIComponent(cutoffIso(3))+'&all=1&page_size=5000');
     if(res.status===501){ return { ok:false, cfg:await res.json() }; }
     if(res.status===429){ return { ok:false, rate:true }; }
     if(!res.ok){ return { ok:false, status:res.status }; }
     var j=await res.json();
-    ALL_ORDERS=(j&&j.data)||[]; SNAP_AT=0; SNAP_FETCHED=Date.now();
-    return { ok:true, capped:j.capped, pages:j.pages };
+    ALL_ORDERS=(j&&j.data)||[]; MODE='raw'; SNAP_AT=0; DATA_FETCHED=Date.now();
+    return { ok:true, partial:true };
   }catch(e){ return { ok:false, err:e.message }; }
 }
 
@@ -412,15 +448,16 @@ async function load(){
   if(stale()) return;
   if(!r.ok){
     if(r.cfg){ configHint(r.cfg); }
-    else if(r.rate){ banner('warn','Curbit is rate-limiting','Too many pulls in a short window (Curbit caps full exports at 5/min). Wait ~30s and reload — once the daily sync runs, toggles are instant and this stops.'); }
+    else if(r.rate){ banner('warn','Curbit is rate-limiting','Too many pulls at once (Curbit caps to a few a minute). Wait ~30s and reload — the daily sync keeps this from happening.'); }
     else { banner('err','Could not load Curbit data','Status '+(r.status||'')+' '+(r.err||'')+'. Try again shortly.'); }
-    render(aggregate([])); return;
+    render(emptyM()); return;
   }
-  document.getElementById('foot').textContent = SNAP_AT ? ('live · Curbit · updated '+agoLabel(SNAP_AT)) : 'live · Curbit';
-  if(!ALL_ORDERS.length){ banner('warn','Connected, but no orders yet','Curbit returned 0 orders for the last 31 days. New orders populate automatically once they land.'); }
-  else if(r.capped){ banner('warn','Showing a partial window','Loaded the first '+(r.pages*1000)+' orders.'); }
+  var m = (MODE==='rollups') ? buildFromRollups(SNAP, days, store) : aggregate(filterWindow(ALL_ORDERS, days, store));
+  document.getElementById('foot').textContent = SNAP_AT ? ('live · Curbit · updated '+agoLabel(SNAP_AT)) : 'live · Curbit · recent';
+  if(!m.total){ banner('warn','No orders in this window','Nothing for the selected range yet — try a wider window. New orders appear automatically.'); }
+  else if(r.partial){ banner('warn','Showing recent orders only','The daily sync hasn’t run yet, so this is just the last few days. Full 7/30-day history appears after the next sync.'); }
   else { clearBanner(); }
-  render(aggregate(filterWindow(ALL_ORDERS, days, store)));
+  render(m);
 }
 
 function configHint(body){
