@@ -170,7 +170,7 @@
   <section class="np-card">
     <div class="np-card-title">By store</div>
     <div class="np-card-sub">Volume &amp; make-time by location</div>
-    <div class="ops-table-wrap"><table class="ops-table" id="storeTable"><thead><tr><th>Store</th><th class="num">Orders</th><th class="num">Completed</th><th class="num">Cancel %</th><th class="num">On-time %</th><th class="num">Goldilocks %</th><th class="num">Avg miss (min)</th></tr></thead><tbody></tbody></table></div>
+    <div class="ops-table-wrap"><table class="ops-table" id="storeTable"><thead><tr><th>Store</th><th class="num">Orders</th><th class="num">Completed</th><th class="num">On-time %</th><th class="num">Goldilocks %</th><th class="num">Avg miss (min)</th></tr></thead><tbody></tbody></table></div>
   </section>
 
   <p style="font-size:var(--t-caption-sm);color:var(--text-3);margin-top:var(--s-5);text-align:center">Order Operations · data via Curbit Orders API · <span id="foot">connecting…</span></p>
@@ -299,7 +299,7 @@ function render(m){
   var tiles = [
     {k:fmt(m.total), l:'Orders', d:'in range', c:'var(--ink)'},
     {k:fmt(m.delivered), l:'Completed', d:pct(m.delivered,m.total)+'% of orders', c:'var(--brand-green)'},
-    {k:fmt(m.cancelled), l:'Cancelled', d:pct(m.cancelled,m.total)+'% of orders', c:'var(--brand-orange-deep)'},
+    {k:pct(m.gzHit,m.gzSeen)+'%', l:'Goldilocks', d:'in-zone rate', c:'var(--brand-yellow)'},
     {k:fmt(m.origin.DELIVERY||0), l:'Delivery', d:pct(m.origin.DELIVERY||0,m.total)+'% of orders', c:'var(--brand-orange)'},
     {k:pct(m.onTime,m.missSeen)+'%', l:'On-time', d:'vs promise', c:'var(--brand-blue)'},
     {k:(avgMiss==null?'—':(avgMiss>0?'+':'')+avgMiss.toFixed(1)), l:'Avg miss', d:'minutes vs promise', c:(avgMiss>0?'var(--brand-orange)':'var(--brand-green)')}
@@ -333,9 +333,9 @@ function render(m){
 
   var rows = Object.keys(m.byStore).sort(function(a,b){return m.byStore[b].orders-m.byStore[a].orders;}).map(function(sid){
     var s=m.byStore[sid]; var miss=s.missSeen?(s.missSum/s.missSeen):null;
-    return '<tr><td>'+(STORE_NAMES[sid]||('Store '+String(sid).slice(0,6)))+'</td><td class="num">'+fmt(s.orders)+'</td><td class="num">'+fmt(s.delivered)+'</td><td class="num">'+pct(s.cancelled,s.orders)+'%</td><td class="num">'+pct(s.onTime,s.missSeen)+'%</td><td class="num">'+pct(s.gzHit,s.gzSeen)+'%</td><td class="num">'+(miss==null?'—':(miss>0?'+':'')+miss.toFixed(1))+'</td></tr>';
+    return '<tr><td>'+(STORE_NAMES[sid]||('Store '+String(sid).slice(0,6)))+'</td><td class="num">'+fmt(s.orders)+'</td><td class="num">'+fmt(s.delivered)+'</td><td class="num">'+pct(s.onTime,s.missSeen)+'%</td><td class="num">'+pct(s.gzHit,s.gzSeen)+'%</td><td class="num">'+(miss==null?'—':(miss>0?'+':'')+miss.toFixed(1))+'</td></tr>';
   }).join('');
-  document.querySelector('#storeTable tbody').innerHTML = rows || '<tr><td colspan="7" style="padding:16px;color:var(--text-3)">No orders in range.</td></tr>';
+  document.querySelector('#storeTable tbody').innerHTML = rows || '<tr><td colspan="6" style="padding:16px;color:var(--text-3)">No orders in range.</td></tr>';
 }
 
 // Daily (7/30-day) or hourly (Today) volume bars — dependency-free.
