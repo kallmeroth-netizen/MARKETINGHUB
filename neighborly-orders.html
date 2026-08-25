@@ -215,7 +215,8 @@ function orderTs(o){ return pickTs(o,['placed_at','created_at','ordered_at','ord
 function prepMins(o){
   var d=pickNum(o,['preparing_duration_minutes','prep_time_minutes','preparing_minutes','time_to_prepare_minutes','minutes_preparing']);
   if(d!=null) return d;
-  var a=pickTs(o,['preparing_at','prep_started_at','started_preparing_at','placed_at','created_at','ordered_at']);
+  // Kitchen prep = prepared − started (fall back to placed only if no start stamp).
+  var a=pickTs(o,['started_at','preparing_at','prep_started_at','started_preparing_at','placed_at','created_at','ordered_at']);
   var b=pickTs(o,['prepared_at','finished_preparing_at']);
   if(a!=null&&b!=null&&b>=a) return (b-a)/60000; return null;
 }
