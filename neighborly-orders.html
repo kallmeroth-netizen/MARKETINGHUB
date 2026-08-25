@@ -195,7 +195,8 @@ var DAYPART_ORDER = ['Morning','Lunch','Dinner','Late night'];
 // "Completed" = fulfilled = handed off (DELIVERED) or ready for pickup/dine-in
 // (READIED). Case-insensitive for safety.
 function isCompleted(st){ st=String(st||'').toUpperCase(); return st==='DELIVERED'||st==='READIED'; }
-function isCancelled(st){ return String(st||'').toUpperCase()==='CANCELLED'; }
+// Match cancel-ish statuses (CANCELLED / CANCELED / CANCELLED_BY_* / VOID / REJECTED).
+function isCancelled(st){ st=String(st||'').toUpperCase(); return st.indexOf('CANCEL')>=0||st.indexOf('VOID')>=0||st.indexOf('REJECT')>=0; }
 // Record store names, hiding Curbit's test/demo stores from the whole page.
 function noteStores(list){ (list||[]).forEach(function(x){ if(!x||!x.store_id) return;
   if(/\b(demo|test|sandbox|training)\b/i.test(x.name||'')) EXCLUDED[x.store_id]=true; else STORE_NAMES[x.store_id]=x.name; }); }
