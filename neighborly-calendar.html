@@ -487,6 +487,7 @@ const CATS = {
   launch:    {label:'Collateral',      color:'#2a7a4b',bg:C.gl,  text:C.gd,  icon:'M6 1l1.5 3.5L11 5.5 8.5 8l.5 3.5L6 10 2 11.5 2.5 8 0 5.5l3.5-1L6 1z'},
   influencer:{label:'Influencer',   color:C.green,  bg:C.gl,  text:C.gd,  icon:'M6 6a2 2 0 100-4 2 2 0 000 4zM2.5 10.5c0-2 1.6-3 3.5-3s3.5 1 3.5 3'},
   collab:    {label:'Collab post',  color:'#c65f83',bg:'#fbeef3',text:'#7d2f4f',icon:'M4.3 3.6a2.4 2.4 0 100 4.8 2.4 2.4 0 000-4.8M7.7 3.6a2.4 2.4 0 100 4.8 2.4 2.4 0 000-4.8'},
+  shelly:    {label:'Shelly Events', color:'#7d54c9',bg:'#efe9fb',text:'#4a2f86',icon:'M6 1.4l1.3 3.3 3.3 1.3-3.3 1.3L6 10.6 4.7 7.3 1.4 6l3.3-1.3z'},
 };
 
 const DEPTS = ['Marketing','Operations','Creative','Sales','Leadership'];
@@ -509,7 +510,7 @@ const DEFAULT_THEMES = {
   4:  {theme:'Effortless Gatherings',       tag:'May',       color:C.tan,    goals:['','',''], desc:'Last-minute hosting and meal ideas for end of school madness meets celebratory moments.'},
   5:  {theme:'Easy Summer Eats',            tag:'June',      color:C.orange, goals:['','',''], desc:'Summer break meals, kid-friendly favorites, pool day dinners, picnic-style takeout.'},
   6:  {theme:'Bring People Together',       tag:'July',      color:C.yellow, goals:['','',''], desc:'Fourth of July, backyard dinners, beach and pool days, casual hosting.'},
-  7:  {theme:'Back to the Table',           tag:'August',    color:C.blue,   goals:['','',''], desc:'Back-to-school prep, lunchbox-hero ideas, weeknight dinner shortcuts.'},
+  7:  {theme:'Back to the Table',           tag:'August',    color:C.blue,   goals:['','',''], desc:'Back-to-school prep, lunchbox-hero ideas, weeknight dinner shortcuts.', highlights:['Cotto','Hot Girl Pickle']},
   8:  {theme:'Dinner, Solved.',             tag:'September', color:C.lav,    goals:['','',''], desc:'Settling into routine, family dinners, fall sports, office lunches, easy catering.'},
   9:  {theme:'Warm Nights, Easy Meals',     tag:'October',   color:C.tan,    goals:['','',''], desc:'Cozy comfort food, Halloween week survival, fall gatherings, football Sundays.'},
   10: {theme:'Hosting Season, Handled.',    tag:'November',  color:C.orange, goals:['','',''], desc:'Thanksgiving entertaining, Friendsgiving, office gatherings, hosting shortcuts.'},
@@ -528,7 +529,7 @@ const DEFAULT_THEMES = {
           const out = {};
           for (const k of Object.keys(ths)) {
             const t = ths[k] || {};
-            out[k] = {...t, goals: Array.isArray(t.goals) ? t.goals.map(cleanGoal) : ['','','']};
+            out[k] = {...t, goals: Array.isArray(t.goals) ? t.goals.map(cleanGoal) : ['','',''], highlights: Array.isArray(t.highlights) ? t.highlights : ['','']};
           }
           return out;
         };
@@ -1062,11 +1063,13 @@ function ThemeForm({open, onClose, monthIndex, themes, onSave}) {
   const [theme, setTheme] = useState(t.theme||'');
   const [desc,  setDesc]  = useState(t.desc||'');
   const [goals, setGoals] = useState((t.goals||['','','']).map(cleanGoal));
+  const [highlights, setHighlights] = useState([(t.highlights||[])[0]||'', (t.highlights||[])[1]||'']);
 
   useEffect(() => {
     if (!open) return;
     const t2 = themes[monthIndex] || DEFAULT_THEMES[monthIndex] || {};
     setTag(t2.tag||''); setTheme(t2.theme||''); setDesc(t2.desc||''); setGoals((t2.goals||['','','']).map(cleanGoal));
+    setHighlights([(t2.highlights||[])[0]||'', (t2.highlights||[])[1]||'']);
   }, [open, monthIndex, themes]);
 
   const inpStyle = {width:'100%',border:`0.5px solid ${C.borderStrong}`,borderRadius:8,padding:'7px 10px',fontSize:13,color:C.text,background:C.surface,outline:'none',fontFamily:'inherit'};
@@ -1097,9 +1100,19 @@ function ThemeForm({open, onClose, monthIndex, themes, onSave}) {
           )}
         </div>
       </div>
+      <div style={{marginBottom:16}}>
+        <div style={{fontSize:11.5,color:C.text2,marginBottom:6}}>Monthly Marketplace Highlights — Brand Highlight</div>
+        <div style={{display:'flex',flexDirection:'column',gap:6}}>
+          {[0,1].map(i => (
+            <input key={i} value={highlights[i]||''} placeholder={i===0?'Brand one':'Brand two'}
+              onChange={e=>setHighlights(h=>{const nh=[...h];nh[i]=e.target.value;return nh;})}
+              style={inpStyle} onFocus={focusO} onBlur={blurO}/>
+          ))}
+        </div>
+      </div>
       <div style={{display:'flex',gap:8,justifyContent:'flex-end'}}>
         <button onClick={onClose} style={{background:'none',border:`0.5px solid ${C.borderStrong}`,borderRadius:8,padding:'7px 16px',fontSize:13,cursor:'pointer',color:C.text,fontFamily:'inherit'}}>Cancel</button>
-        <button onClick={() => { onSave(monthIndex,{tag,theme,desc,goals:goals.map(g=>g||'')}); onClose(); }} style={{background:C.orange,border:'none',borderRadius:8,padding:'7px 16px',fontSize:13,cursor:'pointer',color:'#fff',fontWeight:500,fontFamily:'inherit'}}>Save theme</button>
+        <button onClick={() => { onSave(monthIndex,{tag,theme,desc,goals:goals.map(g=>g||''),highlights:highlights.map(h=>h||'')}); onClose(); }} style={{background:C.orange,border:'none',borderRadius:8,padding:'7px 16px',fontSize:13,cursor:'pointer',color:'#fff',fontWeight:500,fontFamily:'inherit'}}>Save theme</button>
       </div>
     </Modal>
   );
@@ -1498,16 +1511,19 @@ function NeighborlyCalendar() {
           <div style={{padding:isMobile?'0.75rem var(--gutter) 6rem':'1.1rem var(--gutter) 3rem'}}>
 
             {/* THEME BANNER */}
-            <div onClick={() => mode==='edit' && setThemeOpen(true)}
-              style={{border:`0.5px solid ${C.border}`,borderLeftWidth:3,borderLeftColor:theme.color||C.blue,padding:'1.1rem 1.25rem',marginBottom:'1rem',background:C.surface,borderRadius:'0 12px 12px 0',cursor:mode==='edit'?'pointer':'default',transition:'background .15s',boxShadow:'0 1px 3px rgba(0,0,0,.04)'}}
-              onMouseEnter={e=>{if(mode==='edit')e.currentTarget.style.background=C.surface2;}}
-              onMouseLeave={e=>e.currentTarget.style.background=C.surface}>
+            <div
+              style={{position:'relative',border:`0.5px solid ${C.border}`,borderLeftWidth:3,borderLeftColor:theme.color||C.blue,padding:'1.1rem 1.25rem',marginBottom:'1rem',background:C.surface,borderRadius:'0 12px 12px 0',boxShadow:'0 1px 3px rgba(0,0,0,.04)'}}>
+              {mode==='edit' && (
+                <button type="button" onClick={()=>setThemeOpen(true)} title="Edit theme"
+                  style={{position:'absolute',top:10,right:12,display:'inline-flex',alignItems:'center',gap:4,background:C.surface,border:`0.5px solid ${C.borderStrong}`,borderRadius:6,padding:'3px 8px',fontSize:10.5,cursor:'pointer',color:C.text2,fontFamily:'inherit',lineHeight:1}}>
+                  <svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M8.5 1.5l2 2L4 10H2v-2L8.5 1.5z"/></svg>Edit
+                </button>
+              )}
               <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'minmax(0,1fr) minmax(240px,340px)',gap:'1.25rem',alignItems:'flex-start'}}>
                 <div>
                   <div style={{fontSize:isMobile?18:20,fontWeight:600,letterSpacing:'-.03em',color:theme.color||C.blue,marginBottom:3}}>{theme.tag||'Month'}</div>
                   <div style={{fontSize:14,fontWeight:500,color:C.text,marginBottom:3}}>{theme.theme}</div>
                   <div style={{fontSize:12.5,color:C.text2,lineHeight:1.55}}>{theme.desc}</div>
-                  {mode==='edit' && <div style={{fontSize:10.5,color:C.text3,marginTop:5}}>Click to edit theme</div>}
                 </div>
                 {!isMobile && (
                   <div>
@@ -1523,6 +1539,27 @@ function NeighborlyCalendar() {
                     })}
                   </div>
                 )}
+              </div>
+
+              {/* MONTHLY MARKETPLACE HIGHLIGHTS — separated aesthetic block */}
+              <div style={{marginTop:'.95rem',paddingTop:'.9rem',borderTop:`0.5px solid ${C.border}`}}>
+                <div style={{fontSize:10,fontWeight:600,color:C.text3,textTransform:'uppercase',letterSpacing:'.09em',marginBottom:9,display:'flex',alignItems:'center',gap:7}}>
+                  <span style={{width:6,height:6,borderRadius:'50%',background:CATS.shelly.color,display:'inline-block'}}/> Monthly Marketplace Highlights
+                </div>
+                <div style={{display:'flex',alignItems:'center',gap:10,flexWrap:'wrap'}}>
+                  <span style={{fontSize:12.5,fontWeight:600,color:C.text2,whiteSpace:'nowrap'}}>Brand Highlight:</span>
+                  {[0,1].map(i => {
+                    const b = (theme.highlights||[])[i];
+                    const empty = !b || !b.trim();
+                    return (
+                      <span key={i} style={{fontSize:12.5,padding:'4px 12px',borderRadius:20,lineHeight:1.3,
+                        background:empty?C.surface2:CATS.shelly.bg, color:empty?C.text3:CATS.shelly.text,
+                        border:`0.5px solid ${empty?C.border:'#d9cef2'}`, fontStyle:empty?'italic':'normal'}}>
+                        {empty?'To be filled in':b}
+                      </span>
+                    );
+                  })}
+                </div>
               </div>
             </div>
 
@@ -1821,7 +1858,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(
 // saw an empty start date (and refused to save).
 var setNativeValue=function(el,val){var d=Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype,'value');if(d&&d.set){d.set.call(el,val);}else{el.value=val;}};
 var CP=['Instagram','Email','TikTok','SMS','Twitter/X','Print','In-store','PR'];
-var CI={email:'<svg viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1.5" y="3" width="9" height="6" rx="1"/><path d="M1.5 3.5L6 6.5l4.5-3"/></svg>',campaign:'<svg viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="2" width="10" height="9" rx="1"/><path d="M4 1v2M8 1v2M1 5h10"/></svg>',social:'<svg viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 2H3a1 1 0 00-1 1v6a1 1 0 001 1h1v2l3-2h2a1 1 0 001-1V3a1 1 0 00-1-1z"/></svg>',keydate:'<svg viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="2" width="10" height="9" rx="1"/><path d="M4 1v2M8 1v2M1 5h10"/></svg>',ops:'<svg viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 1h4v4H1zM7 1h4v4H7zM1 7h4v4H1zM7 7h4v4H7z"/></svg>',event:'<svg viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="6,1 7.5,4.5 11,5 8.5,7.5 9,11 6,9.5 3,11 3.5,7.5 1,5 4.5,4.5"/></svg>',bizupdate:'<svg viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9.5V10h8v-.5M6 2v6M3 5l3-3 3 3"/></svg>',launch:'<svg viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 1s3 3 3 6v3H3V7c0-3 3-6 3-6z"/><path d="M4.5 10c0-1.7.7-3.5 1.5-4.5.8 1 1.5 2.8 1.5 4.5"/></svg>',influencer:'<svg viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="4" r="2"/><path d="M2.5 10.5c0-2 1.6-3 3.5-3s3.5 1 3.5 3"/></svg>',collab:'<svg viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="4.4" cy="6" r="2.5"/><circle cx="7.6" cy="6" r="2.5"/></svg>'};
+var CI={email:'<svg viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1.5" y="3" width="9" height="6" rx="1"/><path d="M1.5 3.5L6 6.5l4.5-3"/></svg>',campaign:'<svg viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="2" width="10" height="9" rx="1"/><path d="M4 1v2M8 1v2M1 5h10"/></svg>',social:'<svg viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 2H3a1 1 0 00-1 1v6a1 1 0 001 1h1v2l3-2h2a1 1 0 001-1V3a1 1 0 00-1-1z"/></svg>',keydate:'<svg viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="2" width="10" height="9" rx="1"/><path d="M4 1v2M8 1v2M1 5h10"/></svg>',ops:'<svg viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 1h4v4H1zM7 1h4v4H7zM1 7h4v4H1zM7 7h4v4H7z"/></svg>',event:'<svg viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="6,1 7.5,4.5 11,5 8.5,7.5 9,11 6,9.5 3,11 3.5,7.5 1,5 4.5,4.5"/></svg>',bizupdate:'<svg viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9.5V10h8v-.5M6 2v6M3 5l3-3 3 3"/></svg>',launch:'<svg viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 1s3 3 3 6v3H3V7c0-3 3-6 3-6z"/><path d="M4.5 10c0-1.7.7-3.5 1.5-4.5.8 1 1.5 2.8 1.5 4.5"/></svg>',influencer:'<svg viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="4" r="2"/><path d="M2.5 10.5c0-2 1.6-3 3.5-3s3.5 1 3.5 3"/></svg>',collab:'<svg viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="4.4" cy="6" r="2.5"/><circle cx="7.6" cy="6" r="2.5"/></svg>',shelly:'<svg viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 1.4l1.3 3.3 3.3 1.3-3.3 1.3L6 10.6 4.7 7.3 1.4 6l3.3-1.3z"/></svg>'};
 var os=document.createElement('style');os.id='nb-chip-overrides';document.head.appendChild(os);
 function eec(){if(!window.CATS)return;var root=document.getElementById('root');if(!root)return;for(var d of root.querySelectorAll('div')){var s=d.style;if(s.borderRadius==='6px'&&s.padding&&d.children.length>=2){var dot=d.querySelector('div[style*="border-radius: 50%"]');if(dot&&!d.classList.contains('nb-ev-chip')){d.classList.add('nb-ev-chip');var dc=dot.style.background,ck=null;for(var[k,v] of Object.entries(window.CATS)){var h=v.color.replace('#','');var rr=parseInt(h.substr(0,2),16),gg=parseInt(h.substr(2,2),16),bb=parseInt(h.substr(4,2),16);if(dc==='rgb('+rr+', '+gg+', '+bb+')'){ck=k;break;}}var bc=ck?window.CATS[ck].color:'#9E9C96';d.setAttribute('data-border-color',bc);d.style.setProperty('--nb-bc',bc);if(s.borderStyle==='dashed')d.setAttribute('data-hold','true');}}}var chips=root.querySelectorAll('.nb-ev-chip[data-border-color]'),seen=new Set(),rules='';for(var c of chips){var col=c.getAttribute('data-border-color');if(!seen.has(col)){seen.add(col);rules+='[data-border-color="'+col+'"]{border-left:3px solid '+col+'!important;padding-left:6px!important}\n';}}rules+='[data-hold="true"]{opacity:.62!important;filter:grayscale(35%)!important}';os.textContent=rules;}
 function etc(){var root=document.getElementById('root');if(!root)return;root.querySelectorAll('.nb-today-cell').forEach(function(d){d.classList.remove('nb-today-cell');});for(var d of root.querySelectorAll('div')){var s=d.style;if(s.width==='22px'&&s.height==='22px'&&s.borderRadius==='50%'&&s.background&&s.background.includes('232, 113, 66')){var cell=d.closest('div[style*="min-height"]');if(cell)cell.classList.add('nb-today-cell');}}}
@@ -1982,7 +2019,7 @@ function ra(){eec();etc();uth();ug();}var _t=null;new MutationObserver(function(
     if(allSpans.length<7)return;
     var filterRow=allSpans[0]&&allSpans[0].parentElement;if(!filterRow)return;
     filterRow.style.cssText='position:absolute;opacity:0;pointer-events:none;height:0;overflow:hidden;';
-    var CHIPS=[{label:'All',orig:'All',key:'all',color:null,isAll:true},{label:'Email',orig:'Email',key:'email',color:'#dbc6a2'},{label:'SMS',orig:'SMS',key:'campaign',color:'#6280bd'},{label:'Social',orig:'Social',key:'social',color:'#cbc9d6'},{label:'Key date',orig:'Key date',key:'keydate',color:'#eace49'},{label:'Marketplace',orig:'Marketplace',key:'ops',color:'#1f2328'},{label:'Event',orig:'Event',key:'event',color:'#e87142'},{label:'Biz update',orig:'Biz update',key:'bizupdate',color:'#8a3518'},{label:'Collateral',orig:'Collateral',key:'launch',color:'#2a7a4b'},{label:'Influencer',orig:'Influencer',key:'influencer',color:'#7bbd91'},{label:'Collab post',orig:'Collab post',key:'collab',color:'#c65f83'}];
+    var CHIPS=[{label:'All',orig:'All',key:'all',color:null,isAll:true},{label:'Email',orig:'Email',key:'email',color:'#dbc6a2'},{label:'SMS',orig:'SMS',key:'campaign',color:'#6280bd'},{label:'Social',orig:'Social',key:'social',color:'#cbc9d6'},{label:'Key date',orig:'Key date',key:'keydate',color:'#eace49'},{label:'Marketplace',orig:'Marketplace',key:'ops',color:'#1f2328'},{label:'Event',orig:'Event',key:'event',color:'#e87142'},{label:'Biz update',orig:'Biz update',key:'bizupdate',color:'#8a3518'},{label:'Collateral',orig:'Collateral',key:'launch',color:'#2a7a4b'},{label:'Influencer',orig:'Influencer',key:'influencer',color:'#7bbd91'},{label:'Collab post',orig:'Collab post',key:'collab',color:'#c65f83'},{label:'Shelly Events',orig:'Shelly Events',key:'shelly',color:'#7d54c9'}];
     var row=document.createElement('div');row.id='nb-filter-enhanced';row.style.cssText='display:flex;flex-wrap:wrap;gap:5px;align-items:center;';
     CHIPS.forEach(function(cfg){
       var chip=document.createElement('span');chip.className='nb-chip-wrap';chip.setAttribute('data-orig',cfg.orig);chip.setAttribute('data-label',cfg.label);
