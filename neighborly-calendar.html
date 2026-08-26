@@ -487,7 +487,7 @@ const CATS = {
   launch:    {label:'Collateral',      color:'#2a7a4b',bg:C.gl,  text:C.gd,  icon:'M6 1l1.5 3.5L11 5.5 8.5 8l.5 3.5L6 10 2 11.5 2.5 8 0 5.5l3.5-1L6 1z'},
   influencer:{label:'Influencer',   color:C.green,  bg:C.gl,  text:C.gd,  icon:'M6 6a2 2 0 100-4 2 2 0 000 4zM2.5 10.5c0-2 1.6-3 3.5-3s3.5 1 3.5 3'},
   collab:    {label:'Collab post',  color:'#c65f83',bg:'#fbeef3',text:'#7d2f4f',icon:'M4.3 3.6a2.4 2.4 0 100 4.8 2.4 2.4 0 000-4.8M7.7 3.6a2.4 2.4 0 100 4.8 2.4 2.4 0 000-4.8'},
-  shelly:    {label:'Shelly Events', color:'#7d54c9',bg:'#efe9fb',text:'#4a2f86',icon:'M6 1.4l1.3 3.3 3.3 1.3-3.3 1.3L6 10.6 4.7 7.3 1.4 6l3.3-1.3z'},
+  shelly:    {label:'Shelly Events', color:'#7a2233',bg:'#f4e3e6',text:'#5a1824',icon:'M6 1.4l1.3 3.3 3.3 1.3-3.3 1.3L6 10.6 4.7 7.3 1.4 6l3.3-1.3z'},
 };
 
 const DEPTS = ['Marketing','Operations','Creative','Sales','Leadership'];
@@ -1703,7 +1703,16 @@ function NeighborlyCalendar() {
                 const ds = dsOf(c);
                 const cd = new Date(c.yr,c.mo,c.d); cd.setHours(0,0,0,0);
                 const isTod = cd.getTime()===today.getTime();
-                const cellEvs = filtered.filter(e => e.start<=ds && e.end>=ds);
+                // Multi-day events sort to the top, in a deterministic order, so a
+                // given span sits at the same vertical slot in every day it covers —
+                // which is what lets the skinny bars line up into one continuous run.
+                const cellEvs = filtered.filter(e => e.start<=ds && e.end>=ds).slice().sort((a,b) => {
+                  const am = a.end>a.start?0:1, bm = b.end>b.start?0:1;
+                  if(am!==bm) return am-bm;
+                  if(a.start!==b.start) return a.start<b.start?-1:1;
+                  if(a.end!==b.end) return a.end>b.end?-1:1;
+                  return a.id<b.id?-1:1;
+                });
                 const isWeek = viewMode === 'week';
                 const isAgenda = isMobile && viewMode === 'month';
                 const maxShow = isWeek ? 16 : (isAgenda ? 12 : (isMobile ? 4 : 6));
@@ -1744,6 +1753,27 @@ function NeighborlyCalendar() {
                       const cat = CATS[ev.cat]||CATS.social;
                       const isSelected = ev.id===sidebarId;
                       const isDragging = ev.id===dragId;
+                      // Multi-day events render as one skinny bar that continues across
+                      // the days it spans (desktop month only) instead of repeating the
+                      // full chip every day. The title shows on the first day and again
+                      // at the top of each new week row; middle days are a plain strip.
+                      const isMulti = ev.end > ev.start;
+                      if (isMulti && viewMode==='month' && !isMobile) {
+                        const startsHere = ev.start===ds;
+                        const endsHere = ev.end===ds;
+                        const labelHere = startsHere || cd.getDay()===0;
+                        return (
+                          <div key={ev.id}
+                            draggable={mode==='edit'}
+                            onDragStart={mode==='edit' ? e=>{e.stopPropagation();handleDragStart(e,ev.id);} : undefined}
+                            onDragEnd={handleDragEnd}
+                            onClick={e => { e.stopPropagation(); setSidebarId(sidebarId===ev.id?null:ev.id); }}
+                            title={ev.name}
+                            style={{height:18,marginLeft:-6,marginRight:-6,marginBottom:3,paddingLeft:startsHere?8:7,paddingRight:6,display:'flex',alignItems:'center',gap:5,cursor:'pointer',fontSize:10,fontWeight:600,fontStyle:ev.hold?'italic':'normal',overflow:'hidden',whiteSpace:'nowrap',background:ev.hold?'transparent':cat.color,color:ev.hold?C.text2:'#fff',border:ev.hold?`1px dashed ${C.tan}`:'none',borderTopLeftRadius:startsHere?5:0,borderBottomLeftRadius:startsHere?5:0,borderTopRightRadius:endsHere?5:0,borderBottomRightRadius:endsHere?5:0,opacity:isDragging?.35:1,boxShadow:isSelected?`0 0 0 1.5px ${C.orange}`:'none'}}>
+                            {labelHere && <span style={{overflow:'hidden',textOverflow:'ellipsis'}}>{ev.name}</span>}
+                          </div>
+                        );
+                      }
                       return (
                         <div key={ev.id}
                           draggable={mode==='edit'}
@@ -2084,7 +2114,7 @@ function ra(){eec();etc();uth();ug();}var _t=null;new MutationObserver(function(
     if(allSpans.length<7)return;
     var filterRow=allSpans[0]&&allSpans[0].parentElement;if(!filterRow)return;
     filterRow.style.cssText='position:absolute;opacity:0;pointer-events:none;height:0;overflow:hidden;';
-    var CHIPS=[{label:'All',orig:'All',key:'all',color:null,isAll:true},{label:'Email',orig:'Email',key:'email',color:'#dbc6a2'},{label:'SMS',orig:'SMS',key:'campaign',color:'#6280bd'},{label:'Social',orig:'Social',key:'social',color:'#cbc9d6'},{label:'Key date',orig:'Key date',key:'keydate',color:'#eace49'},{label:'Marketplace',orig:'Marketplace',key:'ops',color:'#1f2328'},{label:'Event',orig:'Event',key:'event',color:'#e87142'},{label:'Biz update',orig:'Biz update',key:'bizupdate',color:'#8a3518'},{label:'Collateral',orig:'Collateral',key:'launch',color:'#2a7a4b'},{label:'Influencer',orig:'Influencer',key:'influencer',color:'#7bbd91'},{label:'Collab post',orig:'Collab post',key:'collab',color:'#c65f83'},{label:'Shelly Events',orig:'Shelly Events',key:'shelly',color:'#7d54c9'}];
+    var CHIPS=[{label:'All',orig:'All',key:'all',color:null,isAll:true},{label:'Email',orig:'Email',key:'email',color:'#dbc6a2'},{label:'SMS',orig:'SMS',key:'campaign',color:'#6280bd'},{label:'Social',orig:'Social',key:'social',color:'#cbc9d6'},{label:'Key date',orig:'Key date',key:'keydate',color:'#eace49'},{label:'Marketplace',orig:'Marketplace',key:'ops',color:'#1f2328'},{label:'Event',orig:'Event',key:'event',color:'#e87142'},{label:'Biz update',orig:'Biz update',key:'bizupdate',color:'#8a3518'},{label:'Collateral',orig:'Collateral',key:'launch',color:'#2a7a4b'},{label:'Influencer',orig:'Influencer',key:'influencer',color:'#7bbd91'},{label:'Collab post',orig:'Collab post',key:'collab',color:'#c65f83'},{label:'Shelly Events',orig:'Shelly Events',key:'shelly',color:'#7a2233'}];
     var row=document.createElement('div');row.id='nb-filter-enhanced';row.style.cssText='display:flex;flex-wrap:wrap;gap:5px;align-items:center;';
     CHIPS.forEach(function(cfg){
       var chip=document.createElement('span');chip.className='nb-chip-wrap';chip.setAttribute('data-orig',cfg.orig);chip.setAttribute('data-label',cfg.label);
