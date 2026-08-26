@@ -1399,7 +1399,10 @@ function NeighborlyCalendar() {
   // the Marketplace category AND anything carrying the marketplace flag on any
   // channel (Social + MP, Email + MP, …), so selecting it shows all
   // marketplace content, not just the standalone category.
-  const filtered = filters.length===0 ? events : events.filter(e => filters.includes(e.cat) || (filters.includes('ops') && !!e.marketplace));
+  // Shelly Events are OFF by default — they only appear once the Shelly chip is
+  // toggled on. So the unfiltered ("All") view hides them; the filtered branch
+  // already shows them only when 'shelly' is among the active filters.
+  const filtered = filters.length===0 ? events.filter(e => e.cat!=='shelly') : events.filter(e => filters.includes(e.cat) || (filters.includes('ops') && !!e.marketplace));
   const dsOf = c => c.yr+'-'+String(c.mo+1).padStart(2,'0')+'-'+String(c.d).padStart(2,'0');
 
   // Influencers coming in during the viewed month, sorted by day + time.
