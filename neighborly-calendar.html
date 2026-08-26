@@ -700,6 +700,70 @@ const FALL_ADDS = [
   mkEv('fa_mks_1007','2026-10-07','campaign','Marketplace: Fall Comfort - SMS',{mp:true,notes:'Fall marketplace SMS.'}),
 ];
 
+// ── SHELLY EVENTS — cultural / seasonal key dates (Aug 2026 → Jul 2027) ────────
+const SHELLY_DATES = [
+  // August 2026
+  mkEv('sh_bts','2026-08-17','shelly','Back to School',{sub:'Seasonal',notes:'Varies by region; typically mid–late August.'}),
+  mkEv('sh_concerts','2026-08-01','shelly','Summer Concerts in the Park',{end:'2026-08-31',sub:'Seasonal',notes:'Summer-long series.'}),
+  mkEv('sh_ayso','2026-08-24','shelly','AYSO Soccer Season Begins',{sub:'Sports',notes:'Late August.'}),
+  // September 2026
+  mkEv('sh_labor','2026-09-07','shelly','Labor Day',{sub:'Holiday'}),
+  mkEv('sh_nyfw','2026-09-09','shelly','New York Fashion Week',{end:'2026-09-15',sub:'Fashion',notes:'Spring 2027 season.'}),
+  mkEv('sh_emmys','2026-09-14','shelly','Emmy Awards',{sub:'Awards',notes:'NBC / Peacock — moved off Sunday this year.'}),
+  mkEv('sh_fall','2026-09-22','shelly','First Day of Fall',{sub:'Seasonal'}),
+  // October 2026
+  mkEv('sh_psl','2026-10-01','shelly','Pumpkin Spice Season Begins',{sub:'Seasonal'}),
+  mkEv('sh_vsfs','2026-10-18','shelly',"Victoria's Secret Fashion Show",{sub:'Fashion',notes:'Streaming live from LA.'}),
+  mkEv('sh_halloween','2026-10-31','shelly','Halloween',{sub:'Holiday',notes:'Falls on a Saturday — lifts party/costume/host content.'}),
+  // November 2026
+  mkEv('sh_dstend','2026-11-01','shelly','Daylight Saving Ends',{sub:'Seasonal'}),
+  mkEv('sh_friendsgiving','2026-11-20','shelly','Friendsgiving',{end:'2026-11-22',sub:'Holiday',notes:'Week before Thanksgiving.'}),
+  mkEv('sh_thanksgiving','2026-11-26','shelly','Thanksgiving',{sub:'Holiday'}),
+  mkEv('sh_blackfriday','2026-11-27','shelly','Black Friday',{sub:'Retail'}),
+  mkEv('sh_cybermonday','2026-11-30','shelly','Cyber Monday',{sub:'Retail',notes:'Lands in November this cycle — compressed 5-day Thanksgiving→Cyber Monday run.'}),
+  mkEv('sh_goldenbach','2026-11-18','shelly','The Golden Bachelorette Finale',{hold:true,sub:'Culture',notes:'Date TBD.'}),
+  // December 2026
+  mkEv('sh_cookieday','2026-12-04','shelly','National Cookie Day',{sub:'Food holiday'}),
+  mkEv('sh_hanukkah','2026-12-04','shelly','Hanukkah',{end:'2026-12-12',sub:'Holiday',notes:'Much earlier than 2025; overlaps the Cyber Monday shipping crunch.'}),
+  mkEv('sh_solstice','2026-12-21','shelly','Winter Solstice',{sub:'Seasonal'}),
+  mkEv('sh_christmas','2026-12-25','shelly','Christmas',{sub:'Holiday'}),
+  mkEv('sh_nye','2026-12-31','shelly',"New Year's Eve",{sub:'Holiday'}),
+  // January 2027
+  mkEv('sh_nyd','2027-01-01','shelly',"New Year's Day",{sub:'Holiday',notes:'Health & Wellness Reset.'}),
+  mkEv('sh_dryjan','2027-01-01','shelly','Dry January',{end:'2027-01-31',sub:'Seasonal'}),
+  mkEv('sh_globes','2027-01-10','shelly','Golden Globes',{sub:'Awards',notes:'CBS and Paramount+.'}),
+  // February 2027
+  mkEv('sh_grammys','2027-02-07','shelly','Grammy Awards',{sub:'Awards',notes:'First year on ABC, Disney+ and Hulu.'}),
+  mkEv('sh_valentines','2027-02-13','shelly',"Galentine's / Valentine's Day",{end:'2027-02-14',sub:'Holiday'}),
+  mkEv('sh_superbowl','2027-02-14','shelly','Super Bowl LXI',{sub:'Sports',notes:"SoFi Stadium — same day as Valentine's, Presidents' Day weekend. Biggest content collision of the cycle."}),
+  mkEv('sh_whitelotus','2027-02-01','shelly','White Lotus Premiere',{hold:true,sub:'Culture',notes:'Expected 2027 — date TBD.'}),
+  // March 2027
+  mkEv('sh_littleleague','2027-03-01','shelly','Little League Begins',{sub:'Sports',notes:'Varies by league.'}),
+  mkEv('sh_iwd','2027-03-08','shelly',"International Women's Day",{sub:'Cultural'}),
+  mkEv('sh_dstbegin','2027-03-14','shelly','Daylight Saving Begins',{sub:'Seasonal'}),
+  mkEv('sh_oscars','2027-03-14','shelly','Oscars',{sub:'Awards'}),
+  mkEv('sh_springbreak','2027-03-22','shelly','Spring Break',{end:'2027-03-28',sub:'Seasonal',notes:'Varies by region; most districts week of Mar 22 or 29 given the early Easter.'}),
+  mkEv('sh_easter','2027-03-28','shelly','Easter',{sub:'Holiday',notes:'Moves out of April this year — pulls spring/pastel/brunch ~3 weeks earlier.'}),
+  mkEv('sh_bachelor','2027-03-15','shelly','The Bachelor Finale',{hold:true,sub:'Culture',notes:'Date TBD.'}),
+  // April 2027
+  mkEv('sh_earthday','2027-04-22','shelly','Earth Day',{sub:'Cultural'}),
+  // May 2027
+  mkEv('sh_metgala','2027-05-03','shelly','Met Gala',{sub:'Fashion',notes:'Theme: John Galliano: Horizons.'}),
+  mkEv('sh_cinco','2027-05-05','shelly','Cinco de Mayo',{sub:'Holiday'}),
+  mkEv('sh_mothersday','2027-05-09','shelly',"Mother's Day",{sub:'Holiday'}),
+  mkEv('sh_wineday','2027-05-25','shelly','National Wine Day',{sub:'Food holiday'}),
+  mkEv('sh_memorial','2027-05-31','shelly','Memorial Day',{sub:'Holiday'}),
+  // June 2027
+  mkEv('sh_pride','2027-06-01','shelly','Pride Month',{end:'2027-06-30',sub:'Cultural'}),
+  mkEv('sh_wellnessday','2027-06-12','shelly','Global Wellness Day',{sub:'Cultural'}),
+  mkEv('sh_tonys','2027-06-13','shelly','Tony Awards',{hold:true,sub:'Awards',notes:'Not yet announced; expected.'}),
+  mkEv('sh_fathersday','2027-06-20','shelly',"Father's Day",{sub:'Holiday'}),
+  mkEv('sh_summer','2027-06-21','shelly','First Day of Summer',{sub:'Seasonal'}),
+  // July 2027
+  mkEv('sh_july4','2027-07-04','shelly','Independence Day',{sub:'Holiday',notes:'Observed Monday, July 5.'}),
+  mkEv('sh_friendship','2027-07-30','shelly','International Friendship Day',{sub:'Cultural'}),
+];
+
 // Auto-tag rules
 const SAMPLE_EVENTS = NOTION_EVENTS.map(ev => {
   const people = [...(ev.people||[])];
@@ -711,7 +775,7 @@ const SAMPLE_EVENTS = NOTION_EVENTS.map(ev => {
   // Events whose name calls out the marketplace are flagged as marketplace
   // content (stacks on their channel) so they read with the dark left edge.
   return {...ev, people, marketplace: ev.marketplace ?? /marketplace/i.test(ev.name||'')};
-}).concat(PLANNED_LAUNCHES, FALL_ADDS).filter(e => !CCS_RE.test(e.name||''));
+}).concat(PLANNED_LAUNCHES, FALL_ADDS, SHELLY_DATES).filter(e => !CCS_RE.test(e.name||''));
 
 // ── EMAILJS CONFIG ────────────────────────────────────────────────────────────
 // Setup (one-time, ~5 min):
@@ -1204,6 +1268,7 @@ function NeighborlyCalendar() {
                 };
                 importBatch('launches2026', PLANNED_LAUNCHES);
                 importBatch('fall2026', FALL_ADDS);
+                importBatch('shellyDates2026', SHELLY_DATES);
                 // One-time cleanup: the Collins Bros / Coffee / Smoothie
                 // launches all moved, so remove those events once. Guarded by a
                 // marker so re-adding them later (on new dates) sticks.
