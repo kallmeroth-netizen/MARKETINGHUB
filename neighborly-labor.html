@@ -74,6 +74,14 @@
   .metrics-table .grand-total td { background:var(--ops-light); color:var(--ops-deep); font-weight:600; border-top:1px solid var(--ops); }
   .metrics-table .role-indent { padding-left:24px !important; }
   .table-scroll { overflow-x:auto; -webkit-overflow-scrolling:touch; }
+
+  /* Catering inline stats */
+  .role-card-header { display:flex; justify-content:space-between; align-items:baseline; flex-wrap:wrap; gap:var(--s-3); }
+  .role-card-header .np-card-title { margin-bottom:0; }
+  .cat-stats { display:flex; gap:var(--s-5); flex-wrap:wrap; }
+  .cat-stat { display:inline-flex; flex-direction:column; align-items:flex-end; gap:2px; }
+  .cat-stat-label { font-family:var(--f-eyebrow),'Futura PT Demi','Jost',sans-serif; font-size:var(--t-eyebrow); font-weight:600; color:var(--text-3); text-transform:uppercase; letter-spacing:0.14em; white-space:nowrap; }
+  .cat-stat-val { font-family:var(--f-mono); font-size:var(--t-body); font-weight:500; color:var(--text); white-space:nowrap; }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script src="np-data.js"></script>
@@ -140,8 +148,14 @@
 
   <!-- ROLE BREAKDOWN TABLE -->
   <div class="np-card" id="roleCard">
-    <div class="np-card-title">Hours by Role</div>
-    <div class="np-card-sub">FOH · BOH · Training for the selected period and location.</div>
+    <div class="role-card-header">
+      <div class="np-card-title">Hours by Role</div>
+      <div class="cat-stats" id="cateringStats">
+        <div class="cat-stat"><span class="cat-stat-label">Catering Net Sales</span><span class="cat-stat-val" id="statCatNet">—</span></div>
+        <div class="cat-stat"><span class="cat-stat-label">Catering Comps</span><span class="cat-stat-val" id="statCatComp">—</span></div>
+      </div>
+    </div>
+    <div class="np-card-sub" style="margin-top:var(--s-1)">FOH · BOH · Training for the selected period and location.</div>
     <div class="table-scroll"><table class="metrics-table">
       <thead><tr>
         <th>Role</th><th>Hours</th><th>OT Hrs</th><th>Labor $</th>
@@ -335,31 +349,51 @@ async function reloadRoleTable(start, end, locIds) {
   var sb = NPData.supabase;
   try {
     var fetches = locIds.map(function(id) {
-      return sb.from('labor_detail')
-        .select('job_title, section, hours, overtime_hours, cost')
-        .eq('location_id', id)
-        .gte('business_date', start)
-        .lte('business_date', end)
-        .limit(3000);
+      return Promise.all([
+        sb.from('labor_detail')
+          .select('job_title, section, hours, overtime_hours, cost')
+          .eq('location_id', id)
+          .gte('business_date', start)
+          .lte('business_date', end)
+          .limit(3000),
+        sb.from('channel_sales')
+          .select('net_sales')
+          .eq('location_id', id)
+          .eq('channel', 'catering')
+          .gte('business_date', start)
+          .lte('business_date', end),
+        sb.from('daily_discounts')
+          .select('comp_catering')
+          .eq('location_id', id)
+          .gte('business_date', start)
+          .lte('business_date', end)
+      ]);
     });
-    var results = await Promise.all(fetches);
-    var byRole = {}, bySection = {};
-    results.forEach(function(res) {
-      (res.data || []).forEach(function(row) {
+    var locResults = await Promise.all(fetches);
+    var byRole = {}, bySection = {}, catNet = 0, catComp = 0;
+    locResults.forEach(function(trio) {
+      (trio[0].data || []).forEach(function(row) {
         var sect = row.section;
         if (sect !== 'FOH' && sect !== 'BOH' && sect !== 'Training') return;
         var key = row.job_title;
         if (!byRole[key]) byRole[key] = { hours: 0, ot_hours: 0, cost: 0 };
-        byRole[key].hours    += (row.hours           || 0);
-        byRole[key].ot_hours += (row.overtime_hours   || 0);
-        byRole[key].cost     += (row.cost             || 0);
+        byRole[key].hours    += (row.hours          || 0);
+        byRole[key].ot_hours += (row.overtime_hours  || 0);
+        byRole[key].cost     += (row.cost            || 0);
         if (!bySection[sect]) bySection[sect] = { hours: 0, ot_hours: 0, cost: 0 };
-        bySection[sect].hours    += (row.hours           || 0);
-        bySection[sect].ot_hours += (row.overtime_hours   || 0);
-        bySection[sect].cost     += (row.cost             || 0);
+        bySection[sect].hours    += (row.hours          || 0);
+        bySection[sect].ot_hours += (row.overtime_hours  || 0);
+        bySection[sect].cost     += (row.cost            || 0);
       });
+      (trio[1].data || []).forEach(function(r) { catNet  += (r.net_sales     || 0); });
+      (trio[2].data || []).forEach(function(r) { catComp += (r.comp_catering || 0); });
     });
     renderRoleTable(bySection, byRole);
+    var fmtD = function(v) { return v > 0 ? '$' + Math.round(v).toLocaleString() : '—'; };
+    var netEl  = document.getElementById('statCatNet');
+    var compEl = document.getElementById('statCatComp');
+    if (netEl)  netEl.textContent  = fmtD(catNet);
+    if (compEl) compEl.textContent = fmtD(catComp);
   } catch(e) {
     console.error('Role table reload error:', e);
     var body = document.getElementById('roleBody');
