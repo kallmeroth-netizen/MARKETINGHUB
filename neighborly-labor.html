@@ -110,6 +110,7 @@
         <button class="is-active" data-preset="lw">Last Wk</button>
         <button data-preset="cw">This Wk</button>
         <button data-preset="4w">4 Wks</button>
+        <button data-preset="today">Today</button>
         <button data-preset="custom">Custom</button>
       </div>
       <div id="customDateRow">
@@ -236,7 +237,7 @@ function toISO(ms) {
 }
 
 var state = {
-  preset:   'lw',       // 'lw'|'cw'|'4w'|'custom'
+  preset:   'lw',       // 'lw'|'cw'|'4w'|'today'|'custom'
   dateMode: 'range',    // 'range'|'single' (active only when preset=custom)
   dateA:    null,
   dateB:    null,
@@ -264,6 +265,9 @@ function getRange() {
   }
   if (state.preset === 'cw') {
     return { start: toISO(cwsMs), end: toISO(yesterMs) };
+  }
+  if (state.preset === 'today') {
+    return { start: toISO(todayMs), end: toISO(todayMs) };
   }
   // '4w' — last 4 complete fiscal weeks
   return { start: toISO(cwsMs - 28 * 86400000), end: toISO(cwsMs - 86400000) };
