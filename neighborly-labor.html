@@ -74,6 +74,14 @@
   .metrics-table .grand-total td { background:var(--ops-light); color:var(--ops-deep); font-weight:600; border-top:1px solid var(--ops); }
   .metrics-table .role-indent { padding-left:24px !important; }
   .table-scroll { overflow-x:auto; -webkit-overflow-scrolling:touch; }
+
+  /* Catering inline stats */
+  .role-card-header { display:flex; justify-content:space-between; align-items:baseline; flex-wrap:wrap; gap:var(--s-3); }
+  .role-card-header .np-card-title { margin-bottom:0; }
+  .cat-stats { display:flex; gap:var(--s-5); flex-wrap:wrap; }
+  .cat-stat { display:inline-flex; flex-direction:column; align-items:flex-end; gap:2px; }
+  .cat-stat-label { font-family:var(--f-eyebrow),'Futura PT Demi','Jost',sans-serif; font-size:var(--t-eyebrow); font-weight:600; color:var(--text-3); text-transform:uppercase; letter-spacing:0.14em; white-space:nowrap; }
+  .cat-stat-val { font-family:var(--f-mono); font-size:var(--t-body); font-weight:500; color:var(--text); white-space:nowrap; }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script src="np-data.js"></script>
@@ -141,14 +149,20 @@
 
   <!-- ROLE BREAKDOWN TABLE -->
   <div class="np-card" id="roleCard">
-    <div class="np-card-title">Hours by Role</div>
-    <div class="np-card-sub">FOH · BOH · Training for the selected period and location.</div>
+    <div class="role-card-header">
+      <div class="np-card-title">Hours by Role</div>
+      <div class="cat-stats" id="cateringStats">
+        <div class="cat-stat"><span class="cat-stat-label">Catering Net Sales</span><span class="cat-stat-val" id="statCatNet">—</span></div>
+        <div class="cat-stat"><span class="cat-stat-label">Catering Comps</span><span class="cat-stat-val" id="statCatComp">—</span></div>
+      </div>
+    </div>
+    <div class="np-card-sub" style="margin-top:var(--s-1)">FOH · BOH · Training for the selected period and location.</div>
     <div class="table-scroll"><table class="metrics-table">
       <thead><tr>
-        <th>Role</th><th>Hours</th><th>OT Hrs</th><th>Labor $</th>
+        <th>Role</th><th>Pre-Open</th><th>Service</th><th>Post-Close</th><th>Total Hrs</th><th>OT Hrs</th><th>Labor $</th>
       </tr></thead>
       <tbody id="roleBody">
-        <tr><td colspan="4" style="text-align:center;color:var(--text-3);padding:var(--s-5)">Loading…</td></tr>
+        <tr><td colspan="7" style="text-align:center;color:var(--text-3);padding:var(--s-5)">Loading…</td></tr>
       </tbody>
     </table></div>
     <span class="src-note">Time-clock hours from Toast POS · Management excluded</span>
@@ -299,39 +313,45 @@ function renderRoleTable(bySection, byRole) {
   if (!body) return;
   var fmtH = function(v) { return v > 0 ? v.toFixed(1) : '—'; };
   var fmtD = function(v) { return v > 0 ? '$' + Math.round(v).toLocaleString() : '—'; };
-  var html = '', grandH = 0, grandOt = 0, grandD = 0;
+  var html = '', grandPre = 0, grandSvc = 0, grandPost = 0, grandH = 0, grandOt = 0, grandD = 0;
+
+  function rowCells(d) {
+    return '<td>' + fmtH(d.pre_open || 0) + '</td>' +
+           '<td>' + fmtH(d.service  || 0) + '</td>' +
+           '<td>' + fmtH(d.post_close || 0) + '</td>' +
+           '<td>' + fmtH(d.hours    || 0) + '</td>' +
+           '<td>' + fmtH(d.ot_hours || 0) + '</td>' +
+           '<td>' + fmtD(d.cost     || 0) + '</td>';
+  }
 
   ROLE_SECTIONS.forEach(function(sect) {
     var sd = bySection[sect.key] || { hours: 0, ot_hours: 0, cost: 0 };
-    grandH  += sd.hours;
-    grandOt += sd.ot_hours;
-    grandD  += sd.cost;
+    grandPre  += (sd.pre_open   || 0);
+    grandSvc  += (sd.service    || 0);
+    grandPost += (sd.post_close || 0);
+    grandH    += sd.hours;
+    grandOt   += sd.ot_hours;
+    grandD    += sd.cost;
 
     if (!sect.flat) {
-      html += '<tr class="cat-row"><td colspan="4">' + sect.key + '</td></tr>';
+      html += '<tr class="cat-row"><td colspan="7">' + sect.key + '</td></tr>';
       sect.roles.forEach(function(role) {
-        var d = byRole[role] || { hours: 0, ot_hours: 0, cost: 0 };
-        html += '<tr><td class="role-indent">' + role + '</td>' +
-          '<td>' + fmtH(d.hours) + '</td>' +
-          '<td>' + fmtH(d.ot_hours) + '</td>' +
-          '<td>' + fmtD(d.cost) + '</td></tr>';
+        var d = byRole[role] || {};
+        html += '<tr><td class="role-indent">' + role + '</td>' + rowCells(d) + '</tr>';
       });
-      html += '<tr class="sect-total"><td class="role-indent">Total ' + sect.key + '</td>' +
-        '<td>' + fmtH(sd.hours) + '</td>' +
-        '<td>' + fmtH(sd.ot_hours) + '</td>' +
-        '<td>' + fmtD(sd.cost) + '</td></tr>';
+      html += '<tr class="sect-total"><td class="role-indent">Total ' + sect.key + '</td>' + rowCells(sd) + '</tr>';
     } else {
-      html += '<tr class="sect-total"><td>' + sect.key + '</td>' +
-        '<td>' + fmtH(sd.hours) + '</td>' +
-        '<td>' + fmtH(sd.ot_hours) + '</td>' +
-        '<td>' + fmtD(sd.cost) + '</td></tr>';
+      html += '<tr class="sect-total"><td>' + sect.key + '</td>' + rowCells(sd) + '</tr>';
     }
   });
 
   html += '<tr class="grand-total"><td>Total</td>' +
-    '<td>' + fmtH(grandH) + '</td>' +
-    '<td>' + fmtH(grandOt) + '</td>' +
-    '<td>' + fmtD(grandD) + '</td></tr>';
+    '<td>' + fmtH(grandPre)  + '</td>' +
+    '<td>' + fmtH(grandSvc)  + '</td>' +
+    '<td>' + fmtH(grandPost) + '</td>' +
+    '<td>' + fmtH(grandH)    + '</td>' +
+    '<td>' + fmtH(grandOt)   + '</td>' +
+    '<td>' + fmtD(grandD)    + '</td></tr>';
   body.innerHTML = html;
 }
 
@@ -339,31 +359,57 @@ async function reloadRoleTable(start, end, locIds) {
   var sb = NPData.supabase;
   try {
     var fetches = locIds.map(function(id) {
-      return sb.from('labor_detail')
-        .select('job_title, section, hours, overtime_hours, cost')
-        .eq('location_id', id)
-        .gte('business_date', start)
-        .lte('business_date', end)
-        .limit(3000);
+      return Promise.all([
+        sb.from('labor_detail')
+          .select('job_title, section, hours, overtime_hours, cost, pre_open_hours, service_hours, post_close_hours')
+          .eq('location_id', id)
+          .gte('business_date', start)
+          .lte('business_date', end)
+          .limit(3000),
+        sb.from('channel_sales')
+          .select('net_sales')
+          .eq('location_id', id)
+          .eq('channel', 'catering')
+          .gte('business_date', start)
+          .lte('business_date', end),
+        sb.from('daily_discounts')
+          .select('comp_catering')
+          .eq('location_id', id)
+          .gte('business_date', start)
+          .lte('business_date', end)
+      ]);
     });
-    var results = await Promise.all(fetches);
-    var byRole = {}, bySection = {};
-    results.forEach(function(res) {
-      (res.data || []).forEach(function(row) {
+    var locResults = await Promise.all(fetches);
+    var byRole = {}, bySection = {}, catNet = 0, catComp = 0;
+    locResults.forEach(function(trio) {
+      (trio[0].data || []).forEach(function(row) {
         var sect = row.section;
         if (sect !== 'FOH' && sect !== 'BOH' && sect !== 'Training') return;
         var key = row.job_title;
-        if (!byRole[key]) byRole[key] = { hours: 0, ot_hours: 0, cost: 0 };
-        byRole[key].hours    += (row.hours           || 0);
-        byRole[key].ot_hours += (row.overtime_hours   || 0);
-        byRole[key].cost     += (row.cost             || 0);
-        if (!bySection[sect]) bySection[sect] = { hours: 0, ot_hours: 0, cost: 0 };
-        bySection[sect].hours    += (row.hours           || 0);
-        bySection[sect].ot_hours += (row.overtime_hours   || 0);
-        bySection[sect].cost     += (row.cost             || 0);
+        if (!byRole[key]) byRole[key] = { pre_open: 0, service: 0, post_close: 0, hours: 0, ot_hours: 0, cost: 0 };
+        byRole[key].pre_open   += (row.pre_open_hours   || 0);
+        byRole[key].service    += (row.service_hours    || 0);
+        byRole[key].post_close += (row.post_close_hours || 0);
+        byRole[key].hours      += (row.hours            || 0);
+        byRole[key].ot_hours   += (row.overtime_hours   || 0);
+        byRole[key].cost       += (row.cost             || 0);
+        if (!bySection[sect]) bySection[sect] = { pre_open: 0, service: 0, post_close: 0, hours: 0, ot_hours: 0, cost: 0 };
+        bySection[sect].pre_open   += (row.pre_open_hours   || 0);
+        bySection[sect].service    += (row.service_hours    || 0);
+        bySection[sect].post_close += (row.post_close_hours || 0);
+        bySection[sect].hours      += (row.hours            || 0);
+        bySection[sect].ot_hours   += (row.overtime_hours   || 0);
+        bySection[sect].cost       += (row.cost             || 0);
       });
+      (trio[1].data || []).forEach(function(r) { catNet  += (r.net_sales     || 0); });
+      (trio[2].data || []).forEach(function(r) { catComp += (r.comp_catering || 0); });
     });
     renderRoleTable(bySection, byRole);
+    var fmtD = function(v) { return v > 0 ? '$' + Math.round(v).toLocaleString() : '—'; };
+    var netEl  = document.getElementById('statCatNet');
+    var compEl = document.getElementById('statCatComp');
+    if (netEl)  netEl.textContent  = fmtD(catNet);
+    if (compEl) compEl.textContent = fmtD(catComp);
   } catch(e) {
     console.error('Role table reload error:', e);
     var body = document.getElementById('roleBody');
