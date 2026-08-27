@@ -115,10 +115,10 @@
   <div class="np-page-header-row">
     <div class="np-page-selectors">
       <div class="np-toggle" id="presetToggle">
-        <button class="is-active" data-preset="lw">Last Wk</button>
+        <button data-preset="lw">Last Wk</button>
         <button data-preset="cw">This Wk</button>
         <button data-preset="4w">4 Wks</button>
-        <button data-preset="today">Today</button>
+        <button class="is-active" data-preset="yday">Yesterday</button>
         <button data-preset="custom">Custom</button>
       </div>
       <div id="customDateRow">
@@ -251,7 +251,7 @@ function toISO(ms) {
 }
 
 var state = {
-  preset:   'lw',       // 'lw'|'cw'|'4w'|'today'|'custom'
+  preset:   'yday',     // 'lw'|'cw'|'4w'|'yday'|'custom'
   dateMode: 'range',    // 'range'|'single' (active only when preset=custom)
   dateA:    null,
   dateB:    null,
@@ -280,8 +280,8 @@ function getRange() {
   if (state.preset === 'cw') {
     return { start: toISO(cwsMs), end: toISO(yesterMs) };
   }
-  if (state.preset === 'today') {
-    return { start: toISO(todayMs), end: toISO(todayMs) };
+  if (state.preset === 'yday') {
+    return { start: toISO(yesterMs), end: toISO(yesterMs) };
   }
   // '4w' — last 4 complete fiscal weeks
   return { start: toISO(cwsMs - 28 * 86400000), end: toISO(cwsMs - 86400000) };
@@ -725,7 +725,7 @@ document.getElementById('dateB').addEventListener('change', function() {
 // ── Init ─────────────────────────────────────────────────────────────────────
 
 (function init() {
-  var r = getRange();  // preset='lw' default
+  var r = getRange();  // preset='yday' default
   state.dateA = r.start;
   state.dateB = r.end;
   document.getElementById('dateA').value = r.start || '';
