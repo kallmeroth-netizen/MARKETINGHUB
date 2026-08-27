@@ -152,6 +152,7 @@
     <div class="role-card-header">
       <div class="np-card-title">Hours by Role</div>
       <div class="cat-stats" id="cateringStats">
+        <div class="cat-stat"><span class="cat-stat-label">Catering Orders</span><span class="cat-stat-val" id="statCatOrders">—</span></div>
         <div class="cat-stat"><span class="cat-stat-label">Catering Net Sales</span><span class="cat-stat-val" id="statCatNet">—</span></div>
         <div class="cat-stat"><span class="cat-stat-label">Catering Comps</span><span class="cat-stat-val" id="statCatComp">—</span></div>
       </div>
@@ -367,7 +368,7 @@ async function reloadRoleTable(start, end, locIds) {
           .lte('business_date', end)
           .limit(3000),
         sb.from('channel_sales')
-          .select('net_sales, discount_amount')
+          .select('net_sales, discount_amount, check_count')
           .eq('location_id', id)
           .eq('channel', 'catering')
           .gte('business_date', start)
@@ -375,7 +376,7 @@ async function reloadRoleTable(start, end, locIds) {
       ]);
     });
     var locResults = await Promise.all(fetches);
-    var byRole = {}, bySection = {}, catNet = 0, catComp = 0;
+    var byRole = {}, bySection = {}, catNet = 0, catComp = 0, catOrders = 0;
     locResults.forEach(function(trio) {
       (trio[0].data || []).forEach(function(row) {
         var sect = row.section;
@@ -396,13 +397,16 @@ async function reloadRoleTable(start, end, locIds) {
         bySection[sect].ot_hours   += (row.overtime_hours   || 0);
         bySection[sect].cost       += (row.cost             || 0);
       });
-      (trio[1].data || []).forEach(function(r) { catNet  += (r.net_sales      || 0);
-                                                  catComp += (r.discount_amount || 0); });
+      (trio[1].data || []).forEach(function(r) { catNet    += (r.net_sales      || 0);
+                                                  catComp   += (r.discount_amount || 0);
+                                                  catOrders += (r.check_count    || 0); });
     });
     renderRoleTable(bySection, byRole);
     var fmtD = function(v) { return v > 0 ? '$' + Math.round(v).toLocaleString() : '—'; };
+    var ordEl  = document.getElementById('statCatOrders');
     var netEl  = document.getElementById('statCatNet');
     var compEl = document.getElementById('statCatComp');
+    if (ordEl)  ordEl.textContent  = catOrders > 0 ? catOrders : '—';
     if (netEl)  netEl.textContent  = fmtD(catNet);
     if (compEl) compEl.textContent = fmtD(catComp);
   } catch(e) {
