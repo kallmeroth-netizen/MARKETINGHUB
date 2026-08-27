@@ -367,14 +367,9 @@ async function reloadRoleTable(start, end, locIds) {
           .lte('business_date', end)
           .limit(3000),
         sb.from('channel_sales')
-          .select('net_sales')
+          .select('net_sales, discount_amount')
           .eq('location_id', id)
           .eq('channel', 'catering')
-          .gte('business_date', start)
-          .lte('business_date', end),
-        sb.from('daily_discounts')
-          .select('comp_catering')
-          .eq('location_id', id)
           .gte('business_date', start)
           .lte('business_date', end)
       ]);
@@ -401,8 +396,8 @@ async function reloadRoleTable(start, end, locIds) {
         bySection[sect].ot_hours   += (row.overtime_hours   || 0);
         bySection[sect].cost       += (row.cost             || 0);
       });
-      (trio[1].data || []).forEach(function(r) { catNet  += (r.net_sales     || 0); });
-      (trio[2].data || []).forEach(function(r) { catComp += (r.comp_catering || 0); });
+      (trio[1].data || []).forEach(function(r) { catNet  += (r.net_sales      || 0);
+                                                  catComp += (r.discount_amount || 0); });
     });
     renderRoleTable(bySection, byRole);
     var fmtD = function(v) { return v > 0 ? '$' + Math.round(v).toLocaleString() : '—'; };
@@ -413,7 +408,7 @@ async function reloadRoleTable(start, end, locIds) {
   } catch(e) {
     console.error('Role table reload error:', e);
     var body = document.getElementById('roleBody');
-    if (body) body.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--text-3)">Failed to load</td></tr>';
+    if (body) body.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--text-3)">Failed to load</td></tr>';
   }
 }
 
