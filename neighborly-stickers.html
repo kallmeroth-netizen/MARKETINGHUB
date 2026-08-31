@@ -42,6 +42,15 @@
   .rp-chip.is-active{ background:#f4e3e6; color:#5a1824; border-color:#e0a9b6; box-shadow:0 0 0 1px #e0a9b6; font-weight:600; }
   .rp-search{ flex:1; min-width:180px; height:34px; padding:0 14px; background:var(--surface); color:var(--text); border:1px solid var(--line-strong); border-radius:var(--r-pill); font-family:var(--f-sans); font-size:var(--t-body-sm); }
 
+  /* Location selector (required at checkout) */
+  .rp-loc{ display:flex; align-items:center; flex-wrap:wrap; gap:var(--s-2); margin-bottom:var(--s-3); }
+  .rp-loc-label{ font-family:var(--f-eyebrow); font-size:var(--t-eyebrow); letter-spacing:.11em; text-transform:uppercase; color:var(--text-3); margin-right:2px; }
+  .rp-loc-chip{ height:32px; padding:0 15px; display:inline-flex; align-items:center; gap:6px; background:var(--surface); color:var(--text-2); border:1px solid var(--line-strong); border-radius:var(--r-pill); font-size:var(--t-body-sm); font-weight:500; cursor:pointer; user-select:none; transition:all .15s; }
+  .rp-loc-chip.is-active{ background:var(--brand-green-deep,#1e5a37); color:#fff; border-color:var(--brand-green-deep,#1e5a37); }
+  .rp-loc-hint{ font-size:var(--t-caption); color:#a32d2d; }
+  .rp-loc.chosen .rp-loc-hint{ display:none; }
+  .rp-loc.needpick .rp-loc-hint{ font-weight:600; }
+
   /* Catalog grid */
   .rp-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(232px,1fr)); gap:var(--s-3); }
   .rp-item{ display:flex; flex-direction:column; background:var(--surface); border:1px solid var(--line); border-radius:var(--r-lg); overflow:hidden; }
@@ -117,6 +126,11 @@
 
   <!-- CATALOG -->
   <section id="view-catalog">
+    <div class="rp-loc" id="locRow">
+      <span class="rp-loc-label">Ordering for</span>
+      <div id="locChips" style="display:flex;gap:var(--s-2)"></div>
+      <span class="rp-loc-hint" id="locHint">Pick a location before you request</span>
+    </div>
     <div class="rp-filters">
       <div id="brandChips" style="display:flex;flex-wrap:wrap;gap:var(--s-2)"></div>
       <input class="rp-search" id="search" type="search" placeholder="Search stickers…" aria-label="Search stickers">
@@ -204,6 +218,7 @@ var APPROVERS = [
 
 var ROLL = 1000;                       // stickers come 1,000 per roll
 var DEFAULT_PRESETS = [1, 2, 3, 5];    // standard order amounts, in rolls
+var LOCATIONS = ['Brentwood', 'Westlake Village'];   // which store the order is for
 var PORTAL_LINK = location.origin + '/neighborly-stickers.html';
 var FB = 'https://neighborly-hub-53e4b-default-rtdb.firebaseio.com/reorders';
 var BRAND_ORDER = ["Gaby's", 'Mini Kabob', 'Mixtape', 'Neighborly', 'Palermo Pizza Club'];
@@ -295,6 +310,8 @@ var TAB = 'catalog';
 var BRAND_FILTER = '';
 var MANAGE_BRAND = '';
 var EMAILJS_READY = false;
+var LOCATION = '';
+try { LOCATION = localStorage.getItem('rp_location') || ''; } catch(e){}
 
 // ── helpers ─────────────────────────────────────────────────────────────────
 function $(id){ return document.getElementById(id); }
@@ -421,7 +438,17 @@ function chipRow(containerId, current, onPick){
 function renderBrandChips(){
   chipRow('brandChips', BRAND_FILTER, function(b){ BRAND_FILTER=b; renderGrid(); });
   chipRow('manageBrandChips', MANAGE_BRAND, function(b){ MANAGE_BRAND=b; renderManage(); });
+  renderLocChips();
 }
+function renderLocChips(){
+  var el = $('locChips'); if(!el) return;
+  el.innerHTML = LOCATIONS.map(function(l){
+    return '<span class="rp-loc-chip'+(LOCATION===l?' is-active':'')+'" data-loc="'+esc(l)+'">'+esc(l)+'</span>';
+  }).join('');
+  Array.prototype.forEach.call(el.children, function(c){ c.onclick = function(){ setLocation(c.getAttribute('data-loc')); }; });
+  var row = $('locRow'); if(row){ row.classList.toggle('chosen', !!LOCATION); if(LOCATION) row.classList.remove('needpick'); }
+}
+function setLocation(l){ LOCATION = l; try { localStorage.setItem('rp_location', l); } catch(e){} renderLocChips(); }
 
 // ── render dispatch ─────────────────────────────────────────────────────────
 function renderAll(){ renderGrid(); renderMine(); if(IS_ADMIN){ renderApprovals(); renderManage(); } renderLog(); renderKpis(); renderTabsCounts(); }
@@ -478,12 +505,18 @@ function renderGrid(){
 // ── submit a request ────────────────────────────────────────────────────────
 async function submitRequest(itemId, rolls){
   var it = STICKER_SEED.find(function(x){ return x.id===itemId; }); if(!it) return;
+  if (!LOCATION){
+    // Force a location choice before anything is requested.
+    var row = $('locRow'); if(row){ row.classList.add('needpick'); row.classList.remove('chosen'); row.scrollIntoView({behavior:'smooth',block:'center'}); }
+    return;
+  }
   rolls = Number(rolls)||1;
   var m = metaFor(itemId);
   var total = lineTotal(m.cost, rolls);
   var req = {
     itemId: itemId, brand: it.brand, name: it.name, size: it.size, mp: !!it.mp,
     rolls: rolls, units: rolls*ROLL, unitCost: m.cost, lineTotal: total,
+    location: LOCATION,
     requestedByName: ME.name, requestedByEmail: ME.email,
     status: 'pending', createdAt: Date.now()
   };
@@ -495,7 +528,7 @@ async function submitRequest(itemId, rolls){
   APPROVERS.forEach(function(a){
     sendEmail(EMAILJS_TPL_REQUEST, {
       to_email: a.email, to_name: a.name,
-      item_name: it.name, brand: it.brand, size: it.size,
+      item_name: it.name, brand: it.brand, size: it.size, location: LOCATION,
       qty_label: qtyLabel, unit_cost: m.cost!=null?money(m.cost):'—', line_total: total!=null?money(total):'—',
       requested_by: ME.name + ' <' + ME.email + '>', note: '', portal_link: PORTAL_LINK
     });
@@ -512,11 +545,12 @@ function sortedReqs(filterFn){
 }
 function renderMine(){
   var rows = sortedReqs(function(q){ return q.requestedByEmail===ME.email; });
-  var head = '<thead><tr><th>Item</th><th>Qty</th><th class="num">Est. cost</th><th>Status</th><th>Requested</th><th>Note from mgmt</th></tr></thead>';
-  if (!rows.length){ $('mineTable').innerHTML = head + '<tbody><tr><td colspan="6"><div class="rp-empty">You haven’t requested anything yet. Head to <b>Order stickers</b>.</div></td></tr></tbody>'; return; }
+  var head = '<thead><tr><th>Item</th><th>Location</th><th>Qty</th><th class="num">Est. cost</th><th>Status</th><th>Requested</th><th>Note from mgmt</th></tr></thead>';
+  if (!rows.length){ $('mineTable').innerHTML = head + '<tbody><tr><td colspan="7"><div class="rp-empty">You haven’t requested anything yet. Head to <b>Order stickers</b>.</div></td></tr></tbody>'; return; }
   $('mineTable').innerHTML = head + '<tbody>' + rows.map(function(q){
     return '<tr>'+
       '<td><b>'+esc(q.name)+'</b><br><span style="color:var(--text-3);font-size:var(--t-caption)">'+esc(q.brand)+' · '+esc(q.size||'')+'</span></td>'+
+      '<td>'+esc(q.location||'—')+'</td>'+
       '<td>'+q.rolls+' roll'+(q.rolls>1?'s':'')+'<br><span style="color:var(--text-3);font-size:var(--t-caption)">'+num(q.units)+'</span></td>'+
       '<td class="num">'+(q.lineTotal!=null?money(q.lineTotal):'—')+'</td>'+
       '<td>'+statusBadge(q.status)+'</td>'+
@@ -529,11 +563,12 @@ function renderMine(){
 // ── APPROVALS (admin) ───────────────────────────────────────────────────────
 function renderApprovals(){
   var rows = sortedReqs(function(q){ return q.status==='pending'; });
-  var head = '<thead><tr><th>Item</th><th>Qty</th><th class="num">Est. cost</th><th>Requested by</th><th>When</th><th style="text-align:right">Decision</th></tr></thead>';
-  if (!rows.length){ $('apprTable').innerHTML = head + '<tbody><tr><td colspan="6"><div class="rp-empty">Nothing waiting. 🎉</div></td></tr></tbody>'; return; }
+  var head = '<thead><tr><th>Item</th><th>Location</th><th>Qty</th><th class="num">Est. cost</th><th>Requested by</th><th>When</th><th style="text-align:right">Decision</th></tr></thead>';
+  if (!rows.length){ $('apprTable').innerHTML = head + '<tbody><tr><td colspan="7"><div class="rp-empty">Nothing waiting. 🎉</div></td></tr></tbody>'; return; }
   $('apprTable').innerHTML = head + '<tbody>' + rows.map(function(q){
     return '<tr>'+
       '<td><b>'+esc(q.name)+'</b><br><span style="color:var(--text-3);font-size:var(--t-caption)">'+esc(q.brand)+' · '+esc(q.size||'')+(q.mp?' · Marketplace':'')+'</span></td>'+
+      '<td><b>'+esc(q.location||'—')+'</b></td>'+
       '<td>'+q.rolls+' roll'+(q.rolls>1?'s':'')+'<br><span style="color:var(--text-3);font-size:var(--t-caption)">'+num(q.units)+'</span></td>'+
       '<td class="num">'+(q.lineTotal!=null?money(q.lineTotal):'—')+'</td>'+
       '<td>'+esc(q.requestedByName||'')+'<br><span style="color:var(--text-3);font-size:var(--t-caption)">'+esc(q.requestedByEmail||'')+'</span></td>'+
@@ -558,7 +593,7 @@ async function approve(id){
     sendEmail(EMAILJS_TPL_VENDOR, {
       to_email: m.vendorEmail, to_name: m.vendorName||'Vendor',
       cc_email: APPROVERS.map(function(a){return a.email;}).join(','),
-      item_name: q.name, brand: q.brand, size: q.size, qty_label: qtyLabel,
+      item_name: q.name, brand: q.brand, size: q.size, qty_label: qtyLabel, location: q.location||'—',
       requested_by: q.requestedByName, approved_by: ME.name, portal_link: PORTAL_LINK
     });
   }
@@ -619,11 +654,12 @@ async function saveMeta(id, field, inp){
 // ── LOG ─────────────────────────────────────────────────────────────────────
 function renderLog(){
   var rows = sortedReqs(function(){ return true; });
-  var head = '<thead><tr><th>Item</th><th>Qty</th><th class="num">Est. cost</th><th>Requested by</th><th>Status</th><th>Decided by</th><th>When</th></tr></thead>';
-  if (!rows.length){ $('logTable').innerHTML = head + '<tbody><tr><td colspan="7"><div class="rp-empty">No orders logged yet.</div></td></tr></tbody>'; return; }
+  var head = '<thead><tr><th>Item</th><th>Location</th><th>Qty</th><th class="num">Est. cost</th><th>Requested by</th><th>Status</th><th>Decided by</th><th>When</th></tr></thead>';
+  if (!rows.length){ $('logTable').innerHTML = head + '<tbody><tr><td colspan="8"><div class="rp-empty">No orders logged yet.</div></td></tr></tbody>'; return; }
   $('logTable').innerHTML = head + '<tbody>' + rows.map(function(q){
     return '<tr>'+
       '<td><b>'+esc(q.name)+'</b><br><span style="color:var(--text-3);font-size:var(--t-caption)">'+esc(q.brand)+'</span></td>'+
+      '<td>'+esc(q.location||'—')+'</td>'+
       '<td>'+q.rolls+'×</td>'+
       '<td class="num">'+(q.lineTotal!=null?money(q.lineTotal):'—')+'</td>'+
       '<td>'+esc(q.requestedByName||'')+'</td>'+
