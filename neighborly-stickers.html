@@ -212,9 +212,9 @@ var BRAND_ORDER = ["Gaby's", 'Mini Kabob', 'Mixtape', 'Neighborly', 'Palermo Piz
 var STICKER_SEED = [
   {id:'st001',brand:'Gaby\'s',name:'Gaby\'s Miso Peanut Vinaigrette',size:'1.5" Circle',mp:false},
   {id:'st002',brand:'Gaby\'s',name:'Gaby\'s Giardiniera Dressing',size:'1.5" Circle',mp:false},
-  {id:'st003',brand:'Gaby\'s',name:'Gaby\'s Green Goddess Chili Ranch',size:'1.5" Circle',mp:false},
-  {id:'st004',brand:'Gaby\'s',name:'Gaby\'s Tomatillo Salsa',size:'1.5" Circle',mp:false},
-  {id:'st005',brand:'Gaby\'s',name:'Gaby\'s Chipotle Carrot Vinaigrette',size:'1.5" Circle',mp:false},
+  {id:'st003',brand:'Gaby\'s',name:'Gaby\'s Green Goddess Chili Ranch',size:'1.5" Circle',mp:false,qty:5},
+  {id:'st004',brand:'Gaby\'s',name:'Gaby\'s Tomatillo Salsa',size:'1.5" Circle',mp:false,qty:8},
+  {id:'st005',brand:'Gaby\'s',name:'Gaby\'s Chipotle Carrot Vinaigrette',size:'1.5" Circle',mp:false,qty:3},
   {id:'st006',brand:'Gaby\'s',name:'Gaby\'s Honey Dijon Sauce',size:'1.5" Circle',mp:false},
   {id:'st007',brand:'Gaby\'s',name:'Gaby\'s Caesar Avocado Wrap',size:'3" x 1"',mp:false},
   {id:'st008',brand:'Gaby\'s',name:'Gaby\'s Pesto Chicken Sandwich',size:'3" x 1"',mp:false},
@@ -229,25 +229,25 @@ var STICKER_SEED = [
   {id:'st017',brand:'Gaby\'s',name:'Spicy Teriyaki Sauce',size:'1" Circle',mp:false},
   {id:'st018',brand:'Mini Kabob',name:'Mini Kabob Toum Aioli',size:'1.5" Circle',mp:false},
   {id:'st019',brand:'Mini Kabob',name:'Mini Kabob Toum Aioli',size:'1" Circle',mp:false},
-  {id:'st020',brand:'Mini Kabob',name:'Mini Kabob Tzatziki Mast',size:'1.5" Circle',mp:false},
-  {id:'st021',brand:'Mini Kabob',name:'Mini Kabob Chipotle Toum Aioli',size:'1.5" Circle',mp:false},
+  {id:'st020',brand:'Mini Kabob',name:'Mini Kabob Tzatziki Mast',size:'1.5" Circle',mp:false,qty:4},
+  {id:'st021',brand:'Mini Kabob',name:'Mini Kabob Chipotle Toum Aioli',size:'1.5" Circle',mp:false,qty:4},
   {id:'st022',brand:'Mini Kabob',name:'Mini Kabob Lemon Aioli',size:'1.5" Circle',mp:false},
   {id:'st023',brand:'Mini Kabob',name:'Mini Kabob Special Sauce',size:'1.5" Circle',mp:false},
   {id:'st024',brand:'Mini Kabob',name:'The Original MK Wrap',size:'1.5" Circle',mp:false},
   {id:'st025',brand:'Mini Kabob',name:'Mini Kabob Kids Cheesy Wrap',size:'1.5" Circle',mp:false},
   {id:'st026',brand:'Mini Kabob',name:'Classic Cheeseburger Wrap',size:'1.5" Circle',mp:false},
-  {id:'st027',brand:'Mixtape',name:'Mixtape Herby Ranch',size:'1.5" Circle',mp:false},
+  {id:'st027',brand:'Mixtape',name:'Mixtape Herby Ranch',size:'1.5" Circle',mp:false,qty:9},
   {id:'st028',brand:'Mixtape',name:'Mixtape Backyard BBQ',size:'1.5" Circle',mp:false},
-  {id:'st029',brand:'Mixtape',name:'Mixtape Classic Honey Mustard',size:'1.5" Circle',mp:false},
+  {id:'st029',brand:'Mixtape',name:'Mixtape Classic Honey Mustard',size:'1.5" Circle',mp:false,qty:3},
   {id:'st030',brand:'Mixtape',name:'Mixtape Ketchup',size:'1.5" Circle',mp:false},
-  {id:'st031',brand:'Mixtape',name:'Mixtape Sauce',size:'1.5" Circle',mp:false},
-  {id:'st032',brand:'Mixtape',name:'Spicy Buffalo Sauce',size:'1.5" Circle',mp:false},
-  {id:'st033',brand:'Neighborly',name:'Neighborly Houses Seal (Bag & Box)',size:'4" x 2"',mp:false},
+  {id:'st031',brand:'Mixtape',name:'Mixtape Sauce',size:'1.5" Circle',mp:false,qty:2},
+  {id:'st032',brand:'Mixtape',name:'Spicy Buffalo Sauce',size:'1.5" Circle',mp:false,qty:3},
+  {id:'st033',brand:'Neighborly',name:'Neighborly Houses Seal (Bag & Box)',size:'4" x 2"',mp:false,qty:15},
   {id:'st034',brand:'Neighborly',name:'House Croutons',size:'1.5" Circle',mp:false},
   {id:'st035',brand:'Neighborly',name:'EAT SHOP BE NEIGHBORLY Cookie',size:'4" x 2"',mp:false},
-  {id:'st036',brand:'Neighborly',name:'House Caesar Dressing',size:'1.5" Circle',mp:false},
+  {id:'st036',brand:'Neighborly',name:'House Caesar Dressing',size:'1.5" Circle',mp:false,qty:3},
   {id:'st037',brand:'Neighborly',name:'House Red Wine Vinaigrette',size:'1.5" Circle',mp:false},
-  {id:'st038',brand:'Neighborly',name:'House Champagne Vinaigrette',size:'1.5" Circle',mp:false},
+  {id:'st038',brand:'Neighborly',name:'House Champagne Vinaigrette',size:'1.5" Circle',mp:false,qty:8},
   {id:'st039',brand:'Neighborly',name:'House Champagne Vinaigrette',size:'1" Circle',mp:false},
   {id:'st040',brand:'Neighborly',name:'Sockerbit x Neighborly',size:'2" Circle (Gloss Finish)',mp:false},
   {id:'st041',brand:'Neighborly',name:'With Chicken (Catering)',size:'1" Circle',mp:false},
@@ -257,12 +257,12 @@ var STICKER_SEED = [
   {id:'st045',brand:'Palermo Pizza Club',name:'Nut-free Pesto',size:'1.5" Circle',mp:false},
   {id:'st046',brand:'Palermo Pizza Club',name:'Hot Honey',size:'1.5" Circle',mp:false},
   {id:'st047',brand:'Palermo Pizza Club',name:'Calabrian Chili Oil',size:'1.5" Circle',mp:false},
-  {id:'st048',brand:'Palermo Pizza Club',name:'Ranch',size:'1.5" Circle',mp:false},
+  {id:'st048',brand:'Palermo Pizza Club',name:'Ranch',size:'1.5" Circle',mp:false,qty:5},
   {id:'st049',brand:'Palermo Pizza Club',name:'Pepperoni Ranch',size:'1.5" Circle',mp:false},
   {id:'st050',brand:'Palermo Pizza Club',name:'Lemon Vinaigrette',size:'1.5" Circle',mp:false},
-  {id:'st051',brand:'Palermo Pizza Club',name:'Arugula & Vinaigrette',size:'2.5" square with rounded corners',mp:false},
+  {id:'st051',brand:'Palermo Pizza Club',name:'Arugula & Vinaigrette',size:'2.5" square with rounded corners',mp:false,qty:4},
   {id:'st052',brand:'Palermo Pizza Club',name:'Stracciatella Cheese',size:'2.5" square with rounded corners',mp:false},
-  {id:'st053',brand:'Gaby\'s',name:'Gaby\'s Bottle Miso Peanut Vinaigrette',size:'2.5" x 3"',mp:true},
+  {id:'st053',brand:'Gaby\'s',name:'Gaby\'s Bottle Miso Peanut Vinaigrette',size:'2.5" x 3"',mp:true,qty:10},
   {id:'st054',brand:'Gaby\'s',name:'Gaby\'s Bottle Green Goddess Chili Ranch Dressing',size:'2.5" x 3"',mp:true},
   {id:'st055',brand:'Gaby\'s',name:'Gaby\'s Bottle Chipotle Carrot Vinaigrette',size:'2.5" x 3"',mp:true},
   {id:'st056',brand:'Gaby\'s',name:'Gaby\'s Creamy Tomato Basil Soup',size:'3.75" x 3"',mp:true},
@@ -271,14 +271,14 @@ var STICKER_SEED = [
   {id:'st059',brand:'Gaby\'s',name:'Gaby\'s Roasted Salmon',size:'3.75" x 3"',mp:true},
   {id:'st060',brand:'Gaby\'s',name:'Gaby\'s Herbed Chicken Breast',size:'3.75" x 3"',mp:true},
   {id:'st061',brand:'Gaby\'s',name:'Gaby\'s Chipotle Chicken Breast',size:'3.75" x 3"',mp:true},
-  {id:'st062',brand:'Gaby\'s',name:'Date Me Snack Salad',size:'2.5" x 2.5"',mp:true},
-  {id:'st063',brand:'Gaby\'s',name:'Thai Mango Miso Snack Salad',size:'2.5" x 2.5"',mp:true},
-  {id:'st064',brand:'Gaby\'s',name:'Southwest Sedona Snack Salad',size:'2.5" x 2.5"',mp:true},
+  {id:'st062',brand:'Gaby\'s',name:'Date Me Snack Salad',size:'2.5" x 2.5"',mp:true,qty:10},
+  {id:'st063',brand:'Gaby\'s',name:'Thai Mango Miso Snack Salad',size:'2.5" x 2.5"',mp:true,qty:10},
+  {id:'st064',brand:'Gaby\'s',name:'Southwest Sedona Snack Salad',size:'2.5" x 2.5"',mp:true,qty:10},
   {id:'st065',brand:'Mixtape',name:'Neighborly GF Chicken Tenders',size:'3.75" x 3"',mp:true},
   {id:'st066',brand:'Mixtape',name:'Mixtape Protein Tag for Chicken Tenders',size:'1.5" Circle',mp:true},
-  {id:'st067',brand:'Neighborly',name:'Neighborly Bottle Caesar Dressing',size:'2.5" x 3"',mp:true},
-  {id:'st068',brand:'Neighborly',name:'Neighborly Bottle Red Wine Vinaigrette',size:'2.5" x 3"',mp:true},
-  {id:'st069',brand:'Neighborly',name:'Neighborly Bottle Champagne Vinaigrette',size:'2.5" x 3"',mp:true},
+  {id:'st067',brand:'Neighborly',name:'Neighborly Bottle Caesar Dressing',size:'2.5" x 3"',mp:true,qty:15},
+  {id:'st068',brand:'Neighborly',name:'Neighborly Bottle Red Wine Vinaigrette',size:'2.5" x 3"',mp:true,qty:10},
+  {id:'st069',brand:'Neighborly',name:'Neighborly Bottle Champagne Vinaigrette',size:'2.5" x 3"',mp:true,qty:10},
   {id:'st070',brand:'Neighborly',name:'Neighorly Chicken Cutlet',size:'3.75" x 3"',mp:true},
   {id:'st071',brand:'Neighborly',name:'Neighborly Juice Logo Front',size:'4" x 1"',mp:true},
   {id:'st072',brand:'Neighborly',name:'Garden Party Lemonade',size:'4" x 1"',mp:true},
@@ -302,7 +302,15 @@ function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g, function(c){ re
 function money(n){ return '$' + Number(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
 function num(n){ return Number(n).toLocaleString('en-US'); }
 function fmtDate(t){ if(!t) return '—'; var d=new Date(t); return d.toLocaleDateString('en-US',{month:'short',day:'numeric'}) + ' ' + d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'}); }
-function metaFor(id){ var m = META[id] || {}; return { cost: (m.cost==null?null:Number(m.cost)), presets: (Array.isArray(m.presets)&&m.presets.length?m.presets:DEFAULT_PRESETS), vendorName: m.vendorName||'', vendorEmail: m.vendorEmail||'', image: m.image||'', active: m.active!==false }; }
+function seedById(id){ return STICKER_SEED.find(function(x){ return x.id===id; }) || {}; }
+// Default order amounts come from the Ops Order Guide: an item's sheet "rolls
+// needed" is its standard amount (and the pre-selected default in the picker),
+// followed by a few common alternatives. Items with no sheet amount fall back.
+function defaultPresets(it){
+  if (it && it.qty){ var out=[it.qty]; [1,2,3,5,10].forEach(function(n){ if(out.indexOf(n)<0) out.push(n); }); return out; }
+  return DEFAULT_PRESETS;
+}
+function metaFor(id){ var m = META[id] || {}; var it = seedById(id); return { cost: (m.cost==null?null:Number(m.cost)), presets: (Array.isArray(m.presets)&&m.presets.length?m.presets:defaultPresets(it)), std: (it.qty||null), vendorName: m.vendorName||'', vendorEmail: m.vendorEmail||'', image: m.image||'', active: m.active!==false }; }
 function pendingFor(id){ return Object.keys(REQUESTS).some(function(k){ return REQUESTS[k].itemId===id && REQUESTS[k].status==='pending'; }); }
 function lineTotal(cost, rolls){ return cost==null ? null : cost * ROLL * rolls; }
 
@@ -444,7 +452,8 @@ function renderGrid(){
   $('grid').innerHTML = items.map(function(it){
     var m = metaFor(it.id);
     var pending = pendingFor(it.id);
-    var opts = m.presets.map(function(r){ return '<option value="'+r+'">'+r+' roll'+(r>1?'s':'')+' · '+num(r*ROLL)+'</option>'; }).join('');
+    var def = m.std!=null ? m.std : m.presets[0];
+    var opts = m.presets.map(function(r){ return '<option value="'+r+'"'+(r===def?' selected':'')+'>'+r+' roll'+(r>1?'s':'')+' · '+num(r*ROLL)+(r===m.std?' · sheet':'')+'</option>'; }).join('');
     var costLine = m.cost!=null ? (money(m.cost)+' / sticker') : 'cost not set';
     var img = m.image ? '<img src="'+esc(m.image)+'" alt="'+esc(it.name)+'">' : '<span class="ph">Image coming</span>';
     return ''+
@@ -597,7 +606,7 @@ function renderManage(){
 async function saveMeta(id, field, inp){
   var val;
   if (field==='cost'){ val = inp.value===''?null:Number(inp.value); }
-  else if (field==='presets'){ val = inp.value.split(',').map(function(x){ return parseInt(x.trim(),10); }).filter(function(x){ return x>0; }); if(!val.length) val = DEFAULT_PRESETS; }
+  else if (field==='presets'){ val = inp.value.split(',').map(function(x){ return parseInt(x.trim(),10); }).filter(function(x){ return x>0; }); if(!val.length) val = defaultPresets(seedById(id)); }
   else if (field==='active'){ val = inp.checked; }
   else { val = inp.value.trim(); }
   META[id] = META[id] || {}; META[id][field] = val;
