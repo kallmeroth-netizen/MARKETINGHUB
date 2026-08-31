@@ -1790,6 +1790,7 @@ function NeighborlyCalendar() {
                               <svg width={isWeek?9:(isMobile?7:8)} height={isWeek?9:(isMobile?7:8)} viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" style={{flexShrink:0,opacity:.85}}><circle cx="6" cy="6" r="5"/><path d="M6 3v3l2 1.2"/></svg>
                               {fmtTime(ev.time)}
                             </div>}
+                            <div style={{fontSize:isWeek?9.5:(isAgenda?9.5:(isMobile?8:8.5)),fontWeight:700,letterSpacing:'.055em',textTransform:'uppercase',lineHeight:1.1,marginBottom:1,color:ev.hold?C.text3:cat.text,opacity:.72,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{(CATS[ev.cat]||CATS.social).label}</div>
                             <div style={{fontSize:isWeek?(isMobile?12:13):(isAgenda?12:(isMobile?9:11)),fontWeight:600,lineHeight:1.25,overflow:'hidden',display:'-webkit-box',WebkitLineClamp:isWeek?3:(isAgenda?2:(isMobile?1:2)),WebkitBoxOrient:'vertical',textOverflow:'ellipsis'}}>{ev.name}</div>
                             {ev.sub && (isWeek || isAgenda || !isMobile) && <div style={{fontSize:isWeek?11:(isAgenda?10.5:9.5),opacity:.65,marginTop:2,whiteSpace:(isWeek||isAgenda)?'normal':'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{ev.sub}</div>}
                           </div>
