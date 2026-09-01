@@ -15,7 +15,6 @@
 <link rel="stylesheet" href="theme.css">
 <script src="chrome-v2.js" defer></script>
 <script>
-  // Clear any stale service-worker / cache from older deployments.
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.getRegistrations().then(function (regs) { regs.forEach(function (r) { r.unregister(); }); }).catch(function () {});
   }
@@ -23,6 +22,7 @@
 </script>
 
 <style>
+
   /* Stat strip */
   .rp-kpis { display:grid; grid-template-columns:repeat(4,1fr); gap:var(--s-3); margin-bottom:var(--s-5); }
   @media (max-width:720px){ .rp-kpis{ grid-template-columns:repeat(2,1fr); } }
@@ -101,6 +101,40 @@
   .rp-modal p{ margin:0 0 14px; font-size:var(--t-body-sm); color:var(--text-2); }
   .rp-modal textarea{ width:100%; min-height:74px; padding:10px; border:1px solid var(--line-strong); border-radius:8px; font-family:var(--f-sans); font-size:var(--t-body-sm); background:var(--surface); color:var(--text); resize:vertical; }
   .rp-modal-actions{ display:flex; justify-content:flex-end; gap:8px; margin-top:16px; }
+
+  /* Order summary panel + cart */
+  .rp-order{ background:var(--surface); border:1px solid var(--line); border-left:3px solid #7a2233; border-radius:var(--r-lg); padding:16px 18px; margin-bottom:var(--s-4); }
+  .rp-order-head{ display:flex; align-items:baseline; justify-content:space-between; gap:12px; flex-wrap:wrap; }
+  .rp-order-ey{ font-family:var(--f-eyebrow); font-size:var(--t-eyebrow); letter-spacing:.1em; text-transform:uppercase; color:var(--text-3); }
+  .rp-order-h{ font-size:16px; font-weight:600; color:var(--ink); }
+  .rp-order-total{ font-family:var(--f-mono); font-size:15px; font-weight:600; color:var(--ink); }
+  .rp-lines{ display:flex; flex-direction:column; margin:10px 0 4px; }
+  .rp-line{ display:flex; align-items:center; gap:10px; padding:7px 0; border-bottom:1px solid var(--line); font-size:var(--t-body-sm); }
+  .rp-line:last-child{ border-bottom:none; }
+  .rp-line .n{ flex:1; min-width:0; }
+  .rp-line .n b{ font-weight:600; }
+  .rp-line .n .s{ color:var(--text-3); font-size:var(--t-caption); }
+  .rp-line .q{ font-family:var(--f-mono); color:var(--text-2); white-space:nowrap; }
+  .rp-line .lt{ font-family:var(--f-mono); color:var(--text-2); white-space:nowrap; min-width:72px; text-align:right; }
+  .rp-line .rm{ color:#a32d2d; cursor:pointer; font-size:var(--t-caption); white-space:nowrap; }
+  .rp-line select{ height:28px; padding:0 6px; border:1px solid var(--line-strong); border-radius:6px; font-family:var(--f-sans); font-size:var(--t-caption); background:var(--surface); color:var(--text); }
+  .rp-order-actions{ display:flex; align-items:center; gap:10px; margin-top:14px; flex-wrap:wrap; }
+  .rp-order-empty{ color:var(--text-3); font-size:var(--t-body-sm); padding:8px 0; }
+  .rp-order-note{ color:var(--text-2); font-size:var(--t-body-sm); }
+  .rp-order textarea{ width:100%; min-height:56px; margin-top:10px; padding:9px; border:1px solid var(--line-strong); border-radius:8px; font-family:var(--f-sans); font-size:var(--t-body-sm); background:var(--surface); color:var(--text); resize:vertical; }
+  .rp-status{ font-family:var(--f-eyebrow); font-size:9px; letter-spacing:.06em; text-transform:uppercase; border-radius:var(--r-pill); padding:3px 10px; }
+  .rp-status.draft{ background:var(--surface-2); color:var(--text-2); }
+  .rp-status.pending{ background:#fdf3c9; color:#8a6d00; }
+  .rp-status.approved{ background:#e3f0e8; color:#1e5a37; }
+  .rp-status.rejected{ background:#f6e3e3; color:#a32d2d; }
+
+  .rp-last{ font-size:var(--t-caption); color:var(--text-3); }
+  .rp-due{ font-family:var(--f-eyebrow); font-size:8px; letter-spacing:.05em; text-transform:uppercase; background:#fdf3c9; color:#8a6d00; border-radius:var(--r-pill); padding:2px 6px; }
+  .rp-incart{ font-family:var(--f-eyebrow); font-size:8px; letter-spacing:.05em; text-transform:uppercase; background:#e3f0e8; color:#1e5a37; border-radius:var(--r-pill); padding:2px 6px; }
+  .rp-nudge{ margin-bottom:var(--s-4); border-style:dashed; background:transparent; }
+  .rp-order-card{ background:var(--surface); border:1px solid var(--line); border-radius:var(--r-lg); padding:15px 17px; margin-bottom:var(--s-3); }
+  .rp-order-card .hd{ display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; margin-bottom:8px; }
+
 </style>
 </head>
 <body data-page-tag="Supply Reorders">
@@ -112,7 +146,7 @@
   <header class="np-page-header" style="padding-bottom:var(--s-4)">
     <div class="np-page-eyebrow" style="color:#7a2233">Operations</div>
     <h1 class="np-page-title">Supply Reorders</h1>
-    <div class="np-page-meta">Request a re-order · approvals route to management · 2-week lead on all sticker orders</div>
+    <div class="np-page-meta">Monthly sticker orders by location &middot; the team builds it, management approves &middot; 2-week lead on all orders</div>
   </header>
 
   <div class="np-card rp-banner" id="banner">
@@ -120,61 +154,69 @@
     <div class="np-card-sub" id="bannerMsg" style="margin-bottom:0"></div>
   </div>
 
+  <div class="np-card rp-nudge" id="nudge" hidden>
+    <div class="np-card-title" id="nudgeTitle"></div>
+    <div class="np-card-sub" id="nudgeMsg" style="margin-bottom:0"></div>
+  </div>
+
   <div class="rp-kpis" id="kpis"></div>
 
   <div class="rp-tabs" id="tabs"></div>
 
-  <!-- CATALOG -->
-  <section id="view-catalog">
+  <!-- MONTHLY ORDER -->
+  <section id="view-monthly">
     <div class="rp-loc" id="locRow">
       <span class="rp-loc-label">Ordering for</span>
       <div id="locChips" style="display:flex;gap:var(--s-2)"></div>
-      <span class="rp-loc-hint" id="locHint">Pick a location before you request</span>
+      <span class="rp-loc-hint" id="locHint">Pick a location to start the order</span>
     </div>
+    <div id="monthlyPanel"></div>
     <div class="rp-filters">
       <div id="brandChips" style="display:flex;flex-wrap:wrap;gap:var(--s-2)"></div>
-      <input class="rp-search" id="search" type="search" placeholder="Search stickers…" aria-label="Search stickers">
+      <input class="rp-search" id="search" type="search" placeholder="Search stickers to add&hellip;" aria-label="Search stickers">
     </div>
     <div class="rp-grid" id="grid"></div>
   </section>
 
-  <!-- MY REQUESTS -->
-  <section id="view-mine" hidden>
-    <div class="np-card"><div class="rp-table-wrap"><table class="rp-table" id="mineTable"></table></div></div>
+  <!-- SPECIAL REQUEST -->
+  <section id="view-special" hidden>
+    <div class="rp-loc" id="locRowSp">
+      <span class="rp-loc-label">Ordering for</span>
+      <div id="locChipsSp" style="display:flex;gap:var(--s-2)"></div>
+      <span class="rp-loc-hint">Pick a location</span>
+    </div>
+    <div id="specialPanel"></div>
+    <div class="rp-filters">
+      <div id="brandChipsSp" style="display:flex;flex-wrap:wrap;gap:var(--s-2)"></div>
+      <input class="rp-search" id="searchSp" type="search" placeholder="Search stickers to add&hellip;" aria-label="Search stickers">
+    </div>
+    <div class="rp-grid" id="gridSp"></div>
   </section>
 
-  <!-- APPROVALS (admin) -->
-  <section id="view-approvals" hidden>
-    <div class="np-card"><div class="rp-table-wrap"><table class="rp-table" id="apprTable"></table></div></div>
-  </section>
+  <section id="view-approvals" hidden><div id="apprList"></div></section>
 
-  <!-- CATALOG & COSTS (admin) -->
   <section id="view-manage" hidden>
     <div class="np-card">
       <div class="np-card-title">Catalog &amp; costs</div>
-      <div class="np-card-sub">Set the cost per sticker, standard order amounts (rolls of 1,000), vendor, and image for each item. Changes save automatically.</div>
+      <div class="np-card-sub">Cost per sticker, standard amounts (rolls of 1,000), vendor, and image per item. Saves as you type.</div>
       <div class="rp-filters" style="margin-top:12px">
         <div id="manageBrandChips" style="display:flex;flex-wrap:wrap;gap:var(--s-2)"></div>
-        <input class="rp-search" id="manageSearch" type="search" placeholder="Search…" aria-label="Search catalog">
+        <input class="rp-search" id="manageSearch" type="search" placeholder="Search&hellip;" aria-label="Search catalog">
       </div>
       <div class="rp-table-wrap"><table class="rp-table" id="manageTable"></table></div>
     </div>
   </section>
 
-  <!-- LOG -->
-  <section id="view-log" hidden>
-    <div class="np-card"><div class="rp-table-wrap"><table class="rp-table" id="logTable"></table></div></div>
-  </section>
+  <section id="view-history" hidden><div id="histList"></div></section>
 
-  <p style="font-size:var(--t-caption-sm);color:var(--text-3);margin-top:var(--s-5);text-align:center">Supply Reorders · <span id="foot">loading…</span></p>
+  <p style="font-size:var(--t-caption-sm);color:var(--text-3);margin-top:var(--s-5);text-align:center">Supply Reorders &middot; <span id="foot">loading&hellip;</span></p>
 </main>
 
-<!-- Reject reason modal -->
 <div class="rp-modal-bg" id="modalBg">
   <div class="rp-modal">
-    <h3 id="modalTitle">Decline request</h3>
-    <p id="modalSub">Add a short reason — the requester will be notified.</p>
-    <textarea id="modalReason" placeholder="e.g. We still have plenty in stock — hold off till next month."></textarea>
+    <h3 id="modalTitle">Decline order</h3>
+    <p id="modalSub">Add a short reason &mdash; the person who built it will be notified.</p>
+    <textarea id="modalReason" placeholder="e.g. Hold the bottle labels &mdash; we still have plenty."></textarea>
     <div class="rp-modal-actions">
       <button class="rp-btn ghost" id="modalCancel">Cancel</button>
       <button class="rp-btn reject" id="modalConfirm">Decline &amp; notify</button>
@@ -188,37 +230,39 @@
 <script>try { NPData.guardPage(['team','ops','admin']); } catch (e) {}</script>
 <script>
 // ═══════════════════════════════════════════════════════════════════════════
-// Supply Reorders portal
+// Supply Reorders portal — monthly orders + special requests
 //
-// Storage: Firebase RTDB (same hub DB the calendar/orders use).
-//   /reorders/meta/{itemId}  → { cost, presets, vendorName, vendorEmail, image, active }
-//   /reorders/requests/{id}  → a re-order request + its approval state
-// The item catalog (names/brands/sizes) is seeded in-code from the Ops Order
-// Guide; costs/vendors/images/presets live in Firebase so they persist and
-// can be edited in the UI. Auth/role come from Supabase via NPData.
+// Flow: the team builds a MONTHLY order per location (a shared cart for the
+// current month); a manager approves the whole order; on approval it splits by
+// vendor and each vendor is emailed their items. SPECIAL requests are the same
+// team-builds -> manager-approves -> vendor-email flow, off the monthly cycle.
+// Last-ordered per location is tracked; overdue items are flagged "Due" and a
+// banner nudges when a location's month hasn't been submitted.
 //
-// Email: EmailJS (client-side). Two triggers:
-//   1. new request  → the approvers (Kirsten + Justin)
-//   2. approved     → the item's vendor (approvers CC'd)   [+ decline → requester]
-// Emails no-op safely until the EmailJS template IDs below are filled in.
+// Storage: Firebase RTDB (same hub DB).
+//   /reorders/meta/{itemId}   → { cost, presets, vendorName, vendorEmail, image, active }
+//   /reorders/orders/{id}     → a monthly/special order + its lines + approval state
+// Auth/role via Supabase (NPData). Email via EmailJS (client-side, no-op until
+// the template IDs below are set).
 // ═══════════════════════════════════════════════════════════════════════════
 
 // ── EMAILJS CONFIG (fill the two TEMPLATE ids after creating them) ──────────
-var EMAILJS_PUBLIC_KEY  = 'pW4-kj71suA1OsbFa';   // existing Neighborly EmailJS account
+var EMAILJS_PUBLIC_KEY  = 'pW4-kj71suA1OsbFa';
 var EMAILJS_SERVICE_ID  = 'service_v4jp7sp';
-var EMAILJS_TPL_REQUEST = 'YOUR_REQUEST_TEMPLATE_ID';   // → approvers on new request
+var EMAILJS_TPL_REQUEST = 'YOUR_REQUEST_TEMPLATE_ID';   // → approvers on submit
 var EMAILJS_TPL_VENDOR  = 'YOUR_VENDOR_TEMPLATE_ID';    // → vendor on approval
-var EMAILJS_TPL_DECLINE = 'YOUR_DECLINE_TEMPLATE_ID';   // → requester on decline (optional)
+var EMAILJS_TPL_DECLINE = 'YOUR_DECLINE_TEMPLATE_ID';   // → builder on decline (optional)
 
-// ── APPROVERS (who gets the request email + can approve) ────────────────────
+// ── APPROVERS ───────────────────────────────────────────────────────────────
 var APPROVERS = [
   { name: 'Kirsten', email: 'kallmeroth@beneighborly.com' },
   { name: 'Justin',  email: 'JUSTIN_EMAIL@beneighborly.com' }   // TODO: real email
 ];
 
-var ROLL = 1000;                       // stickers come 1,000 per roll
-var DEFAULT_PRESETS = [1, 2, 3, 5];    // standard order amounts, in rolls
-var LOCATIONS = ['Brentwood', 'Westlake Village'];   // which store the order is for
+var ROLL = 1000;
+var DEFAULT_PRESETS = [1, 2, 3, 5];
+var LOCATIONS = ['Brentwood', 'Westlake Village'];
+var DUE_DAYS = 30;                     // "Due" if not ordered here in this many days
 var PORTAL_LINK = location.origin + '/neighborly-stickers.html';
 var FB = 'https://neighborly-hub-53e4b-default-rtdb.firebaseio.com/reorders';
 var BRAND_ORDER = ["Gaby's", 'Mini Kabob', 'Mixtape', 'Neighborly', 'Palermo Pizza Club'];
@@ -302,328 +346,376 @@ var STICKER_SEED = [
 ];
 
 // ── state ───────────────────────────────────────────────────────────────────
-var ME = { email: '', name: '', role: 'team' };
+var ME = { email:'', name:'', role:'team' };
 var IS_ADMIN = false;
-var META = {};            // itemId → meta overrides
-var REQUESTS = {};        // id → request
-var TAB = 'catalog';
+var META = {};
+var ORDERS = {};          // id → order
+var LAST = {};            // location → itemId → last-approved timestamp
+var TAB = 'monthly';
 var BRAND_FILTER = '';
+var BRAND_FILTER_SP = '';
 var MANAGE_BRAND = '';
 var EMAILJS_READY = false;
+var SP_CART = {};         // special-request in-memory cart: itemId → line
 var LOCATION = '';
 try { LOCATION = localStorage.getItem('rp_location') || ''; } catch(e){}
+var MONTH = monthKey(new Date());
 
 // ── helpers ─────────────────────────────────────────────────────────────────
 function $(id){ return document.getElementById(id); }
-function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
-function money(n){ return '$' + Number(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
+function money(n){ return '$'+Number(n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}); }
 function num(n){ return Number(n).toLocaleString('en-US'); }
-function fmtDate(t){ if(!t) return '—'; var d=new Date(t); return d.toLocaleDateString('en-US',{month:'short',day:'numeric'}) + ' ' + d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'}); }
-function seedById(id){ return STICKER_SEED.find(function(x){ return x.id===id; }) || {}; }
-// Default order amounts come from the Ops Order Guide: an item's sheet "rolls
-// needed" is its standard amount (and the pre-selected default in the picker),
-// followed by a few common alternatives. Items with no sheet amount fall back.
-function defaultPresets(it){
-  if (it && it.qty){ var out=[it.qty]; [1,2,3,5,10].forEach(function(n){ if(out.indexOf(n)<0) out.push(n); }); return out; }
-  return DEFAULT_PRESETS;
-}
-function metaFor(id){ var m = META[id] || {}; var it = seedById(id); return { cost: (m.cost==null?null:Number(m.cost)), presets: (Array.isArray(m.presets)&&m.presets.length?m.presets:defaultPresets(it)), std: (it.qty||null), vendorName: m.vendorName||'', vendorEmail: m.vendorEmail||'', image: m.image||'', active: m.active!==false }; }
-function pendingFor(id){ return Object.keys(REQUESTS).some(function(k){ return REQUESTS[k].itemId===id && REQUESTS[k].status==='pending'; }); }
-function lineTotal(cost, rolls){ return cost==null ? null : cost * ROLL * rolls; }
+function objOf(k,v){ var o={}; o[k]=v; return o; }
+function monthKey(d){ d=d||new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'); }
+function monthLabel(mk){ if(!mk) return ''; var p=mk.split('-'); var d=new Date(Number(p[0]),Number(p[1])-1,1); return d.toLocaleDateString('en-US',{month:'long',year:'numeric'}); }
+function shortDate(t){ if(!t) return ''; return new Date(t).toLocaleDateString('en-US',{month:'short',day:'numeric'}); }
+function fmtDateTime(t){ if(!t) return '—'; var d=new Date(t); return d.toLocaleDateString('en-US',{month:'short',day:'numeric'})+' '+d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'}); }
+function rollsLabel(r){ return r+' roll'+(r>1?'s':'')+' ('+num(r*ROLL)+')'; }
+
+function seedById(id){ return STICKER_SEED.find(function(x){return x.id===id;}) || {}; }
+function defaultPresets(it){ if(it&&it.qty){ var out=[it.qty]; [1,2,3,5,10].forEach(function(n){ if(out.indexOf(n)<0) out.push(n); }); return out; } return DEFAULT_PRESETS; }
+function metaFor(id){ var m=META[id]||{}; var it=seedById(id); return { cost:(m.cost==null?null:Number(m.cost)), presets:(Array.isArray(m.presets)&&m.presets.length?m.presets:defaultPresets(it)), std:(it.qty||null), vendorName:m.vendorName||'', vendorEmail:m.vendorEmail||'', image:m.image||'', active:m.active!==false }; }
+function lineTotal(cost, rolls){ return cost==null?null:cost*ROLL*rolls; }
+function buildLine(itemId, rolls){ var it=seedById(itemId); var m=metaFor(itemId); return { rolls:rolls, unitCost:m.cost, lineTotal:lineTotal(m.cost,rolls), name:it.name, brand:it.brand, size:it.size, mp:!!it.mp }; }
+function orderTotal(o){ var lines=o.lines||{}; var sum=0, any=false; Object.keys(lines).forEach(function(k){ if(lines[k].lineTotal!=null){ sum+=lines[k].lineTotal; any=true; } }); return any?sum:null; }
+function orderCount(o){ return Object.keys(o.lines||{}).length; }
 
 // ── Firebase REST ───────────────────────────────────────────────────────────
-function fbGet(path){ return fetch(FB + path + '.json').then(function(r){ return r.ok ? r.json() : null; }).catch(function(){ return null; }); }
-function fbPatch(path, obj){ return fetch(FB + path + '.json', { method:'PATCH', headers:{'Content-Type':'application/json'}, body: JSON.stringify(obj) }); }
-function fbPost(path, obj){ return fetch(FB + path + '.json', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(obj) }).then(function(r){ return r.json(); }); }
+function fbGet(path){ return fetch(FB+path+'.json').then(function(r){ return r.ok?r.json():null; }).catch(function(){ return null; }); }
+function fbPatch(path,obj){ return fetch(FB+path+'.json',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(obj)}); }
+function fbPost(path,obj){ return fetch(FB+path+'.json',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(obj)}).then(function(r){ return r.json(); }); }
 
 // ── EmailJS ─────────────────────────────────────────────────────────────────
-function initEmail(){
-  try {
-    if (window.emailjs && EMAILJS_PUBLIC_KEY && EMAILJS_PUBLIC_KEY.indexOf('YOUR_')!==0) {
-      emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
-      EMAILJS_READY = true;
-    }
-  } catch(e){}
-}
+function initEmail(){ try { if(window.emailjs && EMAILJS_PUBLIC_KEY && EMAILJS_PUBLIC_KEY.indexOf('YOUR_')!==0){ emailjs.init({publicKey:EMAILJS_PUBLIC_KEY}); EMAILJS_READY=true; } } catch(e){} }
 function tplReady(id){ return EMAILJS_READY && id && id.indexOf('YOUR_')!==0; }
-function sendEmail(templateId, params){
-  if (!tplReady(templateId)) return Promise.resolve({ skipped:true });
-  return emailjs.send(EMAILJS_SERVICE_ID, templateId, params).catch(function(err){ console.warn('EmailJS send failed', err); return { error:true }; });
-}
+function sendEmail(tpl,params){ if(!tplReady(tpl)) return Promise.resolve({skipped:true}); return emailjs.send(EMAILJS_SERVICE_ID,tpl,params).catch(function(e){ console.warn('EmailJS failed',e); return {error:true}; }); }
 function emailConfigured(){ return tplReady(EMAILJS_TPL_REQUEST) && tplReady(EMAILJS_TPL_VENDOR); }
 
-// ── load ────────────────────────────────────────────────────────────────────
+// ── boot / load ─────────────────────────────────────────────────────────────
 async function boot(){
   initEmail();
   try {
     var s = await NPData.getSession();
-    if (s && s.user) { ME.email = s.user.email || ''; ME.name = (s.user.user_metadata && s.user.user_metadata.name) || ME.email.split('@')[0]; }
-    var r = await NPData.getRole(); if (r) ME.role = r;
+    if (s && s.user){ ME.email=s.user.email||''; ME.name=(s.user.user_metadata&&s.user.user_metadata.name)||ME.email.split('@')[0]; }
+    var r = await NPData.getRole(); if(r) ME.role=r;
   } catch(e){}
-  IS_ADMIN = ME.role === 'admin';
-
+  IS_ADMIN = ME.role==='admin';
   await refresh();
-
-  // config banner if email not wired yet (admins only)
-  if (IS_ADMIN && !emailConfigured()) {
-    $('bannerTitle').textContent = 'Email triggers not finished';
-    $('bannerMsg').innerHTML = 'Requests and approvals are being saved, but no emails will send until the EmailJS template IDs are set in this page. Everything else works — you can approve/decline here.';
+  if (IS_ADMIN && !emailConfigured()){
+    $('bannerTitle').textContent='Email triggers not finished';
+    $('bannerMsg').innerHTML='Orders are being saved, but no emails will send until the EmailJS template IDs are set in this page. You can still approve/decline here.';
     $('banner').classList.add('show');
   }
-  $('foot').textContent = 'signed in as ' + (ME.name || 'team') + (IS_ADMIN ? ' · manager' : '');
+  $('foot').textContent='signed in as '+(ME.name||'team')+(IS_ADMIN?' · manager':'');
 }
-
 async function refresh(){
-  var data = await Promise.all([ fbGet('/meta'), fbGet('/requests') ]);
-  META = data[0] || {};
-  REQUESTS = data[1] || {};
-  renderTabs(); renderKpis(); renderBrandChips(); renderAll();
+  var d = await Promise.all([ fbGet('/meta'), fbGet('/orders') ]);
+  META = d[0]||{}; ORDERS = d[1]||{};
+  computeLast();
+  renderTabs(); renderKpis(); renderChips(); renderAll();
 }
+function computeLast(){
+  LAST = {};
+  Object.keys(ORDERS).forEach(function(id){
+    var o=ORDERS[id]; if(o.status!=='approved') return;
+    var when=o.decidedAt||o.submittedAt||o.createdAt||0; var loc=o.location||'';
+    LAST[loc]=LAST[loc]||{};
+    Object.keys(o.lines||{}).forEach(function(itemId){ if(!LAST[loc][itemId]||when>LAST[loc][itemId]) LAST[loc][itemId]=when; });
+  });
+}
+function lastOrderedTs(itemId,loc){ return (LAST[loc]&&LAST[loc][itemId])||null; }
+function isDue(itemId,loc){ if(!loc) return false; var t=lastOrderedTs(itemId,loc); return !t || (Date.now()-t) > DUE_DAYS*86400000; }
+
+// ── current monthly order for a location ────────────────────────────────────
+// Returns the active (draft or pending) order, else the approved one for the
+// month, else null. Managers approve the pending one.
+function monthlyOrder(loc){
+  var best=null;
+  Object.keys(ORDERS).forEach(function(id){
+    var o=ORDERS[id]; if(o.type!=='monthly'||o.location!==loc||o.month!==MONTH||o.status==='rejected') return;
+    o._id=id; if(!best) best=o;
+    else { var rank={draft:0,pending:1,approved:2}; if((rank[o.status]||0)<(rank[best.status]||0)) best=o; }
+  });
+  return best;
+}
+function monthEditable(o){ return !o || o.status==='draft'; }
 
 // ── tabs ────────────────────────────────────────────────────────────────────
-function myOpen(){ return Object.keys(REQUESTS).filter(function(k){ return REQUESTS[k].requestedByEmail===ME.email && REQUESTS[k].status==='pending'; }).length; }
-function pendingCount(){ return Object.keys(REQUESTS).filter(function(k){ return REQUESTS[k].status==='pending'; }).length; }
-
+function pendingOrders(){ return Object.keys(ORDERS).filter(function(k){ return ORDERS[k].status==='pending'; }); }
 function renderTabs(){
-  var tabs = [
-    { key:'catalog', label:'Order stickers' },
-    { key:'mine', label:'My requests', cnt: myOpen() }
-  ];
-  if (IS_ADMIN) {
-    tabs.push({ key:'approvals', label:'Approvals', cnt: pendingCount() });
-    tabs.push({ key:'manage', label:'Catalog & costs' });
-  }
-  tabs.push({ key:'log', label:'Order log' });
+  var tabs = [ {key:'monthly',label:'Monthly order'}, {key:'special',label:'Special request'} ];
+  if (IS_ADMIN) tabs.push({key:'approvals',label:'Approvals',cnt:pendingOrders().length});
+  if (IS_ADMIN) tabs.push({key:'manage',label:'Catalog & costs'});
+  tabs.push({key:'history',label:'Order history'});
   $('tabs').innerHTML = tabs.map(function(t){
-    var c = (t.cnt!=null && t.cnt>0) ? '<span class="cnt">'+t.cnt+'</span>' : '';
+    var c=(t.cnt!=null&&t.cnt>0)?'<span class="cnt">'+t.cnt+'</span>':'';
     return '<button class="rp-tab'+(TAB===t.key?' is-active':'')+'" data-tab="'+t.key+'">'+esc(t.label)+c+'</button>';
   }).join('');
-  Array.prototype.forEach.call($('tabs').children, function(b){ b.onclick = function(){ TAB = b.getAttribute('data-tab'); showTab(); }; });
+  Array.prototype.forEach.call($('tabs').children,function(b){ b.onclick=function(){ TAB=b.getAttribute('data-tab'); showTab(); }; });
   showTab();
 }
 function showTab(){
-  ['catalog','mine','approvals','manage','log'].forEach(function(k){ var el=$('view-'+k); if(el) el.hidden = (k!==TAB); });
-  Array.prototype.forEach.call($('tabs').children, function(b){ b.classList.toggle('is-active', b.getAttribute('data-tab')===TAB); });
+  ['monthly','special','approvals','manage','history'].forEach(function(k){ var el=$('view-'+k); if(el) el.hidden=(k!==TAB); });
+  Array.prototype.forEach.call($('tabs').children,function(b){ b.classList.toggle('is-active',b.getAttribute('data-tab')===TAB); });
   renderAll();
 }
 
 // ── KPIs ────────────────────────────────────────────────────────────────────
+function dueCount(loc){ if(!loc) return 0; var n=0; STICKER_SEED.forEach(function(it){ if(metaFor(it.id).active && isDue(it.id,loc)) n++; }); return n; }
 function renderKpis(){
-  var now = new Date(); var mKey = now.getFullYear()+'-'+(now.getMonth()+1);
-  var approvedMonth = 0, spendMonth = 0;
-  Object.keys(REQUESTS).forEach(function(k){
-    var q = REQUESTS[k];
-    if (q.status==='approved' && q.decidedAt){ var d=new Date(q.decidedAt); if(d.getFullYear()+'-'+(d.getMonth()+1)===mKey){ approvedMonth++; if(q.lineTotal) spendMonth += q.lineTotal; } }
-  });
-  var cards = [
-    { l:'Items in catalog', v: STICKER_SEED.length, a:'#7a2233' },
-    { l: IS_ADMIN?'Pending approval':'My open requests', v: IS_ADMIN?pendingCount():myOpen(), a:'#8a6d00' },
-    { l:'Approved this month', v: approvedMonth, a:'#1e5a37' },
-    { l:'Spend this month', v: spendMonth?money(spendMonth):'—', a:'#2a5a8a' }
+  var mKey=MONTH, approvedMonth=0, spend=0;
+  Object.keys(ORDERS).forEach(function(id){ var o=ORDERS[id]; if(o.status==='approved'&&o.decidedAt){ var d=new Date(o.decidedAt); if(monthKey(d)===mKey){ approvedMonth++; var t=orderTotal(o); if(t) spend+=t; } } });
+  var cards=[
+    { l:'Items in catalog', v:STICKER_SEED.length, a:'#7a2233' },
+    { l: LOCATION?('Due at '+LOCATION.split(' ')[0]):'Due for reorder', v: LOCATION?dueCount(LOCATION):'—', a:'#8a6d00' },
+    { l: IS_ADMIN?'Pending approval':'Orders this month', v: IS_ADMIN?pendingOrders().length:approvedMonth, a:'#1e5a37' },
+    { l:'Spend this month', v: spend?money(spend):'—', a:'#2a5a8a' }
   ];
-  $('kpis').innerHTML = cards.map(function(c){
-    return '<div class="np-kpi"><div class="np-kpi-accent" style="background:'+c.a+'"></div><div class="np-kpi-value">'+esc(String(c.v))+'</div><div class="np-kpi-label">'+esc(c.l)+'</div></div>';
-  }).join('');
+  $('kpis').innerHTML = cards.map(function(c){ return '<div class="np-kpi"><div class="np-kpi-accent" style="background:'+c.a+'"></div><div class="np-kpi-value">'+esc(String(c.v))+'</div><div class="np-kpi-label">'+esc(c.l)+'</div></div>'; }).join('');
 }
 
-// ── brand chips ─────────────────────────────────────────────────────────────
-function chipRow(containerId, current, onPick){
-  var el = $(containerId); if(!el) return;
-  var brands = [''].concat(BRAND_ORDER);
-  el.innerHTML = brands.map(function(b){
-    return '<span class="rp-chip'+(current===b?' is-active':'')+'" data-brand="'+esc(b)+'">'+esc(b||'All brands')+'</span>';
-  }).join('');
-  Array.prototype.forEach.call(el.children, function(c){ c.onclick = function(){ onPick(c.getAttribute('data-brand')); }; });
+// ── chips (brand + location) ────────────────────────────────────────────────
+function brandChipRow(containerId,current,onPick){
+  var el=$(containerId); if(!el) return;
+  el.innerHTML=[''].concat(BRAND_ORDER).map(function(b){ return '<span class="rp-chip'+(current===b?' is-active':'')+'" data-brand="'+esc(b)+'">'+esc(b||'All brands')+'</span>'; }).join('');
+  Array.prototype.forEach.call(el.children,function(c){ c.onclick=function(){ onPick(c.getAttribute('data-brand')); }; });
 }
-function renderBrandChips(){
-  chipRow('brandChips', BRAND_FILTER, function(b){ BRAND_FILTER=b; renderGrid(); });
-  chipRow('manageBrandChips', MANAGE_BRAND, function(b){ MANAGE_BRAND=b; renderManage(); });
-  renderLocChips();
+function locChipRow(containerId){
+  var el=$(containerId); if(!el) return;
+  el.innerHTML=LOCATIONS.map(function(l){ return '<span class="rp-loc-chip'+(LOCATION===l?' is-active':'')+'" data-loc="'+esc(l)+'">'+esc(l)+'</span>'; }).join('');
+  Array.prototype.forEach.call(el.children,function(c){ c.onclick=function(){ setLocation(c.getAttribute('data-loc')); }; });
 }
-function renderLocChips(){
-  var el = $('locChips'); if(!el) return;
-  el.innerHTML = LOCATIONS.map(function(l){
-    return '<span class="rp-loc-chip'+(LOCATION===l?' is-active':'')+'" data-loc="'+esc(l)+'">'+esc(l)+'</span>';
-  }).join('');
-  Array.prototype.forEach.call(el.children, function(c){ c.onclick = function(){ setLocation(c.getAttribute('data-loc')); }; });
-  var row = $('locRow'); if(row){ row.classList.toggle('chosen', !!LOCATION); if(LOCATION) row.classList.remove('needpick'); }
+function renderChips(){
+  brandChipRow('brandChips',BRAND_FILTER,function(b){ BRAND_FILTER=b; renderGrid('grid','monthly',BRAND_FILTER,'search'); });
+  brandChipRow('brandChipsSp',BRAND_FILTER_SP,function(b){ BRAND_FILTER_SP=b; renderGrid('gridSp','special',BRAND_FILTER_SP,'searchSp'); });
+  brandChipRow('manageBrandChips',MANAGE_BRAND,function(b){ MANAGE_BRAND=b; renderManage(); });
+  locChipRow('locChips'); locChipRow('locChipsSp');
+  ['locRow','locRowSp'].forEach(function(rid){ var row=$(rid); if(row){ row.classList.toggle('chosen',!!LOCATION); if(LOCATION) row.classList.remove('needpick'); } });
 }
-function setLocation(l){ LOCATION = l; try { localStorage.setItem('rp_location', l); } catch(e){} renderLocChips(); }
+function setLocation(l){ LOCATION=l; try{ localStorage.setItem('rp_location',l); }catch(e){} renderChips(); renderAll(); renderKpis(); }
 
 // ── render dispatch ─────────────────────────────────────────────────────────
-function renderAll(){ renderGrid(); renderMine(); if(IS_ADMIN){ renderApprovals(); renderManage(); } renderLog(); renderKpis(); renderTabsCounts(); }
-function renderTabsCounts(){ /* refresh counts cheaply by re-rendering tab labels */ renderTabsLabelsOnly(); }
-function renderTabsLabelsOnly(){
-  Array.prototype.forEach.call($('tabs').children, function(b){
-    var k=b.getAttribute('data-tab'); var cnt = k==='mine'?myOpen() : (k==='approvals'?pendingCount():null);
-    var span = b.querySelector('.cnt');
-    if(cnt!=null && cnt>0){ if(span){ span.textContent=cnt; } else { var s=document.createElement('span'); s.className='cnt'; s.textContent=cnt; b.appendChild(s); } }
-    else if(span){ span.remove(); }
+function renderAll(){
+  renderGrid('grid','monthly',BRAND_FILTER,'search');
+  renderGrid('gridSp','special',BRAND_FILTER_SP,'searchSp');
+  renderMonthlyPanel(); renderSpecialPanel(); renderNudge();
+  if (IS_ADMIN){ renderApprovals(); renderManage(); }
+  renderHistory();
+  syncTabCounts();
+}
+function syncTabCounts(){
+  Array.prototype.forEach.call($('tabs').children,function(b){
+    if(b.getAttribute('data-tab')!=='approvals') return;
+    var cnt=pendingOrders().length, span=b.querySelector('.cnt');
+    if(cnt>0){ if(span) span.textContent=cnt; else { var s=document.createElement('span'); s.className='cnt'; s.textContent=cnt; b.appendChild(s); } }
+    else if(span) span.remove();
   });
 }
 
-// ── CATALOG grid ────────────────────────────────────────────────────────────
-function filteredItems(brand, q){
-  q = (q||'').trim().toLowerCase();
-  return STICKER_SEED.filter(function(it){
-    if (brand && it.brand!==brand) return false;
-    if (!metaFor(it.id).active) return false;
-    if (q && (it.name+' '+it.brand+' '+it.size).toLowerCase().indexOf(q)<0) return false;
-    return true;
-  });
+// ── catalog grid (shared by monthly + special) ──────────────────────────────
+function activeLines(mode){
+  if(mode==='special') return SP_CART;
+  var o=monthlyOrder(LOCATION); return (o&&o.lines)||{};
 }
-function renderGrid(){
-  var q = $('search') ? $('search').value : '';
-  var items = filteredItems(BRAND_FILTER, q);
-  if (!items.length){ $('grid').innerHTML = '<div class="rp-empty" style="grid-column:1/-1">No stickers match.</div>'; return; }
-  $('grid').innerHTML = items.map(function(it){
-    var m = metaFor(it.id);
-    var pending = pendingFor(it.id);
-    var def = m.std!=null ? m.std : m.presets[0];
-    var opts = m.presets.map(function(r){ return '<option value="'+r+'"'+(r===def?' selected':'')+'>'+r+' roll'+(r>1?'s':'')+' · '+num(r*ROLL)+(r===m.std?' · sheet':'')+'</option>'; }).join('');
-    var costLine = m.cost!=null ? (money(m.cost)+' / sticker') : 'cost not set';
-    var img = m.image ? '<img src="'+esc(m.image)+'" alt="'+esc(it.name)+'">' : '<span class="ph">Image coming</span>';
+function modeEditable(mode){ if(mode==='special') return !!LOCATION; var o=monthlyOrder(LOCATION); return !!LOCATION && monthEditable(o); }
+function filteredItems(brand,q){
+  q=(q||'').trim().toLowerCase();
+  return STICKER_SEED.filter(function(it){ if(brand&&it.brand!==brand) return false; if(!metaFor(it.id).active) return false; if(q&&(it.name+' '+it.brand+' '+it.size).toLowerCase().indexOf(q)<0) return false; return true; });
+}
+function renderGrid(gridId,mode,brand,searchId){
+  var el=$(gridId); if(!el) return;
+  var q=$(searchId)?$(searchId).value:'';
+  var items=filteredItems(brand,q);
+  var lines=activeLines(mode); var editable=modeEditable(mode);
+  if(!items.length){ el.innerHTML='<div class="rp-empty" style="grid-column:1/-1">No stickers match.</div>'; return; }
+  el.innerHTML=items.map(function(it){
+    var m=metaFor(it.id); var inCart=!!lines[it.id];
+    var def=inCart?lines[it.id].rolls:(m.std!=null?m.std:m.presets[0]);
+    var presets=m.presets.slice(); if(inCart&&presets.indexOf(lines[it.id].rolls)<0) presets.unshift(lines[it.id].rolls);
+    var opts=presets.map(function(r){ return '<option value="'+r+'"'+(r===def?' selected':'')+'>'+r+' roll'+(r>1?'s':'')+' · '+num(r*ROLL)+(r===m.std?' · sheet':'')+'</option>'; }).join('');
+    var t=lastOrderedTs(it.id,LOCATION); var due=isDue(it.id,LOCATION)&&LOCATION;
+    var lastLine = LOCATION ? (t?('Last: '+shortDate(t)):'Never ordered') : '';
+    var img=m.image?'<img src="'+esc(m.image)+'" alt="'+esc(it.name)+'">':'<span class="ph">Image coming</span>';
+    var costLine=m.cost!=null?(money(m.cost)+' / sticker'):'cost not set';
+    var ctrl;
+    if(!editable){ ctrl='<button class="rp-btn" disabled title="'+(LOCATION?'Order locked':'Pick a location')+'">Add</button>'; }
+    else if(inCart){ ctrl='<select class="rp-sel" data-upd="'+it.id+'" data-mode="'+mode+'">'+opts+'</select><button class="rp-btn ghost" data-rm="'+it.id+'" data-mode="'+mode+'">Remove</button>'; }
+    else { ctrl='<select class="rp-sel" data-qty="'+it.id+'">'+opts+'</select><button class="rp-btn" data-add="'+it.id+'" data-mode="'+mode+'">Add</button>'; }
     return ''+
     '<div class="rp-item">'+
-      '<div class="rp-thumb">'+img+(it.mp?'<span class="rp-mp">Marketplace</span>':'')+(pending?'<span class="rp-pending">Pending</span>':'')+'</div>'+
+      '<div class="rp-thumb">'+img+(it.mp?'<span class="rp-mp">Marketplace</span>':'')+(inCart?'<span class="rp-pending" style="background:#e3f0e8;color:#1e5a37">In order</span>':(due?'<span class="rp-pending">Due</span>':''))+'</div>'+
       '<div class="rp-body">'+
         '<div class="rp-brand">'+esc(it.brand)+'</div>'+
         '<div class="rp-name">'+esc(it.name)+'</div>'+
         '<div class="rp-meta"><span>'+esc(it.size||'—')+'</span><span class="rp-cost">'+esc(costLine)+'</span></div>'+
-        '<div class="rp-controls">'+
-          '<select class="rp-sel" data-qty="'+it.id+'">'+opts+'</select>'+
-          '<button class="rp-btn" data-req="'+it.id+'"'+(pending?' disabled title="Already pending"':'')+'>Request</button>'+
-        '</div>'+
+        (lastLine?'<div class="rp-last">'+esc(lastLine)+'</div>':'')+
+        '<div class="rp-controls">'+ctrl+'</div>'+
       '</div>'+
     '</div>';
   }).join('');
-  Array.prototype.forEach.call($('grid').querySelectorAll('[data-req]'), function(b){
-    b.onclick = function(){ submitRequest(b.getAttribute('data-req'), $('grid').querySelector('[data-qty="'+b.getAttribute('data-req')+'"]').value); };
-  });
+  Array.prototype.forEach.call(el.querySelectorAll('[data-add]'),function(b){ b.onclick=function(){ var id=b.getAttribute('data-add'); addLine(b.getAttribute('data-mode'),id,el.querySelector('[data-qty="'+id+'"]').value); }; });
+  Array.prototype.forEach.call(el.querySelectorAll('[data-upd]'),function(s){ s.onchange=function(){ updateLine(s.getAttribute('data-mode'),s.getAttribute('data-upd'),s.value); }; });
+  Array.prototype.forEach.call(el.querySelectorAll('[data-rm]'),function(b){ b.onclick=function(){ removeLine(b.getAttribute('data-mode'),b.getAttribute('data-rm')); }; });
 }
 
-// ── submit a request ────────────────────────────────────────────────────────
-async function submitRequest(itemId, rolls){
-  var it = STICKER_SEED.find(function(x){ return x.id===itemId; }); if(!it) return;
-  if (!LOCATION){
-    // Force a location choice before anything is requested.
-    var row = $('locRow'); if(row){ row.classList.add('needpick'); row.classList.remove('chosen'); row.scrollIntoView({behavior:'smooth',block:'center'}); }
-    return;
+// ── cart mutations ──────────────────────────────────────────────────────────
+async function addLine(mode,itemId,rolls){
+  if(!LOCATION){ var row=$(mode==='special'?'locRowSp':'locRow'); if(row){ row.classList.add('needpick'); row.classList.remove('chosen'); row.scrollIntoView({behavior:'smooth',block:'center'}); } return; }
+  rolls=Number(rolls)||1; var line=buildLine(itemId,rolls);
+  if(mode==='special'){ SP_CART[itemId]=line; renderAll(); return; }
+  var o=monthlyOrder(LOCATION);
+  if(!o){
+    var body={ type:'monthly', location:LOCATION, month:MONTH, status:'draft', lines:objOf(itemId,line), createdByName:ME.name, createdByEmail:ME.email, createdAt:Date.now() };
+    var res=await fbPost('/orders',body); if(res&&res.name) ORDERS[res.name]=body;
+  } else if(monthEditable(o)){
+    o.lines=o.lines||{}; o.lines[itemId]=line; await fbPatch('/orders/'+o._id+'/lines',objOf(itemId,line));
   }
-  rolls = Number(rolls)||1;
-  var m = metaFor(itemId);
-  var total = lineTotal(m.cost, rolls);
-  var req = {
-    itemId: itemId, brand: it.brand, name: it.name, size: it.size, mp: !!it.mp,
-    rolls: rolls, units: rolls*ROLL, unitCost: m.cost, lineTotal: total,
-    location: LOCATION,
-    requestedByName: ME.name, requestedByEmail: ME.email,
-    status: 'pending', createdAt: Date.now()
-  };
-  var res = await fbPost('/requests', req);
-  if (res && res.name) REQUESTS[res.name] = req;
+  renderAll(); renderKpis();
+}
+async function updateLine(mode,itemId,rolls){
+  rolls=Number(rolls)||1; var line=buildLine(itemId,rolls);
+  if(mode==='special'){ if(SP_CART[itemId]) SP_CART[itemId]=line; renderAll(); return; }
+  var o=monthlyOrder(LOCATION); if(o&&monthEditable(o)&&o.lines[itemId]){ o.lines[itemId]=line; await fbPatch('/orders/'+o._id+'/lines',objOf(itemId,line)); }
   renderAll();
-  // Email the approvers
-  var qtyLabel = rolls + ' roll' + (rolls>1?'s':'') + ' (' + num(rolls*ROLL) + ' stickers)';
-  APPROVERS.forEach(function(a){
-    sendEmail(EMAILJS_TPL_REQUEST, {
-      to_email: a.email, to_name: a.name,
-      item_name: it.name, brand: it.brand, size: it.size, location: LOCATION,
-      qty_label: qtyLabel, unit_cost: m.cost!=null?money(m.cost):'—', line_total: total!=null?money(total):'—',
-      requested_by: ME.name + ' <' + ME.email + '>', note: '', portal_link: PORTAL_LINK
-    });
-  });
-  TAB = 'mine'; renderTabs();
-  flashBtnDone(itemId);
 }
-function flashBtnDone(itemId){ /* grid re-rendered; nothing extra needed */ }
-
-// ── MY REQUESTS ─────────────────────────────────────────────────────────────
-function statusBadge(s){ return '<span class="rp-badge '+s+'">'+s+'</span>'; }
-function sortedReqs(filterFn){
-  return Object.keys(REQUESTS).map(function(k){ var q=REQUESTS[k]; q._id=k; return q; }).filter(filterFn).sort(function(a,b){ return (b.createdAt||0)-(a.createdAt||0); });
-}
-function renderMine(){
-  var rows = sortedReqs(function(q){ return q.requestedByEmail===ME.email; });
-  var head = '<thead><tr><th>Item</th><th>Location</th><th>Qty</th><th class="num">Est. cost</th><th>Status</th><th>Requested</th><th>Note from mgmt</th></tr></thead>';
-  if (!rows.length){ $('mineTable').innerHTML = head + '<tbody><tr><td colspan="7"><div class="rp-empty">You haven’t requested anything yet. Head to <b>Order stickers</b>.</div></td></tr></tbody>'; return; }
-  $('mineTable').innerHTML = head + '<tbody>' + rows.map(function(q){
-    return '<tr>'+
-      '<td><b>'+esc(q.name)+'</b><br><span style="color:var(--text-3);font-size:var(--t-caption)">'+esc(q.brand)+' · '+esc(q.size||'')+'</span></td>'+
-      '<td>'+esc(q.location||'—')+'</td>'+
-      '<td>'+q.rolls+' roll'+(q.rolls>1?'s':'')+'<br><span style="color:var(--text-3);font-size:var(--t-caption)">'+num(q.units)+'</span></td>'+
-      '<td class="num">'+(q.lineTotal!=null?money(q.lineTotal):'—')+'</td>'+
-      '<td>'+statusBadge(q.status)+'</td>'+
-      '<td>'+fmtDate(q.createdAt)+'</td>'+
-      '<td style="color:var(--text-2);font-size:var(--t-caption)">'+esc(q.decisionNote||'')+'</td>'+
-    '</tr>';
-  }).join('') + '</tbody>';
+async function removeLine(mode,itemId){
+  if(mode==='special'){ delete SP_CART[itemId]; renderAll(); return; }
+  var o=monthlyOrder(LOCATION); if(o&&monthEditable(o)&&o.lines[itemId]){ delete o.lines[itemId]; await fbPatch('/orders/'+o._id+'/lines',objOf(itemId,null)); }
+  renderAll(); renderKpis();
 }
 
-// ── APPROVALS (admin) ───────────────────────────────────────────────────────
+// ── order summary panels ────────────────────────────────────────────────────
+function linesHtml(lines,editable,mode){
+  var ids=Object.keys(lines); if(!ids.length) return '<div class="rp-order-empty">No items yet — add stickers below.</div>';
+  return '<div class="rp-lines">'+ids.map(function(id){
+    var l=lines[id];
+    return '<div class="rp-line"><div class="n"><b>'+esc(l.name)+'</b> <span class="s">'+esc(l.brand)+' · '+esc(l.size||'')+'</span></div>'+
+      '<div class="q">'+rollsLabel(l.rolls)+'</div>'+
+      '<div class="lt">'+(l.lineTotal!=null?money(l.lineTotal):'—')+'</div>'+
+      (editable?'<span class="rm" data-panelrm="'+id+'" data-mode="'+mode+'">Remove</span>':'')+
+    '</div>';
+  }).join('')+'</div>';
+}
+function wirePanelRemovers(container){ Array.prototype.forEach.call(container.querySelectorAll('[data-panelrm]'),function(b){ b.onclick=function(){ removeLine(b.getAttribute('data-mode'),b.getAttribute('data-panelrm')); }; }); }
+
+function renderMonthlyPanel(){
+  var el=$('monthlyPanel'); if(!el) return;
+  if(!LOCATION){ el.innerHTML='<div class="rp-order"><div class="rp-order-empty">Pick a location above to start this month’s order.</div></div>'; return; }
+  var o=monthlyOrder(LOCATION); var lines=(o&&o.lines)||{}; var editable=monthEditable(o); var total=o?orderTotal(o):null;
+  var statusChip = o?('<span class="rp-status '+o.status+'">'+o.status+'</span>'):'<span class="rp-status draft">new</span>';
+  var actions='';
+  if(editable){
+    var n=Object.keys(lines).length;
+    actions='<button class="rp-btn" id="submitMonthly"'+(n?'':' disabled')+'>Submit for approval</button>'+
+      (n?'<span class="rp-order-note">'+n+' item'+(n>1?'s':'')+(total!=null?' · '+money(total):'')+'</span>':'');
+  } else if(o&&o.status==='pending'){
+    actions='<span class="rp-order-note">Submitted '+fmtDateTime(o.submittedAt)+' by '+esc(o.submittedByName||o.createdByName||'')+' — awaiting approval.</span>';
+  } else if(o&&o.status==='approved'){
+    actions='<span class="rp-order-note">Approved '+fmtDateTime(o.decidedAt)+' by '+esc(o.decidedByName||'')+'. Vendors notified.</span>';
+  }
+  el.innerHTML='<div class="rp-order">'+
+    '<div class="rp-order-head"><div><div class="rp-order-ey">Monthly order</div><div class="rp-order-h">'+esc(LOCATION)+' · '+monthLabel(MONTH)+'</div></div><div style="display:flex;align-items:center;gap:10px">'+statusChip+(total!=null?'<span class="rp-order-total">'+money(total)+'</span>':'')+'</div></div>'+
+    linesHtml(lines,editable,'monthly')+
+    '<div class="rp-order-actions">'+actions+'</div>'+
+  '</div>';
+  wirePanelRemovers(el);
+  if($('submitMonthly')) $('submitMonthly').onclick=submitMonthly;
+}
+function renderSpecialPanel(){
+  var el=$('specialPanel'); if(!el) return;
+  var lines=SP_CART; var n=Object.keys(lines).length; var total=orderTotal({lines:lines});
+  var noteVal = el.querySelector('#spNote') ? el.querySelector('#spNote').value : '';
+  el.innerHTML='<div class="rp-order">'+
+    '<div class="rp-order-head"><div><div class="rp-order-ey">Special request</div><div class="rp-order-h">'+(LOCATION?esc(LOCATION):'Pick a location')+' · off-cycle</div></div>'+(total!=null?'<span class="rp-order-total">'+money(total)+'</span>':'')+'</div>'+
+    linesHtml(lines,true,'special')+
+    '<textarea id="spNote" placeholder="Why is this needed now? (optional)">'+esc(noteVal)+'</textarea>'+
+    '<div class="rp-order-actions"><button class="rp-btn" id="submitSpecial"'+((n&&LOCATION)?'':' disabled')+'>Submit special request</button>'+(n?'<span class="rp-order-note">'+n+' item'+(n>1?'s':'')+'</span>':'')+'</div>'+
+  '</div>';
+  wirePanelRemovers(el);
+  if($('submitSpecial')) $('submitSpecial').onclick=submitSpecial;
+}
+
+// ── nudge banner ────────────────────────────────────────────────────────────
+function renderNudge(){
+  var el=$('nudge'); if(!el) return;
+  if(TAB!=='monthly'||!LOCATION){ el.hidden=true; return; }
+  var o=monthlyOrder(LOCATION); var due=dueCount(LOCATION);
+  if(o&&(o.status==='pending'||o.status==='approved')){ el.hidden=true; return; }
+  $('nudgeTitle').textContent=monthLabel(MONTH)+' order for '+LOCATION+' hasn’t been submitted';
+  $('nudgeMsg').textContent = due?(due+' item'+(due>1?'s are':' is')+' due for reorder. Add what you need and submit for approval.'):'Add what you need this month and submit for approval.';
+  el.hidden=false;
+}
+
+// ── submit ──────────────────────────────────────────────────────────────────
+async function submitMonthly(){
+  var o=monthlyOrder(LOCATION); if(!o||!monthEditable(o)||!orderCount(o)) return;
+  var patch={ status:'pending', submittedByName:ME.name, submittedByEmail:ME.email, submittedAt:Date.now() };
+  await fbPatch('/orders/'+o._id,patch); Object.assign(o,patch);
+  emailApprovers(o); renderAll(); renderTabs();
+}
+async function submitSpecial(){
+  if(!LOCATION){ var row=$('locRowSp'); if(row){ row.classList.add('needpick'); row.scrollIntoView({behavior:'smooth',block:'center'}); } return; }
+  if(!Object.keys(SP_CART).length) return;
+  var note=$('spNote')?$('spNote').value.trim():'';
+  var body={ type:'special', location:LOCATION, month:MONTH, status:'pending', lines:JSON.parse(JSON.stringify(SP_CART)), note:note, createdByName:ME.name, createdByEmail:ME.email, createdAt:Date.now(), submittedByName:ME.name, submittedByEmail:ME.email, submittedAt:Date.now() };
+  var res=await fbPost('/orders',body); if(res&&res.name){ body._id=res.name; ORDERS[res.name]=body; }
+  emailApprovers(body); SP_CART={}; TAB='history'; renderTabs(); renderAll();
+}
+function emailApprovers(o){
+  var lines=Object.keys(o.lines).map(function(id){ return o.lines[id].name+' — '+rollsLabel(o.lines[id].rolls); });
+  var total=orderTotal(o);
+  APPROVERS.forEach(function(a){ sendEmail(EMAILJS_TPL_REQUEST,{ to_email:a.email, to_name:a.name, location:o.location, month:monthLabel(o.month), order_type:o.type, item_count:lines.length, total:(total!=null?money(total):'—'), items:lines.join('\n'), submitted_by:ME.name+' <'+ME.email+'>', note:o.note||'', portal_link:PORTAL_LINK }); });
+}
+
+// ── approvals (managers) ────────────────────────────────────────────────────
+function sortedOrders(fn){ return Object.keys(ORDERS).map(function(k){ var o=ORDERS[k]; o._id=k; return o; }).filter(fn).sort(function(a,b){ return (b.submittedAt||b.createdAt||0)-(a.submittedAt||a.createdAt||0); }); }
 function renderApprovals(){
-  var rows = sortedReqs(function(q){ return q.status==='pending'; });
-  var head = '<thead><tr><th>Item</th><th>Location</th><th>Qty</th><th class="num">Est. cost</th><th>Requested by</th><th>When</th><th style="text-align:right">Decision</th></tr></thead>';
-  if (!rows.length){ $('apprTable').innerHTML = head + '<tbody><tr><td colspan="7"><div class="rp-empty">Nothing waiting. 🎉</div></td></tr></tbody>'; return; }
-  $('apprTable').innerHTML = head + '<tbody>' + rows.map(function(q){
-    return '<tr>'+
-      '<td><b>'+esc(q.name)+'</b><br><span style="color:var(--text-3);font-size:var(--t-caption)">'+esc(q.brand)+' · '+esc(q.size||'')+(q.mp?' · Marketplace':'')+'</span></td>'+
-      '<td><b>'+esc(q.location||'—')+'</b></td>'+
-      '<td>'+q.rolls+' roll'+(q.rolls>1?'s':'')+'<br><span style="color:var(--text-3);font-size:var(--t-caption)">'+num(q.units)+'</span></td>'+
-      '<td class="num">'+(q.lineTotal!=null?money(q.lineTotal):'—')+'</td>'+
-      '<td>'+esc(q.requestedByName||'')+'<br><span style="color:var(--text-3);font-size:var(--t-caption)">'+esc(q.requestedByEmail||'')+'</span></td>'+
-      '<td>'+fmtDate(q.createdAt)+'</td>'+
-      '<td style="text-align:right;white-space:nowrap"><button class="rp-btn approve" data-approve="'+q._id+'">Approve</button> <button class="rp-btn reject" data-reject="'+q._id+'">Decline</button></td>'+
-    '</tr>';
-  }).join('') + '</tbody>';
-  Array.prototype.forEach.call($('apprTable').querySelectorAll('[data-approve]'), function(b){ b.onclick=function(){ approve(b.getAttribute('data-approve')); }; });
-  Array.prototype.forEach.call($('apprTable').querySelectorAll('[data-reject]'), function(b){ b.onclick=function(){ openReject(b.getAttribute('data-reject')); }; });
+  var el=$('apprList'); if(!el) return;
+  var rows=sortedOrders(function(o){ return o.status==='pending'; });
+  if(!rows.length){ el.innerHTML='<div class="np-card"><div class="rp-empty">Nothing waiting for approval. 🎉</div></div>'; return; }
+  el.innerHTML=rows.map(function(o){
+    var total=orderTotal(o);
+    return '<div class="rp-order-card">'+
+      '<div class="hd"><div><div class="rp-order-ey">'+(o.type==='special'?'Special request':'Monthly order')+'</div><div class="rp-order-h">'+esc(o.location)+' · '+monthLabel(o.month)+'</div><div class="rp-last">by '+esc(o.submittedByName||o.createdByName||'')+' · '+fmtDateTime(o.submittedAt||o.createdAt)+'</div></div>'+
+        '<div style="display:flex;align-items:center;gap:10px">'+(total!=null?'<span class="rp-order-total">'+money(total)+'</span>':'')+'</div></div>'+
+      (o.note?'<div class="rp-order-note" style="margin-bottom:6px">“'+esc(o.note)+'”</div>':'')+
+      linesHtml(o.lines,false,'')+
+      '<div class="rp-order-actions"><button class="rp-btn approve" data-approve="'+o._id+'">Approve &amp; send to vendors</button> <button class="rp-btn reject" data-decline="'+o._id+'">Decline</button></div>'+
+    '</div>';
+  }).join('');
+  Array.prototype.forEach.call(el.querySelectorAll('[data-approve]'),function(b){ b.onclick=function(){ approveOrder(b.getAttribute('data-approve')); }; });
+  Array.prototype.forEach.call(el.querySelectorAll('[data-decline]'),function(b){ b.onclick=function(){ openDecline(b.getAttribute('data-decline')); }; });
+}
+async function approveOrder(id){
+  var o=ORDERS[id]; if(!o) return;
+  var patch={ status:'approved', decidedByName:ME.name, decidedByEmail:ME.email, decidedAt:Date.now(), vendorEmailedAt:Date.now() };
+  await fbPatch('/orders/'+id,patch); Object.assign(o,patch); computeLast(); renderAll(); renderKpis();
+  emailVendors(o);
+}
+function emailVendors(o){
+  var groups={};
+  Object.keys(o.lines).forEach(function(itemId){ var m=metaFor(itemId); var ve=m.vendorEmail; if(!ve) return; groups[ve]=groups[ve]||{name:m.vendorName||'Vendor',lines:[]}; groups[ve].lines.push(o.lines[itemId].name+' — '+rollsLabel(o.lines[itemId].rolls)); });
+  Object.keys(groups).forEach(function(ve){ sendEmail(EMAILJS_TPL_VENDOR,{ to_email:ve, to_name:groups[ve].name, cc_email:APPROVERS.map(function(a){return a.email;}).join(','), location:o.location, month:monthLabel(o.month), order_type:o.type, items:groups[ve].lines.join('\n'), approved_by:ME.name, portal_link:PORTAL_LINK }); });
+}
+var DECLINE_ID=null;
+function openDecline(id){ DECLINE_ID=id; $('modalReason').value=''; $('modalBg').classList.add('show'); setTimeout(function(){ $('modalReason').focus(); },50); }
+function closeDecline(){ DECLINE_ID=null; $('modalBg').classList.remove('show'); }
+async function confirmDecline(){
+  var id=DECLINE_ID; if(!id){ closeDecline(); return; }
+  var o=ORDERS[id]; var reason=$('modalReason').value.trim();
+  var patch={ status:'rejected', decidedByName:ME.name, decidedByEmail:ME.email, decidedAt:Date.now(), decisionNote:reason };
+  await fbPatch('/orders/'+id,patch); Object.assign(o,patch); closeDecline(); renderAll();
+  sendEmail(EMAILJS_TPL_DECLINE,{ to_email:o.submittedByEmail||o.createdByEmail, to_name:o.submittedByName||o.createdByName, location:o.location, month:monthLabel(o.month), order_type:o.type, reason:reason||'—', decided_by:ME.name, portal_link:PORTAL_LINK });
 }
 
-async function approve(id){
-  var q = REQUESTS[id]; if(!q) return;
-  var m = metaFor(q.itemId);
-  var patch = { status:'approved', decidedByName: ME.name, decidedByEmail: ME.email, decidedAt: Date.now(), vendorEmailedAt: (tplReady(EMAILJS_TPL_VENDOR)&&m.vendorEmail)?Date.now():null };
-  await fbPatch('/requests/'+id, patch);
-  Object.assign(q, patch);
-  renderAll();
-  // Trigger #2: email the vendor (CC approvers)
-  var qtyLabel = q.rolls + ' roll' + (q.rolls>1?'s':'') + ' (' + num(q.units) + ' stickers)';
-  if (m.vendorEmail){
-    sendEmail(EMAILJS_TPL_VENDOR, {
-      to_email: m.vendorEmail, to_name: m.vendorName||'Vendor',
-      cc_email: APPROVERS.map(function(a){return a.email;}).join(','),
-      item_name: q.name, brand: q.brand, size: q.size, qty_label: qtyLabel, location: q.location||'—',
-      requested_by: q.requestedByName, approved_by: ME.name, portal_link: PORTAL_LINK
-    });
-  }
-}
-
-var REJECT_ID = null;
-function openReject(id){ REJECT_ID=id; $('modalReason').value=''; $('modalBg').classList.add('show'); setTimeout(function(){ $('modalReason').focus(); },50); }
-function closeReject(){ REJECT_ID=null; $('modalBg').classList.remove('show'); }
-async function confirmReject(){
-  var id = REJECT_ID; if(!id){ closeReject(); return; }
-  var q = REQUESTS[id]; var reason = $('modalReason').value.trim();
-  var patch = { status:'rejected', decidedByName: ME.name, decidedByEmail: ME.email, decidedAt: Date.now(), decisionNote: reason };
-  await fbPatch('/requests/'+id, patch);
-  Object.assign(q, patch);
-  closeReject(); renderAll();
-  sendEmail(EMAILJS_TPL_DECLINE, {
-    to_email: q.requestedByEmail, to_name: q.requestedByName,
-    item_name: q.name, reason: reason||'—', decided_by: ME.name, portal_link: PORTAL_LINK
-  });
-}
-
-// ── MANAGE (admin): edit cost / presets / vendor / image ────────────────────
+// ── catalog & costs (managers) ──────────────────────────────────────────────
 function renderManage(){
-  var items = filteredItems(MANAGE_BRAND==='' ? '' : MANAGE_BRAND, $('manageSearch')?$('manageSearch').value:'');
-  // manage shows inactive too, so recompute without the active filter:
-  var q = ($('manageSearch')?$('manageSearch').value:'').trim().toLowerCase();
-  items = STICKER_SEED.filter(function(it){ if(MANAGE_BRAND && it.brand!==MANAGE_BRAND) return false; if(q && (it.name+' '+it.brand).toLowerCase().indexOf(q)<0) return false; return true; });
-  var head = '<thead><tr><th>Item</th><th class="num">Cost / sticker</th><th>Standard amounts (rolls)</th><th>Vendor</th><th>Vendor email</th><th>Image URL</th><th>Active</th></tr></thead>';
-  $('manageTable').innerHTML = head + '<tbody>' + items.map(function(it){
-    var m = metaFor(it.id);
+  var el=$('manageTable'); if(!el) return;
+  var q=($('manageSearch')?$('manageSearch').value:'').trim().toLowerCase();
+  var items=STICKER_SEED.filter(function(it){ if(MANAGE_BRAND&&it.brand!==MANAGE_BRAND) return false; if(q&&(it.name+' '+it.brand).toLowerCase().indexOf(q)<0) return false; return true; });
+  var head='<thead><tr><th>Item</th><th class="num">Cost / sticker</th><th>Standard amounts (rolls)</th><th>Vendor</th><th>Vendor email</th><th>Image URL</th><th>Active</th></tr></thead>';
+  el.innerHTML=head+'<tbody>'+items.map(function(it){ var m=metaFor(it.id);
     return '<tr>'+
       '<td style="min-width:180px"><b>'+esc(it.name)+'</b><br><span style="color:var(--text-3);font-size:var(--t-caption)">'+esc(it.brand)+' · '+esc(it.size||'')+'</span></td>'+
       '<td class="num" style="width:110px"><input class="num" type="number" step="0.01" min="0" placeholder="0.00" value="'+(m.cost!=null?m.cost:'')+'" data-f="cost" data-id="'+it.id+'"></td>'+
@@ -632,52 +724,45 @@ function renderManage(){
       '<td style="width:190px"><input type="email" placeholder="orders@vendor.com" value="'+esc(m.vendorEmail)+'" data-f="vendorEmail" data-id="'+it.id+'"></td>'+
       '<td style="width:190px"><input type="url" placeholder="https://…" value="'+esc(m.image)+'" data-f="image" data-id="'+it.id+'"></td>'+
       '<td style="text-align:center"><input type="checkbox" '+(m.active?'checked':'')+' data-f="active" data-id="'+it.id+'" style="width:auto;height:auto"></td>'+
-    '</tr>';
-  }).join('') + '</tbody>';
-  Array.prototype.forEach.call($('manageTable').querySelectorAll('input'), function(inp){
-    inp.onchange = function(){ saveMeta(inp.getAttribute('data-id'), inp.getAttribute('data-f'), inp); };
-  });
+    '</tr>'; }).join('')+'</tbody>';
+  Array.prototype.forEach.call(el.querySelectorAll('input'),function(inp){ inp.onchange=function(){ saveMeta(inp.getAttribute('data-id'),inp.getAttribute('data-f'),inp); }; });
 }
-async function saveMeta(id, field, inp){
+async function saveMeta(id,field,inp){
   var val;
-  if (field==='cost'){ val = inp.value===''?null:Number(inp.value); }
-  else if (field==='presets'){ val = inp.value.split(',').map(function(x){ return parseInt(x.trim(),10); }).filter(function(x){ return x>0; }); if(!val.length) val = defaultPresets(seedById(id)); }
-  else if (field==='active'){ val = inp.checked; }
-  else { val = inp.value.trim(); }
-  META[id] = META[id] || {}; META[id][field] = val;
-  var patch = {}; patch[field] = val;
-  await fbPatch('/meta/'+id, patch);
-  renderKpis();
-  if (field==='active' || field==='cost' || field==='presets' || field==='image') renderGrid();
+  if(field==='cost') val=inp.value===''?null:Number(inp.value);
+  else if(field==='presets'){ val=inp.value.split(',').map(function(x){return parseInt(x.trim(),10);}).filter(function(x){return x>0;}); if(!val.length) val=defaultPresets(seedById(id)); }
+  else if(field==='active') val=inp.checked;
+  else val=inp.value.trim();
+  META[id]=META[id]||{}; META[id][field]=val;
+  await fbPatch('/meta/'+id,objOf(field,val));
+  renderKpis(); renderAll();
 }
 
-// ── LOG ─────────────────────────────────────────────────────────────────────
-function renderLog(){
-  var rows = sortedReqs(function(){ return true; });
-  var head = '<thead><tr><th>Item</th><th>Location</th><th>Qty</th><th class="num">Est. cost</th><th>Requested by</th><th>Status</th><th>Decided by</th><th>When</th></tr></thead>';
-  if (!rows.length){ $('logTable').innerHTML = head + '<tbody><tr><td colspan="8"><div class="rp-empty">No orders logged yet.</div></td></tr></tbody>'; return; }
-  $('logTable').innerHTML = head + '<tbody>' + rows.map(function(q){
-    return '<tr>'+
-      '<td><b>'+esc(q.name)+'</b><br><span style="color:var(--text-3);font-size:var(--t-caption)">'+esc(q.brand)+'</span></td>'+
-      '<td>'+esc(q.location||'—')+'</td>'+
-      '<td>'+q.rolls+'×</td>'+
-      '<td class="num">'+(q.lineTotal!=null?money(q.lineTotal):'—')+'</td>'+
-      '<td>'+esc(q.requestedByName||'')+'</td>'+
-      '<td>'+statusBadge(q.status)+'</td>'+
-      '<td>'+esc(q.decidedByName||'—')+'</td>'+
-      '<td>'+fmtDate(q.decidedAt||q.createdAt)+'</td>'+
-    '</tr>';
-  }).join('') + '</tbody>';
+// ── history ─────────────────────────────────────────────────────────────────
+function renderHistory(){
+  var el=$('histList'); if(!el) return;
+  var rows=sortedOrders(function(o){ return o.status!=='draft'; });
+  if(!rows.length){ el.innerHTML='<div class="np-card"><div class="rp-empty">No orders submitted yet.</div></div>'; return; }
+  el.innerHTML=rows.map(function(o){ var total=orderTotal(o); var when=o.decidedAt||o.submittedAt||o.createdAt;
+    return '<div class="rp-order-card">'+
+      '<div class="hd"><div><div class="rp-order-ey">'+(o.type==='special'?'Special request':'Monthly order')+'</div><div class="rp-order-h">'+esc(o.location)+' · '+monthLabel(o.month)+'</div><div class="rp-last">'+esc(o.submittedByName||o.createdByName||'')+' · '+fmtDateTime(when)+(o.decidedByName?' · '+(o.status==='approved'?'approved':'declined')+' by '+esc(o.decidedByName):'')+'</div></div>'+
+        '<div style="display:flex;align-items:center;gap:10px"><span class="rp-status '+o.status+'">'+o.status+'</span>'+(total!=null?'<span class="rp-order-total">'+money(total)+'</span>':'')+'</div></div>'+
+      (o.decisionNote?'<div class="rp-order-note" style="margin-bottom:6px">“'+esc(o.decisionNote)+'”</div>':'')+
+      linesHtml(o.lines,false,'')+
+    '</div>';
+  }).join('');
 }
 
-// ── wire search + modal ─────────────────────────────────────────────────────
-$('search').addEventListener('input', renderGrid);
-$('manageSearch').addEventListener('input', renderManage);
-$('modalCancel').onclick = closeReject;
-$('modalConfirm').onclick = confirmReject;
-$('modalBg').addEventListener('click', function(e){ if(e.target===$('modalBg')) closeReject(); });
+// ── wiring ──────────────────────────────────────────────────────────────────
+$('search').addEventListener('input',function(){ renderGrid('grid','monthly',BRAND_FILTER,'search'); });
+$('searchSp').addEventListener('input',function(){ renderGrid('gridSp','special',BRAND_FILTER_SP,'searchSp'); });
+$('manageSearch').addEventListener('input',renderManage);
+$('modalCancel').onclick=closeDecline;
+$('modalConfirm').onclick=confirmDecline;
+$('modalBg').addEventListener('click',function(e){ if(e.target===$('modalBg')) closeDecline(); });
 
 boot();
+
 </script>
 </body>
 </html>
