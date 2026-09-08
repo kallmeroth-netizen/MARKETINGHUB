@@ -123,10 +123,24 @@ svg.chart{display:block;width:100%;height:auto}
 .conc-row .fill{height:100%;background:var(--brand-blue);border-radius:4px}
 .conc-row .fill.tail{background:var(--brand-orange)}
 .conc-row .val{font-family:var(--f-mono);font-size:16px;text-align:right;font-variant-numeric:tabular-nums}
+.shops{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+.shop{background:var(--surface);border:1px solid var(--line-strong);border-radius:var(--r-lg);padding:28px 30px}
+.shop.lead{border-color:var(--brand-green);border-top:4px solid var(--brand-green)}
+.shop.lag{border-color:rgba(163,45,45,.3);border-top:4px solid var(--brand-orange)}
+.shop h3{font-size:28px;margin-bottom:4px}
+.shop .u{font-family:var(--f-mono);font-size:52px;line-height:1.05;font-variant-numeric:tabular-nums;margin:14px 0 4px}
+.shop .ul{font-size:15px;color:var(--text-3)}
+.shop dl{margin-top:22px;display:flex;flex-direction:column;gap:0}
+.shop dl div{display:flex;justify-content:space-between;gap:16px;padding:11px 0;border-bottom:1px solid var(--line);font-size:17px}
+.shop dl div:last-child{border-bottom:0}
+.shop dt{color:var(--text-3)}
+.shop dd{font-family:var(--f-mono);font-variant-numeric:tabular-nums;text-align:right}
 .note{font-size:16px;line-height:1.5;color:var(--text-3);background:var(--surface);
   border:1px solid var(--line-strong);border-left:4px solid var(--brand-blue);
   padding:17px 20px;border-radius:0 var(--r-md) var(--r-md) 0;max-width:96ch}
 .note strong{color:var(--text-2);font-weight:600}
+.notes{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.note.next{border-left-color:var(--brand-yellow-deep)}
 
 /* tables */
 .tbl-wrap{border:1px solid var(--line-strong);border-radius:var(--r-lg);background:var(--surface);overflow:hidden}
@@ -151,6 +165,22 @@ tr.win td{background:rgba(123,189,145,.09)}
 .findings li::before{content:'';position:absolute;left:0;top:.65em;width:8px;height:1.5px;background:var(--text-mute)}
 .findings strong{color:var(--text);font-weight:600}
 .fig{font-family:var(--f-mono);font-size:17px;color:var(--text);font-variant-numeric:tabular-nums}
+.styles{display:grid;gap:12px;margin-bottom:22px}
+.styles.w{grid-template-columns:repeat(3,1fr)}
+.styles.d{grid-template-columns:repeat(4,1fr)}
+.st{background:var(--surface);border:1px solid var(--line-strong);border-radius:var(--r-md);overflow:hidden;display:flex;flex-direction:column}
+.st.win{border-top:3px solid var(--brand-green)}
+.st.lose{border-top:3px solid var(--brand-orange);opacity:.9}
+.st .im{height:124px;display:flex;align-items:center;justify-content:center;background:#fafafa;border-bottom:1px solid var(--line)}
+.st .im img{max-width:100%;max-height:100%;object-fit:contain}
+.st .im.none{font-family:var(--f-mono);font-size:11px;color:var(--text-3);text-align:center;padding:12px;line-height:1.35;
+  background:repeating-linear-gradient(45deg,transparent 0 7px,rgba(31,35,40,.022) 7px 14px),var(--surface-2)}
+.st .tx{padding:11px 13px 14px;display:flex;flex-direction:column;gap:6px}
+.st .nm{font-size:14.5px;line-height:1.25;color:var(--text-2)}
+.st .un{font-family:var(--f-mono);font-size:19px;font-variant-numeric:tabular-nums}
+.st.win .un{color:var(--brand-green-deep)}
+.st.lose .un{color:var(--brand-orange-deep)}
+.col-head .tot{font-family:var(--f-mono);font-size:14px;color:var(--text-3);margin-left:auto}
 
 /* territories */
 .terr{display:flex;flex-wrap:wrap;gap:11px}
@@ -174,7 +204,7 @@ tr.win td{background:rgba(123,189,145,.09)}
 /* launch lineup */
 .launch{display:grid;grid-template-columns:repeat(5,1fr);gap:16px}
 .lc{background:var(--surface);border:1px solid var(--line-strong);border-radius:var(--r-lg);overflow:hidden;display:flex;flex-direction:column}
-.lc .ph{height:200px;display:flex;align-items:center;justify-content:center;background:#fff;border-bottom:1px solid var(--line)}
+.lc .ph{height:200px;display:flex;align-items:center;justify-content:center;background:#fafafa;border-bottom:1px solid var(--line)}
 .lc .ph img{max-width:100%;max-height:100%;object-fit:contain}
 .lc .ph.none{font-family:var(--f-mono);font-size:12.5px;color:var(--text-3);text-align:center;padding:18px;line-height:1.45;
   background:repeating-linear-gradient(45deg,transparent 0 8px,rgba(31,35,40,.022) 8px 16px),var(--surface-2)}
@@ -284,7 +314,7 @@ tr.win td{background:rgba(123,189,145,.09)}
         <li><span class="p">$290</span><span class="n">Swarovski crystal tote</span><span class="t t-spice">Drop</span></li>
       </ul>
       <div class="takeaway"><span class="eyebrow">What we take</span>
-        <p>The core is deliberately plain. The novelty sits on top of it, where it can be scarce.</p></div>
+        <p>The core stays plain on purpose. Everything exciting happens above it, where it can sell out.</p></div>
     </div>
   </div>
 </section>
@@ -312,7 +342,7 @@ tr.win td{background:rgba(123,189,145,.09)}
         <li>We have already run this and it worked: neighborhood dad caps took 47 units across 9 Brentwood territories, second only to the 5-panel.</li>
       </ul>
       <div class="takeaway"><span class="eyebrow">What we take</span>
-        <p>Fix the silhouette, vary the neighborhood, and one blank becomes a set. It already works on caps; the tote is the same trick.</p></div>
+        <p>Keep the shape, change the place, and one bag becomes a set. It already works on caps.</p></div>
     </div>
   </div>
 </section>
@@ -343,7 +373,7 @@ tr.win td{background:rgba(123,189,145,.09)}
         <li><span class="p">$50</span><span class="n">Crewneck / hoodie / sweatpants</span><span class="t t-core">Core</span></li>
       </ul>
       <div class="takeaway"><span class="eyebrow">What we take</span>
-        <p>Alfred sets the floor and Erewhon the ceiling. That range is the room we get to price into.</p></div>
+        <p>Alfred sets the floor. Erewhon sets the ceiling. That gap is the room we get to price into.</p></div>
     </div>
   </div>
 </section>
@@ -366,85 +396,77 @@ tr.win td{background:rgba(123,189,145,.09)}
         <li>The part usually left out: <strong>the full-size classic tote never left the shelf</strong> &mdash; before, during or after.</li>
       </ul>
       <div class="takeaway"><span class="eyebrow">What we take</span>
-        <p>A drop reads as scarce only against something permanent. Ours have had no baseline to stand against.</p></div>
+        <p>Nothing feels rare unless something is always there. Ours had nothing to stand against.</p></div>
     </div>
   </div>
 </section>
 
 <!-- 08 PATTERN -->
 <section class="slide" data-n="08">
-  <div class="s-head"><div class="eyebrow">Synthesis</div><h2>Four rules the whole set obeys</h2></div>
+  <div class="s-head"><div class="eyebrow">Synthesis</div><h2>Four rules they all follow</h2></div>
   <div class="body-flex">
     <div class="rules">
-      <div class="rule-card"><div class="n">RULE 01</div><h3>A permanent spine</h3>
-        <p>Erewhon names theirs the Standard Collection. TJ's is the classic tote. Alfred's is the everyday kit. It restocks forever and is never the interesting part.</p></div>
-      <div class="rule-card"><div class="n">RULE 02</div><h3>One logo, applied flat</h3>
-        <p>The lotus, the Greek cup, the Erewhon wordmark. Same mark, same placement, every category. Recognition compounds; cleverness resets it.</p></div>
-      <div class="rule-card"><div class="n">RULE 03</div><h3>Headwear and totes carry it</h3>
-        <p>Both are the volume categories in every one of these programs. A hat is the most visible logo placement a person can wear.</p></div>
-      <div class="rule-card"><div class="n">RULE 04</div><h3>Newness lives on top</h3>
-        <p>Coachella editions, crystals, city names, mini sizes. The variation is a layer above the core &mdash; never a replacement for it.</p></div>
+      <div class="rule-card"><div class="n">RULE 01</div><h3>The constant</h3>
+        <p>Erewhon calls theirs the Standard Collection. Trader Joe's, the classic tote. Always in stock. Never the news.</p></div>
+      <div class="rule-card"><div class="n">RULE 02</div><h3>One mark, every piece</h3>
+        <p>The lotus. The Greek cup. The wordmark. Same mark, same place, season after season. Recognition is built by repetition.</p></div>
+      <div class="rule-card"><div class="n">RULE 03</div><h3>Hats and bags lead</h3>
+        <p>They are the volume in every one of these programs. A hat is the most seen thing a person wears. A tote gets carried for years.</p></div>
+      <div class="rule-card"><div class="n">RULE 04</div><h3>Newness sits on top</h3>
+        <p>Coachella editions. Crystals. City names. The season changes above the core, never inside it.</p></div>
     </div>
   </div>
 </section>
 
-<!-- 09 MARKETPLACE -->
+<!-- 09 MERCH AT A GLANCE -->
 <section class="slide" data-n="09">
-  <div class="s-head"><div class="eyebrow">Our register data</div><h2>The room merch sells into is growing</h2></div>
+  <div class="s-head"><div class="eyebrow">10 Apr &ndash; 24 Jun 2026 &middot; 10.7 weeks</div><h2>Merch at a glance</h2></div>
   <div class="body-flex" style="gap:22px">
     <div class="stats">
-      <div class="stat good"><div class="v">$657K</div><div class="k">Marketplace run-rate, both locations, annualized</div></div>
-      <div class="stat good"><div class="v">2.8&rarr;4.5%</div><div class="k">Marketplace share of WLV net sales, 17 May &ndash; 20 Aug</div></div>
-      <div class="stat"><div class="v">187</div><div class="k">Branded merch units, 10 Apr &ndash; 24 Jun (10.7 weeks)</div></div>
-      <div class="stat bad"><div class="v">144 / 43</div><div class="k">Brentwood vs Westlake units &mdash; 14 styles against 6</div></div>
+      <div class="stat"><div class="v">187</div><div class="k">Units sold across both shops</div></div>
+      <div class="stat good"><div class="v">53%</div><div class="k">Of everything sold was Have a Nice Day</div></div>
+      <div class="stat good"><div class="v">81%</div><div class="k">Of Brentwood's units were hats</div></div>
+      <div class="stat bad"><div class="v">144 / 43</div><div class="k">Brentwood vs Westlake &mdash; 14 styles against 6</div></div>
     </div>
     <div class="panel">
-      <h3>Marketplace share of net sales &mdash; Westlake Village</h3>
-      <div class="sub">6-week rolling average, 17 May &ndash; 20 Aug 2026. The category has grown every single week.</div>
-      <svg class="chart" viewBox="0 0 1400 330" role="img" aria-label="Marketplace share of net sales at Westlake Village rose from 2.8 percent to 4.5 percent between 17 May and 20 August 2026.">
-      <line x1="56" y1="288.0" x2="1380" y2="288.0" stroke="rgba(31,35,40,.11)" stroke-width="1" fill="none"/>
-      <text x="45" y="293.0" text-anchor="end" font-family="DM Mono, monospace" font-size="14" fill="#7a7770">0%</text>
-      <line x1="56" y1="233.6" x2="1380" y2="233.6" stroke="rgba(31,35,40,.11)" stroke-width="1" fill="none"/>
-      <text x="45" y="238.6" text-anchor="end" font-family="DM Mono, monospace" font-size="14" fill="#7a7770">1%</text>
-      <line x1="56" y1="179.2" x2="1380" y2="179.2" stroke="rgba(31,35,40,.11)" stroke-width="1" fill="none"/>
-      <text x="45" y="184.2" text-anchor="end" font-family="DM Mono, monospace" font-size="14" fill="#7a7770">2%</text>
-      <line x1="56" y1="124.8" x2="1380" y2="124.8" stroke="rgba(31,35,40,.11)" stroke-width="1" fill="none"/>
-      <text x="45" y="129.8" text-anchor="end" font-family="DM Mono, monospace" font-size="14" fill="#7a7770">3%</text>
-      <line x1="56" y1="70.4" x2="1380" y2="70.4" stroke="rgba(31,35,40,.11)" stroke-width="1" fill="none"/>
-      <text x="45" y="75.4" text-anchor="end" font-family="DM Mono, monospace" font-size="14" fill="#7a7770">4%</text>
-      <line x1="56" y1="16.0" x2="1380" y2="16.0" stroke="rgba(31,35,40,.11)" stroke-width="1" fill="none"/>
-      <text x="45" y="21.0" text-anchor="end" font-family="DM Mono, monospace" font-size="14" fill="#7a7770">5%</text>
-      <text x="56.0" y="316" text-anchor="start" font-family="DM Mono, monospace" font-size="14" fill="#7a7770">May 17</text>
-      <text x="265.1" y="316" text-anchor="middle" font-family="DM Mono, monospace" font-size="14" fill="#7a7770">Jun 1</text>
-      <text x="683.2" y="316" text-anchor="middle" font-family="DM Mono, monospace" font-size="14" fill="#7a7770">Jul 1</text>
-      <text x="1115.2" y="316" text-anchor="middle" font-family="DM Mono, monospace" font-size="14" fill="#7a7770">Aug 1</text>
-      <text x="1380.0" y="316" text-anchor="end" font-family="DM Mono, monospace" font-size="14" fill="#7a7770">Aug 20</text>
-      <polygon points="56.0,288.0 56.0,135.7 69.9,135.7 83.9,135.7 97.8,124.8 111.7,124.8 125.7,124.8 139.6,124.8 153.6,124.8 167.5,124.8 181.4,124.8 195.4,124.8 209.3,124.8 223.2,124.8 237.2,124.8 251.1,124.8 265.1,124.8 279.0,124.8 292.9,113.9 306.9,113.9 320.8,113.9 334.7,113.9 348.7,113.9 362.6,113.9 376.5,113.9 390.5,108.5 404.4,108.5 418.4,108.5 432.3,108.5 446.2,113.9 460.2,113.9 474.1,113.9 488.0,108.5 502.0,108.5 515.9,108.5 529.9,108.5 543.8,108.5 557.7,108.5 571.7,108.5 585.6,97.6 599.5,97.6 613.5,97.6 627.4,97.6 641.3,97.6 655.3,97.6 669.2,97.6 683.2,97.6 697.1,97.6 711.0,97.6 725.0,97.6 738.9,97.6 752.8,97.6 766.8,97.6 780.7,92.2 794.7,92.2 808.6,92.2 822.5,92.2 836.5,92.2 850.4,92.2 864.3,92.2 878.3,86.7 892.2,86.7 906.1,86.7 920.1,86.7 934.0,86.7 948.0,86.7 961.9,86.7 975.8,75.8 989.8,75.8 1003.7,75.8 1017.6,75.8 1031.6,75.8 1045.5,75.8 1059.5,75.8 1073.4,70.4 1087.3,70.4 1101.3,70.4 1115.2,70.4 1129.1,70.4 1143.1,70.4 1157.0,70.4 1170.9,59.5 1184.9,59.5 1198.8,59.5 1212.8,59.5 1226.7,59.5 1240.6,59.5 1254.6,59.5 1268.5,48.6 1282.4,48.6 1296.4,48.6 1310.3,48.6 1324.3,48.6 1338.2,48.6 1352.1,48.6 1366.1,43.2 1380.0,43.2 1380.0,288.0" fill="#eaeef8" stroke="none"/>
-      <polyline points="56.0,135.7 69.9,135.7 83.9,135.7 97.8,124.8 111.7,124.8 125.7,124.8 139.6,124.8 153.6,124.8 167.5,124.8 181.4,124.8 195.4,124.8 209.3,124.8 223.2,124.8 237.2,124.8 251.1,124.8 265.1,124.8 279.0,124.8 292.9,113.9 306.9,113.9 320.8,113.9 334.7,113.9 348.7,113.9 362.6,113.9 376.5,113.9 390.5,108.5 404.4,108.5 418.4,108.5 432.3,108.5 446.2,113.9 460.2,113.9 474.1,113.9 488.0,108.5 502.0,108.5 515.9,108.5 529.9,108.5 543.8,108.5 557.7,108.5 571.7,108.5 585.6,97.6 599.5,97.6 613.5,97.6 627.4,97.6 641.3,97.6 655.3,97.6 669.2,97.6 683.2,97.6 697.1,97.6 711.0,97.6 725.0,97.6 738.9,97.6 752.8,97.6 766.8,97.6 780.7,92.2 794.7,92.2 808.6,92.2 822.5,92.2 836.5,92.2 850.4,92.2 864.3,92.2 878.3,86.7 892.2,86.7 906.1,86.7 920.1,86.7 934.0,86.7 948.0,86.7 961.9,86.7 975.8,75.8 989.8,75.8 1003.7,75.8 1017.6,75.8 1031.6,75.8 1045.5,75.8 1059.5,75.8 1073.4,70.4 1087.3,70.4 1101.3,70.4 1115.2,70.4 1129.1,70.4 1143.1,70.4 1157.0,70.4 1170.9,59.5 1184.9,59.5 1198.8,59.5 1212.8,59.5 1226.7,59.5 1240.6,59.5 1254.6,59.5 1268.5,48.6 1282.4,48.6 1296.4,48.6 1310.3,48.6 1324.3,48.6 1338.2,48.6 1352.1,48.6 1366.1,43.2 1380.0,43.2" fill="none" stroke="#2d4480" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
-      <circle cx="56.0" cy="135.7" r="5" fill="#2d4480" stroke="#fff" stroke-width="2"/>
-      <text x="66.0" y="121.7" text-anchor="start" font-family="DM Mono, monospace" font-size="17" font-weight="500" fill="#2d4480">2.8%</text>
-      <circle cx="1380.0" cy="43.2" r="5" fill="#2d4480" stroke="#fff" stroke-width="2"/>
-      <text x="1370.0" y="29.2" text-anchor="end" font-family="DM Mono, monospace" font-size="17" font-weight="500" fill="#2d4480">4.5%</text>
-      </svg>
+      <h3>Units by build</h3>
+      <div class="sub">All 187 units grouped by how the piece is made.</div>
+      <div class="conc">
+        <div class="conc-row"><span class="lbl">Dad cap<span style="color:var(--text-3)"> &middot; 3 styles</span></span><span class="track"><span class="fill" style="width:100.0%"></span></span><span class="val">66</span></div>
+        <div class="conc-row"><span class="lbl">5-panel trucker<span style="color:var(--text-3)"> &middot; 1 style</span></span><span class="track"><span class="fill" style="width:87.9%"></span></span><span class="val">58</span></div>
+        <div class="conc-row"><span class="lbl">Tote<span style="color:var(--text-3)"> &middot; 2 styles</span></span><span class="track"><span class="fill" style="width:72.7%"></span></span><span class="val">48</span></div>
+        <div class="conc-row"><span class="lbl">Foam trucker<span style="color:var(--text-3)"> &middot; 1 style</span></span><span class="track"><span class="fill tail" style="width:22.7%"></span></span><span class="val">15</span></div>
+      </div>
+      <p style="font-size:17px;line-height:1.5;color:var(--text-2);margin-top:20px;max-width:92ch">Dad caps are the biggest build, but they get there across three styles &mdash; and <strong style="color:var(--text)">no single dad cap passed 47</strong>. The 5-panel did 58 on its own, which is why it is the best-selling design we have.</p>
     </div>
   </div>
 </section>
 
-<!-- 10 CONCENTRATION -->
+<!-- 10 TWO SHOPS -->
 <section class="slide" data-n="10">
-  <div class="s-head"><div class="eyebrow">Our register data</div><h2>The shelf already wants a short list</h2></div>
+  <div class="s-head"><div class="eyebrow">Same company, same quarter</div><h2>Two shops, two different stores</h2></div>
   <div class="body-flex" style="gap:24px">
-    <div class="panel">
-      <h3>Marketplace revenue is already concentrated</h3>
-      <div class="sub">124 SKUs sold over 9 trading days. Share of category net sales held by the top sellers.</div>
-      <div class="conc"><div class="conc-row"><span class="lbl">Top 1 SKU</span><span class="track"><span class="fill" style="width:23.4%"></span></span><span class="val">23.4%</span></div>
-        <div class="conc-row"><span class="lbl">Top 3 SKUs</span><span class="track"><span class="fill" style="width:43.7%"></span></span><span class="val">43.7%</span></div>
-        <div class="conc-row"><span class="lbl">Top 5 SKUs</span><span class="track"><span class="fill" style="width:52.3%"></span></span><span class="val">52.3%</span></div>
-        <div class="conc-row"><span class="lbl">Top 10 SKUs</span><span class="track"><span class="fill" style="width:64.0%"></span></span><span class="val">64.0%</span></div>
-        <div class="conc-row"><span class="lbl">Top 20 SKUs</span><span class="track"><span class="fill" style="width:78.7%"></span></span><span class="val">78.7%</span></div>
-        <div class="conc-row"><span class="lbl">Bottom 62 SKUs</span><span class="track"><span class="fill tail" style="width:4.9%"></span></span><span class="val">4.9%</span></div></div>
+    <div class="shops">
+      <div class="shop lead">
+        <h3>Brentwood</h3>
+        <div class="u">144</div><div class="ul">units sold</div>
+        <dl>
+          <div><dt>Styles carried</dt><dd>14</dd></div>
+          <div><dt>Share that was hats</dt><dd>81%</dd></div>
+          <div><dt>Top seller</dt><dd>5-Panel &middot; 49</dd></div>
+        </dl>
+      </div>
+      <div class="shop lag">
+        <h3>Westlake Village</h3>
+        <div class="u">43</div><div class="ul">units sold</div>
+        <dl>
+          <div><dt>Styles carried</dt><dd>6</dd></div>
+          <div><dt>Share that was hats</dt><dd>53%</dd></div>
+          <div><dt>Top seller</dt><dd>Tote &middot; 13</dd></div>
+        </dl>
+      </div>
     </div>
-    <p class="lede" style="max-width:none"><strong style="color:var(--text)">5 SKUs out of 124 carry more than half the category</strong>, while 82 of the 124 did under $50 across the whole period. A five-piece core is not a small ambition &mdash; it is the shape the shelf is already in.</p>
+    <p class="lede" style="max-width:none;font-size:23px">Westlake sold a third of what Brentwood did on fewer than half the styles. The clearest sign it is a range problem, not a demand one: <strong style="color:var(--text)">the second-best design in the company sold 47 at Brentwood and 0 at Westlake.</strong> It was never put there.</p>
   </div>
 </section>
 
@@ -472,25 +494,23 @@ tr.win td{background:rgba(123,189,145,.09)}
 
 <!-- 12 WORKED / DIDN'T -->
 <section class="slide" data-n="12">
-  <div class="s-head"><div class="eyebrow">10 Apr &ndash; 24 Jun 2026</div><h2>What worked, what didn't</h2></div>
+  <div class="s-head"><div class="eyebrow">Every style we sold &middot; 187 units</div><h2>What worked, what didn't</h2></div>
   <div class="body-flex">
     <div class="split">
       <div>
-        <div class="col-head"><span class="dot g"></span><h3>What worked</h3></div>
+        <div class="col-head"><span class="dot g"></span><h3>What worked</h3><span class="tot">3 styles &middot; 146 units &middot; 78%</span></div>
+        <div class="styles w"><div class="st win"><div class="im"><img src="data:image/jpeg;base64,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" alt="Have a Nice Day 5-Panel"></div><div class="tx"><div class="nm">Have a Nice Day 5-Panel</div><div class="un">58</div></div></div><div class="st win"><div class="im"><img src="data:image/jpeg;base64,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" alt="Neighborhood Dad Cap"></div><div class="tx"><div class="nm">Neighborhood Dad Cap</div><div class="un">47</div></div></div><div class="st win"><div class="im"><img src="data:image/jpeg;base64,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" alt="Have a Nice Day Tote"></div><div class="tx"><div class="nm">Have a Nice Day Tote</div><div class="un">41</div></div></div></div>
         <ul class="findings">
-          <li><strong>One phrase is the business.</strong> Have a Nice Day is <span class="fig">99 of 187 units</span> &mdash; <span class="fig">53%</span> &mdash; across two builds, and top seller at both shops.</li>
-          <li><strong>The 5-panel won outright.</strong> <span class="fig">58 units</span> at <span class="fig">5.4/wk</span>, first at Brentwood and first at Westlake.</li>
-          <li><strong>Locality sells.</strong> Neighborhood dad caps took <span class="fig">47 units</span> across 9 territories on nothing but a place name.</li>
-          <li><strong>Hats carry the program.</strong> <span class="fig">81%</span> of Brentwood's units were headwear.</li>
+          <li><strong>One phrase is the business.</strong> Have a Nice Day is <span class="fig">99 of 187 units</span> across two builds, and top seller at both shops.</li>
+          <li><strong>Hats carry it.</strong> <span class="fig">81%</span> of Brentwood's units were headwear.</li>
         </ul>
       </div>
       <div>
-        <div class="col-head"><span class="dot r"></span><h3>What didn't</h3></div>
+        <div class="col-head"><span class="dot r"></span><h3>What didn't</h3><span class="tot">4 styles &middot; 41 units &middot; 22%</span></div>
+        <div class="styles d"><div class="st lose"><div class="im"><img src="data:image/jpeg;base64,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" alt="Yes Mom Foam Trucker"></div><div class="tx"><div class="nm">Yes Mom Foam Trucker</div><div class="un">15</div></div></div><div class="st lose"><div class="im"><img src="data:image/jpeg;base64,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" alt="Script Dad Cap"></div><div class="tx"><div class="nm">Script Dad Cap</div><div class="un">11</div></div></div><div class="st lose"><div class="im"><img src="data:image/jpeg;base64,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" alt="Varsity Dad Cap"></div><div class="tx"><div class="nm">Varsity Dad Cap</div><div class="un">8</div></div></div><div class="st lose"><div class="im none">no shot on file</div><div class="tx"><div class="nm">NBRLY Blue Tote</div><div class="un">7</div></div></div></div>
         <ul class="findings">
-          <li><strong>Westlake was never given the range.</strong> <span class="fig">43 units on 6 styles</span> against <span class="fig">144 on 14</span>. The second-best style sold <span class="fig">0 there</span>.</li>
-          <li><strong>Foam fell flat.</strong> The Yes Mom foam build managed <span class="fig">15 units</span>, well behind the other constructions.</li>
-          <li><strong>The tail is thin.</strong> Script 11, Varsity 8, NBRLY Blue Tote 7 &mdash; none near the top.</li>
-          <li><strong>Not every neighborhood earns a cap.</strong> San Vicente did 10; The Riviera did 1.</li>
+          <li><strong>Foam fell flat.</strong> The one foam build managed <span class="fig">15 units</span>, well behind the other constructions.</li>
+          <li><strong>The tail is thin.</strong> Three styles, <span class="fig">26 units</span> between them. These four are the retiring list.</li>
         </ul>
       </div>
     </div>
@@ -558,21 +578,8 @@ tr.win td{background:rgba(123,189,145,.09)}
   </div>
 </section>
 
-<!-- 16 SPICE -->
+<!-- 16 LAUNCH -->
 <section class="slide" data-n="16">
-  <div class="s-head"><div class="eyebrow">On top of the core</div><h2>Where the fun goes</h2></div>
-  <div class="body-flex">
-    <div class="spice">
-      <span class="eyebrow">The drop layer</span>
-      <h3>Timeless underneath, playful on top</h3>
-      <p>The core holds all year, so anything seasonal reads as a limited thing rather than as this month's inventory. The rule worth keeping: every drop is a variation on a silhouette already in the core &mdash; no new vendors, no new samples, no new risk.</p>
-      <p><strong>First drop: to come.</strong> It follows the launch rather than competing with it.</p>
-    </div>
-  </div>
-</section>
-
-<!-- 17 LAUNCH -->
-<section class="slide" data-n="17">
   <div class="s-head"><div class="eyebrow">What we are making</div><h2>The launch lineup</h2></div>
   <div class="body-flex" style="gap:22px">
     <div class="launch">
@@ -597,7 +604,10 @@ tr.win td{background:rgba(123,189,145,.09)}
           <span class="rank new">Extends the cap</span>
           <p class="proof">Same blank as the Classic with a neighborhood in place of the wordmark.</p></div></div>
     </div>
-    <div class="note"><strong>Retiring:</strong> the Yes Mom foam trucker (15 units), the Script and Varsity dad caps (11 and 8), and the NBRLY Blue Tote (7) &mdash; 41 of 187 units across four styles, better spent as depth on the five above.</div>
+    <div class="notes">
+      <div class="note"><strong>Retiring:</strong> the Yes Mom foam trucker (15 units), the Script and Varsity dad caps (11 and 8), and the NBRLY Blue Tote (7) &mdash; 41 of 187 units across four styles, better spent as depth on the five above.</div>
+      <div class="note next"><strong>What comes next:</strong> the core holds all year, so anything seasonal reads as limited rather than as this month's stock. Every drop is a variation on a shape already above &mdash; no new vendors, no new samples. First drop to come.</div>
+    </div>
   </div>
 </section>
 
@@ -605,7 +615,7 @@ tr.win td{background:rgba(123,189,145,.09)}
 
 <nav class="nav">
   <button id="prev" aria-label="Previous slide">&larr; Prev</button>
-  <span class="counter" id="counter">01 / 17</span>
+  <span class="counter" id="counter">01 / 16</span>
   <button id="next" aria-label="Next slide">Next &rarr;</button>
   <span class="dots" id="dots"></span>
 </nav>
