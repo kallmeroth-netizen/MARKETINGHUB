@@ -41,3 +41,20 @@ photo lives on, so the placeholder is clickable. The links are:
 
 These sites are blocked by this environment's egress policy, so the images have to
 be saved by hand rather than fetched here.
+
+## Style thumbnails from the merch performance analysis
+
+Pulled out of `neighborlymerchanalysis_2_1.pdf` (10 Apr – 24 Jun 2026). 150x150,
+embedded directly in the deck's launch lineup — fine at thumbnail size, too small
+for a hero shot, so replace with full-resolution art when it is available.
+
+| File                             | Style                    | Units |
+| -------------------------------- | ------------------------ | ----- |
+| `style-5panel-hand.jpg`          | Have a Nice Day 5-Panel  | 58    |
+| `style-neighborhood-dadcap.jpg`  | Neighborhood Dad Cap     | 47    |
+| `style-hand-tote.jpg`            | Have a Nice Day Tote     | 41    |
+| `style-yesmom-foam.jpg`          | Yes Mom Foam Trucker     | 15    |
+| `style-script-dadcap.jpg`        | Script Dad Cap           | 11    |
+| `style-varsity-dadcap.jpg`       | Varsity Dad Cap          | 8     |
+
+Still needed for the launch lineup: `kids-hat.jpg` and `tote-neighborhood.jpg`.
