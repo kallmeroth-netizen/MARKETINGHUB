@@ -58,3 +58,22 @@ for a hero shot, so replace with full-resolution art when it is available.
 | `style-varsity-dadcap.jpg`       | Varsity Dad Cap          | 8     |
 
 Still needed for the launch lineup: `kids-hat.jpg` and `tote-neighborhood.jpg`.
+
+## Confirmed launch designs
+
+**Dad Cap (Core 03)** — `dad-cap.jpg`
+Sand washed twill, six-panel, curved brim, adjustable strap with a metal slide.
+NEIGHBORLY embroidered in white across the front. Back: the place name arched
+above the closure ("BRENTWOOD, CA") with two small house icons in brand orange
+(#e87142) and brand lavender (#cbc9d6).
+
+This settles the one-mark question: the front is identical on every cap, and the
+territory lives on the back, so locality never fragments the wordmark.
+
+**Classic Tote Bag (Core 04)** — `tote-classic.jpg`
+Tan oversized canvas, NEIGHBORLY wordmark on the body, "Have a Nice Day" tag on
+the handle. Est. cost $25.95.
+
+Both designs were pasted into chat rather than attached, so the image files are
+not in the repo. Attach them as files (or save and drop them in here with the
+names above) and the deck picks them up automatically.
