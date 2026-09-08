@@ -23,8 +23,8 @@ Shots are cropped to a 4:5 portrait frame, so upload portrait or square images.
 | `tote-classic.jpg`  | Core 04 Classic Tote Bag — tan oversized canvas, product shot |
 
 **Classic Tote Bag (Core 04)** — tan oversized canvas, NEIGHBORLY wordmark on the
-body, "Have a Nice Day" tag on the handle. Est. cost $25.95, sale price $35.00
-($9.05 / 25.9% gross margin).
+body, "Have a Nice Day" tag on the handle. Est. cost $25.95, repriced to $55.00
+($29.05 / 52.8% gross margin; it launched at $35 for a 25.9% margin).
 
 ## Where to grab the competitor shots
 
