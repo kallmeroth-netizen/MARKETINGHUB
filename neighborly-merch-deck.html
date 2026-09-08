@@ -68,6 +68,9 @@ h1,h2,h3{font-family:var(--f-display);font-weight:400;line-height:1.1;text-wrap:
 .shot{position:relative;margin:0;min-width:0}
 .shot img{display:block;width:100%;aspect-ratio:4/5;object-fit:cover;border-radius:var(--r-md);border:1px solid var(--line-strong);background:var(--surface-2)}
 .shot figcaption{font-family:var(--f-mono);font-size:12px;color:var(--text-3);margin-top:8px;line-height:1.35}
+.art-box{aspect-ratio:4/5;display:flex;align-items:center;justify-content:center;padding:16px;
+  background:var(--surface);border:1px solid var(--line-strong);border-radius:var(--r-md)}
+.art-box svg{max-height:100%}
 .shot.empty img{display:none}
 .shot.empty::before{content:attr(data-slot);display:flex;align-items:flex-end;aspect-ratio:4/5;padding:14px;
   border-radius:var(--r-md);border:1px dashed var(--line-bold);
@@ -206,6 +209,8 @@ tr.win td{background:rgba(123,189,145,.09)}
 .lc{background:var(--surface);border:1px solid var(--line-strong);border-radius:var(--r-lg);overflow:hidden;display:flex;flex-direction:column}
 .lc .ph{height:200px;display:flex;align-items:center;justify-content:center;background:#fafafa;border-bottom:1px solid var(--line)}
 .lc .ph img{max-width:100%;max-height:100%;object-fit:contain}
+.lc .ph.art{background:var(--surface);padding:14px}
+.lc .ph.art svg{max-height:100%;width:auto}
 .lc .ph.none{font-family:var(--f-mono);font-size:12.5px;color:var(--text-3);text-align:center;padding:18px;line-height:1.45;
   background:repeating-linear-gradient(45deg,transparent 0 8px,rgba(31,35,40,.022) 8px 16px),var(--surface-2)}
 .lc .bd{padding:18px 19px 20px;display:flex;flex-direction:column;gap:9px;flex:1}
@@ -270,10 +275,10 @@ tr.win td{background:rgba(123,189,145,.09)}
     <h2>Availability may matter more than newness</h2></div>
   <div class="body-flex">
     <ul class="pts" style="gap:22px">
-      <li style="font-size:24px">We studied four programs &mdash; <strong>Erewhon, SunLife Organics, Alfred Coffee, Trader Joe's.</strong> A $2.99 tote to a $290 one, and all four built the same way.</li>
-      <li style="font-size:24px">A small set of pieces that never leaves the shelf, with limited runs on top. <strong>The newness lives in the drops, never in the core.</strong></li>
-      <li style="font-size:24px">We have been running the drops without the core. <strong>14 styles at Brentwood, 6 at Westlake</strong> &mdash; and our second-best design never reached Westlake at all.</li>
-      <li style="font-size:24px">The appetite is there. <strong>Have a Nice Day alone did 99 units across two shapes.</strong> What is missing is the shelf.</li>
+      <li style="font-size:24px">From a $2.99 tote to a $290 one, four programs build it the same way. <strong>Erewhon. SunLife Organics. Alfred Coffee. Trader Joe's.</strong></li>
+      <li style="font-size:24px">A small set that never leaves the shelf, with limited runs on top. <strong>Newness lives in the drops, never in the core.</strong></li>
+      <li style="font-size:24px">Here it runs the other way round: drops, no core. <strong>14 styles at Brentwood. 6 at Westlake.</strong> The second-best design never reached Westlake at all.</li>
+      <li style="font-size:24px">Appetite is not the problem. <strong>Have a Nice Day alone did 99 units across two shapes.</strong> The shelf is.</li>
     </ul>
   </div>
 </section>
@@ -282,21 +287,13 @@ tr.win td{background:rgba(123,189,145,.09)}
 <section class="slide" data-n="03">
   <div class="comp">
     <div class="shots">
-      <figure class="shot" data-slot="EREWHON &mdash; Shopper Bag, eggshell canvas, black wordmark">
-        <img src="merch-deck/erewhon-tote.jpg" alt="Erewhon Shopper Bag in eggshell" onerror="this.closest('.shot').classList.add('empty')">
-        <a class="src" href="https://ship.erewhon.com/collections/bags" target="_blank" rel="noopener">Source &rarr; ship.erewhon.com</a>
-        <figcaption>Shopper Bag &middot; Eggshell &mdash; $65</figcaption>
-      </figure>
-      <figure class="shot" data-slot="EREWHON &mdash; Dad Hat, khaki twill, white wordmark">
-        <img src="merch-deck/erewhon-dadhat.jpg" alt="Erewhon Dad Hat in khaki" onerror="this.closest('.shot').classList.add('empty')">
-        <a class="src" href="https://ship.erewhon.com/collections/hats" target="_blank" rel="noopener">Source &rarr; ship.erewhon.com</a>
-        <figcaption>Dad Hat &middot; Khaki &mdash; $75</figcaption>
-      </figure>
+      <figure class="shot art"><div class="art-box"><svg viewBox="30 14 140 164" role="img" aria-label="Erewhon Shopper Bag in eggshell canvas with a black EREWHON wordmark" style="display:block;width:100%;height:auto"><defs><pattern id="mesh" width="5" height="5" patternUnits="userSpaceOnUse"><circle cx="2.5" cy="2.5" r="1" fill="rgba(31,35,40,.13)"/></pattern></defs><path d="M66,64 C66,22 134,22 134,64" fill="none" stroke="#efe9dd" stroke-width="7" stroke-linecap="round"/><path d="M42,62 L158,62 L151,168 L49,168 Z" fill="#efe9dd" stroke="rgba(31,35,40,.22)"/><text x="100" y="118" text-anchor="middle" font-family="'DM Sans',sans-serif" font-size="13" font-weight="700" fill="#1f2328" letter-spacing=".1em">EREWHON</text></svg></div><figcaption>Shopper Bag &middot; Eggshell &middot; $65</figcaption></figure>
+      <figure class="shot art"><div class="art-box"><svg viewBox="22 28 156 118" role="img" aria-label="Erewhon Dad Hat in khaki twill with a white EREWHON wordmark" style="display:block;width:100%;height:auto"><defs><pattern id="mesh" width="5" height="5" patternUnits="userSpaceOnUse"><circle cx="2.5" cy="2.5" r="1" fill="rgba(31,35,40,.13)"/></pattern></defs><path d="M26,96 C18,124 54,140 100,140 C146,140 182,124 174,96 Z" fill="#cfc6ad" stroke="rgba(31,35,40,.22)"/><path d="M40,104 C40,58 64,36 100,36 C136,36 160,58 160,104 Z" fill="#cfc6ad" stroke="rgba(31,35,40,.22)"/><circle cx="100" cy="34" r="4.5" fill="#cfc6ad" stroke="rgba(31,35,40,.22)"/><path d="M100,37 L100,104" stroke="rgba(31,35,40,.22)" stroke-width="1" fill="none" opacity=".45"/><circle cx="76" cy="66" r="2.2" fill="rgba(31,35,40,.22)" opacity=".5"/><circle cx="124" cy="66" r="2.2" fill="rgba(31,35,40,.22)" opacity=".5"/><text x="100" y="76" text-anchor="middle" font-family="'DM Sans',sans-serif" font-size="10" font-weight="600" fill="#fff" letter-spacing=".12em">EREWHON</text></svg></div><figcaption>Dad Hat &middot; Khaki &middot; $75</figcaption></figure>
     </div>
     <div>
       <div class="comp-name"><h2>Erewhon</h2><span class="comp-role">The ceiling</span></div>
       <ul class="pts">
-        <li>Two tiers &mdash; and they name the permanent one: the <strong>Standard Collection</strong>. Neutrals, original logo, restocked continuously.</li>
+        <li>Two tiers, and they name the permanent one: the <strong>Standard Collection</strong>. Neutrals, original logo, restocked continuously.</li>
         <li>Everything else is scarcity: Coachella totes, a Swarovski tote, Balenciaga and Merci collabs.</li>
         <li>The tote does the work of a logo campaign. Highsnobiety calls it "shorthand for monied good taste."</li>
       </ul>
@@ -307,7 +304,7 @@ tr.win td{background:rgba(123,189,145,.09)}
         <li><span class="p">$95</span><span class="n">Market trucker hat</span><span class="t t-core">Core</span></li>
         <li><span class="p">$290</span><span class="n">Swarovski crystal tote</span><span class="t t-spice">Drop</span></li>
       </ul>
-      <div class="takeaway"><span class="eyebrow">What we take</span>
+      <div class="takeaway"><span class="eyebrow">The takeaway</span>
         <p>The core stays plain on purpose. Everything exciting happens above it, where it can sell out.</p></div>
     </div>
   </div>
@@ -317,25 +314,21 @@ tr.win td{background:rgba(123,189,145,.09)}
 <section class="slide" data-n="04">
   <div class="comp">
     <div class="shots">
-      <figure class="shot" data-slot="SUNLIFE &mdash; trucker cap with pink lotus logo">
-        <img src="merch-deck/sunlife-cap.jpg" alt="SunLife Organics cap" onerror="this.closest('.shot').classList.add('empty')">
-        <a class="src" href="https://sunlifeorganics.com/collections/cap" target="_blank" rel="noopener">Source &rarr; sunlifeorganics.com</a>
-        <figcaption>Cap &mdash; one silhouette, many colorways</figcaption>
-      </figure>
-      <figure class="shot" data-slot="SUNLIFE &mdash; city totes (Austin / Miami / Chicago / USC)">
-        <img src="merch-deck/sunlife-totes.jpg" alt="SunLife Organics city tote bags" onerror="this.closest('.shot').classList.add('empty')">
-        <a class="src" href="https://sunlifeorganics.com/collections/bags" target="_blank" rel="noopener">Source &rarr; sunlifeorganics.com</a>
-        <figcaption>Same tote, different city</figcaption>
-      </figure>
+      <figure class="shot art"><div class="art-box"><svg viewBox="22 28 156 118" role="img" aria-label="SunLife Organics beige trucker with a green Be Here Now badge and mesh back" style="display:block;width:100%;height:auto"><defs><pattern id="mesh" width="5" height="5" patternUnits="userSpaceOnUse"><circle cx="2.5" cy="2.5" r="1" fill="rgba(31,35,40,.13)"/></pattern></defs><path d="M26,96 C18,124 54,140 100,140 C146,140 182,124 174,96 Z" fill="#efe3c9" stroke="rgba(31,35,40,.22)"/><path d="M40,104 C40,58 64,36 100,36 C136,36 160,58 160,104 Z" fill="#efe3c9" stroke="rgba(31,35,40,.22)"/><path d="M118,41 C144,52 160,74 160,104 L118,104 Z" fill="#e7dcc2"/><path d="M118,41 C144,52 160,74 160,104 L118,104 Z" fill="url(#mesh)"/><circle cx="100" cy="34" r="4.5" fill="#efe3c9" stroke="rgba(31,35,40,.22)"/><path d="M100,37 L100,104" stroke="rgba(31,35,40,.22)" stroke-width="1" fill="none" opacity=".45"/><circle cx="76" cy="66" r="2.2" fill="rgba(31,35,40,.22)" opacity=".5"/><circle cx="124" cy="66" r="2.2" fill="rgba(31,35,40,.22)" opacity=".5"/><circle cx="100" cy="74" r="25" fill="none" stroke="#1f6b45" stroke-width="3"/><text x="100" y="67" text-anchor="middle" font-family="'DM Sans',sans-serif" font-size="10.5" font-weight="700" fill="#1f6b45" letter-spacing=".04em">BE</text><text x="100" y="78" text-anchor="middle" font-family="'DM Sans',sans-serif" font-size="10.5" font-weight="700" fill="#1f6b45" letter-spacing=".04em">HERE</text><text x="100" y="89" text-anchor="middle" font-family="'DM Sans',sans-serif" font-size="10.5" font-weight="700" fill="#1f6b45" letter-spacing=".04em">NOW</text></svg></div><figcaption>Be Here Now Hat &middot; $27</figcaption></figure>
+      <figure class="shot art"><div class="art-box"><svg viewBox="30 14 140 164" role="img" aria-label="SunLife Organics natural canvas tote with the pink lotus badge and Miami FL" style="display:block;width:100%;height:auto"><defs><pattern id="mesh" width="5" height="5" patternUnits="userSpaceOnUse"><circle cx="2.5" cy="2.5" r="1" fill="rgba(31,35,40,.13)"/></pattern></defs><path d="M66,64 C66,22 134,22 134,64" fill="none" stroke="#ece4d3" stroke-width="7" stroke-linecap="round"/><path d="M42,62 L158,62 L151,168 L49,168 Z" fill="#ece4d3" stroke="rgba(31,35,40,.22)"/><circle cx="100" cy="112" r="33" fill="none" stroke="#5fb3d4" stroke-width="4"/><circle cx="100" cy="112" r="28" fill="none" stroke="#e8559b" stroke-width="1.5" opacity=".5"/><ellipse cx="83.5" cy="114" rx="4.2" ry="10" fill="#e8559b" transform="rotate(-30 100 114)" opacity=".9"/><ellipse cx="93.4" cy="114" rx="4.2" ry="14" fill="#e8559b" transform="rotate(-12 100 114)" opacity=".9"/><ellipse cx="106.6" cy="114" rx="4.2" ry="14" fill="#e8559b" transform="rotate(12 100 114)" opacity=".9"/><ellipse cx="116.5" cy="114" rx="4.2" ry="10" fill="#e8559b" transform="rotate(30 100 114)" opacity=".9"/><text x="100" y="92" text-anchor="middle" font-family="'DM Sans',sans-serif" font-size="6.2" font-weight="700" fill="#5fb3d4" letter-spacing=".02em">SUNLIFE ORGANICS</text><text x="100" y="140" text-anchor="middle" font-family="'DM Sans',sans-serif" font-size="6.2" font-weight="700" fill="#5fb3d4" letter-spacing=".05em">MIAMI, FL</text></svg></div><figcaption>Tote Bag &middot; Miami FL &middot; $20</figcaption></figure>
     </div>
     <div>
       <div class="comp-name"><h2>SunLife Organics</h2><span class="comp-role">The closest cousin</span></div>
       <ul class="pts">
-        <li>A small, stable kit &mdash; caps, tees, hoodies, sweatpants, totes &mdash; with the pink lotus applied identically across all of it.</li>
+        <li>A small, stable kit: caps, tees, hoodies, sweatpants, totes. The pink lotus sits identically on all of it.</li>
         <li><strong>One tote silhouette, sold as a place:</strong> Austin, Miami, Chicago, USC. The bag never changes. The town does.</li>
-        <li>We have already run this and it worked: neighborhood dad caps took 47 units across 9 Brentwood territories, second only to the 5-panel.</li>
+        <li>Already proven here. Neighborhood dad caps took 47 units across 9 Brentwood territories, second only to the 5-panel.</li>
       </ul>
-      <div class="takeaway"><span class="eyebrow">What we take</span>
+      <ul class="ladder">
+        <li><span class="p">$20</span><span class="n">Tote Bag, one silhouette per city</span><span class="t t-core">Core</span></li>
+        <li><span class="p">$27</span><span class="n">Be Here Now trucker</span><span class="t t-core">Core</span></li>
+      </ul>
+      <div class="takeaway"><span class="eyebrow">The takeaway</span>
         <p>Keep the shape, change the place, and one bag becomes a set. It already works on caps.</p></div>
     </div>
   </div>
@@ -344,151 +337,71 @@ tr.win td{background:rgba(123,189,145,.09)}
 <!-- 06 ALFRED -->
 <section class="slide" data-n="05">
   <div class="comp">
-    <div class="shots">
-      <figure class="shot" data-slot="ALFRED &mdash; Greek Cup Dad Hat, blue washed twill, orange hand-lettering">
-        <img src="merch-deck/alfred-hats.jpg" alt="Alfred Coffee Greek Cup Dad Hat" onerror="this.closest('.shot').classList.add('empty')">
-        <a class="src" href="https://alfred.la/products/greek-cup-dad-hat" target="_blank" rel="noopener">Source &rarr; alfred.la</a>
-        <figcaption>Greek Cup Dad Hat &mdash; $30</figcaption>
-      </figure>
-      <figure class="shot" data-slot="ALFRED &mdash; logo mini tote">
-        <img src="merch-deck/alfred-tote.jpg" alt="Alfred Coffee mini tote" onerror="this.closest('.shot').classList.add('empty')">
-        <a class="src" href="https://alfred.la/collections/merch" target="_blank" rel="noopener">Source &rarr; alfred.la</a>
-        <figcaption>Logo mini tote, $32</figcaption>
-      </figure>
+    <div class="shots solo">
+      <figure class="shot art"><div class="art-box"><svg viewBox="22 28 156 118" role="img" aria-label="Alfred Coffee Greek Cup Dad Hat in blue with orange hand-lettering" style="display:block;width:100%;height:auto"><defs><pattern id="mesh" width="5" height="5" patternUnits="userSpaceOnUse"><circle cx="2.5" cy="2.5" r="1" fill="rgba(31,35,40,.13)"/></pattern></defs><path d="M26,96 C18,124 54,140 100,140 C146,140 182,124 174,96 Z" fill="#2b6cb0" stroke="rgba(31,35,40,.22)"/><path d="M40,104 C40,58 64,36 100,36 C136,36 160,58 160,104 Z" fill="#2b6cb0" stroke="rgba(31,35,40,.22)"/><circle cx="100" cy="34" r="4.5" fill="#2b6cb0" stroke="rgba(31,35,40,.22)"/><path d="M100,37 L100,104" stroke="rgba(31,35,40,.22)" stroke-width="1" fill="none" opacity=".45"/><circle cx="76" cy="66" r="2.2" fill="rgba(31,35,40,.22)" opacity=".5"/><circle cx="124" cy="66" r="2.2" fill="rgba(31,35,40,.22)" opacity=".5"/><text x="100" y="68" text-anchor="middle" font-family="'Tuppence',Georgia,serif" font-size="8.5" font-weight="700" fill="#e8873c" letter-spacing=".02em">WE ARE HAPPY</text><text x="100" y="84" text-anchor="middle" font-family="'Tuppence',Georgia,serif" font-size="8.5" font-weight="700" fill="#e8873c" letter-spacing=".02em">TO INSPIRE YOU</text></svg></div><figcaption>Greek Cup Dad Hat &middot; $30</figcaption></figure>
     </div>
     <div>
       <div class="comp-name"><h2>Alfred Coffee</h2><span class="comp-role">The everyday end</span></div>
-      <p>A tight everyday kit, priced to be picked up alongside a drink &mdash; the closest thing here to an impulse buy.</p>
+      <p>A tight everyday kit, priced to be picked up alongside a drink. The closest thing here to an impulse buy.</p>
       <ul class="ladder">
         <li><span class="p">$25</span><span class="n">Greek Cup trucker hat</span><span class="t t-core">Core</span></li>
-        <li><span class="p">$30</span><span class="n">Greek Cup Dad Hat &mdash; "We are happy to inspire you"</span><span class="t t-core">Core</span></li>
+        <li><span class="p">$30</span><span class="n">Greek Cup Dad Hat, "We are happy to inspire you"</span><span class="t t-core">Core</span></li>
         <li><span class="p">$32</span><span class="n">Logo mini tote</span><span class="t t-core">Core</span></li>
         <li><span class="p">$32</span><span class="n">"But First, Coffee" tumbler</span><span class="t t-core">Core</span></li>
         <li><span class="p">$50</span><span class="n">Crewneck / hoodie / sweatpants</span><span class="t t-core">Core</span></li>
       </ul>
-      <div class="takeaway"><span class="eyebrow">What we take</span>
-        <p>Two routes, one comp set: Erewhon sells a plain wordmark at $75, Alfred a hand-drawn phrase at $30. We run both &mdash; the wordmark on the cap and totes, the phrase on the 5-panel and the quarterly drop.</p></div>
+      <div class="takeaway"><span class="eyebrow">The takeaway</span>
+        <p>Two routes, one comp set. Erewhon sells a plain wordmark at $75, Alfred a hand-drawn phrase at $30. Both run here: wordmark on the cap and totes, phrase on the 5-panel and the quarterly drop.</p></div>
     </div>
   </div>
 </section>
 
-<!-- 07 TJ -->
+<!-- 07 MADHAPPY -->
 <section class="slide" data-n="06">
   <div class="comp">
     <div class="shots solo">
-      <figure class="shot" data-slot="TRADER JOE'S &mdash; the $2.99 mini canvas totes, or the queue outside a store">
-        <img src="merch-deck/tj-minitote.jpg" alt="Trader Joe's mini tote bags" onerror="this.closest('.shot').classList.add('empty')">
-        <a class="src" href="https://www.foodnetwork.com/fn-dish/news/trader-joes-mini-tote-bags-back-in-stock-september-2024" target="_blank" rel="noopener">Source &rarr; foodnetwork.com</a>
-        <figcaption>The $2.99 mini tote that resold for hundreds</figcaption>
-      </figure>
+      <figure class="shot art"><div class="art-box"><svg viewBox="22 28 156 118" role="img" aria-label="Madhappy Local Optimist dad hat in a neutral colorway" style="display:block;width:100%;height:auto"><defs><pattern id="mesh" width="5" height="5" patternUnits="userSpaceOnUse"><circle cx="2.5" cy="2.5" r="1" fill="rgba(31,35,40,.13)"/></pattern></defs><path d="M26,96 C18,124 54,140 100,140 C146,140 182,124 174,96 Z" fill="#e4ded2" stroke="rgba(31,35,40,.22)"/><path d="M40,104 C40,58 64,36 100,36 C136,36 160,58 160,104 Z" fill="#e4ded2" stroke="rgba(31,35,40,.22)"/><circle cx="100" cy="34" r="4.5" fill="#e4ded2" stroke="rgba(31,35,40,.22)"/><path d="M100,37 L100,104" stroke="rgba(31,35,40,.22)" stroke-width="1" fill="none" opacity=".45"/><circle cx="76" cy="66" r="2.2" fill="rgba(31,35,40,.22)" opacity=".5"/><circle cx="124" cy="66" r="2.2" fill="rgba(31,35,40,.22)" opacity=".5"/><text x="100" y="76" text-anchor="middle" font-family="'DM Sans',sans-serif" font-size="7.5" font-weight="600" fill="#3a3d44" letter-spacing=".09em">LOCAL OPTIMIST</text></svg></div>
+        <figcaption>Local Optimist Dad Hat</figcaption></figure>
     </div>
     <div>
-      <div class="comp-name"><h2>Trader Joe's</h2><span class="comp-role">The scarcity lesson</span></div>
+      <div class="comp-name"><h2>Madhappy</h2><span class="comp-role">Where we want to sit</span></div>
       <ul class="pts">
-        <li>March 2024: a $2.99 mini canvas tote. Queues around the block; SF stores sold out in 45 minutes.</li>
-        <li>Resale listings hit $500, with sets near $1,000. The most-cited merch moment in grocery.</li>
-        <li>The part usually left out: <strong>the full-size classic tote never left the shelf</strong> &mdash; before, during or after.</li>
+        <li>Their permanent line is called <strong>Core Classics</strong>. Their words for it: "signature silhouettes, assorted in a core palette." The thesis, already named.</li>
+        <li><strong>Local Optimist is a phrase, not a logo.</strong> The message is the brand, and it runs across every piece they make.</li>
+        <li>Seasonal Classics sit on top. Spring Classics, New Classics. Same silhouettes, new palette, never a new idea.</li>
       </ul>
-      <div class="takeaway"><span class="eyebrow">What we take</span>
-        <p>Nothing feels rare unless something is always there. Ours had nothing to stand against.</p></div>
+      <div class="takeaway"><span class="eyebrow">The takeaway</span>
+        <p>The coolest brand in this set is built on a plain core and one optimistic phrase. Have a Nice Day is the same instrument, and ours already sells.</p></div>
     </div>
   </div>
 </section>
 
-<!-- 08 PATTERN -->
+<!-- 09 WHAT WE TRIED -->
 <section class="slide" data-n="07">
-  <div class="s-head"><div class="eyebrow">Synthesis</div><h2>Four rules they all follow</h2></div>
-  <div class="body-flex">
-    <div class="rules">
-      <div class="rule-card"><div class="n">RULE 01</div><h3>The constant</h3>
-        <p>Erewhon calls theirs the Standard Collection. Trader Joe's, the classic tote. Always in stock. Never the news.</p></div>
-      <div class="rule-card"><div class="n">RULE 02</div><h3>One mark, every piece</h3>
-        <p>The lotus. The Greek cup. The wordmark. Same mark, same place, season after season. Recognition is built by repetition.</p></div>
-      <div class="rule-card"><div class="n">RULE 03</div><h3>Hats and bags lead</h3>
-        <p>They are the volume in every one of these programs. A hat is the most seen thing a person wears. A tote gets carried for years.</p></div>
-      <div class="rule-card"><div class="n">RULE 04</div><h3>Newness sits on top</h3>
-        <p>Coachella editions. Crystals. City names. The season changes above the core, never inside it.</p></div>
-    </div>
-  </div>
-</section>
-
-<!-- 09 MERCH AT A GLANCE -->
-<section class="slide" data-n="08">
-  <div class="s-head"><div class="eyebrow">10 Apr &ndash; 24 Jun 2026 &middot; 10.7 weeks</div><h2>Merch at a glance</h2></div>
-  <div class="body-flex" style="gap:22px">
+  <div class="s-head"><div class="eyebrow">10 Apr to 24 Jun 2026 &middot; 10.7 weeks</div>
+    <h2>What we tried, and where we put it</h2></div>
+  <div class="body-flex" style="gap:24px">
     <div class="stats">
       <div class="stat"><div class="v">187</div><div class="k">Units sold across both shops</div></div>
+      <div class="stat"><div class="v">7</div><div class="k">Styles, across four different builds</div></div>
       <div class="stat good"><div class="v">53%</div><div class="k">Of everything sold was Have a Nice Day</div></div>
       <div class="stat good"><div class="v">81%</div><div class="k">Of Brentwood's units were hats</div></div>
-      <div class="stat bad"><div class="v">144 / 43</div><div class="k">Brentwood vs Westlake &mdash; 14 styles against 6</div></div>
     </div>
-    <div class="panel">
-      <h3>Units by build</h3>
-      <div class="sub">All 187 units grouped by how the piece is made.</div>
-      <div class="conc">
-        <div class="conc-row"><span class="lbl">Dad cap<span style="color:var(--text-3)"> &middot; 3 styles</span></span><span class="track"><span class="fill" style="width:100.0%"></span></span><span class="val">66</span></div>
-        <div class="conc-row"><span class="lbl">5-panel trucker<span style="color:var(--text-3)"> &middot; 1 style</span></span><span class="track"><span class="fill" style="width:87.9%"></span></span><span class="val">58</span></div>
-        <div class="conc-row"><span class="lbl">Tote<span style="color:var(--text-3)"> &middot; 2 styles</span></span><span class="track"><span class="fill" style="width:72.7%"></span></span><span class="val">48</span></div>
-        <div class="conc-row"><span class="lbl">Foam trucker<span style="color:var(--text-3)"> &middot; 1 style</span></span><span class="track"><span class="fill tail" style="width:22.7%"></span></span><span class="val">15</span></div>
-      </div>
-      <p style="font-size:17px;line-height:1.5;color:var(--text-2);margin-top:20px;max-width:92ch">Dad caps are the biggest build, but they get there across three styles &mdash; and <strong style="color:var(--text)">no single dad cap passed 47</strong>. The 5-panel did 58 on its own, which is why it is the best-selling design we have.</p>
-    </div>
-  </div>
-</section>
-
-<!-- 10 TWO SHOPS -->
-<section class="slide" data-n="09">
-  <div class="s-head"><div class="eyebrow">Same company, same quarter</div><h2>Two shops, two different stores</h2></div>
-  <div class="body-flex" style="gap:24px">
     <div class="shops">
-      <div class="shop lead">
-        <h3>Brentwood</h3>
-        <div class="u">144</div><div class="ul">units sold</div>
-        <dl>
-          <div><dt>Styles carried</dt><dd>14</dd></div>
-          <div><dt>Share that was hats</dt><dd>81%</dd></div>
-          <div><dt>Top seller</dt><dd>5-Panel &middot; 49</dd></div>
-        </dl>
-      </div>
-      <div class="shop lag">
-        <h3>Westlake Village</h3>
-        <div class="u">43</div><div class="ul">units sold</div>
-        <dl>
-          <div><dt>Styles carried</dt><dd>6</dd></div>
-          <div><dt>Share that was hats</dt><dd>53%</dd></div>
-          <div><dt>Top seller</dt><dd>Tote &middot; 13</dd></div>
-        </dl>
-      </div>
+      <div class="shop lead"><h3>Brentwood</h3><div class="u">144</div><div class="ul">units sold</div>
+        <dl><div><dt>Styles carried</dt><dd>14</dd></div>
+          <div><dt>Top seller</dt><dd>5-Panel &middot; 49</dd></div></dl></div>
+      <div class="shop lag"><h3>Westlake Village</h3><div class="u">43</div><div class="ul">units sold</div>
+        <dl><div><dt>Styles carried</dt><dd>6</dd></div>
+          <div><dt>Top seller</dt><dd>Tote &middot; 13</dd></div></dl></div>
     </div>
-    <p class="lede" style="max-width:none;font-size:23px">Westlake sold a third of what Brentwood did on fewer than half the styles. The clearest sign it is a range problem, not a demand one: <strong style="color:var(--text)">the second-best design in the company sold 47 at Brentwood and 0 at Westlake.</strong> It was never put there.</p>
-  </div>
-</section>
-
-<!-- 11 STYLES TABLE -->
-<section class="slide" data-n="10">
-  <div class="s-head"><div class="eyebrow">10 Apr &ndash; 24 Jun 2026 &middot; 10.7 weeks &middot; 187 units</div><h2>Every style we sold</h2></div>
-  <div class="body-flex">
-    <div class="tbl-wrap">
-      <table>
-        <thead><tr><th>Style</th><th>Build</th><th class="num">Units</th><th class="num">BW &middot; WLV</th><th class="num">Share</th><th class="num">/wk</th></tr></thead>
-        <tbody>
-          <tr class="win"><td>Have a Nice Day 5-Panel</td><td>5-panel trucker</td><td class="num">58</td><td class="num">49 &middot; 9</td><td class="num">31%</td><td class="num">5.4</td></tr>
-          <tr class="win"><td>Neighborhood Dad Caps</td><td>dad cap, 9 styles</td><td class="num">47</td><td class="num">47 &middot; 0</td><td class="num">25%</td><td class="num">4.4</td></tr>
-          <tr class="win"><td>Have a Nice Day Tote</td><td>tote</td><td class="num">41</td><td class="num">28 &middot; 13</td><td class="num">22%</td><td class="num">3.8</td></tr>
-          <tr><td>Yes Mom Foam Trucker</td><td>foam trucker</td><td class="num">15</td><td class="num">7 &middot; 8</td><td class="num">8%</td><td class="num">1.4</td></tr>
-          <tr><td>Script Dad Cap</td><td>dad cap</td><td class="num">11</td><td class="num">8 &middot; 3</td><td class="num">6%</td><td class="num">1.0</td></tr>
-          <tr><td>Varsity Dad Cap</td><td>dad cap</td><td class="num">8</td><td class="num">5 &middot; 3</td><td class="num">4%</td><td class="num">0.7</td></tr>
-          <tr><td>NBRLY Blue Tote</td><td>tote</td><td class="num">7</td><td class="num">0 &middot; 7</td><td class="num">4%</td><td class="num">0.7</td></tr>
-        </tbody>
-        <tfoot><tr><td>Total</td><td></td><td class="num">187</td><td class="num">144 &middot; 43</td><td class="num">100%</td><td class="num">17.5</td></tr></tfoot>
-      </table>
-    </div>
+    <p class="lede" style="max-width:none;font-size:21px">Westlake sold a third of what Brentwood did on fewer than half the styles. <strong style="color:var(--text)">The second-best design in the company sold 47 at Brentwood and 0 at Westlake.</strong> It was never put there.</p>
   </div>
 </section>
 
 <!-- 12 WORKED / DIDN'T -->
-<section class="slide" data-n="11">
-  <div class="s-head"><div class="eyebrow">Every style we sold &middot; 187 units</div><h2>What worked, what didn't</h2></div>
+<section class="slide" data-n="08">
+  <div class="s-head"><div class="eyebrow">All seven styles &middot; 187 units</div><h2>What worked, what didn't</h2></div>
   <div class="body-flex">
     <div class="split">
       <div>
@@ -506,56 +419,21 @@ tr.win td{background:rgba(123,189,145,.09)}
           <li><strong>Foam fell flat.</strong> The one foam build managed <span class="fig">15 units</span>, well behind the other constructions.</li>
           <li><strong>The tail is thin.</strong> Three styles, <span class="fig">26 units</span> between them. These four are the retiring list.</li>
         </ul>
+        <p style="font-size:15.5px;color:var(--text-3);margin-top:16px;line-height:1.5">By build: dad cap 66 across three styles, 5-panel 58 on one, tote 48, foam 15. Dad caps sell the most in total, but <strong style="color:var(--text-2)">no single dad cap passed 47</strong>.</p>
       </div>
     </div>
   </div>
 </section>
 
-<!-- 13 TERRITORIES -->
-<section class="slide" data-n="12">
-  <div class="s-head"><div class="eyebrow">Inside the 47</div><h2>Neighborhood dad caps, by territory</h2></div>
-  <div class="body-flex" style="gap:28px">
-    <div class="terr">
-      <span class="hi">San Vicente <b>10</b></span><span class="hi">Westgate <b>8</b></span><span class="hi">Palisades <b>8</b></span>
-      <span class="hi">Mandeville Canyon <b>6</b></span><span class="hi">Brentwood Heights <b>4</b></span><span class="hi">The Flats <b>4</b></span>
-      <span class="low">Brentwood Park <b>3</b></span><span class="low">Brentwood Hills <b>3</b></span><span class="low">The Riviera <b>1</b></span>
-    </div>
-    <p class="lede" style="max-width:76ch;font-size:23px">Six territories cleared 4 units and account for <strong style="color:var(--text)">40 of the 47</strong>. The format works; the list wants curating rather than extending. Launch on the six, hold the rest.</p>
-    <p class="lede" style="max-width:76ch;font-size:23px">The new cap settles how: <strong style="color:var(--text)">NEIGHBORLY on the front, the place on the back.</strong> The front is identical on every cap we make, so the territory never fragments the mark &mdash; it just changes what is stitched above the closure.</p>
-  </div>
-</section>
-
-<!-- 14 MARGIN -->
-<section class="slide" data-n="13">
-  <div class="comp">
-    <div class="shots solo">
-      <figure class="shot"><img src="data:image/jpeg;base64,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" alt="Have a Nice Day tote" style="aspect-ratio:1/1;object-fit:contain;background:#fff;padding:22px">
-        <figcaption>Have a Nice Day Tote &mdash; 41 units. The Classic carries this format forward.</figcaption></figure>
-    </div>
-    <div>
-      <div class="comp-name"><h2>Pricing to a real margin</h2><span class="comp-role">Repriced</span></div>
-      <p>The Classic Tote is the one piece we have a costing for, and at the old $35 it returned $9.05 a bag &mdash; roughly half what merch normally carries. The collection is repriced to land at a standard merch margin.</p>
-      <ul class="ladder">
-        <li><span class="p">$25.95</span><span class="n">Estimated unit cost, oversized canvas tote</span></li>
-        <li><span class="p">$55.00</span><span class="n">Classic Tote &mdash; was $35</span><span class="t t-core">52.8%</span></li>
-        <li><span class="p">$29.05</span><span class="n">Gross profit per bag &mdash; was $9.05</span></li>
-        <li><span class="p">1,721</span><span class="n">Bags a year to clear $50K gross &mdash; was 5,525</span></li>
-      </ul>
-      <div class="takeaway"><span class="eyebrow">Where that sits</span>
-        <p>Erewhon's Shopper Bag is $65 and their Dad Hat $75 &mdash; the same neutral canvas, the same centered wordmark, no ornament on either. Ours land at $55 and $48. Close in make, deliberately under in price. Hat costs are still unconfirmed, so those want checking against the buy.</p></div>
-    </div>
-  </div>
-</section>
-
 <!-- 15 THE CORE -->
-<section class="slide" data-n="14">
+<section class="slide" data-n="09">
   <div class="s-head"><div class="eyebrow">The proposal</div>
     <h2>Five styles. Always on. <span class="amp">&amp;</span> never out of stock.</h2></div>
   <div class="body-flex">
     <div class="core-grid">
       <div class="core-card"><div class="slot">Core 01 &middot; Headwear</div><h3>Kids Hat</h3>
         <div class="price">$38</div><div class="ev">Category whitespace</div>
-        <p class="why">None of the four sells a kids' hat. The one place we can own something they don't.</p></div>
+        <p class="why">None of the four sells a kids' hat. The one place to own something they don't.</p></div>
       <div class="core-card"><div class="slot">Core 02 &middot; Headwear</div><h3>Have a Nice Day 5-Panel</h3>
         <div class="price">$45</div><div class="ev">58 units &middot; 1st</div>
         <p class="why">First at both shops at 5.4 a week. The foam build it beat is the one to retire.</p></div>
@@ -569,38 +447,42 @@ tr.win td{background:rgba(123,189,145,.09)}
         <div class="price">$60</div><div class="ev">Proven on caps</div>
         <p class="why">The Classic blank with a neighborhood in place of the wordmark. No new sample.</p></div>
     </div>
+    <div class="notes" style="margin-top:22px">
+      <div class="note"><strong>Priced to a real margin.</strong> The Classic Tote costs $25.95 and returns $29.05 at $55, a 52.8% margin, against $9.05 at the old $35. Totes run SunLife $20, Alfred $32, Erewhon $65. Ours sits near the top by design. Hat costs are still unconfirmed.</div>
+      <div class="note next"><strong>One mark, one place for it.</strong> NEIGHBORLY on the front of every cap, the place name stitched above the closure on the back. A new territory changes the back, never the front.</div>
+    </div>
   </div>
 </section>
 
 <!-- 16 LAUNCH -->
-<section class="slide" data-n="15">
-  <div class="s-head"><div class="eyebrow">What we are making</div><h2>The launch lineup</h2></div>
+<section class="slide" data-n="10">
+  <div class="s-head"><div class="eyebrow">What launches</div><h2>The launch lineup</h2></div>
   <div class="body-flex" style="gap:22px">
     <div class="launch">
-      <div class="lc"><div class="ph none">Design pending &mdash; merch-deck/kids-hat.jpg</div>
+      <div class="lc"><div class="ph none">Design pending &middot; merch-deck/kids-hat.jpg</div>
         <div class="bd"><div class="build">Headwear &middot; kids</div><h3>Kids Hat</h3><div class="price">$38</div>
           <span class="rank new">New for launch</span>
           <p class="proof">The one piece none of the four brands sells. Family trade is ours to take.</p></div></div>
       <div class="lc"><div class="ph"><img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBAUEBAYFBQUGBgYHCQ4JCQgICRINDQoOFRIWFhUSFBQXGiEcFxgfGRQUHScdHyIjJSUlFhwpLCgkKyEkJST/2wBDAQYGBgkICREJCREkGBQYJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCT/wAARCACWAJYDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD6pooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiigsFGSQB70AFFV3vYl4GWPtVd9SckhFUe55qXJIdmaFYfjHxno/gTR/7W1qZ4rcyLCvloWZ3OcKB+B/Kpmup26yt+HFQy4nXbKokXOcONwz+NT7RD5TN8HfFDQvG8rxadHqMLou/wD0q1aNWHs/Kn6ZzXWh1b7rA/Q1i5IG3JwO3ajNDqdkHKbdFY63EidHYfjUyX8o6sG+opqog5TSoqmmor/GmPpVmOeOX7rA+3eqUkxWH0UUUxBRRRQAUUUUAFFFV765+zxfL99uB7e9Ju2oCXN8sJ2Lhn/QVnS3LSHLsW/pUDNnvTc1zym2aJWJixbilqJTT80rjHZpM0lFFwsOzRmm0yaaO3ieWZ1jRFLszHAVR1P0oEPLU3PNZsfiHTZ0tZLe5E8d1I8UbxjI3KpYg+hwO9M0fxFZa7/x5+af3KT/ADrjAYsAOvUFTkVbpTSba2EpxvZM1Q/NOWUqcgkH1rOttWsruUxQ3MbyB5E2Zw2UOG468EjmroPaoacdGNNPY1rK980+XIfm7H1q5WAjlGDKcEHIrchlE0SyDuK2pyvoTJWH0UUVoSFFFFABWLqU2+6YZ4TitquduW3XEh/2jWVV6FRI80CiisCxVcDipA2RUAOD+VPVsGhDJaXNMBrK1/U4rKFYZ57uxjnGBfxKCkDZGAx5xn3GO2RVwi5vlRLdldkOq+LIdNv4IfI861MQnnuUcERxltgYAfeAb7xHQGs7xPBbadqdpq7QQSWtyfs17vmyZ0fAVVQ8EDAbj34rL0jRLs3C6eLmO6tQXltNStGWVYXI+dZFJ4Rx1Q8Z6e3W2djb+HtFhhlle4SzUlXkALZ54UduuAPTiu6fs6DXI7v80/y/z6aXeEeaoncwXsr7U9VlvrbTrm1Rbi2d47gBCXVZEkYc4ICsoyOuOKk8DeGbzw7PcG5VQk0EAGHDbXGd6/TJz+NaFl4y0m6tjNNOtoVxlJTnqTjBHB6HOOmOasL4n0hw5+2KoQgZZGG7gHjjnrj65rOdeq4uny6Oy+4qNON1K+pkeEtHfT5NR1a+hWC4uZ5EjDgIRHvJGSe7E/kBVaz8W/ZRcajcG5dL+YJY6cXDuxB2swPZS3A7ccda35b/AEjWMaczQ3iz7gYtpZcKMknsO2D69KxtQ8Of2RKmoaVZm6lhB8mA/MfNPyoSSeI41zgep/GrhUhUk/arV/1by9SZRcUuTodbHLHIzojozRna6hgShxnB9DgitjS2zbkejGvJNF1VfDl0yz6l9rllcyXKrJ/o6MSA5DYJllJx8q8DNesaOwe3LDOCQRkYPI9KznQdKa7PqXGopov0UUUAFFFFABXOSDMj/wC8f510ZrnJf9Y/1NY1ehcRmKKKKxLGn734U6kxz+dLSAcpolijnieGVFkjkUq6MMhgeoNNFPB4piMvQtM0/RITZWksDygsGI2CQqDwGxydoYDJ59etXryzt7+AwXUSyxk5KnP9Pqarw6NaQ6i+oL5huHLElm45GOmOw4H1NW55TBC0gjeTaM7EGSfpWkpOUua+rEkkrHPz6VBBf29vFoP2iCMDZMXOVyRklieQAMYPoB04qlcaVaRXjqvhAThj+6bzDnpli2SQOv45Irov7W+QObO5AJxjbk9cU3+12+cfYLv5exXBb2HvWqdRdPx/4JHulXRdFsoit3/YkWnXCMQoDbjjA54OPb1AFa0rRKAsrIokOwBiBuJ7DPXvxTLa8+0MB5Mkfy7ju/hPp9aS+sINQSOO43FEcPtBwGOCMH25/lWMm3L3i1toUtN8PafaXAvYx5zgf6OTgpbxnosQHCj3HJ9a6nSTlJPqKxbO1isbWC0gBWGBFjQE5IUDA5rY0g/6wfQ1am5Tu3cXKktDRooorYgKKKKACucl/wBa4/2jXR1nXWlGWRpInCljkg+tZ1It7FRdjKNFWm0y6X+BW/3WqF7adPvROPwrBpou6Ij1BpahuLy1tVZrm5t4AvJ82VVx9cmsa8+IHhGwz9o8TaQhHYXKsfyUmkk3sFzfpwPFcFefG7wNaA7NTnuyOMW1s7fqQBXPaj+0TpiBhpmh3k5HRrmRYgffA3GtFRm9kJyXc9fFKAT0r511P49+K7zItE0/T07eXF5jD8WP9K5jUPiF4q1XP2vX9QZTwVSXy1/JcVtHCTe5LqI+q7m8trRd11dwQAd5ZAv8zWLc/EDwlaZWbxLpoI6hZg38s18oyzSXDb5neVj3dix/Wtvwdf6XYam41ayt7iCeIxo80e9YH/hfbkZGeD7Vp9TSV2yfan0LL8WfBCDnxHbN/uq7f0pYfir4IuDhfEdov++GX+Yr5qd/FlvI6y6FCxRyrPDpDPCeuGDdCnT3Gfaiw1fxFGAs/hOG+VwGa1l0llkb1RXU5VuuCPUH1rn5ae2p0qjNq9196/zPquy8V6BqDAWeuabOT0VblMn8M10uktiVh6rkV8Z+ItAbT2hu1srm2tLtfMiiukIlhz/AwIzkc898H0rtPgz8ULjwjr0On6reSyaLcnyj5rlhasejjPRexHTBz2rdYa3vRdzm9p0Z9WUUisGUMCCDyCO9LSAKKKKACiiigAooooA8F/aX+Hcd7bw+MbS3VpLcCC+AXOUz8kh+hO0+xHpXz0qKnCqF+gxX3xf2NvqdlPZXcSzW9xG0UkbdGUjBFfF/xE8FXPgPxRc6RLuaD/W2sxH+thJ+U/UdD7iuijK+hEl1OaFPFMFOBrckeDxSimZ/ClzxzigCQHHFGaYDSg0Aeh+BvHGoW2n3WkxvaTXZjzZx38hWKZh/yzLZ+UkcDPB4zWZceOvGNrrTXa+B4La4T5X2QvjIxx+IHUGuQz7VIJpQMCWQDp948VjOjzO6djSFRR3V/vOzu/Gnibxbcwabrvg9IbWRxG00KOJIwxAzljjAOD+HHvy2v6NP4f1a50y5aN5IGwWQ5VgRkH8iOKq+dKf+Wkn/AH0ajYE8kdaqnTcOtxTkpbKx9Ifs/wDxK/tvTh4W1SbN/ZR5tXc8zQj+H3Zf1GPQ17LXwlpep3eialbajYTNDdW0gkikHZh/Mdj6ivsf4e+N7Tx74bg1W32xzf6u5gB5hlA5H07g+hrKrCzugizpqKKKxKCiiigAooooAK4X4u/DmL4g+HGjgVF1W0zLZyHjJ7xk+jfocGu6opp2d0B8D3FtNZ3EttcRPDNE5SSNxhkYHBBHqKYK+m/jT8Gf+ErV/EGgRKusIv7+DoLxQOo9HH69PSvme4t5rWeS3uIpIZomKPHIpVkI7EHoa64zUkZNWG5oBpOaXB9fyqwHDige1aPh/wANa14quvsmh6Zc6hLnDGFfkT/ec/Kv4mvd/An7NtjZrHe+MJ1v5+GFhAxECezNwXP5D61EpqO40rnhvh7wvrniu4+z6FpV1qDg4Zol/dp/vOflH516t4e/Zk1i7VZdf1q3sAeTBZp5zj2LthR+ANfQljp9pplrHaWVtDbW8YwkUKBEUewHFWKwdZvYpRPLdP8A2cfA9oo+0pqV+3cz3bKD+CbRWhJ8Avh5Im0aEyf7S3UwP/oVehUVHPLuOyPFte/Zh0G5jZtC1fUNOm6hJyLiIn05ww/OvOPDetax8BfiMdL1wD7NcKv2gREmO4gJ4ljz1KnPv1HevrCvOfjb8KIvih4aWO0eO21ywYzafctwA38UbH+42Bn0IB7VSqPZi5T0G0u4L+1iurWVJoJkEkciHKupGQQfSivOfgJovi7w54MfSvFdp9lkt7hhaxmVZCIyASMqSMbs4+tFQ1ZlHpdFFFIAooooAKKKKACuU8YfDDwv44/eatp4+1AYF3AfLmA/3h1+hzXV0U07bAeJTfst6K0pMXiHU0izwrRRsfzwP5Vv6H+zv4I0l1kure71aRef9Nmymf8AcXA/PNenUVXPLuKyK9jp9pplslrY2sNrbpwsUKBEX6AcVYooqBhRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAf/Z" alt="Have a Nice Day 5-Panel"></div>
         <div class="bd"><div class="build">5-panel trucker</div><h3>Have a Nice Day 5-Panel</h3><div class="price">$45</div>
           <span class="rank">1st &middot; 58 units</span>
-          <p class="proof">First at both shops at 5.4 a week. The best-selling design we have made.</p></div></div>
-      <div class="lc"><div class="ph none">Sand washed twill &middot; NEIGHBORLY front &middot; place name and house icons on the back<br><br>merch-deck/dad-cap.jpg</div>
+          <p class="proof">First at both shops at 5.4 a week. The best-selling design in the range.</p></div></div>
+      <div class="lc"><div class="ph art"><svg viewBox="22 28 156 118" role="img" aria-label="Neighborly dad cap in sand twill with the NEIGHBORLY wordmark" style="display:block;width:100%;height:auto"><defs><pattern id="mesh" width="5" height="5" patternUnits="userSpaceOnUse"><circle cx="2.5" cy="2.5" r="1" fill="rgba(31,35,40,.13)"/></pattern></defs><path d="M26,96 C18,124 54,140 100,140 C146,140 182,124 174,96 Z" fill="#ded3bb" stroke="rgba(31,35,40,.22)"/><path d="M40,104 C40,58 64,36 100,36 C136,36 160,58 160,104 Z" fill="#ded3bb" stroke="rgba(31,35,40,.22)"/><circle cx="100" cy="34" r="4.5" fill="#ded3bb" stroke="rgba(31,35,40,.22)"/><path d="M100,37 L100,104" stroke="rgba(31,35,40,.22)" stroke-width="1" fill="none" opacity=".45"/><circle cx="76" cy="66" r="2.2" fill="rgba(31,35,40,.22)" opacity=".5"/><circle cx="124" cy="66" r="2.2" fill="rgba(31,35,40,.22)" opacity=".5"/><text x="100" y="76" text-anchor="middle" font-family="'DM Sans',sans-serif" font-size="9.5" font-weight="600" fill="#fff" letter-spacing=".11em">NEIGHBORLY</text></svg></div>
         <div class="bd"><div class="build">Dad cap &middot; territories</div><h3>Dad Cap</h3><div class="price">$48</div>
           <span class="rank">2nd &middot; 47 units</span>
           <p class="proof">47 units across 9 territories. Launch on the six that cleared 4.</p></div></div>
-      <div class="lc"><div class="ph none">Tan oversized canvas &middot; NEIGHBORLY body &middot; Have a Nice Day handle tag<br><br>merch-deck/tote-classic.jpg</div>
+      <div class="lc"><div class="ph art"><svg viewBox="30 14 140 164" role="img" aria-label="Neighborly Classic Tote in tan canvas with the NEIGHBORLY wordmark" style="display:block;width:100%;height:auto"><defs><pattern id="mesh" width="5" height="5" patternUnits="userSpaceOnUse"><circle cx="2.5" cy="2.5" r="1" fill="rgba(31,35,40,.13)"/></pattern></defs><path d="M66,64 C66,22 134,22 134,64" fill="none" stroke="#e3d9c2" stroke-width="7" stroke-linecap="round"/><path d="M42,62 L158,62 L151,168 L49,168 Z" fill="#e3d9c2" stroke="rgba(31,35,40,.22)"/><rect x="70" y="66" width="15" height="11" rx="1.5" fill="none" stroke="#e87142" stroke-width="1.2"/><text x="100" y="118" text-anchor="middle" font-family="'DM Sans',sans-serif" font-size="11.5" font-weight="700" fill="#1f2328" letter-spacing=".11em">NEIGHBORLY</text></svg></div>
         <div class="bd"><div class="build">Tote &middot; oversized canvas</div><h3>Classic Tote Bag</h3><div class="price">$55</div>
           <span class="rank">3rd &middot; 41 units</span>
           <p class="proof">Tan oversized canvas, NEIGHBORLY wordmark. Est. cost $25.95.</p></div></div>
-      <div class="lc"><div class="ph none">Design pending &mdash; merch-deck/tote-neighborhood.jpg</div>
+      <div class="lc"><div class="ph none">Design pending &middot; merch-deck/tote-neighborhood.jpg</div>
         <div class="bd"><div class="build">Tote &middot; territories</div><h3>Neighborhood Tote</h3><div class="price">$60</div>
           <span class="rank new">Extends the cap</span>
           <p class="proof">Same blank as the Classic with a neighborhood in place of the wordmark.</p></div></div>
     </div>
     <div class="notes">
-      <div class="note"><strong>Retiring:</strong> the Yes Mom foam trucker (15 units), the Script and Varsity dad caps (11 and 8), and the NBRLY Blue Tote (7) &mdash; 41 of 187 units across four styles, better spent as depth on the five above.</div>
-      <div class="note next"><strong>First drop &mdash; the quarterly hat.</strong> Butter twill, "have a nice day" in blue script, BRENTWOOD, CA on the back. Same blank and same back as the core dad cap: only the front and the colorway change. No new vendor, no new sample &mdash; which is the whole rule.</div>
+      <div class="note"><strong>Retiring:</strong> the Yes Mom foam trucker (15 units), the Script and Varsity dad caps (11 and 8), and the NBRLY Blue Tote (7). 41 of 187 units across four styles, better spent as depth on the five above.</div>
+      <div class="note next"><strong>First drop: the quarterly hat.</strong> Butter twill, "have a nice day" in blue script, BRENTWOOD, CA on the back. Same blank and same back as the core dad cap: only the front and the colorway change. No new vendor, no new sample. That is the whole rule.</div>
     </div>
   </div>
 </section>
@@ -609,7 +491,7 @@ tr.win td{background:rgba(123,189,145,.09)}
 
 <nav class="nav">
   <button id="prev" aria-label="Previous slide">&larr; Prev</button>
-  <span class="counter" id="counter">01 / 15</span>
+  <span class="counter" id="counter">01 / 10</span>
   <button id="next" aria-label="Next slide">Next &rarr;</button>
   <span class="dots" id="dots"></span>
 </nav>
