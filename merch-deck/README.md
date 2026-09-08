@@ -91,3 +91,17 @@ Sent as pasted images rather than attached files, so they are not in the repo.
 
 Directly comparable to our core: Erewhon's tote $65 vs our Classic at $55, and
 their dad hat $75 vs ours at $48 — same neutral ground, same centered wordmark.
+
+## First drop — the quarterly hat (`drop-q1-hat.jpg`)
+
+Butter/wheat washed twill dad cap. Front: "have a nice day" in blue script across
+two lines. Back: BRENTWOOD, CA arched above the closure in the same blue.
+Antique brass slide buckle.
+
+Built on the same blank and the same back treatment as the Core 03 dad cap —
+only the front artwork and the colorway change. That is the drop rule the deck
+states, executed exactly: no new vendor, no new sample.
+
+Design split as it now stands:
+- Wordmark (NEIGHBORLY) — dad cap, Classic Tote, Neighborhood Tote
+- Phrase (Have a Nice Day) — the 5-Panel, and the quarterly drop
