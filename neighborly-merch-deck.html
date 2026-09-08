@@ -135,6 +135,15 @@ p{max-width:66ch}
   border:1px solid rgba(156,122,60,.22);
 }
 .comp p{margin-top:12px;font-size:14.5px;color:var(--text-2)}
+.pts{list-style:none;display:flex;flex-direction:column;gap:10px;margin-top:14px}
+.pts li{font-size:14.5px;line-height:1.45;color:var(--text-2);padding-left:16px;position:relative}
+.pts li::before{content:'';position:absolute;left:0;top:.62em;width:6px;height:1.5px;background:var(--brand-tan-deep)}
+.pts strong{color:var(--text);font-weight:600}
+.shot .src{display:none}
+.shot.empty .src{display:inline-block;margin-top:7px;font-family:var(--f-mono);font-size:10.5px;
+  line-height:1.3;color:var(--brand-blue-deep);border-bottom:1px solid rgba(45,68,128,.32)}
+.shot.empty .src:hover{border-bottom-color:var(--brand-blue-deep)}
+.shot .src:focus-visible{outline:2px solid var(--brand-blue-deep);outline-offset:2px}
 
 /* price ladder */
 .ladder{list-style:none;margin:18px 0 0;display:flex;flex-direction:column;gap:0}
@@ -279,7 +288,7 @@ footer code{font-family:var(--f-mono);font-size:11.5px;background:var(--surface-
     <div class="kicker">Neighborly &middot; Merchandise Strategy &middot; September 2026</div>
     <h1>The Core Collection</h1>
     <p class="lede">Five styles, always on the shelf, never out of stock &mdash; and a drop calendar layered on top to keep it interesting.</p>
-    <blockquote class="thesis">Merch that is <em>always there</em> beats merch that is always new.</blockquote>
+    <blockquote class="thesis">The pieces that are always there tend to be the ones people come back for.</blockquote>
     <div class="cover-meta">
       <span class="tag">1 Kids Hat</span>
       <span class="tag">1 Dad Cap</span>
@@ -293,13 +302,11 @@ footer code{font-family:var(--f-mono);font-size:11.5px;background:var(--surface-
     <div class="plate-head">
       <span class="plate-no">01</span>
       <div>
-        <div class="eyebrow">The argument</div>
-        <h2>We don't have a demand problem. We have an availability problem.</h2>
+        <div class="eyebrow">Where this started</div>
+        <h2>Availability may matter more than newness</h2>
       </div>
     </div>
-    <p class="lede">Every brand we benchmark against runs the same structure: a permanent spine of simple, everyday silhouettes that never leaves the shelf, plus limited drops on top that create urgency. Nobody wins by making the core itself novel. We have been running only the interesting half &mdash; one-off hats and phrases that appear, sell a unit or two, and disappear.</p>
-    <div class="rule"></div>
-    <div class="note"><strong>What this deck does:</strong> Section 02&ndash;06 is the comp shop &mdash; what Erewhon, SunLife Organics, Alfred Coffee and Trader Joe's actually put on their shelves and what they charge. Section 08&ndash;09 is our own register data. Section 10 is the five-SKU core we're proposing, priced against both.</div>
+    <p class="lede">Looking at how established merch programs are put together, a common structure shows up: a steady set of simple, everyday pieces that stay in stock, with limited runs layered on top. The newness tends to live in those limited runs rather than in the core itself. Our own merch so far has been mostly the limited half &mdash; individual hats and phrases that appeared for a moment and then moved on.</p>
   </section>
 
   <!-- ============ 02 COMP INTRO ============ -->
@@ -307,11 +314,11 @@ footer code{font-family:var(--f-mono);font-size:11.5px;background:var(--surface-
     <div class="plate-head">
       <span class="plate-no">02</span>
       <div>
-        <div class="eyebrow">Field research</div>
-        <h2>Four brands, one structure</h2>
+        <div class="eyebrow">A closer look</div>
+        <h2>How four brands build a collection</h2>
       </div>
     </div>
-    <p class="lede">These four sit at different price ceilings &mdash; from a $2.99 tote to a $290 one &mdash; but they are built the same way. Read them as one argument, not four case studies.</p>
+    <p class="lede">These four operate at very different price ceilings &mdash; from a $2.99 tote to a $290 one &mdash; and none of them is really our competition. They are simply programs that have been running long enough to learn from. What stands out is how similarly they are built.</p>
   </section>
 
   <!-- ============ 03 EREWHON ============ -->
@@ -324,17 +331,22 @@ footer code{font-family:var(--f-mono);font-size:11.5px;background:var(--surface-
       <div class="shots">
         <figure class="shot" data-slot="EREWHON &mdash; Standard Collection hoodie / sweatpants, neutral colorway">
           <img src="merch-deck/erewhon-standard.jpg" alt="Erewhon Standard Collection apparel" onerror="this.closest('.shot').classList.add('empty')">
+          <a class="src" href="https://ship.erewhon.com/collections/apparel-merchandise" target="_blank" rel="noopener">Source &rarr; ship.erewhon.com/apparel</a>
           <figcaption>The always-on Standard Collection</figcaption>
         </figure>
         <figure class="shot" data-slot="EREWHON &mdash; the canvas Shopper tote, in the wild">
           <img src="merch-deck/erewhon-tote.jpg" alt="Erewhon canvas shopper tote" onerror="this.closest('.shot').classList.add('empty')">
+          <a class="src" href="https://ship.erewhon.com/collections/bags" target="_blank" rel="noopener">Source &rarr; ship.erewhon.com/bags</a>
           <figcaption>Shopper tote &mdash; the signature silhouette</figcaption>
         </figure>
       </div>
       <div>
         <div class="comp-name"><h2>Erewhon</h2><span class="comp-role">The ceiling</span></div>
-        <p>Erewhon's merch is split explicitly into two tiers, and they name the permanent one: the <strong>Standard Collection</strong> &mdash; hoodies and sweatpants in neutral colors carrying the original logo, restocked continuously. Everything else is scarcity: Coachella-edition totes, a Swarovski-crystal tote, collaborations with Balenciaga and Merci, and drink collabs with Travis Scott and Hailey Bieber.</p>
-        <p>The tote is the engine. It has become, in Highsnobiety's words, "a semi-subtle shorthand for monied good taste" &mdash; a $60 piece of canvas doing the work of a logo campaign.</p>
+        <ul class="pts">
+          <li>Two tiers &mdash; and they name the permanent one: the <strong>Standard Collection</strong>. Neutrals, original logo, restocked continuously.</li>
+          <li>Everything else is scarcity: Coachella totes, a Swarovski tote, Balenciaga and Merci collabs.</li>
+          <li>The tote does the work of a logo campaign. Highsnobiety calls it "shorthand for monied good taste."</li>
+        </ul>
         <ul class="ladder">
           <li><span class="p">$36</span><span class="n">Washable Kraft bag</span><span class="t t-core">Core</span></li>
           <li><span class="p">$60&ndash;65</span><span class="n">Shopper tote, multiple colorways</span><span class="t t-core">Core</span></li>
@@ -345,7 +357,7 @@ footer code{font-family:var(--f-mono);font-size:11.5px;background:var(--surface-
         </ul>
         <div class="takeaway">
           <span class="eyebrow">What we take</span>
-          <p>The core is boring on purpose &mdash; neutrals, one logo, same silhouettes every season. All the novelty is spent on top of it, where it can be scarce.</p>
+          <p>The core is deliberately plain. The novelty sits on top of it, where it can be scarce.</p>
         </div>
       </div>
     </div>
@@ -361,20 +373,25 @@ footer code{font-family:var(--f-mono);font-size:11.5px;background:var(--surface-
       <div class="shots">
         <figure class="shot" data-slot="SUNLIFE &mdash; trucker cap with pink lotus logo">
           <img src="merch-deck/sunlife-cap.jpg" alt="SunLife Organics cap" onerror="this.closest('.shot').classList.add('empty')">
+          <a class="src" href="https://sunlifeorganics.com/collections/cap" target="_blank" rel="noopener">Source &rarr; sunlifeorganics.com/cap</a>
           <figcaption>Cap &mdash; one silhouette, many colorways</figcaption>
         </figure>
         <figure class="shot" data-slot="SUNLIFE &mdash; city tote bags (Austin / Miami / Chicago / USC) side by side">
           <img src="merch-deck/sunlife-totes.jpg" alt="SunLife Organics city tote bags" onerror="this.closest('.shot').classList.add('empty')">
+          <a class="src" href="https://sunlifeorganics.com/collections/bags" target="_blank" rel="noopener">Source &rarr; sunlifeorganics.com/bags</a>
           <figcaption>Same tote, different city</figcaption>
         </figure>
       </div>
       <div>
         <div class="comp-name"><h2>SunLife Organics</h2><span class="comp-role">The closest cousin</span></div>
-        <p>SunLife runs a small, stable kit &mdash; caps, tees, hoodies, sweatpants, totes and accessories &mdash; with a single constant: the pink lotus, applied identically across every category. Their interesting move is on the tote: <strong>one silhouette, sold as a place.</strong> There is an Austin TX tote, a Miami FL tote, a Chicago tote, a USC tote. The bag never changes. The town does.</p>
-        <p>That is a locality strategy we have already tested by accident &mdash; our <span class="fig">NEIGHBORHOOD CAP (THE RIVIERA)</span> is exactly this idea, launched once and then left alone.</p>
+        <ul class="pts">
+          <li>A small, stable kit &mdash; caps, tees, hoodies, sweatpants, totes &mdash; with the pink lotus applied identically across all of it.</li>
+          <li><strong>One tote silhouette, sold as a place:</strong> Austin, Miami, Chicago, USC. The bag never changes. The town does.</li>
+          <li>We have already tried a version of this &mdash; the Riviera cap &mdash; and then left it alone.</li>
+        </ul>
         <div class="takeaway">
           <span class="eyebrow">What we take</span>
-          <p>Locality is the cheapest newness there is. Fix the silhouette, vary the neighborhood &mdash; Westlake, Brentwood, The Riviera &mdash; and one tote becomes a collectible set without a single new sample or vendor.</p>
+          <p>Fix the silhouette, vary the neighborhood, and one bag becomes a set &mdash; with no new sample or vendor.</p>
         </div>
       </div>
     </div>
@@ -390,16 +407,18 @@ footer code{font-family:var(--f-mono);font-size:11.5px;background:var(--surface-
       <div class="shots">
         <figure class="shot" data-slot="ALFRED &mdash; Greek Cup trucker + dad hat">
           <img src="merch-deck/alfred-hats.jpg" alt="Alfred Coffee hats" onerror="this.closest('.shot').classList.add('empty')">
+          <a class="src" href="https://alfred.la/collections/greek-cup" target="_blank" rel="noopener">Source &rarr; alfred.la/greek-cup</a>
           <figcaption>Greek Cup trucker &amp; dad hat</figcaption>
         </figure>
         <figure class="shot" data-slot="ALFRED &mdash; logo mini tote">
           <img src="merch-deck/alfred-tote.jpg" alt="Alfred Coffee mini tote" onerror="this.closest('.shot').classList.add('empty')">
+          <a class="src" href="https://alfred.la/collections/merch" target="_blank" rel="noopener">Source &rarr; alfred.la/merch</a>
           <figcaption>Logo mini tote, $32</figcaption>
         </figure>
       </div>
       <div>
         <div class="comp-name"><h2>Alfred Coffee</h2><span class="comp-role">Our price twin</span></div>
-        <p>Alfred is the most useful comp we have, because it is the one operating at <em>our</em> price points rather than Erewhon's. A tight everyday kit, priced to be bought on impulse alongside a drink.</p>
+        <p>The one operating at our price points rather than Erewhon's &mdash; a tight everyday kit, priced to be picked up alongside a drink.</p>
         <ul class="ladder">
           <li><span class="p">$25</span><span class="n">Greek Cup trucker hat</span><span class="t t-core">Core</span></li>
           <li><span class="p">$30</span><span class="n">Greek Cup dad hat</span><span class="t t-core">Core</span></li>
@@ -409,7 +428,7 @@ footer code{font-family:var(--f-mono);font-size:11.5px;background:var(--surface-
         </ul>
         <div class="takeaway">
           <span class="eyebrow">What we take</span>
-          <p>Our existing hats sold at $24&ndash;$32 and our tote at $34 &mdash; we are already priced within a few dollars of Alfred across the board. The gap between us and Alfred is not price or product. It is that theirs are on the shelf every single day.</p>
+          <p>Our hats sold at $24&ndash;32 and our tote at $34 &mdash; within a few dollars of Alfred across the board. The difference is shelf presence, not price.</p>
         </div>
       </div>
     </div>
@@ -425,16 +444,20 @@ footer code{font-family:var(--f-mono);font-size:11.5px;background:var(--surface-
       <div class="shots solo">
         <figure class="shot" data-slot="TRADER JOE'S &mdash; the mini canvas totes, pastel set / the queue outside a store">
           <img src="merch-deck/tj-minitote.jpg" alt="Trader Joe's mini tote bags" onerror="this.closest('.shot').classList.add('empty')">
+          <a class="src" href="https://www.foodnetwork.com/fn-dish/news/trader-joes-mini-tote-bags-back-in-stock-september-2024" target="_blank" rel="noopener">Source &rarr; foodnetwork.com</a>
           <figcaption>The $2.99 mini tote that resold for hundreds</figcaption>
         </figure>
       </div>
       <div>
         <div class="comp-name"><h2>Trader Joe's</h2><span class="comp-role">The scarcity lesson</span></div>
-        <p>In March 2024 Trader Joe's put out an $2.99 mini canvas tote. People queued around the block. San Francisco stores sold out in 45 minutes. Resale listings hit $50, then $500, and sets were listed for close to $1,000. It is the most-cited merch moment in grocery.</p>
-        <p>The part everyone forgets: <strong>the full-size classic canvas tote never left the shelf.</strong> It was there before the frenzy, during it, and after. The mini was a drop against a permanent baseline &mdash; which is exactly why it read as scarce rather than as chaos.</p>
+        <ul class="pts">
+          <li>March 2024: a $2.99 mini canvas tote. Queues around the block; SF stores sold out in 45 minutes.</li>
+          <li>Resale listings hit $500, with sets near $1,000. The most-cited merch moment in grocery.</li>
+          <li>The part usually left out: <strong>the full-size classic tote never left the shelf</strong> &mdash; before, during or after.</li>
+        </ul>
         <div class="takeaway">
           <span class="eyebrow">What we take</span>
-          <p>A drop only creates urgency if there is something permanent for it to be scarce <em>against</em>. Our merch has been all drop and no baseline, so nothing has ever felt like it was running out &mdash; it just felt like it was gone.</p>
+          <p>A drop reads as scarce only against something permanent. Ours have had no baseline to stand against.</p>
         </div>
       </div>
     </div>
@@ -597,7 +620,31 @@ footer code{font-family:var(--f-mono);font-size:11.5px;background:var(--surface-
         <h2>Five styles. Always on. <span class="amp">&amp;</span> never out of stock.</h2>
       </div>
     </div>
-    <p class="lede">Simple silhouettes, one mark, held in stock permanently at both locations. Prices sit where our own register already proved they clear, and within a few dollars of Alfred across the board.</p>
+    <p class="lede">Simple silhouettes, one mark, held in stock permanently at both locations. Prices sit where our own register already proved they clear, and within a few dollars of Alfred across the board. Core 04 is specced and costed; the other four are proposals.</p>
+
+    <div class="comp" style="margin-top:26px">
+      <div class="shots solo">
+        <figure class="shot" data-slot="NEIGHBORLY &mdash; Classic Tote Bag, tan oversized canvas, product shot">
+          <img src="merch-deck/tote-classic.jpg" alt="Neighborly Classic Tote Bag in tan canvas" onerror="this.closest('.shot').classList.add('empty')">
+          <figcaption>Core 04 &mdash; Classic Tote Bag, $35.00</figcaption>
+        </figure>
+      </div>
+      <div>
+        <div class="comp-name"><h2>The margin question</h2><span class="comp-role">Needs a decision</span></div>
+        <p>The Classic Tote is specced and costed, and it is the first hard number we have on merch economics. At <strong>$35.00 against an estimated $25.95 cost</strong>, every bag returns $9.05.</p>
+        <ul class="ladder">
+          <li><span class="p">$35.00</span><span class="n">Sale price &mdash; matches the $34 AUR that already cleared</span></li>
+          <li><span class="p">$25.95</span><span class="n">Estimated unit cost</span></li>
+          <li><span class="p">$9.05</span><span class="n">Gross profit per bag</span></li>
+          <li><span class="p">25.9%</span><span class="n">Gross margin &mdash; roughly half what merch usually carries</span></li>
+          <li><span class="p">5,525</span><span class="n">Bags a year to clear $50K gross profit &mdash; about 15 a day</span></li>
+        </ul>
+        <div class="takeaway">
+          <span class="eyebrow">The read</span>
+          <p>$25.95 for an oversized canvas tote looks like a low-minimum price, so the first lever is the buy, not the price tag. Worth pricing at real volume before we touch the $35 &mdash; Erewhon sells a smaller canvas shopper at $60&ndash;65, so the same bag at 50&ndash;60% margin is not an unreasonable place for this to land once availability is fixed and we have clean sell-through.</p>
+        </div>
+      </div>
+    </div>
 
     <div class="core-grid">
       <div class="core-card">
@@ -623,17 +670,17 @@ footer code{font-family:var(--f-mono);font-size:11.5px;background:var(--surface-
       </div>
       <div class="core-card">
         <div class="slot">Core 04 &middot; Bags</div>
-        <h3>Everyday Tote</h3>
-        <div class="price">$34</div>
-        <div class="ev">Our top seller</div>
-        <p class="why">The workhorse, in the Have a Nice Day execution that produced 37% of all merch revenue on its own. Natural canvas, restocked forever.</p>
+        <h3>Classic Tote Bag</h3>
+        <div class="price">$35</div>
+        <div class="ev">Costed &amp; specced</div>
+        <p class="why">Tan oversized canvas, NEIGHBORLY wordmark, Have a Nice Day tag on the handle. Est. cost $25.95. The workhorse &mdash; and the one line in this deck whose economics need a look.</p>
       </div>
       <div class="core-card">
         <div class="slot">Core 05 &middot; Bags</div>
         <h3>Neighborhood Tote</h3>
-        <div class="price">$38</div>
+        <div class="price">$40</div>
         <div class="ev">The SunLife play</div>
-        <p class="why">Same bag, different neighborhood &mdash; Westlake, Brentwood, The Riviera. One silhouette that generates permanent, zero-sample newness and a set worth collecting.</p>
+        <p class="why">The Classic body with a neighborhood in place of the wordmark &mdash; Westlake, Brentwood, The Riviera. Same blank, same cost, no new sample. The $5 premium over Classic is what locality is worth.</p>
       </div>
     </div>
 
@@ -672,10 +719,12 @@ footer code{font-family:var(--f-mono);font-size:11.5px;background:var(--surface-
       </div>
     </div>
     <ul class="qs">
-      <li><strong>Which mark goes on all five?</strong> The comp set is unanimous that it must be one mark, applied identically. "Have a Nice Day" has the sales evidence; the house icon has the brand equity. Pick one.</li>
+      <li><strong>Does the tote&rsquo;s treatment carry to the hats?</strong> The Classic Tote answers this for bags &mdash; NEIGHBORLY wordmark on the body, Have a Nice Day as a tag detail. The comp set is unanimous that one mark must run identically across all five, so the question now is whether the three hats take the same wordmark-plus-tag treatment.</li>
       <li><strong>What is the in-store placement?</strong> Availability is our entire problem. Merch needs a permanent fixture at both locations, not a shelf it shares with rotating Marketplace stock.</li>
       <li><strong>What is the reorder trigger?</strong> "Always on" only means something with a par level and an automatic reorder &mdash; the Supply Reorders portal already does this for stickers and could carry merch.</li>
       <li><strong>Do we sell online?</strong> Every brand in this deck ships nationwide. We currently have no path for someone who wants the tote and doesn't live here.</li>
+      <li><strong>What does the tote cost at volume?</strong> Everything above turns on the $25.95. Get a price at 500 and 1,000 units before the buy is locked &mdash; that single number decides whether the core is a brand exercise or a P&amp;L line.</li>
+      <li><strong>Is the second tote the same size?</strong> A smaller second format would cost less and carry better margin than repeating the oversized body, and it is the Trader Joe&rsquo;s mini play. The Neighborhood execution above assumes we repeat the Classic blank.</li>
       <li><strong>What does a year of data actually say?</strong> This deck is built on 9 days of SKU-level sales. Confirm the pattern against the full year before we lock the buy.</li>
     </ul>
   </section>
