@@ -77,3 +77,17 @@ the handle. Est. cost $25.95.
 Both designs were pasted into chat rather than attached, so the image files are
 not in the repo. Attach them as files (or save and drop them in here with the
 names above) and the deck picks them up automatically.
+
+## Confirmed competitor pricing (verified from product pages, Sept 2026)
+
+| Piece | Price | Design |
+| ----- | ----- | ------ |
+| Erewhon Shopper Bag, Eggshell | $65.00 | Natural canvas, black EREWHON wordmark, centered |
+| Erewhon Dad Hat, Khaki | $75.00 | Khaki washed twill, white EREWHON wordmark, centered |
+| Alfred Greek Cup Dad Hat | $30.00 | Blue washed twill, orange hand-lettered phrase |
+
+Photo slots for these: `erewhon-tote.jpg`, `erewhon-dadhat.jpg`, `alfred-hats.jpg`.
+Sent as pasted images rather than attached files, so they are not in the repo.
+
+Directly comparable to our core: Erewhon's tote $65 vs our Classic at $55, and
+their dad hat $75 vs ours at $48 — same neutral ground, same centered wordmark.
