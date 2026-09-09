@@ -287,3 +287,47 @@ cap and a canvas tote are pieces she already owns, so nothing in the range asks 
 to take a risk. The wordmark stays quiet on the front and the place name goes on the
 back, which is the part worth being seen in. Goal is a household name in Westlake
 Village and Brentwood.
+
+## Final deck rebuilt from NEIGHBORLY_CORE_MERCH_3.pdf
+
+The 10-slide deck now mirrors that file page for page:
+
+1. Core Merch Collection (2x Dad Cap, Trucker Hat, Tote Bag, Kids Hat)
+2. What Shelly is buying — three influencer photos
+3. What our neighbors are selling — four competitor items with prices
+4. What we tried — 187 units, style breakdown, seven style tiles
+5. Classic Tote Bag — $25.95 cost, $40.00 sale, 50 units
+6. Always On Dad Cap, Khaki — $14.50 / $25.00, 50 units
+7. Always On Dad Cap, Slate — $14.50 / $25.00, 50 units
+8. Always On Kids Hat — $14.50 / $30.00, 50 units
+9. Special Edition Hat, quarterly drop — $14.50 / $30.00, 50 units
+10. Proposed restock budget — 250 units, $4,198 cost, $7,500 retail, 44.0%
+
+Pages 2, 4 and 10 of the source PDF were screenshots of earlier versions of
+this deck. They were rebuilt as native slides rather than embedded as images,
+so type and figures stay crisp. The page 10 screenshot carried the superseded
+CSV comparison (57 units, 3.5x); the rebuilt slide uses the 187-unit analysis
+instead, which gives 1.07x units and 1.02x spend.
+
+### Open discrepancies in that file
+
+- **Erewhon Dad Hat is priced at $150** on page 3. Erewhon's own product page
+  listed it at **$75** when verified in Sept 2026 (see the confirmed competitor
+  pricing section above). The deck carries $150 because it is the source file's
+  number, but the two do not agree.
+- **Page 4 is labelled "January 1 – now"** while the 187-unit figures under it
+  come from the 10 Apr – 24 Jun analysis, not a full year to date.
+- **The Trucker Hat is named on the collection cover but has no spec page** in
+  the file, so it has no cost or sale price and is not costed in the budget.
+  Core alone is therefore 200 units, not 250.
+- **NBRLY Blue Tote has no product shot on file**, so its tile on slide 4 is a
+  labelled placeholder.
+
+### Content dropped from the deck
+
+The Shelly persona copy (quality/versatility/effortless style; adopts trends
+6–12 months late; buys once Anine Bing or Revolve makes a style accessible;
+watches Anthropologie, Anine Bing, Madhappy, Alo, Daily Drills) is **not** in
+the final deck. Page 2 of the source file is photos and captions only, and the
+brief was to keep to that content. It was also overflowing 240px off the bottom
+of the slide in the prior version. It can be restored as its own slide.
