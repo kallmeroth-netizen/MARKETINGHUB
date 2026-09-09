@@ -320,8 +320,13 @@ instead, which gives 1.07x units and 1.02x spend.
 - **The Trucker Hat is named on the collection cover but has no spec page** in
   the file, so it has no cost or sale price and is not costed in the budget.
   Core alone is therefore 200 units, not 250.
-- **NBRLY Blue Tote has no product shot on file**, so its tile on slide 4 is a
-  labelled placeholder.
+- ~~**NBRLY Blue Tote has no product shot on file**~~ — resolved. The shot was
+  supplied on 9 Sept 2026 and is saved as `style-nbrly-blue-tote.jpg`. It is a
+  hand-held photo, cropped 4:5 to drop the hand, white-balanced to the
+  `(241,241,241)` ground the other style thumbnails use, and matted square so it
+  sits flush in the row. All seven tiles on slide 4 now carry a photo.
+  Note the bag is embroidered "Westlake Village" while the core dad caps read
+  "Brentwood, CA"; the deck makes no comment on that, by request.
 
 ### Content dropped from the deck
 
