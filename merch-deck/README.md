@@ -147,3 +147,34 @@ COMMUNITY" in dark brown.
 Design split as it stands: wordmark on the dad cap and the tote; phrase on the
 5-panel, the kids hat and the quarterly drop. Three of five carry a phrase, which
 matches the data, since Have a Nice Day was 99 of 187 units.
+
+## The buy (50 units per location)
+
+100 units per style across the two shops, 400 units in the core buy.
+
+| Style | Units | Sale price | Est. unit cost | Est. buy | Retail |
+| ----- | ----- | ---------- | -------------- | -------- | ------ |
+| Kids Hat | 100 | $38 | $17.93 | $1,793 | $3,800 |
+| Have a Nice Day 5-Panel | 100 | $45 | $21.23 | $2,123 | $4,500 |
+| Dad Cap | 100 | $48 | $22.65 | $2,265 | $4,800 |
+| Classic Tote Bag | 100 | $55 | $25.95 | $2,595 | $5,500 |
+| **Core buy** | **400** | | | **$8,776** | **$18,600** |
+
+Only the tote is quoted: $25.95 against $55, or 47.2% of retail. The three hat
+costs are modelled at that same ratio and need confirming against the actual buy.
+Gross at full sell-through is $9,824, a 52.8% margin. The Q1 drop cap is a
+separate 100-unit buy, not yet priced.
+
+**Against last quarter.** 10 Apr to 24 Jun sold 187 units across 7 styles, about
+$5,843 at retail and $2,757 at cost on the same ratio. The proposed buy is 2.1x
+those units and 3.2x that cost. Four of the seven prices used are actual register
+AURs ($34 tote, $32 Have a Nice Day hat, $30 Riviera cap, $25 Yes Mom trucker);
+Script, Varsity and NBRLY Blue Tote are assumed at $30, $30 and $34.
+
+## Image handling
+
+`normalised/` holds every product shot mapped onto one shared ground (244,242,238)
+so the tiles match across slides. Light grounds were white-balanced onto that
+value; the two navy-ground shots were flood-filled, which is safe at that contrast.
+The SunLife tote is a lifestyle photo cropped to the bag, so its edges still carry
+some of the original scene.
