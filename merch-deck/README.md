@@ -240,3 +240,30 @@ Westlake comparison is out of the deck. Kenter Canyon appears here and not in th
 
 Drop adds $1,900 for 50 of each of the three caps. Against the CSV, whose 57 units
 cost about $909 at these rates, the core buy is 4.4x the units and 4.7x the spend.
+
+## FINAL items and prices (NEIGHBORLY_CORE_MERCH_1.pdf)
+
+Supersedes every earlier costing. 50 units of each.
+
+| SKU | Units | Est. cost | Sale price | Buy | Retail | Margin |
+| --- | ----- | --------- | ---------- | --- | ------ | ------ |
+| Always On Dad Cap, Khaki | 50 | $14.50 | $25.00 | $725 | $1,250 | 42.0% |
+| Always On Dad Cap, Slate | 50 | $14.50 | $25.00 | $725 | $1,250 | 42.0% |
+| Always On Kids Hat | 50 | $14.50 | $30.00 | $725 | $1,500 | 51.7% |
+| Classic Tote Bag | 50 | $25.95 | $40.00 | $1,298 | $2,000 | 35.1% |
+| **Core** | **200** | | | **$3,473** | **$6,000** | **42.1%** |
+| Special Edition Hat, quarterly drop | 50 | $14.50 | $30.00 | $725 | $1,500 | 51.7% |
+| **Core plus drop** | **250** | | | **$4,198** | **$7,500** | **44.0%** |
+
+**Trucker hat is named on the collection cover but has no spec page in the final
+file**, so it carries no cost or price and is not in the buy.
+
+The quarterly drop is now a single Special Edition Hat: embroidered unstructured
+cap, butter twill, "have a nice day" in blue script, BRENTWOOD CA on the back. Same
+blank as the Always On Dad Cap. The Howdy Neighbor and Meet Me At Neighborly caps
+are not in the final file.
+
+Against the latest sales file, whose 57 units cost about $909 at these rates, the
+core buy is 3.5x the units and 3.8x the spend.
+
+`final/` holds the deck-ready art from this file.
