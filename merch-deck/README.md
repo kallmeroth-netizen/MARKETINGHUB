@@ -178,3 +178,26 @@ so the tiles match across slides. Light grounds were white-balanced onto that
 value; the two navy-ground shots were flood-filled, which is safe at that contrast.
 The SunLife tote is a lifestyle photo cropped to the bag, so its edges still carry
 some of the original scene.
+
+## Costs from NEIGHBORLY_CORE_MERCH.pdf
+
+Actual estimated unit costs, replacing the modelled ones. Sale prices below are the
+repriced set, not the ones in that file.
+
+| Item | Est. cost | Sale price | Margin |
+| ---- | --------- | ---------- | ------ |
+| Kids Hat, unstructured youth cap | $14.50 | $38 | 61.8% |
+| Have a Nice Day 5-Panel trucker | $16.50 | $45 | 63.3% |
+| Dad Cap, embroidered (slate + khaki) | $14.50 | $48 | 69.8% |
+| Classic Tote Bag, tan oversized | $25.95 | $55 | 52.8% |
+
+Core buy at 100 units per style: **$7,145 at cost, $18,600 retail, $11,455 gross
+(61.6%)**. Last quarter's 187 units cost about $3,407 at these same rates, so the
+core buy is 2.1x the units and 2.1x the spend.
+
+Quarterly drop, costs only, retail not yet set: Quarterly Fun Hat $13.50, Fun Hat 2
+$12.25, Fun Hat 3 $12.25, Baby Tee 1 $25.95, Baby Tee 2 $25.95. At 100 units each
+that is $8,990.
+
+Dad cap now shows two colourways, slate with white and khaki with white, at 50 units
+each. `hi-res/` holds the high-resolution product art lifted from that PDF.
