@@ -202,3 +202,41 @@ varsity). At 100 units each that is $3,800. The two baby tees are out of the dro
 
 Dad cap now shows two colourways, slate with white and khaki with white, at 50 units
 each. `hi-res/` holds the high-resolution product art lifted from that PDF.
+
+## Latest sales file supersedes the earlier analysis
+
+`sales-latest.csv`, 14 line items: **57 units, $1,734 net, $30.42 AUR.**
+
+By build: dad cap 44 units (77%), trucker 7, tote 6.
+
+| Item | Units | Net | AUR |
+| ---- | ----- | --- | --- |
+| Neighborhood Caps, 9 territories | 24 | $720 | $30.00 |
+| Neighborly Script Dad Cap | 11 | $344 | $31.27 |
+| Neighborly Varsity Dad Cap | 9 | $270 | $30.00 |
+| Yes Mom Trucker Hat | 7 | $170 | $24.29 |
+| Have a Nice Day Tote Bag | 5 | $200 | $40.00 |
+| NBRLY Blue Tote | 1 | $30 | $30.00 |
+
+Territories: Westgate 8, Brentwood Heights 6, Brentwood Park 3, Mandeville Canyon 2,
+then Brentwood Hills, Kenter Canyon, San Vicente, The Flats and The Riviera at 1 each.
+
+**This contradicts the earlier PDF analysis and the deck now follows the CSV.** The
+PDF reported 187 units with a Have a Nice Day 5-Panel first at 58 units and San
+Vicente the top territory at 10. The CSV has 57 units, no 5-Panel line at all, and
+San Vicente at 1. It also carries no location split, so the Brentwood versus
+Westlake comparison is out of the deck. Kenter Canyon appears here and not in the PDF.
+
+## The buy at 50 units of each
+
+| SKU | Units | Est. cost | Sale price | Buy | Retail | Margin |
+| --- | ----- | --------- | ---------- | --- | ------ | ------ |
+| Kids Hat | 50 | $14.50 | $38 | $725 | $1,900 | 61.8% |
+| Have a Nice Day 5-Panel | 50 | $16.50 | $45 | $825 | $2,250 | 63.3% |
+| Dad Cap, Slate | 50 | $14.50 | $48 | $725 | $2,400 | 69.8% |
+| Dad Cap, Khaki | 50 | $14.50 | $48 | $725 | $2,400 | 69.8% |
+| Classic Tote Bag | 50 | $25.95 | $55 | $1,298 | $2,750 | 52.8% |
+| **Core buy** | **250** | | | **$4,298** | **$11,700** | **63.3%** |
+
+Drop adds $1,900 for 50 of each of the three caps. Against the CSV, whose 57 units
+cost about $909 at these rates, the core buy is 4.4x the units and 4.7x the spend.
