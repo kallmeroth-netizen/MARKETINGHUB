@@ -221,7 +221,8 @@ By build: dad cap 44 units (77%), trucker 7, tote 6.
 Territories: Westgate 8, Brentwood Heights 6, Brentwood Park 3, Mandeville Canyon 2,
 then Brentwood Hills, Kenter Canyon, San Vicente, The Flats and The Riviera at 1 each.
 
-**This contradicts the earlier PDF analysis and the deck now follows the CSV.** The
+**This contradicts the earlier PDF analysis. The deck follows the PDF for the sales
+summary, by decision; the CSV is kept here for reference.** The
 PDF reported 187 units with a Have a Nice Day 5-Panel first at 58 units and San
 Vicente the top territory at 10. The CSV has 57 units, no 5-Panel line at all, and
 San Vicente at 1. It also carries no location split, so the Brentwood versus
