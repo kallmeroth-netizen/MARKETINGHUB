@@ -211,6 +211,19 @@ tr.win td{background:rgba(123,189,145,.09)}
   background:var(--brand-green-light);padding:5px 10px;border-radius:var(--r-sm);align-self:flex-start}
 .core-card .why{font-size:15px;color:var(--text-3);line-height:1.45;margin-top:auto}
 
+/* persona */
+.persona{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--line-strong);
+  border:1px solid var(--line-strong);border-radius:var(--r-lg);overflow:hidden}
+.pcol{background:var(--surface);padding:28px 26px;display:flex;flex-direction:column;gap:16px}
+.pcol h3{font-size:22px}
+.pcol p{font-size:16.5px;line-height:1.5;color:var(--text-2)}
+.pcol strong{color:var(--text);font-weight:600}
+.fgroup .flabel{font-family:var(--f-mono);font-size:11px;letter-spacing:.07em;text-transform:uppercase;
+  color:var(--text-3);margin-bottom:8px}
+.fgroup+.fgroup{margin-top:14px}
+.fchips{display:flex;flex-wrap:wrap;gap:6px}
+.fchips span{font-size:13.5px;padding:5px 11px;border-radius:var(--r-round);background:var(--surface-2);color:var(--text-2)}
+
 /* launch lineup */
 .lineup{display:grid;grid-template-columns:repeat(5,1fr);gap:18px}
 .lineup.three{grid-template-columns:repeat(3,minmax(0,274px));justify-content:center}
@@ -293,6 +306,29 @@ tr.win td{background:rgba(123,189,145,.09)}
 
 <!-- 02 -->
 <section class="slide" data-n="02">
+  <div class="s-head"><div class="eyebrow">Target audience</div>
+    <h2>Shelly, and how she buys</h2></div>
+  <div class="body-flex">
+    <div class="persona">
+      <div class="pcol">
+        <h3>The buyer</h3>
+        <p>Affluent suburban millennial mom. She buys <strong>quality, versatility and effortless style</strong>, and invests in essentials rather than statements.</p>
+        <p>Classic, re-wearable pieces that balance comfort and polish. She watches Anthropologie, Elwood and Anine Bing, and buys local from Stonehaus, Westlake Yoga Co., F45 and The Ritual.</p>
+      </div>
+      <div class="pcol">
+        <h3>How she buys</h3>
+        <p>She picks up a trend <strong>6 to 12 months</strong> after it appears in fashion-forward circles.</p>
+        <p>She follows the major accounts, but does not buy in until a brand like Anine Bing or Revolve has made the style accessible. She adopts through social, once a shape already feels established.</p>
+      </div>
+    </div>
+    <div class="notes">
+      <div class="note"><strong>So the core is deliberately settled, not new.</strong> A washed dad cap and a canvas tote are shapes she already owns and already wears. Nothing here asks her to take a risk, which is what makes it a daily-wardrobe buy rather than a one-off.</div>
+      <div class="note next"><strong>The place does the talking.</strong> NEIGHBORLY stays quiet on the front and BRENTWOOD, CA sits on the back. That is the part she wants seen at Stonehaus or F45. The goal is a household name in Westlake Village and Brentwood.</div>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-n="03">
   <div class="s-head"><div class="eyebrow">Prices from their product pages, September 2026</div>
     <h2>What the neighbors sell</h2></div>
   <div class="body-flex">
@@ -312,7 +348,7 @@ tr.win td{background:rgba(123,189,145,.09)}
   </div>
 </section>
 
-<section class="slide" data-n="03">
+<section class="slide" data-n="04">
   <div class="s-head"><div class="eyebrow">Latest sales file &middot; 57 units &middot; $1,734 net</div>
     <h2>What we tried</h2></div>
   <div class="body-flex">
@@ -329,7 +365,7 @@ tr.win td{background:rgba(123,189,145,.09)}
   </div>
 </section>
 
-<section class="slide" data-n="04">
+<section class="slide" data-n="05">
   <div class="s-head"><div class="eyebrow">The proposal</div><h2>Four styles, always on</h2></div>
   <div class="body-flex">
     <div class="core-grid">
@@ -353,7 +389,7 @@ tr.win td{background:rgba(123,189,145,.09)}
   </div>
 </section>
 
-<section class="slide" data-n="05">
+<section class="slide" data-n="06">
   <div class="s-head"><div class="eyebrow">Core collection &middot; 50 units of each</div><h2>The launch lineup</h2></div>
   <div class="body-flex">
     <div class="lineup">
@@ -377,7 +413,7 @@ tr.win td{background:rgba(123,189,145,.09)}
   </div>
 </section>
 
-<section class="slide" data-n="06">
+<section class="slide" data-n="07">
   <div class="s-head"><div class="eyebrow">Quarterly drop &middot; 50 units only</div><h2>What sits on top</h2></div>
   <div class="comp">
     <div class="shots solo">
@@ -395,7 +431,7 @@ tr.win td{background:rgba(123,189,145,.09)}
   </div>
 </section>
 
-<section class="slide" data-n="07">
+<section class="slide" data-n="08">
   <div class="s-head"><div class="eyebrow">Final costs and prices &middot; 50 units of each</div><h2>The buy</h2></div>
   <div class="body-flex">
     <div class="tbl-wrap">
@@ -422,7 +458,7 @@ tr.win td{background:rgba(123,189,145,.09)}
 
 <nav class="nav">
   <button id="prev" aria-label="Previous slide">&larr; Prev</button>
-  <span class="counter" id="counter">01 / 07</span>
+  <span class="counter" id="counter">01 / 08</span>
   <button id="next" aria-label="Next slide">Next &rarr;</button>
   <span class="dots" id="dots"></span>
 </nav>

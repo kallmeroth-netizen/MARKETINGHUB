@@ -267,3 +267,22 @@ Against the latest sales file, whose 57 units cost about $909 at these rates, th
 core buy is 3.5x the units and 3.8x the spend.
 
 `final/` holds the deck-ready art from this file.
+
+## Target audience
+
+Shelly, affluent suburban millennial mom. Buys quality, versatility and effortless
+style; invests in classic, re-wearable essentials that balance comfort and polish.
+Watches Anthropologie, Elwood and Anine Bing; family and lifestyle accounts Moms of
+Conejo, The Mom Mixer and Wishbone Kitchen; buys local from Stonehaus, Westlake Yoga
+Co., F45 WLV and The Ritual.
+
+**Purchasing pattern:** she adopts a trend 6 to 12 months after it appears in
+fashion-forward circles. She follows the major accounts but does not buy in until a
+brand like Anine Bing or Revolve has made the style accessible, picking things up
+through social once a shape already feels established.
+
+**What that means for the core:** settled shapes rather than new ones. A washed dad
+cap and a canvas tote are pieces she already owns, so nothing in the range asks her
+to take a risk. The wordmark stays quiet on the front and the place name goes on the
+back, which is the part worth being seen in. Goal is a household name in Westlake
+Village and Brentwood.
